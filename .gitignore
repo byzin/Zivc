@@ -1,32 +1,117 @@
-# Prerequisites
-*.d
+# This is a white-list gitignore
+#
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
 
-# Precompiled Headers
-*.gch
-*.pch
+# First, ignore everything
+*
+.*
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
 
-# Fortran module files
-*.mod
-*.smod
+# White-list
 
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
+# gitignore
+!/.gitignore
 
-# Executables
-*.exe
-*.out
-*.app
+# Documents
+!/README.md
+!/LICENSE.md
+!/Acknowledgement.md
+!/document/
+!/document/CMakeLists.txt
+
+# Project cmake file
+!/CMakeLists.txt
+!/cmake/
+!/cmake/*.cmake
+
+# Source code
+!/source/
+!/source/zivc/
+!/source/zivc/CMakeLists.txt
+!/source/zivc/*.dox
+!/source/zivc/kernel_baker/
+!/source/zivc/kernel_baker/CMakeLists.txt
+!/source/zivc/kernel_baker/kernel_baker.cpp
+!/source/zivc/template/
+!/source/zivc/template/*.hpp.in
+!/source/zivc/template/*.cpp.in
+!/source/zivc/template/*.cl.in
+!/source/zivc/template/*.cmake.in
+!/source/zivc/zivc/
+!/source/zivc/zivc/*.hpp
+!/source/zivc/zivc/*.hpp.in
+!/source/zivc/zivc/*.cpp
+!/source/zivc/zivc/cl/
+!/source/zivc/zivc/cl/*.cl
+!/source/zivc/zivc/cppcl/
+!/source/zivc/zivc/cppcl/*.hpp
+!/source/zivc/zivc/cppcl/*.cpp
+!/source/zivc/zivc/cpu/
+!/source/zivc/zivc/cpu/*.hpp
+!/source/zivc/zivc/cpu/*.cpp
+!/source/zivc/zivc/utility/
+!/source/zivc/zivc/utility/*.hpp
+!/source/zivc/zivc/utility/*.cpp
+!/source/zivc/zivc/vulkan/
+!/source/zivc/zivc/vulkan/*.hpp
+!/source/zivc/zivc/vulkan/*.cpp
+!/source/zivc/zivc/vulkan/utility/
+!/source/zivc/zivc/vulkan/utility/*.hpp
+!/source/zivc/zivc/vulkan/utility/*.cpp
+# Zivc cmake file
+!/source/zivc/cmake/
+!/source/zivc/cmake/*.cmake
+# Dependencies
+!/source/dependencies/
+!/source/dependencies/cpu_features
+!/source/dependencies/clspv
+!/source/dependencies/VulkanMemoryAllocator
+!/source/dependencies/Zisc
+!/source/dependencies/zstd
+
+# Test
+!/test/
+!/test/config.cmake
+!/test/googletest
+!/test/kernels/
+!/test/kernels/data/
+!/test/kernels/data/*.cl
+!/test/kernels/vector/
+!/test/kernels/vector/*.cl
+!/test/kernels/work_item/
+!/test/kernels/work_item/*.cl
+!/test/kernels/atomic/
+!/test/kernels/atomic/*.cl
+!/test/kernels/vector_data/
+!/test/kernels/vector_data/*.cl
+!/test/kernels/relational/
+!/test/kernels/relational/*.cl
+!/test/kernels/algorithm/
+!/test/kernels/algorithm/*.cl
+!/test/kernels/geometric/
+!/test/kernels/geometric/*.cl
+!/test/kernels/math/
+!/test/kernels/math/*.cl
+!/test/kernels/matrix/
+!/test/kernels/matrix/*.cl
+!/test/kernels/rng/
+!/test/kernels/rng/*.cl
+!/test/kernels/experiment/
+!/test/kernels/experiment/*.cl
+!/test/unittest/
+!/test/unittest/*.hpp
+!/test/unittest/*.cpp
+!/test/scripts/
+!/test/scripts/*.sh
+!/test/scripts/*.cmd
+
+# Example
+!/example/
+!/example/CMakeLists.txt
+!/example/*.cpp
+!/example/kernels/
+!/example/kernels/*.cl
+
+# Build directories
+!/build/
+!/build/.gitkeep

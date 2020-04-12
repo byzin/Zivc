@@ -1,0 +1,13 @@
+/*!
+  \namespace zivc
+  \brief Main classes and functions of Zivc
+
+  No detailed description.
+  */
+
+/*!
+  \namespace zivc::cppinner
+  \brief Helper classes and functions of Zivc
+
+  No detailed description.
+  */

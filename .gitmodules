@@ -1,0 +1,18 @@
+[submodule "source/dependencies/clspv"]
+	path = source/dependencies/clspv
+	url = https://github.com/google/clspv.git
+[submodule "source/dependencies/cpu_features"]
+	path = source/dependencies/cpu_features
+	url = https://github.com/google/cpu_features.git
+[submodule "source/dependencies/VulkanMemoryAllocator"]
+	path = source/dependencies/VulkanMemoryAllocator
+	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
+[submodule "source/dependencies/zstd"]
+	path = source/dependencies/zstd
+	url = https://github.com/facebook/zstd.git
+[submodule "source/dependencies/Zisc"]
+	path = source/dependencies/Zisc
+	url = https://github.com/byzin/Zisc.git
+[submodule "test/googletest"]
+	path = test/googletest
+	url = https://github.com/google/googletest.git

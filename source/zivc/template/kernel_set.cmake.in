@@ -1,0 +1,338 @@
+# file: CMakeLists.txt
+# author: Sho Ikeda
+#
+# Copyright (c) 2015-2020 Sho Ikeda
+# This software is released under the MIT License.
+# http://opensource.org/licenses/mit-license.php
+# 
+
+cmake_minimum_required(VERSION 3.16)
+
+
+# Global constants
+set(kernel_set_prefix kernel_set)
+set(zstd_compression_level 19)
+
+# Create a kernels inclusion string
+function(makeKernelInclusionString kernel_inclusion_lines)
+  set(kernel_files ${ARGN})
+  set(inclusion_lines "")
+  foreach(kernel_file IN LISTS kernel_files)
+    get_filename_component(kernel_file_path ${kernel_file} ABSOLUTE BASE_DIR @kernel_set_base_dir@)
+    string(APPEND inclusion_lines "#include \"${kernel_file_path}\"\n")
+  endforeach(kernel_file)
+
+  # Output
+  set(${kernel_inclusion_lines} "${inclusion_lines}" PARENT_SCOPE)
+endfunction(makeKernelInclusionString)
+
+
+function(getZivcKernelFlags zivc_compile_flags zivc_definitions)
+  set(compile_flags "")
+  set(definitions "")
+
+  # Math
+  if(ZIVC_MATH_BUILTIN)
+    list(APPEND definitions ZIVC_MATH_BUILTIN)
+  endif()
+  if(ZIVC_MATH_BUILTIN_FREXP)
+    list(APPEND definitions ZIVC_MATH_BUILTIN_FREXP)
+  endif()
+  if(ZIVC_MATH_BUILTIN_LDEXP)
+    list(APPEND definitions ZIVC_MATH_BUILTIN_LDEXP)
+  endif()
+  if(ZIVC_MATH_BUILTIN_ILOGB)
+    list(APPEND definitions ZIVC_MATH_BUILTIN_ILOGB)
+  endif()
+  if(ZIVC_MATH_BUILTIN_MODF)
+    list(APPEND definitions ZIVC_MATH_BUILTIN_MODF)
+  endif()
+  if(ZIVC_MATH_BUILTIN_ROUND)
+    list(APPEND definitions ZIVC_MATH_BUILTIN_ROUND)
+  endif()
+  if(ZIVC_MATH_BUILTIN_FMOD)
+    list(APPEND definitions ZIVC_MATH_BUILTIN_FMOD)
+  endif()
+  if(ZIVC_MATH_BUILTIN_EXP)
+    list(APPEND definitions ZIVC_MATH_BUILTIN_EXP)
+  endif()
+  if(ZIVC_MATH_BUILTIN_LOG)
+    list(APPEND definitions ZIVC_MATH_BUILTIN_LOG)
+  endif()
+  if(ZIVC_MATH_BUILTIN_POW)
+    list(APPEND definitions ZIVC_MATH_BUILTIN_POW)
+  endif()
+  if(ZIVC_MATH_BUILTIN_SQRT)
+    list(APPEND definitions ZIVC_MATH_BUILTIN_SQRT)
+  endif()
+  if(ZIVC_MATH_BUILTIN_CBRT)
+    list(APPEND definitions ZIVC_MATH_BUILTIN_CBRT)
+  endif()
+  if(ZIVC_MATH_BUILTIN_TRIGONOMETRIC)
+    list(APPEND definitions ZIVC_MATH_BUILTIN_TRIGONOMETRIC)
+  endif()
+  if(ZIVC_MATH_BUILTIN_INV_TRIGONOMETRIC)
+    list(APPEND definitions ZIVC_MATH_BUILTIN_INV_TRIGONOMETRIC)
+  endif()
+
+
+  # Output variables
+  set(${zivc_compile_flags} ${compile_flags} PARENT_SCOPE)
+  set(${zivc_definitions} ${definitions} PARENT_SCOPE)
+endfunction(getZivcKernelFlags)
+
+
+function(initCpuBackend target)
+  # Make the output dir for C++ backend
+  set(output_dir ${PROJECT_BINARY_DIR}/cpp)
+  set(include_dir ${output_dir}/include)
+
+  # Hpp file
+  file(MAKE_DIRECTORY ${include_dir}/zivc/kernel_set)
+  set(hpp_file_path ${include_dir}/zivc/kernel_set/${kernel_set_prefix}-@kernel_set_name@.hpp)
+  configure_file(@kernel_set_template_dir@/kernel_set.hpp.in
+                 ${hpp_file_path}
+                 @ONLY)
+  # Cpp file
+  set(cpp_file_path ${output_dir}/${kernel_set_prefix}-@kernel_set_name@.cpp)
+  configure_file(@kernel_set_template_dir@/kernel_set.cpp.in
+                 ${cpp_file_path}
+                 @ONLY)
+
+  add_library(${target} STATIC ${hpp_file_path} ${cpp_file_path})
+  source_group(${target} FILES ${hpp_file_path} ${cpp_file_path})
+
+  # Compiler flags
+  include(@zisc_path@/cmake/compiler.cmake)
+  set_target_properties(${target} PROPERTIES CXX_STANDARD 17
+                        CXX_STANDARD_REQUIRED ON)
+  getCxxWarningFlags(cxx_compile_warning_flags)
+  getZivcKernelFlags(zivc_compile_flags zivc_definitions)
+  target_compile_options(${target} PUBLIC ${zivc_compile_flags}
+                                   PRIVATE ${cxx_compile_warning_flags})
+  target_compile_definitions(${target} PUBLIC ${zivc_definitions})
+  target_link_libraries(${target} PRIVATE Zisc Zivc)
+  if(ZIVC_BAKE_KERNELS)
+    target_link_libraries(${target} PRIVATE libzstd_static)
+  endif()
+  target_include_directories(${target} PUBLIC ${include_dir})
+
+  #
+  setStaticAnalyzer(${target})
+endfunction(initCpuBackend)
+
+
+function(findClspv clspv_command)
+  if(ZIVC_USES_OWN_CLSPV)
+    if(NOT TARGET clspv)
+      message(FATAL_ERROR "'clspv' target not found.")
+    endif()
+    set(command clspv)
+  else()
+    find_program(command "clspv"
+                 DOC "A compiler for a subset of OpenCL to Vulkan compute shaders.")
+    if(command-NOTFOUND)
+      message(FATAL_ERROR "'clspv' not found in PATH.") 
+    endif()
+  endif()
+
+  # Output
+  set(${clspv_command} ${command} PARENT_SCOPE)
+endfunction(findClspv)
+
+
+function(getClspvCompileFlags clspv_compile_flags)
+  set(options -D=ZIVC_VULKAN)
+  ## include directories
+  set(include_dirs "")
+  list(APPEND include_dirs @kernel_set_include_dirs@)
+  foreach(include_dir IN LISTS include_dirs)
+    list(APPEND options -I=${include_dir})
+  endforeach(include_dir)
+  list(APPEND options -I=@zivc_path@)
+  ## Definitions
+  getZivcKernelFlags(compile_flags definitions)
+  list(APPEND options ${compile_flags})
+  list(APPEND definitions @kernel_set_definitions@)
+  foreach(definition IN LISTS definitions)
+    list(APPEND options -D=${definition})
+  endforeach(definition)
+  if(Z_DEBUG_MODE)
+    list(APPEND options -D=Z_DEBUG_MODE)
+  elseif(Z_RELEASE_MODE)
+    list(APPEND options -D=Z_RELEASE_MODE)
+  endif()
+  if(Z_WINDOWS)
+    list(APPEND options -D=Z_WINDOWS)
+  elseif(Z_LINUX)
+    list(APPEND options -D=Z_LINUX)
+  elseif(Z_MAC)
+    list(APPEND options -D=Z_MAC)
+  endif()
+  ## Clspv compile options
+  list(APPEND options --color
+                      -O=3
+                      --cl-std=CLC++
+                      --cost-kind=throughput
+                      # --expensive-combines
+                      --f16bit_storage
+                      --inline-entry-points
+                      --instcombine-code-sinking
+                      --int8
+                      -x=cl
+                      )
+  # For float debug
+  #  list(APPEND options --cl-denorms-are-zero
+  #                      --cl-finite-math-only
+  #                      --cl-no-signed-zeros
+  #                      )
+
+
+  # Output
+  set(${clspv_compile_flags} ${options} PARENT_SCOPE)
+endfunction(getClspvCompileFlags)
+
+
+function(getKernelBakeCommand bake_command spv_file_path baked_spv_file_path)
+  include(@zisc_path@/cmake/general.cmake)
+  checkTarget(KernelBaker)
+
+  # Invoke KernelBaker
+  set(command KernelBaker ${spv_file_path} ${baked_spv_file_path})
+  # Add parameters
+  list(APPEND command "@kernel_set_name@")
+  list(APPEND command ${zstd_compression_level})
+
+  # Output
+  set(${bake_command} ${command} PARENT_SCOPE)
+endfunction(getKernelBakeCommand)
+
+
+function(prepareSpirVAnalysis target spv_file_path)
+  get_filename_component(spv_dir "${spv_file_path}" DIRECTORY)
+  set(spv_analysis_dir ${spv_dir}/analysis)
+  file(MAKE_DIRECTORY ${spv_analysis_dir})
+
+  set(sub_targets "")
+  # Build SPIR-V kernels separately
+  findClspv(clspv_command)
+  getClspvCompileFlags(base_clspv_options)
+  set(cl_files ${ARGN})
+  set(spv_files ${spv_file_path})
+  foreach(cl_file IN LISTS cl_files)
+    get_filename_component(file_name "${cl_file}" NAME_WLE)
+    set(kernel_spv_file_path ${spv_analysis_dir}/${file_name}.spv)
+    list(APPEND spv_files ${kernel_spv_file_path})
+    set(options ${base_clspv_options} -o=${kernel_spv_file_path})
+    list(APPEND options -w -D=ZIVC_GLOBAL_NAMESPACE="")
+    add_custom_command(OUTPUT ${kernel_spv_file_path}
+      COMMAND ${clspv_command} ${options} ${cl_file}
+      DEPENDS ${cl_file}
+      COMMENT "Building CL object '${cl_file}' for analysis")
+  endforeach(cl_file)
+  add_custom_target(${target}_SpirV DEPENDS ${spv_files})
+  list(APPEND sub_targets ${target}_SpirV)
+
+  # SPIR-V dis
+  set(dis_files "")
+  find_program(spirv_dis_command "spirv-dis"
+               DOC "Disassemble a SPIR-V binary module.")
+  if(spirv_dis_command-NOTFOUND)
+    message(WARNING "'spirv-dis' not found in PATH.") 
+  else()
+    foreach(spv_file IN LISTS spv_files)
+      get_filename_component(file_name "${spv_file}" NAME_WLE)
+      set(dis_file_path ${spv_analysis_dir}/${file_name}-dis.txt)
+      list(APPEND dis_files ${dis_file_path})
+      set(options -o ${dis_file_path})
+      add_custom_command(OUTPUT ${dis_file_path}
+        COMMAND ${spirv_dis_command} ${options} ${spv_file}
+        DEPENDS ${psv_file}
+        COMMENT "Disassemble SPIR-V binary '${spv_file}'")
+    endforeach(spv_file)
+    add_custom_target(${target}_Dis DEPENDS ${dis_files})
+    add_dependencies(${target}_Dis ${target}_SpirV)
+    list(APPEND sub_targets ${target}_Dis)
+  endif()
+
+  # Create a target of the analysis
+  add_custom_target(${target}
+    COMMENT "Preparing analysis of kernel set '@kernel_set_name@'")
+  add_dependencies(${target} ${sub_targets})
+endfunction(prepareSpirVAnalysis)
+
+
+function(initVulkanBackend target)
+  # Make the output dir for Vulkan backend
+  set(output_dir ${PROJECT_BINARY_DIR}/spv)
+
+  # OpenCL file
+  file(MAKE_DIRECTORY ${output_dir})
+  set(cl_file_path ${output_dir}/${kernel_set_prefix}-@kernel_set_name@.cl)
+  configure_file(@kernel_set_template_dir@/kernel_set.cl.in
+                 ${cl_file_path}
+                 @ONLY)
+
+  set(sub_targets "")
+  # Set clspv options
+  findClspv(clspv_command)
+  getClspvCompileFlags(clspv_options)
+  set(clspv_output_files "")
+  ## Clspv descriptor map
+  set(descriptor_map_path ${output_dir}/${kernel_set_prefix}-@kernel_set_name@-descmap.csv)
+  list(APPEND clspv_options --descriptormap=${descriptor_map_path})
+  list(APPEND clspv_output_files ${descriptor_map_path})
+  ## Set clspv build command
+  list(APPEND clspv_options -o=${spv_file_path})
+  list(APPEND clspv_output_files ${spv_file_path})
+  set(build_commands COMMAND ${clspv_command} ${clspv_options} ${cl_file_path})
+  if(ZIVC_BAKE_KERNELS)
+    getKernelBakeCommand(bake_command ${spv_file_path} ${baked_spv_file_path})
+    list(APPEND build_commands COMMAND ${bake_command})
+  endif()
+  ## Create a build command
+  add_custom_command(OUTPUT ${clspv_output_files}
+    ${build_commands}
+    DEPENDS ${cl_file_path} @kernel_set_source_files@ @kernel_set_depends@
+    COMMENT "Building CL object '${cl_file_path}'")
+
+  ## Create a target of the vulkan backend
+  set(vulkan_backend_target ${target}_SpirV)
+  add_custom_target(${vulkan_backend_target}
+    DEPENDS ${clspv_output_files}
+    COMMENT "Preparing kernel set '@kernel_set_name@'")
+  list(APPEND sub_targets ${vulkan_backend_target})
+
+  ## SPIR-V analysis
+  if(ZIVC_ENABLE_SPIRV_ANALYSIS)
+    set(analysis_target ${target}_Analysis)
+    prepareSpirVAnalysis(${analysis_target} ${spv_file_path} @kernel_set_source_files@)
+    add_dependencies(${analysis_target} ${vulkan_backend_target})
+    list(APPEND sub_targets ${analysis_target})
+  endif()
+
+  ## Make a dependency with C++ backend
+  add_dependencies(${target} ${sub_targets})
+endfunction(initVulkanBackend)
+
+
+project(KernelSet_@kernel_set_name@ VERSION @kernel_set_version@ LANGUAGES CXX)
+
+include(@zisc_path@/cmake/general.cmake)
+include(@zisc_path@/cmake/platform.cmake)
+getPlatformFlags(platform_definitions)
+setVariablesOnCMake(${platform_definitions})
+
+makeKernelInclusionString(kernel_inclusion_lines @kernel_set_source_files@)
+
+# SPIR-V pathes
+set(spv_file_path ${PROJECT_BINARY_DIR}/spv/${kernel_set_prefix}-@kernel_set_name@.spv)
+set(baked_spv_file_path ${PROJECT_BINARY_DIR}/cpp/${kernel_set_prefix}-@kernel_set_name@-bake.hpp)
+
+set(target ${PROJECT_NAME})
+# C++ backend
+initCpuBackend(${target})
+# Vulkan backend
+if(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
+  initVulkanBackend(${target})
+endif()

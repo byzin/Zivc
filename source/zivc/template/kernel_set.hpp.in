@@ -1,0 +1,131 @@
+/*!
+  \file kernel_set-@kernel_set_name@.hpp
+  \author Sho Ikeda
+  \brief No brief description
+
+  \details
+  No detailed description.
+
+  \copyright
+  Copyright (c) 2015-2020 Sho Ikeda
+  This software is released under the MIT License.
+  http://opensource.org/licenses/mit-license.php
+  */
+
+#ifndef ZIVC_KERNEL_SET_@kernel_set_name@_HPP
+#define ZIVC_KERNEL_SET_@kernel_set_name@_HPP
+
+// Standard C++ library
+#include <memory>
+#include <vector>
+// Zisc
+#include "zisc/std_memory_resource.hpp"
+// Zivc
+#include "zivc/kernel_set.hpp"
+#include "zivc/zivc_config.hpp"
+#include "zivc/cppcl/address_space_pointer.hpp"
+#include "zivc/cppcl/algorithm.hpp"
+#include "zivc/cppcl/atomic.hpp"
+#include "zivc/cppcl/geometric.hpp"
+#include "zivc/cppcl/math.hpp"
+#include "zivc/cppcl/relational.hpp"
+#include "zivc/cppcl/synchronization.hpp"
+#include "zivc/cppcl/types.hpp"
+#include "zivc/cppcl/utility.hpp"
+#include "zivc/cppcl/vector.hpp"
+
+#ifdef Z_CLANG
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-macros"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreserved-id-macro"
+#endif // Z_CLANG
+
+namespace zivc {
+
+namespace cl {
+
+/*!
+  \namespace @kernel_set_name@
+  \brief No brief description
+
+  No detailed description.
+  */
+namespace @kernel_set_name@ {
+
+#if defined(__kernel)
+static_assert(false, "The macro '__kernel' is already defined.");
+#endif // __kernel
+/*!
+  \def __kernel
+  \brief a definition for the compatibility with OpenCL
+
+  No detailed description.
+  */
+#define __kernel inline
+
+#if defined(kernel)
+static_assert(false, "The macro 'kernel' is already defined.");
+#endif // kernel
+/*!
+  \def kernel
+  \brief a definition for the compatibility with OpenCL
+
+  No detailed description.
+  */
+#define kernel __kernel
+
+/*!
+  \def ZIVC_GLOBAL_NAMESPACE
+  \brief No brief description
+
+  No detailed description.
+  */
+#define ZIVC_GLOBAL_NAMESPACE ::zivc::cl
+
+@kernel_inclusion_lines@
+
+#undef ZIVC_GLOBAL_NAMESPACE
+#undef __kernel
+#undef kernel
+
+} // namespace @kernel_set_name@
+
+} // namespace cl
+
+/*!
+  \namespace @kernel_set_name@
+  \brief No brief description
+
+  No detailed description.
+  */
+namespace kernel_set {
+
+/*!
+  \brief No brief description
+
+  No detailed description.
+  */
+class KernelSet_@kernel_set_name@ : public KernelSet<KernelSet_@kernel_set_name@>
+{
+ public:
+  //! Return the ID number of the kernel set
+  static constexpr uint32b id() noexcept
+  {
+    return @kernel_set_number@;
+  }
+
+  //! Load the SPIR-V code
+  static void loadSpirVCode(zisc::pmr::vector<uint32b>* spirv_code_out) noexcept;
+};
+
+} // namespace kernel_set
+
+} // namespace zivc
+
+#ifdef Z_CLANG
+#pragma clang diagnostic pop
+#pragma clang diagnostic pop
+#endif // Z_CLANG
+
+#endif // ZIVC_KERNEL_SET_@kernel_set_name@_HPP

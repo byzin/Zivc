@@ -1,0 +1,37 @@
+/*!
+  \file @kernel_set_name@.cl
+  \author Sho Ikeda
+  \brief No brief description
+
+  \details
+  No detailed description.
+
+  \copyright
+  Copyright (c) 2015-2020 Sho Ikeda
+  This software is released under the MIT License.
+  http://opensource.org/licenses/mit-license.php
+  */
+
+#ifndef ZIVC_KERNEL_SET_@kernel_set_name@_CL
+#define ZIVC_KERNEL_SET_@kernel_set_name@_CL @kernel_set_number@
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wc++98-compat"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wc++98-c++11-compat-pedantic"
+//#pragma clang diagnostic push
+//#pragma clang diagnostic ignored "-Wc++98-c++11-c++14-compat-pedantic"
+
+// Definitions
+#define ZIVC_GLOBAL_NAMESPACE
+
+@kernel_inclusion_lines@
+
+static_assert(ZIVC_KERNEL_SET_@kernel_set_name@_CL == @kernel_set_number@,
+              "The ID number of the kernel set isn't valid.");
+
+#pragma clang diagnostic pop
+#pragma clang diagnostic pop
+//#pragma clang diagnostic pop
+
+#endif /* ZIVC_KERNEL_SET_@kernel_set_name@_CL */

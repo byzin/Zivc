@@ -38,8 +38,8 @@ namespace zivc {
 inline
 constexpr uint32b VulkanSubPlatform::apiVersion() noexcept
 {
-//  return VK_API_VERSION_1_2;
-  return VK_API_VERSION_1_1; //!< \todo Use v1.2
+  return VK_API_VERSION_1_2;
+//  return VK_API_VERSION_1_1; //!< \todo Use v1.2
 }
 
 /*!

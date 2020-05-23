@@ -32,6 +32,7 @@ namespace zivc {
 // Forward declaration
 template <typename Type> class Buffer;
 template <typename SetType, typename ...ArgTypes> class KernelParameters;
+template <typename ...ArgTypes> class KernelArgParser;
 
 template <std::size_t kDimension, typename FuncArgTypes, typename ...ArgTypes>
 class Kernel
@@ -58,6 +59,7 @@ class Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...
   // Type aliases
   using SharedPtr = std::shared_ptr<Kernel>;
   using WeakPtr = std::weak_ptr<Kernel>;
+  using ArgParser = KernelArgParser<FuncArgTypes...>;
   using Parameters = KernelParameters<SetType, FuncArgTypes...>;
 
 

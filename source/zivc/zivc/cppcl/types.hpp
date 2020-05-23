@@ -11,7 +11,7 @@
 #define ZIVC_CL_TYPES_HPP
 
 // Zisc
-#include "zisc/floating_point.hpp"
+#include "zisc/ieee_754_binary.hpp"
 // Zivc
 #include "zivc/zivc_config.hpp"
 
@@ -23,7 +23,7 @@ namespace cl {
 using uchar = uint8b;
 using ushort = uint16b;
 using ulong = uint64b;
-using half = zisc::HalfFloat;
+using half = zisc::Binary16;
 // Pointer types
 using size_t = uint32b;
 using ptrdiff_t = int32b;

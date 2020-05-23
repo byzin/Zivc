@@ -38,7 +38,7 @@ namespace zivc {
   \param [in] id No description.
   */
 inline
-IdData::IdData(const uint32b id) noexcept :
+IdData::IdData(const int64b id) noexcept :
     data_list_{{nullptr, nullptr, nullptr, nullptr}},
     id_{id},
     line_number_{invalidId()}
@@ -179,7 +179,7 @@ bool IdData::hasName() const noexcept
   \return No description
   */
 inline
-uint32b IdData::id() const noexcept
+int64b IdData::id() const noexcept
 {
   return id_;
 }
@@ -190,9 +190,9 @@ uint32b IdData::id() const noexcept
   \return No description
   */
 inline
-constexpr uint32b IdData::invalidId() noexcept
+constexpr int64b IdData::invalidId() noexcept
 {
-  const uint32b value = std::numeric_limits<uint32b>::max();
+  const int64b value = std::numeric_limits<int64b>::min();
   return value;
 }
 
@@ -202,7 +202,7 @@ constexpr uint32b IdData::invalidId() noexcept
   \return No description
   */
 inline
-uint32b IdData::lineNumber() const noexcept
+int64b IdData::lineNumber() const noexcept
 {
   return line_number_;
 }
@@ -240,7 +240,7 @@ void IdData::setData(void* data, const std::size_t index) noexcept
   */
 inline
 void IdData::setFileInfo(std::string_view file_name,
-                         const uint32b line_number) noexcept
+                         const int64b line_number) noexcept
 {
   std::strcpy(file_name_, file_name.data());
   line_number_ = line_number;

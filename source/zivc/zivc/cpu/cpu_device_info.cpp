@@ -94,8 +94,9 @@ CpuDeviceInfo& CpuDeviceInfo::operator=(CpuDeviceInfo&& other) noexcept
   \param [in] heap_index No description.
   \return No description
   */
-std::size_t CpuDeviceInfo::availableMemory(const std::size_t /* heap_index */) const noexcept
+std::size_t CpuDeviceInfo::availableMemory(const std::size_t heap_index) const noexcept
 {
+  static_cast<void>(heap_index);
   const std::size_t memory_size = memory_stats_.availablePhysicalMemory();
   return memory_size;
 }
@@ -168,8 +169,9 @@ std::size_t CpuDeviceInfo::numOfHeaps() const noexcept
   \param [in] heap_index No description.
   \return No description
   */
-std::size_t CpuDeviceInfo::totalMemory(const std::size_t /* heap_index */) const noexcept
+std::size_t CpuDeviceInfo::totalMemory(const std::size_t heap_index) const noexcept
 {
+  static_cast<void>(heap_index);
   const std::size_t memory_size = memory_stats_.totalPhysicalMemory();
   return memory_size;
 }

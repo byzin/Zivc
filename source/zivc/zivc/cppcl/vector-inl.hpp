@@ -15,7 +15,7 @@
 #include <cstddef>
 #include <type_traits>
 // Zisc
-#include "zisc/floating_point.hpp"
+#include "zisc/ieee_754_binary.hpp"
 #include "zisc/type_traits.hpp"
 #include "zisc/utility.hpp"
 // Zivc
@@ -1238,8 +1238,7 @@ float VectorData::vload_half(
                    std::is_same_v<half, std::remove_cv_t<std::remove_pointer_t<Type>>>>) noexcept
 {
   const half* address = p + offset;
-  const zisc::SingleFloat data{*address};
-  const auto result = data.toFloat();
+  const float result = zisc::castBinary<float>(*address);
   return result;
 }
 
@@ -1408,7 +1407,7 @@ void VectorData::vstore_half(
     zisc::EnableIfSame<half*, std::remove_cv_t<Type>>) noexcept
 {
   half* address = p + offset;
-  const auto fdata = zisc::SingleFloat::fromFloat(data);
+  const half fdata = zisc::castBinary<half>(data);
   *address = fdata;
 }
 
@@ -1516,8 +1515,8 @@ Vector<float, kN> VectorData::Vec::vload_halfn(
   Vector<float, kN> data;
   const half* address = p + offset * kN;
   for (size_t i = 0; i < kN; ++i) {
-    const zisc::SingleFloat v{address[i]};
-    data[i] = v.toFloat();
+    const float v = zisc::castBinary<float>(address[i]);
+    data[i] = v;
   }
   return data;
 }
@@ -1541,7 +1540,7 @@ void VectorData::Vec::vstore_halfn(
 {
   half* address = p + offset * kN;
   for (size_t i = 0; i < kN; ++i) {
-    const auto v = zisc::SingleFloat::fromFloat(data[i]);
+    const half v = zisc::castBinary<half>(data[i]);
     address[i] = v;
   }
 }

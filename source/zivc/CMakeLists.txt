@@ -25,6 +25,9 @@ function(initZivcOptions)
   set(option_description "Bake Vulkan SPIR-V kernels into the library.")
   setBooleanOption(ZIVC_BAKE_KERNELS OFF ${option_description})
 
+  set(option_description "Send in POD kernel arguments in push constant.")
+  setBooleanOption(ZIVC_POD_PUSHCONSTANT OFF ${option_description})
+
   set(option_description "Enable SPIR-V analysis.")
   setBooleanOption(ZIVC_ENABLE_SPIRV_ANALYSIS ON ${option_description})
 
@@ -158,7 +161,7 @@ function(addZstd zstd_path)
   file(MAKE_DIRECTORY ${zstd_dest_path}/include)
   file(COPY ${zstd_path}/lib/zstd.h ${zstd_path}/lib/common/zstd_errors.h
        DESTINATION ${zstd_dest_path}/include)
-  target_include_directories(libzstd_static SYSTEM INTERFACE ${zstd_dest_path}/include)
+  target_include_directories(libzstd_static SYSTEM INTERFACE $<BUILD_INTERFACE:${zstd_dest_path}/include>)
 endfunction(addZstd)
 
 

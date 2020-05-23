@@ -49,8 +49,9 @@ class CpuKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes
 {
  public:
   // Type aliases
-  using BaseKernel =
-      Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>;
+  using BaseKernel = Kernel<kDimension,
+                            KernelParameters<SetType, FuncArgTypes...>,
+                            ArgTypes...>;
   using Parameters = typename BaseKernel::Parameters;
   using Function = typename Parameters::Function;
   using LaunchOptions = typename BaseKernel::LaunchOptions;

@@ -50,8 +50,9 @@ class VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTy
 {
  public:
   // Type aliases
-  using BaseKernel =
-      Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>;
+  using BaseKernel = Kernel<kDimension,
+                            KernelParameters<SetType, FuncArgTypes...>,
+                            ArgTypes...>;
   using Parameters = typename BaseKernel::Parameters;
   using LaunchOptions = typename BaseKernel::LaunchOptions;
 
@@ -118,14 +119,13 @@ class VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTy
 //  bool isSameArgs(std::add_lvalue_reference_t<BufferArgs>... args) const noexcept;
 
 
-//  VulkanDevice* device_;
-//  vk::DescriptorSetLayout descriptor_set_layout_;
-//  vk::DescriptorPool descriptor_pool_;
-//  vk::DescriptorSet descriptor_set_;
-//  vk::PipelineLayout pipeline_layout_;
-//  vk::Pipeline compute_pipeline_;
-//  vk::CommandBuffer command_buffer_;
 //  std::array<vk::Buffer, kNumOfBuffers> buffer_list_;
+  VkDescriptorSetLayout desc_set_layout_ = VK_NULL_HANDLE;
+  VkDescriptorPool desc_pool_ = VK_NULL_HANDLE;
+  VkDescriptorSet desc_set_ = VK_NULL_HANDLE;
+  VkPipelineLayout pipeline_layout_ = VK_NULL_HANDLE;
+  VkPipeline pipeline_ = VK_NULL_HANDLE;
+  VkCommandBuffer command_buffer_ = VK_NULL_HANDLE;
 };
 
 } // namespace zivc

@@ -28,8 +28,9 @@ DeviceInfo::DeviceInfo() noexcept
 
   \param [in] other No description.
   */
-DeviceInfo::DeviceInfo(DeviceInfo&& /* other */) noexcept
+DeviceInfo::DeviceInfo(DeviceInfo&& other) noexcept
 {
+  static_cast<void>(other);
 }
 
 /*!
@@ -45,8 +46,9 @@ DeviceInfo::~DeviceInfo() noexcept
   \param [in] other No description.
   \return No description
   */
-DeviceInfo& DeviceInfo::operator=(DeviceInfo&& /* other */) noexcept
+DeviceInfo& DeviceInfo::operator=(DeviceInfo&& other) noexcept
 {
+  static_cast<void>(other);
   return *this;
 }
 

@@ -60,6 +60,7 @@ inline
 VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
 ~VulkanKernel() noexcept
 {
+  BaseKernel::destroy();
 }
 
 /*!
@@ -86,6 +87,11 @@ void
 VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
 destroyData() noexcept
 {
+  VulkanDevice& device = parentImpl();
+  device.destroyKernelPipeline(std::addressof(pipeline_layout_),
+                               std::addressof(pipeline_));
+  device.destroyKernelDescriptorSet(std::addressof(desc_set_layout_),
+                                    std::addressof(desc_pool_));
 }
 
 /*!
@@ -99,6 +105,21 @@ void
 VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
 initData(const Parameters& params)
 {
+  VulkanDevice& device = parentImpl();
+  device.addShaderModule(SetType{});
+  device.initKernelDescriptorSet(BaseKernel::ArgParser::kNumOfStorageBuffer,
+                                 std::addressof(desc_set_layout_),
+                                 std::addressof(desc_pool_),
+                                 std::addressof(desc_set_));
+  const auto& module = device.getShaderModule(SetType::id());
+  device.initKernelPipeline(BaseKernel::dimension(),
+                            BaseKernel::ArgParser::kNumOfLocalArgs,
+                            desc_set_layout_,
+                            module,
+                            params.kernelName(),
+                            std::addressof(pipeline_layout_),
+                            std::addressof(pipeline_));
+  device.initKernelCommandBuffer(std::addressof(command_buffer_));
 }
 
 /*!

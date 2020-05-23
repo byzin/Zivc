@@ -17,19 +17,65 @@
 
 #include "vulkan_device.hpp"
 // Standard C++ library
+#include <array>
 #include <limits>
 #include <memory>
+#include <type_traits>
+#include <vector>
 // Vulkan
 #include <vulkan/vulkan.h>
 // VMA
 #include <vk_mem_alloc.h>
 // Zisc
+#include "zisc/error.hpp"
 #include "zisc/utility.hpp"
+#include "zisc/std_memory_resource.hpp"
 // Zivc
 #include "vulkan_device_info.hpp"
 #include "utility/vulkan_dispatch_loader.hpp"
+#include "zivc/kernel_set.hpp"
+#include "zivc/zivc_config.hpp"
 
 namespace zivc {
+
+/*!
+  \details No detailed description
+
+  \tparam SetType No description.
+  */
+template <typename SetType> inline
+void VulkanDevice::addShaderModule(const KernelSet<SetType>& kernel_set)
+{
+  const uint32b id = kernel_set.id();
+  if (!hasShaderModule(id)) {
+    zisc::pmr::vector<uint32b>::allocator_type alloc{memoryResource()};
+    zisc::pmr::vector<uint32b> spirv_code{alloc};
+    kernel_set.loadSpirVCode(std::addressof(spirv_code));
+    addShaderModule(id, spirv_code);
+  }
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+VkCommandPool& VulkanDevice::commandPool() noexcept
+{
+  return command_pool_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+const VkCommandPool& VulkanDevice::commandPool() const noexcept
+{
+  return command_pool_;
+}
 
 /*!
   \details No detailed description
@@ -79,6 +125,34 @@ const VulkanDispatchLoader& VulkanDevice::dispatcher() const noexcept
 /*!
   \details No detailed description
 
+  \param [in] id No description.
+  \return No description
+  */
+inline
+const VkShaderModule& VulkanDevice::getShaderModule(const uint32b id) const noexcept
+{
+  ZISC_ASSERT(hasShaderModule(id), "Shader module not found. id = ", id);
+  auto module = shader_module_list_->find(id);
+  return module->second;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] id No description.
+  \return No description
+  */
+inline
+bool VulkanDevice::hasShaderModule(const uint32b id) const noexcept
+{
+  auto module = shader_module_list_->find(id);
+  const bool result = module != shader_module_list_->end();
+  return result;
+}
+ 
+/*!
+  \details No detailed description
+
   \return No description
   */
 inline
@@ -108,6 +182,18 @@ inline
 const VmaAllocator& VulkanDevice::memoryAllocator() const noexcept
 {
   return vm_allocator_;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] dimension No description.
+  \return No description
+  */
+inline
+const std::array<uint32b, 3>& VulkanDevice::workGroupSizeDim(const std::size_t dimension) const noexcept
+{
+  return work_group_size_list_[dimension];
 }
 
 /*!

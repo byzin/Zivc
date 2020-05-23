@@ -36,7 +36,7 @@ class IdData : private zisc::NonCopyable<IdData>
 {
  public:
   //! Create an ID data
-  IdData(const uint32b id) noexcept;
+  IdData(const int64b id) noexcept;
 
   //! Move a data
   IdData(IdData&& other) noexcept;
@@ -68,13 +68,13 @@ class IdData : private zisc::NonCopyable<IdData>
   bool hasName() const noexcept;
 
   //! Return the ID
-  uint32b id() const noexcept;
+  int64b id() const noexcept;
 
   //! Return the invalid ID number
-  static constexpr uint32b invalidId() noexcept;
+  static constexpr int64b invalidId() noexcept;
 
   //! Return the line number where this data is created
-  uint32b lineNumber() const noexcept;
+  int64b lineNumber() const noexcept;
 
   //! Return the name of this data
   std::string_view name() const noexcept;
@@ -84,7 +84,7 @@ class IdData : private zisc::NonCopyable<IdData>
 
   //! Set a file name and a line number where this data is created
   void setFileInfo(std::string_view file_name,
-                   const uint32b line_number) noexcept;
+                   const int64b line_number) noexcept;
 
   //! Set a name
   void setName(std::string_view data_name) noexcept;
@@ -95,8 +95,8 @@ class IdData : private zisc::NonCopyable<IdData>
 
 
   std::array<void*, kDataSize> data_list_;
-  uint32b id_;
-  uint32b line_number_;
+  int64b id_;
+  int64b line_number_;
   char name_[kMaxNameLength] = "";
   char file_name_[kMaxNameLength] = "";
 };

@@ -143,7 +143,7 @@ void CpuSubPlatform::initData(PlatformOptions& platform_options)
   num_of_threads_ = platform_options.cpuNumOfThreads();
   const uint32b max_batch_size = maxTaskBatchSize();
   task_batch_size_ = platform_options.cpuTaskBatchSize();
-  task_batch_size_ = zisc::clamp(task_batch_size_, 1, max_batch_size);
+  task_batch_size_ = zisc::clamp(task_batch_size_, 1u, max_batch_size);
 }
 
 } // namespace zivc

@@ -114,7 +114,7 @@ class Platform : private zisc::NonCopyable<Platform>
   zisc::pmr::memory_resource* mem_resource_ = nullptr;
   std::array<SharedSubPlatform, kNumOfSubPlatforms> sub_platform_list_;
   zisc::pmr::unique_ptr<zisc::pmr::vector<const DeviceInfo*>> device_info_list_;
-  std::atomic<uint32b> id_count_ = 0;
+  std::atomic<int64b> id_count_ = 0;
   int32b is_debug_mode_ = Config::scalarResultFalse();
 };
 

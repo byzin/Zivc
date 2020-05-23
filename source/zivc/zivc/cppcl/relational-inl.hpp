@@ -17,7 +17,7 @@
 #include <memory>
 #include <type_traits>
 // Zisc
-#include "zisc/floating_point.hpp"
+#include "zisc/ieee_754_binary.hpp"
 #include "zisc/utility.hpp"
 // Zivc
 #include "types.hpp"
@@ -321,7 +321,7 @@ TypeN Relation::bitselect(const TypeN& a, const TypeN& b, const TypeN& c) noexce
     }
     else {
       // Floating point pattern
-      using BitType = typename zisc::FloatingPointFromBytes<sizeof(TypeN)>::BitType;
+      using BitType = typename zisc::BinaryFromBytes<sizeof(TypeN)>::BitType;
       const auto data = bitselect(*zisc::treatAs<const BitType*>(&a),
                                   *zisc::treatAs<const BitType*>(&b),
                                   *zisc::treatAs<const BitType*>(&c));

@@ -24,6 +24,7 @@ using zivc::uint32b;
 
 // Forward declaration
 __kernel void testKernel(zivc::ConstGlobalPtr<int32b> inputs,
+    zivc::LocalPtr<uint32b> cache,
     zivc::GlobalPtr<float> outputs,
     const uint32b resolution);
 
@@ -31,14 +32,17 @@ __kernel void testKernel(zivc::ConstGlobalPtr<int32b> inputs,
   \details No detailed description
 
   \param [in] inputs No description.
+  \param [in] cache No description.
   \param [out] outputs No description.
   \param [in] resolution No description.
   */
 __kernel void testKernel(zivc::ConstGlobalPtr<int32b> inputs,
+    zivc::LocalPtr<uint32b> cache,
     zivc::GlobalPtr<float> outputs,
     const uint32b resolution)
 {
   const uint32b index = zivc::getGlobalIdX();
+  static_cast<void>(cache);
   if (index < resolution) {
     outputs[index] = zivc::cast<float>(inputs[index]);
   }

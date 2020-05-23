@@ -173,14 +173,23 @@ function(getClspvCompileFlags clspv_compile_flags)
   list(APPEND options --color
                       -O=3
                       --cl-std=CLC++
+                      --cluster-pod-kernel-args
                       --cost-kind=throughput
-                      # --expensive-combines
-                      --f16bit_storage
+                      --global-offset-push-constant
                       --inline-entry-points
                       --instcombine-code-sinking
                       --int8
+                      --work-dim
                       -x=cl
                       )
+  if(ZIVC_POD_PUSHCONSTANT)
+    list(APPEND options --pod-pushconstant
+                        --max-pushconstant-size=128
+                        )
+  else()
+    list(APPEND options --pod-ubo
+                        )
+  endif()
   # For float debug
   #  list(APPEND options --cl-denorms-are-zero
   #                      --cl-finite-math-only

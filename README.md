@@ -4,19 +4,18 @@ Zivc is a Vulkan compute wrapper.
 
 Version: 0.0.1
 
-## Preliminary ##
+## Import instructions ##
 
-### Compiler ###
+### Prerequisites ###
 
 * C+17 support compiler
-
-### Build tools ###
-
 * [CMake](https://cmake.org/) (version 3.16 or later)
 
 #### Option ####
 
 * [Doxygen](http://www.doxygen.nl/) for the API documentation building
+
+## Importing ##
 
 ## Acknowledgement ##
 

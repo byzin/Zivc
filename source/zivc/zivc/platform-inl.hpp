@@ -81,8 +81,9 @@ bool Platform::isDebugMode() const noexcept
 inline
 IdData Platform::issueId() noexcept
 {
-  const uint32b id = id_count_++;
-  IdData id_data{id};
+  const int64b id = id_count_++;
+  constexpr int64b threshold = 0;
+  IdData id_data{zisc::max(id, threshold)};
   return id_data;
 }
 

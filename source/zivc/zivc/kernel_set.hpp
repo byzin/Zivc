@@ -40,7 +40,7 @@ class KernelSet
   static constexpr uint32b id() noexcept;
 
   //! Load the SPIR-V code
-  void loadSpirVCode(zisc::pmr::vector<uint32b>* spirv_code_out) noexcept;
+  static void loadSpirVCode(zisc::pmr::vector<uint32b>* spirv_code_out) noexcept;
 };
 
 } // namespace zivc

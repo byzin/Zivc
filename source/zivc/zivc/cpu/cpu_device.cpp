@@ -65,8 +65,9 @@ std::size_t CpuDevice::numOfQueues() const noexcept
   \param [in] number No description.
   \return No description
   */
-std::size_t CpuDevice::peakMemoryUsage(const std::size_t /* number */) const noexcept
+std::size_t CpuDevice::peakMemoryUsage(const std::size_t number) const noexcept
 {
+  static_cast<void>(number);
   return heap_usage_.peak();
 }
 
@@ -124,8 +125,9 @@ void CpuDevice::submit(const std::array<uint32b, 3>& work_size,
   \param [in] number No description.
   \return No description
   */
-std::size_t CpuDevice::totalMemoryUsage(const std::size_t /* number */) const noexcept
+std::size_t CpuDevice::totalMemoryUsage(const std::size_t number) const noexcept
 {
+  static_cast<void>(number);
   return heap_usage_.total();
 }
 

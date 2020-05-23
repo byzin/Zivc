@@ -462,9 +462,10 @@ void VulkanDeviceInfo::fetchProperties(
        initProp<zivcvk::PhysicalDeviceVertexAttributeDivisorPropertiesEXT>(
           props.vertex_attribute_divisor_),
        initProp<zivcvk::PhysicalDeviceVulkan11Properties>(
-          props.vulkan11_),
-       initProp<zivcvk::PhysicalDeviceVulkan12Properties>(
-          props.vulkan12_)
+          props.vulkan11_)
+//! \todo Get Vulkan 12 properties
+//       initProp<zivcvk::PhysicalDeviceVulkan12Properties>(
+//          props.vulkan12_)
        );
   d.getProperties2(&p, *loader);
   props.properties1_ = zisc::cast<VkPhysicalDeviceProperties>(p.properties);

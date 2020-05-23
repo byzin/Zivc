@@ -215,6 +215,14 @@ VulkanSubPlatform::AllocatorData::AllocatorData(
 
 /*!
   \details No detailed description
+  */
+VulkanSubPlatform::AllocatorData::~AllocatorData() noexcept
+{
+  ZISC_ASSERT(mem_map_.size() == 0, "There are memories which aren't deallocated.");
+}
+
+/*!
+  \details No detailed description
 
   \param [in,out] user_data No description.
   \param [in] size No description.
@@ -234,6 +242,7 @@ auto VulkanSubPlatform::Callbacks::allocateMemory(
   //
   const std::size_t address = zisc::treatAs<std::size_t>(memory);
   const auto mem_data = std::make_pair(size, alignment);
+  //! \todo Thread safe
   alloc_data->mem_map_.emplace(std::make_pair(address, mem_data));
   return memory;
 }
@@ -256,6 +265,7 @@ void VulkanSubPlatform::Callbacks::freeMemory(
     ZISC_ASSERT(mem != alloc_data->mem_map_.end(), "The mem is null.");
     const auto& data = mem->second;
     alloc_data->mem_resource_->deallocate(memory, data.first, data.second);
+  //! \todo Thread safe
     alloc_data->mem_map_.erase(mem);
   }
 }
@@ -531,7 +541,7 @@ void VulkanSubPlatform::initInstance(PlatformOptions& platform_options)
   zisc::pmr::vector<const char*> layers{layer_alloc};
   zisc::pmr::vector<const char*> extensions{layer_alloc};
 
-  extensions.emplace_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
+//  extensions.emplace_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
   if (isDebugMode()) {
     layers.emplace_back("VK_LAYER_KHRONOS_validation");
     extensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);

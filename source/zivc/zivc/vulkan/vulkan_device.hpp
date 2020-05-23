@@ -18,8 +18,8 @@
 // Standard C++ library
 #include <array>
 #include <cstddef>
+#include <map>
 #include <memory>
-#include <vector>
 // Vulkan
 #include <vulkan/vulkan.h>
 // VMA
@@ -42,6 +42,7 @@ class DeviceInfo;
 class VulkanDeviceInfo;
 class VulkanSubPlatform;
 template <typename SetType, typename ...ArgTypes> class KernelParameters;
+template <typename SetType> class KernelSet;
 
 /*!
   \brief No brief description
@@ -57,6 +58,10 @@ class VulkanDevice : public Device
   //! Finalize the vulkan instance
   ~VulkanDevice() noexcept override;
 
+
+  //! Add a shader module of the given kernel set
+  template <typename SetType>
+  void addShaderModule(const KernelSet<SetType>& kernel_set);
 
   //! Allocate a device memory
   void allocateMemory(const std::size_t size,
@@ -85,16 +90,24 @@ class VulkanDevice : public Device
                     VkPipeline* compute_pipeline,
                     VkCommandBuffer* command_buffer);
 
-//  //! Return the command pool
-//  vk::CommandPool& commandPool(const QueueType queue_type) noexcept;
-//
-//  //! Return the command pool
-//  const vk::CommandPool& commandPool(const QueueType queue_type) const noexcept;
+  //! Return the command pool
+  VkCommandPool& commandPool() noexcept;
+
+  //! Return the command pool
+  const VkCommandPool& commandPool() const noexcept;
 
   //! Deallocate a device memory
   void deallocateMemory(VkBuffer* buffer,
                         VmaAllocation* vm_allocation,
                         VmaAllocationInfo* alloc_info) noexcept;
+
+  //! Destroy descriptor set
+  void destroyKernelDescriptorSet(VkDescriptorSetLayout* descriptor_set_layout,
+                                  VkDescriptorPool* descriptor_pool) noexcept;
+
+  //! Destroy pipeline
+  void destroyKernelPipeline(VkPipelineLayout* pipeline_layout,
+                             VkPipeline* compute_pipeline) noexcept;
 
   //! Return the underlying vulkan device
   VkDevice& device() noexcept;
@@ -108,11 +121,29 @@ class VulkanDevice : public Device
   //! Return the dispatcher of vulkan objects
   const VulkanDispatchLoader& dispatcher() const noexcept;
 
-//  //! Return the shader module by the index
-//  const vk::ShaderModule& getShaderModule(const std::size_t index) const noexcept;
+  //! Return the shader module by the the given kernel set ID
+  const VkShaderModule& getShaderModule(const uint32b id) const noexcept;
 
-//  //! Check if the device has the shader module
-//  bool hasShaderModule(const std::size_t index) const noexcept;
+  //! Check if the device has the shader module of the given kernel set ID
+  bool hasShaderModule(const uint32b id) const noexcept;
+
+  //! Initialize a kernel command buffer
+  void initKernelCommandBuffer(VkCommandBuffer* command_buffer);
+
+  //! Initialize a descriptor set of a kernel
+  void initKernelDescriptorSet(const std::size_t num_of_buffers,
+                               VkDescriptorSetLayout* descriptor_set_layout,
+                               VkDescriptorPool* descriptor_pool,
+                               VkDescriptorSet* descriptor_set);
+
+  //! Initialize a pipeline of a kernel
+  void initKernelPipeline(const std::size_t work_dimension,
+                          const std::size_t num_of_local_args,
+                          const VkDescriptorSetLayout& set_layout,
+                          const VkShaderModule& module,
+                          const std::string_view kernel_name,
+                          VkPipelineLayout* pipeline_layout,
+                          VkPipeline* compute_pipeline);
 
   //! Return the invalid queue index in queue families
   static constexpr uint32b invalidQueueIndex() noexcept;
@@ -145,10 +176,6 @@ class VulkanDevice : public Device
   //! Return the current memory usage of the heap of the given number
   std::size_t totalMemoryUsage(const std::size_t number) const noexcept override;
 
-  //! Set a shader module
-//  void setShaderModule(const zisc::pmr::vector<uint32b>& spirv_code,
-//                       const std::size_t index) noexcept;
-
   //! Submit a command
 //  void submit(const QueueType queue_type,
 //              const uint32b queue_index,
@@ -163,6 +190,9 @@ class VulkanDevice : public Device
 //  //! Wait this thread until all commands in the queue are completed
 //  void waitForCompletion(const QueueType queue_type,
 //                         const uint32b queue_index) const noexcept override;
+
+  //! Return the work group size of the given dimension
+  const std::array<uint32b, 3>& workGroupSizeDim(const std::size_t dimension) const noexcept;
 
  protected:
   //! Destroy the device
@@ -190,20 +220,22 @@ class VulkanDevice : public Device
         VmaAllocator vm_allocator,
         uint32b memory_type,
         VkDeviceMemory memory,
-        VkDeviceSize size);
+        VkDeviceSize size,
+        void* user_data);
 
     //! Notify of a memory freeing in VMA
     static void notifyOfDeviceMemoryFreeing(
         VmaAllocator vm_allocator,
         uint32b memory_type,
         VkDeviceMemory memory,
-        VkDeviceSize size);
+        VkDeviceSize size,
+        void* user_data);
   };
 
 
-  //! Destroy a descriptor set a kernel
-  void destroyKernelDescriptorSet(VkDescriptorSetLayout* descriptor_set_layout,
-                                  VkDescriptorPool* descriptor_pool) noexcept;
+  //! Add a shader module of the given kernel set
+  void addShaderModule(const uint32b id,
+                       const zisc::pmr::vector<uint32b>& spirv_code);
 
   //! Find the index of the optimal queue familty
   uint32b findQueueFamily() const noexcept;
@@ -214,9 +246,9 @@ class VulkanDevice : public Device
 //  //! Return a queue
 //  vk::Queue getQueue(const QueueType queue_type,
 //                     const uint32b queue_index) const noexcept;
-//
-//  //! Initialize a command pool
-//  void initCommandPool() noexcept;
+
+  //! Initialize a command pool
+  void initCommandPool();
 
   //! Initialize a device
   void initDevice();
@@ -224,20 +256,8 @@ class VulkanDevice : public Device
   //! Initialize the vulkan dispatch loader
   void initDispatcher();
 
-  //! Initialize a descriptor set of a kernel
-  void initKernelDescriptorSet(const std::size_t num_of_buffers,
-                               VkDescriptorSetLayout* descriptor_set_layout,
-                               VkDescriptorPool* descriptor_pool,
-                               VkDescriptorSet* descriptor_set);
-
-  //! Initialize a pipeline of a kernel
-  void initKernelPipeline(const std::size_t num_of_local_args,
-                          const VkDescriptorSetLayout set_layout,
-                          VkPipelineLayout* pipeline_layout,
-                          VkPipeline* compute_pipeline);
-
   //! Initialize work group size of dimensions
-  void initLocalWorkGroupSize() noexcept;
+  void initWorkGroupSizeDim() noexcept;
 
   //! Initialize a queue family index list
   void initQueueFamilyIndexList() noexcept;
@@ -260,10 +280,10 @@ class VulkanDevice : public Device
 
   VkDevice device_ = VK_NULL_HANDLE;
   VmaAllocator vm_allocator_ = VK_NULL_HANDLE;
+  VkCommandPool command_pool_ = VK_NULL_HANDLE;
   zisc::pmr::unique_ptr<zisc::pmr::vector<zisc::Memory::Usage>> heap_usage_list_;
   zisc::pmr::unique_ptr<VulkanDispatchLoader> dispatcher_;
-//  zisc::pmr::vector<vk::ShaderModule> shader_module_list_;
-//  zisc::pmr::vector<vk::CommandPool> command_pool_list_;
+  zisc::pmr::unique_ptr<zisc::pmr::map<uint32b, VkShaderModule>> shader_module_list_;
   uint32b queue_family_index_ = invalidQueueIndex();
   std::array<std::array<uint32b, 3>, 3> work_group_size_list_;
 };

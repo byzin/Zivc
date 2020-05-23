@@ -119,6 +119,9 @@ class VulkanSubPlatform : public SubPlatform
     AllocatorData(zisc::pmr::memory_resource* mem_resource,
                   MemoryMap&& memory_map) noexcept;
 
+    //! Finalize the allocator data
+    ~AllocatorData() noexcept;
+
     zisc::pmr::memory_resource* mem_resource_;
     MemoryMap mem_map_; //!< \todo Make this thread safe
   };

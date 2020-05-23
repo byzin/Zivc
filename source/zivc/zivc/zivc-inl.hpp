@@ -239,10 +239,11 @@ SharedKernel<kDimension, SetType, ArgTypes...> makeKernel(
   */
 template <typename SetType, typename ...ArgTypes> inline
 KernelParameters<SetType, ArgTypes...> makeKernelParameters(
-    const KernelSet<SetType>& /* kernel_set */,
+    const KernelSet<SetType>& kernel_set,
     void (*func)(ArgTypes...),
     std::string_view kernel_name) noexcept
 {
+  static_cast<void>(kernel_set);
   KernelParameters<SetType, ArgTypes...> parameters{func, kernel_name};
   return parameters;
 }

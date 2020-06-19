@@ -43,7 +43,7 @@ class AddressSpaceInfo
   using ElementType = std::remove_cv_t<Type>;
 
 
-  static constexpr bool kIsGlobal = true;
+  static constexpr bool kIsGlobal = false;
   static constexpr bool kIsLocal = false;
   static constexpr bool kIsConstant = false;
   static constexpr bool kIsPod = true;
@@ -77,8 +77,6 @@ class KernelArgInfo
  private:
   static_assert(!std::is_pointer_v<Type>, "The Type is pointer.");
   static_assert(!std::is_reference_v<Type>, "The Type is reference.");
-  static_assert(!(!kIsPod && std::is_const_v<Type>),
-                "The address space pointer is const-qualified.");
 };
 
 /*!
@@ -95,8 +93,8 @@ class KernelArgParseResult
   //! Initialize a parse result
   constexpr KernelArgParseResult(const bool is_global,
                                  const bool is_local,
-                                 const bool is_pod,
-                                 const bool is_constant) noexcept;
+                                 const bool is_constant,
+                                 const bool is_pod) noexcept;
 
 
   //! Check if the argument is global qualified
@@ -120,8 +118,8 @@ class KernelArgParseResult
  private:
   bool is_global_;
   bool is_local_;
-  bool is_pod_;
   bool is_constant_;
+  bool is_pod_;
   std::size_t index_;
 };
 
@@ -150,6 +148,7 @@ class KernelArgParser
   static constexpr std::size_t kNumOfArgs = 0; //!< The number of arguments
   static constexpr std::size_t kNumOfGlobalArgs = 0; //!< The number of globals
   static constexpr std::size_t kNumOfLocalArgs = 0; //!< The number of locals
+  static constexpr std::size_t kNumOfConstantArgs = 0; //!< The number of constants
   static constexpr std::size_t kNumOfStorageBuffer = 0; //!< The number of storage
   static constexpr std::size_t kNumOfUniformBuffer = 0; //!< The number of uniform
 

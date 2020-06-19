@@ -19,6 +19,8 @@
 #include <array>
 #include <cstddef>
 #include <string_view>
+// Zivc
+#include "id_data.hpp"
 
 namespace zivc {
 
@@ -58,15 +60,12 @@ class KernelParameters
   void setKernelName(std::string_view kernel_name) noexcept;
 
  private:
-  static constexpr std::size_t kMaxKernelNameLength = 256;
-
-
   //! Initialize parameters
   void initialize(std::string_view kernel_name) noexcept;
 
 
   Function function_;
-  std::array<char, kMaxKernelNameLength> kernel_name_;
+  IdData::NameType kernel_name_;
 };
 
 } // namespace zivc

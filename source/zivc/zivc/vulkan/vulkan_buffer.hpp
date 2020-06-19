@@ -92,6 +92,9 @@ class VulkanBuffer : public Buffer<T>
   //! Initialize the buffer
   void initData() override;
 
+  //! Update the debug info
+  void updateDebugInfoImpl() noexcept override;
+
  private:
   //! Check if the buffer has the given memory property flag
   bool hasMemoryProperty(const VkMemoryPropertyFlagBits flag) const noexcept;

@@ -19,6 +19,7 @@
 #include <array>
 #include <cstddef>
 #include <memory>
+#include <string_view>
 #include <type_traits>
 // Zisc
 #include "zisc/algorithm.hpp"
@@ -46,6 +47,8 @@ class Kernel
   No detailed description.
 
   \tparam kDimension No description.
+  \tparam SetType No description.
+  \tparam FuncArgTypes No description.
   \tparam ArgTypes No description.
   */
 template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
@@ -85,11 +88,23 @@ class Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...
     //! Return the work-group dimension
     static constexpr std::size_t dimension() noexcept;
 
+    //! Return the label of the launching
+    std::string_view label() const noexcept;
+
+    //! Return the color of the label
+    const std::array<float, 4>& labelColor() const noexcept;
+
     //! Return the number of kernel arguments
     static constexpr std::size_t numOfArgs() noexcept;
 
     //! Return the queue index
     uint32b queueIndex() const noexcept;
+
+    //! Set the label of the launching
+    void setLabel(const std::string_view launch_label) noexcept;
+
+    //! Set the color of the label
+    void setLabelColor(const std::array<float, 4>& label_color) noexcept;
 
     //! Set the queue index which is used for a kernel execution
     void setQueueIndex(const uint32b queue_index) noexcept;
@@ -107,8 +122,14 @@ class Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...
     static constexpr std::size_t kNumOfArgs = sizeof...(ArgTypes);
 
 
+    //! Initialize the options
+    void initialize() noexcept;
+
+
     std::array<uint32b, kDimension> work_size_;
     uint32b queue_index_ = 0;
+    IdData::NameType label_;
+    std::array<float, 4> label_color_ = {1.0f, 1.0f, 1.0f, 1.0f};
   };
 
 
@@ -137,8 +158,7 @@ class Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...
   static constexpr std::size_t numOfArgs() noexcept;
 
   //! Execute a kernel
-  virtual void run(std::add_lvalue_reference_t<ArgTypes>... args,
-                   const LaunchOptions& launch_options) = 0;
+  virtual void run(ArgTypes... args, const LaunchOptions& launch_options) = 0;
 
  protected:
   //! Clear the contents of the kernel

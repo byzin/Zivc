@@ -146,4 +146,11 @@ void CpuSubPlatform::initData(PlatformOptions& platform_options)
   task_batch_size_ = zisc::clamp(task_batch_size_, 1u, max_batch_size);
 }
 
+/*!
+  \details No detailed description
+  */
+void CpuSubPlatform::updateDebugInfoImpl() noexcept
+{
+}
+
 } // namespace zivc

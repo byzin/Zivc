@@ -195,6 +195,14 @@ void CpuBuffer<T>::initData()
 
 /*!
   \details No detailed description
+  */
+template <typename T> inline
+void CpuBuffer<T>::updateDebugInfoImpl() noexcept
+{
+}
+
+/*!
+  \details No detailed description
 
   \return No description
   */

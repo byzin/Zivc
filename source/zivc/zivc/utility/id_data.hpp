@@ -34,7 +34,14 @@ namespace zivc {
   */
 class IdData : private zisc::NonCopyable<IdData>
 {
+  static constexpr std::size_t kDataSize = 4;
+  static constexpr std::size_t kMaxNameLength = 256;
+
  public:
+  // Types
+  using NameType = std::array<char, kMaxNameLength>;
+
+
   //! Create an ID data
   IdData(const int64b id) noexcept;
 
@@ -76,6 +83,9 @@ class IdData : private zisc::NonCopyable<IdData>
   //! Return the line number where this data is created
   int64b lineNumber() const noexcept;
 
+  //! Return the maximum length of name
+  static constexpr std::size_t maxNameLength() noexcept;
+
   //! Return the name of this data
   std::string_view name() const noexcept;
 
@@ -90,15 +100,11 @@ class IdData : private zisc::NonCopyable<IdData>
   void setName(std::string_view data_name) noexcept;
 
  private:
-  static constexpr std::size_t kDataSize = 4;
-  static constexpr std::size_t kMaxNameLength = 128;
-
-
   std::array<void*, kDataSize> data_list_;
   int64b id_;
   int64b line_number_;
-  char name_[kMaxNameLength] = "";
-  char file_name_[kMaxNameLength] = "";
+  NameType name_;
+  NameType file_name_;
 };
 
 } // namespace zivc

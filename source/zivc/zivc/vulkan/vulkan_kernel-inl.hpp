@@ -19,12 +19,14 @@
 // Standard C++ library
 #include <array>
 #include <cstddef>
+#include <cstring>
 #include <memory>
 #include <string_view>
 #include <type_traits>
 #include <utility>
 // Vulkan
 #include <vulkan/vulkan.h>
+#include <vulkan/vulkan_core.h>
 // Zisc
 #include "zisc/error.hpp"
 #include "zisc/std_memory_resource.hpp"
@@ -32,6 +34,8 @@
 // Zivc
 #include "vulkan_buffer.hpp"
 #include "vulkan_device.hpp"
+#include "utility/cmd_debug_label_region.hpp"
+#include "utility/cmd_record_region.hpp"
 #include "zivc/kernel.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/id_data.hpp"
@@ -73,9 +77,22 @@ template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, ty
 inline
 void
 VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
-run(std::add_lvalue_reference_t<ArgTypes>... args,
-    const LaunchOptions& launch_options)
+run(ArgTypes... args, const LaunchOptions& launch_options)
 {
+  VulkanDevice& device = parentImpl();
+  {
+    const VkCommandBuffer cbuffer = BaseKernel::isDebugMode() ? command_buffer_
+                                                              : VK_NULL_HANDLE;
+    CmdDebugLabelRegion debug_region{cbuffer,
+                                     device.dispatcher(),
+                                     launch_options.label(),
+                                     launch_options.labelColor()};
+    {
+      CmdRecordRegion record_region{command_buffer_,
+                                    device.dispatcher(),
+                                    VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT};
+    }
+  }
 }
 
 /*!
@@ -111,15 +128,60 @@ initData(const Parameters& params)
                                  std::addressof(desc_set_layout_),
                                  std::addressof(desc_pool_),
                                  std::addressof(desc_set_));
-  const auto& module = device.getShaderModule(SetType::id());
+  const auto& module_data = device.getShaderModule(SetType::id());
   device.initKernelPipeline(BaseKernel::dimension(),
                             BaseKernel::ArgParser::kNumOfLocalArgs,
                             desc_set_layout_,
-                            module,
+                            module_data.module_,
                             params.kernelName(),
                             std::addressof(pipeline_layout_),
                             std::addressof(pipeline_));
   device.initKernelCommandBuffer(std::addressof(command_buffer_));
+}
+
+/*!
+  \details No detailed description
+  */
+template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+inline
+void
+VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+updateDebugInfoImpl() noexcept
+{
+  VulkanDevice& device = parentImpl();
+  const IdData& id_data = ZivcObject::id();
+  const std::string_view kernel_name = id_data.name();
+
+  auto set_debug_info = [this, &device, &id_data, &kernel_name]
+  (const VkObjectType type, const auto& obj, const std::string_view suffix) noexcept
+  {
+    if (obj != VK_NULL_HANDLE) {
+      IdData::NameType obj_name{""};
+      std::strcat(obj_name.data(), kernel_name.data());
+      std::strcat(obj_name.data(), suffix.data());
+      const uint64b handle = *zisc::treatAs<const uint64b*>(std::addressof(obj));
+      device.setDebugInfo(type, handle, obj_name.data(), this);
+    }
+  };
+
+  set_debug_info(VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT,
+                 desc_set_layout_,
+                 "_descsetlayout");
+  set_debug_info(VK_OBJECT_TYPE_DESCRIPTOR_POOL,
+                 desc_pool_,
+                 "_descpool");
+  set_debug_info(VK_OBJECT_TYPE_DESCRIPTOR_SET,
+                 desc_set_,
+                 "_descset");
+  set_debug_info(VK_OBJECT_TYPE_PIPELINE_LAYOUT,
+                 pipeline_layout_,
+                 "_pipelinelayout");
+  set_debug_info(VK_OBJECT_TYPE_PIPELINE,
+                 pipeline_,
+                 "_pipeline");
+  set_debug_info(VK_OBJECT_TYPE_COMMAND_BUFFER,
+                 command_buffer_,
+                 "_commandbuffer");
 }
 
 /*!

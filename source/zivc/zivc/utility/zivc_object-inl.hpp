@@ -110,6 +110,16 @@ const ZivcObject* ZivcObject::getParent() const noexcept
   return p;
 }
 
+/*!
+  \details No detailed description
+  */
+inline
+void ZivcObject::updateDebugInfo() noexcept
+{
+  if (isDebugMode())
+    updateDebugInfoImpl();
+}
+
 } // namespace zivc
 
 #endif // ZIVC_ZIVC_OBJECT_INL_HPP

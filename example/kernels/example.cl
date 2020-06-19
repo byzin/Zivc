@@ -19,14 +19,23 @@
 #include "zivc/cl/types.cl"
 #include "zivc/cl/utility.cl"
 
+using zivc::int16b;
 using zivc::int32b;
+using zivc::int64b;
+using zivc::uint16b;
 using zivc::uint32b;
+using zivc::uint64b;
 
 // Forward declaration
 __kernel void testKernel(zivc::ConstGlobalPtr<int32b> inputs,
     zivc::LocalPtr<uint32b> cache,
     zivc::GlobalPtr<float> outputs,
-    const uint32b resolution);
+    const int16b hash,
+    const uint32b resolution,
+    const int16b hash1,
+    const int64b hash12,
+    const int4 hash2
+    );
 
 /*!
   \details No detailed description
@@ -39,7 +48,12 @@ __kernel void testKernel(zivc::ConstGlobalPtr<int32b> inputs,
 __kernel void testKernel(zivc::ConstGlobalPtr<int32b> inputs,
     zivc::LocalPtr<uint32b> cache,
     zivc::GlobalPtr<float> outputs,
-    const uint32b resolution)
+    const int16b hash,
+    const uint32b resolution,
+    const int16b hash1,
+    const int64b hash12,
+    const int4 hash2
+    )
 {
   const uint32b index = zivc::getGlobalIdX();
   static_cast<void>(cache);

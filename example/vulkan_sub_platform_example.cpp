@@ -159,7 +159,7 @@ int main(int /* argc */, char** /* argv */)
                   << limits.maxDescriptorSetUniformBuffers << std::endl;
         std::cout << indent3 << "Max descriptor set storage buffers: "
                   << limits.maxDescriptorSetStorageBuffers << std::endl;
-        std::cout << indent3 << "Max compute shader memory size: "
+        std::cout << indent3 << "Max compute shared memory size: "
                   << ::toKiloBytes(limits.maxComputeSharedMemorySize)
                   << " KB" << std::endl;
         std::cout << indent3 << "Max compute work group count: ["
@@ -174,6 +174,11 @@ int main(int /* argc */, char** /* argv */)
                   << limits.maxComputeWorkGroupSize[2] << "]" << std::endl;
         std::cout << indent3 << "Min memory map alignment: "
                   << limits.minMemoryMapAlignment << " bytes" << std::endl;
+        {
+          const auto& descriptor_props = info.properties().push_descriptor_;
+          std::cout << indent3 << "Max number of push descriptors: "
+                    << descriptor_props.maxPushDescriptors << std::endl;
+        }
       }
       std::cout << std::endl;
       // Extension properties

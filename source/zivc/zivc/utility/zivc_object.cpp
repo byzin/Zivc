@@ -15,6 +15,7 @@
 #include "zivc_object.hpp"
 // Standard C++ library
 #include <memory>
+#include <string_view>
 #include <utility>
 // Zisc
 #include "zisc/error.hpp"
@@ -113,6 +114,32 @@ const zisc::pmr::memory_resource* ZivcObject::memoryResource() const noexcept
   const auto p = getParent();
   const zisc::pmr::memory_resource* mem_resource = p->memoryResource();
   return mem_resource;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] object_name No description.
+  */
+void ZivcObject::setName(const std::string_view object_name) noexcept
+{
+  IdData& object_id = id();
+  object_id.setName(object_name);
+  updateDebugInfo();
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] object_name No description.
+  */
+void ZivcObject::setNameIfEmpty(const std::string_view object_name) noexcept
+{
+  IdData& object_id = id();
+  const std::string_view n{object_id.name()};
+  if (n.empty())
+    object_id.setName(object_name);
+  updateDebugInfo();
 }
 
 /*!

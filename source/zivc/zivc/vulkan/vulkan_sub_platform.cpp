@@ -201,6 +201,13 @@ void VulkanSubPlatform::initData(PlatformOptions& platform_options)
 
 /*!
   \details No detailed description
+  */
+void VulkanSubPlatform::updateDebugInfoImpl() noexcept
+{
+}
+
+/*!
+  \details No detailed description
 
   \param [in,out] mem_resource No description.
   \param [in] mem_map No description.

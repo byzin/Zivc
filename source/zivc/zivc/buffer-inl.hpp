@@ -82,6 +82,8 @@ void Buffer<T>::initialize(ZivcObject::SharedPtr&& parent,
   initObject(std::move(parent), std::move(own));
   buffer_usage_ = buffer_usage;
   initData();
+
+  ZivcObject::setNameIfEmpty("Buffer");
 }
 
 /*!

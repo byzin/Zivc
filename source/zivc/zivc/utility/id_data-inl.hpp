@@ -40,9 +40,10 @@ namespace zivc {
 inline
 IdData::IdData(const int64b id) noexcept :
     data_list_{{nullptr, nullptr, nullptr, nullptr}},
-    id_{id},
-    line_number_{invalidId()}
+    id_{id}
 {
+  setName("");
+  setFileInfo("", invalidId());
 }
 
 /*!
@@ -57,13 +58,12 @@ IdData::IdData(IdData&& other) noexcept :
     line_number_{invalidId()}
 {
   std::swap(data_list_, other.data_list_);
-  std::swap(line_number_, other.line_number_);
   std::swap(id_, other.id_);
-  std::strcpy(name_, other.name_);
-  std::strcpy(file_name_, other.file_name_);
+  setName(other.name());
+  setFileInfo(other.fileName(), other.lineNumber());
   // Clear the names of the other
-  std::strcpy(other.name_, "");
-  std::strcpy(other.file_name_, "");
+  other.setName("");
+  other.setFileInfo("", invalidId());
 }
 
 /*!
@@ -76,13 +76,12 @@ inline
 IdData& IdData::operator=(IdData&& other) noexcept
 {
   std::swap(data_list_, other.data_list_);
-  std::swap(line_number_, other.line_number_);
   std::swap(id_, other.id_);
-  std::strcpy(name_, other.name_);
-  std::strcpy(file_name_, other.file_name_);
+  setName(other.name());
+  setFileInfo(other.fileName(), other.lineNumber());
   // Clear the names of the other
-  std::strcpy(other.name_, "");
-  std::strcpy(other.file_name_, "");
+  other.setName("");
+  other.setFileInfo("", invalidId());
   return *this;
 }
 
@@ -105,7 +104,7 @@ constexpr std::size_t IdData::dataSize() noexcept
 inline
 std::string_view IdData::fileName() const noexcept
 {
-  std::string_view n{file_name_};
+  std::string_view n{file_name_.data()};
   return n;
 }
 
@@ -213,9 +212,20 @@ int64b IdData::lineNumber() const noexcept
   \return No description
   */
 inline
+constexpr std::size_t IdData::maxNameLength() noexcept
+{
+  return kMaxNameLength;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
 std::string_view IdData::name() const noexcept
 {
-  std::string_view n{name_};
+  std::string_view n{name_.data()};
   return n;
 }
 
@@ -242,7 +252,7 @@ inline
 void IdData::setFileInfo(std::string_view file_name,
                          const int64b line_number) noexcept
 {
-  std::strcpy(file_name_, file_name.data());
+  std::strcpy(file_name_.data(), file_name.data());
   line_number_ = line_number;
 }
 
@@ -254,7 +264,7 @@ void IdData::setFileInfo(std::string_view file_name,
 inline
 void IdData::setName(std::string_view data_name) noexcept
 {
-  std::strcpy(name_, data_name.data());
+  std::strcpy(name_.data(), data_name.data());
 }
 
 } // namespace zivc

@@ -19,7 +19,9 @@
 // Standard C++ library
 #include <array>
 #include <cstddef>
+#include <cstring>
 #include <memory>
+#include <string_view>
 #include <type_traits>
 // Zivc
 #include "utility/id_data.hpp"
@@ -37,6 +39,7 @@ Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
 LaunchOptions::LaunchOptions() noexcept :
     queue_index_{0}
 {
+  initialize();
 }
 
 /*!
@@ -51,12 +54,14 @@ LaunchOptions::LaunchOptions(const std::array<uint32b, kDimension>& work_size) n
     work_size_{work_size},
     queue_index_{0}
 {
+  initialize();
 }
 
 /*!
   \details No detailed description
 
   \param [in] work_size No description.
+  \param [in] queue_index No description.
   */
 template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
 inline
@@ -66,6 +71,7 @@ LaunchOptions::LaunchOptions(const std::array<uint32b, kDimension>& work_size,
     work_size_{work_size},
     queue_index_{queue_index}
 {
+  initialize();
 }
 
 /*!
@@ -80,6 +86,35 @@ Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
 LaunchOptions::dimension() noexcept
 {
   return kDimension;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+inline
+std::string_view
+Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+LaunchOptions::label() const noexcept
+{
+  std::string_view l{label_.data()};
+  return l;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+inline
+const std::array<float, 4>&
+Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+LaunchOptions::labelColor() const noexcept
+{
+  return label_color_;
 }
 
 /*!
@@ -108,6 +143,34 @@ Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
 LaunchOptions::queueIndex() const noexcept
 {
   return queue_index_;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] launch_label No description.
+  */
+template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+inline
+void
+Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+LaunchOptions::setLabel(const std::string_view launch_label) noexcept
+{
+  std::strcpy(label_.data(), launch_label.data());
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] label_color No description.
+  */
+template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+inline
+void
+Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+LaunchOptions::setLabelColor(const std::array<float, 4>& label_color) noexcept
+{
+  label_color_ = label_color;
 }
 
 /*!
@@ -166,6 +229,18 @@ Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
 LaunchOptions::workSize() const noexcept
 {
   return work_size_;
+}
+
+/*!
+  \details No detailed description
+  */
+template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+inline
+void
+Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+LaunchOptions::initialize() noexcept
+{
+  setLabel(SetType::name());
 }
 
 /*!
@@ -238,6 +313,8 @@ initialize(ZivcObject::SharedPtr&& parent,
 
   initObject(std::move(parent), std::move(own));
   initData(params);
+
+  ZivcObject::setNameIfEmpty("Kernel");
 }
 
 /*!

@@ -108,6 +108,8 @@ namespace kernel_set {
   */
 class KernelSet_@kernel_set_name@ : public KernelSet<KernelSet_@kernel_set_name@>
 {
+  static constexpr char kSetName[] = "@kernel_set_name@";
+
  public:
   //! Return the ID number of the kernel set
   static constexpr uint32b id() noexcept
@@ -117,6 +119,13 @@ class KernelSet_@kernel_set_name@ : public KernelSet<KernelSet_@kernel_set_name@
 
   //! Load the SPIR-V code
   static void loadSpirVCode(zisc::pmr::vector<uint32b>* spirv_code_out) noexcept;
+
+  //! Return the kernel set name
+  static constexpr std::string_view name() noexcept
+  {
+    std::string_view n{kSetName};
+    return n;
+  }
 };
 
 } // namespace kernel_set

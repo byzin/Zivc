@@ -41,12 +41,17 @@ class VulkanKernel;
   No detailed description.
 
   \tparam kDimension No description.
+  \tparam SetType No description.
   \tparam FuncArgTypes No description.
   \tparam ArgTypes No description.
   */
 template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
-class VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>
-  : public Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>
+class VulkanKernel<kDimension,
+                   KernelParameters<SetType, FuncArgTypes...>,
+                   ArgTypes...>
+    : public Kernel<kDimension,
+                    KernelParameters<SetType, FuncArgTypes...>,
+                    ArgTypes...>
 {
  public:
   // Type aliases
@@ -65,8 +70,7 @@ class VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTy
 
 
   //! Execute a kernel
-  void run(std::add_lvalue_reference_t<ArgTypes>... args,
-           const LaunchOptions& launch_options) override;
+  void run(ArgTypes... args, const LaunchOptions& launch_options) override;
 
  protected:
   //! Clear the contents of the kernel
@@ -74,6 +78,9 @@ class VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTy
 
   //! Initialize the kernel
   void initData(const Parameters& params) override;
+
+  //! Update the debug info
+  void updateDebugInfoImpl() noexcept override;
 
  private:
   //! Return the device

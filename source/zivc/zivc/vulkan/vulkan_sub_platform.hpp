@@ -104,6 +104,9 @@ class VulkanSubPlatform : public SubPlatform
   //! Initialize the sub-platform
   void initData(PlatformOptions& platform_options) override;
 
+  //! Update the debug info
+  void updateDebugInfoImpl() noexcept override;
+
  private:
   using MemoryMap = zisc::pmr::map<std::size_t, std::pair<size_t, size_t>>;
 

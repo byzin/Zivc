@@ -21,6 +21,7 @@
 #include <cstddef>
 #include <functional>
 #include <memory>
+#include <tuple>
 #include <type_traits>
 // Zisc
 #include "zisc/error.hpp"
@@ -83,8 +84,7 @@ template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, ty
 inline
 void
 CpuKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
-run(std::add_lvalue_reference_t<ArgTypes>... args,
-    const LaunchOptions& launch_options)
+run(ArgTypes... args, const LaunchOptions& launch_options)
 {
   auto& device = parentImpl();
   const auto work_size = expandTo3d(launch_options.workSize());
@@ -124,6 +124,17 @@ initData(const Parameters& params)
 
 /*!
   \details No detailed description
+  */
+template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+inline
+void
+CpuKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+updateDebugInfoImpl() noexcept
+{
+}
+
+/*!
+  \details No detailed description
 
   \tparam Type No description.
   \tparam Types No description.
@@ -132,75 +143,50 @@ initData(const Parameters& params)
   \param [in] rest No description.
   */
 template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
-template <typename ArgType, typename ...RestTypes>
-template <typename Type, typename ...Types>
+template <typename ...UnprocessedArgs> template <typename Type, typename ...Types>
 inline
 void
 CpuKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
-Launcher<ArgType, RestTypes...>::exec(Function func,
-                                      const LaunchOptions& launch_options,
-                                      Type&& value,
-                                      Types&&... rest) noexcept
+Launcher<UnprocessedArgs...>::exec(Function func,
+                                   const LaunchOptions& launch_options,
+                                   Type&& value,
+                                   Types&&... rest) noexcept
 {
-//  constexpr std::size_t rest_size = sizeof...(RestTypes);
-  using ArgInfo = KernelArgInfo<ArgType>;
-  using ArgT = std::remove_volatile_t<ArgType>;
-  if constexpr (ArgInfo::kIsLocal) { // Process a local argument
-    typename ArgInfo::ElementType storage{};
-    ArgT cl_arg{std::addressof(storage)};
-    invoke(func,
-           launch_options,
-           std::forward<Type>(value),
-           std::forward<Types>(rest)...,
-           cl_arg);
+  using ArgTuple = std::tuple<UnprocessedArgs...>;
+  constexpr std::size_t is_ready_to_run = std::tuple_size_v<ArgTuple> == 0;
+  if constexpr (is_ready_to_run) { // Invoke the underlying kernel
+    std::invoke(func, std::forward<Type>(value), std::forward<Types>(rest)...);
   }
-  else {
-    // Process a global argument
-    using BufferT = std::remove_reference_t<Type>;
-    using CpuBufferT = CpuBuffer<typename BufferT::Type>;
-    using CpuBufferPtr = std::add_pointer_t<CpuBufferT>;
-    auto buffer = zisc::cast<CpuBufferPtr>(std::addressof(value));
-    if constexpr (ArgInfo::kIsPod) {
-      auto& cl_arg = *(buffer->data());
-      invoke(func,
-             launch_options,
-             std::forward<Types>(rest)...,
-             cl_arg);
+  else { // Process arguments
+    using ArgT = std::remove_volatile_t<typename std::tuple_element_t<0, ArgTuple>>;
+    using ArgInfo = KernelArgInfo<ArgT>;
+    using NextLauncher = typename LauncherHelper<UnprocessedArgs...>::NextLauncher;
+    if constexpr (ArgInfo::kIsLocal) { // Process a local argument
+      typename ArgInfo::ElementType storage{};
+      ArgT cl_arg{std::addressof(storage)};
+      NextLauncher::exec(func,
+                         launch_options,
+                         std::forward<Type>(value),
+                         std::forward<Types>(rest)...,
+                         cl_arg);
     }
-    else {
+    else if constexpr (ArgInfo::kIsPod) {
+      NextLauncher::exec(func,
+                         launch_options,
+                         std::forward<Types>(rest)...,
+                         std::forward<Type>(value));
+    }
+    else { // Process a global argument
+      using BufferT = std::remove_reference_t<Type>;
+      using CpuBufferT = CpuBuffer<typename BufferT::Type>;
+      using CpuBufferPtr = std::add_pointer_t<CpuBufferT>;
+      auto buffer = zisc::cast<CpuBufferPtr>(std::addressof(value));
       ArgT cl_arg{buffer->data()};
-      invoke(func,
-             launch_options,
-             std::forward<Types>(rest)...,
-             cl_arg);
+      NextLauncher::exec(func,
+                         launch_options,
+                         std::forward<Types>(rest)...,
+                         cl_arg);
     }
-  }
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Types No description.
-  \param [in] func No description.
-  \param [in] args No description.
-  */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
-template <typename ArgType, typename ...RestTypes>
-template <typename ...Types>
-inline
-void
-CpuKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
-Launcher<ArgType, RestTypes...>::invoke(Function func,
-                                        const LaunchOptions& launch_options,
-                                        Types&&... args) noexcept
-{
-  constexpr std::size_t rest_size = sizeof...(RestTypes);
-  if constexpr (0 < rest_size) {
-    using LauncherType = Launcher<RestTypes...>;
-    LauncherType::exec(func, launch_options, std::forward<Types>(args)...);
-  }
-  else {
-    std::invoke(func, std::forward<Types>(args)...);
   }
 }
 

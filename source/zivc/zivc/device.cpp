@@ -66,6 +66,8 @@ void Device::initialize(ZivcObject::SharedPtr&& parent,
   initObject(std::move(parent), std::move(own));
   device_info_ = std::addressof(device_info);
   initData();
+
+  setNameIfEmpty("Device");
 }
 
 } // namespace zivc

@@ -155,4 +155,11 @@ void CpuDevice::initData()
                                               mem_resource);
 }
 
+/*!
+  \details No detailed description
+  */
+void CpuDevice::updateDebugInfoImpl() noexcept
+{
+}
+
 } // namespace zivc

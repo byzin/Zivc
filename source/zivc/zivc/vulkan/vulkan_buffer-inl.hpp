@@ -175,6 +175,7 @@ void VulkanBuffer<T>::setSize(const std::size_t s)
                             std::addressof(buffer()),
                             std::addressof(allocation()),
                             std::addressof(vm_alloc_info_));
+      ZivcObject::updateDebugInfo();
     }
   }
 }
@@ -221,6 +222,25 @@ void VulkanBuffer<T>::initData()
   vm_alloc_info_.size = 0;
   vm_alloc_info_.pMappedData = nullptr;
   vm_alloc_info_.pUserData = nullptr;
+}
+
+/*!
+  \details No detailed description
+  */
+template <typename T> inline
+void VulkanBuffer<T>::updateDebugInfoImpl() noexcept
+{
+  auto& device = parentImpl();
+  const IdData& id_data = ZivcObject::id();
+  {
+    const VkBuffer& handle = buffer();
+    if (handle != VK_NULL_HANDLE) {
+      device.setDebugInfo(VK_OBJECT_TYPE_BUFFER,
+                          *zisc::treatAs<const uint64b*>(std::addressof(handle)),
+                          id_data.name(),
+                          this);
+    }
+  }
 }
 
 /*!

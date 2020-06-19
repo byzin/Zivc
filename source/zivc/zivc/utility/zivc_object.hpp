@@ -17,6 +17,7 @@
 
 // Standard C++ library
 #include <memory>
+#include <string_view>
 // Zisc
 #include "zisc/non_copyable.hpp"
 #include "zisc/std_memory_resource.hpp"
@@ -76,6 +77,12 @@ class ZivcObject : private zisc::NonCopyable<ZivcObject>
   //! Return the underlying memory resource
   virtual const zisc::pmr::memory_resource* memoryResource() const noexcept;
 
+  //! Set the object name
+  void setName(const std::string_view object_name) noexcept;
+
+  //! Set the object name
+  void setNameIfEmpty(const std::string_view object_name) noexcept;
+
   //! Return the sub-platform type
   virtual SubPlatformType type() const noexcept;
 
@@ -88,6 +95,12 @@ class ZivcObject : private zisc::NonCopyable<ZivcObject>
 
   //! Return the parent pointer
   const ZivcObject* getParent() const noexcept;
+
+  //! Update debug info
+  void updateDebugInfo() noexcept;
+
+  //! Update debug info
+  virtual void updateDebugInfoImpl() noexcept = 0;
 
  private:
   SharedPtr parent_;

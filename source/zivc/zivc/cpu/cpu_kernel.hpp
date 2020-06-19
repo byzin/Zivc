@@ -44,8 +44,12 @@ class CpuKernel;
   \tparam ArgTypes No description.
   */
 template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
-class CpuKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...> :
-    public Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>
+class CpuKernel<kDimension,
+                KernelParameters<SetType, FuncArgTypes...>,
+                ArgTypes...> :
+    public Kernel<kDimension,
+                  KernelParameters<SetType, FuncArgTypes...>,
+                  ArgTypes...>
 {
  public:
   // Type aliases
@@ -68,8 +72,7 @@ class CpuKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes
   Function kernel() const noexcept;
 
   //! Execute a kernel
-  void run(std::add_lvalue_reference_t<ArgTypes>... args,
-           const LaunchOptions& launch_options) override;
+  void run(ArgTypes... args, const LaunchOptions& launch_options) override;
 
  protected:
   //! Clear the contents of the kernel
@@ -78,16 +81,18 @@ class CpuKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes
   //! Initialize the kernel
   void initData(const Parameters& params) override;
 
+  //! Update debug info
+  void updateDebugInfoImpl() noexcept override;
+
  private:
   /*!
     \brief No brief description
 
     No detailed description.
 
-    \tparam ArgType No description.
-    \tparam RestTypes No description.
+    \tparam UnprocessedArgs No description.
     */
-  template <typename ArgType, typename ...RestTypes>
+  template <typename ...UnprocessedArgs>
   class Launcher 
   {
    public:
@@ -97,13 +102,20 @@ class CpuKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes
                      const LaunchOptions& launch_options,
                      Type&& value,
                      Types&&... rest) noexcept;
+  };
 
-   private:
-    //! Invoke the given function 
-    template <typename ...Types>
-    static void invoke(Function func,
-                       const LaunchOptions& launch_options,
-                       Types&&... args) noexcept;
+  /*!
+    \brief No brief description
+
+    No detailed description.
+
+    \tparam Type No description.
+    \tparam Types No description.
+    */
+  template <typename Type, typename ...Types>
+  struct LauncherHelper
+  {
+    using NextLauncher = Launcher<Types...>;
   };
 
   //! Expand the given work size to 3d work size array

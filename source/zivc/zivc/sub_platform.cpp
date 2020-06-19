@@ -65,6 +65,8 @@ void SubPlatform::initialize(WeakPtr&& own, PlatformOptions& platform_options)
 
   initObject(nullptr, std::move(own));
   initData(platform_options);
+
+  setNameIfEmpty("SubPlatform");
 }
 
 /*!

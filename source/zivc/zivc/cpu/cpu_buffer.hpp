@@ -93,6 +93,9 @@ class CpuBuffer : public Buffer<T>
   //! Initialize the buffer
   void initData() override;
 
+  //! Update debug info
+  void updateDebugInfoImpl() noexcept override;
+
  private:
   //! Return the device
   CpuDevice& parentImpl() noexcept;

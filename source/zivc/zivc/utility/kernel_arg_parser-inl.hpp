@@ -54,12 +54,11 @@ class AddressSpaceInfo<cl::AddressSpacePointer<kAddressType, Type>>
   using ElementType = std::remove_cv_t<Type>;
 
 
-  static constexpr bool kIsConstant = (kAddressType == ASpaceType::kConstant);
-  static constexpr bool kIsGlobal = (kAddressType == ASpaceType::kGlobal) ||
-                                    kIsConstant;
-  static constexpr bool kIsLocal = (kAddressType == ASpaceType::kLocal);
+  static constexpr bool kIsGlobal = kAddressType == ASpaceType::kGlobal;
+  static constexpr bool kIsLocal = kAddressType == ASpaceType::kLocal;
+  static constexpr bool kIsConstant = kAddressType == ASpaceType::kConstant;
   static constexpr bool kIsPod = false;
-  static_assert(kIsGlobal || kIsLocal, "The address space is wrong.");
+  static_assert(kIsGlobal || kIsLocal || kIsConstant, "The address space is wrong.");
 
  private:
   static_assert(!std::is_pointer_v<ElementType>, "The element type is pointer.");
@@ -73,8 +72,8 @@ inline
 constexpr KernelArgParseResult::KernelArgParseResult() noexcept :
     is_global_{false},
     is_local_{false},
-    is_pod_{false},
     is_constant_{false},
+    is_pod_{false},
     index_{0}
 {
 }
@@ -90,13 +89,13 @@ constexpr KernelArgParseResult::KernelArgParseResult() noexcept :
 inline
 constexpr KernelArgParseResult::KernelArgParseResult(const bool is_global,
                                                      const bool is_local,
-                                                     const bool is_pod,
-                                                     const bool is_constant)
+                                                     const bool is_constant,
+                                                     const bool is_pod)
     noexcept :
         is_global_{is_global},
         is_local_{is_local},
-        is_pod_{is_pod},
         is_constant_{is_constant},
+        is_pod_{is_pod},
         index_{0}
 {
 }
@@ -203,10 +202,8 @@ class KernelArgParser<ArgType, RestTypes...>
   struct NewKernel<Kernel<kDimension, PrevParameters<SetType>, Types...>>
   {
     using KernelType = Kernel<kDimension, Parameters<SetType>, Types...>;
-    using CpuKernelType =
-        CpuKernel<kDimension, Parameters<SetType>, Types...>;
-    using VulkanKernelType =
-        VulkanKernel<kDimension, Parameters<SetType>, Types...>;
+    using CpuKernelType = CpuKernel<kDimension, Parameters<SetType>, Types...>;
+    using VulkanKernelType = VulkanKernel<kDimension, Parameters<SetType>, Types...>;
   };
 
   /*!
@@ -221,12 +218,12 @@ class KernelArgParser<ArgType, RestTypes...>
   template <std::size_t kDimension, typename SetType, typename ...Types>
   struct ExtendedKernel<Kernel<kDimension, PrevParameters<SetType>, Types...>>
   {
-    using BufferArg = Buffer<typename ArgInfo::ElementType>;
-    using KernelType = Kernel<kDimension, Parameters<SetType>, BufferArg, Types...>;
-    using CpuKernelType =
-        CpuKernel<kDimension, Parameters<SetType>, BufferArg, Types...>;
-    using VulkanKernelType =
-        VulkanKernel<kDimension, Parameters<SetType>, BufferArg, Types...>;
+    using Arg = std::conditional_t<ArgInfo::kIsPod,
+        std::add_const_t<typename ArgInfo::ElementType>,
+        std::add_lvalue_reference_t<Buffer<typename ArgInfo::ElementType>>>;
+    using KernelType = Kernel<kDimension, Parameters<SetType>, Arg, Types...>;
+    using CpuKernelType = CpuKernel<kDimension, Parameters<SetType>, Arg, Types...>;
+    using VulkanKernelType = VulkanKernel<kDimension, Parameters<SetType>, Arg, Types...>;
   };
 
   template <std::size_t kDimension, typename SetType>
@@ -257,14 +254,14 @@ class KernelArgParser<ArgType, RestTypes...>
   static constexpr std::size_t kNumOfLocalArgs = ArgInfo::kIsLocal
       ? Parent::kNumOfLocalArgs + 1
       : Parent::kNumOfLocalArgs;
+  static constexpr std::size_t kNumOfConstantArgs = ArgInfo::kIsConstant
+      ? Parent::kNumOfConstantArgs + 1
+      : Parent::kNumOfConstantArgs;
   static constexpr std::size_t kNumOfStorageBuffer =
-      (ArgInfo::kIsGlobal && !(ArgInfo::kIsConstant || ArgInfo::kIsPod))
+      (ArgInfo::kIsGlobal && ArgInfo::kIsConstant)
           ? Parent::kNumOfStorageBuffer + 1
           : Parent::kNumOfStorageBuffer;
-  static constexpr std::size_t kNumOfUniformBuffer =
-      (ArgInfo::kIsGlobal && (ArgInfo::kIsConstant || ArgInfo::kIsPod))
-          ? Parent::kNumOfUniformBuffer + 1
-          : Parent::kNumOfUniformBuffer;
+  static constexpr std::size_t kNumOfUniformBuffer = Parent::kNumOfUniformBuffer;
 
 
   //! Return the info of arguments
@@ -281,8 +278,8 @@ class KernelArgParser<ArgType, RestTypes...>
 
     result_list[0] = KernelArgParseResult{ArgInfo::kIsGlobal,
                                           ArgInfo::kIsLocal,
-                                          ArgInfo::kIsPod,
-                                          ArgInfo::kIsConstant};
+                                          ArgInfo::kIsConstant,
+                                          ArgInfo::kIsPod};
     result_list[0].setIndex(0);
 
     return result_list;
@@ -304,8 +301,8 @@ class KernelArgParser<ArgType, RestTypes...>
     if constexpr (ArgInfo::kIsGlobal) {
       result_list[0] = KernelArgParseResult{ArgInfo::kIsGlobal,
                                             ArgInfo::kIsLocal,
-                                            ArgInfo::kIsPod,
-                                            ArgInfo::kIsConstant};
+                                            ArgInfo::kIsConstant,
+                                            ArgInfo::kIsPod};
       result_list[0].setIndex(0);
     }
 
@@ -328,8 +325,8 @@ class KernelArgParser<ArgType, RestTypes...>
     if constexpr (ArgInfo::kIsLocal) {
       result_list[0] = KernelArgParseResult{ArgInfo::kIsGlobal,
                                             ArgInfo::kIsLocal,
-                                            ArgInfo::kIsPod,
-                                            ArgInfo::kIsConstant};
+                                            ArgInfo::kIsConstant,
+                                            ArgInfo::kIsPod};
       result_list[0].setIndex(0);
     }
 

@@ -18,6 +18,7 @@
 #include "kernel_set.hpp"
 // Standard C++ library
 #include <memory>
+#include <string_view>
 #include <vector>
 // Zisc
 #include "zisc/std_memory_resource.hpp"
@@ -34,7 +35,8 @@ namespace zivc {
 template <typename SetType> inline
 constexpr uint32b KernelSet<SetType>::id() noexcept
 {
-  return SetType::id();
+  constexpr uint32b i = SetType::id();
+  return i;
 }
 
 /*!
@@ -47,6 +49,18 @@ void KernelSet<SetType>::loadSpirVCode(
     zisc::pmr::vector<uint32b>* spirv_code_out) noexcept
 {
   SetType::loadSpirVCode(spirv_code_out);
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <typename SetType> inline
+constexpr std::string_view KernelSet<SetType>::name() noexcept
+{
+  constexpr std::string_view n = SetType::name();
+  return n;
 }
 
 } // namespace zivc

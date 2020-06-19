@@ -82,6 +82,9 @@ class CpuSubPlatform : public SubPlatform
   //! Initialize the sub-platform
   void initData(PlatformOptions& platform_options) override;
 
+  //! Update debug info
+  void updateDebugInfoImpl() noexcept override;
+
  private:
   zisc::pmr::unique_ptr<CpuDeviceInfo> device_info_;
   uint32b num_of_threads_ = 0;

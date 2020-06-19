@@ -20,6 +20,7 @@
 #include <array>
 #include <limits>
 #include <memory>
+#include <string_view>
 #include <type_traits>
 #include <vector>
 // Vulkan
@@ -51,7 +52,8 @@ void VulkanDevice::addShaderModule(const KernelSet<SetType>& kernel_set)
     zisc::pmr::vector<uint32b>::allocator_type alloc{memoryResource()};
     zisc::pmr::vector<uint32b> spirv_code{alloc};
     kernel_set.loadSpirVCode(std::addressof(spirv_code));
-    addShaderModule(id, spirv_code);
+    const std::string_view module_name = kernel_set.name();
+    addShaderModule(id, spirv_code, module_name);
   }
 }
 
@@ -129,7 +131,7 @@ const VulkanDispatchLoader& VulkanDevice::dispatcher() const noexcept
   \return No description
   */
 inline
-const VkShaderModule& VulkanDevice::getShaderModule(const uint32b id) const noexcept
+auto VulkanDevice::getShaderModule(const uint32b id) const noexcept -> const ModuleData&
 {
   ZISC_ASSERT(hasShaderModule(id), "Shader module not found. id = ", id);
   auto module = shader_module_list_->find(id);
@@ -182,6 +184,24 @@ inline
 const VmaAllocator& VulkanDevice::memoryAllocator() const noexcept
 {
   return vm_allocator_;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \param [in] command_buffer No description.
+  \param [in] source No description.
+  \param [out] dest No description.
+  */
+template <typename Type> inline
+void VulkanDevice::updateBufferCmd(const VkCommandBuffer& command_buffer,
+                                   const Type& source,
+                                   const VkBuffer& dest)
+{
+  constexpr VkDeviceSize size = sizeof(Type);
+  static_assert(size % 4 == 0, "The size of Type isn't a multiple of 4.");
+  updateBufferCmd(command_buffer, size, std::addressof(source), 0, dest);
 }
 
 /*!

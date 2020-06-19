@@ -119,6 +119,9 @@ class CpuDevice : public Device
   //! Initialize the device
   void initData() override;
 
+  //! Update debug info
+  void updateDebugInfoImpl() noexcept override;
+
  private:
   //! Return the sub-platform
   CpuSubPlatform& parentImpl() noexcept;

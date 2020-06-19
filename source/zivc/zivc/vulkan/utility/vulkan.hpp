@@ -19,7 +19,7 @@
 #include "zivc/zivc_config.hpp"
 
 // Namespace
-#define VULKAN_HPP_NAMESPACE zivcvk 
+#define VULKAN_HPP_NAMESPACE zivcvk
 // Disable the smart handler of the Vulkan-HPP
 #define VULKAN_HPP_NO_SMART_HANDLE 1
 // Dynamic loading

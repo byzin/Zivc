@@ -22,6 +22,7 @@
 #include <cstring>
 #include <string_view>
 // Zisc
+#include "id_data.hpp"
 #include "zisc/error.hpp"
 
 namespace zivc {
@@ -71,7 +72,7 @@ std::string_view KernelParameters<SetType, ArgTypes...>::kernelName() const noex
 template <typename SetType, typename ...ArgTypes> inline
 constexpr std::size_t KernelParameters<SetType, ArgTypes...>::maxKernelNameLength() noexcept
 {
-  return kMaxKernelNameLength;
+  return IdData::maxNameLength();
 }
 
 /*!

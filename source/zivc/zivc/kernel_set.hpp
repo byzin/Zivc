@@ -17,6 +17,7 @@
 
 // Standard C++ library
 #include <memory>
+#include <string_view>
 #include <vector>
 // Zisc
 #include "zisc/std_memory_resource.hpp"
@@ -41,6 +42,9 @@ class KernelSet
 
   //! Load the SPIR-V code
   static void loadSpirVCode(zisc::pmr::vector<uint32b>* spirv_code_out) noexcept;
+
+  //! Return the kernel set name
+  static constexpr std::string_view name() noexcept;
 };
 
 } // namespace zivc

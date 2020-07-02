@@ -252,7 +252,7 @@ inline
 void IdData::setFileInfo(std::string_view file_name,
                          const int64b line_number) noexcept
 {
-  std::strcpy(file_name_.data(), file_name.data());
+  std::strncpy(file_name_.data(), file_name.data(), file_name.size() + 1);
   line_number_ = line_number;
 }
 
@@ -264,7 +264,7 @@ void IdData::setFileInfo(std::string_view file_name,
 inline
 void IdData::setName(std::string_view data_name) noexcept
 {
-  std::strcpy(name_.data(), data_name.data());
+  std::strncpy(name_.data(), data_name.data(), data_name.size() + 1);
 }
 
 } // namespace zivc

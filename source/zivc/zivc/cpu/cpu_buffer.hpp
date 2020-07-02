@@ -25,6 +25,7 @@
 #include "zivc/buffer.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/id_data.hpp"
+#include "zivc/utility/launch_result.hpp"
 
 namespace zivc {
 
@@ -45,6 +46,8 @@ class CpuBuffer : public Buffer<T>
   // Type aliases
   using Type = typename Buffer<T>::Type;
   using ConstType = typename Buffer<T>::ConstType;
+  using Reference = typename Buffer<T>::Reference;
+  using ConstReference = typename Buffer<T>::ConstReference;
   using Pointer = typename Buffer<T>::Pointer;
   using ConstPointer = typename Buffer<T>::ConstPointer;
 
@@ -87,11 +90,25 @@ class CpuBuffer : public Buffer<T>
   std::size_t size() const noexcept override;
 
  protected:
+  //! Copy from the given buffer
+  LaunchResult copyFromImpl(const Buffer<T>& source,
+                            const BufferLaunchOptions<T>& launch_options) override;
+
   //! Clear the contents of the buffer
   void destroyData() noexcept override;
 
+  //! Fill the buffer with specified value
+  LaunchResult fillImpl(ConstReference value,
+                        const BufferLaunchOptions<T>& launch_options) override;
+
   //! Initialize the buffer
   void initData() override;
+
+  //! Map a buffer memory to a host
+  Pointer mappedMemory() const override;
+
+  //! Unmap a buffer memory
+  void unmapMemory() const noexcept override;
 
   //! Update debug info
   void updateDebugInfoImpl() noexcept override;
@@ -115,128 +132,3 @@ class CpuBuffer : public Buffer<T>
 #include "cpu_buffer-inl.hpp"
 
 #endif // ZIVC_CPU_BUFFER_HPP
-
-///*!
-//  \file cpu_buffer.hpp
-//  \author Sho Ikeda
-//
-//  Copyright (c) 2015-2020 Sho Ikeda
-//  This software is released under the MIT License.
-//  http://opensource.org/licenses/mit-license.php
-//  */
-//
-//#ifndef ZIVC_CPU_BUFFER_HPP
-//#define ZIVC_CPU_BUFFER_HPP
-//
-//// Standard C++ library
-//#include <cstddef>
-//#include <type_traits>
-//// Zisc
-//#include "zisc/memory_resource.hpp"
-//// Zivc
-//#include "zivc/buffer.hpp"
-//#include "zivc/zivc_config.hpp"
-//
-//namespace zivc {
-//
-//// Forward declaration
-//class CpuDevice;
-//
-///*!
-//  */
-//template <DescriptorType kDescriptor, typename T>
-//class CpuBuffer : public Buffer<kDescriptor, T>
-//{
-// public:
-//  //! The type of the buffer. "const", "volatile" and "reference" are removed
-//  using Type = typename Buffer<kDescriptor, T>::Type;
-//  using Pointer = typename Buffer<kDescriptor, T>::Pointer;
-//  using ConstPointer = typename Buffer<kDescriptor, T>::ConstPointer;
-//
-//
-//  //! Create an empty buffer
-//  CpuBuffer(CpuDevice* device,
-//            const BufferUsage usage_flag) noexcept;
-//
-//  //! Create a buffer
-//  CpuBuffer(CpuDevice* device,
-//            const BufferUsage usage_flag,
-//            const std::size_t size) noexcept;
-//
-//
-//  //! Return the buffer body
-//  zisc::pmr::vector<Type>& buffer() noexcept;
-//
-//  //! Return the buffer body
-//  const zisc::pmr::vector<Type>& buffer() const noexcept;
-//
-//  //! Copy this buffer to a dst buffer
-//  template <DescriptorType kDstDescriptor>
-//  void copyTo(CpuBuffer<kDstDescriptor, T>* dst,
-//              const std::size_t count,
-//              const std::size_t src_offset,
-//              const std::size_t dst_offset,
-//              const uint32b queue_index) const noexcept;
-//
-//  //! Return a data from a cpu buffer
-//  Pointer data() noexcept;
-//
-//  //! Return a data from a cpu buffer
-//  ConstPointer data() const noexcept;
-//
-//  //! Return the device type
-//  SubPlatformType SubPlatformType() const noexcept override;
-//
-//  //! Check if a buffer memory is on device
-//  bool isDeviceMemory() const noexcept override;
-//
-//  //! Check if a buffer memory is on host
-//  bool isHostMemory() const noexcept override;
-//
-//  //! Check if a buffer memory is host visible
-//  bool isHostVisible() const noexcept override;
-//
-//  //! Return the memory usage
-//  std::size_t memoryUsage() const noexcept override;
-//
-//  //! Read a data from a buffer
-//  void read(Pointer host_data,
-//            const std::size_t count,
-//            const std::size_t offset,
-//            const uint32b queue_index) const noexcept override;
-//
-//  //! Set a size of a buffer
-//  void setSize(const std::size_t size) noexcept override;
-//
-//  //! Return a size of a buffer
-//  std::size_t size() const noexcept override;
-//
-//  //! Write a data to a buffer
-//  void write(ConstPointer host_data,
-//             const std::size_t count,
-//             const std::size_t offset,
-//             const uint32b queue_index) noexcept override;
-//
-// private:
-//  //! Map a buffer memory to a host
-//  Pointer mappedMemory() const noexcept override;
-//
-//  //! Unmap a buffer memory
-//  void unmapMemory() const noexcept override;
-//
-//
-//  CpuDevice* device_;
-//  zisc::pmr::vector<Type> buffer_;
-//};
-//
-//// Type aliases
-//template <typename Type>
-//using CpuUniformBuffer = CpuBuffer<DescriptorType::kUniform, Type>;
-//template <typename Type>
-//using CpuStorageBuffer = CpuBuffer<DescriptorType::kStorage, Type>;
-//
-//} // namespace zivc
-//
-//#include "cpu_buffer-inl.hpp"
-//
-//#endif // ZIVC_CPU_BUFFER_HPP

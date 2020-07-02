@@ -87,7 +87,7 @@ CpuKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
 run(ArgTypes... args, const LaunchOptions& launch_options)
 {
   auto& device = parentImpl();
-  const auto work_size = expandTo3d(launch_options.workSize());
+  const auto work_size = BaseKernel::expandWorkSize(launch_options.workSize());
   using LauncherType = Launcher<FuncArgTypes...>;
   auto command = [func = kernel(), &args..., &launch_options]() noexcept
   {
@@ -188,24 +188,6 @@ Launcher<UnprocessedArgs...>::exec(Function func,
                          cl_arg);
     }
   }
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] work_size No description.
-  \return No description
-  */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
-inline
-std::array<uint32b, 3>
-CpuKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
-expandTo3d(const std::array<uint32b, kDimension>& work_size) noexcept
-{
-  std::array<uint32b, 3> work_size_3d{{1, 1, 1}};
-  for (std::size_t i = 0; i < kDimension; ++i)
-    work_size_3d[i] = work_size[i];
-  return work_size_3d;
 }
 
 /*!

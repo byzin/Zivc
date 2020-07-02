@@ -118,10 +118,6 @@ class CpuKernel<kDimension,
     using NextLauncher = Launcher<Types...>;
   };
 
-  //! Expand the given work size to 3d work size array
-  static std::array<uint32b, 3> expandTo3d(
-    const std::array<uint32b, kDimension>& work_size) noexcept;
-
   //! Return the device
   CpuDevice& parentImpl() noexcept;
 

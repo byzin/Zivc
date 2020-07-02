@@ -66,16 +66,38 @@ class AddressSpaceInfo<cl::AddressSpacePointer<kAddressType, Type>>
 };
 
 /*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam Type No description.
+  */
+template <typename Type>
+class AddressSpaceInfo<Buffer<Type>>
+{
+ public:
+  using ElementType = std::remove_cv_t<Type>;
+
+
+  static constexpr bool kIsGlobal = false;
+  static constexpr bool kIsLocal = false;
+  static constexpr bool kIsConstant = false;
+  static constexpr bool kIsPod = false;
+};
+
+/*!
   \details No detailed description
   */
 inline
 constexpr KernelArgParseResult::KernelArgParseResult() noexcept :
-    is_global_{false},
-    is_local_{false},
-    is_constant_{false},
-    is_pod_{false},
-    index_{0}
+    index_{0},
+    is_global_{zisc::kFalse},
+    is_local_{zisc::kFalse},
+    is_constant_{zisc::kFalse},
+    is_pod_{zisc::kFalse},
+    is_buffer_{zisc::kFalse}
 {
+  static_cast<void>(padding_);
 }
 
 /*!
@@ -90,25 +112,15 @@ inline
 constexpr KernelArgParseResult::KernelArgParseResult(const bool is_global,
                                                      const bool is_local,
                                                      const bool is_constant,
-                                                     const bool is_pod)
-    noexcept :
-        is_global_{is_global},
-        is_local_{is_local},
-        is_constant_{is_constant},
-        is_pod_{is_pod},
-        index_{0}
+                                                     const bool is_pod,
+                                                     const bool is_buffer) noexcept :
+    index_{0},
+    is_global_{is_global ? zisc::kTrue : zisc::kFalse},
+    is_local_{is_local ? zisc::kTrue : zisc::kFalse},
+    is_constant_{is_constant ? zisc::kTrue : zisc::kFalse},
+    is_pod_{is_pod ? zisc::kTrue : zisc::kFalse},
+    is_buffer_{is_buffer ? zisc::kTrue : zisc::kFalse}
 {
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-inline
-constexpr bool KernelArgParseResult::isConstant() const noexcept
-{
-  return is_constant_;
 }
 
 /*!
@@ -139,11 +151,32 @@ constexpr bool KernelArgParseResult::isLocal() const noexcept
   \return No description
   */
 inline
+constexpr bool KernelArgParseResult::isConstant() const noexcept
+{
+  return is_constant_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
 constexpr bool KernelArgParseResult::isPod() const noexcept
 {
   return is_pod_;
 }
 
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+constexpr bool KernelArgParseResult::isBuffer() const noexcept
+{
+  return is_buffer_;
+}
 /*!
   \details No detailed description
 
@@ -231,6 +264,16 @@ class KernelArgParser<ArgType, RestTypes...>
       NewKernel<ParentKernel<kDimension, SetType>>,
       ExtendedKernel<ParentKernel<kDimension, SetType>>>;
 
+  //! Make the parse result of the ArgType
+  static constexpr KernelArgParseResult makeArgParseResult() noexcept
+  {
+    return KernelArgParseResult{ArgInfo::kIsGlobal,
+                                ArgInfo::kIsLocal,
+                                ArgInfo::kIsConstant,
+                                ArgInfo::kIsPod,
+                                ArgInfo::kIsBuffer};
+  }
+
  public:
   // Type aliases
   template <std::size_t kSize>
@@ -257,11 +300,12 @@ class KernelArgParser<ArgType, RestTypes...>
   static constexpr std::size_t kNumOfConstantArgs = ArgInfo::kIsConstant
       ? Parent::kNumOfConstantArgs + 1
       : Parent::kNumOfConstantArgs;
-  static constexpr std::size_t kNumOfStorageBuffer =
-      (ArgInfo::kIsGlobal && ArgInfo::kIsConstant)
-          ? Parent::kNumOfStorageBuffer + 1
-          : Parent::kNumOfStorageBuffer;
-  static constexpr std::size_t kNumOfUniformBuffer = Parent::kNumOfUniformBuffer;
+  static constexpr std::size_t kNumOfPodArgs = ArgInfo::kIsPod
+      ? Parent::kNumOfPodArgs + 1
+      : Parent::kNumOfPodArgs;
+  static constexpr std::size_t kNumOfBufferArgs = ArgInfo::kIsBuffer
+      ? Parent::kNumOfBufferArgs + 1
+      : Parent::kNumOfBufferArgs;
 
 
   //! Return the info of arguments
@@ -275,37 +319,8 @@ class KernelArgParser<ArgType, RestTypes...>
         result_list[i + 1].setIndex(i + 1);
       }
     }
-
-    result_list[0] = KernelArgParseResult{ArgInfo::kIsGlobal,
-                                          ArgInfo::kIsLocal,
-                                          ArgInfo::kIsConstant,
-                                          ArgInfo::kIsPod};
+    result_list[0] = makeArgParseResult();
     result_list[0].setIndex(0);
-
-    return result_list;
-  }
-
-  //! Return the info of global arguments
-  static constexpr ResultList<kNumOfGlobalArgs> getGlobalArgInfoList() noexcept
-  {
-    ResultList<kNumOfGlobalArgs> result_list;
-    if constexpr (0u < Parent::kNumOfGlobalArgs) {
-      const std::size_t offset = ArgInfo::kIsGlobal ? 1u : 0u;
-      auto parent_list = Parent::getGlobalArgInfoList();
-      for (std::size_t i = 0; i < Parent::kNumOfGlobalArgs; ++i) {
-        result_list[i + offset] = parent_list[i];
-        result_list[i + offset].setIndex(result_list[i + offset].index() + 1);
-      }
-    }
-
-    if constexpr (ArgInfo::kIsGlobal) {
-      result_list[0] = KernelArgParseResult{ArgInfo::kIsGlobal,
-                                            ArgInfo::kIsLocal,
-                                            ArgInfo::kIsConstant,
-                                            ArgInfo::kIsPod};
-      result_list[0].setIndex(0);
-    }
-
     return result_list;
   }
 
@@ -313,25 +328,59 @@ class KernelArgParser<ArgType, RestTypes...>
   static constexpr ResultList<kNumOfLocalArgs> getLocalArgInfoList() noexcept
   {
     ResultList<kNumOfLocalArgs> result_list;
+    const std::size_t offset = ArgInfo::kIsLocal ? 1u : 0u;
     if constexpr (0u < Parent::kNumOfLocalArgs) {
-      const std::size_t offset = ArgInfo::kIsLocal ? 1u : 0u;
       auto parent_list = Parent::getLocalArgInfoList();
       for (std::size_t i = 0; i < Parent::kNumOfLocalArgs; ++i) {
         result_list[i + offset] = parent_list[i];
         result_list[i + offset].setIndex(result_list[i + offset].index() + 1);
       }
     }
-
-    if constexpr (ArgInfo::kIsLocal) {
-      result_list[0] = KernelArgParseResult{ArgInfo::kIsGlobal,
-                                            ArgInfo::kIsLocal,
-                                            ArgInfo::kIsConstant,
-                                            ArgInfo::kIsPod};
+    if constexpr (offset) {
+      result_list[0] = makeArgParseResult();
       result_list[0].setIndex(0);
     }
-
     return result_list;
   }
+
+  //! Return the info of POD arguments
+  static constexpr ResultList<kNumOfPodArgs> getPodArgInfoList() noexcept
+  {
+    ResultList<kNumOfPodArgs> result_list;
+    const std::size_t offset = ArgInfo::kIsPod ? 1u : 0u;
+    if constexpr (0u < Parent::kNumOfPodArgs) {
+      auto parent_list = Parent::getPodArgInfoList();
+      for (std::size_t i = 0; i < Parent::kNumOfPodArgs; ++i) {
+        result_list[i + offset] = parent_list[i];
+        result_list[i + offset].setIndex(result_list[i + offset].index() + 1);
+      }
+    }
+    if constexpr (offset) {
+      result_list[0] = makeArgParseResult();
+      result_list[0].setIndex(0);
+    }
+    return result_list;
+  }
+
+  //! Return the info of buffer arguments
+  static constexpr ResultList<kNumOfBufferArgs> getBufferArgInfoList() noexcept
+  {
+    ResultList<kNumOfBufferArgs> result_list;
+    const std::size_t offset = ArgInfo::kIsBuffer ? 1u : 0u;
+    if constexpr (0u < Parent::kNumOfBufferArgs) {
+      auto parent_list = Parent::getBufferArgInfoList();
+      for (std::size_t i = 0; i < Parent::kNumOfBufferArgs; ++i) {
+        result_list[i + offset] = parent_list[i];
+        result_list[i + offset].setIndex(result_list[i + offset].index() + 1);
+      }
+    }
+    if constexpr (offset) {
+      result_list[0] = makeArgParseResult();
+      result_list[0].setIndex(0);
+    }
+    return result_list;
+  }
+
 
   //! Check if there are const local arguments in the kernel arguments
   static constexpr bool hasConstLocal() noexcept

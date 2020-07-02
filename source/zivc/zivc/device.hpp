@@ -32,6 +32,7 @@ namespace zivc {
 
 // Forward declaration
 class DeviceInfo;
+class Fence;
 class SubPlatform;
 template <typename SetType, typename ...ArgTypes> class KernelParameters;
 
@@ -75,24 +76,35 @@ class Device : public ZivcObject
   SharedKernel<kDimension, SetType, ArgTypes...> makeKernel(
       const KernelParameters<SetType, ArgTypes...>& parameters);
 
+  //! Return the number of available fences
+  virtual std::size_t numOfFences() const noexcept = 0;
+
   //! Return the number of underlying command queues
   virtual std::size_t numOfQueues() const noexcept = 0;
 
   //! Return the peak memory usage of the heap of the given number
   virtual std::size_t peakMemoryUsage(const std::size_t number) const noexcept = 0;
 
+  //! Return the ownership of the fence to the device
+  virtual void returnFence(Fence* fence) noexcept = 0;
+
+  //! Set the number of fences
+  virtual void setNumOfFences(const std::size_t s) = 0;
+
+  //! Take a fence data from the device
+  virtual void takeFence(Fence* fence) = 0;
+
   //! Return the current memory usage of the heap of the given number
   virtual std::size_t totalMemoryUsage(const std::size_t number) const noexcept = 0;
 
-//  //! Wait this thread until all commands in the device are completed
-//  virtual void waitForCompletion() const noexcept = 0;
-//
-//  //! Wait this thread until all commands in the queues are completed
-//  virtual void waitForCompletion(const QueueType queue_type) const noexcept = 0;
-//
-//  //! Wait this thread until all commands in the queue are completed
-//  virtual void waitForCompletion(const QueueType queue_type,
-//                                 const uint32b queue_index) const noexcept = 0;
+  //! Wait for a device to be idle
+  virtual void waitForCompletion() const noexcept = 0;
+
+  //! Wait for a queue to be idle
+  virtual void waitForCompletion(const uint32b queue_index) const noexcept = 0;
+
+  //! Wait for a fence to be signaled
+  virtual void waitForCompletion(const Fence& fence) const noexcept = 0;
 
  protected:
   //! Destroy the data

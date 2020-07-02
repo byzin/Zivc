@@ -18,9 +18,12 @@
 // Standard C++ library
 #include <array>
 #include <cstddef>
+#include <tuple>
 #include <type_traits>
 // Vulkan
 #include <vulkan/vulkan.h>
+// VMA
+#include "vk_mem_alloc.h"
 // Zivc
 #include "zivc/kernel.hpp"
 #include "zivc/zivc_config.hpp"
@@ -69,12 +72,21 @@ class VulkanKernel<kDimension,
   ~VulkanKernel() noexcept override;
 
 
+  //! Check if the kernel has local arg
+  static constexpr bool hasLocalArg() noexcept;
+
+  //! Check if the kernel has pod arg
+  static constexpr bool hasPodArg() noexcept;
+
   //! Execute a kernel
   void run(ArgTypes... args, const LaunchOptions& launch_options) override;
 
  protected:
   //! Clear the contents of the kernel
   void destroyData() noexcept override;
+
+  //! Record dispatching the kernel to the parent device
+  void dispatchCmd(const std::array<uint32b, 3>& work_size);
 
   //! Initialize the kernel
   void initData(const Parameters& params) override;
@@ -83,6 +95,27 @@ class VulkanKernel<kDimension,
   void updateDebugInfoImpl() noexcept override;
 
  private:
+  //! Make a tuple of POD parameters
+  static auto makePodTuple() noexcept;
+
+  //! Make a tuple of POD parameters
+  template <std::size_t kIndex>
+  static auto makePodTupleImpl() noexcept;
+
+
+  using PodTuple = decltype(makePodTuple());
+
+
+  //! Initialize the POD buffer
+  void initPodBuffer() noexcept;
+
+  //! Initialize the given POD tuple
+  template <std::size_t kIndex, typename Type, typename ...Types>
+  static void initPodTuple(PodTuple* pod_params, Type&& value, Types&&... rest) noexcept;
+
+  //! Initialize the given POD tuple
+  static PodTuple makePodTuple(ArgTypes... args) noexcept;
+
   //! Return the device
   VulkanDevice& parentImpl() noexcept;
 
@@ -126,12 +159,16 @@ class VulkanKernel<kDimension,
 //  bool isSameArgs(std::add_lvalue_reference_t<BufferArgs>... args) const noexcept;
 
 
+  PodTuple pod_params_;
 //  std::array<vk::Buffer, kNumOfBuffers> buffer_list_;
   VkDescriptorSetLayout desc_set_layout_ = VK_NULL_HANDLE;
   VkDescriptorPool desc_pool_ = VK_NULL_HANDLE;
   VkDescriptorSet desc_set_ = VK_NULL_HANDLE;
   VkPipelineLayout pipeline_layout_ = VK_NULL_HANDLE;
   VkPipeline pipeline_ = VK_NULL_HANDLE;
+  VkBuffer pod_buffer_ = VK_NULL_HANDLE;
+  VmaAllocation vm_pod_allocation_ = VK_NULL_HANDLE;
+  VmaAllocationInfo vm_pod_alloc_info_;
   VkCommandBuffer command_buffer_ = VK_NULL_HANDLE;
 };
 

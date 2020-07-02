@@ -17,20 +17,27 @@
 
 #include "vulkan_buffer.hpp"
 // Standard C++ library
+#include <algorithm>
 #include <memory>
 #include <utility>
 // Vulkan
 #include <vulkan/vulkan.h>
 // Zisc
+#include "zisc/error.hpp"
 #include "zisc/std_memory_resource.hpp"
 #include "zisc/utility.hpp"
 // Zivc
 #include "vulkan_device.hpp"
 #include "vulkan_device_info.hpp"
+#include "utility/cmd_debug_label_region.hpp"
+#include "utility/cmd_record_region.hpp"
+#include "utility/queue_debug_label_region.hpp"
 #include "zivc/buffer.hpp"
 #include "zivc/sub_platform.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/id_data.hpp"
+#include "zivc/utility/launch_result.hpp"
+#include "zivc/utility/mapped_memory.hpp"
 #include "zivc/utility/zivc_object.hpp"
 
 namespace zivc {
@@ -113,6 +120,39 @@ const VkBuffer& VulkanBuffer<T>::buffer() const noexcept
   \return No description
   */
 template <typename T> inline
+auto VulkanBuffer<T>::descriptorType() const noexcept -> DescriptorType
+{
+  return desc_type_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <typename T> inline
+VkBufferUsageFlagBits VulkanBuffer<T>::descriptorTypeVk() const noexcept
+{
+  VkBufferUsageFlagBits flag = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+  switch (descriptorType()) {
+   case DescriptorType::kUniform:
+    flag = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+    break;
+   case DescriptorType::kStorage:
+    flag = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+    break;
+   default:
+    break;
+  }
+  return flag;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <typename T> inline
 bool VulkanBuffer<T>::isDeviceLocal() const noexcept
 {
   const bool result = hasMemoryProperty(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
@@ -158,6 +198,17 @@ bool VulkanBuffer<T>::isHostVisible() const noexcept
 /*!
   \details No detailed description
 
+  \param [in] type No description.
+  */
+template <typename T> inline
+void VulkanBuffer<T>::setDescriptorType(const DescriptorType type) noexcept
+{
+  desc_type_ = type;
+}
+
+/*!
+  \details No detailed description
+
   \param [in] s No description.
   */
 template <typename T> inline
@@ -171,12 +222,14 @@ void VulkanBuffer<T>::setSize(const std::size_t s)
       auto& device = parentImpl();
       device.allocateMemory(mem_size,
                             Buffer<T>::usage(),
+                            descriptorTypeVk(),
                             std::addressof(Buffer<T>::id()),
                             std::addressof(buffer()),
                             std::addressof(allocation()),
                             std::addressof(vm_alloc_info_));
       ZivcObject::updateDebugInfo();
     }
+    initCommandBuffer();
   }
 }
 
@@ -191,6 +244,26 @@ std::size_t VulkanBuffer<T>::size() const noexcept
   const auto& info = allocationInfo();
   const std::size_t s = info.size / sizeof(Type);
   return s;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] source No description.
+  \param [in] launch_options No description.
+  \return No description
+  */
+template <typename T> inline
+LaunchResult VulkanBuffer<T>::copyFromImpl(
+    const Buffer<T>& source,
+    const BufferLaunchOptions<T>& launch_options)
+{
+  LaunchResult result{};
+  if (isDeviceLocal() || source.isDeviceLocal())
+    result = copyOnDevice(source, launch_options);
+  else
+    result = copyOnHost(source, launch_options);
+  return result;
 }
 
 /*!
@@ -210,10 +283,37 @@ void VulkanBuffer<T>::destroyData() noexcept
 
 /*!
   \details No detailed description
+
+  \param [in] value No description.
+  \param [in] launch_options No description.
+  \return No description
+  */
+template <typename T> inline
+LaunchResult VulkanBuffer<T>::fillImpl(ConstReference value,
+                                       const BufferLaunchOptions<T>& launch_options)
+{
+  LaunchResult result{};
+  if (isDeviceLocal()) {
+    const std::size_t offsetBytes = launch_options.destOffsetInBytes();
+    const std::size_t sizeBytes = launch_options.sizeInBytes();
+    if ((4 % sizeof(T) == 0) && (offsetBytes % 4 == 0) && (sizeBytes % 4 == 0))
+      result = fillFastOnDevice(value, launch_options);
+    else
+      result = fillOnDevice(value, launch_options);
+  }
+  else {
+    result = fillOnHost(value, launch_options);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
   */
 template <typename T> inline
 void VulkanBuffer<T>::initData()
 {
+  setDescriptorType(DescriptorType::kStorage);
   buffer_ = VK_NULL_HANDLE;
   vm_allocation_ = VK_NULL_HANDLE;
   vm_alloc_info_.memoryType = 0;
@@ -222,6 +322,34 @@ void VulkanBuffer<T>::initData()
   vm_alloc_info_.size = 0;
   vm_alloc_info_.pMappedData = nullptr;
   vm_alloc_info_.pUserData = nullptr;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <typename T> inline
+auto VulkanBuffer<T>::mappedMemory() const -> Pointer
+{
+  Pointer p = nullptr;
+  const auto& device = parentImpl();
+  const auto result = vmaMapMemory(device.memoryAllocator(), allocation(), &p);
+  if (result != VK_SUCCESS) {
+    //! \todo Raise an exception
+    printf("[Warning] Memory mapping failed.\n");
+  }
+  return p;
+}
+
+/*!
+  \details No detailed description
+  */
+template <typename T> inline
+void VulkanBuffer<T>::unmapMemory() const noexcept
+{
+  const auto& device = parentImpl();
+  vmaUnmapMemory(device.memoryAllocator(), allocation());
 }
 
 /*!
@@ -246,6 +374,168 @@ void VulkanBuffer<T>::updateDebugInfoImpl() noexcept
 /*!
   \details No detailed description
 
+  \param [in] source No description.
+  \param [in] launch_options No description.
+  \return No description
+  */
+template <typename T> inline
+LaunchResult VulkanBuffer<T>::copyOnDevice(
+    const Buffer<T>& source,
+    const BufferLaunchOptions<T>& launch_options)
+{
+  VulkanDevice& device = parentImpl();
+  {
+    CmdDebugLabelRegion debug_region{Buffer<T>::isDebugMode() ? command_buffer_
+                                                              : VK_NULL_HANDLE,
+                                     device.dispatcher(),
+                                     launch_options.label(),
+                                     launch_options.labelColor()};
+    {
+      CmdRecordRegion record_region{command_buffer_,
+                                    device.dispatcher(),
+                                    VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT};
+      auto src = zisc::cast<const VulkanBuffer*>(std::addressof(source));
+      const VkBufferCopy copy_region{launch_options.sourceOffsetInBytes(),
+                                     launch_options.destOffsetInBytes(),
+                                     launch_options.sizeInBytes()};
+      device.copyBufferCmd(command_buffer_, src->buffer(), buffer(), copy_region);
+    }
+  }
+  LaunchResult result{};
+  {
+    VkQueue q = device.getQueue(launch_options.queueIndex());
+    if (launch_options.isExternalSyncMode())
+      device.takeFence(std::addressof(result.fence()));
+    QueueDebugLabelRegion debug_region{Buffer<T>::isDebugMode() ? q
+                                                                : VK_NULL_HANDLE,
+                                       device.dispatcher(),
+                                       launch_options.label(),
+                                       launch_options.labelColor()};
+    device.submitKernelQueue(command_buffer_, q, result.fence());
+  }
+  result.setAsync(true);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] source No description.
+  \param [in] launch_options No description.
+  \return No description
+  */
+template <typename T> inline
+LaunchResult VulkanBuffer<T>::copyOnHost(
+    const Buffer<T>& source,
+    const BufferLaunchOptions<T>& launch_options) noexcept
+{
+  {
+    auto source_mem = source.mapMemory();
+    auto memory = Buffer<T>::mapMemory();
+    ConstPointer src = source_mem.begin() + launch_options.sourceOffset();
+    Pointer dest = memory.begin() + launch_options.destOffset();
+    std::copy_n(src, launch_options.size(), dest);
+  }
+  LaunchResult result{};
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] value No description.
+  \param [in] launch_options No description.
+  \return No description
+  */
+template <typename T> inline
+LaunchResult VulkanBuffer<T>::fillFastOnDevice(
+    ConstReference value,
+    const BufferLaunchOptions<T>& launch_options)
+{
+  // Create a data for fill
+  uint32b data = 0;
+  constexpr std::size_t n = sizeof(data) / sizeof(T);
+  std::fill_n(zisc::treatAs<Pointer>(std::addressof(data)), n, value);
+
+  VulkanDevice& device = parentImpl();
+  {
+    CmdDebugLabelRegion debug_region{Buffer<T>::isDebugMode() ? command_buffer_
+                                                              : VK_NULL_HANDLE,
+                                     device.dispatcher(),
+                                     launch_options.label(),
+                                     launch_options.labelColor()};
+    {
+      CmdRecordRegion record_region{command_buffer_,
+                                    device.dispatcher(),
+                                    VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT};
+      device.fillBufferFastCmd(command_buffer_,
+                               buffer(),
+                               launch_options.destOffsetInBytes(),
+                               launch_options.sizeInBytes(),
+                               data);
+    }
+  }
+  LaunchResult result{};
+  {
+    VkQueue q = device.getQueue(launch_options.queueIndex());
+    if (launch_options.isExternalSyncMode())
+      device.takeFence(std::addressof(result.fence()));
+    QueueDebugLabelRegion debug_region{Buffer<T>::isDebugMode() ? q
+                                                                : VK_NULL_HANDLE,
+                                       device.dispatcher(),
+                                       launch_options.label(),
+                                       launch_options.labelColor()};
+    device.submitKernelQueue(command_buffer_, q, result.fence());
+  }
+  result.setAsync(true);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] value No description.
+  \param [in] launch_options No description.
+  \return No description
+  */
+template <typename T> inline
+LaunchResult VulkanBuffer<T>::fillOnDevice(
+    ConstReference value,
+    const BufferLaunchOptions<T>& launch_options)
+{
+  static_cast<void>(value);
+  static_cast<void>(launch_options);
+  ZISC_ASSERT(false, "'fillDevice' isn't implemented yet.");
+  //! \todo Make a fill array and copy to the device?
+  LaunchResult result{};
+  result.setAsync(true);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] value No description.
+  \param [in] launch_options No description.
+  \return No description
+  */
+template <typename T> inline
+LaunchResult VulkanBuffer<T>::fillOnHost(
+    ConstReference value,
+    const BufferLaunchOptions<T>& launch_options) noexcept
+{
+  {
+    auto memory = Buffer<T>::mapMemory();
+    Pointer dest = memory.begin() + launch_options.destOffset();
+    std::fill_n(dest, launch_options.size(), value);
+  }
+  LaunchResult result{};
+  return result;
+}
+
+/*!
+  \details No detailed description
+
   \param [in] flag No description.
   \return No description
   */
@@ -260,6 +550,18 @@ bool VulkanBuffer<T>::hasMemoryProperty(const VkMemoryPropertyFlagBits flag) con
   const auto& mem_type = mem_props.memoryTypes[info.memoryType];
   const bool has_property = (mem_type.propertyFlags & flag) == flag;
   return has_property;
+}
+
+/*!
+  \details No detailed description
+  */
+template <typename T> inline
+void VulkanBuffer<T>::initCommandBuffer()
+{
+  if ((command_buffer_ == VK_NULL_HANDLE) && isDeviceLocal()) {
+    auto& device = parentImpl();
+    device.initKernelCommandBuffer(std::addressof(command_buffer_));
+  }
 }
 
 /*!

@@ -36,6 +36,7 @@ namespace zivc {
 
 // Forward declaration
 class DeviceInfo;
+class Fence;
 class CpuDeviceInfo;
 class CpuSubPlatform;
 template <typename SetType, typename ...ArgTypes> class KernelParameters;
@@ -77,6 +78,9 @@ class CpuDevice : public Device
   //! Notify of device memory deallocation
   void notifyDeallocation(const std::size_t size) noexcept;
 
+  //! Return the number of available fences
+  std::size_t numOfFences() const noexcept override;
+
   //! Return the number of underlying command queues
   std::size_t numOfQueues() const noexcept override;
 
@@ -86,9 +90,18 @@ class CpuDevice : public Device
   //! Return the peak memory usage of the heap of the given index
   std::size_t peakMemoryUsage(const std::size_t number) const noexcept override;
 
+  //! Return the ownership of the fence to the device
+  void returnFence(Fence* fence) noexcept override;
+
+  //! Set the number of fences
+  void setNumOfFences(const std::size_t s) override;
+
   //! Submit a kernel command
   void submit(const std::array<uint32b, 3>& work_size,
               const Command& command) noexcept;
+
+  //! Take a fence data from the device
+  void takeFence(Fence* fence) override;
 
   //! Return the task batch size per thread
   std::size_t taskBatchSize() const noexcept;
@@ -102,15 +115,14 @@ class CpuDevice : public Device
   //! Return the current memory usage of the heap of the given index
   std::size_t totalMemoryUsage(const std::size_t number) const noexcept override;
 
-//  //! Wait this thread until all commands in the device are completed
-//  void waitForCompletion() const noexcept override;
-//
-//  //! Wait this thread until all commands in the queues are completed
-//  void waitForCompletion(const QueueType queue_type) const noexcept override;
-//
-//  //! Wait this thread until all commands in the queue are completed
-//  void waitForCompletion(const QueueType queue_type,
-//                         const uint32b queue_index) const noexcept override;
+  //! Wait for a device to be idle
+  void waitForCompletion() const noexcept override;
+
+  //! Wait for a queue to be idle
+  void waitForCompletion(const uint32b queue_index) const noexcept override;
+
+  //! Wait for a fence to be signaled
+  void waitForCompletion(const Fence& fence) const noexcept override;
 
  protected:
   //! Destroy the device

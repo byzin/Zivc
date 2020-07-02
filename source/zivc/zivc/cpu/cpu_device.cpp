@@ -16,6 +16,7 @@
 // Standard C++ library
 #include <array>
 #include <cstddef>
+#include <limits>
 #include <memory>
 // Zisc
 #include "zisc/memory.hpp"
@@ -29,8 +30,18 @@
 #include "zivc/device_info.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/id_data.hpp"
+#include "zivc/utility/fence.hpp"
+
+namespace {
+
+using CpuFence = zisc::ThreadManager::SharedResult<void>;
+
+}
 
 namespace zivc {
+
+static_assert(!(std::alignment_of_v<Fence::Data> % std::alignment_of_v<::CpuFence>));
+static_assert(sizeof(::CpuFence) <= sizeof(Fence::Data));
 
 /*!
   \details No detailed description
@@ -54,6 +65,17 @@ CpuDevice::~CpuDevice() noexcept
 
   \return No description
   */
+std::size_t CpuDevice::numOfFences() const noexcept
+{
+  constexpr std::size_t s = std::numeric_limits<std::size_t>::max();
+  return s;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
 std::size_t CpuDevice::numOfQueues() const noexcept
 {
   return 1;
@@ -69,6 +91,27 @@ std::size_t CpuDevice::peakMemoryUsage(const std::size_t number) const noexcept
 {
   static_cast<void>(number);
   return heap_usage_.peak();
+}
+
+/*!
+  \details No detailed description
+
+  \param [in,out] fence No description.
+  */
+void CpuDevice::returnFence(Fence* fence) noexcept
+{
+  auto memory = zisc::treatAs<::CpuFence*>(std::addressof(fence->data()));
+  std::destroy_at(memory);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] s No description.
+  */
+void CpuDevice::setNumOfFences(const std::size_t s)
+{
+  static_cast<void>(s);
 }
 
 ///*!
@@ -122,6 +165,17 @@ void CpuDevice::submit(const std::array<uint32b, 3>& work_size,
 /*!
   \details No detailed description
 
+  \param [out] fence No description.
+  */
+void CpuDevice::takeFence(Fence* fence)
+{
+  auto memory = std::addressof(fence->data());
+  ::new (zisc::cast<void*>(memory)) ::CpuFence{};
+}
+
+/*!
+  \details No detailed description
+
   \param [in] number No description.
   \return No description
   */
@@ -129,6 +183,37 @@ std::size_t CpuDevice::totalMemoryUsage(const std::size_t number) const noexcept
 {
   static_cast<void>(number);
   return heap_usage_.total();
+}
+
+/*!
+  \details No detailed description
+  */
+void CpuDevice::waitForCompletion() const noexcept
+{
+  auto& manager = const_cast<CpuDevice*>(this)->threadManager();
+  manager.waitForCompletion();
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] queue_index No description.
+  */
+void CpuDevice::waitForCompletion(const uint32b queue_index) const noexcept
+{
+  static_cast<void>(queue_index);
+  waitForCompletion();
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] fence No description.
+  */
+void CpuDevice::waitForCompletion(const Fence& fence) const noexcept
+{
+  const auto f = zisc::treatAs<const ::CpuFence*>(std::addressof(fence.data()));
+  (*f)->wait();
 }
 
 /*!

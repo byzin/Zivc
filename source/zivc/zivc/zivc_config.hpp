@@ -16,6 +16,7 @@
 #define ZIVC_CONFIG_HPP
 
 // Standard C++ library
+#include <limits>
 #include <string_view>
 #include <type_traits>
 // Zisc
@@ -51,6 +52,8 @@ enum class SubPlatformType : uint32b
 };
 
 // Buffer
+
+constexpr std::size_t kBufferWholeSize = (std::numeric_limits<uint64b>::max)();
 
 /*!
   \brief No brief description

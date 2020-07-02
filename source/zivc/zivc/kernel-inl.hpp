@@ -156,7 +156,7 @@ void
 Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
 LaunchOptions::setLabel(const std::string_view launch_label) noexcept
 {
-  std::strcpy(label_.data(), launch_label.data());
+  std::strncpy(label_.data(), launch_label.data(), launch_label.size() + 1);
 }
 
 /*!
@@ -344,6 +344,24 @@ numOfArgs() noexcept
 {
   const std::size_t size = sizeof...(ArgTypes);
   return size;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] work_size No description.
+  \return No description
+  */
+template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+inline
+std::array<uint32b, 3>
+Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+expandWorkSize(const std::array<uint32b, kDimension>& work_size) noexcept
+{
+  std::array<uint32b, 3> work_size_3d{{1, 1, 1}};
+  for (std::size_t i = 0; i < kDimension; ++i)
+    work_size_3d[i] = work_size[i];
+  return work_size_3d;
 }
 
 } // namespace zivc

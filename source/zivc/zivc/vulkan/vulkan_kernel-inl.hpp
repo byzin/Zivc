@@ -22,6 +22,7 @@
 #include <cstring>
 #include <memory>
 #include <string_view>
+#include <tuple>
 #include <type_traits>
 #include <utility>
 // Vulkan
@@ -36,6 +37,7 @@
 #include "vulkan_device.hpp"
 #include "utility/cmd_debug_label_region.hpp"
 #include "utility/cmd_record_region.hpp"
+#include "utility/queue_debug_label_region.hpp"
 #include "zivc/kernel.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/id_data.hpp"
@@ -80,10 +82,19 @@ VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...
 run(ArgTypes... args, const LaunchOptions& launch_options)
 {
   VulkanDevice& device = parentImpl();
+  // POD
+  bool need_to_update_pod = false;
   {
-    const VkCommandBuffer cbuffer = BaseKernel::isDebugMode() ? command_buffer_
-                                                              : VK_NULL_HANDLE;
-    CmdDebugLabelRegion debug_region{cbuffer,
+    const PodTuple pod_params = makePodTuple(args...);
+    need_to_update_pod = hasPodArg() && (pod_params_ == pod_params);
+    if (need_to_update_pod)
+      pod_params_ = pod_params;
+  }
+  const auto work_size = launch_options.workSize();
+  // Command recording
+  {
+    CmdDebugLabelRegion debug_region{BaseKernel::isDebugMode() ? command_buffer_
+                                                               : VK_NULL_HANDLE,
                                      device.dispatcher(),
                                      launch_options.label(),
                                      launch_options.labelColor()};
@@ -91,8 +102,50 @@ run(ArgTypes... args, const LaunchOptions& launch_options)
       CmdRecordRegion record_region{command_buffer_,
                                     device.dispatcher(),
                                     VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT};
+      if (need_to_update_pod)
+        device.updateBufferCmd(command_buffer_, pod_params_, pod_buffer_);
+      dispatchCmd(work_size);
     }
   }
+  // Command submitting
+  {
+    VkQueue q = device.getQueue(launch_options.queueIndex());
+    VkFence fence = VK_NULL_HANDLE;
+    QueueDebugLabelRegion debug_region{BaseKernel::isDebugMode() ? q
+                                                                 : VK_NULL_HANDLE,
+                                       device.dispatcher(),
+                                       launch_options.label(),
+                                       launch_options.labelColor()};
+    device.submitKernelQueue(command_buffer_, q, fence);
+  }
+}
+
+/*!
+  \details No detailed description
+  \return No description
+  */
+template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+inline
+constexpr bool
+VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+hasLocalArg() noexcept
+{
+  const bool result = 0 < BaseKernel::ArgParser::kNumOfLocalArgs;
+  return result;
+}
+
+/*!
+  \details No detailed description
+  \return No description
+  */
+template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+inline
+constexpr bool
+VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+hasPodArg() noexcept
+{
+  const bool result = 0 < BaseKernel::ArgParser::kNumOfPodArgs;
+  return result;
 }
 
 /*!
@@ -105,10 +158,31 @@ VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...
 destroyData() noexcept
 {
   VulkanDevice& device = parentImpl();
+  if (pod_buffer_ != VK_NULL_HANDLE) {
+    device.deallocateMemory(std::addressof(pod_buffer_),
+                            std::addressof(vm_pod_allocation_),
+                            std::addressof(vm_pod_alloc_info_));
+  }
   device.destroyKernelPipeline(std::addressof(pipeline_layout_),
                                std::addressof(pipeline_));
   device.destroyKernelDescriptorSet(std::addressof(desc_set_layout_),
                                     std::addressof(desc_pool_));
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] work_size No description.
+  */
+template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+inline
+void
+VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+dispatchCmd(const std::array<uint32b, 3>& work_size)
+{
+  VulkanDevice& device = parentImpl();
+  device.dispatchKernelCmd(command_buffer_, desc_set_, pipeline_layout_, pipeline_,
+    kDimension, work_size);
 }
 
 /*!
@@ -124,7 +198,7 @@ initData(const Parameters& params)
 {
   VulkanDevice& device = parentImpl();
   device.addShaderModule(SetType{});
-  device.initKernelDescriptorSet(BaseKernel::ArgParser::kNumOfStorageBuffer,
+  device.initKernelDescriptorSet(BaseKernel::ArgParser::kNumOfBufferArgs,
                                  std::addressof(desc_set_layout_),
                                  std::addressof(desc_pool_),
                                  std::addressof(desc_set_));
@@ -137,6 +211,7 @@ initData(const Parameters& params)
                             std::addressof(pipeline_layout_),
                             std::addressof(pipeline_));
   device.initKernelCommandBuffer(std::addressof(command_buffer_));
+  initPodBuffer();
 }
 
 /*!
@@ -157,8 +232,8 @@ updateDebugInfoImpl() noexcept
   {
     if (obj != VK_NULL_HANDLE) {
       IdData::NameType obj_name{""};
-      std::strcat(obj_name.data(), kernel_name.data());
-      std::strcat(obj_name.data(), suffix.data());
+      std::strncat(obj_name.data(), kernel_name.data(), kernel_name.size());
+      std::strncat(obj_name.data(), suffix.data(), suffix.size());
       const uint64b handle = *zisc::treatAs<const uint64b*>(std::addressof(obj));
       device.setDebugInfo(type, handle, obj_name.data(), this);
     }
@@ -179,6 +254,9 @@ updateDebugInfoImpl() noexcept
   set_debug_info(VK_OBJECT_TYPE_PIPELINE,
                  pipeline_,
                  "_pipeline");
+  set_debug_info(VK_OBJECT_TYPE_BUFFER,
+                 pod_buffer_,
+                 "_podbuffer");
   set_debug_info(VK_OBJECT_TYPE_COMMAND_BUFFER,
                  command_buffer_,
                  "_commandbuffer");
@@ -212,6 +290,137 @@ parentImpl() const noexcept
 {
   auto p = BaseKernel::getParent();
   return *zisc::treatAs<VulkanDevice*>(p);
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+inline
+auto
+VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+makePodTuple() noexcept
+{
+  using PodTupleRaw = decltype(makePodTupleImpl<0>());
+  constexpr std::size_t pod_tuple_size = sizeof(PodTupleRaw);
+  if constexpr (pod_tuple_size % 4 == 0) {
+    PodTupleRaw pod_params{};
+    return pod_params;
+  }
+  else {
+    const std::size_t padding_size = 4 - (pod_tuple_size % 4);
+    static_assert(0 < padding_size);
+    std::tuple<std::array<uint8b, padding_size>> right{};
+    PodTupleRaw left{};
+    auto pod_params = std::tuple_cat(left, right);
+    static_assert(sizeof(pod_params) % 4 == 0);
+    return pod_params;
+  }
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kIndex No description.
+  \return No description
+  */
+template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kIndex>
+inline
+auto
+VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+makePodTupleImpl() noexcept
+{
+  constexpr auto pod_arg_info = BaseKernel::ArgParser::getPodArgInfoList();
+  if constexpr (kIndex < pod_arg_info.size()) {
+    constexpr std::size_t pod_index = pod_arg_info[kIndex].index();
+    using ArgTuple = std::tuple<FuncArgTypes...>;
+    using PodType = std::tuple_element_t<pod_index, ArgTuple>;
+    std::tuple<PodType> left{};
+    auto right = makePodTupleImpl<kIndex + 1>();
+    auto pod_params = std::tuple_cat(left, right);
+    return pod_params;
+  }
+  else {
+    std::tuple<> pod_params{};
+    return pod_params;
+  }
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+inline
+auto
+VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+makePodTuple(ArgTypes... args) noexcept -> PodTuple
+{
+  PodTuple pod_params{};
+  if constexpr (0 < sizeof...(ArgTypes))
+    initPodTuple<0>(std::addressof(pod_params), args...);
+  return pod_params;
+}
+
+/*!
+  \details No detailed description
+  */
+template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+inline
+void
+VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+initPodBuffer() noexcept
+{
+  pod_buffer_ = VK_NULL_HANDLE;
+  vm_pod_allocation_ = VK_NULL_HANDLE;
+  vm_pod_alloc_info_.memoryType = 0;
+  vm_pod_alloc_info_.deviceMemory = VK_NULL_HANDLE;
+  vm_pod_alloc_info_.offset = 0;
+  vm_pod_alloc_info_.size = 0;
+  vm_pod_alloc_info_.pMappedData = nullptr;
+  vm_pod_alloc_info_.pUserData = nullptr;
+  if (hasPodArg()) {
+    constexpr std::size_t mem_size = sizeof(PodTuple);
+    auto& device = parentImpl();
+    device.allocateMemory(mem_size,
+                          BufferUsage::kDeviceOnly,
+                          nullptr,
+                          std::addressof(pod_buffer_),
+                          std::addressof(vm_pod_allocation_),
+                          std::addressof(vm_pod_alloc_info_),
+                          true);
+  }
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kIndex No description.
+  \tparam Type No description.
+  \tparam Types No description.
+  \param [out] pod_params No description.
+  \param [in] value No description.
+  \param [in] rest No description.
+  */
+template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kIndex, typename Type, typename ...Types>
+inline
+void
+VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+initPodTuple(PodTuple* pod_params, Type&& value, Types&&... rest) noexcept
+{
+  using T = std::remove_cv_t<std::remove_reference_t<Type>>;
+  using ASpaceInfo = AddressSpaceInfo<T>;
+  if constexpr (ASpaceInfo::kIsPod)
+    std::get<kIndex>(*pod_params) = std::forward<Type>(value);
+  if constexpr (0 < sizeof...(Types)) {
+    constexpr std::size_t next_index = ASpaceInfo::kIsPod ? kIndex + 1 : kIndex;
+    initPodTuple<next_index>(pod_params, std::forward<Types>(rest)...);
+  }
 }
 
 ///*!
@@ -623,8 +832,8 @@ SharedKernel<kDimension, SetType, ArgTypes...> VulkanDevice::makeKernel(
     const KernelParameters<SetType, ArgTypes...>& parameters)
 {
   using SharedKernelType = SharedKernel<kDimension, SetType, ArgTypes...>;
-  using KernelType = typename KernelArgParser<ArgTypes...>::
-                         template VulkanKernelType<kDimension, SetType>;
+  using ArgParser = KernelArgParser<ArgTypes...>;
+  using KernelType = typename ArgParser:: template VulkanKernelType<kDimension, SetType>;
   zisc::pmr::polymorphic_allocator<KernelType> alloc{memoryResource()};
   SharedKernelType kernel = std::allocate_shared<KernelType>(alloc, issueId());
 

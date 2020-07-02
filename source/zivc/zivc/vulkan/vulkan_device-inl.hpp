@@ -219,6 +219,27 @@ const std::array<uint32b, 3>& VulkanDevice::workGroupSizeDim(const std::size_t d
 /*!
   \details No detailed description
 
+  \param [in] work_dimension No description.
+  \param [in] work_size No description.
+  \return No description
+  */
+inline
+std::array<uint32b, 3> VulkanDevice::calcDispatchSize(
+    const std::size_t work_dimension,
+    const std::array<uint32b, 3>& work_size) const noexcept
+{
+  std::array<uint32b, 3> dispatch_size{{1, 1, 1}};
+  const auto& group_size = workGroupSizeDim(work_dimension);
+  for (std::size_t i = 0; i < work_dimension; ++i) {
+    const uint32b s = (work_size[i] + group_size[i] - 1) / group_size[i];
+    dispatch_size[i] = s;
+  }
+  return dispatch_size;
+}
+
+/*!
+  \details No detailed description
+
   \return No description
   */
 inline

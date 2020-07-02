@@ -23,6 +23,7 @@
 #include <type_traits>
 // Zisc
 #include "zisc/algorithm.hpp"
+#include "zisc/zisc_config.hpp"
 // Zivc
 #include "utility/id_data.hpp"
 #include "utility/zivc_object.hpp"
@@ -88,6 +89,9 @@ class Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...
     //! Return the work-group dimension
     static constexpr std::size_t dimension() noexcept;
 
+    //! Check whether external sync mode is required
+    bool isExternalSyncMode() const noexcept;
+
     //! Return the label of the launching
     std::string_view label() const noexcept;
 
@@ -100,6 +104,9 @@ class Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...
     //! Return the queue index
     uint32b queueIndex() const noexcept;
 
+    //! Set external sync mode
+    void setExternalSyncMode(const bool is_active) noexcept;
+
     //! Set the label of the launching
     void setLabel(const std::string_view launch_label) noexcept;
 
@@ -109,13 +116,13 @@ class Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...
     //! Set the queue index which is used for a kernel execution
     void setQueueIndex(const uint32b queue_index) noexcept;
 
-    //! Set the work group size
+    //! Set the work item size
     void setWorkSize(const uint32b work_size, const std::size_t dim) noexcept;
 
-    //! Set the work group size
+    //! Set the work item size
     void setWorkSize(const std::array<uint32b, kDimension>& work_size) noexcept;
 
-    //! Return the work group size
+    //! Return the work item size
     const std::array<uint32b, kDimension>& workSize() const noexcept;
 
    private:
@@ -126,10 +133,12 @@ class Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...
     void initialize() noexcept;
 
 
-    std::array<uint32b, kDimension> work_size_;
-    uint32b queue_index_ = 0;
     IdData::NameType label_;
     std::array<float, 4> label_color_ = {1.0f, 1.0f, 1.0f, 1.0f};
+    std::array<uint32b, kDimension> work_size_;
+    uint32b queue_index_ = 0;
+    int8b is_external_sync_mode_ = zisc::kFalse;
+    std::array<uint8b, std::alignment_of_v<void*> - 1> padding_;
   };
 
 
@@ -163,6 +172,10 @@ class Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...
  protected:
   //! Clear the contents of the kernel
   virtual void destroyData() noexcept = 0;
+
+  //! Expand the given work size to 3d work size array
+  static std::array<uint32b, 3> expandWorkSize(
+      const std::array<uint32b, kDimension>& work_size) noexcept;
 
   //! Initialize the kernel 
   virtual void initData(const Parameters& params) = 0;

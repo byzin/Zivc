@@ -16,27 +16,27 @@
 #define ZIVC_MAPPED_MEMORY_HPP
 
 // Standard C++ library
+#include <cstddef>
 #include <type_traits>
 // Zisc
 #include "zisc/non_copyable.hpp"
 // Zivc
-#include "zivc_config.hpp"
+#include "zivc/zivc_config.hpp"
 
 namespace zivc {
 
 // Forward declaration
-template <DescriptorType, typename> class Buffer;
+template <typename> class Buffer;
 
 /*!
   \brief No brief description
 
   No detailed description.
 
-  \tparam kDescriptor No description.
   \tparam T No description.
   */
-template <DescriptorType kDescriptor, typename T>
-class MappedMemory : private zisc::NonCopyable<MappedMemory<kDescriptor, T>>
+template <typename T>
+class MappedMemory : private zisc::NonCopyable<MappedMemory<T>>
 {
  public:
   using Type = std::remove_volatile_t<T>;
@@ -47,26 +47,36 @@ class MappedMemory : private zisc::NonCopyable<MappedMemory<kDescriptor, T>>
   using ConstPointer = std::add_pointer_t<ConstType>;
   using Iterator = Pointer;
   using ConstIterator = ConstPointer;
-  using Buffer = zivc::Buffer<kDescriptor, std::remove_cv_t<T>>;
+  using Buffer = zivc::Buffer<T>;
   using ConstBuffer = std::add_const_t<Buffer>;
   using BufferP = std::add_pointer_t<Buffer>;
   using ConstBufferP = std::add_pointer_t<ConstBuffer>;
+  // For STL compatibility
+  using value_type = Type;
+  using size_type = std::size_t;
+  using difference_type = std::ptrdiff_t;
+  using reference = Reference;
+  using const_reference = ConstReference;
+  using pointer = Pointer;
+  using const_pointer = ConstPointer;
+  using iterator = Iterator;
+  using const_iterator = ConstIterator;
 
 
   //! Create an empty memory
   MappedMemory() noexcept;
 
   //! Create a mapped memory
-  MappedMemory(ConstBufferP buffer) noexcept;
+  MappedMemory(ConstBufferP buffer);
 
-  //! Move a memory data
+  //! Move data
   MappedMemory(MappedMemory&& other) noexcept;
 
   //! Destruct the managed memory
   ~MappedMemory() noexcept;
 
 
-  // For STL
+  // For STL compatibility
   //! Return an iterator to the first element of the container
   Iterator begin() noexcept;
 
@@ -86,38 +96,38 @@ class MappedMemory : private zisc::NonCopyable<MappedMemory<kDescriptor, T>>
   ConstIterator cend() const noexcept;
 
 
-  //! Move a memory data
+  //! Move data
   MappedMemory& operator=(MappedMemory&& other) noexcept;
 
   //! Check whether this owns a memory
-  explicit operator bool() const noexcept
-  {
-    return data() != nullptr;
-  }
+  explicit operator bool() const noexcept;
 
-  //! Return the reference by index
+  //! Return the reference of the element by index
   Reference operator[](const std::size_t index) noexcept;
 
-  //! Return the reference by index
+  //! Return the reference of the element by index
   ConstReference operator[](const std::size_t index) const noexcept;
 
 
-  //! Return a pointer to the managed memory
+  //! Return the pointer to the managed memory
   Pointer data() noexcept;
 
-  //! Return a pointer to the managed memory
+  //! Return the pointer to the managed memory
   ConstPointer data() const noexcept;
 
-  //! Return a pointer to the managed memory
+  //! Return the reference of the element by index
   Reference get(const std::size_t index) noexcept;
 
-  //! Return a pointer to the managed memory
+  //! Return the reference of the element by index
   ConstReference get(const std::size_t index) const noexcept;
+
+  //! Check whether this owns a memory
+  bool hasMemory() const noexcept;
 
   //! Set a value to the managed memory at index
   void set(const std::size_t index, ConstReference value) noexcept;
 
-  //! Return a size of a memory array
+  //! Return the size of the memory array
   std::size_t size() const noexcept;
 
   //! Unmap the managed memory 

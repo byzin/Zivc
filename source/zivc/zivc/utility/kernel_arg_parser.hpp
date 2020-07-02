@@ -73,6 +73,7 @@ class KernelArgInfo
   static constexpr bool kIsLocal = ASpaceInfo::kIsLocal;
   static constexpr bool kIsConstant = ASpaceInfo::kIsConstant;
   static constexpr bool kIsPod = ASpaceInfo::kIsPod;
+  static constexpr bool kIsBuffer = kIsGlobal || kIsConstant;
 
  private:
   static_assert(!std::is_pointer_v<Type>, "The Type is pointer.");
@@ -94,7 +95,8 @@ class KernelArgParseResult
   constexpr KernelArgParseResult(const bool is_global,
                                  const bool is_local,
                                  const bool is_constant,
-                                 const bool is_pod) noexcept;
+                                 const bool is_pod,
+                                 const bool is_buffer) noexcept;
 
 
   //! Check if the argument is global qualified
@@ -109,6 +111,9 @@ class KernelArgParseResult
   //! Check if the argument is pod
   constexpr bool isPod() const noexcept;
 
+  //! Check if the argument is 
+  constexpr bool isBuffer() const noexcept;
+
   //! Return the position of the argument
   constexpr std::size_t index() const noexcept;
 
@@ -116,11 +121,13 @@ class KernelArgParseResult
   constexpr void setIndex(const std::size_t index) noexcept;
 
  private:
-  bool is_global_;
-  bool is_local_;
-  bool is_constant_;
-  bool is_pod_;
   std::size_t index_;
+  uint8b is_global_;
+  uint8b is_local_;
+  uint8b is_constant_;
+  uint8b is_pod_;
+  uint8b is_buffer_;
+  std::array<uint8b, 3> padding_{0, 0, 0};
 };
 
 /*!
@@ -149,8 +156,8 @@ class KernelArgParser
   static constexpr std::size_t kNumOfGlobalArgs = 0; //!< The number of globals
   static constexpr std::size_t kNumOfLocalArgs = 0; //!< The number of locals
   static constexpr std::size_t kNumOfConstantArgs = 0; //!< The number of constants
-  static constexpr std::size_t kNumOfStorageBuffer = 0; //!< The number of storage
-  static constexpr std::size_t kNumOfUniformBuffer = 0; //!< The number of uniform
+  static constexpr std::size_t kNumOfPodArgs = 0; //!< The number of PODs
+  static constexpr std::size_t kNumOfBufferArgs = 0; //!< The number of buffers
 
 
   //! Return the info of arguments
@@ -160,17 +167,24 @@ class KernelArgParser
     return result_list;
   }
 
-  //! Return the info of global arguments
-  static constexpr ResultList<kNumOfGlobalArgs> getGlobalArgInfoList() noexcept
-  {
-    ResultList<kNumOfGlobalArgs> result_list;
-    return result_list;
-  }
-
   //! Return the info of local arguments
   static constexpr ResultList<kNumOfLocalArgs> getLocalArgInfoList() noexcept
   {
     ResultList<kNumOfLocalArgs> result_list;
+    return result_list;
+  }
+
+  //! Return the info of POD arguments
+  static constexpr ResultList<kNumOfPodArgs> getPodArgInfoList() noexcept
+  {
+    ResultList<kNumOfPodArgs> result_list;
+    return result_list;
+  }
+
+  //! Return the info of buffer arguments
+  static constexpr ResultList<kNumOfBufferArgs> getBufferArgInfoList() noexcept
+  {
+    ResultList<kNumOfBufferArgs> result_list;
     return result_list;
   }
 

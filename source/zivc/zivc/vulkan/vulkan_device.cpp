@@ -67,73 +67,23 @@ VulkanDevice::~VulkanDevice() noexcept
   destroy();
 }
 
-///*!
-//  */
-//template <std::size_t kDimension> inline
-//std::array<uint32b, 3> VulkanDevice::calcWorkGroupSize(
-//    const std::array<uint32b, kDimension>& works) const noexcept
-//{
-//  std::array<uint32b, 3> work_group_size{{1, 1, 1}};
-//  const auto& local_work_size = localWorkSize<kDimension>();
-//  for (std::size_t i = 0; i < kDimension; ++i) {
-//    work_group_size[i] = ((works[i] % local_work_size[i]) == 0)
-//        ? works[i] / local_work_size[i]
-//        : works[i] / local_work_size[i] + 1;
-//  }
-//  return work_group_size;
-//}
-
-///*!
-//  */
-//template <DescriptorType kDescriptor, typename Type> inline
-//void VulkanDevice::deallocate(VulkanBuffer<kDescriptor, Type>* buffer) noexcept
-//{
-//  ZISC_ASSERT(buffer != nullptr, "The buffer is null.");
-//  auto& b = buffer->buffer();
-//  auto& memory = buffer->memory();
-//  auto& alloc_info = buffer->allocationInfo();
-//  if (b) {
-//    vmaDestroyBuffer(allocator_, *reinterpret_cast<VkBuffer*>(&b), memory);
-//
-//    if (buffer->isDeviceMemory()) {
-//      const std::size_t memory_usage = deviceMemoryUsage() - buffer->memoryUsage();
-//      setDeviceMemoryUsage(memory_usage);
-//    }
-//    else {
-//      const std::size_t memory_usage = hostMemoryUsage() - buffer->memoryUsage();
-//      setHostMemoryUsage(memory_usage);
-//    }
-//
-//    b = nullptr;
-//    memory = VK_NULL_HANDLE;
-//    alloc_info.size = 0;
-//  }
-//}
-
 /*!
   \details No detailed description
-
-  \param [in] index No description.
-  \return No description
   */
-VkQueue& VulkanDevice::getQueue(const uint32b index) noexcept
+VkCommandBuffer VulkanDevice::makeCommandBuffer()
 {
-  const std::size_t qindex = zisc::cast<std::size_t>(index) % numOfQueues();
-  VkQueue& q = (*queue_list_)[qindex];
-  return q;
-}
+  zivcvk::Device d{device()};
+  const auto loader = dispatcher().loaderImpl();
+  auto mem_resource = memoryResource();
 
-/*!
-  \details No detailed description
-
-  \param [in] index No description.
-  \return No description
-  */
-const VkQueue& VulkanDevice::getQueue(const uint32b index) const noexcept
-{
-  const std::size_t qindex = zisc::cast<std::size_t>(index) % numOfQueues();
-  const VkQueue& q = (*queue_list_)[qindex];
-  return q;
+  const zivcvk::CommandBufferAllocateInfo alloc_info{
+      commandPool(),
+      zivcvk::CommandBufferLevel::ePrimary,
+      1};
+  zisc::pmr::vector<zivcvk::CommandBuffer>::allocator_type alloc{mem_resource};
+  auto commands = d.allocateCommandBuffers(alloc_info, alloc, *loader);
+  ZISC_ASSERT(commands.size() == 1, "The size of command buffers isn't 1.");
+  return zisc::cast<VkCommandBuffer>(commands[0]);
 }
 
 /*!
@@ -201,6 +151,30 @@ void VulkanDevice::returnFence(Fence* fence) noexcept
   if (*dest) {
     printf("[Warning] Unmanaged fence\n");
   }
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] command_buffer No description.
+  \param [in] q No description.
+  \param [in] fence No description.
+  */
+void VulkanDevice::submit(const VkCommandBuffer& command_buffer,
+                          const VkQueue& q,
+                          const Fence& fence)
+{
+  const auto loader = dispatcher().loaderImpl();
+
+  const zivcvk::CommandBuffer command{command_buffer};
+  const zivcvk::Queue que{q};
+  zivcvk::Fence fen{};
+  if (fence.isActive())
+    fen = *zisc::treatAs<const zivcvk::Fence*>(std::addressof(fence.data()));
+  zivcvk::SubmitInfo info{};
+  info.setCommandBufferCount(1);
+  info.setPCommandBuffers(std::addressof(command));
+  que.submit(info, fen, *loader);
 }
 
 /*!
@@ -445,14 +419,14 @@ void VulkanDevice::copyBufferCmd(const VkCommandBuffer& command_buffer,
 {
   const auto loader = dispatcher().loaderImpl();
 
-  const zivcvk::CommandBuffer command_buf{command_buffer};
-  ZISC_ASSERT(command_buf, "The given command buffer is null.");
+  const zivcvk::CommandBuffer command{command_buffer};
+  ZISC_ASSERT(command, "The given command buffer is null.");
   const zivcvk::Buffer source{source_buffer};
   ZISC_ASSERT(source, "The given source buffer is null.");
   const zivcvk::Buffer dest{dest_buffer};
   ZISC_ASSERT(dest, "The given dest buffer is null.");
   const zivcvk::BufferCopy copy_region{region};
-  command_buf.copyBuffer(source, dest, copy_region, *loader);
+  command.copyBuffer(source, dest, copy_region, *loader);
 }
 
 /*!
@@ -488,11 +462,11 @@ void VulkanDevice::fillBufferFastCmd(const VkCommandBuffer& command_buffer,
 {
   const auto loader = dispatcher().loaderImpl();
 
-  zivcvk::CommandBuffer command_buf{command_buffer};
-  ZISC_ASSERT(command_buf, "The given command buffer is null.");
-  zivcvk::Buffer buf{buffer};
+  const zivcvk::CommandBuffer command{command_buffer};
+  ZISC_ASSERT(command, "The given command buffer is null.");
+  const zivcvk::Buffer buf{buffer};
   ZISC_ASSERT(buf, "The given buffer is null.");
-  command_buf.fillBuffer(buf, dest_offset, size, data, *loader);
+  command.fillBuffer(buf, dest_offset, size, data, *loader);
 }
 
 /*!
@@ -566,40 +540,19 @@ void VulkanDevice::dispatchKernelCmd(const VkCommandBuffer& command_buffer,
 {
   const auto loader = dispatcher().loaderImpl();
 
-  zivcvk::CommandBuffer command_buf{command_buffer};
-  ZISC_ASSERT(command_buf, "The given command buffer is null.");
+  const zivcvk::CommandBuffer command{command_buffer};
+  ZISC_ASSERT(command, "The given command buffer is null.");
 
   constexpr auto bind_point = zivcvk::PipelineBindPoint::eCompute;
-  zivcvk::DescriptorSet desc_set{descriptor_set};
-  zivcvk::PipelineLayout pline_layout{pipeline_layout};
-  command_buf.bindDescriptorSets(bind_point, pline_layout, 0, desc_set, nullptr, *loader);
+  const zivcvk::DescriptorSet desc_set{descriptor_set};
+  const zivcvk::PipelineLayout pline_layout{pipeline_layout};
+  command.bindDescriptorSets(bind_point, pline_layout, 0, desc_set, nullptr, *loader);
 
-  zivcvk::Pipeline pline{pipeline};
-  command_buf.bindPipeline(bind_point, pline, *loader);
+  const zivcvk::Pipeline pline{pipeline};
+  command.bindPipeline(bind_point, pline, *loader);
 
   const auto disp_size = calcDispatchSize(work_dimension, work_size);
-  command_buf.dispatch(disp_size[0], disp_size[1], disp_size[2], *loader);
-}
-
-/*!
-  \details No detailed description
-
-  \param [out] command_buffer No description.
-  */
-void VulkanDevice::initKernelCommandBuffer(VkCommandBuffer* command_buffer)
-{
-  zivcvk::Device d{device()};
-  const auto loader = dispatcher().loaderImpl();
-  auto mem_resource = memoryResource();
-
-  const zivcvk::CommandBufferAllocateInfo alloc_info{
-      commandPool(),
-      zivcvk::CommandBufferLevel::ePrimary,
-      1};
-  zisc::pmr::vector<zivcvk::CommandBuffer>::allocator_type alloc{mem_resource};
-  auto command_bufs = d.allocateCommandBuffers(alloc_info, alloc, *loader);
-  ZISC_ASSERT(command_bufs.size() == 1, "The size of command buffers isn't 1.");
-  *command_buffer = zisc::cast<VkCommandBuffer>(command_bufs[0]);
+  command.dispatch(disp_size[0], disp_size[1], disp_size[2], *loader);
 }
 
 /*!
@@ -773,55 +726,6 @@ void VulkanDevice::initKernelPipeline(const std::size_t work_dimension,
 
 /*!
   \details No detailed description
-
-  \param [in] command_buffer No description.
-  \param [in,out] q No description.
-  \param [in,out] fence No description.
-  */
-void VulkanDevice::submitKernelQueue(const VkCommandBuffer& command_buffer,
-                                     const VkQueue& q,
-                                     const Fence& fence)
-{
-  const auto loader = dispatcher().loaderImpl();
-  zivcvk::CommandBuffer command{command_buffer};
-  zivcvk::Queue que{q};
-  zivcvk::Fence fen{};
-  if (fence.isActive())
-    fen = *zisc::treatAs<const zivcvk::Fence*>(std::addressof(fence.data()));
-  zivcvk::SubmitInfo info{};
-  info.setCommandBufferCount(1);
-  info.setPCommandBuffers(std::addressof(command));
-  que.submit(info, fen, *loader);
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] command_buffer No description.
-  \param [in] size No description.
-  \param [in] source No description.
-  \param [in] offset No description.
-  \param [out] dest No description.
-  */
-void VulkanDevice::updateBufferCmd(const VkCommandBuffer& command_buffer,
-                                   const VkDeviceSize size,
-                                   const void* source,
-                                   const VkDeviceSize offset,
-                                   const VkBuffer& dest)
-{
-  ZISC_ASSERT(offset % 4 == 0, "The offset isn't a multiple of 4.");
-
-  const auto loader = dispatcher().loaderImpl();
-
-  zivcvk::CommandBuffer command_buf{command_buffer};
-  ZISC_ASSERT(command_buf, "The given command buffer is null.");
-  zivcvk::Buffer buf{dest};
-  ZISC_ASSERT(buf, "The given buffer is null.");
-  command_buf.updateBuffer(buf, offset, size, source, *loader);
-}
-
-/*!
-  \details No detailed description
   */
 void VulkanDevice::destroyData() noexcept
 {
@@ -953,46 +857,6 @@ void VulkanDevice::updateDebugInfoImpl() noexcept
   for (const auto& module : *shader_module_list_)
     updateShaderModuleDebugInfo(module.first);
 }
-
-///*!
-//  */
-//template <std::size_t kDimension> inline
-//const std::array<uint32b, 3>& VulkanDevice::localWorkSize() const noexcept
-//{
-//  static_assert((0 < kDimension) && (kDimension <= 3),
-//                "The dimension is out of range.");
-//  return local_work_size_list_[kDimension - 1];
-//}
-
-///*!
-//  */
-//inline
-//VmaAllocator& VulkanDevice::memoryAllocator() noexcept
-//{
-//  return allocator_;
-//}
-//
-///*!
-//  */
-//inline
-//const VmaAllocator& VulkanDevice::memoryAllocator() const noexcept
-//{
-//  return allocator_;
-//}
-
-///*!
-//  */
-//inline
-//void VulkanDevice::submit(const QueueType queue_type,
-//                          const uint32b queue_index,
-//                          const vk::CommandBuffer& command) const noexcept
-//{
-//  auto q = getQueue(queue_type, queue_index);
-//  const vk::SubmitInfo info{0, nullptr, nullptr, 1, &command};
-//  const auto result = q.submit(1, &info, nullptr);
-//  ZISC_ASSERT(result == vk::Result::eSuccess, "Command submission failed.");
-//  (void)result;
-//}
 
 /*!
   \details No detailed description
@@ -1394,6 +1258,44 @@ VmaDeviceMemoryCallbacks VulkanDevice::makeAllocationNotifier() noexcept
   notifier.pfnFree = Callbacks::notifyOfDeviceMemoryFreeing;
   notifier.pUserData = this;
   return notifier;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] descriptor_set No description.
+  \param [in] n No description.
+  \param [in] buffer_list No description.
+  \param [in] desc_type_list No description.
+  \param [in] desc_info_list No description.
+  \param [in] write_desc_list No description.
+  */
+void VulkanDevice::updateDescriptorSet(const VkDescriptorSet& descriptor_set,
+                                       const std::size_t n,
+                                       const VkBuffer* buffer_list,
+                                       const VkDescriptorType* desc_type_list,
+                                       VkDescriptorBufferInfo* desc_info_list,
+                                       VkWriteDescriptorSet* write_desc_list)
+{
+  for (std::size_t i = 0; i < n; ++i) {
+    auto desc_info = ::new (desc_info_list + i) zivcvk::DescriptorBufferInfo{};
+    desc_info->buffer= zisc::cast<const zivcvk::Buffer>(buffer_list[i]);
+    desc_info->offset = 0;
+    desc_info->range = VK_WHOLE_SIZE;
+
+    auto write_desc = ::new (write_desc_list + i) zivcvk::WriteDescriptorSet{};
+    write_desc->dstSet = zisc::cast<const zivcvk::DescriptorSet>(descriptor_set);
+    write_desc->dstBinding = zisc::cast<uint32b>(i);
+    write_desc->dstArrayElement = 0;
+    const auto desc_type = zisc::cast<zivcvk::DescriptorType>(desc_type_list[i]);
+    write_desc->descriptorType = desc_type;
+    write_desc->pBufferInfo = desc_info;
+  }
+
+  zivcvk::Device d{device()};
+  const auto loader = dispatcher().loaderImpl();
+  auto descs = zisc::treatAs<const zivcvk::WriteDescriptorSet*>(write_desc_list);
+  d.updateDescriptorSets(1, descs, 0, nullptr, *loader);
 }
 
 /*!

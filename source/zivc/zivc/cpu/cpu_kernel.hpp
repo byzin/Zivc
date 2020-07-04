@@ -25,6 +25,7 @@
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/id_data.hpp"
 #include "zivc/utility/kernel_parameters.hpp"
+#include "zivc/utility/launch_result.hpp"
 
 namespace zivc {
 
@@ -72,7 +73,7 @@ class CpuKernel<kDimension,
   Function kernel() const noexcept;
 
   //! Execute a kernel
-  void run(ArgTypes... args, const LaunchOptions& launch_options) override;
+  LaunchResult run(ArgTypes... args, const LaunchOptions& launch_options) override;
 
  protected:
   //! Clear the contents of the kernel

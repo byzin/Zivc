@@ -38,11 +38,13 @@
 #include "utility/cmd_debug_label_region.hpp"
 #include "utility/cmd_record_region.hpp"
 #include "utility/queue_debug_label_region.hpp"
+#include "zivc/buffer.hpp"
 #include "zivc/kernel.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/id_data.hpp"
 #include "zivc/utility/kernel_arg_parser.hpp"
 #include "zivc/utility/kernel_parameters.hpp"
+#include "zivc/utility/launch_result.hpp"
 
 namespace zivc {
 
@@ -72,52 +74,109 @@ VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...
 /*!
   \details No detailed description
 
+  \return No description
+  */
+template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+inline
+VkCommandBuffer&
+VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+commandBuffer() noexcept
+{
+  return command_buffer_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+inline
+const VkCommandBuffer&
+VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+commandBuffer() const noexcept
+{
+  return command_buffer_;
+}
+
+/*!
+  \details No detailed description
+
   \param [in] args No description.
   \param [in] launch_options No description.
   */
 template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
 inline
-void
+LaunchResult
 VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
 run(ArgTypes... args, const LaunchOptions& launch_options)
 {
   VulkanDevice& device = parentImpl();
+  // DescriptorSet
+  updateDescriptorSet(args...);
   // POD
   bool need_to_update_pod = false;
-  {
+  if constexpr (hasPodArg()) {
     const PodTuple pod_params = makePodTuple(args...);
-    need_to_update_pod = hasPodArg() && (pod_params_ == pod_params);
+    auto cache = pod_cache_->mapMemory();
+//    need_to_update_pod = cache[0] != pod_params;
+    need_to_update_pod = true;
+    ZISC_ASSERT(pod_cache_->isHostVisible(), "The cache isn't host visible.");
     if (need_to_update_pod)
-      pod_params_ = pod_params;
+      cache[0] = pod_params;
   }
-  const auto work_size = launch_options.workSize();
+  const auto work_size = BaseKernel::expandWorkSize(launch_options.workSize());
+  VkCommandBuffer command = commandBuffer();
   // Command recording
   {
-    CmdDebugLabelRegion debug_region{BaseKernel::isDebugMode() ? command_buffer_
+    CmdDebugLabelRegion debug_region{BaseKernel::isDebugMode() ? command
                                                                : VK_NULL_HANDLE,
                                      device.dispatcher(),
                                      launch_options.label(),
                                      launch_options.labelColor()};
     {
-      CmdRecordRegion record_region{command_buffer_,
+      CmdRecordRegion record_region{command,
                                     device.dispatcher(),
                                     VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT};
-      if (need_to_update_pod)
-        device.updateBufferCmd(command_buffer_, pod_params_, pod_buffer_);
+      if (need_to_update_pod) {
+        using BufType = VulkanBuffer<PodTuple>;
+        const VkBufferCopy copy_region{0, 0, sizeof(PodTuple)};
+        auto pod_cache = zisc::cast<const BufType*>(pod_cache_.get())->buffer();
+        auto pod_buf = zisc::cast<const BufType*>(pod_buffer_.get())->buffer();
+        device.copyBufferCmd(command, pod_cache, pod_buf, copy_region);
+      }
       dispatchCmd(work_size);
     }
   }
-  // Command submitting
+  LaunchResult result{};
+  // Command submission
   {
-    VkQueue q = device.getQueue(launch_options.queueIndex());
-    VkFence fence = VK_NULL_HANDLE;
+    const VkQueue q = device.getQueue(launch_options.queueIndex());
+    if (launch_options.isExternalSyncMode())
+      device.takeFence(std::addressof(result.fence()));
     QueueDebugLabelRegion debug_region{BaseKernel::isDebugMode() ? q
                                                                  : VK_NULL_HANDLE,
                                        device.dispatcher(),
                                        launch_options.label(),
                                        launch_options.labelColor()};
-    device.submitKernelQueue(command_buffer_, q, fence);
+    device.submit(command, q, result.fence());
   }
+  result.setAsync(true);
+  return result;
+}
+
+/*!
+  \details No detailed description
+  \return No description
+  */
+template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+inline
+constexpr bool
+VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+hasGlobalArg() noexcept
+{
+  const bool result = 0 < BaseKernel::ArgParser::kNumOfGlobalArgs;
+  return result;
 }
 
 /*!
@@ -157,16 +216,16 @@ void
 VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
 destroyData() noexcept
 {
-  VulkanDevice& device = parentImpl();
-  if (pod_buffer_ != VK_NULL_HANDLE) {
-    device.deallocateMemory(std::addressof(pod_buffer_),
-                            std::addressof(vm_pod_allocation_),
-                            std::addressof(vm_pod_alloc_info_));
+  command_buffer_ = VK_NULL_HANDLE;
+  if (pipeline_ != VK_NULL_HANDLE) {
+    VulkanDevice& device = parentImpl();
+    pod_cache_.reset();
+    pod_buffer_.reset();
+    device.destroyKernelPipeline(std::addressof(pipeline_layout_),
+                                 std::addressof(pipeline_));
+    device.destroyKernelDescriptorSet(std::addressof(desc_set_layout_),
+                                      std::addressof(desc_pool_));
   }
-  device.destroyKernelPipeline(std::addressof(pipeline_layout_),
-                               std::addressof(pipeline_));
-  device.destroyKernelDescriptorSet(std::addressof(desc_set_layout_),
-                                    std::addressof(desc_pool_));
 }
 
 /*!
@@ -196,6 +255,7 @@ void
 VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
 initData(const Parameters& params)
 {
+  static_assert(hasGlobalArg(), "The kernel doesn't have global argument.");
   VulkanDevice& device = parentImpl();
   device.addShaderModule(SetType{});
   device.initKernelDescriptorSet(BaseKernel::ArgParser::kNumOfBufferArgs,
@@ -210,7 +270,7 @@ initData(const Parameters& params)
                             params.kernelName(),
                             std::addressof(pipeline_layout_),
                             std::addressof(pipeline_));
-  device.initKernelCommandBuffer(std::addressof(command_buffer_));
+  command_buffer_ = device.makeCommandBuffer();
   initPodBuffer();
 }
 
@@ -232,10 +292,10 @@ updateDebugInfoImpl() noexcept
   {
     if (obj != VK_NULL_HANDLE) {
       IdData::NameType obj_name{""};
-      std::strncat(obj_name.data(), kernel_name.data(), kernel_name.size());
+      std::strncpy(obj_name.data(), kernel_name.data(), kernel_name.size() + 1);
       std::strncat(obj_name.data(), suffix.data(), suffix.size());
-      const uint64b handle = *zisc::treatAs<const uint64b*>(std::addressof(obj));
-      device.setDebugInfo(type, handle, obj_name.data(), this);
+      auto handle = zisc::treatAs<const uint64b*>(std::addressof(obj));
+      device.setDebugInfo(type, *handle, obj_name.data(), this);
     }
   };
 
@@ -254,12 +314,185 @@ updateDebugInfoImpl() noexcept
   set_debug_info(VK_OBJECT_TYPE_PIPELINE,
                  pipeline_,
                  "_pipeline");
-  set_debug_info(VK_OBJECT_TYPE_BUFFER,
-                 pod_buffer_,
-                 "_podbuffer");
   set_debug_info(VK_OBJECT_TYPE_COMMAND_BUFFER,
                  command_buffer_,
                  "_commandbuffer");
+  if (pod_buffer_) {
+    IdData::NameType obj_name{""};
+    const std::string_view suffix{"_podbuffer"};
+    std::strncpy(obj_name.data(), kernel_name.data(), kernel_name.size() + 1);
+    std::strncat(obj_name.data(), suffix.data(), suffix.size());
+    pod_buffer_->setName(obj_name.data());
+  }
+  if (pod_cache_) {
+    IdData::NameType obj_name{""};
+    const std::string_view suffix{"_podcache"};
+    std::strncpy(obj_name.data(), kernel_name.data(), kernel_name.size() + 1);
+    std::strncat(obj_name.data(), suffix.data(), suffix.size());
+    pod_cache_->setName(obj_name.data());
+  }
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kIndex No description.
+  \return No description
+  */
+template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kIndex>
+inline
+auto
+VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+makePodTupleType() noexcept
+{
+  constexpr auto pod_arg_info = BaseKernel::ArgParser::getPodArgInfoList();
+  if constexpr (kIndex < pod_arg_info.size()) {
+    constexpr std::size_t pod_index = pod_arg_info[kIndex].index();
+    using ArgTuple = std::tuple<FuncArgTypes...>;
+    using PodType = std::tuple_element_t<pod_index, ArgTuple>;
+    std::tuple<PodType> left{};
+    auto right = makePodTupleType<kIndex + 1>();
+    auto pod_params = std::tuple_cat(left, right);
+    return pod_params;
+  }
+  else {
+    std::tuple<> pod_params{};
+    return pod_params;
+  }
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \param [in] buffer No description.
+  \return No description
+  */
+template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <typename Type>
+inline
+const VkBuffer&
+VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+getBufferHandle(const Buffer<Type>& buffer) noexcept
+{
+  using BuffType = VulkanBuffer<Type>;
+  auto& handle = zisc::cast<const BuffType*>(std::addressof(buffer))->buffer();
+  return handle;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kIndex No description.
+  \tparam Type No description.
+  \tparam Types No description.
+  \param [out] buffer_list No description.
+  \param [in] value No description.
+  \param [in] rest No description.
+  */
+template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kIndex, typename Type, typename ...Types>
+inline
+void
+VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+initBufferList(VkBuffer* buffer_list, Type&& value, Types&&... rest) noexcept
+{
+  using T = std::remove_cv_t<std::remove_reference_t<Type>>;
+  using ASpaceInfo = AddressSpaceInfo<T>;
+  if constexpr (!ASpaceInfo::kIsPod)
+    buffer_list[kIndex] = getBufferHandle(value);
+  if constexpr (0 < sizeof...(Types)) {
+    constexpr std::size_t next_index = !ASpaceInfo::kIsPod ? kIndex + 1 : kIndex;
+    initBufferList<next_index>(buffer_list, std::forward<Types>(rest)...);
+  }
+}
+
+/*!
+  \details No detailed description
+  */
+template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+inline
+void
+VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+initPodBuffer() noexcept
+{
+  if constexpr (hasPodArg()) {
+    auto& device = parentImpl();
+    using BuffType = VulkanBuffer<PodTuple>;
+    constexpr auto desc_uniform = BuffType::DescriptorType::kUniform;
+    {
+      pod_buffer_ = device.template makeBuffer<PodTuple>(BufferUsage::kDeviceOnly);
+      zisc::cast<BuffType*>(pod_buffer_.get())->setDescriptorType(desc_uniform);
+      pod_buffer_->setSize(1);
+    }
+    {
+      pod_cache_ = device.template makeBuffer<PodTuple>(BufferUsage::kHostOnly);
+      zisc::cast<BuffType*>(pod_cache_.get())->setDescriptorType(desc_uniform);
+      pod_cache_->setSize(1);
+    }
+  }
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kIndex No description.
+  \tparam Type No description.
+  \tparam Types No description.
+  \param [out] pod_params No description.
+  \param [in] value No description.
+  \param [in] rest No description.
+  */
+template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kIndex, typename Type, typename ...Types>
+inline
+void
+VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+initPodTuple(PodTuple* pod_params, Type&& value, Types&&... rest) noexcept
+{
+  using T = std::remove_cv_t<std::remove_reference_t<Type>>;
+  using ASpaceInfo = AddressSpaceInfo<T>;
+  if constexpr (ASpaceInfo::kIsPod)
+    std::get<kIndex>(*pod_params) = std::forward<Type>(value);
+  if constexpr (0 < sizeof...(Types)) {
+    constexpr std::size_t next_index = ASpaceInfo::kIsPod ? kIndex + 1 : kIndex;
+    initPodTuple<next_index>(pod_params, std::forward<Types>(rest)...);
+  }
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] args No description.
+  \return No description
+  */
+template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+inline
+auto
+VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+makePodTuple(ArgTypes... args) noexcept -> PodTuple
+{
+  PodTuple pod_params{};
+  if constexpr (0 < sizeof...(ArgTypes))
+    initPodTuple<0>(std::addressof(pod_params), args...);
+  return pod_params;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+inline
+constexpr std::size_t
+VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+numOfBuffers() noexcept
+{
+  std::size_t n = BaseKernel::ArgParser::kNumOfGlobalArgs;
+  n += hasPodArg() ? 1 : 0;
+  return n;
 }
 
 /*!
@@ -295,133 +528,77 @@ parentImpl() const noexcept
 /*!
   \details No detailed description
 
-  \return No description
-  */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
-inline
-auto
-VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
-makePodTuple() noexcept
-{
-  using PodTupleRaw = decltype(makePodTupleImpl<0>());
-  constexpr std::size_t pod_tuple_size = sizeof(PodTupleRaw);
-  if constexpr (pod_tuple_size % 4 == 0) {
-    PodTupleRaw pod_params{};
-    return pod_params;
-  }
-  else {
-    const std::size_t padding_size = 4 - (pod_tuple_size % 4);
-    static_assert(0 < padding_size);
-    std::tuple<std::array<uint8b, padding_size>> right{};
-    PodTupleRaw left{};
-    auto pod_params = std::tuple_cat(left, right);
-    static_assert(sizeof(pod_params) % 4 == 0);
-    return pod_params;
-  }
-}
-
-/*!
-  \details No detailed description
-
-  \tparam kIndex No description.
-  \return No description
-  */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
-template <std::size_t kIndex>
-inline
-auto
-VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
-makePodTupleImpl() noexcept
-{
-  constexpr auto pod_arg_info = BaseKernel::ArgParser::getPodArgInfoList();
-  if constexpr (kIndex < pod_arg_info.size()) {
-    constexpr std::size_t pod_index = pod_arg_info[kIndex].index();
-    using ArgTuple = std::tuple<FuncArgTypes...>;
-    using PodType = std::tuple_element_t<pod_index, ArgTuple>;
-    std::tuple<PodType> left{};
-    auto right = makePodTupleImpl<kIndex + 1>();
-    auto pod_params = std::tuple_cat(left, right);
-    return pod_params;
-  }
-  else {
-    std::tuple<> pod_params{};
-    return pod_params;
-  }
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
-inline
-auto
-VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
-makePodTuple(ArgTypes... args) noexcept -> PodTuple
-{
-  PodTuple pod_params{};
-  if constexpr (0 < sizeof...(ArgTypes))
-    initPodTuple<0>(std::addressof(pod_params), args...);
-  return pod_params;
-}
-
-/*!
-  \details No detailed description
+  \param [in] args No description.
   */
 template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
 inline
 void
 VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
-initPodBuffer() noexcept
+updateDescriptorSet(ArgTypes... args)
 {
-  pod_buffer_ = VK_NULL_HANDLE;
-  vm_pod_allocation_ = VK_NULL_HANDLE;
-  vm_pod_alloc_info_.memoryType = 0;
-  vm_pod_alloc_info_.deviceMemory = VK_NULL_HANDLE;
-  vm_pod_alloc_info_.offset = 0;
-  vm_pod_alloc_info_.size = 0;
-  vm_pod_alloc_info_.pMappedData = nullptr;
-  vm_pod_alloc_info_.pUserData = nullptr;
-  if (hasPodArg()) {
-    constexpr std::size_t mem_size = sizeof(PodTuple);
-    auto& device = parentImpl();
-    device.allocateMemory(mem_size,
-                          BufferUsage::kDeviceOnly,
-                          nullptr,
-                          std::addressof(pod_buffer_),
-                          std::addressof(vm_pod_allocation_),
-                          std::addressof(vm_pod_alloc_info_),
-                          true);
+  auto& device = parentImpl();
+
+  constexpr std::size_t n = numOfBuffers();
+  std::array<VkBuffer, n> buffer_list{};
+  std::array<VkDescriptorType, n> desc_type_list{};
+  initBufferList<0>(buffer_list.data(), args...);
+  desc_type_list.fill(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER);
+  if constexpr (hasPodArg()) {
+    using BufType = VulkanBuffer<PodTuple>;
+    buffer_list[n - 1] = zisc::cast<const BufType*>(pod_buffer_.get())->buffer();
+    desc_type_list[n - 1] = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
   }
+  device.updateDescriptorSet(desc_set_, buffer_list, desc_type_list);
 }
 
-/*!
-  \details No detailed description
+///*!
+//  */
+//template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+//inline
+//void VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::bindBuffers(
+//    std::add_lvalue_reference_t<BufferArgs>... args) noexcept
+//{
+//  using ParseResult = KernelArgParser<kDimension, ArgumentTypes...>;
+//
+//  if ((0 == kNumOfBuffers) || isSameArgs(args...))
+//    return;
+//
+//  std::array<vk::Buffer, kNumOfBuffers> buffer_list{getVkBuffer(args)...};
+//  std::array<vk::DescriptorBufferInfo, kNumOfBuffers> descriptor_info_list;
+//  std::array<vk::WriteDescriptorSet, kNumOfBuffers> descriptor_set_list;
+//
+//  constexpr auto buffer_info_list = ParseResult::getGlobalArgInfoList();
+//  for (std::size_t index = 0; index < kNumOfBuffers; ++index) {
+//    auto& descriptor_info = descriptor_info_list[index];
+//    descriptor_info.buffer = buffer_list[index];
+//    descriptor_info.offset = 0;
+//    descriptor_info.range = VK_WHOLE_SIZE;
+//
+//    auto& buffer_info = buffer_info_list[index];
+//    auto& descriptor_set = descriptor_set_list[index];
+//    const bool is_uniform_buffer = Config::isUniformBufferEnabled() &&
+//        (buffer_info.isConstant() || buffer_info.isPod());
+//    descriptor_set.dstSet = descriptor_set_;
+//    descriptor_set.dstBinding = zisc::cast<uint32b>(buffer_info.index());
+//    descriptor_set.dstArrayElement = 0;
+//    descriptor_set.descriptorCount = 1;
+//    descriptor_set.descriptorType = is_uniform_buffer
+//        ? vk::DescriptorType::eUniformBuffer
+//        : vk::DescriptorType::eStorageBuffer;
+//    descriptor_set.pImageInfo = nullptr;
+//    descriptor_set.pBufferInfo = &descriptor_info;
+//    descriptor_set.pTexelBufferView = nullptr;
+//  }
+//
+//  const auto& device = device_->device();
+//  device.updateDescriptorSets(zisc::cast<uint32b>(kNumOfBuffers),
+//                              descriptor_set_list.data(),
+//                              0,
+//                              nullptr);
+//  buffer_list_ = std::move(buffer_list);
+//}
+//
 
-  \tparam kIndex No description.
-  \tparam Type No description.
-  \tparam Types No description.
-  \param [out] pod_params No description.
-  \param [in] value No description.
-  \param [in] rest No description.
-  */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
-template <std::size_t kIndex, typename Type, typename ...Types>
-inline
-void
-VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
-initPodTuple(PodTuple* pod_params, Type&& value, Types&&... rest) noexcept
-{
-  using T = std::remove_cv_t<std::remove_reference_t<Type>>;
-  using ASpaceInfo = AddressSpaceInfo<T>;
-  if constexpr (ASpaceInfo::kIsPod)
-    std::get<kIndex>(*pod_params) = std::forward<Type>(value);
-  if constexpr (0 < sizeof...(Types)) {
-    constexpr std::size_t next_index = ASpaceInfo::kIsPod ? kIndex + 1 : kIndex;
-    initPodTuple<next_index>(pod_params, std::forward<Types>(rest)...);
-  }
-}
 
 ///*!
 //  */

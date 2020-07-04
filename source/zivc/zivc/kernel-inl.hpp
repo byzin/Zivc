@@ -95,6 +95,21 @@ LaunchOptions::dimension() noexcept
   */
 template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
 inline
+bool
+Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+LaunchOptions::isExternalSyncMode() const noexcept
+{
+  const bool result = is_external_sync_mode_;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+inline
 std::string_view
 Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
 LaunchOptions::label() const noexcept

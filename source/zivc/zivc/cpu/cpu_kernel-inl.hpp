@@ -35,6 +35,7 @@
 #include "zivc/utility/id_data.hpp"
 #include "zivc/utility/kernel_arg_parser.hpp"
 #include "zivc/utility/kernel_parameters.hpp"
+#include "zivc/utility/launch_result.hpp"
 
 namespace zivc {
 
@@ -82,18 +83,27 @@ kernel() const noexcept -> Function
   */
 template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
 inline
-void
+LaunchResult
 CpuKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
 run(ArgTypes... args, const LaunchOptions& launch_options)
 {
-  auto& device = parentImpl();
-  const auto work_size = BaseKernel::expandWorkSize(launch_options.workSize());
-  using LauncherType = Launcher<FuncArgTypes...>;
+  CpuDevice& device = parentImpl();
+  // Command recording
   auto command = [func = kernel(), &args..., &launch_options]() noexcept
   {
+    using LauncherType = Launcher<FuncArgTypes...>;
     LauncherType::exec(func, launch_options, args...);
   };
-  device.submit(work_size, command);
+  LaunchResult result{};
+  // Command submission
+  {
+    if (launch_options.isExternalSyncMode())
+      device.takeFence(std::addressof(result.fence()));
+    const auto work_size = BaseKernel::expandWorkSize(launch_options.workSize());
+    device.submit(command, work_size, std::addressof(result.fence()));
+  }
+  result.setAsync(true);
+  return result;
 }
 
 /*!

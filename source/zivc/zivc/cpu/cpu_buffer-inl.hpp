@@ -221,7 +221,7 @@ LaunchResult CpuBuffer<T>::fillImpl(ConstReference value,
                                     const BufferLaunchOptions<T>& launch_options)
 {
   auto& dest_buffer = buffer();
-  Pointer dest = dest_buffer.begin() + launch_options.destOffset();
+  auto dest = dest_buffer.begin() + launch_options.destOffset();
   std::fill_n(dest, launch_options.size(), value);
   LaunchResult result{};
   return result;

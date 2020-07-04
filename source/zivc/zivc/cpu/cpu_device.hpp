@@ -97,8 +97,9 @@ class CpuDevice : public Device
   void setNumOfFences(const std::size_t s) override;
 
   //! Submit a kernel command
-  void submit(const std::array<uint32b, 3>& work_size,
-              const Command& command) noexcept;
+  void submit(const Command& command,
+              const std::array<uint32b, 3>& work_size,
+              Fence* fence) noexcept;
 
   //! Take a fence data from the device
   void takeFence(Fence* fence) override;

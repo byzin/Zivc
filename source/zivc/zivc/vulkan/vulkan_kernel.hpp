@@ -25,15 +25,16 @@
 // VMA
 #include "vk_mem_alloc.h"
 // Zivc
+#include "zivc/buffer.hpp"
 #include "zivc/kernel.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/id_data.hpp"
 #include "zivc/utility/kernel_parameters.hpp"
+#include "zivc/utility/launch_result.hpp"
 
 namespace zivc {
 
 // Forward declaration
-template <typename Type> class Buffer;
 class VulkanDevice;
 template <std::size_t kDimension, typename FuncArgTypes, typename ...ArgTypes>
 class VulkanKernel;
@@ -72,6 +73,15 @@ class VulkanKernel<kDimension,
   ~VulkanKernel() noexcept override;
 
 
+  //! Return the command buffer
+  VkCommandBuffer& commandBuffer() noexcept;
+
+  //! Return the command buffer
+  const VkCommandBuffer& commandBuffer() const noexcept;
+
+  //! Check if the kernel has global arg
+  static constexpr bool hasGlobalArg() noexcept;
+
   //! Check if the kernel has local arg
   static constexpr bool hasLocalArg() noexcept;
 
@@ -79,7 +89,7 @@ class VulkanKernel<kDimension,
   static constexpr bool hasPodArg() noexcept;
 
   //! Execute a kernel
-  void run(ArgTypes... args, const LaunchOptions& launch_options) override;
+  LaunchResult run(ArgTypes... args, const LaunchOptions& launch_options) override;
 
  protected:
   //! Clear the contents of the kernel
@@ -96,15 +106,20 @@ class VulkanKernel<kDimension,
 
  private:
   //! Make a tuple of POD parameters
-  static auto makePodTuple() noexcept;
-
-  //! Make a tuple of POD parameters
-  template <std::size_t kIndex>
-  static auto makePodTupleImpl() noexcept;
+  template <std::size_t kIndex = 0>
+  static auto makePodTupleType() noexcept;
 
 
-  using PodTuple = decltype(makePodTuple());
+  using PodTuple = decltype(makePodTupleType());
 
+
+  //! Get the underlying VkBuffer from the given buffer
+  template <typename Type>
+  static const VkBuffer& getBufferHandle(const Buffer<Type>& buffer) noexcept;
+
+  //! Initialize the buffer list
+  template <std::size_t kIndex, typename Type, typename ...Types>
+  static void initBufferList(VkBuffer* buffer_list, Type&& value, Types&&... rest) noexcept;
 
   //! Initialize the POD buffer
   void initPodBuffer() noexcept;
@@ -116,11 +131,17 @@ class VulkanKernel<kDimension,
   //! Initialize the given POD tuple
   static PodTuple makePodTuple(ArgTypes... args) noexcept;
 
+  //! Return the number of buffers which is needed for the kernel
+  static constexpr std::size_t numOfBuffers() noexcept;
+
   //! Return the device
   VulkanDevice& parentImpl() noexcept;
 
   //! Return the device
   const VulkanDevice& parentImpl() const noexcept;
+
+  //! Update the underlying descriptor set with the given arguments
+  void updateDescriptorSet(ArgTypes... args);
 
 //  //! Bind buffers
 //  void bindBuffers(std::add_lvalue_reference_t<BufferArgs>... args) noexcept;
@@ -159,17 +180,15 @@ class VulkanKernel<kDimension,
 //  bool isSameArgs(std::add_lvalue_reference_t<BufferArgs>... args) const noexcept;
 
 
-  PodTuple pod_params_;
 //  std::array<vk::Buffer, kNumOfBuffers> buffer_list_;
   VkDescriptorSetLayout desc_set_layout_ = VK_NULL_HANDLE;
   VkDescriptorPool desc_pool_ = VK_NULL_HANDLE;
   VkDescriptorSet desc_set_ = VK_NULL_HANDLE;
   VkPipelineLayout pipeline_layout_ = VK_NULL_HANDLE;
   VkPipeline pipeline_ = VK_NULL_HANDLE;
-  VkBuffer pod_buffer_ = VK_NULL_HANDLE;
-  VmaAllocation vm_pod_allocation_ = VK_NULL_HANDLE;
-  VmaAllocationInfo vm_pod_alloc_info_;
   VkCommandBuffer command_buffer_ = VK_NULL_HANDLE;
+  SharedBuffer<PodTuple> pod_buffer_;
+  SharedBuffer<PodTuple> pod_cache_;
 };
 
 } // namespace zivc

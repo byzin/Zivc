@@ -26,6 +26,7 @@
 #include "zisc/zisc_config.hpp"
 // Zivc
 #include "utility/id_data.hpp"
+#include "utility/launch_result.hpp"
 #include "utility/zivc_object.hpp"
 #include "zivc/zivc_config.hpp"
 
@@ -167,7 +168,7 @@ class Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...
   static constexpr std::size_t numOfArgs() noexcept;
 
   //! Execute a kernel
-  virtual void run(ArgTypes... args, const LaunchOptions& launch_options) = 0;
+  virtual LaunchResult run(ArgTypes... args, const LaunchOptions& launch_options) = 0;
 
  protected:
   //! Clear the contents of the kernel

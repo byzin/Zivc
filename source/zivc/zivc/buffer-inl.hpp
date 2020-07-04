@@ -128,6 +128,17 @@ const std::array<float, 4>& Buffer<T>::LaunchOptions::labelColor() const noexcep
 /*!
   \details No detailed description
 
+  \return No description
+  */
+template <typename T> inline
+uint32b Buffer<T>::LaunchOptions::queueIndex() const noexcept
+{
+  return queue_index_;
+}
+
+/*!
+  \details No detailed description
+
   \param [in] offset No description.
   */
 template <typename T> inline
@@ -381,7 +392,9 @@ template <typename T> inline
 auto Buffer<T>::mapMemory() const noexcept -> MappedMemory<ConstType>
 {
   using MappedMem = MappedMemory<ConstType>;
-  typename MappedMem::ConstBufferP p = isHostVisible() ? this : nullptr;
+  typename MappedMem::ConstBufferP p = isHostVisible()
+      ? this->treatAs<ConstType>()
+      : nullptr;
   MappedMem memory{p};
   return memory;
 }

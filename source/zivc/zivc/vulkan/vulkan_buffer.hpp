@@ -82,6 +82,12 @@ class VulkanBuffer : public Buffer<T>
   //! Return the buffer data
   const VkBuffer& buffer() const noexcept;
 
+  //! Return the command buffer reference
+  VkCommandBuffer& commandBuffer() noexcept;
+
+  //! Return the command buffer reference
+  const VkCommandBuffer& commandBuffer() const noexcept;
+
   //! Return the underlying descriptor type
   DescriptorType descriptorType() const noexcept;
 

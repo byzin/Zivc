@@ -91,6 +91,9 @@ class Buffer : public ZivcObject
     //! Return the color of the label
     const std::array<float, 4>& labelColor() const noexcept;
 
+    //! Return the queue index
+    uint32b queueIndex() const noexcept;
+
     //! Set the offset index into the dest buffer at which to start
     void setDestOffset(const std::size_t offset) noexcept;
 
@@ -111,9 +114,6 @@ class Buffer : public ZivcObject
 
     //! Set the offset index into the source buffer at which to start
     void setSourceOffset(const std::size_t offset) noexcept;
-
-    //! Return the queue index
-    uint32b queueIndex() const noexcept;
 
     //! Return the size of elements to be operated
     std::size_t size() const noexcept;

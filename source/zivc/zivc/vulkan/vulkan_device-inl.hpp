@@ -127,6 +127,34 @@ const VulkanDispatchLoader& VulkanDevice::dispatcher() const noexcept
 /*!
   \details No detailed description
 
+  \param [in] index No description.
+  \return No description
+  */
+inline
+VkQueue& VulkanDevice::getQueue(const uint32b index) noexcept
+{
+  const std::size_t qindex = zisc::cast<std::size_t>(index) % numOfQueues();
+  VkQueue& q = (*queue_list_)[qindex];
+  return q;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] index No description.
+  \return No description
+  */
+inline
+const VkQueue& VulkanDevice::getQueue(const uint32b index) const noexcept
+{
+  const std::size_t qindex = zisc::cast<std::size_t>(index) % numOfQueues();
+  const VkQueue& q = (*queue_list_)[qindex];
+  return q;
+}
+
+/*!
+  \details No detailed description
+
   \param [in] id No description.
   \return No description
   */
@@ -189,19 +217,21 @@ const VmaAllocator& VulkanDevice::memoryAllocator() const noexcept
 /*!
   \details No detailed description
 
-  \tparam Type No description.
-  \param [in] command_buffer No description.
-  \param [in] source No description.
-  \param [out] dest No description.
+  \tparam kN No description.
+  \param [in] descriptor_set No description.
+  \param [in] buffer_list No description.
+  \param [in] desc_type_list No description.
   */
-template <typename Type> inline
-void VulkanDevice::updateBufferCmd(const VkCommandBuffer& command_buffer,
-                                   const Type& source,
-                                   const VkBuffer& dest)
+template <std::size_t kN> inline
+void VulkanDevice::updateDescriptorSet(
+    const VkDescriptorSet& descriptor_set,
+    const std::array<VkBuffer, kN>& buffer_list,
+    const std::array<VkDescriptorType, kN>& desc_type_list)
 {
-  constexpr VkDeviceSize size = sizeof(Type);
-  static_assert(size % 4 == 0, "The size of Type isn't a multiple of 4.");
-  updateBufferCmd(command_buffer, size, std::addressof(source), 0, dest);
+  std::array<VkDescriptorBufferInfo, kN> desc_info_list{};
+  std::array<VkWriteDescriptorSet, kN> write_desc_list{};
+  updateDescriptorSet(descriptor_set, kN, buffer_list.data(), desc_type_list.data(),
+                      desc_info_list.data(), write_desc_list.data());
 }
 
 /*!

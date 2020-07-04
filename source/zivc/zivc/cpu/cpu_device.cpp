@@ -154,11 +154,13 @@ void CpuDevice::setNumOfFences(const std::size_t s)
 /*!
   \details No detailed description
 
-  \param [in] work_size No description.
   \param [in] command No description.
+  \param [in] work_size No description.
+  \param [out] fence No description.
   */
-void CpuDevice::submit(const std::array<uint32b, 3>& work_size,
-                       const Command& command) noexcept
+void CpuDevice::submit(const Command& command,
+                       const std::array<uint32b, 3>& work_size,
+                       Fence* fence) noexcept
 {
 }
 

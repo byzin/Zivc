@@ -21,6 +21,7 @@
 #include <map>
 #include <memory>
 #include <string_view>
+#include <tuple>
 // Vulkan
 #include <vulkan/vulkan.h>
 // VMA
@@ -78,25 +79,6 @@ class VulkanDevice : public Device
   template <typename SetType>
   void addShaderModule(const KernelSet<SetType>& kernel_set);
 
-//  //! Allocate a memory of a buffer
-//  template <DescriptorType kDescriptor, typename Type>
-//  void allocate(const std::size_t size,
-//                VulkanBuffer<kDescriptor, Type>* buffer) noexcept;
-
-//  //! Return the workgroup size for the work dimension
-//  template <std::size_t kDimension>
-//  std::array<uint32b, 3> calcWorkGroupSize(
-//      const std::array<uint32b, kDimension>& works) const noexcept;
-
-  //! Create a Vulkan kernel
-//  void createKernel(const std::size_t num_of_buffers,
-//                    VkDescriptorSetLayout descriptor_set_layout,
-//                    VkDescriptorPool* descriptor_pool,
-//                    VkDescriptorSet* descriptor_set,
-//                    VkPipelineLayout* pipeline_layout,
-//                    VkPipeline* compute_pipeline,
-//                    VkCommandBuffer* command_buffer);
-
   //! Return the command pool
   VkCommandPool& commandPool() noexcept;
 
@@ -130,13 +112,12 @@ class VulkanDevice : public Device
   //! Return the invalid queue index in queue families
   static constexpr uint32b invalidQueueIndex() noexcept;
 
-//  //! Return the local-work size for the work dimension
-//  template <std::size_t kDimension>
-//  const std::array<uint32b, 3>& localWorkSize() const noexcept;
-
   //! Make a buffer
   template <typename Type>
   SharedBuffer<Type> makeBuffer(const BufferUsage flag);
+
+  //! Make a command buffer
+  VkCommandBuffer makeCommandBuffer();
 
   //! Make a kernel
   template <std::size_t kDimension, typename SetType, typename ...ArgTypes>
@@ -170,16 +151,16 @@ class VulkanDevice : public Device
   //! Set the number of faces
   void setNumOfFences(const std::size_t s) override;
 
+  //! Submit the given command
+  void submit(const VkCommandBuffer& command_buffer,
+              const VkQueue& q,
+              const Fence& fence);
+
   //! Take a fence data from the device
   void takeFence(Fence* fence) override;
 
   //! Return the current memory usage of the heap of the given number
   std::size_t totalMemoryUsage(const std::size_t number) const noexcept override;
-
-  //! Submit a command
-//  void submit(const QueueType queue_type,
-//              const uint32b queue_index,
-//              const vk::CommandBuffer& command) const noexcept;
 
   //! Wait for a device to be idle
   void waitForCompletion() const noexcept override;
@@ -237,9 +218,6 @@ class VulkanDevice : public Device
                          const std::size_t work_dimension,
                          const std::array<uint32b, 3>& work_group_size);
 
-  //! Initialize a kernel command buffer
-  void initKernelCommandBuffer(VkCommandBuffer* command_buffer);
-
   //! Initialize a descriptor set of a kernel
   void initKernelDescriptorSet(const std::size_t num_of_buffers,
                                VkDescriptorSetLayout* descriptor_set_layout,
@@ -255,25 +233,11 @@ class VulkanDevice : public Device
                           VkPipelineLayout* pipeline_layout,
                           VkPipeline* compute_pipeline);
 
-  //! Set the number of 
-
-  //! Submit the given kernel command
-  void submitKernelQueue(const VkCommandBuffer& command_buffer,
-                         const VkQueue& q,
-                         const Fence& fence);
-
-  //! Update a buffer's contents from host memory
-  template <typename Type>
-  void updateBufferCmd(const VkCommandBuffer& command_buffer,
-                       const Type& source,
-                       const VkBuffer& dest);
-
-  //! Update a buffer's contents from host memory
-  void updateBufferCmd(const VkCommandBuffer& command_buffer,
-                       const VkDeviceSize size,
-                       const void* source,
-                       const VkDeviceSize offset,
-                       const VkBuffer& dest);
+  //! Update the given descriptor set with the given buffers
+  template <std::size_t kN>
+  void updateDescriptorSet(const VkDescriptorSet& descriptor_set,
+                           const std::array<VkBuffer, kN>& buffer_list,
+                           const std::array<VkDescriptorType, kN>& desc_type_list);
 
   //! Return the work group size of the given dimension
   const std::array<uint32b, 3>& workGroupSizeDim(const std::size_t dimension) const noexcept;
@@ -364,6 +328,14 @@ class VulkanDevice : public Device
 
   //! Return an index of a queue family
   uint32b queueFamilyIndex() const noexcept;
+
+  //! Update the given descriptor set with the given buffers
+  void updateDescriptorSet(const VkDescriptorSet& descriptor_set,
+                           const std::size_t n,
+                           const VkBuffer* buffer_list,
+                           const VkDescriptorType* desc_type_list,
+                           VkDescriptorBufferInfo* desc_info_list,
+                           VkWriteDescriptorSet* write_desc_list);
 
   //! Update the debug info of the shader module of the given ID
   void updateShaderModuleDebugInfo(const uint32b id) noexcept;

@@ -19,7 +19,6 @@
 #include <array>
 #include <cstddef>
 #include <memory>
-#include <string>
 #include <string_view>
 // Zisc
 #include "zisc/memory.hpp"
@@ -27,6 +26,7 @@
 // Zivc
 #include "zivc/device_info.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/utility/id_data.hpp"
 
 namespace zivc {
 
@@ -94,8 +94,8 @@ class CpuDeviceInfo : public DeviceInfo
   void initCpuInfo() noexcept;
 
 
-  zisc::pmr::string name_;
-  zisc::pmr::string vendor_name_;
+  IdData::NameType name_;
+  IdData::NameType vendor_name_;
   MemoryStats memory_stats_;
 };
 

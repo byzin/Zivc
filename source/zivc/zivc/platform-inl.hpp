@@ -56,7 +56,7 @@ bool Platform::hasSubPlatform(const SubPlatformType type) const noexcept
 {
   const std::size_t index = zisc::cast<std::size_t>(type);
   ZISC_ASSERT(index < kNumOfSubPlatforms, "The index is out of range.");
-  const auto& sub_platform = sub_platform_list_[index];
+  const auto sub_platform = subPlatform(type);
   const bool result = (sub_platform != nullptr) && sub_platform->isAvailable();
   return result;
 }
@@ -83,7 +83,7 @@ IdData Platform::issueId() noexcept
 {
   const int64b id = id_count_++;
   constexpr int64b threshold = 0;
-  IdData id_data{zisc::max(id, threshold)};
+  IdData id_data{(zisc::max)(id, threshold)};
   return id_data;
 }
 

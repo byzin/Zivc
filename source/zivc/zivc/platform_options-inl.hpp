@@ -17,7 +17,7 @@
 
 #include "platform_options.hpp"
 // Standard C++ library
-#include <string>
+#include <cstring>
 #include <string_view>
 // Zisc
 #include "zisc/std_memory_resource.hpp"
@@ -34,9 +34,8 @@ namespace zivc {
 inline
 PlatformOptions::PlatformOptions(zisc::pmr::memory_resource* mem_resource)
     noexcept :
+        platform_name_{{"Platform"}},
         mem_resource_{mem_resource},
-        platform_name_{"Platform",
-                       zisc::pmr::string::allocator_type{mem_resource_}},
         platform_version_major_{0},
         platform_version_minor_{0},
         platform_version_patch_{0},
@@ -57,8 +56,8 @@ PlatformOptions::PlatformOptions(zisc::pmr::memory_resource* mem_resource)
   */
 inline
 PlatformOptions::PlatformOptions(PlatformOptions&& other) noexcept :
-    mem_resource_{other.mem_resource_},
     platform_name_{std::move(other.platform_name_)},
+    mem_resource_{other.mem_resource_},
     platform_version_major_{other.platform_version_major_},
     platform_version_minor_{other.platform_version_minor_},
     platform_version_patch_{other.platform_version_patch_},
@@ -80,8 +79,8 @@ PlatformOptions::PlatformOptions(PlatformOptions&& other) noexcept :
 inline
 PlatformOptions& PlatformOptions::operator=(PlatformOptions&& other) noexcept
 {
-  mem_resource_ = other.mem_resource_;
   platform_name_ = std::move(other.platform_name_);
+  mem_resource_ = other.mem_resource_;
   platform_version_major_ = other.platform_version_major_;
   platform_version_minor_ = other.platform_version_minor_;
   platform_version_patch_ = other.platform_version_patch_;
@@ -172,7 +171,7 @@ const zisc::pmr::memory_resource* PlatformOptions::memoryResource() const noexce
 inline
 std::string_view PlatformOptions::platformName() const noexcept
 {
-  std::string_view name = platform_name_;
+  const std::string_view name{platform_name_.data()};
   return name;
 }
 
@@ -251,7 +250,7 @@ void PlatformOptions::setCpuTaskBatchSize(const uint32b task_batch_size) noexcep
 inline
 void PlatformOptions::setPlatformName(std::string_view name) noexcept
 {
-  platform_name_ = name;
+  std::strncpy(platform_name_.data(), name.data(), name.size() + 1);
 }
 
 /*!
@@ -352,6 +351,7 @@ void PlatformOptions::initialize() noexcept
 #if defined(Z_DEBUG_MODE)
   enableDebugMode(true);
 #endif // Z_DEBUG_MODE
+  static_cast<void>(padding_);
 }
 
 } // namespace zivc

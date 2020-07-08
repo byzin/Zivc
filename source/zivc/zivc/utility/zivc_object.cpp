@@ -136,8 +136,7 @@ void ZivcObject::setName(const std::string_view object_name) noexcept
 void ZivcObject::setNameIfEmpty(const std::string_view object_name) noexcept
 {
   IdData& object_id = id();
-  const std::string_view n{object_id.name()};
-  if (n.empty())
+  if (!object_id.hasName())
     object_id.setName(object_name);
   updateDebugInfo();
 }

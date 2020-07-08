@@ -51,7 +51,7 @@ int main(int /* argc */, char** /* argv */)
 {
   zisc::SimpleMemoryResource mem_resource;
 
-  // Platform options
+  // Set platform options
   zivc::PlatformOptions platform_options{&mem_resource};
   platform_options.setPlatformName("PlatformExample");
   platform_options.setPlatformVersionMajor(zivc::Config::versionMajor());
@@ -60,7 +60,7 @@ int main(int /* argc */, char** /* argv */)
   platform_options.enableVulkanSubPlatform(true);
   platform_options.enableDebugMode(true);
 
-  // Platform
+  // Make a platform
   std::cout << "Create a platform." << std::endl;
   auto platform = zivc::makePlatform(&mem_resource);
   platform->initialize(platform_options);

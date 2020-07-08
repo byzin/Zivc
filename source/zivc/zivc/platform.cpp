@@ -121,6 +121,7 @@ void Platform::initialize(PlatformOptions& platform_options)
 
   mem_resource_ = platform_options.memoryResource();
   setDebugMode(platform_options.debugModeEnabled());
+  id_count_.store(0);
 
   // Initialize sub-platforms
   initCpuSubPlatform(platform_options);
@@ -134,6 +135,8 @@ void Platform::initialize(PlatformOptions& platform_options)
       mem_resource_,
       std::move(new_info_list));
   updateDeviceInfoList();
+
+  static_cast<void>(padding_);
 }
 
 /*!
@@ -142,19 +145,16 @@ void Platform::initialize(PlatformOptions& platform_options)
 void Platform::updateDeviceInfoList() noexcept
 {
   device_info_list_->clear();
+  std::size_t num_of_devices = 0;
   // 
   for (auto& sub_platform : sub_platform_list_) {
-    if (sub_platform && sub_platform->isAvailable())
+    if (sub_platform && sub_platform->isAvailable()) {
       sub_platform->updateDeviceInfoList();
-  }
-  //
-  std::size_t num_of_devices = 0;
-  for (const auto& sub_platform : sub_platform_list_) {
-    if (sub_platform && sub_platform->isAvailable())
       num_of_devices += sub_platform->numOfDevices();
+    }
   }
-  device_info_list_->reserve(num_of_devices);
   //
+  device_info_list_->reserve(num_of_devices);
   for (const auto& sub_platform : sub_platform_list_) {
     if (sub_platform && sub_platform->isAvailable())
       sub_platform->getDeviceInfoList(*device_info_list_);

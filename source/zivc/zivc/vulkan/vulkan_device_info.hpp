@@ -19,7 +19,6 @@
 #include <array>
 #include <cstddef>
 #include <memory>
-#include <string>
 #include <string_view>
 #include <vector>
 // Vulkan
@@ -29,6 +28,7 @@
 // Zivc
 #include "zivc/device_info.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/utility/id_data.hpp"
 
 namespace zivc {
 
@@ -60,6 +60,7 @@ class VulkanDeviceInfo : public DeviceInfo
   {
     VkPhysicalDeviceProperties properties1_;
     VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT blend_operation_advanced_;
+    VkPhysicalDeviceCustomBorderColorPropertiesEXT custom_border_color_;
     VkPhysicalDeviceConservativeRasterizationPropertiesEXT conservative_rasterization_;
     VkPhysicalDeviceDepthStencilResolveProperties depth_stencil_resolve_;
     VkPhysicalDeviceDescriptorIndexingProperties descriptor_indexing_;
@@ -78,6 +79,7 @@ class VulkanDeviceInfo : public DeviceInfo
     VkPhysicalDevicePointClippingProperties point_clipping_;
     VkPhysicalDeviceProtectedMemoryProperties protected_memory_;
     VkPhysicalDevicePushDescriptorPropertiesKHR push_descriptor_;
+    VkPhysicalDeviceRobustness2PropertiesEXT robustness2_;
     VkPhysicalDeviceSampleLocationsPropertiesEXT sample_locations_;
     VkPhysicalDeviceSamplerFilterMinmaxProperties sampler_filter_minmax_;
     VkPhysicalDeviceSubgroupProperties subgroup_;
@@ -94,12 +96,14 @@ class VulkanDeviceInfo : public DeviceInfo
   struct Features
   {
     VkPhysicalDeviceFeatures features1_;
+    uint32b padding_;
     VkPhysicalDevice16BitStorageFeatures b16bit_storage_;
     VkPhysicalDevice8BitStorageFeatures b8bit_storage_;
     VkPhysicalDeviceASTCDecodeFeaturesEXT astc_decode_;
     VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT blend_operation_advanced_;
     VkPhysicalDeviceBufferDeviceAddressFeatures buffer_device_address_;
     VkPhysicalDeviceConditionalRenderingFeaturesEXT conditional_rendering_;
+    VkPhysicalDeviceCustomBorderColorFeaturesEXT custom_border_color_;
     VkPhysicalDeviceDepthClipEnableFeaturesEXT depth_clip_enabled_;
     VkPhysicalDeviceDescriptorIndexingFeatures descriptor_indexing_;
     VkPhysicalDeviceFragmentDensityMapFeaturesEXT fragment_density_map_;
@@ -112,8 +116,11 @@ class VulkanDeviceInfo : public DeviceInfo
     VkPhysicalDeviceMemoryPriorityFeaturesEXT memory_priority_features_;
     VkPhysicalDeviceMultiviewFeatures multiview_;
     VkPhysicalDevicePerformanceQueryFeaturesKHR performance_query_;
+    VkPhysicalDevicePipelineCreationCacheControlFeaturesEXT pipeline_creation_cache_control_;
     VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR pipeline_executable_properties_;
+    VkPhysicalDevicePrivateDataFeaturesEXT private_data_features_;
     VkPhysicalDeviceProtectedMemoryFeatures protected_memory_;
+    VkPhysicalDeviceRobustness2FeaturesEXT robustness2_;
     VkPhysicalDeviceSamplerYcbcrConversionFeatures sampler_ycbcr_conversion_;
     VkPhysicalDeviceScalarBlockLayoutFeaturesEXT scalar_block_layout_;
     VkPhysicalDeviceSeparateDepthStencilLayoutsFeatures depth_stencil_layouts_;
@@ -143,19 +150,6 @@ class VulkanDeviceInfo : public DeviceInfo
     VkPhysicalDeviceMemoryProperties properties1_;
     VkPhysicalDeviceMemoryBudgetPropertiesEXT budget_;
   };
-
-  //! Queue family properties of a device
-  struct QueueFamilyProperties
-  {
-    VkQueueFamilyProperties properties1_;
-  };
-
-  //! Device tool properties
-  struct ToolProperties
-  {
-    VkPhysicalDeviceToolPropertiesEXT properties1_;
-  };
-
 
   //! Initialize the device info
   VulkanDeviceInfo(zisc::pmr::memory_resource* mem_resource) noexcept;
@@ -237,10 +231,10 @@ class VulkanDeviceInfo : public DeviceInfo
   const Properties& properties() const noexcept;
 
   //! Return tool properties list of the device
-  zisc::pmr::vector<ToolProperties>& toolPropertiesList() noexcept;
+  zisc::pmr::vector<VkPhysicalDeviceToolPropertiesEXT>& toolPropertiesList() noexcept;
 
   //! Return tool properties list of the device
-  const zisc::pmr::vector<ToolProperties>& toolPropertiesList() const noexcept;
+  const zisc::pmr::vector<VkPhysicalDeviceToolPropertiesEXT>& toolPropertiesList() const noexcept;
 
   //! Return the amount of actual device memory in bytes
   std::size_t totalMemory(const std::size_t heap_index) const noexcept override;
@@ -249,10 +243,10 @@ class VulkanDeviceInfo : public DeviceInfo
   SubPlatformType type() const noexcept override;
 
   //! Return queue family properties list of the device
-  zisc::pmr::vector<QueueFamilyProperties>& queueFamilyPropertiesList() noexcept;
+  zisc::pmr::vector<VkQueueFamilyProperties>& queueFamilyPropertiesList() noexcept;
 
   //! Return queue family properties list of the device
-  const zisc::pmr::vector<QueueFamilyProperties>& queueFamilyPropertiesList() const noexcept;
+  const zisc::pmr::vector<VkQueueFamilyProperties>& queueFamilyPropertiesList() const noexcept;
 
   //! Return the vendor ID
   VendorId vendorId() const noexcept;
@@ -297,16 +291,23 @@ class VulkanDeviceInfo : public DeviceInfo
 
   zisc::pmr::vector<VkExtensionProperties> extension_properties_list_;
   zisc::pmr::vector<VkLayerProperties> layer_properties_list_;
-  zisc::pmr::vector<QueueFamilyProperties> queue_family_properties_list_;
-  zisc::pmr::vector<ToolProperties> tool_properties_list_;
+  zisc::pmr::vector<VkQueueFamilyProperties> queue_family_properties_list_;
+  zisc::pmr::vector<VkPhysicalDeviceToolPropertiesEXT> tool_properties_list_;
+  // VkExternalBufferProperties;
+  // VkExternalFenceProperties;
+  // VkExternalSemaphoreProperties;
   zisc::pmr::vector<std::size_t> device_local_index_list_;
-  zisc::pmr::string vendor_name_;
+  VkPhysicalDevice device_;
+  IdData::NameType vendor_name_;
   VendorId vendor_id_;
   uint32b subgroup_size_ = 0;
-  VkPhysicalDevice device_;
   Properties properties_;
   Features features_;
   MemoryProperties memory_properties_;
+  // getFormatProperties2
+  // getImageFormatProperties2
+  // getMultisampleProperties
+  // getSparseImageFormatProperties2
 };
 
 } // namespace zivc

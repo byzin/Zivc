@@ -67,6 +67,11 @@ void CpuSubPlatform::getDeviceInfoList(
   */
 SharedDevice CpuSubPlatform::makeDevice(const DeviceInfo& device_info) noexcept
 {
+  if (!isAvailable()) {
+    //! \todo Throw an exception
+    std::cerr << "[Error] Submodule isn't ready." << std::endl;
+  }
+
   auto info = zisc::cast<const CpuDeviceInfo*>(std::addressof(device_info));
   if (device_info_.get() != info) {
     //! \todo Throw an exception
@@ -89,7 +94,9 @@ SharedDevice CpuSubPlatform::makeDevice(const DeviceInfo& device_info) noexcept
   */
 bool CpuSubPlatform::isAvailable() const noexcept
 {
-  return true;
+  const auto& own = getOwn();
+  const bool result = !own.expired();
+  return result;
 }
 
 /*!
@@ -126,7 +133,7 @@ void CpuSubPlatform::updateDeviceInfoList() noexcept
 void CpuSubPlatform::destroyData() noexcept
 {
   num_of_threads_ = 0;
-  task_batch_size_ = 32;
+  task_batch_size_ = 0;
   device_info_.reset();
 }
 

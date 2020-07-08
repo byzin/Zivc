@@ -16,8 +16,8 @@
 // Standard C++ library
 #include <array>
 #include <cstddef>
+#include <cstring>
 #include <memory>
-#include <string>
 #include <string_view>
 #include <type_traits>
 #include <utility>
@@ -51,7 +51,6 @@ VulkanDeviceInfo::VulkanDeviceInfo(zisc::pmr::memory_resource* mem_resource)
           decltype(tool_properties_list_)::allocator_type{mem_resource}},
         device_local_index_list_{
           decltype(device_local_index_list_)::allocator_type{mem_resource}},
-        vendor_name_{zisc::pmr::string::allocator_type{mem_resource}},
         vendor_id_{VendorId::kUnknown},
         subgroup_size_{0}
 {
@@ -69,10 +68,10 @@ VulkanDeviceInfo::VulkanDeviceInfo(VulkanDeviceInfo&& other) noexcept :
     queue_family_properties_list_{std::move(other.queue_family_properties_list_)},
     tool_properties_list_{std::move(other.tool_properties_list_)},
     device_local_index_list_{std::move(other.device_local_index_list_)},
+    device_{other.device_},
     vendor_name_{std::move(other.vendor_name_)},
     vendor_id_{other.vendor_id_},
     subgroup_size_{other.subgroup_size_},
-    device_{other.device_},
     properties_{std::move(other.properties_)},
     features_{std::move(other.features_)},
     memory_properties_{std::move(other.memory_properties_)}
@@ -93,10 +92,10 @@ VulkanDeviceInfo& VulkanDeviceInfo::operator=(VulkanDeviceInfo&& other) noexcept
   queue_family_properties_list_ = std::move(other.queue_family_properties_list_);
   tool_properties_list_ = std::move(other.tool_properties_list_);
   device_local_index_list_ = std::move(other.device_local_index_list_);
+  device_ = other.device_;
   vendor_name_ = std::move(other.vendor_name_);
   vendor_id_ = other.vendor_id_;
   subgroup_size_ = other.subgroup_size_;
-  device_ = other.device_;
   properties_ = std::move(other.properties_);
   features_ = std::move(other.features_);
   memory_properties_ = std::move(other.memory_properties_);
@@ -113,6 +112,7 @@ VulkanDeviceInfo::~VulkanDeviceInfo() noexcept
 /*!
   \details No detailed description
 
+  \param [in] heap_index No description.
   \return No description
   */
 std::size_t VulkanDeviceInfo::availableMemory(const std::size_t heap_index) const noexcept
@@ -127,6 +127,7 @@ std::size_t VulkanDeviceInfo::availableMemory(const std::size_t heap_index) cons
   \details No detailed description
 
   \param [in] vdevice No description.
+  \param [in] dispatcher No description.
   */
 void VulkanDeviceInfo::fetch(const VkPhysicalDevice& vdevice,
                              const VulkanDispatchLoader& dispatcher)
@@ -177,7 +178,8 @@ std::array<uint32b, 3> VulkanDeviceInfo::maxWorkGroupCount() const noexcept
   */
 std::string_view VulkanDeviceInfo::name() const noexcept
 {
-  std::string_view n{properties_.properties1_.deviceName};
+  const Properties& props = properties();
+  std::string_view n{props.properties1_.deviceName};
   return n;
 }
 
@@ -194,6 +196,7 @@ std::size_t VulkanDeviceInfo::numOfHeaps() const noexcept
 /*!
   \details No detailed description
 
+  \param [in] heap_index No description.
   \return No description
   */
 std::size_t VulkanDeviceInfo::totalMemory(const std::size_t heap_index) const noexcept
@@ -221,7 +224,8 @@ SubPlatformType VulkanDeviceInfo::type() const noexcept
   */
 std::string_view VulkanDeviceInfo::vendorName() const noexcept
 {
-  return vendor_name_;
+  const std::string_view n{vendor_name_.data()};
+  return n;
 }
 
 /*!
@@ -236,23 +240,39 @@ uint32b VulkanDeviceInfo::workGroupSize() const noexcept
 
 /*!
   \details No detailed description
+
+  \param [in] dispatcher No description.
   */
 void VulkanDeviceInfo::fetchExtensionProperties(
     const VulkanDispatchLoader& dispatcher)
 {
   using Props = zivcvk::ExtensionProperties;
-  static_assert(sizeof(VkExtensionProperties) == sizeof(Props),
-                "The sizes of properties don't match.");
+  static_assert(sizeof(VkExtensionProperties) == sizeof(Props));
 
   const zivcvk::PhysicalDevice d{device()};
   const auto loader = dispatcher.loaderImpl();
 
-  using PropertiesList = zisc::pmr::vector<Props>;
-  extension_properties_list_.clear();
-  auto props_list = zisc::treatAs<PropertiesList*>(&extension_properties_list_);
-  *props_list = d.enumerateDeviceExtensionProperties(nullptr, 
-                                                     props_list->get_allocator(),
-                                                     *loader);
+  uint32b size = 0;
+  {
+    auto result = d.enumerateDeviceExtensionProperties(nullptr, &size,
+                                                       nullptr, *loader);
+    if (result != zivcvk::Result::eSuccess) {
+      //! \todo Throw an exception
+      std::cerr << "[Error] Fetching device extension props failed." << std::endl;
+      return;
+    }
+    extension_properties_list_.resize(zisc::cast<std::size_t>(size));
+  }
+  {
+    auto data = zisc::treatAs<Props*>(extension_properties_list_.data());
+    auto result = d.enumerateDeviceExtensionProperties(nullptr, &size,
+                                                       data, *loader);
+    if (result != zivcvk::Result::eSuccess) {
+      //! \todo Throw an exception
+      std::cerr << "[Error] Fetching device extension props failed." << std::endl;
+      return;
+    }
+  }
 }
 
 /*!
@@ -281,6 +301,8 @@ void VulkanDeviceInfo::fetchFeatures(
           props.buffer_device_address_),
        initProp<zivcvk::PhysicalDeviceConditionalRenderingFeaturesEXT>(
           props.conditional_rendering_),
+       initProp<zivcvk::PhysicalDeviceCustomBorderColorFeaturesEXT>(
+          props.custom_border_color_),
        initProp<zivcvk::PhysicalDeviceDepthClipEnableFeaturesEXT>(
           props.depth_clip_enabled_),
        initProp<zivcvk::PhysicalDeviceDescriptorIndexingFeatures>(
@@ -305,10 +327,16 @@ void VulkanDeviceInfo::fetchFeatures(
           props.multiview_),
        initProp<zivcvk::PhysicalDevicePerformanceQueryFeaturesKHR>(
           props.performance_query_),
+       initProp<zivcvk::PhysicalDevicePipelineCreationCacheControlFeaturesEXT>(
+          props.pipeline_creation_cache_control_),
        initProp<zivcvk::PhysicalDevicePipelineExecutablePropertiesFeaturesKHR>(
           props.pipeline_executable_properties_),
+       initProp<zivcvk::PhysicalDevicePrivateDataFeaturesEXT>(
+          props.private_data_features_),
        initProp<zivcvk::PhysicalDeviceProtectedMemoryFeatures>(
           props.protected_memory_),
+       initProp<zivcvk::PhysicalDeviceRobustness2FeaturesEXT>(
+          props.robustness2_),
        initProp<zivcvk::PhysicalDeviceSamplerYcbcrConversionFeatures>(
           props.sampler_ycbcr_conversion_),
        initProp<zivcvk::PhysicalDeviceScalarBlockLayoutFeatures>(
@@ -354,28 +382,49 @@ void VulkanDeviceInfo::fetchFeatures(
        );
   d.getFeatures2(&p, *loader);
   props.features1_ = zisc::cast<VkPhysicalDeviceFeatures>(p.features);
+  static_cast<void>(props.padding_);
 }
 
 /*!
   \details No detailed description
+
+  \param [in] dispatcher No description.
   */
 void VulkanDeviceInfo::fetchLayerProperties(
     const VulkanDispatchLoader& dispatcher)
 {
   using Props = zivcvk::LayerProperties;
-  static_assert(sizeof(VkLayerProperties) == sizeof(Props),
-                "The sizes of properties don't match.");
+  static_assert(sizeof(VkLayerProperties) == sizeof(Props));
 
   const zivcvk::PhysicalDevice d{device()};
   const auto loader = dispatcher.loaderImpl();
 
-  using PropertiesList = zisc::pmr::vector<Props>;
-  layer_properties_list_.clear();
-  auto props_list = zisc::treatAs<PropertiesList*>(&layer_properties_list_);
-  *props_list = d.enumerateDeviceLayerProperties(props_list->get_allocator(),
-                                                 *loader);
+  uint32b size = 0;
+  {
+    auto result = d.enumerateDeviceLayerProperties(&size, nullptr, *loader);
+    if (result != zivcvk::Result::eSuccess) {
+      //! \todo Throw an exception
+      std::cerr << "[Error] Fetching device layer props failed." << std::endl;
+      return;
+    }
+    layer_properties_list_.resize(zisc::cast<std::size_t>(size));
+  }
+  {
+    auto data = zisc::treatAs<Props*>(layer_properties_list_.data());
+    auto result = d.enumerateDeviceLayerProperties(&size, data, *loader);
+    if (result != zivcvk::Result::eSuccess) {
+      //! \todo Throw an exception
+      std::cerr << "[Error] Fetching device layer props failed." << std::endl;
+      return;
+    }
+  }
 }
 
+/*!
+  \details No detailed description
+
+  \param [in] dispatcher No description.
+  */
 void VulkanDeviceInfo::fetchMemoryProperties(
     const VulkanDispatchLoader& dispatcher)
 {
@@ -411,6 +460,8 @@ void VulkanDeviceInfo::fetchProperties(
           props.blend_operation_advanced_),
        initProp<zivcvk::PhysicalDeviceConservativeRasterizationPropertiesEXT>(
           props.conservative_rasterization_),
+       initProp<zivcvk::PhysicalDeviceCustomBorderColorPropertiesEXT>(
+          props.custom_border_color_),
        initProp<zivcvk::PhysicalDeviceDepthStencilResolveProperties>(
           props.depth_stencil_resolve_),
        initProp<zivcvk::PhysicalDeviceDescriptorIndexingProperties>(
@@ -445,6 +496,8 @@ void VulkanDeviceInfo::fetchProperties(
           props.protected_memory_),
        initProp<zivcvk::PhysicalDevicePushDescriptorPropertiesKHR>(
           props.push_descriptor_),
+       initProp<zivcvk::PhysicalDeviceRobustness2PropertiesEXT>(
+          props.robustness2_),
        initProp<zivcvk::PhysicalDeviceSampleLocationsPropertiesEXT>(
           props.sample_locations_),
        initProp<zivcvk::PhysicalDeviceSamplerFilterMinmaxProperties>(
@@ -462,10 +515,9 @@ void VulkanDeviceInfo::fetchProperties(
        initProp<zivcvk::PhysicalDeviceVertexAttributeDivisorPropertiesEXT>(
           props.vertex_attribute_divisor_),
        initProp<zivcvk::PhysicalDeviceVulkan11Properties>(
-          props.vulkan11_)
-//! \todo Get Vulkan 12 properties
-//       initProp<zivcvk::PhysicalDeviceVulkan12Properties>(
-//          props.vulkan12_)
+          props.vulkan11_),
+       initProp<zivcvk::PhysicalDeviceVulkan12Properties>(
+          props.vulkan12_)
        );
   d.getProperties2(&p, *loader);
   props.properties1_ = zisc::cast<VkPhysicalDeviceProperties>(p.properties);
@@ -473,69 +525,61 @@ void VulkanDeviceInfo::fetchProperties(
 
 /*!
   \details No detailed description
+
+  \param [in] dispatcher No description.
   */
 void VulkanDeviceInfo::fetchToolProperties(
     const VulkanDispatchLoader& dispatcher)
 {
-  auto mem_resource = tool_properties_list_.get_allocator().resource();
+  using Props = zivcvk::PhysicalDeviceToolPropertiesEXT;
+  static_assert(sizeof(VkPhysicalDeviceToolPropertiesEXT) == sizeof(Props));
+
   const zivcvk::PhysicalDevice d{device()};
+  const auto loader = dispatcher.loaderImpl();
 
-  // Tool properties
+  uint32b size = 0;
   {
-    const auto loader = dispatcher.loaderImpl();
-
-    // Get the number of properties
-    uint32b n = 0;
-    d.getToolPropertiesEXT(&n, nullptr, *loader);
-
-    // Get properties
-    using PropertiesList = zisc::pmr::vector<zivcvk::PhysicalDeviceToolPropertiesEXT>;
-    PropertiesList props_list{PropertiesList::allocator_type{mem_resource}};
-    props_list.resize(n);
-    d.getToolPropertiesEXT(&n, props_list.data(), *loader);
-
-    //
-    tool_properties_list_.clear();
-    tool_properties_list_.resize(n);
-    for (std::size_t i = 0; i < props_list.size(); ++i) {
-      const auto& prop = props_list[i];
-      tool_properties_list_[i].properties1_ =
-          zisc::cast<VkPhysicalDeviceToolPropertiesEXT>(prop);
+    auto result = d.getToolPropertiesEXT(&size, nullptr, *loader);
+    if (result != zivcvk::Result::eSuccess) {
+      //! \todo Throw an exception
+      std::cerr << "[Error] Fetching device tool props failed." << std::endl;
+      return;
+    }
+    tool_properties_list_.resize(zisc::cast<std::size_t>(size));
+  }
+  {
+    auto data = zisc::treatAs<Props*>(tool_properties_list_.data());
+    auto result = d.getToolPropertiesEXT(&size, data, *loader);
+    if (result != zivcvk::Result::eSuccess) {
+      //! \todo Throw an exception
+      std::cerr << "[Error] Fetching device tool props failed." << std::endl;
+      return;
     }
   }
 }
 
 /*!
   \details No detailed description
+
+  \param [in] dispatcher No description.
   */
 void VulkanDeviceInfo::fetchQueueFamilyProperties(
     const VulkanDispatchLoader& dispatcher)
 {
-  auto mem_resource = queue_family_properties_list_.get_allocator().resource();
+  using Props = zivcvk::QueueFamilyProperties;
+  static_assert(sizeof(VkQueueFamilyProperties) == sizeof(Props));
+
   const zivcvk::PhysicalDevice d{device()};
+  const auto loader = dispatcher.loaderImpl();
 
-  // Queue family properties
+  uint32b size = 0;
   {
-    const auto loader = dispatcher.loaderImpl();
-
-    // Get the number of properties
-    uint32b n = 0;
-    d.getQueueFamilyProperties2(&n, nullptr, *loader);
-
-    // Get properties
-    using PropertiesList = zisc::pmr::vector<zivcvk::QueueFamilyProperties2>;
-    PropertiesList props_list{PropertiesList::allocator_type{mem_resource}};
-    props_list.resize(n);
-    d.getQueueFamilyProperties2(&n, props_list.data(), *loader);
-
-    //
-    queue_family_properties_list_.clear();
-    queue_family_properties_list_.resize(n);
-    for (std::size_t i = 0; i < props_list.size(); ++i) {
-      const auto& prop = props_list[i];
-      queue_family_properties_list_[i].properties1_ =
-          zisc::cast<VkQueueFamilyProperties>(prop.queueFamilyProperties);
-    }
+    d.getQueueFamilyProperties(&size, nullptr, *loader);
+    queue_family_properties_list_.resize(zisc::cast<std::size_t>(size));
+  }
+  {
+    auto data = zisc::treatAs<Props*>(queue_family_properties_list_.data());
+    d.getQueueFamilyProperties(&size, data, *loader);
   }
 }
 
@@ -572,46 +616,48 @@ void VulkanDeviceInfo::initSubgroupSize() noexcept
 
 /*!
   \details No detailed description
-
-  \param [in] vendor_id No description.
   */
 void VulkanDeviceInfo::initVendorInfo() noexcept
 {
-  using namespace std::string_literals;
+  auto set_vendor_name = [this](const char* n)
+  {
+    std::strcpy(vendor_name_.data(), n);
+  };
+
   switch (properties().properties1_.vendorID) {
    case zisc::cast<uint32b>(VendorId::kAmd): {
     vendor_id_ = VendorId::kAmd;
-    vendor_name_ = "AMD"s;
+    set_vendor_name("AMD");
     break;
    }
    case zisc::cast<uint32b>(VendorId::kImgTec): {
     vendor_id_ = VendorId::kImgTec;
-    vendor_name_ = "ImgTec"s;
+    set_vendor_name("ImgTec");
     break;
    }
    case zisc::cast<uint32b>(VendorId::kNvidia): {
     vendor_id_ = VendorId::kNvidia;
-    vendor_name_ = "NVIDIA"s;
+    set_vendor_name("NVIDIA");
     break;
    }
    case zisc::cast<uint32b>(VendorId::kArm): {
     vendor_id_ = VendorId::kArm;
-    vendor_name_ = "ARM"s;
+    set_vendor_name("ARM");
     break;
    }
    case zisc::cast<uint32b>(VendorId::kQualcomm): {
     vendor_id_ = VendorId::kQualcomm;
-    vendor_name_ = "Qualcomm"s;
+    set_vendor_name("Qualcomm");
     break;
    }
    case zisc::cast<uint32b>(VendorId::kIntel): {
     vendor_id_ = VendorId::kIntel;
-    vendor_name_ = "INTEL"s;
+    set_vendor_name("INTEL");
     break;
    }
    default: {
     vendor_id_ = VendorId::kUnknown;
-    vendor_name_ = "Unknown"s;
+    set_vendor_name("Unknown");
     break;
    }
   }

@@ -174,6 +174,10 @@ int main(int /* argc */, char** /* argv */)
                   << limits.maxComputeWorkGroupSize[2] << "]" << std::endl;
         std::cout << indent3 << "Min memory map alignment: "
                   << limits.minMemoryMapAlignment << " bytes" << std::endl;
+        std::cout << indent3 << "Min uniform buffer offset alignment: "
+                  << limits.minUniformBufferOffsetAlignment << std::endl;
+        std::cout << indent3 << "Min storage buffer offset alignment: "
+                  << limits.minStorageBufferOffsetAlignment << std::endl;
         {
           const auto& descriptor_props = info.properties().push_descriptor_;
           std::cout << indent3 << "Max number of push descriptors: "
@@ -223,10 +227,10 @@ int main(int /* argc */, char** /* argv */)
         for (std::size_t index = 0; index < props.size(); ++index) {
           const auto& prop = props[index];
           std::cout << indent3 << "QueueFamily[" << index << "]: "
-                    << "counts: " << prop.properties1_.queueCount
+                    << "counts: " << prop.queueCount
                     << ", " << std::endl
                     << indent4 << "capabilities: "
-                    << vk::to_string(zisc::cast<vk::QueueFlags>(prop.properties1_.queueFlags))
+                    << vk::to_string(zisc::cast<vk::QueueFlags>(prop.queueFlags))
                     << std::endl;
         }
       }
@@ -272,6 +276,43 @@ int main(int /* argc */, char** /* argv */)
         std::cout << indent3 << "Min imported pointer alignment: "
                   << props.external_memory_host_.minImportedHostPointerAlignment
                   << " bytes" << std::endl;
+      }
+      {
+        std::cout << indent2 << "FloatControl" << std::endl;
+        const auto& props = info.properties().float_controls_;
+        std::cout << indent3 << "float16: " << std::endl;
+        std::cout << indent4 << "+-0,inf,nan: "
+                  << props.shaderSignedZeroInfNanPreserveFloat16 << std::endl
+                  << indent4 << "denorm: "
+                  << props.shaderDenormPreserveFloat16 << std::endl
+                  << indent4 << "denorm to zero: "
+                  << props.shaderDenormFlushToZeroFloat16 << std::endl
+                  << indent4 << "round-to-nearest-even: "
+                  << props.shaderRoundingModeRTEFloat16 << std::endl
+                  << indent4 << "round-towards-zero: "
+                  << props.shaderRoundingModeRTZFloat16 << std::endl;
+        std::cout << indent3 << "float32: " << std::endl;
+        std::cout << indent4 << "+-0,inf,nan: "
+                  << props.shaderSignedZeroInfNanPreserveFloat32 << std::endl
+                  << indent4 << "denorm: "
+                  << props.shaderDenormPreserveFloat32 << std::endl
+                  << indent4 << "denorm to zero: "
+                  << props.shaderDenormFlushToZeroFloat32 << std::endl
+                  << indent4 << "round-to-nearest-even: "
+                  << props.shaderRoundingModeRTEFloat32 << std::endl
+                  << indent4 << "round-towards-zero: "
+                  << props.shaderRoundingModeRTZFloat32 << std::endl;
+        std::cout << indent3 << "float64: " << std::endl;
+        std::cout << indent4 << "+-0,inf,nan: "
+                  << props.shaderSignedZeroInfNanPreserveFloat64 << std::endl
+                  << indent4 << "denorm: "
+                  << props.shaderDenormPreserveFloat64 << std::endl
+                  << indent4 << "denorm to zero: "
+                  << props.shaderDenormFlushToZeroFloat64 << std::endl
+                  << indent4 << "round-to-nearest-even: "
+                  << props.shaderRoundingModeRTEFloat64 << std::endl
+                  << indent4 << "round-towards-zero: "
+                  << props.shaderRoundingModeRTZFloat64 << std::endl;
       }
     }
 #endif // ZIVC_ENABLE_VULKAN_SUB_PLATFORM

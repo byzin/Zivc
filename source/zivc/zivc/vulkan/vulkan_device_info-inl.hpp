@@ -115,8 +115,7 @@ std::size_t VulkanDeviceInfo::getDeviceHeapNumber(const std::size_t index) const
   const auto it = std::find(device_local_index_list_.begin(),
                             device_local_index_list_.end(),
                             index);
-  const std::size_t number = std::distance(device_local_index_list_.begin(),
-                                           it);
+  const std::size_t number = std::distance(device_local_index_list_.begin(), it);
   return number;
 }
 
@@ -131,15 +130,12 @@ std::size_t VulkanDeviceInfo::getDeviceHeapNumber(const std::size_t index) const
 template <typename CppType, typename CType> inline
 CppType& VulkanDeviceInfo::initProp(CType& prop) noexcept
 {
+  static_assert(sizeof(CType) == sizeof(CppType),
+                "The size of CType and CppType aren't same.");
   static_assert(std::is_convertible_v<CppType, CType>,
                 "The CppType isn't convertible to CType.");
-  // Initialize
-  CppType data{};
-  prop = zisc::cast<CType>(data);
-  //
-  using CppTypePtr = std::add_pointer_t<CppType>;
-  CppType& p = *zisc::treatAs<CppTypePtr>(std::addressof(prop));
-  return p;
+  auto p = ::new (std::addressof(prop)) CppType{};
+  return *p;
 }
 
 /*!
@@ -148,8 +144,7 @@ CppType& VulkanDeviceInfo::initProp(CType& prop) noexcept
   \return No description
   */
 inline
-zisc::pmr::vector<VkLayerProperties>&
-VulkanDeviceInfo::layerPropertiesList() noexcept
+zisc::pmr::vector<VkLayerProperties>& VulkanDeviceInfo::layerPropertiesList() noexcept
 {
   return layer_properties_list_;
 }
@@ -160,8 +155,7 @@ VulkanDeviceInfo::layerPropertiesList() noexcept
   \return No description
   */
 inline
-const zisc::pmr::vector<VkLayerProperties>&
-VulkanDeviceInfo::layerPropertiesList() const noexcept
+const zisc::pmr::vector<VkLayerProperties>& VulkanDeviceInfo::layerPropertiesList() const noexcept
 {
   return layer_properties_list_;
 }
@@ -197,8 +191,7 @@ void VulkanDeviceInfo::link(Type1&& value1,
   \return No description
   */
 inline
-auto VulkanDeviceInfo::memoryProperties() noexcept
-    -> MemoryProperties&
+auto VulkanDeviceInfo::memoryProperties() noexcept -> MemoryProperties&
 {
   return memory_properties_;
 }
@@ -209,8 +202,7 @@ auto VulkanDeviceInfo::memoryProperties() noexcept
   \return No description
   */
 inline
-auto VulkanDeviceInfo::memoryProperties() const noexcept
-    -> const MemoryProperties&
+auto VulkanDeviceInfo::memoryProperties() const noexcept -> const MemoryProperties&
 {
   return memory_properties_;
 }
@@ -243,8 +235,8 @@ auto VulkanDeviceInfo::properties() const noexcept -> const Properties&
   \return No description
   */
 inline
-auto VulkanDeviceInfo::toolPropertiesList() noexcept ->
-    zisc::pmr::vector<ToolProperties>&
+auto VulkanDeviceInfo::toolPropertiesList() noexcept
+    -> zisc::pmr::vector<VkPhysicalDeviceToolPropertiesEXT>&
 {
   return tool_properties_list_;
 }
@@ -255,8 +247,8 @@ auto VulkanDeviceInfo::toolPropertiesList() noexcept ->
   \return No description
   */
 inline
-auto VulkanDeviceInfo::toolPropertiesList() const noexcept ->
-const zisc::pmr::vector<ToolProperties>&
+auto VulkanDeviceInfo::toolPropertiesList() const noexcept
+    -> const zisc::pmr::vector<VkPhysicalDeviceToolPropertiesEXT>&
 {
   return tool_properties_list_;
 }
@@ -268,7 +260,19 @@ const zisc::pmr::vector<ToolProperties>&
   */
 inline
 auto VulkanDeviceInfo::queueFamilyPropertiesList() noexcept
-    -> zisc::pmr::vector<QueueFamilyProperties>&
+    -> zisc::pmr::vector<VkQueueFamilyProperties>&
+{
+  return queue_family_properties_list_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+auto VulkanDeviceInfo::queueFamilyPropertiesList() const noexcept
+    -> const zisc::pmr::vector<VkQueueFamilyProperties>&
 {
   return queue_family_properties_list_;
 }
@@ -282,18 +286,6 @@ inline
 auto VulkanDeviceInfo::vendorId() const noexcept -> VendorId
 {
   return vendor_id_;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-inline
-auto VulkanDeviceInfo::queueFamilyPropertiesList() const noexcept
-    -> const zisc::pmr::vector<QueueFamilyProperties>&
-{
-  return queue_family_properties_list_;
 }
 
 } // namespace zivc

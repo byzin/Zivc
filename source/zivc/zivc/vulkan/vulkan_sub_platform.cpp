@@ -14,6 +14,7 @@
 
 #include "vulkan_sub_platform.hpp"
 // Standard C++ library
+#include <array>
 #include <cstddef>
 #include <cstring>
 #include <iostream>
@@ -75,7 +76,8 @@ void VulkanSubPlatform::getDeviceInfoList(
   */
 bool VulkanSubPlatform::isAvailable() const noexcept
 {
-  const bool result = instance_ref_ != nullptr;
+  const auto& own = getOwn();
+  const bool result = !own.expired() && (instance_ref_ != nullptr);
   return result;
 }
 
@@ -87,11 +89,11 @@ bool VulkanSubPlatform::isAvailable() const noexcept
 VkAllocationCallbacks VulkanSubPlatform::makeAllocator() noexcept
 {
   zivcvk::AllocationCallbacks alloc{allocator_data_.get(),
-                                      Callbacks::allocateMemory,
-                                      Callbacks::reallocateMemory,
-                                      Callbacks::freeMemory,
-                                      Callbacks::notifyOfMemoryAllocation,
-                                      Callbacks::notifyOfMemoryFreeing};
+                                    Callbacks::allocateMemory,
+                                    Callbacks::reallocateMemory,
+                                    Callbacks::freeMemory,
+                                    Callbacks::notifyOfMemoryAllocation,
+                                    Callbacks::notifyOfMemoryFreeing};
   return zisc::cast<VkAllocationCallbacks>(alloc);
 }
 
@@ -103,6 +105,11 @@ VkAllocationCallbacks VulkanSubPlatform::makeAllocator() noexcept
   */
 SharedDevice VulkanSubPlatform::makeDevice(const DeviceInfo& device_info)
 {
+  if (!isAvailable()) {
+    //! \todo Throw an exception
+    std::cerr << "[Error] Submodule isn't ready." << std::endl;
+  }
+
   const auto& info_list = deviceInfoList();
   const auto pred = [&device_info](const DeviceInfo& info) noexcept
   {
@@ -241,9 +248,10 @@ auto VulkanSubPlatform::Callbacks::allocateMemory(
     void* user_data,
     size_t size,
     size_t alignment,
-    VkSystemAllocationScope /* scope */) -> AllocationReturnType
+    VkSystemAllocationScope scope) -> AllocationReturnType
 {
   ZISC_ASSERT(user_data != nullptr, "The user data is null.");
+  static_cast<void>(scope);
   auto alloc_data = zisc::cast<AllocatorData*>(user_data);
   void* memory = alloc_data->mem_resource_->allocate(size, alignment);
   //
@@ -286,11 +294,15 @@ void VulkanSubPlatform::Callbacks::freeMemory(
   \param [in] scope No description.
   */
 void VulkanSubPlatform::Callbacks::notifyOfMemoryAllocation(
-    void* /* user_data */,
-    size_t /* size */,
-    VkInternalAllocationType /* type */,
-    VkSystemAllocationScope /* scope */)
+    void* user_data,
+    size_t size,
+    VkInternalAllocationType type,
+    VkSystemAllocationScope scope)
 {
+  static_cast<void>(user_data);
+  static_cast<void>(size);
+  static_cast<void>(type);
+  static_cast<void>(scope);
 }
 
 /*!
@@ -302,11 +314,15 @@ void VulkanSubPlatform::Callbacks::notifyOfMemoryAllocation(
   \param [in] scope No description.
   */
 void VulkanSubPlatform::Callbacks::notifyOfMemoryFreeing(
-    void* /* user_data */,
-    size_t /* size */,
-    VkInternalAllocationType /* type */,
-    VkSystemAllocationScope /* scope */)
+    void* user_data,
+    size_t size,
+    VkInternalAllocationType type,
+    VkSystemAllocationScope scope)
 {
+  static_cast<void>(user_data);
+  static_cast<void>(size);
+  static_cast<void>(type);
+  static_cast<void>(scope);
 }
 
 /*!
@@ -324,40 +340,40 @@ auto VulkanSubPlatform::Callbacks::printDebugMessage(
     const VkDebugUtilsMessengerCallbackDataEXT* callback_data,
     void* user_data) -> DebugMessengerReturnType
 {
-  constexpr std::size_t max_add_message_length = 2048;
+  constexpr std::size_t max_message_length = 2048;
+  char message[max_message_length];
   bool is_error = false;
-  std::string message;
 
   if (user_data) {
-    char tmp[max_add_message_length];
+    char msg[max_message_length];
     const IdData* data = zisc::cast<const IdData*>(user_data);
-    std::sprintf(tmp, "ID[%u] -", data->id());
+    std::sprintf(msg, "ID[%ld] -", data->id());
     if (data->hasName()) {
-      std::sprintf(tmp, "%s Name '%s'", tmp, data->name().data());
+      std::sprintf(msg, "%s Name '%s'", msg, data->name().data());
     }
     if (data->hasFileInfo()) {
       const std::string_view file_name = data->fileName();
-      const uint32b line = data->lineNumber();
-      std::sprintf(tmp, "%s at line %u in '%s'", tmp, line, file_name.data());
+      const int64b line = data->lineNumber();
+      std::sprintf(msg, "%s at line %ld in '%s'", msg, line, file_name.data());
     }
-    std::sprintf(tmp, "%s\n", tmp);
-    message += tmp;
+    std::strcat(msg, "\n");
+    std::strcat(message, msg);
   }
 
   const char indent[] = "          ";
   {
     char prefix[64] = "";
     if (severity_flags & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) {
-      std::strcat(prefix, "VERBOSE : ");
+      std::strcpy(prefix, "VERBOSE : ");
     }
     else if (severity_flags & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) {
-      std::strcat(prefix, "INFO    : ");
+      std::strcpy(prefix, "INFO    : ");
     }
     else if (severity_flags & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
-      std::strcat(prefix, "WARNING : ");
+      std::strcpy(prefix, "WARNING : ");
     }
     else if (severity_flags & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
-      std::strcat(prefix, "ERROR   : ");
+      std::strcpy(prefix, "ERROR   : ");
       is_error = true;
     }
 
@@ -371,24 +387,24 @@ auto VulkanSubPlatform::Callbacks::printDebugMessage(
       std::strcat(prefix, "PERF");
     }
 
-    char tmp[max_add_message_length];
-    std::sprintf(tmp, "%s - Message ID Number %d, Message ID Name %s : %s\n",
+    char msg[max_message_length];
+    std::sprintf(msg, "%s - Message ID Number %d, Message ID Name %s : %s\n",
         prefix,
         callback_data->messageIdNumber,
         callback_data->pMessageIdName,
         callback_data->pMessage);
-    message += tmp;
+    std::strcat(message, msg);
   }
 
   if (0 < callback_data->queueLabelCount) {
-    char tmp[max_add_message_length];
-    std::sprintf(tmp, "\n%sQueue Labels - %d\n",
+    char msg[max_message_length];
+    std::sprintf(msg, "\n%sQueue Labels - %d\n",
         indent,
         zisc::cast<int>(callback_data->queueLabelCount));
     for (std::size_t id = 0; id < callback_data->queueLabelCount; ++id) {
       const auto& label = callback_data->pQueueLabels[id];
-      std::sprintf(tmp, "%s%s  * Label[%d] - %s {%lf, %lf, %lf, %lf}\n",
-          tmp,
+      std::sprintf(msg, "%s%s  * Label[%d] - %s {%lf, %lf, %lf, %lf}\n",
+          msg,
           indent,
           zisc::cast<int>(id),
           label.pLabelName,
@@ -397,18 +413,18 @@ auto VulkanSubPlatform::Callbacks::printDebugMessage(
           zisc::cast<double>(label.color[2]),
           zisc::cast<double>(label.color[3]));
     }
-    message += tmp;
+    std::strcat(message, msg);
   }
 
   if (0 < callback_data->cmdBufLabelCount) {
-    char tmp[max_add_message_length];
-    std::sprintf(tmp, "\n%sCommand Buffer Labels - %d\n",
+    char msg[max_message_length];
+    std::sprintf(msg, "\n%sCommand Buffer Labels - %d\n",
         indent,
         zisc::cast<int>(callback_data->cmdBufLabelCount));
     for (std::size_t id = 0; id < callback_data->cmdBufLabelCount; ++id) {
       const auto& label = callback_data->pCmdBufLabels[id];
-      std::sprintf(tmp, "%s%s  * Label[%d] - %s {%lf, %lf, %lf, %lf}\n",
-          tmp,
+      std::sprintf(msg, "%s%s  * Label[%d] - %s {%lf, %lf, %lf, %lf}\n",
+          msg,
           indent,
           zisc::cast<int>(id),
           label.pLabelName,
@@ -417,30 +433,30 @@ auto VulkanSubPlatform::Callbacks::printDebugMessage(
           zisc::cast<double>(label.color[2]),
           zisc::cast<double>(label.color[3]));
     }
-    message += tmp;
+    std::strcat(message, msg);
   }
 
   if (0 < callback_data->objectCount) {
-    char tmp[max_add_message_length];
-    std::sprintf(tmp, "\n%sObjects - %d\n",
+    char msg[max_message_length];
+    std::sprintf(msg, "\n%sObjects - %d\n",
         indent,
         zisc::cast<int>(callback_data->objectCount));
     for (std::size_t id = 0; id < callback_data->objectCount; ++id) {
       const auto& object = callback_data->pObjects[id];
       const auto obj_type_name = zivcvk::to_string(
           zisc::cast<zivcvk::ObjectType>(object.objectType));
-      std::sprintf(tmp, "%s%s  * Object[%d] - Type '%s', Value %lu, Name '%s'\n",
-          tmp,
+      std::sprintf(msg, "%s%s  * Object[%d] - Type '%s', Value %lu, Name '%s'\n",
+          msg,
           indent,
           zisc::cast<int>(id),
           obj_type_name.c_str(),
           object.objectHandle,
           object.pObjectName);
     }
-    message += tmp;
+    std::strcat(message, msg);
   }
 
-  message += '\n';
+  std::strcat(message, "\n");
   std::ostream* output = (is_error) ? &std::cerr : &std::cout;
   (*output) << message;
 
@@ -473,6 +489,7 @@ auto VulkanSubPlatform::Callbacks::reallocateMemory(
   if (original_memory && memory) {
     auto alloc_data = zisc::cast<AllocatorData*>(user_data);
     const std::size_t address = zisc::treatAs<std::size_t>(original_memory);
+    //! \todo Thread safe
     const auto mem = alloc_data->mem_map_.find(address);
     ZISC_ASSERT(mem != alloc_data->mem_map_.end(), "The mem is null.");
     const auto& data = mem->second;
@@ -587,11 +604,11 @@ void VulkanSubPlatform::initInstance(PlatformOptions& platform_options)
       platform_options.platformVersionMinor(),
       platform_options.platformVersionPatch())};
   zivcvk::InstanceCreateInfo create_info{zivcvk::InstanceCreateFlags{},
-                                           std::addressof(app_info),
-                                           zisc::cast<uint32b>(layers.size()),
-                                           layers.data(),
-                                           zisc::cast<uint32b>(extensions.size()),
-                                           extensions.data()};
+                                         std::addressof(app_info),
+                                         zisc::cast<uint32b>(layers.size()),
+                                         layers.data(),
+                                         zisc::cast<uint32b>(extensions.size()),
+                                         extensions.data()};
   if (isDebugMode()) {
     create_info.setPNext(std::addressof(debug_utils_create_info));
     debug_utils_create_info.setPNext(std::addressof(validation_features));

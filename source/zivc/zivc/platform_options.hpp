@@ -16,13 +16,13 @@
 #define ZIVC_PLATFORM_OPTIONS_HPP
 
 // Standard C++ library
-#include <string>
 #include <string_view>
 // Zisc
 #include "zisc/non_copyable.hpp"
 #include "zisc/std_memory_resource.hpp"
 // Zivc
 #include "zivc_config.hpp"
+#include "utility/id_data.hpp"
 
 namespace zivc {
 
@@ -116,8 +116,8 @@ class PlatformOptions : private zisc::NonCopyable<PlatformOptions>
   void initialize() noexcept;
 
 
+  IdData::NameType platform_name_;
   zisc::pmr::memory_resource* mem_resource_;
-  zisc::pmr::string platform_name_;
   uint32b platform_version_major_;
   uint32b platform_version_minor_;
   uint32b platform_version_patch_;
@@ -125,6 +125,7 @@ class PlatformOptions : private zisc::NonCopyable<PlatformOptions>
   uint32b cpu_num_of_threads_ = 0;
   uint32b cpu_task_batch_size_ = 32;
   int32b vulkan_sub_platform_enabled_;
+  int32b padding_ = 0;
   void* vulkan_instance_ptr_ = nullptr;
   void* vulkan_get_proc_addr_ptr_ = nullptr;
 };

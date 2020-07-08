@@ -108,8 +108,7 @@ std::size_t VulkanDevice::numOfQueues() const noexcept
   const uint32b index = queueFamilyIndex();
   const auto& queue_family_list = info.queueFamilyPropertiesList();
 
-  const auto& p = queue_family_list[index].properties1_;
-  const std::size_t n = p.queueCount;
+  const std::size_t n = queue_family_list[index].queueCount;
   return n;
 }
 
@@ -994,7 +993,7 @@ uint32b VulkanDevice::findQueueFamily() const noexcept
   uint32b num_of_queues2 = 0;
 
   for (std::size_t i = 0; i < queue_family_list.size(); ++i) {
-    const auto& p = queue_family_list[i].properties1_;
+    const auto& p = queue_family_list[i];
     if (has_flags(p, true, false) && (num_of_queues <= p.queueCount)) {
       index = zisc::cast<uint32b>(i);
       num_of_queues = p.queueCount;
@@ -1110,8 +1109,7 @@ void VulkanDevice::initDevice()
     queue_create_info.setQueueFamilyIndex(index);
     // Queue counts
     const auto& queue_family_list = info.queueFamilyPropertiesList();
-    const auto& family_info = queue_family_list[index];
-    const uint32b num_of_queues = family_info.properties1_.queueCount;
+    const uint32b num_of_queues = queue_family_list[index].queueCount;
     queue_create_info.setQueueCount(num_of_queues);
     // Priorities
     priority_list.resize(num_of_queues, 1.0f);

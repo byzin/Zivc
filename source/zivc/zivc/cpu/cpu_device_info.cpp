@@ -16,9 +16,9 @@
 // Standard C++ library
 #include <array>
 #include <cstddef>
+#include <cstring>
 #include <limits>
 #include <memory>
-#include <string>
 #include <string_view>
 #include <utility>
 // cpu_features
@@ -45,12 +45,13 @@ namespace zivc {
 
 /*!
   \details No detailed description
+
+  \param [in] mem_resource No description.
   */
 CpuDeviceInfo::CpuDeviceInfo(zisc::pmr::memory_resource* mem_resource) noexcept :
-    DeviceInfo(),
-    name_{zisc::pmr::string::allocator_type{mem_resource}},
-    vendor_name_{zisc::pmr::string::allocator_type{mem_resource}}
+    DeviceInfo()
 {
+  static_cast<void>(mem_resource);
 }
 
 /*!
@@ -117,7 +118,7 @@ void CpuDeviceInfo::fetch() noexcept
   */
 std::size_t CpuDeviceInfo::maxAllocationSize() const noexcept
 {
-  const std::size_t max_alloc = 4ull * 1024ull * 1024ull * 1024ull; // 4 GB
+  const std::size_t max_alloc = 8ull * 1024ull * 1024ull * 1024ull; // 8 GB
   return max_alloc;
 }
 
@@ -150,7 +151,8 @@ auto CpuDeviceInfo::memoryStats() const noexcept -> const MemoryStats&
   */
 std::string_view CpuDeviceInfo::name() const noexcept
 {
-  return name_;
+  const std::string_view n{name_.data()};
+  return n;
 }
 
 /*!
@@ -193,7 +195,8 @@ SubPlatformType CpuDeviceInfo::type() const noexcept
   */
 std::string_view CpuDeviceInfo::vendorName() const noexcept
 {
-  return vendor_name_;
+  const std::string_view n{vendor_name_.data()};
+  return n;
 }
 
 /*!
@@ -211,24 +214,33 @@ uint32b CpuDeviceInfo::workGroupSize() const noexcept
   */
 void CpuDeviceInfo::initCpuInfo() noexcept
 {
+  auto set_name = [this](const char* n)
+  {
+    std::strcpy(name_.data(), n);
+  };
+  auto set_vendor_name = [this](const char* n)
+  {
+    std::strcpy(vendor_name_.data(), n);
+  };
+
   using namespace cpu_features;
   // Initialize device info
 #if defined(CPU_FEATURES_ARCH_X86)
   {
     char brand_string[49];
     FillX86BrandString(brand_string);
-    name_ = brand_string;
+    set_name(brand_string);
   }
   {
     const X86Info info = GetX86Info();
-    vendor_name_ = info.vendor;
+    set_vendor_name(info.vendor);
   }
 #elif defined(CPU_FEATURES_ARCH_ARM)
   static_assert(false, "Not implemented yet.");
   {
     const ArmInfo info = GetArmInfo();
   }
-  vendor_name_ = "ARM";
+  set_name("ARM");
 #elif defined(CPU_FEATURES_ARCH_AARCH64)
   static_assert(false, "Not implemented yet.");
   {
@@ -246,10 +258,10 @@ void CpuDeviceInfo::initCpuInfo() noexcept
     const PPCPlatformStrings strings = GetPPCPlatformStrings();
   }
 #endif
-  if (name_.empty())
-    name_ = "N/A";
-  if (vendor_name_.empty())
-    vendor_name_ = "N/A";
+  if (std::string_view{name_.data()}.empty())
+    set_name("N/A");
+  if (std::string_view{vendor_name_.data()}.empty())
+    set_vendor_name("N/A");
 }
 
 } // namespace zivc

@@ -226,8 +226,8 @@ class VulkanSubPlatform : public SubPlatform
 
   VkInstance instance_ = VK_NULL_HANDLE;
   std::add_pointer_t<VkInstance> instance_ref_ = nullptr;
-  zisc::pmr::unique_ptr<AllocatorData> allocator_data_;
   zisc::pmr::unique_ptr<VulkanDispatchLoader> dispatcher_;
+  zisc::pmr::unique_ptr<AllocatorData> allocator_data_;
   zisc::pmr::unique_ptr<zisc::pmr::vector<VkPhysicalDevice>> device_list_;
   zisc::pmr::unique_ptr<zisc::pmr::vector<VulkanDeviceInfo>> device_info_list_;
   char engine_name_[32] = "Zivc";

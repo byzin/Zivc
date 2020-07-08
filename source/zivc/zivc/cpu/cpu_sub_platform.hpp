@@ -88,7 +88,7 @@ class CpuSubPlatform : public SubPlatform
  private:
   zisc::pmr::unique_ptr<CpuDeviceInfo> device_info_;
   uint32b num_of_threads_ = 0;
-  uint32b task_batch_size_ = 32;
+  uint32b task_batch_size_ = 0;
 };
 
 } // namespace zivc

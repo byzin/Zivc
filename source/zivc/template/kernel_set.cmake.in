@@ -34,12 +34,12 @@ function(Zivc_initCpuBackend target)
 
   # Hpp file
   file(MAKE_DIRECTORY ${include_dir}/zivc/kernel_set)
-  set(hpp_file_path ${include_dir}/zivc/kernel_set/${kernel_set_prefix}-@kernel_set_name@.hpp)
+  set(hpp_file_path ${include_dir}/zivc/kernel_set/${set_name}.hpp)
   configure_file(@kernel_set_template_dir@/kernel_set.hpp.in
                  ${hpp_file_path}
                  @ONLY)
   # Cpp file
-  set(cpp_file_path ${output_dir}/${kernel_set_prefix}-@kernel_set_name@.cpp)
+  set(cpp_file_path ${output_dir}/${set_name}.cpp)
   configure_file(@kernel_set_template_dir@/kernel_set.cpp.in
                  ${cpp_file_path}
                  @ONLY)
@@ -77,7 +77,7 @@ function(Zivc_findClspv clspv_command)
   else()
     find_program(__clspv_command "clspv"
                  DOC "A compiler for a subset of OpenCL to Vulkan compute shaders.")
-    if(__clspv_command-NOTFOUND)
+    if(NOT __clspv_command)
       message(FATAL_ERROR "'clspv' not found in PATH.") 
     endif()
   endif()
@@ -96,7 +96,7 @@ function(Zivc_findClspvReflection reflection_command)
   else()
     find_program(__reflection_command "clspv-reflection"
                  DOC "A tool reports the descriptor set and bindings.")
-    if(__reflection_command-NOTFOUND)
+    if(NOT __reflection_command)
       message(FATAL_ERROR "'clspv-reflection' not found in PATH.") 
     endif()
   endif()
@@ -104,6 +104,30 @@ function(Zivc_findClspvReflection reflection_command)
   # Output
   set(${reflection_command} ${__reflection_command} PARENT_SCOPE)
 endfunction(Zivc_findClspvReflection)
+
+
+function(Zivc_findSpirvOpt spirv_opt_command)
+  find_program(__spirv_opt_command "spirv-opt"
+               DOC "Optimize a SPIR-V binary file.")
+  if(NOT __spirv_opt_command)
+    message(FATAL_ERROR "'spirv-opt' not found in PATH.") 
+  endif()
+
+  # Output
+  set(${spirv_opt_command} ${__spirv_opt_command} PARENT_SCOPE)
+endfunction(Zivc_findSpirvOpt)
+
+
+function(Zivc_findSpirvDis spirv_dis_command)
+  find_program(__spirv_dis_command "spirv-dis"
+               DOC "Disassemble a SPIR-V binary module.")
+  if(NOT __spirv_dis_command)
+    message(WARNING "'spirv-dis' not found in PATH.") 
+  endif()
+
+  # Output
+  set(${spirv_dis_command} ${__spirv_dis_command} PARENT_SCOPE)
+endfunction(Zivc_findSpirvDis)
 
 
 function(Zivc_getClspvCompileFlags clspv_compile_flags)
@@ -178,6 +202,21 @@ function(Zivc_getClspvCompileFlags clspv_compile_flags)
 endfunction(Zivc_getClspvCompileFlags)
 
 
+function(Zivc_getSpirvOptOptions opt_options)
+  # Strip reflection info
+  set(options --strip-reflect --target-env=spv1.3)
+  # Optimization
+  list(APPEND options -O
+                      --combine-access-chains
+                      --strength-reduction
+                      --strip-debug
+                      --unify-const)
+
+  # Output
+  set(${opt_options} ${options} PARENT_SCOPE)
+endfunction(Zivc_getSpirvOptOptions)
+
+
 function(Zivc_getKernelBakeCommand bake_command spv_file_path baked_spv_file_path)
   include(@zisc_path@/cmake/general.cmake)
   Zisc_checkTarget(KernelBaker)
@@ -193,50 +232,29 @@ function(Zivc_getKernelBakeCommand bake_command spv_file_path baked_spv_file_pat
 endfunction(Zivc_getKernelBakeCommand)
 
 
-function(Zivc_prepareSpirVAnalysis target spv_file_path)
+function(Zivc_prepareSpirVAnalysis target spv_org_file_path spv_file_path)
   get_filename_component(spv_dir "${spv_file_path}" DIRECTORY)
   set(spv_analysis_dir ${spv_dir}/analysis)
   file(MAKE_DIRECTORY ${spv_analysis_dir})
 
   set(sub_targets "")
-  # Build SPIR-V kernels separately
-  Zivc_findClspv(clspv_command)
-  Zivc_getClspvCompileFlags(base_clspv_options)
-  set(cl_files ${ARGN})
-  set(spv_files ${spv_file_path})
-  foreach(cl_file IN LISTS cl_files)
-    get_filename_component(file_name "${cl_file}" NAME_WLE)
-    set(kernel_spv_file_path ${spv_analysis_dir}/${file_name}.spv)
-    list(APPEND spv_files ${kernel_spv_file_path})
-    set(options ${base_clspv_options} -o=${kernel_spv_file_path})
-    list(APPEND options -w -D=ZIVC_GLOBAL_NAMESPACE="")
-    add_custom_command(OUTPUT ${kernel_spv_file_path}
-      COMMAND ${clspv_command} ${options} ${cl_file}
-      DEPENDS ${cl_file}
-      COMMENT "Building CL object '${cl_file}' for analysis")
-  endforeach(cl_file)
-  add_custom_target(${target}_SpirV DEPENDS ${spv_files})
-  list(APPEND sub_targets ${target}_SpirV)
 
   # SPIR-V dis
-  set(dis_files "")
-  find_program(spirv_dis_command "spirv-dis"
-               DOC "Disassemble a SPIR-V binary module.")
-  if(spirv_dis_command-NOTFOUND)
-    message(WARNING "'spirv-dis' not found in PATH.") 
-  else()
+  Zivc_findSpirvDis(spirv_dis_command)
+  if(spirv_dis_command)
+    set(dis_files "")
+    set(spv_files ${spv_org_file_path} ${spv_file_path})
     foreach(spv_file IN LISTS spv_files)
       get_filename_component(file_name "${spv_file}" NAME_WLE)
       set(dis_file_path ${spv_analysis_dir}/${file_name}-dis.txt)
-      list(APPEND dis_files ${dis_file_path})
       set(options -o ${dis_file_path})
       add_custom_command(OUTPUT ${dis_file_path}
         COMMAND ${spirv_dis_command} ${options} ${spv_file}
-        DEPENDS ${psv_file}
+        DEPENDS ${spv_file}
         COMMENT "Disassemble SPIR-V binary '${spv_file}'")
+      list(APPEND dis_files ${dis_file_path})
     endforeach(spv_file)
     add_custom_target(${target}_Dis DEPENDS ${dis_files})
-    add_dependencies(${target}_Dis ${target}_SpirV)
     list(APPEND sub_targets ${target}_Dis)
   endif()
 
@@ -253,29 +271,37 @@ function(Zivc_initVulkanBackend target)
 
   # OpenCL file
   file(MAKE_DIRECTORY ${output_dir})
-  set(cl_file_path ${output_dir}/${kernel_set_prefix}-@kernel_set_name@.cl)
+  set(cl_file_path ${output_dir}/${set_name}.cl)
   configure_file(@kernel_set_template_dir@/kernel_set.cl.in
                  ${cl_file_path}
                  @ONLY)
 
   set(sub_targets "")
-  # Set clspv options
-  Zivc_findClspv(clspv_command)
-  Zivc_getClspvCompileFlags(clspv_options)
   set(clspv_output_files "")
   ## Set clspv build command
-  list(APPEND clspv_options -o=${spv_file_path})
-  list(APPEND clspv_output_files ${spv_file_path})
+  Zivc_findClspv(clspv_command)
+  Zivc_getClspvCompileFlags(clspv_options)
+  set(spv_org_file_path ${output_dir}/${set_name}-org.spv)
+  list(APPEND clspv_options -o=${spv_org_file_path})
   set(build_commands COMMAND ${clspv_command} ${clspv_options} ${cl_file_path})
+  list(APPEND clspv_output_files ${spv_org_file_path})
+  ## Clspv descriptor map
+  Zivc_findClspvReflection(reflection_command)
+  set(map_path ${output_dir}/${set_name}-descmap.csv)
+  set(reflection_options --target-env spv1.3 -o ${map_path})
+  list(APPEND build_commands COMMAND ${reflection_command} ${reflection_options} ${spv_org_file_path})
+  list(APPEND clspv_output_files ${map_path})
+  ## Strip reflection info and optimize SPIR-V
+  Zivc_findSpirvOpt(spirv_opt_command)
+  Zivc_getSpirvOptOptions(opt_options)
+  list(APPEND build_commands COMMAND ${spirv_opt_command} ${opt_options} ${spv_org_file_path} -o ${spv_file_path})
+  list(APPEND clspv_output_files ${spv_file_path})
+  ## Bake SPIR-V kernel into an executable
   if(ZIVC_BAKE_KERNELS)
     Zivc_getKernelBakeCommand(bake_command ${spv_file_path} ${baked_spv_file_path})
     list(APPEND build_commands COMMAND ${bake_command})
+    list(APPEND clspv_output_files ${baked_spv_file_path})
   endif()
-  ## Clspv descriptor map
-  Zivc_findClspvReflection(reflection_command)
-  set(map_path ${output_dir}/${kernel_set_prefix}-@kernel_set_name@-descmap.csv)
-  set(reflection_options --target-env spv1.3 -o ${map_path})
-  list(APPEND build_commands COMMAND ${reflection_command} ${reflection_options} ${spv_file_path})
   ## Create a build command
   add_custom_command(OUTPUT ${clspv_output_files}
     ${build_commands}
@@ -292,7 +318,7 @@ function(Zivc_initVulkanBackend target)
   ## SPIR-V analysis
   if(ZIVC_ENABLE_SPIRV_ANALYSIS)
     set(analysis_target ${target}_Analysis)
-    Zivc_prepareSpirVAnalysis(${analysis_target} ${spv_file_path} @kernel_set_source_files@)
+    Zivc_prepareSpirVAnalysis(${analysis_target} ${spv_org_file_path} ${spv_file_path})
     add_dependencies(${analysis_target} ${vulkan_backend_target})
     list(APPEND sub_targets ${analysis_target})
   endif()
@@ -312,8 +338,9 @@ Zisc_setVariablesOnCMake(${platform_definitions})
 Zivc_makeKernelInclusionString(kernel_inclusion_lines @kernel_set_source_files@)
 
 # SPIR-V pathes
-set(spv_file_path ${PROJECT_BINARY_DIR}/spv/${kernel_set_prefix}-@kernel_set_name@.spv)
-set(baked_spv_file_path ${PROJECT_BINARY_DIR}/cpp/${kernel_set_prefix}-@kernel_set_name@-bake.hpp)
+set(set_name ${kernel_set_prefix}-@kernel_set_name@)
+set(spv_file_path ${PROJECT_BINARY_DIR}/spv/${set_name}.spv)
+set(baked_spv_file_path ${PROJECT_BINARY_DIR}/cpp/${set_name}-bake.hpp)
 
 set(target ${PROJECT_NAME})
 include(@zivc_path@/cmake/kernel.cmake)

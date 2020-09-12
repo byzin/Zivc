@@ -6,110 +6,110 @@
 # http://opensource.org/licenses/mit-license.php
 # 
 
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.17)
 
 
-function(initZivcOptions)
+function(Zivc_initZivcOptions)
   set(option_description "Enable Vulkan sub-platform.")
-  setBooleanOption(ZIVC_ENABLE_VULKAN_SUB_PLATFORM ON ${option_description})
+  Zisc_setBooleanOption(ZIVC_ENABLE_VULKAN_SUB_PLATFORM ON ${option_description})
 
   set(option_description "Load Vulkan library dynamically at runtime.")
-  setBooleanOption(ZIVC_DYNAMIC_VULKAN_LOADING OFF ${option_description})
+  Zisc_setBooleanOption(ZIVC_DYNAMIC_VULKAN_LOADING OFF ${option_description})
 
   set(option_description "Enable Zivc to build VMA implementation.")
-  setBooleanOption(ZIVC_ENABLE_VMA_IMPLEMENTATION ON ${option_description})
+  Zisc_setBooleanOption(ZIVC_ENABLE_VMA_IMPLEMENTATION ON ${option_description})
 
   set(option_description "Zivc uses own 'clspv' instead of existing 'clspv'.")
-  setBooleanOption(ZIVC_USES_OWN_CLSPV OFF ${option_description})
+  Zisc_setBooleanOption(ZIVC_USES_OWN_CLSPV OFF ${option_description})
 
   set(option_description "Bake Vulkan SPIR-V kernels into the library.")
-  setBooleanOption(ZIVC_BAKE_KERNELS OFF ${option_description})
+  Zisc_setBooleanOption(ZIVC_BAKE_KERNELS OFF ${option_description})
 
   set(option_description "Send in POD kernel arguments in push constant.")
-  setBooleanOption(ZIVC_POD_PUSHCONSTANT OFF ${option_description})
+  Zisc_setBooleanOption(ZIVC_POD_PUSHCONSTANT OFF ${option_description})
 
   set(option_description "Enable SPIR-V analysis.")
-  setBooleanOption(ZIVC_ENABLE_SPIRV_ANALYSIS ON ${option_description})
+  Zisc_setBooleanOption(ZIVC_ENABLE_SPIRV_ANALYSIS ON ${option_description})
 
   ## Zivc Kernel code options
 
   set(option_description "Use built-in math funcs instead of the Zivc funcs.")
-  setBooleanOption(ZIVC_MATH_BUILTIN OFF ${option_description})
+  Zisc_setBooleanOption(ZIVC_MATH_BUILTIN OFF ${option_description})
 
   set(option_description "Use built-in 'frexp' instead of the Zivc funcs.")
-  setBooleanOption(ZIVC_MATH_BUILTIN_FREXP OFF ${option_description})
+  Zisc_setBooleanOption(ZIVC_MATH_BUILTIN_FREXP OFF ${option_description})
 
   set(option_description "Use built-in 'ldexp' instead of the Zivc funcs.")
   if(Z_MAC)
-    setBooleanOption(ZIVC_MATH_BUILTIN_LDEXP OFF ${option_description})
+    Zisc_setBooleanOption(ZIVC_MATH_BUILTIN_LDEXP OFF ${option_description})
   else()
-    setBooleanOption(ZIVC_MATH_BUILTIN_LDEXP ON ${option_description})
+    Zisc_setBooleanOption(ZIVC_MATH_BUILTIN_LDEXP ON ${option_description})
   endif()
 
   set(option_description "Use built-in 'ilogb' instead of the Zivc func.")
-  setBooleanOption(ZIVC_MATH_BUILTIN_ILOGB OFF ${option_description})
+  Zisc_setBooleanOption(ZIVC_MATH_BUILTIN_ILOGB OFF ${option_description})
 
   set(option_description "Use built-in 'modf' instead of the Zivc func.")
-  setBooleanOption(ZIVC_MATH_BUILTIN_MODF OFF ${option_description})
+  Zisc_setBooleanOption(ZIVC_MATH_BUILTIN_MODF OFF ${option_description})
 
   set(option_description "Use built-in 'round' and 'rint' instead of the Zivc funcs.")
-  setBooleanOption(ZIVC_MATH_BUILTIN_ROUND OFF ${option_description})
+  Zisc_setBooleanOption(ZIVC_MATH_BUILTIN_ROUND OFF ${option_description})
 
   set(option_description "Use built-in 'fmod' instead of the Zivc func.")
-  setBooleanOption(ZIVC_MATH_BUILTIN_FMOD ON ${option_description})
+  Zisc_setBooleanOption(ZIVC_MATH_BUILTIN_FMOD ON ${option_description})
 
   set(option_description "Use built-in 'exp' and 'exp2' instead of the Zivc funcs.")
-  setBooleanOption(ZIVC_MATH_BUILTIN_EXP ON ${option_description})
+  Zisc_setBooleanOption(ZIVC_MATH_BUILTIN_EXP ON ${option_description})
 
   set(option_description "Use built-in 'log' and 'log2' instead of the Zivc funcs.")
-  setBooleanOption(ZIVC_MATH_BUILTIN_LOG ON ${option_description})
+  Zisc_setBooleanOption(ZIVC_MATH_BUILTIN_LOG ON ${option_description})
 
   set(option_description "Use built-in 'pow' instead of the Zivc funcs.")
-  setBooleanOption(ZIVC_MATH_BUILTIN_POW ON ${option_description})
+  Zisc_setBooleanOption(ZIVC_MATH_BUILTIN_POW ON ${option_description})
 
   set(option_description "Use built-in 'sqrt' and 'rsqrt' instead of the Zivc funcs.")
-  setBooleanOption(ZIVC_MATH_BUILTIN_SQRT ON ${option_description})
+  Zisc_setBooleanOption(ZIVC_MATH_BUILTIN_SQRT ON ${option_description})
 
   set(option_description "Use built-in 'cbrt' instead of the Zivc funcs.")
-  setBooleanOption(ZIVC_MATH_BUILTIN_CBRT OFF ${option_description})
+  Zisc_setBooleanOption(ZIVC_MATH_BUILTIN_CBRT OFF ${option_description})
 
   set(option_description "Use built-in 'sin', 'cos' and 'tan' instead of the Zivc funcs.")
-  setBooleanOption(ZIVC_MATH_BUILTIN_TRIGONOMETRIC ON ${option_description})
+  Zisc_setBooleanOption(ZIVC_MATH_BUILTIN_TRIGONOMETRIC ON ${option_description})
 
   set(option_description "Use built-in 'asin', 'acos' and 'atan' instead of the Zivc funcs.")
-  setBooleanOption(ZIVC_MATH_BUILTIN_INV_TRIGONOMETRIC ON ${option_description})
-endfunction(initZivcOptions)
+  Zisc_setBooleanOption(ZIVC_MATH_BUILTIN_INV_TRIGONOMETRIC ON ${option_description})
+endfunction(Zivc_initZivcOptions)
 
 
-function(getZivcFlags zivc_compile_flags zivc_linker_flags zivc_definitions)
+function(Zivc_getZivcFlags zivc_compile_flags zivc_linker_flags zivc_definitions)
   include(${PROJECT_SOURCE_DIR}/cmake/kernel.cmake)
-  getZivcKernelFlags(compile_flags definitions)
+  Zivc_getZivcKernelFlags(compile_flags definitions)
 
   if(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
-    list(APPEND definitions ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
+    list(APPEND definitions ZIVC_ENABLE_VULKAN_SUB_PLATFORM=1)
     # Dynamic vulkan loading
     if(ZIVC_DYNAMIC_VULKAN_LOADING)
-      list(APPEND definitions ZIVC_DYNAMIC_VULKAN_LOADING)
+      list(APPEND definitions ZIVC_DYNAMIC_VULKAN_LOADING=1)
     endif()
     # Vulkan Memory Allocator
     if(ZIVC_ENABLE_VMA_IMPLEMENTATION)
-      list(APPEND definitions ZIVC_ENABLE_VMA_IMPLEMENTATION)
+      list(APPEND definitions ZIVC_ENABLE_VMA_IMPLEMENTATION=1)
     endif()
     if(ZIVC_BAKE_KERNELS)
-      list(APPEND definitions ZIVC_BAKE_KERNELS)
+      list(APPEND definitions ZIVC_BAKE_KERNELS=1)
     endif()
   endif()
 
   # C++
-  list(APPEND definitions ZIVC_CPU)
+  list(APPEND definitions ZIVC_CPU=1)
 
   # Output variables
   set(${zivc_compile_flags} ${compile_flags} PARENT_SCOPE)
   set(${zivc_definitions} ${definitions} PARENT_SCOPE)
-endfunction(getZivcFlags)
+endfunction(Zivc_getZivcFlags)
 
 
-function(getZivcWarningFlags zivc_warning_flags)
+function(Zivc_getZivcWarningFlags zivc_warning_flags)
   set(warning_flags "")
 
   # Suppress warnings
@@ -124,10 +124,10 @@ function(getZivcWarningFlags zivc_warning_flags)
   endif()
 
   set(${zivc_warning_flags} ${warning_flags} PARENT_SCOPE)
-endfunction(getZivcWarningFlags)
+endfunction(Zivc_getZivcWarningFlags)
 
 
-function(addClspv clspv_path)
+function(Zivc_addClspv clspv_path)
   find_package(Python3 COMPONENTS Interpreter REQUIRED)
   message(STATUS "Fetching clspv dependencies ... ")
   execute_process(
@@ -146,23 +146,23 @@ function(addClspv clspv_path)
   set(SKIP_CLSPV_TOOLS_INSTALL ON)
   set(SKIP_SPIRV_TOOLS_INSTALL ON)
   add_subdirectory(${clspv_path} ${PROJECT_BINARY_DIR}/Clspv)
-  checkTarget(clspv)
-endfunction(addClspv)
+  Zisc_checkTarget(clspv)
+endfunction(Zivc_addClspv)
 
 
-function(addZstd zstd_path)
+function(Zivc_addZstd zstd_path)
   set(ZSTD_BUILD_SHARED OFF)
   set(ZSTD_BUILD_PROGRAMS OFF)
   set(ZSTD_MULTITHREAD_SUPPORT OFF)
   set(zstd_dest_path ${PROJECT_BINARY_DIR}/Zstd)
   add_subdirectory(${zstd_path}/build/cmake ${zstd_dest_path})
-  checkTarget(libzstd_static)
+  Zisc_checkTarget(libzstd_static)
   # Headers
   file(MAKE_DIRECTORY ${zstd_dest_path}/include)
   file(COPY ${zstd_path}/lib/zstd.h ${zstd_path}/lib/common/zstd_errors.h
        DESTINATION ${zstd_dest_path}/include)
   target_include_directories(libzstd_static SYSTEM INTERFACE $<BUILD_INTERFACE:${zstd_dest_path}/include>)
-endfunction(addZstd)
+endfunction(Zivc_addZstd)
 
 
 #
@@ -176,9 +176,9 @@ set(cpu_features_path ${dependencies_dir}/cpu_features)
 
 include(${zisc_path}/cmake/general.cmake)
 include(${zisc_path}/cmake/platform.cmake)
-getPlatformFlags(platform_definitions)
-setVariablesOnCMake(${platform_definitions})
-initZivcOptions()
+Zisc_getPlatformFlags(platform_definitions)
+Zisc_setVariablesOnCMake(${platform_definitions})
+Zivc_initZivcOptions()
 
 # Check dependencies
 add_subdirectory(${zisc_path} ${PROJECT_BINARY_DIR}/Zisc)
@@ -209,9 +209,9 @@ include(${zisc_path}/cmake/compiler.cmake)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17
                                                  CXX_STANDARD_REQUIRED ON)
 
-getCxxWarningFlags(cxx_compile_warning_flags)
-getZivcFlags(zivc_compile_flags zivc_linker_flags zivc_definitions)
-getZivcWarningFlags(zivc_warning_flags)
+Zisc_getCxxWarningFlags(cxx_compile_warning_flags)
+Zivc_getZivcFlags(zivc_compile_flags zivc_linker_flags zivc_definitions)
+Zivc_getZivcWarningFlags(zivc_warning_flags)
 target_compile_options(${PROJECT_NAME} PUBLIC ${zivc_compile_flags}
                                        PRIVATE ${cxx_compile_warning_flags}
                                                ${zivc_warning_flags})
@@ -225,13 +225,13 @@ if(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
   # Find dependencies
   if(ZIVC_USES_OWN_CLSPV)
     set(clspv_path ${dependencies_dir}/clspv)
-    checkSubmodule(${clspv_path})
-    addClspv(${clspv_path})
+    Zisc_checkSubmodule(${clspv_path})
+    Zivc_addClspv(${clspv_path})
   endif()
   if(ZIVC_BAKE_KERNELS)
     set(zstd_path ${dependencies_dir}/zstd)
-    checkSubmodule(${zstd_path})
-    addZstd(${zstd_path})
+    Zisc_checkSubmodule(${zstd_path})
+    Zivc_addZstd(${zstd_path})
     add_subdirectory(${PROJECT_SOURCE_DIR}/kernel_baker ${PROJECT_BINARY_DIR}/KernelBaker)
   endif()
   # Vulkan
@@ -239,12 +239,14 @@ if(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
   target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Vulkan)
   # Vulkan Memory Allocator
   set(vma_path ${dependencies_dir}/VulkanMemoryAllocator)
-  checkSubmodule(${vma_path})
+  Zisc_checkSubmodule(${vma_path})
   set(vma_include_dir ${PROJECT_BINARY_DIR}/VulkanMemoryAllocator)
   file(MAKE_DIRECTORY ${vma_include_dir})
   file(COPY ${vma_path}/src/vk_mem_alloc.h DESTINATION ${vma_include_dir})
   target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${vma_include_dir})
 endif()
 
+Zisc_enableIpo(${PROJECT_NAME})
+
 #
-setStaticAnalyzer(${PROJECT_NAME})
+Zisc_setStaticAnalyzer(${PROJECT_NAME})

@@ -8,8 +8,8 @@
 
 
 function(attachZivcOption target)
-  checkTarget(Zisc)
-  checkTarget(${target})
+  Zisc_checkTarget(Zisc)
+  Zisc_checkTarget(${target})
   set(THREADS_PREFER_PTHREAD_FLAG ON)
   find_package(Threads REQUIRED)
   get_target_property(zisc_compile_flags Zisc INTERFACE_COMPILE_OPTIONS)

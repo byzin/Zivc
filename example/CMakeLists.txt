@@ -6,7 +6,7 @@
 # http://opensource.org/licenses/mit-license.php
 # 
 
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.17)
 
 
 set(__zisc_dir__ ${CMAKE_SOURCE_DIR}/source/dependencies/Zisc/source/zisc)
@@ -38,27 +38,24 @@ function(addExample target save_prerequisites)
   source_group(${PROJECT_NAME} FILES ${example_source_files})
 
   #
-  set_target_properties(${target} PROPERTIES
-      CXX_STANDARD 17
-      CXX_STANDARD_REQUIRED ON
-      RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}
-      RUNTIME_OUTPUT_DIRECTORY_DEBUG ${PROJECT_BINARY_DIR}
-      RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO ${PROJECT_BINARY_DIR}
-      RUNTIME_OUTPUT_DIRECTORY_RELEASE ${PROJECT_BINARY_DIR})
+  set_target_properties(${target} PROPERTIES CXX_STANDARD 17
+                                             CXX_STANDARD_REQUIRED ON)
 
   include(${__zisc_dir__}/cmake/compiler.cmake)
-  getCxxWarningFlags(cxx_compile_warning_flags)
+  Zisc_getCxxWarningFlags(cxx_compile_warning_flags)
   getExampleWarningFlags(example_warning_flags)
   target_compile_options(${target} PRIVATE ${cxx_compile_warning_flags}
                                            ${example_warning_flags})
   target_link_libraries(${target} PRIVATE Zivc)
+  Zisc_enableIpo(${target})
 
   #
-  setStaticAnalyzer(${target})
+  Zisc_setStaticAnalyzer(${target})
+  Zisc_createLinkToTarget(${target} ${PROJECT_BINARY_DIR})
 
   # Save the dependency list
   if(save_prerequisites)
-    savePrerequisites(${target} ${PROJECT_BINARY_DIR} "" "" "")
+    Zisc_savePrerequisites(${target} ${PROJECT_BINARY_DIR} "" "" "")
   endif()
 endfunction(addExample)
 
@@ -70,11 +67,11 @@ project(Examples VERSION 0.0.1 DESCRIPTION "${project_description}" LANGUAGES  C
 # Initialize platform info
 include(${__zisc_dir__}/cmake/general.cmake)
 include(${__zisc_dir__}/cmake/platform.cmake)
-getPlatformFlags(platform_definitions)
-setVariablesOnCMake(${platform_definitions})
+Zisc_getPlatformFlags(platform_definitions)
+Zisc_setVariablesOnCMake(${platform_definitions})
 
 # Check dependencies
-checkTarget(Zivc)
+Zisc_checkTarget(Zivc)
 
 # Build examples
 addExample(PlatformExample ON
@@ -88,6 +85,6 @@ addExample(KernelExample OFF
 
 # Kernel set
 include(${CMAKE_SOURCE_DIR}/source/zivc/cmake/kernel.cmake)
-addKernelSet(example ${PROJECT_VERSION}
+Zivc_addKernelSet(example ${PROJECT_VERSION}
     SOURCE_FILES ${PROJECT_SOURCE_DIR}/kernels/example.cl)
 target_link_libraries(KernelExample PRIVATE KernelSet_example)

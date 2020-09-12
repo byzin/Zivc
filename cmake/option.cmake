@@ -15,10 +15,10 @@ endfunction(validateOptions)
 # Set command options
 function(initProjectOptions)
   set(option_description "Build unit tests.")
-  setBooleanOption(ZIVC_BUILD_TESTS OFF ${option_description})
+  Zisc_setBooleanOption(ZIVC_BUILD_TESTS OFF ${option_description})
 
   set(option_description "Suppress excessive warnings.")
-  setBooleanOption(ZIVC_SUPPRESS_EXCESSIVE_WARNING ON ${option_description})
+  Zisc_setBooleanOption(ZIVC_SUPPRESS_EXCESSIVE_WARNING ON ${option_description})
 
   validateOptions()
 endfunction(initProjectOptions)

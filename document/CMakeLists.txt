@@ -6,7 +6,7 @@
 # http://opensource.org/licenses/mit-license.php
 #
 
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.17)
 
 
 set(__zisc_dir__ ${CMAKE_SOURCE_DIR}/source/dependencies/Zisc)
@@ -19,7 +19,7 @@ find_package(Doxygen)
 if(DOXYGEN_FOUND)
   # Check dependencies
   include(${__zisc_dir__}/source/zisc/cmake/general.cmake)
-  checkTarget(Zivc)
+  Zisc_checkTarget(Zivc)
 
   include(${__zisc_dir__}/source/zisc/cmake/document.cmake)
 
@@ -48,7 +48,7 @@ if(DOXYGEN_FOUND)
   endif()
 
   get_target_property(zivc_source_files Zivc SOURCES)
-  addDoxygenDoc(document ${PROJECT_BINARY_DIR}
+  Zisc_addDoxygenDoc(document ${PROJECT_BINARY_DIR}
     SOURCE_FILES_OR_DIRS ${CMAKE_SOURCE_DIR}/README.md
                          ${CMAKE_SOURCE_DIR}/LICENSE.txt
                          ${__zivc_dir__}/document.dox

@@ -219,7 +219,8 @@ class VulkanDevice : public Device
                          const std::array<uint32b, 3>& work_group_size);
 
   //! Initialize a descriptor set of a kernel
-  void initKernelDescriptorSet(const std::size_t num_of_buffers,
+  void initKernelDescriptorSet(const std::size_t num_of_storage_buffers,
+                               const std::size_t num_of_uniform_buffers,
                                VkDescriptorSetLayout* descriptor_set_layout,
                                VkDescriptorPool* descriptor_pool,
                                VkDescriptorSet* descriptor_set);

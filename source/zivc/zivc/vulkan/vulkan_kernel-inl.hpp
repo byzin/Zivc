@@ -153,7 +153,7 @@ run(ArgTypes... args, const LaunchOptions& launch_options)
   {
     const VkQueue q = device.getQueue(launch_options.queueIndex());
     if (launch_options.isExternalSyncMode())
-      device.takeFence(std::addressof(result.fence()));
+      result.fence().setDevice(std::addressof(device));
     QueueDebugLabelRegion debug_region{BaseKernel::isDebugMode() ? q
                                                                  : VK_NULL_HANDLE,
                                        device.dispatcher(),
@@ -259,6 +259,7 @@ initData(const Parameters& params)
   VulkanDevice& device = parentImpl();
   device.addShaderModule(SetType{});
   device.initKernelDescriptorSet(BaseKernel::ArgParser::kNumOfBufferArgs,
+                                 zisc::cast<std::size_t>(hasPodArg() ? 1 : 0),
                                  std::addressof(desc_set_layout_),
                                  std::addressof(desc_pool_),
                                  std::addressof(desc_set_));

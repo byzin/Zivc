@@ -172,7 +172,8 @@ void CpuDevice::submit(const Command& command,
 void CpuDevice::takeFence(Fence* fence)
 {
   auto memory = std::addressof(fence->data());
-  ::new (zisc::cast<void*>(memory)) ::CpuFence{};
+  auto f = ::new (zisc::cast<void*>(memory)) ::CpuFence{};
+  static_cast<void>(f);
 }
 
 /*!
@@ -214,8 +215,10 @@ void CpuDevice::waitForCompletion(const uint32b queue_index) const noexcept
   */
 void CpuDevice::waitForCompletion(const Fence& fence) const noexcept
 {
-  const auto f = zisc::treatAs<const ::CpuFence*>(std::addressof(fence.data()));
-  (*f)->wait();
+  const auto memory = std::addressof(fence.data());
+  const auto& f = *zisc::treatAs<const ::CpuFence*>(memory);
+  if (f)
+    f->wait();
 }
 
 /*!

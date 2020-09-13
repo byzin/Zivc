@@ -131,7 +131,7 @@ class VulkanKernel<kDimension,
   //! Initialize the given POD tuple
   static PodTuple makePodTuple(ArgTypes... args) noexcept;
 
-  //! Return the number of buffers which is needed for the kernel
+  //! Return the number of buffers which is needed for the kernel (including pod)
   static constexpr std::size_t numOfBuffers() noexcept;
 
   //! Return the device

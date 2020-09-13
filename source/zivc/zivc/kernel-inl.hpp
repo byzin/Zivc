@@ -163,6 +163,20 @@ LaunchOptions::queueIndex() const noexcept
 /*!
   \details No detailed description
 
+  \param [in] is_active No description.
+  */
+template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+inline
+void
+Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+LaunchOptions::setExternalSyncMode(const bool is_active) noexcept
+{
+  is_external_sync_mode_ = is_active ? zisc::kTrue : zisc::kFalse;
+}
+
+/*!
+  \details No detailed description
+
   \param [in] launch_label No description.
   */
 template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>

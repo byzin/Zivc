@@ -98,7 +98,7 @@ run(ArgTypes... args, const LaunchOptions& launch_options)
   // Command submission
   {
     if (launch_options.isExternalSyncMode())
-      device.takeFence(std::addressof(result.fence()));
+      result.fence().setDevice(std::addressof(device));
     const auto work_size = BaseKernel::expandWorkSize(launch_options.workSize());
     device.submit(command, work_size, std::addressof(result.fence()));
   }

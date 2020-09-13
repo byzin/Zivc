@@ -25,9 +25,6 @@ function(Zivc_initZivcOptions)
   set(option_description "Bake Vulkan SPIR-V kernels into the library.")
   Zisc_setBooleanOption(ZIVC_BAKE_KERNELS OFF ${option_description})
 
-  set(option_description "Send in POD kernel arguments in push constant.")
-  Zisc_setBooleanOption(ZIVC_POD_PUSHCONSTANT OFF ${option_description})
-
   set(option_description "Enable SPIR-V analysis.")
   Zisc_setBooleanOption(ZIVC_ENABLE_SPIRV_ANALYSIS ON ${option_description})
 

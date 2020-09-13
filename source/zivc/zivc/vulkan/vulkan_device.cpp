@@ -14,6 +14,7 @@
 
 #include "vulkan_device.hpp"
 // Standard C++ library
+#include <array>
 #include <algorithm>
 #include <cstddef>
 #include <cstring>
@@ -254,15 +255,14 @@ void VulkanDevice::takeFence(Fence* fence)
   const auto loader = dispatcher().loaderImpl();
   zivcvk::AllocationCallbacks alloc{sub_platform.makeAllocator()};
 
-  auto dest = zisc::treatAs<zivcvk::Fence*>(std::addressof(fence->data()));
-  *dest = zivcvk::Fence{};
+  auto memory = std::addressof(fence->data());
+  auto dest = ::new (zisc::cast<void*>(memory)) zivcvk::Fence{};
 
   auto& fence_list = *fence_list_;
   for (std::size_t i = 0; i < fence_list.size(); ++i) {
     if (fence_manager_->test(i)) {
       zivcvk::Fence f = zisc::cast<zivcvk::Fence>(fence_list[i]);
       d.resetFences(1, std::addressof(f), *loader);
-      fence->setDevice(this);
       *dest = f;
       fence_manager_->set(i, false);
       break;
@@ -563,7 +563,8 @@ void VulkanDevice::dispatchKernelCmd(const VkCommandBuffer& command_buffer,
   \param [out] descriptor_set No description.
   */
 void VulkanDevice::initKernelDescriptorSet(
-    const std::size_t num_of_buffers,
+    const std::size_t num_of_storage_buffers,
+    const std::size_t num_of_uniform_buffers,
     VkDescriptorSetLayout* descriptor_set_layout,
     VkDescriptorPool* descriptor_pool,
     VkDescriptorSet* descriptor_set)
@@ -580,13 +581,23 @@ void VulkanDevice::initKernelDescriptorSet(
     using BindingList = zisc::pmr::vector<zivcvk::DescriptorSetLayoutBinding>;
     BindingList::allocator_type bindings_alloc{mem_resource};
     BindingList layout_bindings{bindings_alloc};
-    layout_bindings.resize(num_of_buffers);
-    for (std::size_t index = 0; index < num_of_buffers; ++index) {
+    layout_bindings.resize(num_of_storage_buffers + num_of_uniform_buffers);
+    // Storage buffers
+    for (std::size_t index = 0; index < num_of_storage_buffers; ++index) {
       layout_bindings[index] = zivcvk::DescriptorSetLayoutBinding{
           zisc::cast<uint32b>(index),
           zivcvk::DescriptorType::eStorageBuffer,
           1,
           zivcvk::ShaderStageFlagBits::eCompute};
+    }
+    // Uniform buffer
+    for (std::size_t i = 0; i < num_of_uniform_buffers; ++i) {
+      const std::size_t index = num_of_storage_buffers + i;
+      layout_bindings[index] = zivcvk::DescriptorSetLayoutBinding{
+          zisc::cast<uint32b>(index),
+            zivcvk::DescriptorType::eUniformBuffer,
+            1,
+            zivcvk::ShaderStageFlagBits::eCompute};
     }
     const zivcvk::DescriptorSetLayoutCreateInfo create_info{
         zivcvk::DescriptorSetLayoutCreateFlags{},
@@ -598,14 +609,25 @@ void VulkanDevice::initKernelDescriptorSet(
   // Initialize descriptor pool
   zivcvk::DescriptorPool desc_pool;
   {
-    zivcvk::DescriptorPoolSize pool_size{
-        zivcvk::DescriptorType::eStorageBuffer,
-        zisc::cast<uint32b>(num_of_buffers)};
+    using PoolSizeList = zisc::pmr::vector<zivcvk::DescriptorPoolSize>;
+    PoolSizeList::allocator_type pool_alloc{mem_resource};
+    PoolSizeList pool_size_list{pool_alloc};
+    pool_size_list.reserve(2);
+    // Storage buffers
+    if (0 < num_of_storage_buffers) {
+      pool_size_list.emplace_back(zivcvk::DescriptorType::eStorageBuffer,
+                                  zisc::cast<uint32b>(num_of_storage_buffers));
+    }
+    // Uniform buffer
+    if (0 < num_of_uniform_buffers) {
+      pool_size_list.emplace_back(zivcvk::DescriptorType::eUniformBuffer,
+                                  zisc::cast<uint32b>(num_of_uniform_buffers));
+    }
     const zivcvk::DescriptorPoolCreateInfo create_info{
         zivcvk::DescriptorPoolCreateFlags{},
         1,
-        1,
-        std::addressof(pool_size)};
+        zisc::cast<uint32b>(pool_size_list.size()),
+        pool_size_list.data()};
 
     desc_pool = d.createDescriptorPool(create_info, alloc, *loader);
   }
@@ -649,11 +671,16 @@ void VulkanDevice::initKernelPipeline(const std::size_t work_dimension,
   // Pipeline
   zivcvk::PipelineLayout pline_layout;
   {
+    const zivcvk::PushConstantRange push_constant_range{
+        zivcvk::ShaderStageFlagBits::eCompute, 0, 28}; // global and region offsets
+
     zivcvk::DescriptorSetLayout desc_set_layout{set_layout};
     const zivcvk::PipelineLayoutCreateInfo create_info{
         zivcvk::PipelineLayoutCreateFlags{},
         1,
-        std::addressof(desc_set_layout)};
+        std::addressof(desc_set_layout),
+        1,
+        std::addressof(push_constant_range)};
     pline_layout = d.createPipelineLayout(create_info, alloc, *loader);
   }
   // Specialization constants
@@ -1285,6 +1312,7 @@ void VulkanDevice::updateDescriptorSet(const VkDescriptorSet& descriptor_set,
     write_desc->dstSet = zisc::cast<const zivcvk::DescriptorSet>(descriptor_set);
     write_desc->dstBinding = zisc::cast<uint32b>(i);
     write_desc->dstArrayElement = 0;
+    write_desc->descriptorCount = 1;
     const auto desc_type = zisc::cast<zivcvk::DescriptorType>(desc_type_list[i]);
     write_desc->descriptorType = desc_type;
     write_desc->pBufferInfo = desc_info;
@@ -1293,7 +1321,7 @@ void VulkanDevice::updateDescriptorSet(const VkDescriptorSet& descriptor_set,
   zivcvk::Device d{device()};
   const auto loader = dispatcher().loaderImpl();
   auto descs = zisc::treatAs<const zivcvk::WriteDescriptorSet*>(write_desc_list);
-  d.updateDescriptorSets(1, descs, 0, nullptr, *loader);
+  d.updateDescriptorSets(zisc::cast<uint32b>(n), descs, 0, nullptr, *loader);
 }
 
 /*!

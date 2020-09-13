@@ -146,6 +146,12 @@ int main(int /* argc */, char** /* argv */)
 
     auto kernel_parameters = ZIVC_MAKE_KERNEL_PARAMETERS(example, testKernel);
     auto kernel = device->makeKernel<1>(kernel_parameters);
+
+    auto launch_options = kernel->makeOptions();
+    launch_options.setWorkSize({1920 * 1080});
+    launch_options.setExternalSyncMode(true);
+    auto result = kernel->run(*buffer1, *buffer3, n, launch_options);
+    device->waitForCompletion(result.fence());
   }
 
   std::cout << std::endl;

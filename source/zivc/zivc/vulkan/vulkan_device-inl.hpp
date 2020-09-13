@@ -243,7 +243,7 @@ void VulkanDevice::updateDescriptorSet(
 inline
 const std::array<uint32b, 3>& VulkanDevice::workGroupSizeDim(const std::size_t dimension) const noexcept
 {
-  return work_group_size_list_[dimension];
+  return work_group_size_list_[dimension - 1];
 }
 
 /*!

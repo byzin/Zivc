@@ -109,7 +109,7 @@ template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, ty
 inline
 LaunchResult
 VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
-run(ArgTypes... args, const LaunchOptions& launch_options)
+run(ArgTypes... args, LaunchOptions& launch_options)
 {
   VulkanDevice& device = parentImpl();
   // DescriptorSet

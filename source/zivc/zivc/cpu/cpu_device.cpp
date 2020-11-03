@@ -15,6 +15,7 @@
 #include "cpu_device.hpp"
 // Standard C++ library
 #include <array>
+#include <atomic>
 #include <cstddef>
 #include <limits>
 #include <memory>
@@ -29,6 +30,7 @@
 #include "zivc/device.hpp"
 #include "zivc/device_info.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/cppcl/utility.hpp"
 #include "zivc/utility/id_data.hpp"
 #include "zivc/utility/fence.hpp"
 
@@ -156,12 +158,40 @@ void CpuDevice::setNumOfFences(const std::size_t s)
 
   \param [in] command No description.
   \param [in] work_size No description.
+  \param [in] id No description.
   \param [out] fence No description.
   */
 void CpuDevice::submit(const Command& command,
                        const std::array<uint32b, 3>& work_size,
+                       std::atomic<uint32b>* id,
                        Fence* fence) noexcept
 {
+  auto task = [this, command, work_size, id](const int64b, const int64b)
+  {
+    const uint32b num_of_works = work_size[0] * work_size[1] * work_size[2];
+    const uint32b batch_size = zisc::cast<uint32b>(taskBatchSize());
+    const uint32b n = (num_of_works + (batch_size - 1)) / batch_size;
+    cl::inner::WorkGroup::setWorkGroupSize(work_size);
+    for (uint32b block_id = (*id)++; block_id < n; block_id = (*id)++) {
+      for (uint32b i = 0; i < batch_size; ++i) {
+        const uint32b group_id = block_id * batch_size + i;
+        if (group_id < num_of_works) {
+          cl::inner::WorkGroup::setWorkGroupId(group_id);
+          command();
+        }
+      }
+    }
+  };
+
+  auto& manager = threadManager();
+  constexpr int64b start = 0;
+  const int64b end = manager.numOfThreads();
+  constexpr auto parent_id = zisc::ThreadManager::kAllParentId;
+  auto result = manager.enqueueLoop(task, start, end, parent_id, memoryResource());
+  if (fence->isActive()) {
+    auto fen = zisc::treatAs<CpuFence*>(std::addressof(fence->data()));
+    *fen = std::move(result);
+  }
 }
 
 /*!
@@ -234,14 +264,14 @@ void CpuDevice::destroyData() noexcept
   */
 void CpuDevice::initData()
 {
-  auto& device = parentImpl();
+  auto& platform = parentImpl();
 
   heap_usage_.setPeak(0);
   heap_usage_.setTotal(0);
   auto mem_resource = memoryResource();
   zisc::pmr::polymorphic_allocator<zisc::ThreadManager> alloc{mem_resource};
   thread_manager_ = zisc::pmr::allocateUnique(alloc,
-                                              device.numOfThreads(),
+                                              platform.numOfThreads(),
                                               mem_resource);
 }
 

@@ -17,6 +17,7 @@
 
 // Standard C++ library
 #include <array>
+#include <atomic>
 #include <cstddef>
 #include <memory>
 #include <string_view>
@@ -76,6 +77,17 @@ class Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...
   class LaunchOptions
   {
    public:
+    static constexpr std::size_t kNumOfArgs = sizeof...(ArgTypes);
+
+
+    using CommandStorage = std::aligned_storage_t<
+        sizeof(void*) * (kNumOfArgs + 2),
+        std::alignment_of_v<void*>>;
+    using AtomicStorage = std::aligned_storage_t<
+        sizeof(std::atomic<uint32b>),
+        std::alignment_of_v<std::atomic<uint32b>>>;
+
+
     //! Initialize the launch info
     LaunchOptions() noexcept;
 
@@ -86,6 +98,18 @@ class Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...
     LaunchOptions(const std::array<uint32b, kDimension>& work_size,
                   const uint32b queue_index) noexcept;
 
+
+    //! Return the memory for cpu command
+    CommandStorage* cpuCommandStorage() noexcept;
+
+    //! Return the memory for cpu command
+    const CommandStorage* cpuCommandStorage() const noexcept;
+
+    //! Return the memory for an atomic counter in cpu command
+    AtomicStorage* cpuAtomicStorage() noexcept;
+
+    //! Return the memory for an atomic counter in cpu command
+    const AtomicStorage* cpuAtomicStorage() const noexcept;
 
     //! Return the work-group dimension
     static constexpr std::size_t dimension() noexcept;
@@ -127,13 +151,12 @@ class Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...
     const std::array<uint32b, kDimension>& workSize() const noexcept;
 
    private:
-    static constexpr std::size_t kNumOfArgs = sizeof...(ArgTypes);
-
-
     //! Initialize the options
     void initialize() noexcept;
 
 
+    CommandStorage cpu_command_storage_;
+    AtomicStorage cpu_atomic_storage_;
     IdData::NameType label_;
     std::array<float, 4> label_color_ = {1.0f, 1.0f, 1.0f, 1.0f};
     std::array<uint32b, kDimension> work_size_;
@@ -168,7 +191,7 @@ class Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...
   static constexpr std::size_t numOfArgs() noexcept;
 
   //! Execute a kernel
-  virtual LaunchResult run(ArgTypes... args, const LaunchOptions& launch_options) = 0;
+  virtual LaunchResult run(ArgTypes... args, LaunchOptions& launch_options) = 0;
 
  protected:
   //! Clear the contents of the kernel

@@ -73,7 +73,7 @@ class CpuKernel<kDimension,
   Function kernel() const noexcept;
 
   //! Execute a kernel
-  LaunchResult run(ArgTypes... args, const LaunchOptions& launch_options) override;
+  LaunchResult run(ArgTypes... args, LaunchOptions& launch_options) override;
 
  protected:
   //! Clear the contents of the kernel

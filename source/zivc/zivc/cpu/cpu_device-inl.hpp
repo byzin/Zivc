@@ -94,8 +94,8 @@ std::size_t CpuDevice::numOfThreads() const noexcept
 inline
 std::size_t CpuDevice::taskBatchSize() const noexcept
 {
-  const auto& device = parentImpl();
-  return device.taskBatchSize();
+  const auto& platform = parentImpl();
+  return platform.taskBatchSize();
 }
 
 /*!

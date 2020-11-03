@@ -17,6 +17,7 @@
 
 // Standard C++ library
 #include <array>
+#include <atomic>
 #include <cstddef>
 #include <memory>
 // Zisc
@@ -99,6 +100,7 @@ class CpuDevice : public Device
   //! Submit a kernel command
   void submit(const Command& command,
               const std::array<uint32b, 3>& work_size,
+              std::atomic<uint32b>* id,
               Fence* fence) noexcept;
 
   //! Take a fence data from the device

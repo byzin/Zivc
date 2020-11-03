@@ -81,6 +81,66 @@ LaunchOptions::LaunchOptions(const std::array<uint32b, kDimension>& work_size,
   */
 template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
 inline
+auto
+Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+LaunchOptions::cpuCommandStorage() noexcept -> CommandStorage*
+{
+  auto mem = std::addressof(cpu_command_storage_);
+  return mem;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+inline
+auto
+Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+LaunchOptions::cpuCommandStorage() const noexcept -> const CommandStorage*
+{
+  auto mem = std::addressof(cpu_command_storage_);
+  return mem;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+inline
+auto
+Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+LaunchOptions::cpuAtomicStorage() noexcept -> AtomicStorage*
+{
+  auto mem = std::addressof(cpu_atomic_storage_);
+  return mem;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+inline
+auto
+Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+LaunchOptions::cpuAtomicStorage() const noexcept -> const AtomicStorage*
+{
+  auto mem = std::addressof(cpu_atomic_storage_);
+  return mem;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+inline
 constexpr std::size_t
 Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
 LaunchOptions::dimension() noexcept

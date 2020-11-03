@@ -85,22 +85,33 @@ template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, ty
 inline
 LaunchResult
 CpuKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
-run(ArgTypes... args, const LaunchOptions& launch_options)
+run(ArgTypes... args, LaunchOptions& launch_options)
 {
   CpuDevice& device = parentImpl();
   // Command recording
-  auto command = [func = kernel(), &args..., &launch_options]() noexcept
+  auto c = [func = kernel(), &args..., &launch_options]() noexcept
   {
     using LauncherType = Launcher<FuncArgTypes...>;
     LauncherType::exec(func, launch_options, args...);
   };
+  using CommandType = decltype(c);
+  static_assert(sizeof(typename LaunchOptions::CommandStorage) ==
+                sizeof(CommandType));
+  static_assert(std::alignment_of_v<typename LaunchOptions::CommandStorage> ==
+                std::alignment_of_v<CommandType>);
+  auto command_mem = zisc::cast<void*>(launch_options.cpuCommandStorage());
+  CommandType* command = ::new (command_mem) CommandType{c};
+
+  auto atomic_mem = zisc::cast<void*>(launch_options.cpuAtomicStorage());
+  std::atomic<uint32b>* id = ::new (atomic_mem) std::atomic<uint32b>{0};
+
   LaunchResult result{};
   // Command submission
   {
     if (launch_options.isExternalSyncMode())
       result.fence().setDevice(std::addressof(device));
     const auto work_size = BaseKernel::expandWorkSize(launch_options.workSize());
-    device.submit(command, work_size, std::addressof(result.fence()));
+    device.submit(*command, work_size, id, std::addressof(result.fence()));
   }
   result.setAsync(true);
   return result;

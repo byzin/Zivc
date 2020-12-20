@@ -629,7 +629,7 @@ void VulkanSubPlatform::initDeviceList()
   const zivcvk::Instance ins{instance()};
 
   using DeviceList = zisc::pmr::vector<zivcvk::PhysicalDevice>;
-  const DeviceList::allocator_type alloc{memoryResource()};
+  DeviceList::allocator_type alloc{memoryResource()};
   const auto loader = dispatcher().loaderImpl();
   auto device_list = ins.enumeratePhysicalDevices(alloc, *loader);
 

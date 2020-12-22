@@ -24,8 +24,8 @@
 #include <vector>
 // Zisc
 #include "zisc/error.hpp"
-#include "zisc/std_memory_resource.hpp"
 #include "zisc/utility.hpp"
+#include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "device_info.hpp"
 #include "sub_platform.hpp"

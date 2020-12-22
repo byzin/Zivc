@@ -14,7 +14,7 @@
 // Standard C++ library
 #include <type_traits>
 // Zisc
-#include "zisc/atomic.hpp"
+#include "zisc/thread/atomic.hpp"
 // Zivc
 #include "address_space_pointer.hpp"
 #include "types.hpp"
@@ -109,7 +109,7 @@ template <AddressSpaceType kAddressSpaceType, typename Integer> inline
 Integer atomic_and(AddressSpacePointer<kAddressSpaceType, Integer> p,
                    const Integer value) noexcept
 {
-  const auto old = zisc::Atomic::andBit(p.get(), value);
+  const auto old = zisc::Atomic::bitAnd(p.get(), value);
   return old;
 }
 
@@ -119,7 +119,7 @@ template <AddressSpaceType kAddressSpaceType, typename Integer> inline
 Integer atomic_or(AddressSpacePointer<kAddressSpaceType, Integer> p,
                   const Integer value) noexcept
 {
-  const auto old = zisc::Atomic::orBit(p.get(), value);
+  const auto old = zisc::Atomic::bitOr(p.get(), value);
   return old;
 }
 
@@ -129,7 +129,7 @@ template <AddressSpaceType kAddressSpaceType, typename Integer> inline
 Integer atomic_xor(AddressSpacePointer<kAddressSpaceType, Integer> p,
                    const Integer value) noexcept
 {
-  const auto old = zisc::Atomic::xorBit(p.get(), value);
+  const auto old = zisc::Atomic::bitXor(p.get(), value);
   return old;
 }
 

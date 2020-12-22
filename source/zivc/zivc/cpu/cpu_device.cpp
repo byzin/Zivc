@@ -20,10 +20,10 @@
 #include <limits>
 #include <memory>
 // Zisc
-#include "zisc/memory.hpp"
-#include "zisc/std_memory_resource.hpp"
-#include "zisc/thread_manager.hpp"
 #include "zisc/utility.hpp"
+#include "zisc/memory/memory.hpp"
+#include "zisc/memory/std_memory_resource.hpp"
+#include "zisc/thread/thread_manager.hpp"
 // Zivc
 #include "cpu_device_info.hpp"
 #include "cpu_sub_platform.hpp"
@@ -102,7 +102,7 @@ std::size_t CpuDevice::peakMemoryUsage(const std::size_t number) const noexcept
   */
 void CpuDevice::returnFence(Fence* fence) noexcept
 {
-  auto memory = zisc::treatAs<::CpuFence*>(std::addressof(fence->data()));
+  auto memory = zisc::reinterp<::CpuFence*>(std::addressof(fence->data()));
   std::destroy_at(memory);
 }
 
@@ -187,9 +187,9 @@ void CpuDevice::submit(const Command& command,
   constexpr int64b start = 0;
   const int64b end = manager.numOfThreads();
   constexpr auto parent_id = zisc::ThreadManager::kAllParentId;
-  auto result = manager.enqueueLoop(task, start, end, parent_id, memoryResource());
+  auto result = manager.enqueueLoop(task, start, end, parent_id);
   if (fence->isActive()) {
-    auto fen = zisc::treatAs<CpuFence*>(std::addressof(fence->data()));
+    auto fen = zisc::reinterp<CpuFence*>(std::addressof(fence->data()));
     *fen = std::move(result);
   }
 }
@@ -246,7 +246,7 @@ void CpuDevice::waitForCompletion(const uint32b queue_index) const noexcept
 void CpuDevice::waitForCompletion(const Fence& fence) const noexcept
 {
   const auto memory = std::addressof(fence.data());
-  const auto& f = *zisc::treatAs<const ::CpuFence*>(memory);
+  const auto& f = *zisc::reinterp<const ::CpuFence*>(memory);
   if (f)
     f->wait();
 }

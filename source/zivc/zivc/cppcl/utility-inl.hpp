@@ -492,7 +492,7 @@ double4 convert_double4(const Vector<Type, 4>& value) noexcept
 template <typename Type> inline
 int8b as_char(Type&& value) noexcept
 {
-  return *zisc::treatAs<const int8b*>(&value);
+  return *zisc::reinterp<const int8b*>(&value);
 }
 
 /*!
@@ -500,7 +500,7 @@ int8b as_char(Type&& value) noexcept
 template <typename Type> inline
 char2 as_char2(Type&& value) noexcept
 {
-  return *zisc::treatAs<const char2*>(&value);
+  return *zisc::reinterp<const char2*>(&value);
 }
 
 /*!
@@ -508,7 +508,7 @@ char2 as_char2(Type&& value) noexcept
 template <typename Type> inline
 char3 as_char3(Type&& value) noexcept
 {
-  return *zisc::treatAs<const char3*>(&value);
+  return *zisc::reinterp<const char3*>(&value);
 }
 
 /*!
@@ -516,7 +516,7 @@ char3 as_char3(Type&& value) noexcept
 template <typename Type> inline
 char4 as_char4(Type&& value) noexcept
 {
-  return *zisc::treatAs<const char4*>(&value);
+  return *zisc::reinterp<const char4*>(&value);
 }
 
 /*!
@@ -524,7 +524,7 @@ char4 as_char4(Type&& value) noexcept
 template <typename Type> inline
 uint8b as_uchar(Type&& value) noexcept
 {
-  return *zisc::treatAs<const uint8b*>(&value);
+  return *zisc::reinterp<const uint8b*>(&value);
 }
 
 /*!
@@ -532,7 +532,7 @@ uint8b as_uchar(Type&& value) noexcept
 template <typename Type> inline
 uchar2 as_uchar2(Type&& value) noexcept
 {
-  return *zisc::treatAs<const uchar2*>(&value);
+  return *zisc::reinterp<const uchar2*>(&value);
 }
 
 /*!
@@ -540,7 +540,7 @@ uchar2 as_uchar2(Type&& value) noexcept
 template <typename Type> inline
 uchar3 as_uchar3(Type&& value) noexcept
 {
-  return *zisc::treatAs<const uchar3*>(&value);
+  return *zisc::reinterp<const uchar3*>(&value);
 }
 
 /*!
@@ -548,7 +548,7 @@ uchar3 as_uchar3(Type&& value) noexcept
 template <typename Type> inline
 uchar4 as_uchar4(Type&& value) noexcept
 {
-  return *zisc::treatAs<const uchar4*>(&value);
+  return *zisc::reinterp<const uchar4*>(&value);
 }
 
 /*!
@@ -556,7 +556,7 @@ uchar4 as_uchar4(Type&& value) noexcept
 template <typename Type> inline
 int16b as_short(Type&& value) noexcept
 {
-  return *zisc::treatAs<const int16b*>(&value);
+  return *zisc::reinterp<const int16b*>(&value);
 }
 
 /*!
@@ -564,7 +564,7 @@ int16b as_short(Type&& value) noexcept
 template <typename Type> inline
 short2 as_short2(Type&& value) noexcept
 {
-  return *zisc::treatAs<const short2*>(&value);
+  return *zisc::reinterp<const short2*>(&value);
 }
 
 /*!
@@ -572,7 +572,7 @@ short2 as_short2(Type&& value) noexcept
 template <typename Type> inline
 short3 as_short3(Type&& value) noexcept
 {
-  return *zisc::treatAs<const short3*>(&value);
+  return *zisc::reinterp<const short3*>(&value);
 }
 
 /*!
@@ -580,7 +580,7 @@ short3 as_short3(Type&& value) noexcept
 template <typename Type> inline
 short4 as_short4(Type&& value) noexcept
 {
-  return *zisc::treatAs<const short4*>(&value);
+  return *zisc::reinterp<const short4*>(&value);
 }
 
 /*!
@@ -588,7 +588,7 @@ short4 as_short4(Type&& value) noexcept
 template <typename Type> inline
 uint16b as_ushort(Type&& value) noexcept
 {
-  return *zisc::treatAs<const uint16b*>(&value);
+  return *zisc::reinterp<const uint16b*>(&value);
 }
 
 /*!
@@ -596,7 +596,7 @@ uint16b as_ushort(Type&& value) noexcept
 template <typename Type> inline
 ushort2 as_ushort2(Type&& value) noexcept
 {
-  return *zisc::treatAs<const ushort2*>(&value);
+  return *zisc::reinterp<const ushort2*>(&value);
 }
 
 /*!
@@ -604,7 +604,7 @@ ushort2 as_ushort2(Type&& value) noexcept
 template <typename Type> inline
 ushort3 as_ushort3(Type&& value) noexcept
 {
-  return *zisc::treatAs<const ushort3*>(&value);
+  return *zisc::reinterp<const ushort3*>(&value);
 }
 
 /*!
@@ -612,7 +612,7 @@ ushort3 as_ushort3(Type&& value) noexcept
 template <typename Type> inline
 ushort4 as_ushort4(Type&& value) noexcept
 {
-  return *zisc::treatAs<const ushort4*>(&value);
+  return *zisc::reinterp<const ushort4*>(&value);
 }
 
 /*!
@@ -620,7 +620,7 @@ ushort4 as_ushort4(Type&& value) noexcept
 template <typename Type> inline
 int32b as_int(Type&& value) noexcept
 {
-  return *zisc::treatAs<const int32b*>(&value);
+  return *zisc::reinterp<const int32b*>(&value);
 }
 
 /*!
@@ -628,7 +628,7 @@ int32b as_int(Type&& value) noexcept
 template <typename Type> inline
 int2 as_int2(Type&& value) noexcept
 {
-  return *zisc::treatAs<const int2*>(&value);
+  return *zisc::reinterp<const int2*>(&value);
 }
 
 /*!
@@ -636,7 +636,7 @@ int2 as_int2(Type&& value) noexcept
 template <typename Type> inline
 int3 as_int3(Type&& value) noexcept
 {
-  return *zisc::treatAs<const int3*>(&value);
+  return *zisc::reinterp<const int3*>(&value);
 }
 
 /*!
@@ -644,7 +644,7 @@ int3 as_int3(Type&& value) noexcept
 template <typename Type> inline
 int4 as_int4(Type&& value) noexcept
 {
-  return *zisc::treatAs<const int4*>(&value);
+  return *zisc::reinterp<const int4*>(&value);
 }
 
 /*!
@@ -652,7 +652,7 @@ int4 as_int4(Type&& value) noexcept
 template <typename Type> inline
 uint32b as_uint(Type&& value) noexcept
 {
-  return *zisc::treatAs<const uint32b*>(&value);
+  return *zisc::reinterp<const uint32b*>(&value);
 }
 
 /*!
@@ -660,7 +660,7 @@ uint32b as_uint(Type&& value) noexcept
 template <typename Type> inline
 uint2 as_uint2(Type&& value) noexcept
 {
-  return *zisc::treatAs<const uint2*>(&value);
+  return *zisc::reinterp<const uint2*>(&value);
 }
 
 /*!
@@ -668,7 +668,7 @@ uint2 as_uint2(Type&& value) noexcept
 template <typename Type> inline
 uint3 as_uint3(Type&& value) noexcept
 {
-  return *zisc::treatAs<const uint3*>(&value);
+  return *zisc::reinterp<const uint3*>(&value);
 }
 
 /*!
@@ -676,7 +676,7 @@ uint3 as_uint3(Type&& value) noexcept
 template <typename Type> inline
 uint4 as_uint4(Type&& value) noexcept
 {
-  return *zisc::treatAs<const uint4*>(&value);
+  return *zisc::reinterp<const uint4*>(&value);
 }
 
 /*!
@@ -684,7 +684,7 @@ uint4 as_uint4(Type&& value) noexcept
 template <typename Type> inline
 int64b as_long(Type&& value) noexcept
 {
-  return *zisc::treatAs<const int64b*>(&value);
+  return *zisc::reinterp<const int64b*>(&value);
 }
 
 /*!
@@ -692,7 +692,7 @@ int64b as_long(Type&& value) noexcept
 template <typename Type> inline
 long2 as_long2(Type&& value) noexcept
 {
-  return *zisc::treatAs<const long2*>(&value);
+  return *zisc::reinterp<const long2*>(&value);
 }
 
 /*!
@@ -700,7 +700,7 @@ long2 as_long2(Type&& value) noexcept
 template <typename Type> inline
 long3 as_long3(Type&& value) noexcept
 {
-  return *zisc::treatAs<const long3*>(&value);
+  return *zisc::reinterp<const long3*>(&value);
 }
 
 /*!
@@ -708,7 +708,7 @@ long3 as_long3(Type&& value) noexcept
 template <typename Type> inline
 long4 as_long4(Type&& value) noexcept
 {
-  return *zisc::treatAs<const long4*>(&value);
+  return *zisc::reinterp<const long4*>(&value);
 }
 
 /*!
@@ -716,7 +716,7 @@ long4 as_long4(Type&& value) noexcept
 template <typename Type> inline
 uint64b as_ulong(Type&& value) noexcept
 {
-  return *zisc::treatAs<const uint64b*>(&value);
+  return *zisc::reinterp<const uint64b*>(&value);
 }
 
 /*!
@@ -724,7 +724,7 @@ uint64b as_ulong(Type&& value) noexcept
 template <typename Type> inline
 ulong2 as_ulong2(Type&& value) noexcept
 {
-  return *zisc::treatAs<const ulong2*>(&value);
+  return *zisc::reinterp<const ulong2*>(&value);
 }
 
 /*!
@@ -732,7 +732,7 @@ ulong2 as_ulong2(Type&& value) noexcept
 template <typename Type> inline
 ulong3 as_ulong3(Type&& value) noexcept
 {
-  return *zisc::treatAs<const ulong3*>(&value);
+  return *zisc::reinterp<const ulong3*>(&value);
 }
 
 /*!
@@ -740,7 +740,7 @@ ulong3 as_ulong3(Type&& value) noexcept
 template <typename Type> inline
 ulong4 as_ulong4(Type&& value) noexcept
 {
-  return *zisc::treatAs<const ulong4*>(&value);
+  return *zisc::reinterp<const ulong4*>(&value);
 }
 
 /*!
@@ -748,7 +748,7 @@ ulong4 as_ulong4(Type&& value) noexcept
 template <typename Type> inline
 float as_float(Type&& value) noexcept
 {
-  return *zisc::treatAs<const float*>(&value);
+  return *zisc::reinterp<const float*>(&value);
 }
 
 /*!
@@ -756,7 +756,7 @@ float as_float(Type&& value) noexcept
 template <typename Type> inline
 float2 as_float2(Type&& value) noexcept
 {
-  return *zisc::treatAs<const float2*>(&value);
+  return *zisc::reinterp<const float2*>(&value);
 }
 
 /*!
@@ -764,7 +764,7 @@ float2 as_float2(Type&& value) noexcept
 template <typename Type> inline
 float3 as_float3(Type&& value) noexcept
 {
-  return *zisc::treatAs<const float3*>(&value);
+  return *zisc::reinterp<const float3*>(&value);
 }
 
 /*!
@@ -772,7 +772,7 @@ float3 as_float3(Type&& value) noexcept
 template <typename Type> inline
 float4 as_float4(Type&& value) noexcept
 {
-  return *zisc::treatAs<const float4*>(&value);
+  return *zisc::reinterp<const float4*>(&value);
 }
 
 /*!
@@ -780,7 +780,7 @@ float4 as_float4(Type&& value) noexcept
 template <typename Type> inline
 double as_double(Type&& value) noexcept
 {
-  return *zisc::treatAs<const double*>(&value);
+  return *zisc::reinterp<const double*>(&value);
 }
 
 /*!
@@ -788,7 +788,7 @@ double as_double(Type&& value) noexcept
 template <typename Type> inline
 double2 as_double2(Type&& value) noexcept
 {
-  return *zisc::treatAs<const double2*>(&value);
+  return *zisc::reinterp<const double2*>(&value);
 }
 
 /*!
@@ -796,7 +796,7 @@ double2 as_double2(Type&& value) noexcept
 template <typename Type> inline
 double3 as_double3(Type&& value) noexcept
 {
-  return *zisc::treatAs<const double3*>(&value);
+  return *zisc::reinterp<const double3*>(&value);
 }
 
 /*!
@@ -804,7 +804,7 @@ double3 as_double3(Type&& value) noexcept
 template <typename Type> inline
 double4 as_double4(Type&& value) noexcept
 {
-  return *zisc::treatAs<const double4*>(&value);
+  return *zisc::reinterp<const double4*>(&value);
 }
 
 } // namespace cl

@@ -19,7 +19,7 @@
 #include <utility>
 // Zisc
 #include "zisc/error.hpp"
-#include "zisc/std_memory_resource.hpp"
+#include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "id_data.hpp"
 #include "zivc/zivc_config.hpp"

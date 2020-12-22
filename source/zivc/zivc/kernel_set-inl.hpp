@@ -21,7 +21,7 @@
 #include <string_view>
 #include <vector>
 // Zisc
-#include "zisc/std_memory_resource.hpp"
+#include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "zivc/zivc_config.hpp"
 

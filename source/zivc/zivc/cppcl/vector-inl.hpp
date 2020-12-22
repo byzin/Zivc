@@ -15,8 +15,8 @@
 #include <cstddef>
 #include <type_traits>
 // Zisc
+#include "zisc/concepts.hpp"
 #include "zisc/ieee_754_binary.hpp"
-#include "zisc/type_traits.hpp"
 #include "zisc/utility.hpp"
 // Zivc
 #include "types.hpp"
@@ -1159,13 +1159,12 @@ Vector<Config::ComparisonResultType<Type>, kN> operator||(
 
 /*!
   */
-template <typename Type> inline
+template <zisc::Pointer Pointer> inline
 auto VectorData::vload2(
     const size_t offset,
-    const Type p,
-    zisc::EnableIf<std::is_pointer_v<Type>>) noexcept
+    const Pointer p) noexcept
 {
-  using T = std::remove_cv_t<std::remove_pointer_t<Type>>;
+  using T = std::remove_cvref_t<Pointer>;
   const auto result = Vec::vloadn<T, 2>(offset, p);
   return result;
 }
@@ -1183,13 +1182,12 @@ auto VectorData::vload2(
 
 /*!
   */
-template <typename Type> inline
+template <zisc::Pointer Pointer> inline
 auto VectorData::vload3(
     const size_t offset,
-    const Type p,
-    zisc::EnableIf<std::is_pointer_v<Type>>) noexcept
+    const Pointer p) noexcept
 {
-  using T = std::remove_cv_t<std::remove_pointer_t<Type>>;
+  using T = std::remove_cvref_t<Pointer>;
   const auto result = Vec::vloadn<T, 3>(offset, p);
   return result;
 }
@@ -1207,13 +1205,12 @@ auto VectorData::vload3(
 
 /*!
   */
-template <typename Type> inline
+template <zisc::Pointer Pointer> inline
 auto VectorData::vload4(
     const size_t offset,
-    const Type p,
-    zisc::EnableIf<std::is_pointer_v<Type>>) noexcept
+    const Pointer p) noexcept
 {
-  using T = std::remove_cv_t<std::remove_pointer_t<Type>>;
+  using T = std::remove_cvref_t<Pointer>;
   const auto result = Vec::vloadn<T, 4>(offset, p);
   return result;
 }
@@ -1230,25 +1227,22 @@ auto VectorData::vload4(
 
 /*!
   */
-template <typename Type> inline
+inline
 float VectorData::vload_half(
     const size_t offset,
-    const Type p,
-    zisc::EnableIf<std::is_pointer_v<Type> &&
-                   std::is_same_v<half, std::remove_cv_t<std::remove_pointer_t<Type>>>>) noexcept
+    const half* p) noexcept
 {
   const half* address = p + offset;
-  const float result = zisc::castBinary<float>(*address);
+  const float result = zisc::cast<float>(*address);
   return result;
 }
 
 /*!
   */
-template <AddressSpaceType kAddressSpaceType, typename Type> inline
+template <AddressSpaceType kAddressSpaceType, inner::Half Type> inline
 float VectorData::vload_half(
     const size_t offset,
-    const AddressSpacePointer<kAddressSpaceType, Type>& p,
-    zisc::EnableIfSame<half, std::remove_cv_t<Type>>) noexcept
+    const AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept
 {
   const auto result = vload_half(offset, p.get());
   return result;
@@ -1256,12 +1250,10 @@ float VectorData::vload_half(
 
 /*!
   */
-template <typename Type> inline
+inline
 float2 VectorData::vload_half2(
     const size_t offset,
-    const Type p,
-    zisc::EnableIf<std::is_pointer_v<Type> &&
-                   std::is_same_v<half, std::remove_cv_t<std::remove_pointer_t<Type>>>>) noexcept
+    const half* p) noexcept
 {
   const auto result = Vec::vload_halfn<2>(offset, p);
   return result;
@@ -1269,11 +1261,10 @@ float2 VectorData::vload_half2(
 
 /*!
   */
-template <AddressSpaceType kAddressSpaceType, typename Type> inline
+template <AddressSpaceType kAddressSpaceType, inner::Half Type> inline
 float2 VectorData::vload_half2(
     const size_t offset,
-    const AddressSpacePointer<kAddressSpaceType, Type>& p,
-    zisc::EnableIfSame<half, std::remove_cv_t<Type>>) noexcept
+    const AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept
 {
   const auto result = vload_half2(offset, p.get());
   return result;
@@ -1281,12 +1272,10 @@ float2 VectorData::vload_half2(
 
 /*!
   */
-template <typename Type> inline
+inline
 float3 VectorData::vload_half3(
     const size_t offset,
-    const Type p,
-    zisc::EnableIf<std::is_pointer_v<Type> &&
-                   std::is_same_v<half, std::remove_cv_t<std::remove_pointer_t<Type>>>>) noexcept
+    const half* p) noexcept
 {
   const auto result = Vec::vload_halfn<3>(offset, p);
   return result;
@@ -1294,11 +1283,10 @@ float3 VectorData::vload_half3(
 
 /*!
   */
-template <AddressSpaceType kAddressSpaceType, typename Type> inline
+template <AddressSpaceType kAddressSpaceType, inner::Half Type> inline
 float3 VectorData::vload_half3(
     const size_t offset,
-    const AddressSpacePointer<kAddressSpaceType, Type>& p,
-    zisc::EnableIfSame<half, std::remove_cv_t<Type>>) noexcept
+    const AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept
 {
   const auto result = vload_half3(offset, p.get());
   return result;
@@ -1306,23 +1294,20 @@ float3 VectorData::vload_half3(
 
 /*!
   */
-template <typename Type> inline
+inline
 float4 VectorData::vload_half4(
     const size_t offset,
-    const Type p,
-    zisc::EnableIf<std::is_pointer_v<Type> &&
-                   std::is_same_v<half, std::remove_cv_t<std::remove_pointer_t<Type>>>>) noexcept
+    const half* p) noexcept
 {
   const auto result = Vec::vload_halfn<4>(offset, p);
   return result;
 }
 /*!
   */
-template <AddressSpaceType kAddressSpaceType, typename Type> inline
+template <AddressSpaceType kAddressSpaceType, inner::Half Type> inline
 float4 VectorData::vload_half4(
     const size_t offset,
-    const AddressSpacePointer<kAddressSpaceType, Type>& p,
-    zisc::EnableIfSame<half, std::remove_cv_t<Type>>) noexcept
+    const AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept
 {
   const auto result = vload_half4(offset, p.get());
   return result;
@@ -1399,98 +1384,90 @@ void VectorData::vstore4(
 
 /*!
   */
-template <typename Type> inline
+inline
 void VectorData::vstore_half(
     const float data,
     const size_t offset,
-    Type p,
-    zisc::EnableIfSame<half*, std::remove_cv_t<Type>>) noexcept
+    half* p) noexcept
 {
   half* address = p + offset;
-  const half fdata = zisc::castBinary<half>(data);
+  const half fdata = zisc::cast<half>(data);
   *address = fdata;
 }
 
 /*!
   */
-template <AddressSpaceType kAddressSpaceType, typename Type> inline
+template <AddressSpaceType kAddressSpaceType, inner::Half Type> inline
 void VectorData::vstore_half(
     const float data,
     const size_t offset,
-    AddressSpacePointer<kAddressSpaceType, Type> p,
-    zisc::EnableIfSame<half, std::remove_cv_t<Type>>) noexcept
+    AddressSpacePointer<kAddressSpaceType, Type> p) noexcept
 {
   vstore_half(data, offset, p.get());
 }
 
 /*!
   */
-template <typename Type> inline
+inline
 void VectorData::vstore_half2(
     const float2& data,
     const size_t offset,
-    Type p,
-    zisc::EnableIfSame<half*, std::remove_cv_t<Type>>) noexcept
+    half* p) noexcept
 {
   Vec::vstore_halfn(data, offset, p);
 }
 
 /*!
   */
-template <AddressSpaceType kAddressSpaceType, typename Type> inline
+template <AddressSpaceType kAddressSpaceType, inner::Half Type> inline
 void VectorData::vstore_half2(
     const float2& data,
     const size_t offset,
-    AddressSpacePointer<kAddressSpaceType, Type> p,
-    zisc::EnableIfSame<half, std::remove_cv_t<Type>>) noexcept
+    AddressSpacePointer<kAddressSpaceType, Type> p) noexcept
 {
   vstore_half2(data, offset, p.get());
 }
 
 /*!
   */
-template <typename Type> inline
+inline
 void VectorData::vstore_half3(
     const float3& data,
     const size_t offset,
-    Type p,
-    zisc::EnableIfSame<half*, std::remove_cv_t<Type>>) noexcept
+    half* p) noexcept
 {
   Vec::vstore_halfn(data, offset, p);
 }
 
 /*!
   */
-template <AddressSpaceType kAddressSpaceType, typename Type> inline
+template <AddressSpaceType kAddressSpaceType, inner::Half Type> inline
 void VectorData::vstore_half3(
     const float3& data,
     const size_t offset,
-    AddressSpacePointer<kAddressSpaceType, Type> p,
-    zisc::EnableIfSame<half, std::remove_cv_t<Type>>) noexcept
+    AddressSpacePointer<kAddressSpaceType, Type> p) noexcept
 {
   vstore_half3(data, offset, p.get());
 }
 
 /*!
   */
-template <typename Type> inline
+inline
 void VectorData::vstore_half4(
     const float4& data,
     const size_t offset,
-    Type p,
-    zisc::EnableIfSame<half*, std::remove_cv_t<Type>>) noexcept
+    half* p) noexcept
 {
   Vec::vstore_halfn(data, offset, p);
 }
 
 /*!
   */
-template <AddressSpaceType kAddressSpaceType, typename Type> inline
+template <AddressSpaceType kAddressSpaceType, inner::Half Type> inline
 void VectorData::vstore_half4(
     const float4& data,
     const size_t offset,
-    AddressSpacePointer<kAddressSpaceType, Type> p,
-    zisc::EnableIfSame<half, std::remove_cv_t<Type>>) noexcept
+    AddressSpacePointer<kAddressSpaceType, Type> p) noexcept
 {
   vstore_half4(data, offset, p.get());
 }
@@ -1515,7 +1492,7 @@ Vector<float, kN> VectorData::Vec::vload_halfn(
   Vector<float, kN> data;
   const half* address = p + offset * kN;
   for (size_t i = 0; i < kN; ++i) {
-    const float v = zisc::castBinary<float>(address[i]);
+    const float v = zisc::cast<float>(address[i]);
     data[i] = v;
   }
   return data;
@@ -1540,17 +1517,16 @@ void VectorData::Vec::vstore_halfn(
 {
   half* address = p + offset * kN;
   for (size_t i = 0; i < kN; ++i) {
-    const half v = zisc::castBinary<half>(data[i]);
+    const half v = zisc::cast<half>(data[i]);
     address[i] = v;
   }
 }
 
 /*!
   */
-template <typename Type> inline
+template <zisc::Pointer Pointer> inline
 auto vload2(const size_t offset,
-            const Type p,
-            zisc::EnableIf<std::is_pointer_v<Type>>) noexcept
+            const Pointer p) noexcept
 {
   const auto result = VectorData::vload2(offset, p);
   return result;
@@ -1568,10 +1544,9 @@ auto vload2(const size_t offset,
 
 /*!
   */
-template <typename Type> inline
+template <zisc::Pointer Pointer> inline
 auto vload3(const size_t offset,
-            const Type p,
-            zisc::EnableIf<std::is_pointer_v<Type>>) noexcept
+            const Pointer p) noexcept
 {
   const auto result = VectorData::vload3(offset, p);
   return result;
@@ -1589,10 +1564,9 @@ auto vload3(const size_t offset,
 
 /*!
   */
-template <typename Type> inline
+template <zisc::Pointer Pointer> inline
 auto vload4(const size_t offset,
-            const Type p,
-            zisc::EnableIf<std::is_pointer_v<Type>>) noexcept
+            const Pointer p) noexcept
 {
   const auto result = VectorData::vload4(offset, p);
   return result;
@@ -1609,12 +1583,10 @@ auto vload4(const size_t offset,
 
 /*!
   */
-template <typename Type> inline
+inline
 float vload_half(
     const size_t offset,
-    const Type p,
-    zisc::EnableIf<std::is_pointer_v<Type> &&
-                   std::is_same_v<half, std::remove_cv_t<std::remove_pointer_t<Type>>>>) noexcept
+    const half* p) noexcept
 {
   const auto result = VectorData::vload_half(offset, p);
   return result;
@@ -1622,10 +1594,9 @@ float vload_half(
 
 /*!
   */
-template <AddressSpaceType kAddressSpaceType, typename Type> inline
+template <AddressSpaceType kAddressSpaceType, inner::Half Type> inline
 float vload_half(const size_t offset,
-                 const AddressSpacePointer<kAddressSpaceType, Type>& p,
-                 zisc::EnableIfSame<half, std::remove_cv_t<Type>>) noexcept
+                 const AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept
 {
   const auto result = VectorData::vload_half<kAddressSpaceType, Type>(offset, p);
   return result;
@@ -1633,12 +1604,10 @@ float vload_half(const size_t offset,
 
 /*!
   */
-template <typename Type> inline
+inline
 float2 vload_half2(
     const size_t offset,
-    const Type p,
-    zisc::EnableIf<std::is_pointer_v<Type> &&
-                   std::is_same_v<half, std::remove_cv_t<std::remove_pointer_t<Type>>>>) noexcept
+    const half* p) noexcept
 {
   const auto result = VectorData::vload_half2(offset, p);
   return result;
@@ -1646,10 +1615,9 @@ float2 vload_half2(
 
 /*!
   */
-template <AddressSpaceType kAddressSpaceType, typename Type> inline
+template <AddressSpaceType kAddressSpaceType, inner::Half Type> inline
 float2 vload_half2(const size_t offset,
-                   const AddressSpacePointer<kAddressSpaceType, Type>& p,
-                   zisc::EnableIfSame<half, std::remove_cv_t<Type>>) noexcept
+                   const AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept
 {
   const auto result = VectorData::vload_half2<kAddressSpaceType, Type>(offset, p);
   return result;
@@ -1657,12 +1625,10 @@ float2 vload_half2(const size_t offset,
 
 /*!
   */
-template <typename Type> inline
+inline
 float3 vload_half3(
     const size_t offset,
-    const Type p,
-    zisc::EnableIf<std::is_pointer_v<Type> &&
-                   std::is_same_v<half, std::remove_cv_t<std::remove_pointer_t<Type>>>>) noexcept
+    const half* p) noexcept
 {
   const auto result = VectorData::vload_half3(offset, p);
   return result;
@@ -1670,10 +1636,9 @@ float3 vload_half3(
 
 /*!
   */
-template <AddressSpaceType kAddressSpaceType, typename Type> inline
+template <AddressSpaceType kAddressSpaceType, inner::Half Type> inline
 float3 vload_half3(const size_t offset,
-                   const AddressSpacePointer<kAddressSpaceType, Type>& p,
-                   zisc::EnableIfSame<half, std::remove_cv_t<Type>>) noexcept
+                   const AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept
 {
   const auto result = VectorData::vload_half3<kAddressSpaceType, Type>(offset, p);
   return result;
@@ -1681,22 +1646,19 @@ float3 vload_half3(const size_t offset,
 
 /*!
   */
-template <typename Type> inline
+inline
 float4 vload_half4(
     const size_t offset,
-    const Type p,
-    zisc::EnableIf<std::is_pointer_v<Type> &&
-                   std::is_same_v<half, std::remove_cv_t<std::remove_pointer_t<Type>>>>) noexcept
+    const half* p) noexcept
 {
   const auto result = VectorData::vload_half4(offset, p);
   return result;
 }
 /*!
   */
-template <AddressSpaceType kAddressSpaceType, typename Type> inline
+template <AddressSpaceType kAddressSpaceType, inner::Half Type> inline
 float4 vload_half4(const size_t offset,
-                   const AddressSpacePointer<kAddressSpaceType, Type>& p,
-                   zisc::EnableIfSame<half, std::remove_cv_t<Type>>) noexcept
+                   const AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept
 {
   const auto result = VectorData::vload_half4<kAddressSpaceType, Type>(offset, p);
   return result;
@@ -1764,96 +1726,88 @@ void vstore4(const Vector<Type, 4>& data,
 
 /*!
   */
-template <typename Type> inline
+inline
 void vstore_half(
     const float data,
     const size_t offset,
-    Type p,
-    zisc::EnableIfSame<half*, std::remove_cv_t<Type>>) noexcept
+    half* p) noexcept
 {
   VectorData::vstore_half(data, offset, p);
 }
 
 /*!
   */
-template <AddressSpaceType kAddressSpaceType, typename Type> inline
+template <AddressSpaceType kAddressSpaceType, inner::Half Type> inline
 void vstore_half(
     const float data,
     const size_t offset,
-    AddressSpacePointer<kAddressSpaceType, Type> p,
-    zisc::EnableIfSame<half, std::remove_cv_t<Type>>) noexcept
+    AddressSpacePointer<kAddressSpaceType, Type> p) noexcept
 {
   VectorData::vstore_half<kAddressSpaceType, Type>(data, offset, p);
 }
 
 /*!
   */
-template <typename Type> inline
+inline
 void vstore_half2(
     const float2& data,
     const size_t offset,
-    Type p,
-    zisc::EnableIfSame<half*, std::remove_cv_t<Type>>) noexcept
+    half* p) noexcept
 {
   VectorData::vstore_half2(data, offset, p);
 }
 
 /*!
   */
-template <AddressSpaceType kAddressSpaceType, typename Type> inline
+template <AddressSpaceType kAddressSpaceType, inner::Half Type> inline
 void vstore_half2(
     const float2& data,
     const size_t offset,
-    AddressSpacePointer<kAddressSpaceType, Type> p,
-    zisc::EnableIfSame<half, std::remove_cv_t<Type>>) noexcept
+    AddressSpacePointer<kAddressSpaceType, Type> p) noexcept
 {
   VectorData::vstore_half2<kAddressSpaceType, Type>(data, offset, p);
 }
 
 /*!
   */
-template <typename Type> inline
+inline
 void vstore_half3(
     const float3& data,
     const size_t offset,
-    Type p,
-    zisc::EnableIfSame<half*, std::remove_cv_t<Type>>) noexcept
+    half* p) noexcept
 {
   VectorData::vstore_half3(data, offset, p);
 }
 
 /*!
   */
-template <AddressSpaceType kAddressSpaceType, typename Type> inline
+template <AddressSpaceType kAddressSpaceType, inner::Half Type> inline
 void vstore_half3(
     const float3& data,
     const size_t offset,
-    AddressSpacePointer<kAddressSpaceType, Type> p,
-    zisc::EnableIfSame<half, std::remove_cv_t<Type>>) noexcept
+    AddressSpacePointer<kAddressSpaceType, Type> p) noexcept
 {
   VectorData::vstore_half3<kAddressSpaceType, Type>(data, offset, p);
 }
 
 /*!
   */
-template <typename Type> inline
+inline
 void vstore_half4(
     const float4& data,
     const size_t offset,
-    Type p,
-    zisc::EnableIfSame<half*, std::remove_cv_t<Type>>) noexcept
+    half* p) noexcept
 {
   VectorData::vstore_half4(data, offset, p);
 }
 
 /*!
   */
-template <AddressSpaceType kAddressSpaceType, typename Type> inline
+template <AddressSpaceType kAddressSpaceType, inner::Half Type> inline
 void vstore_half4(
     const float4& data,
     const size_t offset,
-    AddressSpacePointer<kAddressSpaceType, Type> p,
-    zisc::EnableIfSame<half, std::remove_cv_t<Type>>) noexcept
+    AddressSpacePointer<kAddressSpaceType, Type> p) noexcept
 {
   VectorData::vstore_half4<kAddressSpaceType, Type>(data, offset, p);
 }

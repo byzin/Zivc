@@ -49,7 +49,7 @@ function(Zivc_initCpuBackend target)
 
   # Compiler flags
   include(@zisc_path@/cmake/compiler.cmake)
-  set_target_properties(${target} PROPERTIES CXX_STANDARD 17
+  set_target_properties(${target} PROPERTIES CXX_STANDARD 20
                                              CXX_STANDARD_REQUIRED ON)
   Zisc_getCxxWarningFlags(cxx_compile_warning_flags)
   Zivc_getZivcKernelFlags(zivc_compile_flags zivc_definitions)
@@ -204,6 +204,10 @@ function(Zivc_getSpirvOptOptions opt_options)
   # Optimization
   list(APPEND options -O
                       --combine-access-chains
+                      --local-redundancy-elimination
+                      --loop-invariant-code-motion
+                      --loop-unswitch
+                      --remove-duplicates
                       --strength-reduction
                       --strip-debug
                       --unify-const)

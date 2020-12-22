@@ -25,8 +25,8 @@
 #include <type_traits>
 // Zisc
 #include "zisc/error.hpp"
-#include "zisc/std_memory_resource.hpp"
 #include "zisc/utility.hpp"
+#include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "cpu_buffer.hpp"
 #include "cpu_device.hpp"
@@ -223,7 +223,7 @@ CpuKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
 parentImpl() noexcept
 {
   auto p = BaseKernel::getParent();
-  return *zisc::treatAs<CpuDevice*>(p);
+  return *zisc::reinterp<CpuDevice*>(p);
 }
 
 /*!
@@ -238,7 +238,7 @@ CpuKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
 parentImpl() const noexcept
 {
   const auto p = BaseKernel::getParent();
-  return *zisc::treatAs<const CpuDevice*>(p);
+  return *zisc::reinterp<const CpuDevice*>(p);
 }
 
 /*!

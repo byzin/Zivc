@@ -26,9 +26,9 @@
 #include <vulkan/vulkan.hpp>
 #endif // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
 // Zisc
-#include "zisc/simple_memory_resource.hpp"
-#include "zisc/std_memory_resource.hpp"
 #include "zisc/utility.hpp"
+#include "zisc/memory/simple_memory_resource.hpp"
+#include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "zivc/zivc.hpp"
 #if defined(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)

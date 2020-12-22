@@ -322,10 +322,10 @@ TypeN Relation::bitselect(const TypeN& a, const TypeN& b, const TypeN& c) noexce
     else {
       // Floating point pattern
       using BitType = typename zisc::BinaryFromBytes<sizeof(TypeN)>::BitType;
-      const auto data = bitselect(*zisc::treatAs<const BitType*>(&a),
-                                  *zisc::treatAs<const BitType*>(&b),
-                                  *zisc::treatAs<const BitType*>(&c));
-      const auto result = *zisc::treatAs<const TypeN*>(&data);
+      const auto data = bitselect(*zisc::reinterp<const BitType*>(&a),
+                                  *zisc::reinterp<const BitType*>(&b),
+                                  *zisc::reinterp<const BitType*>(&c));
+      const auto result = *zisc::reinterp<const TypeN*>(&data);
       return result;
     }
   }

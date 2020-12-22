@@ -23,7 +23,7 @@
 // VMA
 #include "vk_mem_alloc.h"
 // Zisc
-#include "zisc/std_memory_resource.hpp"
+#include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "zivc/buffer.hpp"
 #include "zivc/zivc_config.hpp"

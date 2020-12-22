@@ -20,7 +20,7 @@
 #include <string_view>
 // Zisc
 #include "zisc/non_copyable.hpp"
-#include "zisc/std_memory_resource.hpp"
+#include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "id_data.hpp"
 #include "zivc/zivc_config.hpp"

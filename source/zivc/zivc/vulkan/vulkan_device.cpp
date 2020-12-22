@@ -31,10 +31,10 @@
 // VMA
 #include <vk_mem_alloc.h>
 // Zisc
-#include "zisc/bitset.hpp"
 #include "zisc/error.hpp"
-#include "zisc/std_memory_resource.hpp"
 #include "zisc/utility.hpp"
+#include "zisc/memory/std_memory_resource.hpp"
+#include "zisc/thread/bitset.hpp"
 // Zivc
 #include "vulkan_device_info.hpp"
 #include "vulkan_sub_platform.hpp"
@@ -136,7 +136,7 @@ std::size_t VulkanDevice::peakMemoryUsage(const std::size_t number) const noexce
   */
 void VulkanDevice::returnFence(Fence* fence) noexcept
 {
-  auto dest = zisc::treatAs<zivcvk::Fence*>(std::addressof(fence->data()));
+  auto dest = zisc::reinterp<zivcvk::Fence*>(std::addressof(fence->data()));
   *dest = zivcvk::Fence{};
 
   auto& fence_list = *fence_list_;
@@ -170,7 +170,7 @@ void VulkanDevice::submit(const VkCommandBuffer& command_buffer,
   const zivcvk::Queue que{q};
   zivcvk::Fence fen{};
   if (fence.isActive())
-    fen = *zisc::treatAs<const zivcvk::Fence*>(std::addressof(fence.data()));
+    fen = *zisc::reinterp<const zivcvk::Fence*>(std::addressof(fence.data()));
   zivcvk::SubmitInfo info{};
   info.setCommandBufferCount(1);
   info.setPCommandBuffers(std::addressof(command));
@@ -323,7 +323,7 @@ void VulkanDevice::waitForCompletion(const Fence& fence) const noexcept
   const zivcvk::Device d{device()};
   const auto loader = dispatcher().loaderImpl();
 
-  auto f = zisc::treatAs<const zivcvk::Fence*>(std::addressof(fence.data()));
+  auto f = zisc::reinterp<const zivcvk::Fence*>(std::addressof(fence.data()));
   constexpr uint64b timeout = std::numeric_limits<uint64b>::max();
   const auto result = d.waitForFences(1, f, VK_TRUE, timeout, *loader);
   if (result != zivcvk::Result::eSuccess) {
@@ -860,7 +860,7 @@ void VulkanDevice::updateDebugInfoImpl() noexcept
     const zivcvk::Device d{handle};
     if (d) {
       setDebugInfo(zisc::cast<VkObjectType>(d.objectType),
-                   *zisc::treatAs<const uint64b*>(std::addressof(handle)),
+                   *zisc::reinterp<const uint64b*>(std::addressof(handle)),
                    id_data.name(),
                    this);
     }
@@ -874,7 +874,7 @@ void VulkanDevice::updateDebugInfoImpl() noexcept
       std::strcat(obj_name.data(), id_data.name().data());
       std::strcat(obj_name.data(), "_pool");
       setDebugInfo(zisc::cast<VkObjectType>(p.objectType),
-                   *zisc::treatAs<const uint64b*>(std::addressof(handle)),
+                   *zisc::reinterp<const uint64b*>(std::addressof(handle)),
                    obj_name.data(),
                    this);
     }
@@ -1320,7 +1320,7 @@ void VulkanDevice::updateDescriptorSet(const VkDescriptorSet& descriptor_set,
 
   zivcvk::Device d{device()};
   const auto loader = dispatcher().loaderImpl();
-  auto descs = zisc::treatAs<const zivcvk::WriteDescriptorSet*>(write_desc_list);
+  auto descs = zisc::reinterp<const zivcvk::WriteDescriptorSet*>(write_desc_list);
   d.updateDescriptorSets(zisc::cast<uint32b>(n), descs, 0, nullptr, *loader);
 }
 
@@ -1343,7 +1343,7 @@ void VulkanDevice::updateShaderModuleDebugInfo(const uint32b id) noexcept
 
     const zivcvk::ShaderModule m{module_data.module_};
     setDebugInfo(zisc::cast<VkObjectType>(m.objectType),
-                 *zisc::treatAs<const uint64b*>(std::addressof(module_data.module_)),
+                 *zisc::reinterp<const uint64b*>(std::addressof(module_data.module_)),
                  module_name.data(),
                  this);
   }

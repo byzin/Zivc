@@ -28,8 +28,8 @@
 #include <vk_mem_alloc.h>
 // Zisc
 #include "zisc/error.hpp"
-#include "zisc/std_memory_resource.hpp"
 #include "zisc/utility.hpp"
+#include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "vulkan_device.hpp"
 #include "vulkan_device_info.hpp"
@@ -389,7 +389,7 @@ void VulkanBuffer<T>::updateDebugInfoImpl() noexcept
   const IdData& id_data = ZivcObject::id();
   const std::string_view buffer_name = id_data.name();
   if (buffer() != VK_NULL_HANDLE) {
-    auto handle = zisc::treatAs<const uint64b*>(std::addressof(buffer()));
+    auto handle = zisc::reinterp<const uint64b*>(std::addressof(buffer()));
     device.setDebugInfo(VK_OBJECT_TYPE_BUFFER, *handle, buffer_name, this);
   }
   if (command_buffer_ != VK_NULL_HANDLE) {
@@ -397,7 +397,7 @@ void VulkanBuffer<T>::updateDebugInfoImpl() noexcept
     const std::string_view suffix{"_commandbuffer"};
     std::strncpy(obj_name.data(), buffer_name.data(), buffer_name.size() + 1);
     std::strncat(obj_name.data(), suffix.data(), suffix.size());
-    auto handle = zisc::treatAs<const uint64b*>(std::addressof(command_buffer_));
+    auto handle = zisc::reinterp<const uint64b*>(std::addressof(command_buffer_));
     device.setDebugInfo(VK_OBJECT_TYPE_COMMAND_BUFFER, *handle, obj_name.data(), this);
   }
 }
@@ -487,7 +487,7 @@ LaunchResult VulkanBuffer<T>::fillFastOnDevice(
   // Create a data for fill
   uint32b data = 0;
   constexpr std::size_t n = sizeof(data) / sizeof(T);
-  std::fill_n(zisc::treatAs<Pointer>(std::addressof(data)), n, value);
+  std::fill_n(zisc::reinterp<Pointer>(std::addressof(data)), n, value);
 
   VulkanDevice& device = parentImpl();
   VkCommandBuffer command = commandBuffer();
@@ -607,7 +607,7 @@ template <typename T> inline
 VulkanDevice& VulkanBuffer<T>::parentImpl() noexcept
 {
   auto p = Buffer<T>::getParent();
-  return *zisc::treatAs<VulkanDevice*>(p);
+  return *zisc::reinterp<VulkanDevice*>(p);
 }
 
 /*!
@@ -619,7 +619,7 @@ template <typename T> inline
 const VulkanDevice& VulkanBuffer<T>::parentImpl() const noexcept
 {
   const auto p = Buffer<T>::getParent();
-  return *zisc::treatAs<const VulkanDevice*>(p);
+  return *zisc::reinterp<const VulkanDevice*>(p);
 }
 
 // Device

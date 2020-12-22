@@ -24,8 +24,8 @@
 #include <vector>
 // Zisc
 #include "zisc/error.hpp"
-#include "zisc/std_memory_resource.hpp"
 #include "zisc/utility.hpp"
+#include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "utility/vulkan.hpp"
 #include "utility/vulkan_dispatch_loader.hpp"
@@ -264,7 +264,7 @@ void VulkanDeviceInfo::fetchExtensionProperties(
     extension_properties_list_.resize(zisc::cast<std::size_t>(size));
   }
   {
-    auto data = zisc::treatAs<Props*>(extension_properties_list_.data());
+    auto data = zisc::reinterp<Props*>(extension_properties_list_.data());
     auto result = d.enumerateDeviceExtensionProperties(nullptr, &size,
                                                        data, *loader);
     if (result != zivcvk::Result::eSuccess) {
@@ -410,7 +410,7 @@ void VulkanDeviceInfo::fetchLayerProperties(
     layer_properties_list_.resize(zisc::cast<std::size_t>(size));
   }
   {
-    auto data = zisc::treatAs<Props*>(layer_properties_list_.data());
+    auto data = zisc::reinterp<Props*>(layer_properties_list_.data());
     auto result = d.enumerateDeviceLayerProperties(&size, data, *loader);
     if (result != zivcvk::Result::eSuccess) {
       //! \todo Throw an exception
@@ -548,7 +548,7 @@ void VulkanDeviceInfo::fetchToolProperties(
     tool_properties_list_.resize(zisc::cast<std::size_t>(size));
   }
   {
-    auto data = zisc::treatAs<Props*>(tool_properties_list_.data());
+    auto data = zisc::reinterp<Props*>(tool_properties_list_.data());
     auto result = d.getToolPropertiesEXT(&size, data, *loader);
     if (result != zivcvk::Result::eSuccess) {
       //! \todo Throw an exception
@@ -578,7 +578,7 @@ void VulkanDeviceInfo::fetchQueueFamilyProperties(
     queue_family_properties_list_.resize(zisc::cast<std::size_t>(size));
   }
   {
-    auto data = zisc::treatAs<Props*>(queue_family_properties_list_.data());
+    auto data = zisc::reinterp<Props*>(queue_family_properties_list_.data());
     d.getQueueFamilyProperties(&size, data, *loader);
   }
 }

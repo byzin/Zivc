@@ -17,9 +17,9 @@
 #include <memory>
 #include <string>
 // Zisc
-#include "zisc/simple_memory_resource.hpp"
-#include "zisc/std_memory_resource.hpp"
 #include "zisc/utility.hpp"
+#include "zisc/memory/simple_memory_resource.hpp"
+#include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "zivc/zivc.hpp"
 

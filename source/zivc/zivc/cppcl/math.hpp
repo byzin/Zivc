@@ -14,8 +14,6 @@
 #include <climits>
 #include <cmath>
 #include <type_traits>
-// Zisc
-#include "zisc/math_const.hpp"
 // Zivc
 #include "vector.hpp"
 #include "zivc/zivc_config.hpp"

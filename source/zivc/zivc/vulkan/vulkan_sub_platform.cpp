@@ -26,8 +26,8 @@
 #include <vector>
 // Zisc
 #include "zisc/error.hpp"
-#include "zisc/std_memory_resource.hpp"
 #include "zisc/utility.hpp"
+#include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "vulkan_device.hpp"
 #include "vulkan_device_info.hpp"
@@ -255,7 +255,7 @@ auto VulkanSubPlatform::Callbacks::allocateMemory(
   auto alloc_data = zisc::cast<AllocatorData*>(user_data);
   void* memory = alloc_data->mem_resource_->allocate(size, alignment);
   //
-  const std::size_t address = zisc::treatAs<std::size_t>(memory);
+  const std::size_t address = zisc::reinterp<std::size_t>(memory);
   const auto mem_data = std::make_pair(size, alignment);
   //! \todo Thread safe
   alloc_data->mem_map_.emplace(std::make_pair(address, mem_data));
@@ -275,7 +275,7 @@ void VulkanSubPlatform::Callbacks::freeMemory(
   ZISC_ASSERT(user_data != nullptr, "The user data is null.");
   auto alloc_data = zisc::cast<AllocatorData*>(user_data);
   if (memory) {
-    const std::size_t address = zisc::treatAs<std::size_t>(memory);
+    const std::size_t address = zisc::reinterp<std::size_t>(memory);
     const auto mem = alloc_data->mem_map_.find(address);
     ZISC_ASSERT(mem != alloc_data->mem_map_.end(), "The mem is null.");
     const auto& data = mem->second;
@@ -488,7 +488,7 @@ auto VulkanSubPlatform::Callbacks::reallocateMemory(
   // Copy data
   if (original_memory && memory) {
     auto alloc_data = zisc::cast<AllocatorData*>(user_data);
-    const std::size_t address = zisc::treatAs<std::size_t>(original_memory);
+    const std::size_t address = zisc::reinterp<std::size_t>(original_memory);
     //! \todo Thread safe
     const auto mem = alloc_data->mem_map_.find(address);
     ZISC_ASSERT(mem != alloc_data->mem_map_.end(), "The mem is null.");
@@ -634,7 +634,7 @@ void VulkanSubPlatform::initDeviceList()
   auto device_list = ins.enumeratePhysicalDevices(alloc, *loader);
 
   using DstDeviceList = decltype(device_list_)::element_type;
-  auto list_ptr = zisc::treatAs<DstDeviceList*>(std::addressof(device_list));
+  auto list_ptr = zisc::reinterp<DstDeviceList*>(std::addressof(device_list));
   device_list_ = zisc::pmr::allocateUnique<DstDeviceList>(
       memoryResource(),
       std::move(*list_ptr));

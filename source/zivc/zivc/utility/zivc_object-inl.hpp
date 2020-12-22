@@ -20,7 +20,7 @@
 #include <memory>
 #include <utility>
 // Zisc
-#include "zisc/std_memory_resource.hpp"
+#include "zisc/memory/std_memory_resource.hpp"
 #include "zisc/utility.hpp"
 // Zivc
 #include "id_data.hpp"

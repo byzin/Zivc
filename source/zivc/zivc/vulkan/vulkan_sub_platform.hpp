@@ -25,8 +25,8 @@
 // Vulkan
 #include <vulkan/vulkan.h>
 // Zisc
-#include "zisc/std_memory_resource.hpp"
 #include "zisc/non_copyable.hpp"
+#include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "vulkan_device_info.hpp"
 #include "utility/vulkan_dispatch_loader.hpp"

@@ -27,9 +27,9 @@
 // VMA
 #include <vk_mem_alloc.h>
 // Zisc
-#include "zisc/bitset.hpp"
-#include "zisc/memory.hpp"
-#include "zisc/std_memory_resource.hpp"
+#include "zisc/memory/memory.hpp"
+#include "zisc/memory/std_memory_resource.hpp"
+#include "zisc/thread/bitset.hpp"
 // Zivc
 #include "utility/vulkan_dispatch_loader.hpp"
 #include "zivc/buffer.hpp"

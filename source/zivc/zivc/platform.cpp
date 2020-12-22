@@ -21,8 +21,8 @@
 #include <utility>
 #include <vector>
 // Zisc
-#include "zisc/std_memory_resource.hpp"
 #include "zisc/utility.hpp"
+#include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "device.hpp"
 #include "platform_options.hpp"

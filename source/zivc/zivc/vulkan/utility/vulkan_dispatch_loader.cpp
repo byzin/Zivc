@@ -20,7 +20,7 @@
 #include <utility>
 // Zisc
 #include "zisc/error.hpp"
-#include "zisc/std_memory_resource.hpp"
+#include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "vulkan.hpp"
 

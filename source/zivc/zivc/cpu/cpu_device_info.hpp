@@ -21,8 +21,8 @@
 #include <memory>
 #include <string_view>
 // Zisc
-#include "zisc/memory.hpp"
-#include "zisc/std_memory_resource.hpp"
+#include "zisc/memory/memory.hpp"
+#include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "zivc/device_info.hpp"
 #include "zivc/zivc_config.hpp"

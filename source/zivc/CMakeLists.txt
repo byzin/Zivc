@@ -112,7 +112,7 @@ function(Zivc_getZivcWarningFlags zivc_warning_flags)
   # Suppress warnings
   if(Z_CLANG)
     list(APPEND warning_flags -Wno-float-equal
-                              -Wno-padded
+                              # -Wno-padded
                               -Wno-sign-conversion
                               )
   elseif(Z_GCC)
@@ -203,7 +203,7 @@ source_group(${PROJECT_NAME} FILES ${zivc_source_files})
 
 # Compiler flags
 include(${zisc_path}/cmake/compiler.cmake)
-set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 17
+set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20
                                                  CXX_STANDARD_REQUIRED ON)
 
 Zisc_getCxxWarningFlags(cxx_compile_warning_flags)

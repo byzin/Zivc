@@ -18,9 +18,8 @@
 #include <limits>
 #include <type_traits>
 // Zisc
-#include "zisc/math.hpp"
-#include "zisc/type_traits.hpp"
 #include "zisc/utility.hpp"
+#include "zisc/math/math.hpp"
 // Zivc
 #include "vector.hpp"
 #include "zivc/zivc_config.hpp"

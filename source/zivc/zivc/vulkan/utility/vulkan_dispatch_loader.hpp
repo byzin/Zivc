@@ -21,7 +21,7 @@
 // Vulkan
 #include <vulkan/vulkan.h>
 // Zisc
-#include "zisc/std_memory_resource.hpp"
+#include "zisc/memory/std_memory_resource.hpp"
 
 namespace zivcvk {
 

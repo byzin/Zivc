@@ -23,8 +23,8 @@
 #include <vector>
 // Zisc
 #include "zisc/non_copyable.hpp"
-#include "zisc/std_memory_resource.hpp"
 #include "zisc/utility.hpp"
+#include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "device.hpp"
 #include "sub_platform.hpp"

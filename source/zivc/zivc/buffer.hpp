@@ -23,8 +23,8 @@
 #include <type_traits>
 // Zisc
 #include "zisc/non_copyable.hpp"
-#include "zisc/std_memory_resource.hpp"
 #include "zisc/zisc_config.hpp"
+#include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "zivc_config.hpp"
 #include "utility/id_data.hpp"
@@ -198,11 +198,11 @@ class Buffer : public ZivcObject
 
   //! Convert a type of a buffer interface to DstType
   template <typename DstType>
-  Buffer<DstType>* treatAs() noexcept;
+  Buffer<DstType>* reinterp() noexcept;
 
   //! Convert a type of a buffer interface to DstType
   template <typename DstType>
-  const Buffer<DstType>* treatAs() const noexcept;
+  const Buffer<DstType>* reinterp() const noexcept;
 
   //! Return the buffer usage flag
   BufferUsage usage() const noexcept;
@@ -342,11 +342,11 @@ LaunchResult copy(const Buffer<Type>& source,
 //
 //  //! Convert a type of a buffer interface to DstType
 //  template <typename DstType>
-//  Buffer<kDescriptor, DstType>* treatAs() noexcept;
+//  Buffer<kDescriptor, DstType>* reinterp() noexcept;
 //
 //  //! Convert a type of a buffer interface to DstType
 //  template <typename DstType>
-//  const Buffer<kDescriptor, DstType>* treatAs() const noexcept;
+//  const Buffer<kDescriptor, DstType>* reinterp() const noexcept;
 //
 //  //! Return the buffer usage flag
 //  BufferUsage usage() const noexcept;

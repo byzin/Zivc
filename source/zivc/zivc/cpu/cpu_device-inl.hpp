@@ -20,9 +20,9 @@
 #include <cstddef>
 #include <memory>
 // Zisc
-#include "zisc/memory.hpp"
-#include "zisc/thread_manager.hpp"
 #include "zisc/utility.hpp"
+#include "zisc/memory/memory.hpp"
+#include "zisc/thread/thread_manager.hpp"
 // Zivc
 #include "cpu_device_info.hpp"
 #include "cpu_sub_platform.hpp"

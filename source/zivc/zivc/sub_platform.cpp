@@ -18,7 +18,7 @@
 #include <memory>
 #include <utility>
 // Zisc
-#include "zisc/std_memory_resource.hpp"
+#include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "platform.hpp"
 #include "platform_options.hpp"

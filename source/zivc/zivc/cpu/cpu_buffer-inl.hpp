@@ -25,8 +25,8 @@
 #include <vector>
 // Zisc
 #include "zisc/error.hpp"
-#include "zisc/std_memory_resource.hpp"
 #include "zisc/utility.hpp"
+#include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "cpu_device.hpp"
 #include "zivc/buffer.hpp"
@@ -274,7 +274,7 @@ template <typename T> inline
 CpuDevice& CpuBuffer<T>::parentImpl() noexcept
 {
   auto p = Buffer<T>::getParent();
-  return *zisc::treatAs<CpuDevice*>(p);
+  return *zisc::reinterp<CpuDevice*>(p);
 }
 
 /*!
@@ -286,7 +286,7 @@ template <typename T> inline
 const CpuDevice& CpuBuffer<T>::parentImpl() const noexcept
 {
   const auto p = Buffer<T>::getParent();
-  return *zisc::treatAs<const CpuDevice*>(p);
+  return *zisc::reinterp<const CpuDevice*>(p);
 }
 
 /*!

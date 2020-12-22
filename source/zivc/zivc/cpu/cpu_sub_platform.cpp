@@ -19,8 +19,8 @@
 #include <memory>
 #include <vector>
 // Zisc
-#include "zisc/std_memory_resource.hpp"
 #include "zisc/utility.hpp"
+#include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "cpu_device.hpp"
 #include "cpu_device_info.hpp"

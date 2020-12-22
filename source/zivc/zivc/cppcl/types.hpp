@@ -34,4 +34,6 @@ using uintptr_t = uint32b;
 
 } // namespace zivc
 
+#include "types-inl.hpp"
+
 #endif // ZIVC_CL_TYPES_HPP

@@ -30,7 +30,7 @@
 // Zisc
 #include "zisc/error.hpp"
 #include "zisc/utility.hpp"
-#include "zisc/std_memory_resource.hpp"
+#include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "vulkan_device_info.hpp"
 #include "utility/vulkan_dispatch_loader.hpp"
@@ -276,7 +276,7 @@ inline
 VulkanSubPlatform& VulkanDevice::parentImpl() noexcept
 {
   auto p = getParent();
-  return *zisc::treatAs<VulkanSubPlatform*>(p);
+  return *zisc::reinterp<VulkanSubPlatform*>(p);
 }
 
 /*!
@@ -288,7 +288,7 @@ inline
 const VulkanSubPlatform& VulkanDevice::parentImpl() const noexcept
 {
   const auto p = getParent();
-  return *zisc::treatAs<const VulkanSubPlatform*>(p);
+  return *zisc::reinterp<const VulkanSubPlatform*>(p);
 }
 
 /*!

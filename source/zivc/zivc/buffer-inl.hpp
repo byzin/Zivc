@@ -22,8 +22,8 @@
 #include <type_traits>
 #include <utility>
 // Zisc
-#include "zisc/std_memory_resource.hpp"
 #include "zisc/utility.hpp"
+#include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "zivc_config.hpp"
 #include "utility/id_data.hpp"
@@ -393,7 +393,7 @@ auto Buffer<T>::mapMemory() const noexcept -> MappedMemory<ConstType>
 {
   using MappedMem = MappedMemory<ConstType>;
   typename MappedMem::ConstBufferP p = isHostVisible()
-      ? this->treatAs<ConstType>()
+      ? this->reinterp<ConstType>()
       : nullptr;
   MappedMem memory{p};
   return memory;
@@ -405,10 +405,10 @@ auto Buffer<T>::mapMemory() const noexcept -> MappedMemory<ConstType>
   \return No description
   */
 template <typename T> template <typename DstType> inline
-Buffer<DstType>* Buffer<T>::treatAs() noexcept
+Buffer<DstType>* Buffer<T>::reinterp() noexcept
 {
   using DstBuffer = Buffer<DstType>;
-  DstBuffer* dst = zisc::treatAs<DstBuffer*>(this);
+  DstBuffer* dst = zisc::reinterp<DstBuffer*>(this);
   return dst;
 }
 
@@ -418,10 +418,10 @@ Buffer<DstType>* Buffer<T>::treatAs() noexcept
   \return No description
   */
 template <typename T> template <typename DstType> inline
-const Buffer<DstType>* Buffer<T>::treatAs() const noexcept
+const Buffer<DstType>* Buffer<T>::reinterp() const noexcept
 {
   using DstBuffer = Buffer<DstType>;
-  const DstBuffer* dst = zisc::treatAs<const DstBuffer*>(this);
+  const DstBuffer* dst = zisc::reinterp<const DstBuffer*>(this);
   return dst;
 }
 

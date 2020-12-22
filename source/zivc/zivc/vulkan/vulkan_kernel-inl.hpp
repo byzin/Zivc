@@ -30,8 +30,8 @@
 #include <vulkan/vulkan_core.h>
 // Zisc
 #include "zisc/error.hpp"
-#include "zisc/std_memory_resource.hpp"
 #include "zisc/utility.hpp"
+#include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "vulkan_buffer.hpp"
 #include "vulkan_device.hpp"
@@ -295,7 +295,7 @@ updateDebugInfoImpl() noexcept
       IdData::NameType obj_name{""};
       std::strncpy(obj_name.data(), kernel_name.data(), kernel_name.size() + 1);
       std::strncat(obj_name.data(), suffix.data(), suffix.size());
-      auto handle = zisc::treatAs<const uint64b*>(std::addressof(obj));
+      auto handle = zisc::reinterp<const uint64b*>(std::addressof(obj));
       device.setDebugInfo(type, *handle, obj_name.data(), this);
     }
   };
@@ -508,7 +508,7 @@ VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...
 parentImpl() noexcept
 {
   auto p = BaseKernel::getParent();
-  return *zisc::treatAs<VulkanDevice*>(p);
+  return *zisc::reinterp<VulkanDevice*>(p);
 }
 
 /*!
@@ -523,7 +523,7 @@ VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...
 parentImpl() const noexcept
 {
   auto p = BaseKernel::getParent();
-  return *zisc::treatAs<VulkanDevice*>(p);
+  return *zisc::reinterp<VulkanDevice*>(p);
 }
 
 /*!

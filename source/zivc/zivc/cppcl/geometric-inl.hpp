@@ -15,7 +15,6 @@
 #include <cstddef>
 #include <type_traits>
 // Zisc
-#include "zisc/type_traits.hpp"
 #include "zisc/utility.hpp"
 // Zivc
 #include "math.hpp"

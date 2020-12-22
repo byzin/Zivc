@@ -32,8 +32,9 @@
 #define ZSTD_STATIC_LINKING_ONLY
 #include <zstd.h>
 // Zisc
-#include "zisc/std_memory_resource.hpp"
-#include "zisc/simple_memory_resource.hpp"
+#include "zisc/binary_serializer.hpp"
+#include "zisc/memory/std_memory_resource.hpp"
+#include "zisc/memory/simple_memory_resource.hpp"
 
 namespace {
 
@@ -82,20 +83,13 @@ zisc::pmr::vector<std::byte> loadSpirVFile(std::string_view file_path,
               << std::endl;
     std::abort();
   }
-  std::streamsize spv_size = 0;
-  {
-    const auto begin = spv_file.tellg();
-    spv_file.seekg(0, std::ios_base::end);
-    const auto end = spv_file.tellg();
-    spv_size = end - begin;
-    if (spv_size % 4 != 0) {
-      std::cerr << "[Error] The size of the SPIR-V file '" << file_path
-                << "' is invalid." << std::endl;
-      std::abort();
-    }
-    spv_file.clear();
-    spv_file.seekg(0, std::ios_base::beg);
+  const std::streamsize spv_size = zisc::BSerializer::getDistance(&spv_file);
+  if (spv_size % 4 != 0) {
+    std::cerr << "[Error] The size of the SPIR-V file '" << file_path
+              << "' is invalid." << std::endl;
+    std::abort();
   }
+
   zisc::pmr::vector<std::byte>::allocator_type alloc{params.mem_resource_};
   zisc::pmr::vector<std::byte> spv_data{alloc};
   spv_data.resize(static_cast<std::size_t>(spv_size));

@@ -53,7 +53,7 @@ class Device : public ZivcObject
   Device(IdData&& id) noexcept;
 
   //! Finalize the device
-  virtual ~Device() noexcept;
+  ~Device() noexcept override;
 
 
   //! Destroy the data

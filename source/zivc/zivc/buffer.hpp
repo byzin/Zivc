@@ -147,7 +147,7 @@ class Buffer : public ZivcObject
   Buffer(IdData&& id) noexcept;
 
   //! Finalize the buffer
-  virtual ~Buffer() noexcept;
+  ~Buffer() noexcept override;
 
 
   //! Destroy the buffer

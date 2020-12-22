@@ -170,7 +170,7 @@ class Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...
   Kernel(IdData&& id) noexcept;
 
   //! Finalize the kernel
-  virtual ~Kernel() noexcept;
+  ~Kernel() noexcept override;
 
 
   //! Destroy the buffer

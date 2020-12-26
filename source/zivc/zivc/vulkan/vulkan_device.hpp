@@ -24,16 +24,16 @@
 #include <tuple>
 // Vulkan
 #include <vulkan/vulkan.h>
-// VMA
-#include <vk_mem_alloc.h>
 // Zisc
 #include "zisc/memory/memory.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 #include "zisc/thread/bitset.hpp"
 // Zivc
 #include "utility/vulkan_dispatch_loader.hpp"
+#include "utility/vulkan_memory_allocator.hpp"
 #include "zivc/buffer.hpp"
 #include "zivc/device.hpp"
+#include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/kernel_arg_parser.hpp"
 #include "zivc/utility/id_data.hpp"
@@ -45,7 +45,7 @@ class DeviceInfo;
 class Fence;
 class VulkanDeviceInfo;
 class VulkanSubPlatform;
-template <typename SetType, typename ...ArgTypes> class KernelParameters;
+template <DerivedFromKSet SetType, typename ...ArgTypes> class KernelParameters;
 template <typename SetType> class KernelSet;
 
 /*!
@@ -186,7 +186,7 @@ class VulkanDevice : public Device
   void copyBufferCmd(const VkCommandBuffer& command_buffer,
                      const VkBuffer& source_buffer,
                      const VkBuffer& dest_buffer,
-                     const VkBufferCopy& region);
+                     const VkBufferCopy2KHR& region);
 
   //! Deallocate a device memory
   void deallocateMemory(VkBuffer* buffer,

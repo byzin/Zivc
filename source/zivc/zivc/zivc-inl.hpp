@@ -81,10 +81,12 @@ SharedBuffer<Type> makeBuffer(Device* device, const BufferUsage flag)
   \tparam kDimension No description.
   \tparam SetType No description.
   \tparam ArgTypes No description.
+  \param [in,out] device No description.
   \param [in] parameters No description.
   \return No description
   */
-template <std::size_t kDimension, typename SetType, typename ...ArgTypes>
+template <std::size_t kDimension, DerivedFromKSet SetType, typename ...ArgTypes>
+inline
 SharedKernel<kDimension, SetType, ArgTypes...> makeKernel(
     Device* device,
     const KernelParameters<SetType, ArgTypes...>& parameters)
@@ -239,11 +241,10 @@ SharedKernel<kDimension, SetType, ArgTypes...> makeKernel(
   */
 template <typename SetType, typename ...ArgTypes> inline
 KernelParameters<SetType, ArgTypes...> makeKernelParameters(
-    const KernelSet<SetType>& kernel_set,
+    [[maybe_unused]] const KernelSet<SetType>& kernel_set,
     void (*func)(ArgTypes...),
     std::string_view kernel_name) noexcept
 {
-  static_cast<void>(kernel_set);
   KernelParameters<SetType, ArgTypes...> parameters{func, kernel_name};
   return parameters;
 }

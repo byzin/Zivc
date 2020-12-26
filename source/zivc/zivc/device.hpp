@@ -23,6 +23,7 @@
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "buffer.hpp"
+#include "kernel_set.hpp"
 #include "zivc_config.hpp"
 #include "utility/kernel_arg_parser.hpp"
 #include "utility/id_data.hpp"
@@ -34,7 +35,7 @@ namespace zivc {
 class DeviceInfo;
 class Fence;
 class SubPlatform;
-template <typename SetType, typename ...ArgTypes> class KernelParameters;
+template <DerivedFromKSet SetType, typename ...ArgTypes> class KernelParameters;
 
 /*!
   \brief No brief description
@@ -72,7 +73,7 @@ class Device : public ZivcObject
   SharedBuffer<T> makeBuffer(const BufferUsage flag);
 
   //! Make a kernel
-  template <std::size_t kDimension, typename SetType, typename ...ArgTypes>
+  template <std::size_t kDimension, DerivedFromKSet SetType, typename ...ArgTypes>
   SharedKernel<kDimension, SetType, ArgTypes...> makeKernel(
       const KernelParameters<SetType, ArgTypes...>& parameters);
 

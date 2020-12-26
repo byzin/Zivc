@@ -26,6 +26,7 @@
 #include "zisc/algorithm.hpp"
 #include "zisc/zisc_config.hpp"
 // Zivc
+#include "kernel_set.hpp"
 #include "utility/id_data.hpp"
 #include "utility/launch_result.hpp"
 #include "utility/zivc_object.hpp"
@@ -35,7 +36,7 @@ namespace zivc {
 
 // Forward declaration
 template <typename Type> class Buffer;
-template <typename SetType, typename ...ArgTypes> class KernelParameters;
+template <DerivedFromKSet SetType, typename ...ArgTypes> class KernelParameters;
 template <typename ...ArgTypes> class KernelArgParser;
 
 template <std::size_t kDimension, typename FuncArgTypes, typename ...ArgTypes>

@@ -15,6 +15,7 @@
 // VMA configurations
 #if defined(ZIVC_ENABLE_VMA_IMPLEMENTATION)
 #define VMA_STATIC_VULKAN_FUNCTIONS 0
+#define VMA_DYNAMIC_VULKAN_FUNCTIONS 0
 #define VMA_IMPLEMENTATION 1
 // VMA Debug
 #if defined(Z_DEBUG_MODE)
@@ -28,7 +29,6 @@ static_assert(false);
 
 // Standard C++ library
 #include <memory>
-// VMA
-#include "vk_mem_alloc.h"
 // Zivc
+#include "vulkan_memory_allocator.hpp"
 #include "zivc/zivc_config.hpp"

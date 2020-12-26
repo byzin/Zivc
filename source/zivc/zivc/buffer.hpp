@@ -190,12 +190,6 @@ class Buffer : public ZivcObject
   //! Map a buffer memory to a host
   MappedMemory<ConstType> mapMemory() const noexcept;
 
-  //! Change the number of elements
-  virtual void setSize(const std::size_t s) = 0;
-
-  //! Return the number of elements
-  virtual std::size_t size() const noexcept = 0;
-
   //! Convert a type of a buffer interface to DstType
   template <typename DstType>
   Buffer<DstType>* reinterp() noexcept;
@@ -203,6 +197,12 @@ class Buffer : public ZivcObject
   //! Convert a type of a buffer interface to DstType
   template <typename DstType>
   const Buffer<DstType>* reinterp() const noexcept;
+
+  //! Change the number of elements
+  virtual void setSize(const std::size_t s) = 0;
+
+  //! Return the number of elements
+  virtual std::size_t size() const noexcept = 0;
 
   //! Return the buffer usage flag
   BufferUsage usage() const noexcept;
@@ -230,7 +230,7 @@ class Buffer : public ZivcObject
   virtual Pointer mappedMemory() const = 0;
 
   //! Process the given options for the buffer
-  LaunchOptions processOptions(const LaunchOptions& launch_options) const noexcept;
+  LaunchOptions processOptions(LaunchOptions launch_options) const noexcept;
 
   //! Unmap a buffer memory
   virtual void unmapMemory() const noexcept = 0;

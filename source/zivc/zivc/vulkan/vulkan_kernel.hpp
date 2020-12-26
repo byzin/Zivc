@@ -22,8 +22,6 @@
 #include <type_traits>
 // Vulkan
 #include <vulkan/vulkan.h>
-// VMA
-#include "vk_mem_alloc.h"
 // Zivc
 #include "zivc/buffer.hpp"
 #include "zivc/kernel.hpp"

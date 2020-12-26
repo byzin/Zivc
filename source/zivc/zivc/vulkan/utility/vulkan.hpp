@@ -22,6 +22,7 @@
 #define VULKAN_HPP_NAMESPACE zivcvk
 // Disable the smart handler of the Vulkan-HPP
 #define VULKAN_HPP_NO_SMART_HANDLE 1
+#define VULKAN_HPP_DISABLE_IMPLICIT_RESULT_VALUE_CAST 1
 // Dynamic loading
 #define VK_NO_PROTOTYPES 1
 #define VULKAN_HPP_DISPATCH_LOADER_DYNAMIC 1

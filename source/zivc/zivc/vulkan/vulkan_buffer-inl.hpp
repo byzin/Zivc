@@ -24,8 +24,6 @@
 #include <utility>
 // Vulkan
 #include <vulkan/vulkan.h>
-// VMA
-#include <vk_mem_alloc.h>
 // Zisc
 #include "zisc/error.hpp"
 #include "zisc/utility.hpp"
@@ -35,6 +33,7 @@
 #include "vulkan_device_info.hpp"
 #include "utility/cmd_debug_label_region.hpp"
 #include "utility/cmd_record_region.hpp"
+#include "utility/vulkan_memory_allocator.hpp"
 #include "utility/queue_debug_label_region.hpp"
 #include "zivc/buffer.hpp"
 #include "zivc/sub_platform.hpp"
@@ -171,6 +170,24 @@ VkBufferUsageFlagBits VulkanBuffer<T>::descriptorTypeVk() const noexcept
     break;
   }
   return flag;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <typename T> inline
+VkBufferCopy2KHR VulkanBuffer<T>::makeCopyRegion(const VkDeviceSize source_offset,
+                                                 const VkDeviceSize dest_offset,
+                                                 const VkDeviceSize size) noexcept
+{
+  const VkBufferCopy2KHR region{VK_STRUCTURE_TYPE_BUFFER_COPY_2_KHR,
+                                nullptr,
+                                source_offset,
+                                dest_offset,
+                                size};
+  return region;
 }
 
 /*!
@@ -427,9 +444,9 @@ LaunchResult VulkanBuffer<T>::copyOnDevice(
                                     device.dispatcher(),
                                     VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT};
       auto src = zisc::cast<const VulkanBuffer*>(std::addressof(source));
-      const VkBufferCopy copy_region{launch_options.sourceOffsetInBytes(),
-                                     launch_options.destOffsetInBytes(),
-                                     launch_options.sizeInBytes()};
+      const auto copy_region = makeCopyRegion(launch_options.sourceOffsetInBytes(),
+                                              launch_options.destOffsetInBytes(),
+                                              launch_options.sizeInBytes());
       device.copyBufferCmd(command, src->buffer(), buffer(), copy_region);
     }
   }

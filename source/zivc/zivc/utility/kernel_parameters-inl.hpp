@@ -22,8 +22,10 @@
 #include <cstring>
 #include <string_view>
 // Zisc
-#include "id_data.hpp"
 #include "zisc/error.hpp"
+// Zivc
+#include "id_data.hpp"
+#include "zivc/kernel_set.hpp"
 
 namespace zivc {
 
@@ -32,7 +34,7 @@ namespace zivc {
 
   \param [in] ptr No description.
   */
-template <typename SetType, typename ...ArgTypes> inline
+template <DerivedFromKSet SetType, typename ...ArgTypes> inline
 KernelParameters<SetType, ArgTypes...>::KernelParameters(
     Function ptr,
     std::string_view kernel_name) noexcept :
@@ -46,7 +48,7 @@ KernelParameters<SetType, ArgTypes...>::KernelParameters(
 
   \return No description
   */
-template <typename SetType, typename ...ArgTypes> inline
+template <DerivedFromKSet SetType, typename ...ArgTypes> inline
 auto KernelParameters<SetType, ArgTypes...>::func() const noexcept -> Function
 {
   return function_;
@@ -57,7 +59,7 @@ auto KernelParameters<SetType, ArgTypes...>::func() const noexcept -> Function
 
   \return No description
   */
-template <typename SetType, typename ...ArgTypes> inline
+template <DerivedFromKSet SetType, typename ...ArgTypes> inline
 std::string_view KernelParameters<SetType, ArgTypes...>::kernelName() const noexcept
 {
   std::string_view name{kernel_name_.data()};
@@ -69,7 +71,7 @@ std::string_view KernelParameters<SetType, ArgTypes...>::kernelName() const noex
 
   \return No description
   */
-template <typename SetType, typename ...ArgTypes> inline
+template <DerivedFromKSet SetType, typename ...ArgTypes> inline
 constexpr std::size_t KernelParameters<SetType, ArgTypes...>::maxKernelNameLength() noexcept
 {
   return IdData::maxNameLength();
@@ -80,7 +82,7 @@ constexpr std::size_t KernelParameters<SetType, ArgTypes...>::maxKernelNameLengt
 
   \param [in] ptr No description.
   */
-template <typename SetType, typename ...ArgTypes> inline
+template <DerivedFromKSet SetType, typename ...ArgTypes> inline
 void KernelParameters<SetType, ArgTypes...>::setFunc(Function ptr) noexcept
 {
   function_ = ptr;
@@ -91,7 +93,7 @@ void KernelParameters<SetType, ArgTypes...>::setFunc(Function ptr) noexcept
 
   \param [in] kernel_name No description.
   */
-template <typename SetType, typename ...ArgTypes> inline
+template <DerivedFromKSet SetType, typename ...ArgTypes> inline
 void KernelParameters<SetType, ArgTypes...>::setKernelName(
     std::string_view kernel_name) noexcept
 {
@@ -106,7 +108,7 @@ void KernelParameters<SetType, ArgTypes...>::setKernelName(
 /*!
   \details No detailed description
   */
-template <typename SetType, typename ...ArgTypes> inline
+template <DerivedFromKSet SetType, typename ...ArgTypes> inline
 void KernelParameters<SetType, ArgTypes...>::initialize(
     std::string_view kernel_name) noexcept
 {

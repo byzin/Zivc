@@ -77,7 +77,7 @@ void CmdRecordRegion::begin(const VkCommandBufferUsageFlags flag) noexcept
     const auto loader = dispatcher_->loaderImpl();
     const zivcvk::CommandBufferBeginInfo info{
         zisc::cast<zivcvk::CommandBufferUsageFlags>(flag)};
-    command_buffer.begin(std::addressof(info), *loader);
+    auto result = command_buffer.begin(std::addressof(info), *loader);
   }
 }
 

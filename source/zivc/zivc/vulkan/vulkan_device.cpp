@@ -28,8 +28,6 @@
 #include <vector>
 // Vulkan
 #include <vulkan/vulkan.h>
-// VMA
-#include <vk_mem_alloc.h>
 // Zisc
 #include "zisc/error.hpp"
 #include "zisc/utility.hpp"
@@ -41,10 +39,85 @@
 #include "utility/cmd_record_region.hpp"
 #include "utility/vulkan.hpp"
 #include "utility/vulkan_dispatch_loader.hpp"
+#include "utility/vulkan_memory_allocator.hpp"
 #include "zivc/device_info.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/fence.hpp"
 #include "zivc/utility/id_data.hpp"
+
+namespace {
+
+/*!
+  \brief Enable device features used in zivc
+  \details No detailed description
+
+  \return No description
+  \exception std::exception No description.
+
+  \note No notation.
+  \attention No attention.
+  */
+auto getDefaultFeatures(const zivc::VulkanDeviceInfo& info,
+                        zisc::pmr::memory_resource* mem_resource) noexcept
+{
+  struct Features
+  {
+    zivcvk::PhysicalDevice16BitStorageFeatures b16bit_storage_;
+    zivcvk::PhysicalDevice8BitStorageFeatures b8bit_storage_;
+    zivcvk::PhysicalDeviceAccelerationStructureFeaturesKHR acceleration_structure_;
+    zivcvk::PhysicalDeviceRayQueryFeaturesKHR ray_query_;
+    zivcvk::PhysicalDeviceRayTracingPipelineFeaturesKHR ray_tracing_pipeline_;
+    zivcvk::PhysicalDeviceShaderAtomicFloatFeaturesEXT shader_atomic_float_;
+    zivcvk::PhysicalDeviceShaderAtomicInt64Features shader_atomic_int64_;
+    zivcvk::PhysicalDeviceShaderFloat16Int8Features shader_float16_int8_;
+    zivcvk::PhysicalDeviceVariablePointersFeatures variable_pointers_;
+    zivcvk::PhysicalDeviceVulkanMemoryModelFeatures vulkan_memory_model_;
+  };
+
+  const auto& inputs = info.features();
+
+  zivcvk::PhysicalDeviceFeatures2 features;
+  features.features.shaderUniformBufferArrayDynamicIndexing =
+      inputs.features1_.shaderUniformBufferArrayDynamicIndexing;
+  features.features.shaderStorageBufferArrayDynamicIndexing =
+      inputs.features1_.shaderStorageBufferArrayDynamicIndexing;
+  features.features.shaderFloat64 = inputs.features1_.shaderFloat64;
+  features.features.shaderInt64 = inputs.features1_.shaderInt64;
+  features.features.shaderInt16 = inputs.features1_.shaderInt16;
+
+//      device_features.features.vertexPipelineStoresAndAtomics =
+//          features.features1_.vertexPipelineStoresAndAtomics;
+//      device_features.features.fragmentStoresAndAtomics =
+//          features.features1_.fragmentStoresAndAtomics;
+
+  auto f = zisc::pmr::allocateUnique<Features>(mem_resource);
+  f->b16bit_storage_ = inputs.b16bit_storage_;
+  f->b8bit_storage_ = inputs.b8bit_storage_;
+  f->acceleration_structure_ = inputs.acceleration_structure_;
+  f->ray_query_ = inputs.ray_query_;
+  f->ray_tracing_pipeline_ = inputs.ray_tracing_pipeline_features_;
+  f->shader_atomic_float_ = inputs.shader_atomic_float_;
+  f->shader_atomic_int64_ = inputs.shader_atomic_int64_;
+  f->shader_float16_int8_ = inputs.shader_float16_int8_;
+  f->variable_pointers_ = inputs.variable_pointers_;
+  f->vulkan_memory_model_ = inputs.vulkan_memory_model_;
+
+  zivc::VulkanDeviceInfo::link(features,
+                               f->b16bit_storage_,
+                               f->b8bit_storage_,
+                               f->acceleration_structure_,
+                               f->ray_query_,
+                               f->ray_tracing_pipeline_,
+                               f->shader_atomic_float_,
+                               f->shader_atomic_int64_,
+                               f->shader_float16_int8_,
+                               f->variable_pointers_,
+                               f->vulkan_memory_model_);
+
+  return std::make_tuple(features, std::move(f));
+}
+
+} // namespace
 
 namespace zivc {
 
@@ -198,7 +271,7 @@ void VulkanDevice::setDebugInfo(const VkObjectType object_type,
         zisc::cast<zivcvk::ObjectType>(object_type),
         object_handle,
         object_name.data()};
-    d.setDebugUtilsObjectNameEXT(std::addressof(name_info), *loader);
+    auto result = d.setDebugUtilsObjectNameEXT(std::addressof(name_info), *loader);
   }
   // Tag
   if (zivc_object != nullptr) {
@@ -209,7 +282,7 @@ void VulkanDevice::setDebugInfo(const VkObjectType object_type,
         zisc::cast<uint64b>(id_data.id()),
         sizeof(zivc_object),
         zivc_object};
-    d.setDebugUtilsObjectTagEXT(std::addressof(tag_info), *loader);
+    auto result = d.setDebugUtilsObjectTagEXT(std::addressof(tag_info), *loader);
   }
 }
 
@@ -231,7 +304,7 @@ void VulkanDevice::setNumOfFences(const std::size_t s)
   for (std::size_t i = fence_list.size(); i < s; ++i) {
     const zivcvk::FenceCreateInfo info{};
     zivcvk::Fence fence = d.createFence(info, alloc, *loader);
-    d.resetFences(1, std::addressof(fence), *loader);
+    auto result = d.resetFences(1, std::addressof(fence), *loader);
     fence_manager_->set(fence_list.size(), true);
     fence_list.emplace_back(zisc::cast<VkFence>(fence));
   }
@@ -250,10 +323,8 @@ void VulkanDevice::setNumOfFences(const std::size_t s)
   */
 void VulkanDevice::takeFence(Fence* fence)
 {
-  auto& sub_platform = parentImpl();
   zivcvk::Device d{device()};
   const auto loader = dispatcher().loaderImpl();
-  zivcvk::AllocationCallbacks alloc{sub_platform.makeAllocator()};
 
   auto memory = std::addressof(fence->data());
   auto dest = ::new (zisc::cast<void*>(memory)) zivcvk::Fence{};
@@ -262,7 +333,7 @@ void VulkanDevice::takeFence(Fence* fence)
   for (std::size_t i = 0; i < fence_list.size(); ++i) {
     if (fence_manager_->test(i)) {
       zivcvk::Fence f = zisc::cast<zivcvk::Fence>(fence_list[i]);
-      d.resetFences(1, std::addressof(f), *loader);
+      auto result = d.resetFences(1, std::addressof(f), *loader);
       *dest = f;
       fence_manager_->set(i, false);
       break;
@@ -414,7 +485,7 @@ void VulkanDevice::allocateMemory(const std::size_t size,
 void VulkanDevice::copyBufferCmd(const VkCommandBuffer& command_buffer,
                                  const VkBuffer& source_buffer,
                                  const VkBuffer& dest_buffer,
-                                 const VkBufferCopy& region)
+                                 const VkBufferCopy2KHR& region)
 {
   const auto loader = dispatcher().loaderImpl();
 
@@ -424,8 +495,9 @@ void VulkanDevice::copyBufferCmd(const VkCommandBuffer& command_buffer,
   ZISC_ASSERT(source, "The given source buffer is null.");
   const zivcvk::Buffer dest{dest_buffer};
   ZISC_ASSERT(dest, "The given dest buffer is null.");
-  const zivcvk::BufferCopy copy_region{region};
-  command.copyBuffer(source, dest, copy_region, *loader);
+  const zivcvk::BufferCopy2KHR copy_region{region};
+  const zivcvk::CopyBufferInfo2KHR info{source, dest, 1, &copy_region};
+  command.copyBuffer2KHR(info, *loader);
 }
 
 /*!
@@ -557,7 +629,8 @@ void VulkanDevice::dispatchKernelCmd(const VkCommandBuffer& command_buffer,
 /*!
   \details No detailed description
 
-  \param [in] num_of_buffers No description.
+  \param [in] num_of_storage_buffers No description.
+  \param [in] num_of_uniform_buffers No description.
   \param [out] descriptor_set_layout No description.
   \param [out] descriptor_pool No description.
   \param [out] descriptor_set No description.
@@ -743,7 +816,10 @@ void VulkanDevice::initKernelPipeline(const std::size_t work_dimension,
                                           pipeline_info,
                                           alloc,
                                           *loader);
-    pline = zisc::cast<zivcvk::Pipeline>(result);
+    if (result.result != zivcvk::Result::eSuccess) {
+      //! \todo Error handling
+    }
+    pline = zisc::cast<zivcvk::Pipeline>(result.value);
   }
 
   *pipeline_layout = zisc::cast<VkPipelineLayout>(pline_layout);
@@ -993,45 +1069,43 @@ uint32b VulkanDevice::findQueueFamily() const noexcept
                       const bool graphics_excluded,
                       const bool sparse_excluded) noexcept
   {
-    constexpr auto graphics = zivcvk::QueueFlagBits::eGraphics;
-    constexpr auto compute = zivcvk::QueueFlagBits::eCompute;
-    constexpr auto transfer = zivcvk::QueueFlagBits::eTransfer;
-    constexpr auto sparse = zivcvk::QueueFlagBits::eSparseBinding;
-
     auto has_flag = [&props](const zivcvk::QueueFlagBits flag) noexcept
     {
       const bool result = (props.queueFlags & flag) == flag;
       return result;
     };
-
-    const bool result = (!has_flag(graphics) || !graphics_excluded) &&
-                        has_flag(compute) &&
-                        has_flag(transfer) &&
-                        (!has_flag(sparse) || !sparse_excluded);
+    const bool result =
+        has_flag(zivcvk::QueueFlagBits::eCompute) &&
+        has_flag(zivcvk::QueueFlagBits::eTransfer) &&
+        (!has_flag(zivcvk::QueueFlagBits::eGraphics) || !graphics_excluded) &&
+        (!has_flag(zivcvk::QueueFlagBits::eSparseBinding) || !sparse_excluded);
     return result;
   };
 
+  auto find_queue_family = [has_flags](const auto& info,
+                                       const bool graphics_excluded,
+                                       const bool sparse_excluded,
+                                       uint32b* index,
+                                       uint32b* num_of_queues) noexcept
+  {
+    const auto& queue_family_list = info.queueFamilyPropertiesList();
+    for (std::size_t i = 0; i < queue_family_list.size(); ++i) {
+      const auto& p = queue_family_list[i];
+      if (has_flags(p, graphics_excluded, sparse_excluded) &&
+          (*num_of_queues <= p.queueCount)) {
+        *index = zisc::cast<uint32b>(i);
+        *num_of_queues = p.queueCount;
+      }
+    }
+  };
+
   const auto& info = deviceInfoData();
-  const auto& queue_family_list = info.queueFamilyPropertiesList();
-
   uint32b index = invalidQueueIndex();
-  uint32b index2 = invalidQueueIndex();
   uint32b num_of_queues = 0;
-  uint32b num_of_queues2 = 0;
+  find_queue_family(info, true, false, &index, &num_of_queues);
+  if (index == invalidQueueIndex())
+    find_queue_family(info, false, false, &index, &num_of_queues);
 
-  for (std::size_t i = 0; i < queue_family_list.size(); ++i) {
-    const auto& p = queue_family_list[i];
-    if (has_flags(p, true, false) && (num_of_queues <= p.queueCount)) {
-      index = zisc::cast<uint32b>(i);
-      num_of_queues = p.queueCount;
-    }
-    if (has_flags(p, false, false) && (num_of_queues2 <= p.queueCount)) {
-      index2 = zisc::cast<uint32b>(i);
-      num_of_queues2 = p.queueCount;
-    }
-  }
-
-  index = (index != invalidQueueIndex()) ? index : index2;
   return index;
 }
 
@@ -1127,8 +1201,8 @@ void VulkanDevice::initDevice()
   const auto& info = deviceInfoData();
 
   // Queue create info
-  zisc::pmr::vector<float> priority_list{
-      zisc::pmr::vector<float>::allocator_type{memoryResource()}};
+  zisc::pmr::vector<float>::allocator_type priority_alloc{memoryResource()};
+  zisc::pmr::vector<float> priority_list{priority_alloc};
   zivcvk::DeviceQueueCreateInfo queue_create_info;
   {
     // Queue family index
@@ -1144,30 +1218,7 @@ void VulkanDevice::initDevice()
   }
 
   // Device features
-  const auto& features = info.features();
-  auto b16bit_storage = features.b16bit_storage_;
-  auto b8bit_storage = features.b8bit_storage_;
-  auto shader_atomic_int64 = features.shader_atomic_int64_;
-  auto shader_float16_int8 = features.shader_float16_int8_;
-  auto variable_pointers = features.variable_pointers_;
-  zivcvk::PhysicalDeviceFeatures2 device_features;
-  {
-    device_features.features.shaderFloat64 = features.features1_.shaderFloat64;
-    device_features.features.shaderInt64 = features.features1_.shaderInt64;
-    device_features.features.shaderInt16 = features.features1_.shaderInt16;
-    if (sub_platform.isDebugMode()) {
-      device_features.features.vertexPipelineStoresAndAtomics =
-          features.features1_.vertexPipelineStoresAndAtomics;
-      device_features.features.fragmentStoresAndAtomics =
-          features.features1_.fragmentStoresAndAtomics;
-    }
-    VulkanDeviceInfo::link(device_features,
-                           b16bit_storage,
-                           b8bit_storage,
-                           shader_atomic_int64,
-                           shader_float16_int8,
-                           variable_pointers);
-  }
+  auto [device_features, f] = ::getDefaultFeatures(info, memoryResource());
 
   zivcvk::DeviceCreateInfo device_create_info{
       zivcvk::DeviceCreateFlags{},

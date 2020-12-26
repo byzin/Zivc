@@ -31,6 +31,7 @@
 #include "cpu_buffer.hpp"
 #include "cpu_device.hpp"
 #include "zivc/kernel.hpp"
+#include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/id_data.hpp"
 #include "zivc/utility/kernel_arg_parser.hpp"
@@ -250,7 +251,8 @@ parentImpl() const noexcept
   \param [in] parameters No description.
   \return No description
   */
-template <std::size_t kDimension, typename SetType, typename ...ArgTypes> inline
+template <std::size_t kDimension, DerivedFromKSet SetType, typename ...ArgTypes>
+inline
 SharedKernel<kDimension, SetType, ArgTypes...> CpuDevice::makeKernel(
     const KernelParameters<SetType, ArgTypes...>& parameters) noexcept
 {

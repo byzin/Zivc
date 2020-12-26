@@ -29,6 +29,7 @@
 #include "zivc/buffer.hpp"
 #include "zivc/device.hpp"
 //#include "zivc/kernel.hpp"
+#include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/kernel_arg_parser.hpp"
 #include "zivc/utility/id_data.hpp"
@@ -40,7 +41,7 @@ class DeviceInfo;
 class Fence;
 class CpuDeviceInfo;
 class CpuSubPlatform;
-template <typename SetType, typename ...ArgTypes> class KernelParameters;
+template <DerivedFromKSet SetType, typename ...ArgTypes> class KernelParameters;
 
 /*!
   \brief No brief description
@@ -69,7 +70,7 @@ class CpuDevice : public Device
   SharedBuffer<Type> makeBuffer(const BufferUsage flag) noexcept;
 
   //! Make a kernel
-  template <std::size_t kDimension, typename SetType, typename ...ArgTypes>
+  template <std::size_t kDimension, DerivedFromKSet SetType, typename ...ArgTypes>
   SharedKernel<kDimension, SetType, ArgTypes...> makeKernel(
       const KernelParameters<SetType, ArgTypes...>& parameters) noexcept;
 

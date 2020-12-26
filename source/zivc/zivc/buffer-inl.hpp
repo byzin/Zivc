@@ -443,13 +443,11 @@ BufferUsage Buffer<T>::usage() const noexcept
   \return No description
   */
 template <typename T> inline
-auto Buffer<T>::processOptions(const LaunchOptions& launch_options) const noexcept
-    -> LaunchOptions
+auto Buffer<T>::processOptions(LaunchOptions launch_options) const noexcept -> LaunchOptions
 {
-  LaunchOptions o = launch_options;
-  if (o.size() == kBufferWholeSize)
-    o.setSize(size());
-  return o;
+  if (launch_options.size() == kBufferWholeSize)
+    launch_options.setSize(size());
+  return launch_options;
 }
 
 /*!

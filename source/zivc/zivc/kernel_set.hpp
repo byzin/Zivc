@@ -20,6 +20,7 @@
 #include <string_view>
 #include <vector>
 // Zisc
+#include "zisc/concepts.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "zivc/zivc_config.hpp"
@@ -46,6 +47,10 @@ class KernelSet
   //! Return the kernel set name
   static constexpr std::string_view name() noexcept;
 };
+
+//! Specify a type is derived from KernelSet
+template <typename Type>
+concept DerivedFromKSet = zisc::DerivedFrom<Type, KernelSet<Type>>;
 
 } // namespace zivc
 

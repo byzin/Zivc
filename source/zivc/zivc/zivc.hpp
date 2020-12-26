@@ -40,15 +40,12 @@
 
 namespace zivc {
 
-// Forward declaration
-template <typename SetType> class KernelSet;
-
 //! Make a buffer
 template <typename Type>
 SharedBuffer<Type> makeBuffer(Device* device, const BufferUsage flag);
 
 //! Make a kernel
-template <std::size_t kDimension, typename SetType, typename ...ArgTypes>
+template <std::size_t kDimension, DerivedFromKSet SetType, typename ...ArgTypes>
 SharedKernel<kDimension, SetType, ArgTypes...> makeKernel(
     Device* device,
     const KernelParameters<SetType, ArgTypes...>& parameters);

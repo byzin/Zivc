@@ -21,6 +21,7 @@
 #include <string_view>
 // Zivc
 #include "id_data.hpp"
+#include "zivc/kernel_set.hpp"
 
 namespace zivc {
 
@@ -31,7 +32,7 @@ namespace zivc {
 
   \tparam ArgTypes No description.
   */
-template <typename SetType, typename ...ArgTypes>
+template <DerivedFromKSet SetType, typename ...ArgTypes>
 class KernelParameters
 {
  public:

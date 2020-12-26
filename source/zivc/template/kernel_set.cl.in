@@ -30,6 +30,10 @@
 static_assert(ZIVC_KERNEL_SET_@kernel_set_name@_CL == @kernel_set_number@,
               "The ID number of the kernel set isn't valid.");
 
+#if !defined(ZIVC_GLOBAL_NAMESPACE)
+static_assert(false, "The macro 'ZIVC_GLOBAL_NAMESPACE' isn't defined.");
+#endif
+
 #pragma clang diagnostic pop
 #pragma clang diagnostic pop
 //#pragma clang diagnostic pop

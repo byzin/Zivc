@@ -18,12 +18,9 @@ function(getExampleWarningFlags example_warning_flags)
   # Suppress warnings
   if(ZIVC_SUPPRESS_EXCESSIVE_WARNING)
     if(Z_CLANG)
-      list(APPEND warning_flags -Wno-float-equal
-                                -Wno-sign-conversion 
-                                )
+      #      list(APPEND warning_flags )
     elseif(Z_GCC)
-      list(APPEND warning_flags -Wno-sign-conversion 
-                                )
+      #      list(APPEND warning_flags )
     endif()
   endif()
 
@@ -42,10 +39,10 @@ function(addExample target save_prerequisites)
                                              CXX_STANDARD_REQUIRED ON)
 
   include(${__zisc_dir__}/cmake/compiler.cmake)
-  Zisc_getCxxWarningFlags(cxx_compile_warning_flags)
-  getExampleWarningFlags(example_warning_flags)
-  target_compile_options(${target} PRIVATE ${cxx_compile_warning_flags}
-                                           ${example_warning_flags})
+  #  Zisc_getCxxWarningFlags(cxx_compile_warning_flags)
+  #  getExampleWarningFlags(example_warning_flags)
+  #  target_compile_options(${target} PRIVATE ${cxx_compile_warning_flags}
+  #                                           ${example_warning_flags})
   target_link_libraries(${target} PRIVATE Zivc)
   Zisc_enableIpo(${target})
 
@@ -86,5 +83,6 @@ addExample(KernelExample OFF
 # Kernel set
 include(${CMAKE_SOURCE_DIR}/source/zivc/cmake/kernel.cmake)
 Zivc_addKernelSet(example ${PROJECT_VERSION}
-    SOURCE_FILES ${PROJECT_SOURCE_DIR}/kernels/example.cl)
+    SOURCE_FILES kernels/example.cl
+    INCLUDE_DIRS kernels)
 target_link_libraries(KernelExample PRIVATE KernelSet_example)

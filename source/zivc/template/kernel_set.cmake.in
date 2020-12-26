@@ -13,13 +13,25 @@ cmake_minimum_required(VERSION 3.17)
 set(kernel_set_prefix kernel_set)
 set(zstd_compression_level 19)
 
+# Get absolute pathes of the given kernel files
+function(Zivc_getAbsoluteKernelPathes kernel_base_dir absolute_kernel_files)
+  set(kernel_files ${ARGN})
+  set(files "")
+  foreach(kernel_file IN LISTS kernel_files)
+    get_filename_component(kernel_file_path ${kernel_file} ABSOLUTE BASE_DIR ${kernel_base_dir})
+    list(APPEND files ${kernel_file_path})
+  endforeach(kernel_file)
+
+  # Output
+  set(${absolute_kernel_files} ${files} PARENT_SCOPE)
+endfunction(Zivc_getAbsoluteKernelPathes)
+
 # Create a kernels inclusion string
 function(Zivc_makeKernelInclusionString kernel_inclusion_lines)
   set(kernel_files ${ARGN})
   set(inclusion_lines "")
   foreach(kernel_file IN LISTS kernel_files)
-    get_filename_component(kernel_file_path ${kernel_file} ABSOLUTE BASE_DIR @kernel_set_base_dir@)
-    string(APPEND inclusion_lines "#include \"${kernel_file_path}\"\n")
+    string(APPEND inclusion_lines "#include \"${kernel_file}\"\n")
   endforeach(kernel_file)
 
   # Output
@@ -27,14 +39,37 @@ function(Zivc_makeKernelInclusionString kernel_inclusion_lines)
 endfunction(Zivc_makeKernelInclusionString)
 
 
+# Create alias files of given kernel source files
+function(Zivc_createKernelFileAliases output_dir kernel_alias_files)
+  set(kernel_files ${ARGN})
+  set(alias_files "")
+  foreach(kernel_file IN LISTS kernel_files)
+    get_filename_component(kernel_file_name ${kernel_file} NAME_WLE)
+    set(alias_file "${output_dir}/${kernel_file_name}.hpp")
+    list(APPEND alias_files ${alias_file})
+    file(CREATE_LINK ${kernel_file} ${alias_file} COPY_ON_ERROR)
+  endforeach(kernel_file)
+
+  # Output
+  set(${kernel_alias_files} ${alias_files} PARENT_SCOPE)
+endfunction(Zivc_createKernelFileAliases)
+
+
 function(Zivc_initCpuBackend target)
   # Make the output dir for C++ backend
   set(output_dir ${PROJECT_BINARY_DIR}/cpp)
-  set(include_dir ${output_dir}/include)
+  set(cpp_include_dir ${output_dir}/include)
+  set(include_dirs ${cpp_include_dir} ${kernel_set_include_dirs})
+
+  # Get kernel inclusion code
+  Zivc_createKernelFileAliases(${output_dir}/alias
+                               kernel_alias_files
+                               ${kernel_set_source_files})
+  Zivc_makeKernelInclusionString(kernel_inclusion_lines ${kernel_alias_files})
 
   # Hpp file
-  file(MAKE_DIRECTORY ${include_dir}/zivc/kernel_set)
-  set(hpp_file_path ${include_dir}/zivc/kernel_set/${set_name}.hpp)
+  file(MAKE_DIRECTORY ${cpp_include_dir}/zivc/kernel_set)
+  set(hpp_file_path ${cpp_include_dir}/zivc/kernel_set/${set_name}.hpp)
   configure_file(@kernel_set_template_dir@/kernel_set.hpp.in
                  ${hpp_file_path}
                  @ONLY)
@@ -44,8 +79,9 @@ function(Zivc_initCpuBackend target)
                  ${cpp_file_path}
                  @ONLY)
 
-  add_library(${target} STATIC ${hpp_file_path} ${cpp_file_path})
-  source_group(${target} FILES ${hpp_file_path} ${cpp_file_path})
+  set(cpp_source_files ${hpp_file_path} ${cpp_file_path} ${kernel_alias_files})
+  add_library(${target} STATIC ${cpp_source_files})
+  source_group(${target} FILES ${cpp_source_files})
 
   # Compiler flags
   include(@zisc_path@/cmake/compiler.cmake)
@@ -55,12 +91,13 @@ function(Zivc_initCpuBackend target)
   Zivc_getZivcKernelFlags(zivc_compile_flags zivc_definitions)
   target_compile_options(${target} PUBLIC ${zivc_compile_flags}
                                    PRIVATE ${cxx_compile_warning_flags})
-  target_compile_definitions(${target} PUBLIC ${zivc_definitions})
+  target_compile_definitions(${target} PUBLIC ${zivc_definitions}
+                                       PRIVATE @kernel_set_definitions@)
   target_link_libraries(${target} PRIVATE Zisc Zivc)
   if(ZIVC_BAKE_KERNELS)
     target_link_libraries(${target} PRIVATE libzstd_static)
   endif()
-  target_include_directories(${target} PUBLIC ${include_dir})
+  target_include_directories(${target} PUBLIC ${include_dirs})
   Zisc_enableIpo(${target})
 
   #
@@ -133,8 +170,7 @@ endfunction(Zivc_findSpirvDis)
 function(Zivc_getClspvCompileFlags clspv_compile_flags)
   set(options -D=ZIVC_VULKAN=1)
   ## include directories
-  set(include_dirs "")
-  list(APPEND include_dirs @kernel_set_include_dirs@)
+  set(include_dirs ${kernel_set_include_dirs})
   foreach(include_dir IN LISTS include_dirs)
     list(APPEND options -I=${include_dir})
   endforeach(include_dir)
@@ -269,6 +305,9 @@ function(Zivc_initVulkanBackend target)
   # Make the output dir for Vulkan backend
   set(output_dir ${PROJECT_BINARY_DIR}/spv)
 
+  # Get kernel inclusion code
+  Zivc_makeKernelInclusionString(kernel_inclusion_lines ${kernel_set_source_files})
+
   # OpenCL file
   file(MAKE_DIRECTORY ${output_dir})
   set(cl_file_path ${output_dir}/${set_name}.cl)
@@ -305,7 +344,7 @@ function(Zivc_initVulkanBackend target)
   ## Create a build command
   add_custom_command(OUTPUT ${clspv_output_files}
     ${build_commands}
-    DEPENDS ${cl_file_path} @kernel_set_source_files@ @kernel_set_depends@
+    DEPENDS ${cl_file_path} ${kernel_set_source_files} @kernel_set_depends@
     COMMENT "Building CL object '${cl_file_path}'")
 
   ## Create a target of the vulkan backend
@@ -335,7 +374,9 @@ include(@zisc_path@/cmake/platform.cmake)
 Zisc_getPlatformFlags(platform_definitions)
 Zisc_setVariablesOnCMake(${platform_definitions})
 
-Zivc_makeKernelInclusionString(kernel_inclusion_lines @kernel_set_source_files@)
+# Get absolute file pathes of the given kernel files
+Zivc_getAbsoluteKernelPathes(@kernel_set_base_dir@ kernel_set_source_files @kernel_set_source_files@)
+Zivc_getAbsoluteKernelPathes(@kernel_set_base_dir@ kernel_set_include_dirs @kernel_set_include_dirs@)
 
 # SPIR-V pathes
 set(set_name ${kernel_set_prefix}-@kernel_set_name@)

@@ -278,7 +278,7 @@ int main(int /* argc */, char** /* argv */)
                   << " bytes" << std::endl;
       }
       {
-        std::cout << indent2 << "FloatControl" << std::endl;
+        std::cout << indent2 << "Float" << std::endl;
         const auto& props = info.properties().float_controls_;
         std::cout << indent3 << "float16: " << std::endl;
         std::cout << indent4 << "+-0,inf,nan: "
@@ -313,6 +313,61 @@ int main(int /* argc */, char** /* argv */)
                   << props.shaderRoundingModeRTEFloat64 << std::endl
                   << indent4 << "round-towards-zero: "
                   << props.shaderRoundingModeRTZFloat64 << std::endl;
+        const auto& features = info.features();
+        const auto& atomic_float = features.shader_atomic_float_;
+        std::cout << indent3 << "atomic32 storage: "
+                  << atomic_float.shaderBufferFloat32AtomicAdd << std::endl
+                  << indent3 << "atomic64 storage: "
+                  << atomic_float.shaderBufferFloat64AtomicAdd << std::endl
+                  << indent3 << "atomic32 shared: "
+                  << atomic_float.shaderSharedFloat32AtomicAdd << std::endl
+                  << indent3 << "atomic64 shared: "
+                  << atomic_float.shaderSharedFloat64AtomicAdd << std::endl;
+      }
+      {
+        const auto& props = info.properties();
+        const auto& features = info.features();
+        const auto& acc_structure = features.acceleration_structure_;
+        std::cout << indent2 << "Ray Tracing" << std::endl;
+        std::cout << indent3 << "acceleration structure: "
+                  << acc_structure.accelerationStructure << std::endl;
+        if (acc_structure.accelerationStructure) {
+          std::cout << indent4 << "indirect build: "
+                    << acc_structure.accelerationStructureIndirectBuild << std::endl;
+          std::cout << indent4 << "host commands: "
+                    << acc_structure.accelerationStructureHostCommands << std::endl;
+          std::cout << indent4 << "Max geometry count: "
+                    << props.acceleration_structure_.maxGeometryCount << std::endl
+                    << indent4 << "Max instance count: "
+                    << props.acceleration_structure_.maxInstanceCount << std::endl
+                    << indent4 << "Max primitive count: "
+                    << props.acceleration_structure_.maxPrimitiveCount << std::endl
+                    << indent4 << "Min scratch offset alignment: "
+                    << props.acceleration_structure_.minAccelerationStructureScratchOffsetAlignment << std::endl;
+        }
+        const auto& ray_query = features.ray_query_;
+        std::cout << indent3 << "ray query: "
+                  << ray_query.rayQuery << std::endl;
+        const auto& ray_pipeline = features.ray_tracing_pipeline_features_;
+        std::cout << indent3 << "ray tracing pipeline: "
+                  << ray_pipeline.rayTracingPipeline << std::endl;
+        if (ray_pipeline.rayTracingPipeline) {
+          const auto& ray_pipeline_prop = props.ray_tracing_pipeline_;
+          std::cout << indent4 << "indirect trace ray: "
+                    << ray_pipeline.rayTracingPipelineTraceRaysIndirect << std::endl;
+          std::cout << indent4 << "primitive culling: "
+                    << ray_pipeline.rayTraversalPrimitiveCulling << std::endl;
+          std::cout << indent4 << "Shader group handle size: "
+                    << ray_pipeline_prop.shaderGroupHandleSize << std::endl
+                    << indent4 << "Max ray recursion depth: "
+                    << ray_pipeline_prop.maxRayRecursionDepth << std::endl
+                    << indent4 << "Shader group base alignment: "
+                    << ray_pipeline_prop.shaderGroupBaseAlignment << std::endl
+                    << indent4 << "Shader group handle alignment: "
+                    << ray_pipeline_prop.shaderGroupHandleAlignment << std::endl
+                    << indent4 << "Max ray hit attribute size: "
+                    << ray_pipeline_prop.maxRayHitAttributeSize << std::endl;
+        }
       }
     }
 #endif // ZIVC_ENABLE_VULKAN_SUB_PLATFORM

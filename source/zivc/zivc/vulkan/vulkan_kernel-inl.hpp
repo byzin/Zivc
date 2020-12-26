@@ -140,7 +140,7 @@ run(ArgTypes... args, LaunchOptions& launch_options)
                                     VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT};
       if (need_to_update_pod) {
         using BufType = VulkanBuffer<PodTuple>;
-        const VkBufferCopy copy_region{0, 0, sizeof(PodTuple)};
+        const auto copy_region = BufType::makeCopyRegion(0, 0, sizeof(PodTuple));
         auto pod_cache = zisc::cast<const BufType*>(pod_cache_.get())->buffer();
         auto pod_buf = zisc::cast<const BufType*>(pod_buffer_.get())->buffer();
         device.copyBufferCmd(command, pod_cache, pod_buf, copy_region);

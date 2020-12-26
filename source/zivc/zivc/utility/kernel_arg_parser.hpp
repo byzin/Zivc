@@ -22,12 +22,13 @@
 #include <type_traits>
 // Zivc
 #include "zivc/kernel.hpp"
+#include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
 
 namespace zivc {
 
 // Forward declaration
-template <typename SetType, typename ...ArgTypes> class KernelParameters;
+template <DerivedFromKSet SetType, typename ...ArgTypes> class KernelParameters;
 
 /*!
   \brief POD type info
@@ -144,11 +145,11 @@ class KernelArgParser
   // Type aliases
   template <std::size_t kSize>
   using ResultList = std::array<KernelArgParseResult, kSize>;
-  template <std::size_t kDimension, typename SetType>
+  template <std::size_t kDimension, DerivedFromKSet SetType>
   using KernelType = Kernel<kDimension, KernelParameters<SetType, ArgTypes...>>;
-  template <std::size_t kDimension, typename SetType>
+  template <std::size_t kDimension, DerivedFromKSet SetType>
   using SharedKernel = std::shared_ptr<KernelType<kDimension, SetType>>;
-  template <std::size_t kDimension, typename SetType>
+  template <std::size_t kDimension, DerivedFromKSet SetType>
   using WeakKernel = std::weak_ptr<KernelType<kDimension, SetType>>;
 
 
@@ -196,10 +197,10 @@ class KernelArgParser
 };
 
 // Type aliases
-template <std::size_t kDimension, typename SetType, typename ...ArgTypes>
+template <std::size_t kDimension, DerivedFromKSet SetType, typename ...ArgTypes>
 using SharedKernel = typename KernelArgParser<ArgTypes...>::
                          template SharedKernel<kDimension, SetType>;
-template <std::size_t kDimension, typename SetType, typename ...ArgTypes>
+template <std::size_t kDimension, DerivedFromKSet SetType, typename ...ArgTypes>
 using WeakKernel = typename KernelArgParser<ArgTypes...>::
                          template WeakKernel<kDimension, SetType>;
 

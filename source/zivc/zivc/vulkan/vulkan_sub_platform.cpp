@@ -525,10 +525,10 @@ VkApplicationInfo VulkanSubPlatform::makeApplicationInfo(
                                                      Config::versionPatch());
   constexpr uint32b api_version = apiVersion();
   const zivcvk::ApplicationInfo data{app_name.data(),
-                                       app_version,
-                                       engine_name.data(),
-                                       engine_version,
-                                       api_version};
+                                     app_version,
+                                     engine_name.data(),
+                                     engine_version,
+                                     api_version};
   return zisc::cast<VkApplicationInfo>(data);
 }
 
@@ -588,10 +588,11 @@ void VulkanSubPlatform::initInstance(PlatformOptions& platform_options)
       callback};
 
   // Validation features
-  std::array<zivcvk::ValidationFeatureEnableEXT, 3> validation_features_list{{
+  std::array<zivcvk::ValidationFeatureEnableEXT, 4> validation_features_list{{
       zivcvk::ValidationFeatureEnableEXT::eGpuAssisted,
       zivcvk::ValidationFeatureEnableEXT::eGpuAssistedReserveBindingSlot,
-      zivcvk::ValidationFeatureEnableEXT::eBestPractices}};
+      zivcvk::ValidationFeatureEnableEXT::eBestPractices,
+      zivcvk::ValidationFeatureEnableEXT::eSynchronizationValidation}};
   zivcvk::ValidationFeaturesEXT validation_features{
       zisc::cast<uint32b>(validation_features_list.size()),
       validation_features_list.data(),

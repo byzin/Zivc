@@ -113,6 +113,7 @@ function(Zivc_getZivcWarningFlags zivc_warning_flags)
   if(Z_CLANG)
     list(APPEND warning_flags -Wno-float-equal
                               # -Wno-padded
+                              -Wno-covered-switch-default
                               -Wno-sign-conversion
                               )
   elseif(Z_GCC)
@@ -210,8 +211,8 @@ Zisc_getCxxWarningFlags(cxx_compile_warning_flags)
 Zivc_getZivcFlags(zivc_compile_flags zivc_linker_flags zivc_definitions)
 Zivc_getZivcWarningFlags(zivc_warning_flags)
 target_compile_options(${PROJECT_NAME} PUBLIC ${zivc_compile_flags}
-                                       PRIVATE ${cxx_compile_warning_flags}
-                                               ${zivc_warning_flags})
+                                              ${zivc_warning_flags}
+                                       PRIVATE ${cxx_compile_warning_flags})
 target_link_libraries(${PROJECT_NAME} PUBLIC Zisc cpu_features)
 target_link_options(${PROJECT_NAME} PUBLIC ${zivc_linker_flags})
 target_compile_definitions(${PROJECT_NAME} PUBLIC ${zivc_definitions})

@@ -25,8 +25,6 @@
 #include <vector>
 // Vulkan
 #include <vulkan/vulkan.h>
-// VMA
-#include <vk_mem_alloc.h>
 // Zisc
 #include "zisc/error.hpp"
 #include "zisc/utility.hpp"
@@ -34,6 +32,7 @@
 // Zivc
 #include "vulkan_device_info.hpp"
 #include "utility/vulkan_dispatch_loader.hpp"
+#include "utility/vulkan_memory_allocator.hpp"
 #include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
 

@@ -485,7 +485,7 @@ void VulkanDevice::allocateMemory(const std::size_t size,
 void VulkanDevice::copyBufferCmd(const VkCommandBuffer& command_buffer,
                                  const VkBuffer& source_buffer,
                                  const VkBuffer& dest_buffer,
-                                 const VkBufferCopy2KHR& region)
+                                 const VkBufferCopy& region)
 {
   const auto loader = dispatcher().loaderImpl();
 
@@ -495,9 +495,8 @@ void VulkanDevice::copyBufferCmd(const VkCommandBuffer& command_buffer,
   ZISC_ASSERT(source, "The given source buffer is null.");
   const zivcvk::Buffer dest{dest_buffer};
   ZISC_ASSERT(dest, "The given dest buffer is null.");
-  const zivcvk::BufferCopy2KHR copy_region{region};
-  const zivcvk::CopyBufferInfo2KHR info{source, dest, 1, &copy_region};
-  command.copyBuffer2KHR(info, *loader);
+  const zivcvk::BufferCopy copy_region{region};
+  command.copyBuffer(source, dest, copy_region, *loader);
 }
 
 /*!

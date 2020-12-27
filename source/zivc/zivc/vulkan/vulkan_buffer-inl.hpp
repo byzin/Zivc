@@ -178,24 +178,6 @@ VkBufferUsageFlagBits VulkanBuffer<T>::descriptorTypeVk() const noexcept
   \return No description
   */
 template <typename T> inline
-VkBufferCopy2KHR VulkanBuffer<T>::makeCopyRegion(const VkDeviceSize source_offset,
-                                                 const VkDeviceSize dest_offset,
-                                                 const VkDeviceSize size) noexcept
-{
-  const VkBufferCopy2KHR region{VK_STRUCTURE_TYPE_BUFFER_COPY_2_KHR,
-                                nullptr,
-                                source_offset,
-                                dest_offset,
-                                size};
-  return region;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <typename T> inline
 bool VulkanBuffer<T>::isDeviceLocal() const noexcept
 {
   const bool result = hasMemoryProperty(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
@@ -444,9 +426,9 @@ LaunchResult VulkanBuffer<T>::copyOnDevice(
                                     device.dispatcher(),
                                     VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT};
       auto src = zisc::cast<const VulkanBuffer*>(std::addressof(source));
-      const auto copy_region = makeCopyRegion(launch_options.sourceOffsetInBytes(),
-                                              launch_options.destOffsetInBytes(),
-                                              launch_options.sizeInBytes());
+      const VkBufferCopy copy_region{launch_options.sourceOffsetInBytes(),
+                                     launch_options.destOffsetInBytes(),
+                                     launch_options.sizeInBytes()};
       device.copyBufferCmd(command, src->buffer(), buffer(), copy_region);
     }
   }

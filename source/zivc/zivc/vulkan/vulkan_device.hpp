@@ -173,7 +173,7 @@ class VulkanDevice : public Device
   void copyBufferCmd(const VkCommandBuffer& command_buffer,
                      const VkBuffer& source_buffer,
                      const VkBuffer& dest_buffer,
-                     const VkBufferCopy2KHR& region);
+                     const VkBufferCopy& region);
 
   //! Deallocate a device memory
   void deallocateMemory(VkBuffer* buffer,

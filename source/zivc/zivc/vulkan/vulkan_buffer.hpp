@@ -105,11 +105,6 @@ class VulkanBuffer : public Buffer<T>
   //! Check if the buffer can be mapped for the host access
   bool isHostVisible() const noexcept override;
 
-  //! Return the vulkan copy region
-  static VkBufferCopy2KHR makeCopyRegion(const VkDeviceSize source_offset,
-                                         const VkDeviceSize dest_offset,
-                                         const VkDeviceSize size) noexcept;
-
   //! Set the descriptor type
   void setDescriptorType(const DescriptorType type) noexcept;
 

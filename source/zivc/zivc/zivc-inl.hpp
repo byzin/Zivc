@@ -29,15 +29,13 @@
 #include "kernel.hpp"
 #include "kernel_set.hpp"
 #include "cpu/cpu_buffer.hpp"
-#include "cpu/cpu_device.hpp"
 #include "cpu/cpu_kernel.hpp"
-#include "utility/kernel_parameters.hpp"
+#include "utility/kernel_arg_parser.hpp"
+#include "utility/kernel_params.hpp"
 #if defined(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
 #include "vulkan/vulkan_buffer.hpp"
-#include "vulkan/vulkan_device.hpp"
 #include "vulkan/vulkan_kernel.hpp"
 #endif // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
-#include "utility/kernel_arg_parser.hpp"
 #include "zivc/zivc_config.hpp"
 
 namespace zivc {
@@ -56,14 +54,12 @@ SharedBuffer<Type> makeBuffer(Device* device, const BufferUsage flag)
   SharedBuffer<Type> buffer;
   switch (device->type()) {
    case SubPlatformType::kCpu: {
-    auto d = zisc::cast<CpuDevice*>(device);
-    buffer = d->makeBuffer<Type>(flag);
+    buffer = device->makeDerivedBuffer<CpuBuffer, Type>(flag);
     break;
    }
 #if defined(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
    case SubPlatformType::kVulkan: {
-    auto d = zisc::cast<VulkanDevice*>(device);
-    buffer = d->makeBuffer<Type>(flag);
+    buffer = device->makeDerivedBuffer<VulkanBuffer, Type>(flag);
     break;
    }
 #endif // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
@@ -78,30 +74,27 @@ SharedBuffer<Type> makeBuffer(Device* device, const BufferUsage flag)
 /*!
   \details No detailed description
 
-  \tparam kDimension No description.
-  \tparam SetType No description.
-  \tparam ArgTypes No description.
+  \tparam kDim No description.
+  \tparam KSet No description.
+  \tparam Args No description.
   \param [in,out] device No description.
-  \param [in] parameters No description.
+  \param [in] params No description.
   \return No description
   */
-template <std::size_t kDimension, DerivedFromKSet SetType, typename ...ArgTypes>
-inline
-SharedKernel<kDimension, SetType, ArgTypes...> makeKernel(
+template <std::size_t kDim, DerivedKSet KSet, typename ...Args> inline
+SharedKernel<kDim, KSet, Args...> makeKernel(
     Device* device,
-    const KernelParameters<SetType, ArgTypes...>& parameters)
+    const KernelParams<kDim, KSet, Args...>& params)
 {
-  SharedKernel<kDimension, SetType, ArgTypes...> kernel;
+  SharedKernel<kDim, KSet, Args...> kernel;
   switch (device->type()) {
    case SubPlatformType::kCpu: {
-    auto d = zisc::cast<CpuDevice*>(device);
-    kernel = d->makeKernel<kDimension>(parameters);
+    kernel = device->makeDerivedKernel<CpuKernel>(params);
     break;
    }
 #if defined(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
    case SubPlatformType::kVulkan: {
-    auto d = zisc::cast<VulkanDevice*>(device);
-    kernel = d->makeKernel<kDimension>(parameters);
+    kernel = device->makeDerivedKernel<VulkanKernel>(params);
     break;
    }
 #endif // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
@@ -234,37 +227,41 @@ SharedKernel<kDimension, SetType, ArgTypes...> makeKernel(
 /*!
   \details No detailed description
 
+  \tparam kDim No description.
+  \tparam KSet No description.
+  \tparam Args No description.
   \param [in] kernel_set No description.
   \param [in] func No description.
   \param [in] kernel_name No description.
   \return No description
   */
-template <typename SetType, typename ...ArgTypes> inline
-KernelParameters<SetType, ArgTypes...> makeKernelParameters(
-    [[maybe_unused]] const KernelSet<SetType>& kernel_set,
-    void (*func)(ArgTypes...),
+template <std::size_t kDim, DerivedKSet KSet, typename ...Args> inline
+KernelParams<kDim, KSet, Args...> makeKernelParams(
+    [[maybe_unused]] const KernelSet<KSet>& kernel_set,
+    void (*func)(Args...),
     std::string_view kernel_name) noexcept
 {
-  KernelParameters<SetType, ArgTypes...> parameters{func, kernel_name};
-  return parameters;
+  KernelParams<kDim, KSet, Args...> params{func, kernel_name};
+  return params;
 }
 
-#if defined(ZIVC_MAKE_KERNEL_PARAMETERS)
-#undef ZIVC_MAKE_KERNEL_PARAMETERS
-#endif // ZIVC_MAKE_KERNEL_PARAMETERS
+#if defined(ZIVC_MAKE_KERNEL_PARAMS)
+#undef ZIVC_MAKE_KERNEL_PARAMS
+#endif // ZIVC_MAKE_KERNEL_PARAMS
 
 /*!
-  \def ZIVC_MAKE_KERNEL_PARAMETERS
+  \def ZIVC_MAKE_KERNEL_PARAMS
   \brief No brief description
 
   No detailed description.
 
   \param [in] kernel_set_name No description.
   \param [in] kernel_name No description.
+  \param [in] dimension No description.
   \return No description
   */
-#define ZIVC_MAKE_KERNEL_PARAMETERS(kernel_set_name, kernel_name) \
-    ::zivc::makeKernelParameters( \
+#define ZIVC_MAKE_KERNEL_PARAMS(kernel_set_name, kernel_name, dimension) \
+    ::zivc::makeKernelParams< dimension >( \
         ::zivc::kernel_set::KernelSet_ ## kernel_set_name {}, \
         ::zivc::cl:: kernel_set_name :: kernel_name, \
         #kernel_name )

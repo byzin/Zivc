@@ -34,6 +34,7 @@
 #include "vulkan/vulkan_kernel.hpp"
 #endif // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
 #include "utility/kernel_arg_parser.hpp"
+#include "utility/kernel_params.hpp"
 #include "zivc/zivc_config.hpp"
 //#include "zivc/cppcl/types.hpp"
 //#include "zivc/cppcl/vector.hpp"
@@ -45,10 +46,10 @@ template <typename Type>
 SharedBuffer<Type> makeBuffer(Device* device, const BufferUsage flag);
 
 //! Make a kernel
-template <std::size_t kDimension, DerivedFromKSet SetType, typename ...ArgTypes>
-SharedKernel<kDimension, SetType, ArgTypes...> makeKernel(
+template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
+SharedKernel<kDim, KSet, Args...> makeKernel(
     Device* device,
-    const KernelParameters<SetType, ArgTypes...>& parameters);
+    const KernelParams<kDim, KSet, Args...>& params);
 
 ////! Copy a src buffer to a dst buffer
 //template <DescriptorType kDescriptor1, DescriptorType kDescriptor2, typename Type>
@@ -75,14 +76,14 @@ SharedKernel<kDimension, SetType, ArgTypes...> makeKernel(
 //#define ZIVC_MAKE_KERNEL_ARGS(kernel_set, kernel)
 
 //! Make a kernel parameters
-template <typename SetType, typename ...ArgTypes>
-KernelParameters<SetType, ArgTypes...> makeKernelParameters(
-    const KernelSet<SetType>& kernel_set,
-    void (*func)(ArgTypes...),
+template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
+KernelParams<kDim, KSet, Args...> makeKernelParams(
+    const KernelSet<KSet>& kernel_set,
+    void (*func)(Args...),
     std::string_view kernel_name) noexcept;
 
-//! Make a kernel parameters
-#define ZIVC_MAKE_KERNEL_PARAMETERS(kernel_set_name, kernel_name)
+//! Make kernel parameters
+#define ZIVC_MAKE_KERNEL_PARAMS(kernel_set_name, kernel_name, dimension)
 
 } // namespace zivc
 

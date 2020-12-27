@@ -639,29 +639,6 @@ const VulkanDevice& VulkanBuffer<T>::parentImpl() const noexcept
   return *zisc::reinterp<const VulkanDevice*>(p);
 }
 
-// Device
-
-/*!
-  \details No detailed description
-
-  \tparam T No description.
-  \param [in] flag No description.
-  \return No description
-  */
-template <typename T> inline
-SharedBuffer<T> VulkanDevice::makeBuffer(const BufferUsage flag)
-{
-  using BufferType = VulkanBuffer<T>;
-  zisc::pmr::polymorphic_allocator<BufferType> alloc{memoryResource()};
-  SharedBuffer<T> buffer = std::allocate_shared<BufferType>(alloc, issueId());
-
-  ZivcObject::SharedPtr parent{getOwn()};
-  WeakBuffer<T> own{buffer};
-  buffer->initialize(std::move(parent), std::move(own), flag);
-
-  return buffer;
-}
-
 } // namespace zivc
 
 #endif // ZIVC_VULKAN_BUFFER_INL_HPP

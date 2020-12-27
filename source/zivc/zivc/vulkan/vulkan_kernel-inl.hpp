@@ -40,10 +40,11 @@
 #include "utility/queue_debug_label_region.hpp"
 #include "zivc/buffer.hpp"
 #include "zivc/kernel.hpp"
+#include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/id_data.hpp"
 #include "zivc/utility/kernel_arg_parser.hpp"
-#include "zivc/utility/kernel_parameters.hpp"
+#include "zivc/utility/kernel_params.hpp"
 #include "zivc/utility/launch_result.hpp"
 
 namespace zivc {
@@ -53,9 +54,9 @@ namespace zivc {
 
   \param [in] id No description.
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 VulkanKernel(IdData&& id) noexcept : BaseKernel(std::move(id))
 {
 }
@@ -63,9 +64,9 @@ VulkanKernel(IdData&& id) noexcept : BaseKernel(std::move(id))
 /*!
   \details No detailed description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 ~VulkanKernel() noexcept
 {
   BaseKernel::destroy();
@@ -76,10 +77,10 @@ VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...
 
   \return No description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 VkCommandBuffer&
-VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 commandBuffer() noexcept
 {
   return command_buffer_;
@@ -90,10 +91,9 @@ commandBuffer() noexcept
 
   \return No description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-const VkCommandBuffer&
-VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+const VkCommandBuffer& VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 commandBuffer() const noexcept
 {
   return command_buffer_;
@@ -105,11 +105,10 @@ commandBuffer() const noexcept
   \param [in] args No description.
   \param [in] launch_options No description.
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-LaunchResult
-VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
-run(ArgTypes... args, LaunchOptions& launch_options)
+LaunchResult VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+run(Args... args, LaunchOptions& launch_options)
 {
   VulkanDevice& device = parentImpl();
   // DescriptorSet
@@ -169,10 +168,9 @@ run(ArgTypes... args, LaunchOptions& launch_options)
   \details No detailed description
   \return No description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-constexpr bool
-VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+constexpr bool VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 hasGlobalArg() noexcept
 {
   const bool result = 0 < BaseKernel::ArgParser::kNumOfGlobalArgs;
@@ -183,10 +181,9 @@ hasGlobalArg() noexcept
   \details No detailed description
   \return No description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-constexpr bool
-VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+constexpr bool VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 hasLocalArg() noexcept
 {
   const bool result = 0 < BaseKernel::ArgParser::kNumOfLocalArgs;
@@ -197,10 +194,9 @@ hasLocalArg() noexcept
   \details No detailed description
   \return No description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-constexpr bool
-VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+constexpr bool VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 hasPodArg() noexcept
 {
   const bool result = 0 < BaseKernel::ArgParser::kNumOfPodArgs;
@@ -210,10 +206,9 @@ hasPodArg() noexcept
 /*!
   \details No detailed description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void
-VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 destroyData() noexcept
 {
   command_buffer_ = VK_NULL_HANDLE;
@@ -233,15 +228,14 @@ destroyData() noexcept
 
   \param [in] work_size No description.
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void
-VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 dispatchCmd(const std::array<uint32b, 3>& work_size)
 {
   VulkanDevice& device = parentImpl();
   device.dispatchKernelCmd(command_buffer_, desc_set_, pipeline_layout_, pipeline_,
-    kDimension, work_size);
+    kDim, work_size);
 }
 
 /*!
@@ -249,21 +243,20 @@ dispatchCmd(const std::array<uint32b, 3>& work_size)
 
   \param [in] params No description.
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void
-VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
-initData(const Parameters& params)
+void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+initData(const Params& params)
 {
   static_assert(hasGlobalArg(), "The kernel doesn't have global argument.");
   VulkanDevice& device = parentImpl();
-  device.addShaderModule(SetType{});
+  device.addShaderModule(KSet{});
   device.initKernelDescriptorSet(BaseKernel::ArgParser::kNumOfBufferArgs,
                                  zisc::cast<std::size_t>(hasPodArg() ? 1 : 0),
                                  std::addressof(desc_set_layout_),
                                  std::addressof(desc_pool_),
                                  std::addressof(desc_set_));
-  const auto& module_data = device.getShaderModule(SetType::id());
+  const auto& module_data = device.getShaderModule(KSet::id());
   device.initKernelPipeline(BaseKernel::dimension(),
                             BaseKernel::ArgParser::kNumOfLocalArgs,
                             desc_set_layout_,
@@ -278,10 +271,9 @@ initData(const Parameters& params)
 /*!
   \details No detailed description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void
-VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 updateDebugInfoImpl() noexcept
 {
   VulkanDevice& device = parentImpl();
@@ -340,17 +332,16 @@ updateDebugInfoImpl() noexcept
   \tparam kIndex No description.
   \return No description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 template <std::size_t kIndex>
 inline
-auto
-VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+auto VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 makePodTupleType() noexcept
 {
   constexpr auto pod_arg_info = BaseKernel::ArgParser::getPodArgInfoList();
   if constexpr (kIndex < pod_arg_info.size()) {
     constexpr std::size_t pod_index = pod_arg_info[kIndex].index();
-    using ArgTuple = std::tuple<FuncArgTypes...>;
+    using ArgTuple = std::tuple<FuncArgs...>;
     using PodType = std::tuple_element_t<pod_index, ArgTuple>;
     std::tuple<PodType> left{};
     auto right = makePodTupleType<kIndex + 1>();
@@ -370,11 +361,10 @@ makePodTupleType() noexcept
   \param [in] buffer No description.
   \return No description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 template <typename Type>
 inline
-const VkBuffer&
-VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+const VkBuffer& VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 getBufferHandle(const Buffer<Type>& buffer) noexcept
 {
   using BuffType = VulkanBuffer<Type>;
@@ -392,11 +382,10 @@ getBufferHandle(const Buffer<Type>& buffer) noexcept
   \param [in] value No description.
   \param [in] rest No description.
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 template <std::size_t kIndex, typename Type, typename ...Types>
 inline
-void
-VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 initBufferList(VkBuffer* buffer_list, Type&& value, Types&&... rest) noexcept
 {
   using T = std::remove_cv_t<std::remove_reference_t<Type>>;
@@ -412,10 +401,9 @@ initBufferList(VkBuffer* buffer_list, Type&& value, Types&&... rest) noexcept
 /*!
   \details No detailed description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void
-VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 initPodBuffer() noexcept
 {
   if constexpr (hasPodArg()) {
@@ -445,11 +433,10 @@ initPodBuffer() noexcept
   \param [in] value No description.
   \param [in] rest No description.
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 template <std::size_t kIndex, typename Type, typename ...Types>
 inline
-void
-VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 initPodTuple(PodTuple* pod_params, Type&& value, Types&&... rest) noexcept
 {
   using T = std::remove_cv_t<std::remove_reference_t<Type>>;
@@ -468,14 +455,13 @@ initPodTuple(PodTuple* pod_params, Type&& value, Types&&... rest) noexcept
   \param [in] args No description.
   \return No description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-auto
-VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
-makePodTuple(ArgTypes... args) noexcept -> PodTuple
+auto VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+makePodTuple(Args... args) noexcept -> PodTuple
 {
   PodTuple pod_params{};
-  if constexpr (0 < sizeof...(ArgTypes))
+  if constexpr (0 < sizeof...(Args))
     initPodTuple<0>(std::addressof(pod_params), args...);
   return pod_params;
 }
@@ -485,10 +471,9 @@ makePodTuple(ArgTypes... args) noexcept -> PodTuple
 
   \return No description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-constexpr std::size_t
-VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+constexpr std::size_t VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 numOfBuffers() noexcept
 {
   std::size_t n = BaseKernel::ArgParser::kNumOfGlobalArgs;
@@ -501,10 +486,9 @@ numOfBuffers() noexcept
 
   \return No description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-VulkanDevice&
-VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+VulkanDevice& VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 parentImpl() noexcept
 {
   auto p = BaseKernel::getParent();
@@ -516,10 +500,9 @@ parentImpl() noexcept
 
   \return No description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-const VulkanDevice&
-VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+const VulkanDevice& VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 parentImpl() const noexcept
 {
   auto p = BaseKernel::getParent();
@@ -531,11 +514,10 @@ parentImpl() const noexcept
 
   \param [in] args No description.
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void
-VulkanKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
-updateDescriptorSet(ArgTypes... args)
+void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+updateDescriptorSet(Args... args)
 {
   auto& device = parentImpl();
 
@@ -554,12 +536,12 @@ updateDescriptorSet(ArgTypes... args)
 
 ///*!
 //  */
-//template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
 //inline
-//void VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::bindBuffers(
+//void VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::bindBuffers(
 //    std::add_lvalue_reference_t<BufferArgs>... args) noexcept
 //{
-//  using ParseResult = KernelArgParser<kDimension, ArgumentTypes...>;
+//  using ParseResult = KernelArgParser<kDim, ArgumentTypes...>;
 //
 //  if ((0 == kNumOfBuffers) || isSameArgs(args...))
 //    return;
@@ -603,9 +585,9 @@ updateDescriptorSet(ArgTypes... args)
 
 ///*!
 //  */
-//template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
 //inline
-//VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::VulkanKernel(
+//VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::VulkanKernel(
 //    VulkanDevice* device,
 //    const uint32b module_index,
 //    const std::string_view kernel_name) noexcept :
@@ -617,9 +599,9 @@ updateDescriptorSet(ArgTypes... args)
 //
 ///*!
 //  */
-//template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
 //inline
-//VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::~VulkanKernel()
+//VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::~VulkanKernel()
 //    noexcept
 //{
 //  destroy();
@@ -627,9 +609,9 @@ updateDescriptorSet(ArgTypes... args)
 //
 ///*!
 //  */
-//template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
 //inline
-//void VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::destroy()
+//void VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::destroy()
 //    noexcept
 //{
 //  const auto& device = device_->device();
@@ -653,9 +635,9 @@ updateDescriptorSet(ArgTypes... args)
 //
 ///*!
 //  */
-//template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
 //inline
-//auto VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::device()
+//auto VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::device()
 //    noexcept -> VulkanDevice*
 //{
 //  return device_;
@@ -663,9 +645,9 @@ updateDescriptorSet(ArgTypes... args)
 //
 ///*!
 //  */
-//template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
 //inline
-//auto VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::device()
+//auto VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::device()
 //    const noexcept -> const VulkanDevice*
 //{
 //  return device_;
@@ -673,9 +655,9 @@ updateDescriptorSet(ArgTypes... args)
 //
 ///*!
 //  */
-//template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
 //inline
-//auto VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::SubPlatformType()
+//auto VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::SubPlatformType()
 //    const noexcept -> SubPlatformType
 //{
 //  return SubPlatformType::kVulkan;
@@ -683,11 +665,11 @@ updateDescriptorSet(ArgTypes... args)
 //
 ///*!
 //  */
-//template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
 //inline
-//void VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::run(
+//void VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::run(
 //    std::add_lvalue_reference_t<BufferArgs>... args,
-//    const std::array<uint32b, kDimension> works,
+//    const std::array<uint32b, kDim> works,
 //    const uint32b queue_index) noexcept
 //{
 //  if (!isSameArgs(args...))
@@ -698,12 +680,12 @@ updateDescriptorSet(ArgTypes... args)
 //
 ///*!
 //  */
-//template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
 //inline
-//void VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::bindBuffers(
+//void VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::bindBuffers(
 //    std::add_lvalue_reference_t<BufferArgs>... args) noexcept
 //{
-//  using ParseResult = KernelArgParser<kDimension, ArgumentTypes...>;
+//  using ParseResult = KernelArgParser<kDim, ArgumentTypes...>;
 //
 //  if ((0 == kNumOfBuffers) || isSameArgs(args...))
 //    return;
@@ -745,10 +727,10 @@ updateDescriptorSet(ArgTypes... args)
 //
 ///*!
 //  */
-//template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
 //inline
-//void VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::dispatch(
-//    std::array<uint32b, kDimension> works) noexcept
+//void VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::dispatch(
+//    std::array<uint32b, kDim> works) noexcept
 //{
 //  const auto group_size = device_->calcWorkGroupSize(works);
 //  vk::CommandBufferBeginInfo begin_info{};
@@ -770,9 +752,9 @@ updateDescriptorSet(ArgTypes... args)
 //
 ///*!
 //  */
-//template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
 //template <typename Type> inline
-//auto VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::getVkBuffer(
+//auto VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::getVkBuffer(
 //    Type&& buffer) const noexcept -> vk::Buffer&
 //{
 //  ZISC_ASSERT(buffer.SubPlatformType() == SubPlatformType::kVulkan,
@@ -790,9 +772,9 @@ updateDescriptorSet(ArgTypes... args)
 //
 ///*!
 //  */
-//template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
 //inline
-//void VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::initCommandBuffer()
+//void VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::initCommandBuffer()
 //    noexcept
 //{
 //  const vk::CommandBufferAllocateInfo alloc_info{
@@ -807,19 +789,19 @@ updateDescriptorSet(ArgTypes... args)
 //
 ///*!
 //  */
-//template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
 //inline
-//void VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::initComputePipeline(
+//void VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::initComputePipeline(
 //    const uint32b module_index,
 //    const std::string_view kernel_name) noexcept
 //{
-//  using ParseResult = KernelArgParser<kDimension, ArgumentTypes...>;
+//  using ParseResult = KernelArgParser<kDim, ArgumentTypes...>;
 //
 //  // Set constant IDs
 //  constexpr std::size_t num_of_entries = 3u + ParseResult::kNumOfLocalArgs;
 //  std::array<uint32b, num_of_entries> constant_data;
 //  {
-//    const auto& local_work_size = device_->localWorkSize<kDimension>();
+//    const auto& local_work_size = device_->localWorkSize<kDim>();
 //    for (std::size_t i = 0; i < local_work_size.size(); ++i)
 //      constant_data[i] = local_work_size[i];
 //    for (std::size_t i = local_work_size.size(); i < num_of_entries; ++i)
@@ -858,12 +840,12 @@ updateDescriptorSet(ArgTypes... args)
 //
 ///*!
 //  */
-//template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
 //inline
-//void VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::initDescriptorPool()
+//void VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::initDescriptorPool()
 //    noexcept
 //{
-//  using ParseResult = KernelArgParser<kDimension, ArgumentTypes...>;
+//  using ParseResult = KernelArgParser<kDim, ArgumentTypes...>;
 //  static_assert(0 < ParseResult::kNumOfStorageBuffer,
 //                "The kernel doesn't have any storage buffer argument.");
 //
@@ -898,9 +880,9 @@ updateDescriptorSet(ArgTypes... args)
 //
 ///*!
 //  */
-//template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
 //inline
-//void VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::initDescriptorSet()
+//void VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::initDescriptorSet()
 //    noexcept
 //{
 //  const vk::DescriptorSetAllocateInfo alloc_info{descriptor_pool_,
@@ -914,12 +896,12 @@ updateDescriptorSet(ArgTypes... args)
 //
 ///*!
 //  */
-//template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
 //inline
-//void VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::initDescriptorSetLayout()
+//void VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::initDescriptorSetLayout()
 //    noexcept
 //{
-//  using ParseResult = KernelArgParser<kDimension, ArgumentTypes...>;
+//  using ParseResult = KernelArgParser<kDim, ArgumentTypes...>;
 //  constexpr auto buffer_info_list = ParseResult::getGlobalArgInfoList();
 //
 //  std::array<vk::DescriptorSetLayoutBinding, kNumOfBuffers> layout_bindings;
@@ -948,12 +930,12 @@ updateDescriptorSet(ArgTypes... args)
 //
 ///*!
 //  */
-//template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
 //inline
-//void VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::initialize(
+//void VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::initialize(
 //    const uint32b module_index, const std::string_view kernel_name) noexcept
 //{
-//  using ParseResult = KernelArgParser<kDimension, ArgumentTypes...>;
+//  using ParseResult = KernelArgParser<kDim, ArgumentTypes...>;
 //  static_assert(kNumOfBuffers == ParseResult::kNumOfGlobalArgs,
 //                "The number of buffers is wrong.");
 //
@@ -967,9 +949,9 @@ updateDescriptorSet(ArgTypes... args)
 //
 ///*!
 //  */
-//template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
 //inline
-//void VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::initPipelineLayout()
+//void VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::initPipelineLayout()
 //    noexcept
 //{
 //  const vk::PipelineLayoutCreateInfo create_info{
@@ -984,9 +966,9 @@ updateDescriptorSet(ArgTypes... args)
 //
 ///*!
 //  */
-//template <std::size_t kDimension, typename ...ArgumentTypes, typename ...BufferArgs>
+//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
 //inline
-//bool VulkanKernel<kDimension, void (*)(ArgumentTypes...), BufferArgs...>::isSameArgs(
+//bool VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::isSameArgs(
 //    std::add_lvalue_reference_t<BufferArgs>... args) const noexcept
 //{
 //  std::array<vk::Buffer, kNumOfBuffers> buffer_list{{getVkBuffer(args)...}};
@@ -995,32 +977,6 @@ updateDescriptorSet(ArgTypes... args)
 //    result = buffer_list_[i] == buffer_list[i];
 //  return result;
 //}
-
-/*!
-  \details No detailed description
-
-  \tparam kDimension No description.
-  \tparam SetType No description.
-  \tparam ArgTypes No description.
-  \param [in] parameters No description.
-  \return No description
-  */
-template <std::size_t kDimension, typename SetType, typename ...ArgTypes> inline
-SharedKernel<kDimension, SetType, ArgTypes...> VulkanDevice::makeKernel(
-    const KernelParameters<SetType, ArgTypes...>& parameters)
-{
-  using SharedKernelType = SharedKernel<kDimension, SetType, ArgTypes...>;
-  using ArgParser = KernelArgParser<ArgTypes...>;
-  using KernelType = typename ArgParser:: template VulkanKernelType<kDimension, SetType>;
-  zisc::pmr::polymorphic_allocator<KernelType> alloc{memoryResource()};
-  SharedKernelType kernel = std::allocate_shared<KernelType>(alloc, issueId());
-
-  ZivcObject::SharedPtr parent{getOwn()};
-  WeakKernel<kDimension, SetType, ArgTypes...> own{kernel};
-  kernel->initialize(std::move(parent), std::move(own), parameters);
-
-  return kernel;
-}
 
 } // namespace zivc
 

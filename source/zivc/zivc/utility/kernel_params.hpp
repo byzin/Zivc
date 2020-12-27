@@ -1,5 +1,5 @@
 /*!
-  \file kernel_parameters.hpp
+  \file kernel_params.hpp
   \author Sho Ikeda
   \brief No brief description
 
@@ -12,8 +12,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_KERNEL_PARAMETERS_HPP
-#define ZIVC_KERNEL_PARAMETERS_HPP
+#ifndef ZIVC_KERNEL_PARAMS_HPP
+#define ZIVC_KERNEL_PARAMS_HPP
 
 // Standard C++ library
 #include <array>
@@ -30,20 +30,25 @@ namespace zivc {
 
   No detailed description.
 
-  \tparam ArgTypes No description.
+  \tparam kDim No description.
+  \tparam KSet No description.
+  \tparam Args No description.
   */
-template <DerivedFromKSet SetType, typename ...ArgTypes>
-class KernelParameters
+template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
+class KernelParams
 {
  public:
   // Type aliases
-  using KernelSetType = SetType;
-  using Function = void (*)(ArgTypes...);
+  using KernelSetType = KSet;
+  using Function = void (*)(Args...);
 
 
   //! Initialize parameters
-  KernelParameters(Function ptr, std::string_view kernel_name) noexcept;
+  KernelParams(Function ptr, std::string_view kernel_name) noexcept;
 
+
+  //! Return the dimension of the kernel
+  static constexpr std::size_t dimension() noexcept;
 
   //! Return the underlying function
   Function func() const noexcept;
@@ -71,6 +76,6 @@ class KernelParameters
 
 } // namespace zivc
 
-#include "kernel_parameters-inl.hpp"
+#include "kernel_params-inl.hpp"
 
-#endif // ZIVC_KERNEL_PARAMETERS_HPP
+#endif // ZIVC_KERNEL_PARAMS_HPP

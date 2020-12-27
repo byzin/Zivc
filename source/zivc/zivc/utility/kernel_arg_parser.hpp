@@ -21,14 +21,15 @@
 #include <memory>
 #include <type_traits>
 // Zivc
-#include "zivc/kernel.hpp"
 #include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
 
 namespace zivc {
 
 // Forward declaration
-template <DerivedFromKSet SetType, typename ...ArgTypes> class KernelParameters;
+template <std::size_t, DerivedKSet, typename...> class KernelParams;
+template <typename, typename...> class Kernel;
+template <typename> class Buffer;
 
 /*!
   \brief POD type info
@@ -136,21 +137,17 @@ class KernelArgParseResult
 
   No detailed description.
 
-  \tparam ArgTypes No description.
+  \tparam Args No description.
   */
-template <typename ...ArgTypes>
+template <typename ...Args>
 class KernelArgParser
 {
  public:
   // Type aliases
   template <std::size_t kSize>
   using ResultList = std::array<KernelArgParseResult, kSize>;
-  template <std::size_t kDimension, DerivedFromKSet SetType>
-  using KernelType = Kernel<kDimension, KernelParameters<SetType, ArgTypes...>>;
-  template <std::size_t kDimension, DerivedFromKSet SetType>
-  using SharedKernel = std::shared_ptr<KernelType<kDimension, SetType>>;
-  template <std::size_t kDimension, DerivedFromKSet SetType>
-  using WeakKernel = std::weak_ptr<KernelType<kDimension, SetType>>;
+  template <std::size_t kDim, DerivedKSet KSet>
+  using KernelType = Kernel<KernelParams<kDim, KSet, Args...>>;
 
 
   static constexpr std::size_t kNumOfArgs = 0; //!< The number of arguments
@@ -197,12 +194,12 @@ class KernelArgParser
 };
 
 // Type aliases
-template <std::size_t kDimension, DerivedFromKSet SetType, typename ...ArgTypes>
-using SharedKernel = typename KernelArgParser<ArgTypes...>::
-                         template SharedKernel<kDimension, SetType>;
-template <std::size_t kDimension, DerivedFromKSet SetType, typename ...ArgTypes>
-using WeakKernel = typename KernelArgParser<ArgTypes...>::
-                         template WeakKernel<kDimension, SetType>;
+template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
+using SharedKernel = std::shared_ptr<typename KernelArgParser<Args...>::
+                                         template KernelType<kDim, KSet>>;
+template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
+using WeakKernel = std::weak_ptr<typename KernelArgParser<Args...>::
+                                     template KernelType<kDim, KSet>>;
 
 } // namespace zivc
 

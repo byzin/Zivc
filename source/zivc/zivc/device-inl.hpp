@@ -32,10 +32,10 @@ namespace zivc {
 // Forward declaration
 template <typename T>
 SharedBuffer<T> makeBuffer(Device* device, const BufferUsage flag);
-template <std::size_t kDimension, DerivedFromKSet SetType, typename ...ArgTypes>
-SharedKernel<kDimension, SetType, ArgTypes...> makeKernel(
+template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
+SharedKernel<kDim, KSet, Args...> makeKernel(
     Device* device,
-    const KernelParameters<SetType, ArgTypes...>& parameters);
+    const KernelParams<kDim, KSet, Args...>& params);
 
 /*!
   \details No detailed description
@@ -47,23 +47,76 @@ SharedKernel<kDimension, SetType, ArgTypes...> makeKernel(
 template <typename T> inline
 SharedBuffer<T> Device::makeBuffer(const BufferUsage flag)
 {
-  auto buffer = zivc::makeBuffer<T>(this, flag);
+  auto buffer = ::zivc::makeBuffer<T>(this, flag);
   return buffer;
 }
 
 /*!
   \details No detailed description
 
-  \param [in] parameters No description.
+  \tparam Derived No description.
+  \tparam T No description.
+  \param [in] flag No description.
   \return No description
   */
-template <std::size_t kDimension, DerivedFromKSet SetType, typename ...ArgTypes>
-inline
-auto Device::makeKernel(const KernelParameters<SetType, ArgTypes...>& parameters)
-    -> SharedKernel<kDimension, SetType, ArgTypes...>
+template <template<typename> typename Derived, typename T> inline
+SharedBuffer<T> Device::makeDerivedBuffer(const BufferUsage flag)
 {
-  auto kernel = zivc::makeKernel<kDimension, SetType, ArgTypes...>(this,
-                                                                   parameters);
+  using BufferT = Derived<T>;
+  zisc::pmr::polymorphic_allocator<BufferT> alloc{memoryResource()};
+  SharedBuffer<T> buffer = std::allocate_shared<BufferT>(alloc, issueId());
+
+  ZivcObject::SharedPtr parent{getOwn()};
+  WeakBuffer<T> own{buffer};
+  buffer->initialize(std::move(parent), std::move(own), flag);
+
+  return buffer;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Derived No description.
+  \tparam kDim No description.
+  \tparam KSet No description.
+  \tparam Args No description.
+  \param [in] params No description.
+  \return No description
+  */
+template <template<typename, typename...> typename Derived,
+          std::size_t kDim, DerivedKSet KSet, typename ...Args> inline
+auto Device::makeDerivedKernel(const KernelParams<kDim, KSet, Args...>& params)
+    -> SharedKernel<kDim, KSet, Args...>
+{
+  using Parser = KernelArgParser<Args...>;
+  using KernelT = typename Parser::template DerivedKernelType<Derived, kDim, KSet>;
+  using SharedKernelT = SharedKernel<kDim, KSet, Args...>;
+  using WeakKernelT = WeakKernel<kDim, KSet, Args...>;
+
+  zisc::pmr::polymorphic_allocator<KernelT> alloc{memoryResource()};
+  SharedKernelT kernel = std::allocate_shared<KernelT>(alloc, issueId());
+
+  ZivcObject::SharedPtr parent{getOwn()};
+  WeakKernelT own{kernel};
+  kernel->initialize(std::move(parent), std::move(own), params);
+
+  return kernel;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kDim No description.
+  \tparam KSet No description.
+  \tparam Args No description.
+  \param [in] params No description.
+  \return No description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...Args> inline
+auto Device::makeKernel(const KernelParams<kDim, KSet, Args...>& params)
+    -> SharedKernel<kDim, KSet, Args...>
+{
+  auto kernel = ::zivc::makeKernel<kDim, KSet, Args...>(this, params);
   return kernel;
 }
 

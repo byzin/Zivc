@@ -24,6 +24,7 @@
 #include <string_view>
 #include <type_traits>
 // Zivc
+#include "kernel_set.hpp"
 #include "utility/id_data.hpp"
 #include "utility/zivc_object.hpp"
 #include "zivc/zivc_config.hpp"
@@ -33,9 +34,9 @@ namespace zivc {
 /*!
   \details No detailed description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 LaunchOptions::LaunchOptions() noexcept :
     queue_index_{0}
 {
@@ -47,10 +48,10 @@ LaunchOptions::LaunchOptions() noexcept :
 
   \param [in] work_size No description.
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
-LaunchOptions::LaunchOptions(const std::array<uint32b, kDimension>& work_size) noexcept :
+Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+LaunchOptions::LaunchOptions(const std::array<uint32b, kDim>& work_size) noexcept :
     work_size_{work_size},
     queue_index_{0}
 {
@@ -63,10 +64,10 @@ LaunchOptions::LaunchOptions(const std::array<uint32b, kDimension>& work_size) n
   \param [in] work_size No description.
   \param [in] queue_index No description.
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
-LaunchOptions::LaunchOptions(const std::array<uint32b, kDimension>& work_size,
+Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+LaunchOptions::LaunchOptions(const std::array<uint32b, kDim>& work_size,
                              const uint32b queue_index) noexcept :
     work_size_{work_size},
     queue_index_{queue_index}
@@ -79,10 +80,9 @@ LaunchOptions::LaunchOptions(const std::array<uint32b, kDimension>& work_size,
 
   \return No description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-auto
-Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+auto Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 LaunchOptions::cpuCommandStorage() noexcept -> CommandStorage*
 {
   auto mem = std::addressof(cpu_command_storage_);
@@ -94,10 +94,9 @@ LaunchOptions::cpuCommandStorage() noexcept -> CommandStorage*
 
   \return No description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-auto
-Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+auto Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 LaunchOptions::cpuCommandStorage() const noexcept -> const CommandStorage*
 {
   auto mem = std::addressof(cpu_command_storage_);
@@ -109,10 +108,9 @@ LaunchOptions::cpuCommandStorage() const noexcept -> const CommandStorage*
 
   \return No description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-auto
-Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+auto Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 LaunchOptions::cpuAtomicStorage() noexcept -> AtomicStorage*
 {
   auto mem = std::addressof(cpu_atomic_storage_);
@@ -124,10 +122,9 @@ LaunchOptions::cpuAtomicStorage() noexcept -> AtomicStorage*
 
   \return No description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-auto
-Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+auto Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 LaunchOptions::cpuAtomicStorage() const noexcept -> const AtomicStorage*
 {
   auto mem = std::addressof(cpu_atomic_storage_);
@@ -139,13 +136,12 @@ LaunchOptions::cpuAtomicStorage() const noexcept -> const AtomicStorage*
 
   \return No description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-constexpr std::size_t
-Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+constexpr std::size_t Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 LaunchOptions::dimension() noexcept
 {
-  return kDimension;
+  return kDim;
 }
 
 /*!
@@ -153,10 +149,9 @@ LaunchOptions::dimension() noexcept
 
   \return No description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-bool
-Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+bool Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 LaunchOptions::isExternalSyncMode() const noexcept
 {
   const bool result = is_external_sync_mode_;
@@ -168,10 +163,9 @@ LaunchOptions::isExternalSyncMode() const noexcept
 
   \return No description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-std::string_view
-Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+std::string_view Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 LaunchOptions::label() const noexcept
 {
   std::string_view l{label_.data()};
@@ -183,10 +177,9 @@ LaunchOptions::label() const noexcept
 
   \return No description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-const std::array<float, 4>&
-Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+const std::array<float, 4>& Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 LaunchOptions::labelColor() const noexcept
 {
   return label_color_;
@@ -197,10 +190,9 @@ LaunchOptions::labelColor() const noexcept
 
   \return No description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-constexpr std::size_t
-Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+constexpr std::size_t Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 LaunchOptions::numOfArgs() noexcept
 {
   return kNumOfArgs;
@@ -211,10 +203,9 @@ LaunchOptions::numOfArgs() noexcept
 
   \return No description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-uint32b
-Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+uint32b Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 LaunchOptions::queueIndex() const noexcept
 {
   return queue_index_;
@@ -225,10 +216,9 @@ LaunchOptions::queueIndex() const noexcept
 
   \param [in] is_active No description.
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void
-Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+void Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 LaunchOptions::setExternalSyncMode(const bool is_active) noexcept
 {
   is_external_sync_mode_ = is_active ? zisc::kTrue : zisc::kFalse;
@@ -239,10 +229,9 @@ LaunchOptions::setExternalSyncMode(const bool is_active) noexcept
 
   \param [in] launch_label No description.
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void
-Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+void Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 LaunchOptions::setLabel(const std::string_view launch_label) noexcept
 {
   std::strncpy(label_.data(), launch_label.data(), launch_label.size() + 1);
@@ -253,10 +242,9 @@ LaunchOptions::setLabel(const std::string_view launch_label) noexcept
 
   \param [in] label_color No description.
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void
-Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+void Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 LaunchOptions::setLabelColor(const std::array<float, 4>& label_color) noexcept
 {
   label_color_ = label_color;
@@ -267,10 +255,9 @@ LaunchOptions::setLabelColor(const std::array<float, 4>& label_color) noexcept
 
   \param [in] queue_index No description.
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void
-Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+void Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 LaunchOptions::setQueueIndex(const uint32b queue_index) noexcept
 {
   queue_index_ = queue_index;
@@ -282,12 +269,10 @@ LaunchOptions::setQueueIndex(const uint32b queue_index) noexcept
   \param [in] work_size No description.
   \param [in] dim No description.
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void
-Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
-LaunchOptions::setWorkSize(const uint32b work_size,
-                           const std::size_t dim) noexcept
+void Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+LaunchOptions::setWorkSize(const uint32b work_size, const std::size_t dim) noexcept
 {
   work_size_[dim] = work_size;
 }
@@ -297,11 +282,10 @@ LaunchOptions::setWorkSize(const uint32b work_size,
 
   \param [in] work_size No description.
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void
-Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
-LaunchOptions::setWorkSize(const std::array<uint32b, kDimension>& work_size) noexcept
+void Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+LaunchOptions::setWorkSize(const std::array<uint32b, kDim>& work_size) noexcept
 {
   work_size_ = work_size;
 }
@@ -311,10 +295,9 @@ LaunchOptions::setWorkSize(const std::array<uint32b, kDimension>& work_size) noe
 
   \return No description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-const std::array<uint32b, kDimension>&
-Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+const std::array<uint32b, kDim>& Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 LaunchOptions::workSize() const noexcept
 {
   return work_size_;
@@ -323,13 +306,12 @@ LaunchOptions::workSize() const noexcept
 /*!
   \details No detailed description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void
-Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+void Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 LaunchOptions::initialize() noexcept
 {
-  setLabel(SetType::name());
+  setLabel(KSet::name());
 }
 
 /*!
@@ -337,10 +319,9 @@ LaunchOptions::initialize() noexcept
 
   \param [in] id No description.
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
-Kernel(IdData&& id) noexcept :
+Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::Kernel(IdData&& id) noexcept :
     ZivcObject(std::move(id))
 {
 }
@@ -348,21 +329,18 @@ Kernel(IdData&& id) noexcept :
 /*!
   \details No detailed description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
-~Kernel() noexcept
+Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::~Kernel() noexcept
 {
 }
 
 /*!
   \details No detailed description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void
-Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
-destroy() noexcept
+void Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::destroy() noexcept
 {
   destroyData();
   destroyObject();
@@ -373,13 +351,12 @@ destroy() noexcept
 
   \return No description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-constexpr std::size_t 
-Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+constexpr std::size_t Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 dimension() noexcept
 {
-  return kDimension;
+  return kDim;
 }
 
 /*!
@@ -389,13 +366,12 @@ dimension() noexcept
   \param [in] own No description.
   \param [in] params No description.
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void
-Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+void Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 initialize(ZivcObject::SharedPtr&& parent,
            WeakPtr&& own,
-           const Parameters& params)
+           const Params& params)
 {
   //! Clear the previous device data first
   destroy();
@@ -411,10 +387,9 @@ initialize(ZivcObject::SharedPtr&& parent,
 
   \return No description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-auto
-Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+auto Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 makeOptions() const noexcept -> LaunchOptions
 {
   return LaunchOptions{};
@@ -425,13 +400,12 @@ makeOptions() const noexcept -> LaunchOptions
 
   \return No description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-constexpr std::size_t 
-Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+constexpr std::size_t Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 numOfArgs() noexcept
 {
-  const std::size_t size = sizeof...(ArgTypes);
+  const std::size_t size = sizeof...(Args);
   return size;
 }
 
@@ -441,14 +415,13 @@ numOfArgs() noexcept
   \param [in] work_size No description.
   \return No description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-std::array<uint32b, 3>
-Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
-expandWorkSize(const std::array<uint32b, kDimension>& work_size) noexcept
+std::array<uint32b, 3> Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+expandWorkSize(const std::array<uint32b, kDim>& work_size) noexcept
 {
   std::array<uint32b, 3> work_size_3d{{1, 1, 1}};
-  for (std::size_t i = 0; i < kDimension; ++i)
+  for (std::size_t i = 0; i < kDim; ++i)
     work_size_3d[i] = work_size[i];
   return work_size_3d;
 }

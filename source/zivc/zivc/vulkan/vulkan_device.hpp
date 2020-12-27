@@ -31,11 +31,9 @@
 // Zivc
 #include "utility/vulkan_dispatch_loader.hpp"
 #include "utility/vulkan_memory_allocator.hpp"
-#include "zivc/buffer.hpp"
 #include "zivc/device.hpp"
 #include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
-#include "zivc/utility/kernel_arg_parser.hpp"
 #include "zivc/utility/id_data.hpp"
 
 namespace zivc {
@@ -45,8 +43,6 @@ class DeviceInfo;
 class Fence;
 class VulkanDeviceInfo;
 class VulkanSubPlatform;
-template <DerivedFromKSet SetType, typename ...ArgTypes> class KernelParameters;
-template <typename SetType> class KernelSet;
 
 /*!
   \brief No brief description
@@ -112,17 +108,8 @@ class VulkanDevice : public Device
   //! Return the invalid queue index in queue families
   static constexpr uint32b invalidQueueIndex() noexcept;
 
-  //! Make a buffer
-  template <typename Type>
-  SharedBuffer<Type> makeBuffer(const BufferUsage flag);
-
   //! Make a command buffer
   VkCommandBuffer makeCommandBuffer();
-
-  //! Make a kernel
-  template <std::size_t kDimension, typename SetType, typename ...ArgTypes>
-  SharedKernel<kDimension, SetType, ArgTypes...> makeKernel(
-      const KernelParameters<SetType, ArgTypes...>& parameters);
 
   //! Return the memory allocator of the device
   VmaAllocator& memoryAllocator() noexcept;

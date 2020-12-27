@@ -26,12 +26,8 @@
 #include "zisc/memory/std_memory_resource.hpp"
 #include "zisc/thread/thread_manager.hpp"
 // Zivc
-#include "zivc/buffer.hpp"
 #include "zivc/device.hpp"
-//#include "zivc/kernel.hpp"
-#include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
-#include "zivc/utility/kernel_arg_parser.hpp"
 #include "zivc/utility/id_data.hpp"
 
 namespace zivc {
@@ -41,7 +37,6 @@ class DeviceInfo;
 class Fence;
 class CpuDeviceInfo;
 class CpuSubPlatform;
-template <DerivedFromKSet SetType, typename ...ArgTypes> class KernelParameters;
 
 /*!
   \brief No brief description
@@ -64,15 +59,6 @@ class CpuDevice : public Device
 
   //! Return the underlying device info
   const CpuDeviceInfo& deviceInfoData() const noexcept;
-
-  //! Make a buffer
-  template <typename Type>
-  SharedBuffer<Type> makeBuffer(const BufferUsage flag) noexcept;
-
-  //! Make a kernel
-  template <std::size_t kDimension, DerivedFromKSet SetType, typename ...ArgTypes>
-  SharedKernel<kDimension, SetType, ArgTypes...> makeKernel(
-      const KernelParameters<SetType, ArgTypes...>& parameters) noexcept;
 
   //! Notify of device memory allocation
   void notifyAllocation(const std::size_t size) noexcept;

@@ -35,7 +35,7 @@
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/id_data.hpp"
 #include "zivc/utility/kernel_arg_parser.hpp"
-#include "zivc/utility/kernel_parameters.hpp"
+#include "zivc/utility/kernel_params.hpp"
 #include "zivc/utility/launch_result.hpp"
 
 namespace zivc {
@@ -45,9 +45,9 @@ namespace zivc {
 
   \param [in] id No description.
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-CpuKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 CpuKernel(IdData&& id) noexcept : BaseKernel(std::move(id))
 {
 }
@@ -55,9 +55,9 @@ CpuKernel(IdData&& id) noexcept : BaseKernel(std::move(id))
 /*!
   \details No detailed description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-CpuKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 ~CpuKernel() noexcept
 {
 }
@@ -67,10 +67,9 @@ CpuKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
 
   \return No description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-auto
-CpuKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+auto CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 kernel() const noexcept -> Function
 {
   return kernel_;
@@ -82,17 +81,16 @@ kernel() const noexcept -> Function
   \param [in] args No description.
   \param [in] launch_options No description.
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-LaunchResult
-CpuKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
-run(ArgTypes... args, LaunchOptions& launch_options)
+LaunchResult CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+run(Args... args, LaunchOptions& launch_options)
 {
   CpuDevice& device = parentImpl();
   // Command recording
   auto c = [func = kernel(), &args..., &launch_options]() noexcept
   {
-    using LauncherType = Launcher<FuncArgTypes...>;
+    using LauncherType = Launcher<FuncArgs...>;
     LauncherType::exec(func, launch_options, args...);
   };
   using CommandType = decltype(c);
@@ -121,10 +119,9 @@ run(ArgTypes... args, LaunchOptions& launch_options)
 /*!
   \details No detailed description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void
-CpuKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+void CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 destroyData() noexcept
 {
   kernel_ = nullptr;
@@ -135,11 +132,10 @@ destroyData() noexcept
 
   \param [in] params No description.
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void
-CpuKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
-initData(const Parameters& params)
+void CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+initData(const Params& params)
 {
   kernel_ = params.func();
 }
@@ -147,10 +143,9 @@ initData(const Parameters& params)
 /*!
   \details No detailed description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void
-CpuKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+void CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 updateDebugInfoImpl() noexcept
 {
 }
@@ -164,11 +159,11 @@ updateDebugInfoImpl() noexcept
   \param [in] value No description.
   \param [in] rest No description.
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 template <typename ...UnprocessedArgs> template <typename Type, typename ...Types>
 inline
 void
-CpuKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 Launcher<UnprocessedArgs...>::exec(Function func,
                                    const LaunchOptions& launch_options,
                                    Type&& value,
@@ -217,10 +212,10 @@ Launcher<UnprocessedArgs...>::exec(Function func,
 
   \return No description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 CpuDevice&
-CpuKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 parentImpl() noexcept
 {
   auto p = BaseKernel::getParent();
@@ -232,41 +227,14 @@ parentImpl() noexcept
 
   \return No description
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 const CpuDevice&
-CpuKernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>::
+CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 parentImpl() const noexcept
 {
   const auto p = BaseKernel::getParent();
   return *zisc::reinterp<const CpuDevice*>(p);
-}
-
-/*!
-  \details No detailed description
-
-  \tparam kDimension No description.
-  \tparam SetType No description.
-  \tparam ArgTypes No description.
-  \param [in] parameters No description.
-  \return No description
-  */
-template <std::size_t kDimension, DerivedFromKSet SetType, typename ...ArgTypes>
-inline
-SharedKernel<kDimension, SetType, ArgTypes...> CpuDevice::makeKernel(
-    const KernelParameters<SetType, ArgTypes...>& parameters) noexcept
-{
-  using SharedKernelType = SharedKernel<kDimension, SetType, ArgTypes...>;
-  using KernelType = typename KernelArgParser<ArgTypes...>::
-                         template CpuKernelType<kDimension, SetType>;
-  zisc::pmr::polymorphic_allocator<KernelType> alloc{memoryResource()};
-  SharedKernelType kernel = std::allocate_shared<KernelType>(alloc, issueId());
-
-  ZivcObject::SharedPtr parent{getOwn()};
-  WeakKernel<kDimension, SetType, ArgTypes...> own{kernel};
-  kernel->initialize(std::move(parent), std::move(own), parameters);
-
-  return kernel;
 }
 
 } // namespace zivc

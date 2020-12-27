@@ -50,7 +50,7 @@ class KernelSet
 
 //! Specify a type is derived from KernelSet
 template <typename Type>
-concept DerivedFromKSet = zisc::DerivedFrom<Type, KernelSet<Type>>;
+concept DerivedKSet = zisc::DerivedFrom<Type, KernelSet<Type>>;
 
 } // namespace zivc
 

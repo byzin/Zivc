@@ -22,43 +22,38 @@
 #include <type_traits>
 // Zivc
 #include "zivc/kernel.hpp"
+#include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/id_data.hpp"
-#include "zivc/utility/kernel_parameters.hpp"
 #include "zivc/utility/launch_result.hpp"
 
 namespace zivc {
 
 // Forward declaration
-template <typename Type> class Buffer;
+template <typename> class Buffer;
 class CpuDevice;
-template <std::size_t kDimension, typename FuncArgTypes, typename ...ArgTypes>
-class CpuKernel;
+template <std::size_t, DerivedKSet, typename...> class KernelParams;
+template <typename, typename...> class CpuKernel;
 
 /*!
   \brief No brief description
 
   No detailed description.
 
-  \tparam kDimension No description.
-  \tparam FuncArgTypes No description.
-  \tparam ArgTypes No description.
+  \tparam kDim No description.
+  \tparam KSet No description.
+  \tparam FuncArgs No description.
+  \tparam Args No description.
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
-class CpuKernel<kDimension,
-                KernelParameters<SetType, FuncArgTypes...>,
-                ArgTypes...> :
-    public Kernel<kDimension,
-                  KernelParameters<SetType, FuncArgTypes...>,
-                  ArgTypes...>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+class CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> :
+    public Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>
 {
  public:
   // Type aliases
-  using BaseKernel = Kernel<kDimension,
-                            KernelParameters<SetType, FuncArgTypes...>,
-                            ArgTypes...>;
-  using Parameters = typename BaseKernel::Parameters;
-  using Function = typename Parameters::Function;
+  using BaseKernel = Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>;
+  using Params = typename BaseKernel::Params;
+  using Function = typename Params::Function;
   using LaunchOptions = typename BaseKernel::LaunchOptions;
 
 
@@ -73,14 +68,14 @@ class CpuKernel<kDimension,
   Function kernel() const noexcept;
 
   //! Execute a kernel
-  LaunchResult run(ArgTypes... args, LaunchOptions& launch_options) override;
+  LaunchResult run(Args... args, LaunchOptions& launch_options) override;
 
  protected:
   //! Clear the contents of the kernel
   void destroyData() noexcept override;
 
   //! Initialize the kernel
-  void initData(const Parameters& params) override;
+  void initData(const Params& params) override;
 
   //! Update debug info
   void updateDebugInfoImpl() noexcept override;

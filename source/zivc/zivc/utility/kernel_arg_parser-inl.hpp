@@ -24,18 +24,11 @@
 // Zisc
 #include "zisc/zisc_config.hpp"
 // Zivc
-#include "zivc/buffer.hpp"
-#include "zivc/kernel.hpp"
+#include "zivc/kernel_set.hpp"
 #include "zivc/cppcl/address_space_pointer.hpp"
 #include "zivc/zivc_config.hpp"
 
 namespace zivc {
-
-// Forward declaration
-template <std::size_t kDimension, typename FuncArgTypes, typename ...ArgTypes>
-class CpuKernel;
-template <std::size_t kDimension, typename FuncArgTypes, typename ...ArgTypes>
-class VulkanKernel;
 
 /*!
   \brief Global or Local type info
@@ -204,67 +197,67 @@ constexpr void KernelArgParseResult::setIndex(const std::size_t index) noexcept
 
   No detailed description.
 
-  \tparam ArgType No description.
-  \tparam RestTypes No description.
+  \tparam Arg No description.
+  \tparam RestArgs No description.
   */
-template <typename ArgType, typename ...RestTypes>
-class KernelArgParser<ArgType, RestTypes...>
+template <typename Arg, typename ...RestArgs>
+class KernelArgParser<Arg, RestArgs...>
 {
   // Type aliases
-  using Parent = KernelArgParser<RestTypes...>;
-  using ArgInfo = KernelArgInfo<ArgType>;
-  template <std::size_t kDimension, typename SetType>
-  using ParentKernel = typename Parent::template KernelType<kDimension, SetType>;
-  template <typename SetType>
-  using PrevParameters = KernelParameters<SetType, RestTypes...>;
-  template <typename SetType>
-  using Parameters = KernelParameters<SetType, ArgType, RestTypes...>;
-  template <typename ...Types> struct NewKernel;
-  template <typename ...Types> struct ExtendedKernel;
+  using ArgInfo = KernelArgInfo<Arg>;
+  template <std::size_t kDim, DerivedKSet KSet>
+  using Params = KernelParams<kDim, KSet, Arg, RestArgs...>;
+  using NextParser = KernelArgParser<RestArgs...>;
+  template <std::size_t kDim, DerivedKSet KSet>
+  using NextParams = KernelParams<kDim, KSet, RestArgs...>;
+  template <std::size_t kDim, DerivedKSet KSet>
+  using NextKernel = typename NextParser::template KernelType<kDim, KSet>;
 
+  template <typename> struct KernelT;
   /*!
     \brief No brief description
 
     No detailed description.
 
-    \tparam kDimension No description.
-    \tparam SetType No description.
-    \tparam Types No description.
+    \tparam kDim No description.
+    \tparam KSet No description.
+    \tparam Args No description.
     */
-  template <std::size_t kDimension, typename SetType, typename ...Types>
-  struct NewKernel<Kernel<kDimension, PrevParameters<SetType>, Types...>>
+  template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
+  struct KernelT<Kernel<NextParams<kDim, KSet>, Args...>>
   {
-    using KernelType = Kernel<kDimension, Parameters<SetType>, Types...>;
-    using CpuKernelType = CpuKernel<kDimension, Parameters<SetType>, Types...>;
-    using VulkanKernelType = VulkanKernel<kDimension, Parameters<SetType>, Types...>;
+    using Type = Kernel<Params<kDim, KSet>, Args...>;
+    template <template<typename, typename...> typename Derived>
+    using DerivedType = Derived<Params<kDim, KSet>, Args...>;
   };
 
+  template <typename> struct ExtendedKernelT;
   /*!
     \brief No brief description
 
     No detailed description.
 
-    \tparam kDimension No description.
-    \tparam SetType No description.
-    \tparam Types No description.
+    \tparam kDim No description.
+    \tparam KSet No description.
+    \tparam Args No description.
     */
-  template <std::size_t kDimension, typename SetType, typename ...Types>
-  struct ExtendedKernel<Kernel<kDimension, PrevParameters<SetType>, Types...>>
+  template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
+  struct ExtendedKernelT<Kernel<NextParams<kDim, KSet>, Args...>>
   {
-    using Arg = std::conditional_t<ArgInfo::kIsPod,
+    using ArgT = std::conditional_t<ArgInfo::kIsPod,
         std::add_const_t<typename ArgInfo::ElementType>,
         std::add_lvalue_reference_t<Buffer<typename ArgInfo::ElementType>>>;
-    using KernelType = Kernel<kDimension, Parameters<SetType>, Arg, Types...>;
-    using CpuKernelType = CpuKernel<kDimension, Parameters<SetType>, Arg, Types...>;
-    using VulkanKernelType = VulkanKernel<kDimension, Parameters<SetType>, Arg, Types...>;
+    using Type = Kernel<Params<kDim, KSet>, ArgT, Args...>;
+    template <template<typename, typename...> typename Derived>
+    using DerivedType = Derived<Params<kDim, KSet>, ArgT, Args...>;
   };
 
-  template <std::size_t kDimension, typename SetType>
+  template <std::size_t kDim, DerivedKSet KSet>
   using KernelTypeHelper = std::conditional_t<ArgInfo::kIsLocal,
-      NewKernel<ParentKernel<kDimension, SetType>>,
-      ExtendedKernel<ParentKernel<kDimension, SetType>>>;
+      KernelT<NextKernel<kDim, KSet>>,
+      ExtendedKernelT<NextKernel<kDim, KSet>>>;
 
-  //! Make the parse result of the ArgType
+  //! Make the parse result of the Arg
   static constexpr KernelArgParseResult makeArgParseResult() noexcept
   {
     return KernelArgParseResult{ArgInfo::kIsGlobal,
@@ -278,43 +271,40 @@ class KernelArgParser<ArgType, RestTypes...>
   // Type aliases
   template <std::size_t kSize>
   using ResultList = std::array<KernelArgParseResult, kSize>;
-  template <std::size_t kDimension, typename SetType>
-  using KernelType = typename KernelTypeHelper<kDimension, SetType>::KernelType;
-  template <std::size_t kDimension, typename SetType>
-  using SharedKernel = std::shared_ptr<KernelType<kDimension, SetType>>;
-  template <std::size_t kDimension, typename SetType>
-  using WeakKernel = std::weak_ptr<KernelType<kDimension, SetType>>;
-  template <std::size_t kDimension, typename SetType>
-  using CpuKernelType = typename KernelTypeHelper<kDimension, SetType>::CpuKernelType;
-  template <std::size_t kDimension, typename SetType>
-  using VulkanKernelType = typename KernelTypeHelper<kDimension, SetType>::VulkanKernelType;
+  template <std::size_t kDim, DerivedKSet KSet>
+  using KernelType = typename KernelTypeHelper<kDim, KSet>::Type;
+  template <template<typename, typename...> typename Derived,
+            std::size_t kDim,
+            DerivedKSet KSet>
+  using DerivedKernelType = typename KernelTypeHelper<kDim, KSet>::
+                                template DerivedType<Derived>;
 
 
-  static constexpr std::size_t kNumOfArgs = Parent::kNumOfArgs + 1;
+  static constexpr std::size_t kNumOfArgs = NextParser::kNumOfArgs + 1;
   static constexpr std::size_t kNumOfGlobalArgs = ArgInfo::kIsGlobal
-      ? Parent::kNumOfGlobalArgs + 1
-      : Parent::kNumOfGlobalArgs;
+      ? NextParser::kNumOfGlobalArgs + 1
+      : NextParser::kNumOfGlobalArgs;
   static constexpr std::size_t kNumOfLocalArgs = ArgInfo::kIsLocal
-      ? Parent::kNumOfLocalArgs + 1
-      : Parent::kNumOfLocalArgs;
+      ? NextParser::kNumOfLocalArgs + 1
+      : NextParser::kNumOfLocalArgs;
   static constexpr std::size_t kNumOfConstantArgs = ArgInfo::kIsConstant
-      ? Parent::kNumOfConstantArgs + 1
-      : Parent::kNumOfConstantArgs;
+      ? NextParser::kNumOfConstantArgs + 1
+      : NextParser::kNumOfConstantArgs;
   static constexpr std::size_t kNumOfPodArgs = ArgInfo::kIsPod
-      ? Parent::kNumOfPodArgs + 1
-      : Parent::kNumOfPodArgs;
+      ? NextParser::kNumOfPodArgs + 1
+      : NextParser::kNumOfPodArgs;
   static constexpr std::size_t kNumOfBufferArgs = ArgInfo::kIsBuffer
-      ? Parent::kNumOfBufferArgs + 1
-      : Parent::kNumOfBufferArgs;
+      ? NextParser::kNumOfBufferArgs + 1
+      : NextParser::kNumOfBufferArgs;
 
 
   //! Return the info of arguments
   static constexpr ResultList<kNumOfArgs> getArgInfoList() noexcept
   {
     ResultList<kNumOfArgs> result_list;
-    if constexpr (0u < Parent::kNumOfArgs) {
-      auto parent_list = Parent::getArgInfoList();
-      for (std::size_t i = 0; i < Parent::kNumOfArgs; ++i) {
+    if constexpr (0u < NextParser::kNumOfArgs) {
+      auto parent_list = NextParser::getArgInfoList();
+      for (std::size_t i = 0; i < NextParser::kNumOfArgs; ++i) {
         result_list[i + 1] = parent_list[i];
         result_list[i + 1].setIndex(i + 1);
       }
@@ -329,9 +319,9 @@ class KernelArgParser<ArgType, RestTypes...>
   {
     ResultList<kNumOfLocalArgs> result_list;
     const std::size_t offset = ArgInfo::kIsLocal ? 1u : 0u;
-    if constexpr (0u < Parent::kNumOfLocalArgs) {
-      auto parent_list = Parent::getLocalArgInfoList();
-      for (std::size_t i = 0; i < Parent::kNumOfLocalArgs; ++i) {
+    if constexpr (0u < NextParser::kNumOfLocalArgs) {
+      auto parent_list = NextParser::getLocalArgInfoList();
+      for (std::size_t i = 0; i < NextParser::kNumOfLocalArgs; ++i) {
         result_list[i + offset] = parent_list[i];
         result_list[i + offset].setIndex(result_list[i + offset].index() + 1);
       }
@@ -348,9 +338,9 @@ class KernelArgParser<ArgType, RestTypes...>
   {
     ResultList<kNumOfPodArgs> result_list;
     const std::size_t offset = ArgInfo::kIsPod ? 1u : 0u;
-    if constexpr (0u < Parent::kNumOfPodArgs) {
-      auto parent_list = Parent::getPodArgInfoList();
-      for (std::size_t i = 0; i < Parent::kNumOfPodArgs; ++i) {
+    if constexpr (0u < NextParser::kNumOfPodArgs) {
+      auto parent_list = NextParser::getPodArgInfoList();
+      for (std::size_t i = 0; i < NextParser::kNumOfPodArgs; ++i) {
         result_list[i + offset] = parent_list[i];
         result_list[i + offset].setIndex(result_list[i + offset].index() + 1);
       }
@@ -367,9 +357,9 @@ class KernelArgParser<ArgType, RestTypes...>
   {
     ResultList<kNumOfBufferArgs> result_list;
     const std::size_t offset = ArgInfo::kIsBuffer ? 1u : 0u;
-    if constexpr (0u < Parent::kNumOfBufferArgs) {
-      auto parent_list = Parent::getBufferArgInfoList();
-      for (std::size_t i = 0; i < Parent::kNumOfBufferArgs; ++i) {
+    if constexpr (0u < NextParser::kNumOfBufferArgs) {
+      auto parent_list = NextParser::getBufferArgInfoList();
+      for (std::size_t i = 0; i < NextParser::kNumOfBufferArgs; ++i) {
         result_list[i + offset] = parent_list[i];
         result_list[i + offset].setIndex(result_list[i + offset].index() + 1);
       }
@@ -385,8 +375,8 @@ class KernelArgParser<ArgType, RestTypes...>
   //! Check if there are const local arguments in the kernel arguments
   static constexpr bool hasConstLocal() noexcept
   {
-    const bool is_const_local = std::is_const_v<ArgType> && ArgInfo::kIsLocal;
-    return is_const_local || Parent::hasConstLocal();
+    const bool is_const_local = std::is_const_v<Arg> && ArgInfo::kIsLocal;
+    return is_const_local || NextParser::hasConstLocal();
   }
 };
 

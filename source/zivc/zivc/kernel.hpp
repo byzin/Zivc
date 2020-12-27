@@ -35,39 +35,33 @@
 namespace zivc {
 
 // Forward declaration
-template <typename Type> class Buffer;
-template <DerivedFromKSet SetType, typename ...ArgTypes> class KernelParameters;
-template <typename ...ArgTypes> class KernelArgParser;
-
-template <std::size_t kDimension, typename FuncArgTypes, typename ...ArgTypes>
-class Kernel
-{
-  static_assert(kDimension == std::numeric_limits<std::size_t>::max());
-};
+template <typename> class Buffer;
+template <std::size_t, DerivedKSet, typename...> class KernelParams;
+template <typename...> class KernelArgParser;
+template <typename, typename...> class Kernel;
 
 /*!
   \brief No brief description
 
   No detailed description.
 
-  \tparam kDimension No description.
-  \tparam SetType No description.
-  \tparam FuncArgTypes No description.
-  \tparam ArgTypes No description.
+  \tparam kDim No description.
+  \tparam KSet No description.
+  \tparam FuncArgs No description.
+  \tparam Args No description.
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
-class Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...>
-    : public ZivcObject
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+class Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> : public ZivcObject
 {
-  static_assert(zisc::Algorithm::isInBounds(kDimension, 1u, 4u),
-                "The kDimension should be 1, 2 or 3.");
+  static_assert(zisc::Algorithm::isInBounds(kDim, 1u, 4u),
+                "The kDim must be 1, 2 or 3.");
 
  public:
   // Type aliases
   using SharedPtr = std::shared_ptr<Kernel>;
   using WeakPtr = std::weak_ptr<Kernel>;
-  using ArgParser = KernelArgParser<FuncArgTypes...>;
-  using Parameters = KernelParameters<SetType, FuncArgTypes...>;
+  using ArgParser = KernelArgParser<FuncArgs...>;
+  using Params = KernelParams<kDim, KSet, FuncArgs...>;
 
 
   /*!
@@ -78,7 +72,7 @@ class Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...
   class LaunchOptions
   {
    public:
-    static constexpr std::size_t kNumOfArgs = sizeof...(ArgTypes);
+    static constexpr std::size_t kNumOfArgs = sizeof...(Args);
 
 
     using CommandStorage = std::aligned_storage_t<
@@ -93,10 +87,10 @@ class Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...
     LaunchOptions() noexcept;
 
     //! Initialize the launch info
-    LaunchOptions(const std::array<uint32b, kDimension>& work_size) noexcept;
+    LaunchOptions(const std::array<uint32b, kDim>& work_size) noexcept;
 
     //! Initialize the launch info
-    LaunchOptions(const std::array<uint32b, kDimension>& work_size,
+    LaunchOptions(const std::array<uint32b, kDim>& work_size,
                   const uint32b queue_index) noexcept;
 
 
@@ -146,10 +140,10 @@ class Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...
     void setWorkSize(const uint32b work_size, const std::size_t dim) noexcept;
 
     //! Set the work item size
-    void setWorkSize(const std::array<uint32b, kDimension>& work_size) noexcept;
+    void setWorkSize(const std::array<uint32b, kDim>& work_size) noexcept;
 
     //! Return the work item size
-    const std::array<uint32b, kDimension>& workSize() const noexcept;
+    const std::array<uint32b, kDim>& workSize() const noexcept;
 
    private:
     //! Initialize the options
@@ -160,7 +154,7 @@ class Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...
     AtomicStorage cpu_atomic_storage_;
     IdData::NameType label_;
     std::array<float, 4> label_color_ = {1.0f, 1.0f, 1.0f, 1.0f};
-    std::array<uint32b, kDimension> work_size_;
+    std::array<uint32b, kDim> work_size_;
     uint32b queue_index_ = 0;
     int8b is_external_sync_mode_ = zisc::kFalse;
     std::array<uint8b, std::alignment_of_v<void*> - 1> padding_;
@@ -183,7 +177,7 @@ class Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...
   //! Initialize the kernel
   void initialize(ZivcObject::SharedPtr&& parent,
                   WeakPtr&& own,
-                  const Parameters& params);
+                  const Params& params);
 
   //! Make launch options
   LaunchOptions makeOptions() const noexcept;
@@ -192,7 +186,7 @@ class Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...
   static constexpr std::size_t numOfArgs() noexcept;
 
   //! Execute a kernel
-  virtual LaunchResult run(ArgTypes... args, LaunchOptions& launch_options) = 0;
+  virtual LaunchResult run(Args... args, LaunchOptions& launch_options) = 0;
 
  protected:
   //! Clear the contents of the kernel
@@ -200,10 +194,10 @@ class Kernel<kDimension, KernelParameters<SetType, FuncArgTypes...>, ArgTypes...
 
   //! Expand the given work size to 3d work size array
   static std::array<uint32b, 3> expandWorkSize(
-      const std::array<uint32b, kDimension>& work_size) noexcept;
+      const std::array<uint32b, kDim>& work_size) noexcept;
 
   //! Initialize the kernel 
-  virtual void initData(const Parameters& params) = 0;
+  virtual void initData(const Params& params) = 0;
 };
 
 } // namespace zivc

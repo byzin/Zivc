@@ -1,5 +1,5 @@
 /*!
-  \file kernel_parameters_inl.hpp
+  \file kernel_params_inl.hpp
   \author Sho Ikeda
   \brief No brief description
 
@@ -12,10 +12,10 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_KERNEL_PARAMETERS_INL_HPP
-#define ZIVC_KERNEL_PARAMETERS_INL_HPP
+#ifndef ZIVC_KERNEL_PARAMS_INL_HPP
+#define ZIVC_KERNEL_PARAMS_INL_HPP
 
-#include "kernel_parameters.hpp"
+#include "kernel_params.hpp"
 // Standard C++ library
 #include <array>
 #include <cstddef>
@@ -34,11 +34,10 @@ namespace zivc {
 
   \param [in] ptr No description.
   */
-template <DerivedFromKSet SetType, typename ...ArgTypes> inline
-KernelParameters<SetType, ArgTypes...>::KernelParameters(
-    Function ptr,
-    std::string_view kernel_name) noexcept :
-        function_{ptr}
+template <std::size_t kDim, DerivedKSet KSet, typename ...Args> inline
+KernelParams<kDim, KSet, Args...>::KernelParams(Function ptr,
+                                                std::string_view kernel_name) noexcept
+    : function_{ptr}
 {
   initialize(kernel_name);
 }
@@ -48,8 +47,19 @@ KernelParameters<SetType, ArgTypes...>::KernelParameters(
 
   \return No description
   */
-template <DerivedFromKSet SetType, typename ...ArgTypes> inline
-auto KernelParameters<SetType, ArgTypes...>::func() const noexcept -> Function
+template <std::size_t kDim, DerivedKSet KSet, typename ...Args> inline
+constexpr std::size_t KernelParams<kDim, KSet, Args...>::dimension() noexcept
+{
+  return kDim;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...Args> inline
+auto KernelParams<kDim, KSet, Args...>::func() const noexcept -> Function
 {
   return function_;
 }
@@ -59,8 +69,8 @@ auto KernelParameters<SetType, ArgTypes...>::func() const noexcept -> Function
 
   \return No description
   */
-template <DerivedFromKSet SetType, typename ...ArgTypes> inline
-std::string_view KernelParameters<SetType, ArgTypes...>::kernelName() const noexcept
+template <std::size_t kDim, DerivedKSet KSet, typename ...Args> inline
+std::string_view KernelParams<kDim, KSet, Args...>::kernelName() const noexcept
 {
   std::string_view name{kernel_name_.data()};
   return name;
@@ -71,8 +81,8 @@ std::string_view KernelParameters<SetType, ArgTypes...>::kernelName() const noex
 
   \return No description
   */
-template <DerivedFromKSet SetType, typename ...ArgTypes> inline
-constexpr std::size_t KernelParameters<SetType, ArgTypes...>::maxKernelNameLength() noexcept
+template <std::size_t kDim, DerivedKSet KSet, typename ...Args> inline
+constexpr std::size_t KernelParams<kDim, KSet, Args...>::maxKernelNameLength() noexcept
 {
   return IdData::maxNameLength();
 }
@@ -82,8 +92,8 @@ constexpr std::size_t KernelParameters<SetType, ArgTypes...>::maxKernelNameLengt
 
   \param [in] ptr No description.
   */
-template <DerivedFromKSet SetType, typename ...ArgTypes> inline
-void KernelParameters<SetType, ArgTypes...>::setFunc(Function ptr) noexcept
+template <std::size_t kDim, DerivedKSet KSet, typename ...Args> inline
+void KernelParams<kDim, KSet, Args...>::setFunc(Function ptr) noexcept
 {
   function_ = ptr;
 }
@@ -93,8 +103,8 @@ void KernelParameters<SetType, ArgTypes...>::setFunc(Function ptr) noexcept
 
   \param [in] kernel_name No description.
   */
-template <DerivedFromKSet SetType, typename ...ArgTypes> inline
-void KernelParameters<SetType, ArgTypes...>::setKernelName(
+template <std::size_t kDim, DerivedKSet KSet, typename ...Args> inline
+void KernelParams<kDim, KSet, Args...>::setKernelName(
     std::string_view kernel_name) noexcept
 {
   const std::size_t s = kernel_name.size();
@@ -108,8 +118,8 @@ void KernelParameters<SetType, ArgTypes...>::setKernelName(
 /*!
   \details No detailed description
   */
-template <DerivedFromKSet SetType, typename ...ArgTypes> inline
-void KernelParameters<SetType, ArgTypes...>::initialize(
+template <std::size_t kDim, DerivedKSet KSet, typename ...Args> inline
+void KernelParams<kDim, KSet, Args...>::initialize(
     std::string_view kernel_name) noexcept
 {
   kernel_name_.fill('\0');
@@ -118,4 +128,4 @@ void KernelParameters<SetType, ArgTypes...>::initialize(
 
 } // namespace zivc
 
-#endif // ZIVC_KERNEL_PARAMETERS_INL_HPP
+#endif // ZIVC_KERNEL_PARAMS_INL_HPP

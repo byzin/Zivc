@@ -144,8 +144,8 @@ int main(int /* argc */, char** /* argv */)
                 << " MB." << std::endl;
     }
 
-    auto kernel_parameters = ZIVC_MAKE_KERNEL_PARAMETERS(example, testKernel);
-    auto kernel = device->makeKernel<1>(kernel_parameters);
+    auto kernel_params = ZIVC_MAKE_KERNEL_PARAMS(example, testKernel, 1);
+    auto kernel = device->makeKernel(kernel_params);
 
     auto launch_options = kernel->makeOptions();
     launch_options.setWorkSize({1920 * 1080});

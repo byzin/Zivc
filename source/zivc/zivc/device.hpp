@@ -35,7 +35,7 @@ namespace zivc {
 class DeviceInfo;
 class Fence;
 class SubPlatform;
-template <DerivedFromKSet SetType, typename ...ArgTypes> class KernelParameters;
+template <std::size_t, DerivedKSet, typename...> class KernelParams;
 
 /*!
   \brief No brief description
@@ -72,10 +72,20 @@ class Device : public ZivcObject
   template <typename T>
   SharedBuffer<T> makeBuffer(const BufferUsage flag);
 
-  //! Make a kernel
-  template <std::size_t kDimension, DerivedFromKSet SetType, typename ...ArgTypes>
-  SharedKernel<kDimension, SetType, ArgTypes...> makeKernel(
-      const KernelParameters<SetType, ArgTypes...>& parameters);
+  //! Make a buffer
+  template <template<typename> typename Derived, typename T>
+  SharedBuffer<T> makeDerivedBuffer(const BufferUsage flag);
+
+  //! Make a kernel from the given parameters
+  template <template<typename, typename...> typename Derived,
+            std::size_t kDim, DerivedKSet KSet, typename ...Args>
+  SharedKernel<kDim, KSet, Args...> makeDerivedKernel(
+      const KernelParams<kDim, KSet, Args...>& params);
+
+  //! Make a kernel from the given parameters
+  template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
+  SharedKernel<kDim, KSet, Args...> makeKernel(
+      const KernelParams<kDim, KSet, Args...>& params);
 
   //! Return the number of available fences
   virtual std::size_t numOfFences() const noexcept = 0;

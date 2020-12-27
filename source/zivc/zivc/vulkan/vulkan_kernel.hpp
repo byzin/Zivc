@@ -25,42 +25,36 @@
 // Zivc
 #include "zivc/buffer.hpp"
 #include "zivc/kernel.hpp"
+#include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/id_data.hpp"
-#include "zivc/utility/kernel_parameters.hpp"
 #include "zivc/utility/launch_result.hpp"
 
 namespace zivc {
 
 // Forward declaration
 class VulkanDevice;
-template <std::size_t kDimension, typename FuncArgTypes, typename ...ArgTypes>
-class VulkanKernel;
+template <std::size_t, DerivedKSet, typename...> class KernelParams;
+template <typename, typename...> class VulkanKernel;
 
 /*!
   \brief No brief description
 
   No detailed description.
 
-  \tparam kDimension No description.
-  \tparam SetType No description.
-  \tparam FuncArgTypes No description.
-  \tparam ArgTypes No description.
+  \tparam kDim No description.
+  \tparam KSet No description.
+  \tparam FuncArgs No description.
+  \tparam Args No description.
   */
-template <std::size_t kDimension, typename SetType, typename ...FuncArgTypes, typename ...ArgTypes>
-class VulkanKernel<kDimension,
-                   KernelParameters<SetType, FuncArgTypes...>,
-                   ArgTypes...>
-    : public Kernel<kDimension,
-                    KernelParameters<SetType, FuncArgTypes...>,
-                    ArgTypes...>
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+class VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> :
+    public Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>
 {
  public:
   // Type aliases
-  using BaseKernel = Kernel<kDimension,
-                            KernelParameters<SetType, FuncArgTypes...>,
-                            ArgTypes...>;
-  using Parameters = typename BaseKernel::Parameters;
+  using BaseKernel = Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>;
+  using Params = typename BaseKernel::Params;
   using LaunchOptions = typename BaseKernel::LaunchOptions;
 
 
@@ -87,7 +81,7 @@ class VulkanKernel<kDimension,
   static constexpr bool hasPodArg() noexcept;
 
   //! Execute a kernel
-  LaunchResult run(ArgTypes... args, LaunchOptions& launch_options) override;
+  LaunchResult run(Args... args, LaunchOptions& launch_options) override;
 
  protected:
   //! Clear the contents of the kernel
@@ -97,7 +91,7 @@ class VulkanKernel<kDimension,
   void dispatchCmd(const std::array<uint32b, 3>& work_size);
 
   //! Initialize the kernel
-  void initData(const Parameters& params) override;
+  void initData(const Params& params) override;
 
   //! Update the debug info
   void updateDebugInfoImpl() noexcept override;
@@ -127,7 +121,7 @@ class VulkanKernel<kDimension,
   static void initPodTuple(PodTuple* pod_params, Type&& value, Types&&... rest) noexcept;
 
   //! Initialize the given POD tuple
-  static PodTuple makePodTuple(ArgTypes... args) noexcept;
+  static PodTuple makePodTuple(Args... args) noexcept;
 
   //! Return the number of buffers which is needed for the kernel (including pod)
   static constexpr std::size_t numOfBuffers() noexcept;
@@ -139,13 +133,13 @@ class VulkanKernel<kDimension,
   const VulkanDevice& parentImpl() const noexcept;
 
   //! Update the underlying descriptor set with the given arguments
-  void updateDescriptorSet(ArgTypes... args);
+  void updateDescriptorSet(Args... args);
 
 //  //! Bind buffers
 //  void bindBuffers(std::add_lvalue_reference_t<BufferArgs>... args) noexcept;
 //
 //  //! Dispatch
-//  void dispatch(const std::array<uint32b, kDimension> works) noexcept;
+//  void dispatch(const std::array<uint32b, kDim> works) noexcept;
 //
 //  //! Get the VkBuffer of the given buffer
 //  template <typename Type>

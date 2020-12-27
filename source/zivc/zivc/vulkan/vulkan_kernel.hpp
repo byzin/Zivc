@@ -111,7 +111,9 @@ class VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> :
 
   //! Initialize the buffer list
   template <std::size_t kIndex, typename Type, typename ...Types>
-  static void initBufferList(VkBuffer* buffer_list, Type&& value, Types&&... rest) noexcept;
+  static void initBufferList(VkBuffer* buffer_list,
+                             Type&& value,
+                             Types&&... rest) noexcept;
 
   //! Initialize the POD buffer
   void initPodBuffer() noexcept;

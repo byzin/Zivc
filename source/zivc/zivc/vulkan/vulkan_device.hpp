@@ -221,6 +221,20 @@ class VulkanDevice : public Device
                           VkPipelineLayout* pipeline_layout,
                           VkPipeline* compute_pipeline);
 
+  //! Record push constant command
+  template <typename Type>
+  void pushConstantCmd(const VkCommandBuffer& command_buffer,
+                       const VkPipelineLayout& pline_layout,
+                       const std::size_t offset,
+                       const Type& data);
+
+  //! Record push constant command
+  void pushConstantCmd(const VkCommandBuffer& command_buffer,
+                       const VkPipelineLayout& pline_layout,
+                       const std::size_t offset,
+                       const std::size_t size,
+                       const void* data);
+
   //! Update the given descriptor set with the given buffers
   template <std::size_t kN>
   void updateDescriptorSet(const VkDescriptorSet& descriptor_set,

@@ -137,6 +137,12 @@ run(Args... args, LaunchOptions& launch_options)
       CmdRecordRegion record_region{command,
                                     device.dispatcher(),
                                     VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT};
+      // Update global and region offsets
+      {
+        std::array<uint32b, 7> data;
+        data.fill(0);
+        device.pushConstantCmd(command, pipeline_layout_, 0, data);
+      }
       if (need_to_update_pod) {
         using BufType = VulkanBuffer<PodTuple>;
         const VkBufferCopy copy_region{0, 0, sizeof(PodTuple)};
@@ -367,8 +373,8 @@ inline
 const VkBuffer& VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 getBufferHandle(const Buffer<Type>& buffer) noexcept
 {
-  using BuffType = VulkanBuffer<Type>;
-  auto& handle = zisc::cast<const BuffType*>(std::addressof(buffer))->buffer();
+  using BufferT = VulkanBuffer<Type>;
+  auto& handle = zisc::cast<const BufferT*>(std::addressof(buffer))->buffer();
   return handle;
 }
 
@@ -388,7 +394,7 @@ inline
 void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 initBufferList(VkBuffer* buffer_list, Type&& value, Types&&... rest) noexcept
 {
-  using T = std::remove_cv_t<std::remove_reference_t<Type>>;
+  using T = std::remove_cvref_t<Type>;
   using ASpaceInfo = AddressSpaceInfo<T>;
   if constexpr (!ASpaceInfo::kIsPod)
     buffer_list[kIndex] = getBufferHandle(value);
@@ -527,8 +533,7 @@ updateDescriptorSet(Args... args)
   initBufferList<0>(buffer_list.data(), args...);
   desc_type_list.fill(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER);
   if constexpr (hasPodArg()) {
-    using BufType = VulkanBuffer<PodTuple>;
-    buffer_list[n - 1] = zisc::cast<const BufType*>(pod_buffer_.get())->buffer();
+    buffer_list[n - 1] = getBufferHandle(*pod_buffer_);
     desc_type_list[n - 1] = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
   }
   device.updateDescriptorSet(desc_set_, buffer_list, desc_type_list);

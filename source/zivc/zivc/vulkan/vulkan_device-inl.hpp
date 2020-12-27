@@ -216,6 +216,25 @@ const VmaAllocator& VulkanDevice::memoryAllocator() const noexcept
 /*!
   \details No detailed description
 
+  \tparam Type No description.
+  \param [in] command_buffer No description.
+  \param [in] pline_layout No description.
+  \param [in] offset No description.
+  \param [in] data No description.
+  */
+template <typename Type> inline
+void VulkanDevice::pushConstantCmd(const VkCommandBuffer& command_buffer,
+                                   const VkPipelineLayout& pline_layout,
+                                   const std::size_t offset,
+                                   const Type& data)
+{
+  constexpr std::size_t size = sizeof(data);
+  pushConstantCmd(command_buffer, pline_layout, offset, size, std::addressof(data));
+}
+
+/*!
+  \details No detailed description
+
   \tparam kN No description.
   \param [in] descriptor_set No description.
   \param [in] buffer_list No description.

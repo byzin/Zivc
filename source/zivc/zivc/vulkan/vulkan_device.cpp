@@ -1191,6 +1191,7 @@ void VulkanDevice::initDevice()
 #if defined(Z_MAC)
                 VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
                 VK_KHR_BIND_MEMORY_2_EXTENSION_NAME,
+                "VK_KHR_portability_subset",
 #endif // Z_MAC
                 VK_EXT_MEMORY_BUDGET_EXTENSION_NAME};
   if (sub_platform.isDebugMode()) {

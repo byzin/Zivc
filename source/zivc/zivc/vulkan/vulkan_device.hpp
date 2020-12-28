@@ -189,6 +189,10 @@ class VulkanDevice : public Device
 
   // For kernel
 
+  //! Add a memory barrier for the given POD buffer
+  void addPodBarrierCmd(const VkCommandBuffer& command_buffer,
+                        const VkBuffer& buffer);
+
   //! Destroy descriptor set
   void destroyKernelDescriptorSet(VkDescriptorSetLayout* descriptor_set_layout,
                                   VkDescriptorPool* descriptor_pool) noexcept;

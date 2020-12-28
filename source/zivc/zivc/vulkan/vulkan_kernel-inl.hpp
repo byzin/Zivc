@@ -144,11 +144,12 @@ run(Args... args, LaunchOptions& launch_options)
         device.pushConstantCmd(command, pipeline_layout_, 0, data);
       }
       if (need_to_update_pod) {
-        using BufType = VulkanBuffer<PodTuple>;
+        using BufferT = VulkanBuffer<PodTuple>;
         const VkBufferCopy copy_region{0, 0, sizeof(PodTuple)};
-        auto pod_cache = zisc::cast<const BufType*>(pod_cache_.get())->buffer();
-        auto pod_buf = zisc::cast<const BufType*>(pod_buffer_.get())->buffer();
+        auto pod_cache = zisc::cast<const BufferT*>(pod_cache_.get())->buffer();
+        auto pod_buf = zisc::cast<const BufferT*>(pod_buffer_.get())->buffer();
         device.copyBufferCmd(command, pod_cache, pod_buf, copy_region);
+        device.addPodBarrierCmd(command, pod_buf);
       }
       dispatchCmd(work_size);
     }

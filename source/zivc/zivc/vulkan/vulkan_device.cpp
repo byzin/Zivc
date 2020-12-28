@@ -537,6 +537,33 @@ void VulkanDevice::fillBufferFastCmd(const VkCommandBuffer& command_buffer,
 /*!
   \details No detailed description
 
+  \param [in] command_buffer No description.
+  \param [in] buffer No description.
+  */
+void VulkanDevice::addPodBarrierCmd(const VkCommandBuffer& command_buffer,
+                                    const VkBuffer& buffer)
+{
+  const auto loader = dispatcher().loaderImpl();
+  zivcvk::BufferMemoryBarrier buff_barrier{zivcvk::AccessFlagBits::eTransferWrite,
+                                           zivcvk::AccessFlagBits::eUniformRead,
+                                           queueFamilyIndex(),
+                                           queueFamilyIndex(),
+                                           buffer,
+                                           0,
+                                           VK_WHOLE_SIZE};
+  zivcvk::CommandBuffer command{command_buffer};
+  command.pipelineBarrier(zivcvk::PipelineStageFlagBits::eTransfer,
+                          zivcvk::PipelineStageFlagBits::eComputeShader,
+                          zivcvk::DependencyFlags{},
+                          nullptr,
+                          buff_barrier,
+                          nullptr,
+                          *loader);
+}
+
+/*!
+  \details No detailed description
+
   \param [out] descriptor_set_layout No description.
   \param [out] descriptor_pool No description.
   */

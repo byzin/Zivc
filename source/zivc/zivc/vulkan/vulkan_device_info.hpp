@@ -101,7 +101,7 @@ class VulkanDeviceInfo : public DeviceInfo
   struct Features
   {
     VkPhysicalDeviceFeatures features1_;
-    uint32b padding_;
+    [[maybe_unused]] uint32b padding_;
     VkPhysicalDevice16BitStorageFeatures b16bit_storage_;
     VkPhysicalDevice4444FormatsFeaturesEXT argb_4444_formats_;
     VkPhysicalDevice8BitStorageFeatures b8bit_storage_;

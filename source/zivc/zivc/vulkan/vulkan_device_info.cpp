@@ -408,7 +408,6 @@ void VulkanDeviceInfo::fetchFeatures(
        );
   d.getFeatures2(&p, *loader);
   props.features1_ = zisc::cast<VkPhysicalDeviceFeatures>(p.features);
-  static_cast<void>(props.padding_);
 }
 
 /*!

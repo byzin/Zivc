@@ -351,7 +351,6 @@ void PlatformOptions::initialize() noexcept
 #if defined(Z_DEBUG_MODE)
   enableDebugMode(true);
 #endif // Z_DEBUG_MODE
-  static_cast<void>(padding_);
 }
 
 } // namespace zivc

@@ -129,7 +129,7 @@ class KernelArgParseResult
   uint8b is_constant_;
   uint8b is_pod_;
   uint8b is_buffer_;
-  std::array<uint8b, 3> padding_{0, 0, 0};
+  [[maybe_unused]] std::array<uint8b, 3> padding_{0, 0, 0};
 };
 
 /*!

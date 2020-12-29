@@ -33,7 +33,7 @@ namespace zivc {
 inline
 constexpr uint32b CpuSubPlatform::maxTaskBatchSize() noexcept
 {
-  return 256;
+  return 1024;
 }
 
 /*!

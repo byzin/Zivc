@@ -13,7 +13,6 @@
   */
 
 // Standard C++ library
-#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
@@ -263,11 +262,9 @@ void saveBakeCode(std::string_view file_path,
               << std::endl;
     std::abort();
   }
-  bake_code.clear();
   bake_code.seekg(0, std::ios_base::beg);
-  std::copy(std::istreambuf_iterator<char>{bake_code},
-            std::istreambuf_iterator<char>{},
-            std::ostreambuf_iterator<char>{baked_file});
+  bake_code.clear();
+  baked_file << bake_code.rdbuf();
 }
 
 double toMegaBytes(const std::size_t bytes) noexcept

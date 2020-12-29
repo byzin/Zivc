@@ -95,11 +95,9 @@ class Platform : private zisc::NonCopyable<Platform>
   void updateDeviceInfoList() noexcept;
 
  private:
-  //! Create a CPU sub-platform
-  void initCpuSubPlatform(PlatformOptions& platform_options);
-
-  //! Create a Vulkan sub-platform
-  void initVulkanSubPlatform(PlatformOptions& platform_options);
+  //! Create a sub-platform
+  template <typename SubPlatformType>
+  void initSubPlatform(PlatformOptions& platform_options);
 
   //! Set debug mode
   void setDebugMode(const bool is_debug_mode) noexcept;
@@ -116,7 +114,7 @@ class Platform : private zisc::NonCopyable<Platform>
   zisc::pmr::unique_ptr<zisc::pmr::vector<const DeviceInfo*>> device_info_list_;
   std::atomic<int64b> id_count_ = 0;
   int32b is_debug_mode_ = Config::scalarResultFalse();
-  int32b padding_ = 0;
+  [[maybe_unused]] int32b padding_ = 0;
 };
 
 // Type aliases

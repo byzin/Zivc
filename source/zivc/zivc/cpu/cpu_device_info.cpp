@@ -118,7 +118,7 @@ void CpuDeviceInfo::fetch() noexcept
   */
 std::size_t CpuDeviceInfo::maxAllocationSize() const noexcept
 {
-  const std::size_t max_alloc = 8ull * 1024ull * 1024ull * 1024ull; // 8 GB
+  const std::size_t max_alloc = 16ull * 1024ull * 1024ull * 1024ull; // 16 GB
   return max_alloc;
 }
 
@@ -129,7 +129,7 @@ std::size_t CpuDeviceInfo::maxAllocationSize() const noexcept
   */
 std::array<uint32b, 3> CpuDeviceInfo::maxWorkGroupCount() const noexcept
 {
-  constexpr uint32b m = std::numeric_limits<uint32b>::max();
+  constexpr uint32b m = (std::numeric_limits<uint32b>::max)();
   constexpr std::array<uint32b, 3> max_list{{m, m, m}};
   return max_list;
 }

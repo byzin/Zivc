@@ -148,7 +148,7 @@ void CpuSubPlatform::initData(PlatformOptions& platform_options)
   zisc::pmr::polymorphic_allocator<CpuDeviceInfo> alloc{mem_resource};
   device_info_ = zisc::pmr::allocateUnique<CpuDeviceInfo>(alloc, mem_resource);
   num_of_threads_ = platform_options.cpuNumOfThreads();
-  const uint32b max_batch_size = maxTaskBatchSize();
+  constexpr uint32b max_batch_size = maxTaskBatchSize();
   task_batch_size_ = platform_options.cpuTaskBatchSize();
   task_batch_size_ = zisc::clamp(task_batch_size_, 1u, max_batch_size);
 }

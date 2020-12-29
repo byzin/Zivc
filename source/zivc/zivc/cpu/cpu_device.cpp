@@ -69,7 +69,7 @@ CpuDevice::~CpuDevice() noexcept
   */
 std::size_t CpuDevice::numOfFences() const noexcept
 {
-  constexpr std::size_t s = std::numeric_limits<std::size_t>::max();
+  constexpr std::size_t s = (std::numeric_limits<std::size_t>::max)();
   return s;
 }
 
@@ -115,43 +115,6 @@ void CpuDevice::setNumOfFences(const std::size_t s)
 {
   static_cast<void>(s);
 }
-
-///*!
-//  \details No detailed description
-//
-//  \tparam kDimension No description.
-//  \param [in] works No description.
-//  \param [in] command No description.
-//  */
-////template <std::size_t kDimension> inline
-////void CpuDevice::submit(const std::array<uint32b, kDimension>& works,
-////                       const Command& command) noexcept
-////{
-////  std::atomic<uint32b> id{0};
-////  auto task = [this, &command, &works, &id](const uint, const uint)
-////  {
-////    const auto group_size = expandTo3dWorkGroupSize(works);
-////    const uint32b num_of_works = group_size[0] * group_size[1] * group_size[2];
-////    const uint32b n = ((num_of_works % taskBucketSize()) == 0)
-////        ? num_of_works / taskBucketSize()
-////        : num_of_works / taskBucketSize() + 1;
-////    cl::clinner::WorkGroup::setWorkGroupSize(group_size);
-////    for (uint32b bucket_id = id++; bucket_id < n; bucket_id = id++) {
-////      for (uint32b i = 0; i < taskBucketSize(); ++i) {
-////        const uint32b group_id = bucket_id * taskBucketSize() + i;
-////        if (group_id < num_of_works) {
-////          cl::clinner::WorkGroup::setWorkGroupId(group_id);
-////          command();
-////        }
-////      }
-////    }
-////  };
-////
-////  constexpr uint start = 0;
-////  const uint end = thread_manager_.numOfThreads();
-////  auto result = thread_manager_.enqueueLoop(task, start, end, workResource());
-////  result->wait();
-////}
 
 /*!
   \details No detailed description

@@ -28,16 +28,13 @@
 #include "cpu/cpu_buffer.hpp"
 #include "cpu/cpu_device.hpp"
 #include "cpu/cpu_kernel.hpp"
+#include "utility/kernel_params.hpp"
 #if defined(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
 #include "vulkan/vulkan_buffer.hpp"
 #include "vulkan/vulkan_device.hpp"
 #include "vulkan/vulkan_kernel.hpp"
 #endif // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
-#include "utility/kernel_arg_parser.hpp"
-#include "utility/kernel_params.hpp"
 #include "zivc/zivc_config.hpp"
-//#include "zivc/cppcl/types.hpp"
-//#include "zivc/cppcl/vector.hpp"
 
 namespace zivc {
 
@@ -50,30 +47,6 @@ template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
 SharedKernel<kDim, KSet, Args...> makeKernel(
     Device* device,
     const KernelParams<kDim, KSet, Args...>& params);
-
-////! Copy a src buffer to a dst buffer
-//template <DescriptorType kDescriptor1, DescriptorType kDescriptor2, typename Type>
-//void copy(const Buffer<kDescriptor1, Type>& src,
-//          Buffer<kDescriptor2, Type>* dst,
-//          const std::size_t count,
-//          const std::size_t src_offset,
-//          const std::size_t dst_offset,
-//          const uint32b queue_index) noexcept;
-
-//template <std::size_t kDimension, typename ...ArgumentTypes>
-//using UniqueKernelWithoutLocal = zisc::UniqueMemoryPointer<
-//    typename KernelArgParser<kDimension, ArgumentTypes...>::KernelWithoutLocal>;
-//
-////! Make a kernel
-//template <std::size_t kDimension, typename SetType, typename ...ArgumentTypes>
-//UniqueKernelWithoutLocal<kDimension, ArgumentTypes...>
-//makeKernel(Device* device,
-//           const KernelSet<SetType> kernel_set,
-//           void (*cpu_kernel)(ArgumentTypes...),
-//           const std::string_view vulkan_kernel) noexcept;
-
-//! Create arguments of makeKernel
-//#define ZIVC_MAKE_KERNEL_ARGS(kernel_set, kernel)
 
 //! Make a kernel parameters
 template <std::size_t kDim, DerivedKSet KSet, typename ...Args>

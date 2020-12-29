@@ -61,28 +61,6 @@ CpuBuffer<T>::~CpuBuffer() noexcept
   \return No description
   */
 template <typename T> inline
-auto CpuBuffer<T>::buffer() noexcept -> zisc::pmr::vector<Type>&
-{
-  return *buffer_;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <typename T> inline
-auto CpuBuffer<T>::buffer() const noexcept -> const zisc::pmr::vector<Type>&
-{
-  return *buffer_;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <typename T> inline
 auto CpuBuffer<T>::data() noexcept -> Pointer
 {
   return buffer_->data();
@@ -146,6 +124,28 @@ bool CpuBuffer<T>::isHostVisible() const noexcept
 /*!
   \details No detailed description
 
+  \return No description
+  */
+template <typename T> inline
+auto CpuBuffer<T>::rawBuffer() noexcept -> zisc::pmr::vector<Type>&
+{
+  return *buffer_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <typename T> inline
+auto CpuBuffer<T>::rawBuffer() const noexcept -> const zisc::pmr::vector<Type>&
+{
+  return *buffer_;
+}
+
+/*!
+  \details No detailed description
+
   \param [in] s No description.
   */
 template <typename T> inline
@@ -154,9 +154,10 @@ void CpuBuffer<T>::setSize(const std::size_t s)
   const std::size_t prev_size = size();
   if (s != prev_size) {
     prepareBuffer();
-    const std::size_t prev_cap = buffer().capacity();
-    buffer().resize(s);
-    const std::size_t cap = buffer().capacity();
+    auto& buff = rawBuffer();
+    const std::size_t prev_cap = buff.capacity();
+    buff.resize(s);
+    const std::size_t cap = buff.capacity();
     if (cap != prev_cap) {
       auto& device = parentImpl();
       const std::size_t prev_mem_size = sizeof(Type) * prev_cap;
@@ -175,7 +176,7 @@ void CpuBuffer<T>::setSize(const std::size_t s)
 template <typename T> inline
 std::size_t CpuBuffer<T>::size() const noexcept
 {
-  const std::size_t s = (buffer_) ? buffer().size() : 0;
+  const std::size_t s = (buffer_) ? rawBuffer().size() : 0;
   return s;
 }
 
@@ -191,9 +192,9 @@ LaunchResult CpuBuffer<T>::copyFromImpl(const Buffer<T>& source,
                                         const BufferLaunchOptions<T>& launch_options)
 {
   const auto cpu_source = zisc::cast<const CpuBuffer*>(std::addressof(source));
-  const auto& src_buffer = cpu_source->buffer();
+  const auto& src_buffer = cpu_source->rawBuffer();
   const auto src = src_buffer.begin() + launch_options.sourceOffset();
-  auto& dst_buffer = buffer();
+  auto& dst_buffer = rawBuffer();
   auto dst = dst_buffer.begin() + launch_options.destOffset();
   std::copy_n(src, launch_options.size(), dst);
   LaunchResult result{};
@@ -220,7 +221,7 @@ template <typename T> inline
 LaunchResult CpuBuffer<T>::fillImpl(ConstReference value,
                                     const BufferLaunchOptions<T>& launch_options)
 {
-  auto& dest_buffer = buffer();
+  auto& dest_buffer = rawBuffer();
   auto dest = dest_buffer.begin() + launch_options.destOffset();
   std::fill_n(dest, launch_options.size(), value);
   LaunchResult result{};

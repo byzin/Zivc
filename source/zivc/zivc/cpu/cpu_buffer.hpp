@@ -59,12 +59,6 @@ class CpuBuffer : public Buffer<T>
   ~CpuBuffer() noexcept override;
 
 
-  //! Return the buffer data
-  zisc::pmr::vector<Type>& buffer() noexcept;
-
-  //! Return the buffer data
-  const zisc::pmr::vector<Type>& buffer() const noexcept;
-
   //! Return the underlying data pointer
   Pointer data() noexcept;
 
@@ -82,6 +76,12 @@ class CpuBuffer : public Buffer<T>
 
   //! Check if the buffer can be mapped for the host access
   bool isHostVisible() const noexcept override;
+
+  //! Return the underlying buffer data
+  zisc::pmr::vector<Type>& rawBuffer() noexcept;
+
+  //! Return the underlying buffer data
+  const zisc::pmr::vector<Type>& rawBuffer() const noexcept;
 
   //! Change the number of elements
   void setSize(const std::size_t s) override;

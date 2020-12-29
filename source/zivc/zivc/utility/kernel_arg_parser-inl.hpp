@@ -90,7 +90,6 @@ constexpr KernelArgParseResult::KernelArgParseResult() noexcept :
     is_pod_{zisc::kFalse},
     is_buffer_{zisc::kFalse}
 {
-  static_cast<void>(padding_);
 }
 
 /*!

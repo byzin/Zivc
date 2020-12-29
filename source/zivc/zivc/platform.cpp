@@ -124,9 +124,11 @@ void Platform::initialize(PlatformOptions& platform_options)
   id_count_.store(0);
 
   // Initialize sub-platforms
-  initCpuSubPlatform(platform_options);
+  initSubPlatform<CpuSubPlatform>(platform_options);
+#if defined(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
   if (platform_options.vulkanSubPlatformEnabled())
-    initVulkanSubPlatform(platform_options);
+    initSubPlatform<VulkanSubPlatform>(platform_options);
+#endif // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
 
   // Get device info list
   using DeviceInfoList = zisc::pmr::vector<const DeviceInfo*>;
@@ -135,8 +137,6 @@ void Platform::initialize(PlatformOptions& platform_options)
       mem_resource_,
       std::move(new_info_list));
   updateDeviceInfoList();
-
-  static_cast<void>(padding_);
 }
 
 /*!
@@ -164,32 +164,17 @@ void Platform::updateDeviceInfoList() noexcept
 /*!
   \details No detailed description
 
+  \tparam SubPlatformType No description.
   \param [in,out] platform_options No description.
   */
-void Platform::initCpuSubPlatform(PlatformOptions& platform_options)
+template <typename SubPlatformType>
+void Platform::initSubPlatform(PlatformOptions& platform_options)
 {
-  zisc::pmr::polymorphic_allocator<CpuSubPlatform> alloc{memoryResource()};
-  auto sub_platform = std::allocate_shared<CpuSubPlatform>(alloc, this);
-  std::weak_ptr<CpuSubPlatform> own{sub_platform};
+  zisc::pmr::polymorphic_allocator<SubPlatformType> alloc{memoryResource()};
+  SharedSubPlatform sub_platform = std::allocate_shared<SubPlatformType>(alloc, this);
+  WeakSubPlatform own{sub_platform};
   sub_platform->initialize(std::move(own), platform_options);
   setSubPlatform(std::move(sub_platform));
-}
-
-/*!
-  \details No detailed description
-
-  \param [in,out] platform_options No description.
-  */
-void Platform::initVulkanSubPlatform(PlatformOptions& platform_options)
-{
-#if defined(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
-  zisc::pmr::polymorphic_allocator<CpuSubPlatform> alloc{memoryResource()};
-  auto sub_platform = std::allocate_shared<VulkanSubPlatform>(alloc, this);
-  std::weak_ptr<VulkanSubPlatform> own{sub_platform};
-  sub_platform->initialize(std::move(own), platform_options);
-  setSubPlatform(std::move(sub_platform));
-#endif // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
-  static_cast<void>(platform_options);
 }
 
 /*!

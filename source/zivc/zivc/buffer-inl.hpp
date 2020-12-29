@@ -23,10 +23,12 @@
 #include <utility>
 // Zisc
 #include "zisc/utility.hpp"
+#include "zisc/zisc_config.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "zivc_config.hpp"
 #include "utility/id_data.hpp"
+#include "utility/launch_result.hpp"
 #include "utility/mapped_memory.hpp"
 #include "utility/zivc_object.hpp"
 
@@ -219,7 +221,6 @@ void Buffer<T>::LaunchOptions::setSourceOffset(const std::size_t offset) noexcep
 template <typename T> inline
 void Buffer<T>::LaunchOptions::initialize() noexcept
 {
-  static_cast<void>(padding_);
   setLabel("Buffer");
 }
 

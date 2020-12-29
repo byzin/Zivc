@@ -125,7 +125,7 @@ class PlatformOptions : private zisc::NonCopyable<PlatformOptions>
   uint32b cpu_num_of_threads_ = 0;
   uint32b cpu_task_batch_size_ = 32;
   int32b vulkan_sub_platform_enabled_;
-  int32b padding_ = 0;
+  [[maybe_unused]] int32b padding_ = 0;
   void* vulkan_instance_ptr_ = nullptr;
   void* vulkan_get_proc_addr_ptr_ = nullptr;
 };

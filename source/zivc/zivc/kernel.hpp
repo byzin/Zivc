@@ -157,7 +157,7 @@ class Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> : public ZivcObject
     std::array<uint32b, kDim> work_size_;
     uint32b queue_index_ = 0;
     int8b is_external_sync_mode_ = zisc::kFalse;
-    std::array<uint8b, std::alignment_of_v<void*> - 1> padding_;
+    [[maybe_unused]] std::array<uint8b, std::alignment_of_v<void*> - 1> padding_;
   };
 
 

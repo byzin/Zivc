@@ -15,6 +15,8 @@
 #ifndef ZIVC_VULKAN_MEMORY_ALLOCATOR_HPP
 #define ZIVC_VULKAN_MEMORY_ALLOCATOR_HPP
 
+// Zivc
+#include "vulkan.hpp"
 // VMA
 #include "vk_mem_alloc.h"
 

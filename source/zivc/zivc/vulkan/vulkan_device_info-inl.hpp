@@ -23,12 +23,11 @@
 #include <memory>
 #include <type_traits>
 #include <vector>
-// Vulkan
-#include <vulkan/vulkan.h>
 // Zisc
 #include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
+#include "utility/vulkan.hpp"
 #include "zivc/zivc_config.hpp"
 
 namespace zivc {

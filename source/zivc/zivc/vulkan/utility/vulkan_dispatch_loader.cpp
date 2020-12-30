@@ -22,7 +22,7 @@
 #include "zisc/error.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
-#include "vulkan.hpp"
+#include "vulkan_hpp.hpp"
 
 namespace zivc {
 
@@ -180,7 +180,8 @@ void VulkanDispatchLoader::initialize()
     //! \todo Throw an exception
     ZISC_ASSERT(!dynamic_loader_->success(), "Vulkan library loading failed.");
   }
-  ZISC_ASSERT(!dynamic_loader_->success(), "Debug.");
+  const char* name = "vkGetInstanceProcAddr";
+  get_proc_addr = dynamic_loader_->getProcAddress<PFN_vkGetInstanceProcAddr>(name);
 #else // ZIVC_DYNAMIC_VULKAN_LOADING
   get_proc_addr = ::vkGetInstanceProcAddr;
 #endif // ZIVC_DYNAMIC_VULKAN_LOADING

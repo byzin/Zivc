@@ -19,12 +19,11 @@
 // Standard C++ library
 #include <string_view>
 #include <vector>
-// Vulkan
-#include <vulkan/vulkan.h>
 // Zisc
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "vulkan_device_info.hpp"
+#include "utility/vulkan.hpp"
 #include "utility/vulkan_dispatch_loader.hpp"
 #include "zivc/zivc_config.hpp"
 

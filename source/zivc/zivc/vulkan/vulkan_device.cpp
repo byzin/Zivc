@@ -26,8 +26,6 @@
 #include <tuple>
 #include <utility>
 #include <vector>
-// Vulkan
-#include <vulkan/vulkan.h>
 // Zisc
 #include "zisc/error.hpp"
 #include "zisc/utility.hpp"
@@ -37,8 +35,8 @@
 #include "vulkan_device_info.hpp"
 #include "vulkan_sub_platform.hpp"
 #include "utility/cmd_record_region.hpp"
-#include "utility/vulkan.hpp"
 #include "utility/vulkan_dispatch_loader.hpp"
+#include "utility/vulkan_hpp.hpp"
 #include "utility/vulkan_memory_allocator.hpp"
 #include "zivc/device_info.hpp"
 #include "zivc/zivc_config.hpp"

@@ -22,14 +22,13 @@
 #include <string_view>
 #include <type_traits>
 #include <vector>
-// Vulkan
-#include <vulkan/vulkan.h>
 // Zisc
 #include "zisc/non_copyable.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "vulkan_device_info.hpp"
 #include "utility/vulkan_dispatch_loader.hpp"
+#include "utility/vulkan.hpp"
 #include "zivc/device.hpp"
 #include "zivc/sub_platform.hpp"
 #include "zivc/zivc_config.hpp"

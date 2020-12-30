@@ -22,8 +22,6 @@
 #include <memory>
 #include <string_view>
 #include <utility>
-// Vulkan
-#include <vulkan/vulkan.h>
 // Zisc
 #include "zisc/error.hpp"
 #include "zisc/utility.hpp"
@@ -33,6 +31,7 @@
 #include "vulkan_device_info.hpp"
 #include "utility/cmd_debug_label_region.hpp"
 #include "utility/cmd_record_region.hpp"
+#include "utility/vulkan.hpp"
 #include "utility/vulkan_memory_allocator.hpp"
 #include "utility/queue_debug_label_region.hpp"
 #include "zivc/buffer.hpp"

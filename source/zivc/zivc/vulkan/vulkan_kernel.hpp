@@ -20,9 +20,8 @@
 #include <cstddef>
 #include <tuple>
 #include <type_traits>
-// Vulkan
-#include <vulkan/vulkan.h>
 // Zivc
+#include "utility/vulkan.hpp"
 #include "zivc/buffer.hpp"
 #include "zivc/kernel.hpp"
 #include "zivc/kernel_set.hpp"

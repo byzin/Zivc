@@ -27,8 +27,8 @@
 #include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
-#include "utility/vulkan.hpp"
 #include "utility/vulkan_dispatch_loader.hpp"
+#include "utility/vulkan_hpp.hpp"
 #include "zivc/zivc_config.hpp"
 
 namespace zivc {

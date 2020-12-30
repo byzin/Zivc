@@ -18,11 +18,10 @@
 // Standard C++ library
 #include <array>
 #include <string_view>
-// Vulkan
-#include <vulkan/vulkan.h>
 // Zisc
 #include "zisc/non_copyable.hpp"
 // Zivc
+#include "vulkan.hpp"
 #include "zivc/zivc_config.hpp"
 
 namespace zivc {

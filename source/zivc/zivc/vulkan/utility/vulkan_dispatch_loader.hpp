@@ -18,10 +18,10 @@
 // Standard C++ library
 #include <memory>
 #include <type_traits>
-// Vulkan
-#include <vulkan/vulkan.h>
 // Zisc
 #include "zisc/memory/std_memory_resource.hpp"
+// Zivc
+#include "vulkan.hpp"
 
 namespace zivcvk {
 

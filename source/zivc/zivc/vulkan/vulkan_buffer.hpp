@@ -18,11 +18,10 @@
 // Standard C++ library
 #include <cstddef>
 #include <memory>
-// Vulkan
-#include <vulkan/vulkan.h>
 // Zisc
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
+#include "utility/vulkan.hpp"
 #include "utility/vulkan_memory_allocator.hpp"
 #include "zivc/buffer.hpp"
 #include "zivc/zivc_config.hpp"

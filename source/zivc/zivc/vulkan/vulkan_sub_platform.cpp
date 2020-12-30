@@ -31,8 +31,8 @@
 // Zivc
 #include "vulkan_device.hpp"
 #include "vulkan_device_info.hpp"
-#include "utility/vulkan.hpp"
 #include "utility/vulkan_dispatch_loader.hpp"
+#include "utility/vulkan_hpp.hpp"
 #include "zivc/device.hpp"
 #include "zivc/platform.hpp"
 #include "zivc/platform_options.hpp"

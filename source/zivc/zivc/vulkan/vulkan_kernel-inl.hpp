@@ -25,9 +25,6 @@
 #include <tuple>
 #include <type_traits>
 #include <utility>
-// Vulkan
-#include <vulkan/vulkan.h>
-#include <vulkan/vulkan_core.h>
 // Zisc
 #include "zisc/error.hpp"
 #include "zisc/utility.hpp"
@@ -38,6 +35,7 @@
 #include "utility/cmd_debug_label_region.hpp"
 #include "utility/cmd_record_region.hpp"
 #include "utility/queue_debug_label_region.hpp"
+#include "utility/vulkan.hpp"
 #include "zivc/buffer.hpp"
 #include "zivc/kernel.hpp"
 #include "zivc/kernel_set.hpp"

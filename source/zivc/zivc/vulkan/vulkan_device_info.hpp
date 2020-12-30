@@ -21,11 +21,10 @@
 #include <memory>
 #include <string_view>
 #include <vector>
-// Vulkan
-#include <vulkan/vulkan.h>
 // Zisc
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
+#include "utility/vulkan.hpp"
 #include "zivc/device_info.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/id_data.hpp"

@@ -15,11 +15,10 @@
 #ifndef ZIVC_CMD_RECORD_REGION_HPP
 #define ZIVC_CMD_RECORD_REGION_HPP
 
-// Vulkan
-#include <vulkan/vulkan.h>
 // Zisc
 #include "zisc/non_copyable.hpp"
 // Zivc
+#include "vulkan.hpp"
 #include "zivc/zivc_config.hpp"
 
 namespace zivc {

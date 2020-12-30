@@ -22,13 +22,12 @@
 #include <memory>
 #include <string_view>
 #include <tuple>
-// Vulkan
-#include <vulkan/vulkan.h>
 // Zisc
 #include "zisc/memory/memory.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 #include "zisc/thread/bitset.hpp"
 // Zivc
+#include "utility/vulkan.hpp"
 #include "utility/vulkan_dispatch_loader.hpp"
 #include "utility/vulkan_memory_allocator.hpp"
 #include "zivc/device.hpp"

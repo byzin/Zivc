@@ -28,8 +28,8 @@
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "vulkan_device_info.hpp"
-#include "utility/vulkan_dispatch_loader.hpp"
 #include "utility/vulkan.hpp"
+#include "utility/vulkan_dispatch_loader.hpp"
 #include "zivc/device.hpp"
 #include "zivc/sub_platform.hpp"
 #include "zivc/zivc_config.hpp"
@@ -108,7 +108,18 @@ class VulkanSubPlatform : public SubPlatform
   void updateDebugInfoImpl() noexcept override;
 
  private:
-  using MemoryMap = zisc::pmr::map<std::size_t, std::pair<size_t, size_t>>;
+  /*!
+    \brief No brief description
+
+    No detailed description.
+    */
+  struct MemoryData
+  {
+    size_t size_ = 0;
+    size_t alignment_ = 0;
+  };
+
+  using MemoryMap = zisc::pmr::map<std::size_t, MemoryData>;
 
   /*!
     \brief No brief description

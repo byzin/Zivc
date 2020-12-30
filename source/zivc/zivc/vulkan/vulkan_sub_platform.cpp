@@ -251,15 +251,14 @@ auto VulkanSubPlatform::Callbacks::allocateMemory(
     void* user_data,
     size_t size,
     size_t alignment,
-    VkSystemAllocationScope scope) -> AllocationReturnType
+    [[maybe_unused]] VkSystemAllocationScope scope) -> AllocationReturnType
 {
   ZISC_ASSERT(user_data != nullptr, "The user data is null.");
-  static_cast<void>(scope);
   auto alloc_data = zisc::cast<AllocatorData*>(user_data);
   void* memory = alloc_data->mem_resource_->allocate(size, alignment);
   //
   const std::size_t address = zisc::reinterp<std::size_t>(memory);
-  const auto mem_data = std::make_pair(size, alignment);
+  const auto mem_data = MemoryData{size, alignment};
   //! \todo we can use atomic map?
   {
     std::unique_lock<std::mutex> lock{*alloc_data->mem_mutex_};
@@ -279,18 +278,19 @@ void VulkanSubPlatform::Callbacks::freeMemory(
     void* memory)
 {
   ZISC_ASSERT(user_data != nullptr, "The user data is null.");
-  auto alloc_data = zisc::cast<AllocatorData*>(user_data);
   if (memory) {
+    auto alloc_data = zisc::cast<AllocatorData*>(user_data);
     const std::size_t address = zisc::reinterp<std::size_t>(memory);
-    const auto mem = alloc_data->mem_map_.find(address);
-    ZISC_ASSERT(mem != alloc_data->mem_map_.end(), "The mem is null.");
-    const auto& data = mem->second;
-    alloc_data->mem_resource_->deallocate(memory, data.first, data.second);
+    MemoryData data;
     //! \todo we can use atomic map?
     {
       std::unique_lock<std::mutex> lock{*alloc_data->mem_mutex_};
+      const auto mem = alloc_data->mem_map_.find(address);
+      ZISC_ASSERT(mem != alloc_data->mem_map_.end(), "The mem is null.");
+      data = mem->second;
       alloc_data->mem_map_.erase(mem);
     }
+    alloc_data->mem_resource_->deallocate(memory, data.size_, data.alignment_);
   }
 }
 
@@ -303,15 +303,11 @@ void VulkanSubPlatform::Callbacks::freeMemory(
   \param [in] scope No description.
   */
 void VulkanSubPlatform::Callbacks::notifyOfMemoryAllocation(
-    void* user_data,
-    size_t size,
-    VkInternalAllocationType type,
-    VkSystemAllocationScope scope)
+    [[maybe_unused]] void* user_data,
+    [[maybe_unused]] size_t size,
+    [[maybe_unused]] VkInternalAllocationType type,
+    [[maybe_unused]] VkSystemAllocationScope scope)
 {
-  static_cast<void>(user_data);
-  static_cast<void>(size);
-  static_cast<void>(type);
-  static_cast<void>(scope);
 }
 
 /*!
@@ -323,15 +319,11 @@ void VulkanSubPlatform::Callbacks::notifyOfMemoryAllocation(
   \param [in] scope No description.
   */
 void VulkanSubPlatform::Callbacks::notifyOfMemoryFreeing(
-    void* user_data,
-    size_t size,
-    VkInternalAllocationType type,
-    VkSystemAllocationScope scope)
+    [[maybe_unused]] void* user_data,
+    [[maybe_unused]] size_t size,
+    [[maybe_unused]] VkInternalAllocationType type,
+    [[maybe_unused]] VkSystemAllocationScope scope)
 {
-  static_cast<void>(user_data);
-  static_cast<void>(size);
-  static_cast<void>(type);
-  static_cast<void>(scope);
 }
 
 /*!
@@ -498,14 +490,15 @@ auto VulkanSubPlatform::Callbacks::reallocateMemory(
   if (original_memory && memory) {
     auto alloc_data = zisc::cast<AllocatorData*>(user_data);
     const std::size_t address = zisc::reinterp<std::size_t>(original_memory);
+    MemoryData data;
     //! \todo we can use atomic map?
     {
       std::unique_lock<std::mutex> lock{*alloc_data->mem_mutex_};
       const auto mem = alloc_data->mem_map_.find(address);
       ZISC_ASSERT(mem != alloc_data->mem_map_.end(), "The mem is null.");
-      const auto& data = mem->second;
-      std::memcpy(memory, original_memory, data.first);
+      data = mem->second;
     }
+    std::memcpy(memory, original_memory, data.size_);
   }
   // Deallocate the original memory
   if (original_memory)
@@ -578,7 +571,6 @@ void VulkanSubPlatform::initInstance(PlatformOptions& platform_options)
   zisc::pmr::vector<const char*> layers{layer_alloc};
   zisc::pmr::vector<const char*> extensions{layer_alloc};
 
-//  extensions.emplace_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
   if (isDebugMode()) {
     layers.emplace_back("VK_LAYER_KHRONOS_validation");
     extensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);

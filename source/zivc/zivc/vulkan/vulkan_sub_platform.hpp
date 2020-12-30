@@ -19,6 +19,7 @@
 #include <cstddef>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <string_view>
 #include <type_traits>
 #include <vector>
@@ -119,12 +120,14 @@ class VulkanSubPlatform : public SubPlatform
    public:
     //! Initialize the allocator data
     AllocatorData(zisc::pmr::memory_resource* mem_resource,
+                  std::mutex* mem_mutex,
                   MemoryMap&& memory_map) noexcept;
 
     //! Finalize the allocator data
     ~AllocatorData() noexcept;
 
-    zisc::pmr::memory_resource* mem_resource_;
+    zisc::pmr::memory_resource* mem_resource_ = nullptr;
+    std::mutex* mem_mutex_ = nullptr;
     MemoryMap mem_map_; //!< \todo Make this thread safe
   };
 
@@ -223,6 +226,7 @@ class VulkanSubPlatform : public SubPlatform
   void initDispatcher(PlatformOptions& platform_options);
 
 
+  std::mutex memory_mutex_;
   VkInstance instance_ = VK_NULL_HANDLE;
   std::add_pointer_t<VkInstance> instance_ref_ = nullptr;
   zisc::pmr::unique_ptr<VulkanDispatchLoader> dispatcher_;

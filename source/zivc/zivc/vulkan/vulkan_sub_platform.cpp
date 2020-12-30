@@ -20,6 +20,7 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <string_view>
 #include <type_traits>
 #include <utility>
@@ -221,8 +222,10 @@ void VulkanSubPlatform::updateDebugInfoImpl() noexcept
   */
 VulkanSubPlatform::AllocatorData::AllocatorData(
     zisc::pmr::memory_resource* mem_resource,
+    std::mutex* mem_mutex,
     MemoryMap&& mem_map) noexcept :
         mem_resource_{mem_resource},
+        mem_mutex_{mem_mutex},
         mem_map_{std::move(mem_map)}
 {
 }
@@ -257,8 +260,11 @@ auto VulkanSubPlatform::Callbacks::allocateMemory(
   //
   const std::size_t address = zisc::reinterp<std::size_t>(memory);
   const auto mem_data = std::make_pair(size, alignment);
-  //! \todo Thread safe
-  alloc_data->mem_map_.emplace(std::make_pair(address, mem_data));
+  //! \todo we can use atomic map?
+  {
+    std::unique_lock<std::mutex> lock{*alloc_data->mem_mutex_};
+    alloc_data->mem_map_.emplace(std::make_pair(address, mem_data));
+  }
   return memory;
 }
 
@@ -280,8 +286,11 @@ void VulkanSubPlatform::Callbacks::freeMemory(
     ZISC_ASSERT(mem != alloc_data->mem_map_.end(), "The mem is null.");
     const auto& data = mem->second;
     alloc_data->mem_resource_->deallocate(memory, data.first, data.second);
-  //! \todo Thread safe
-    alloc_data->mem_map_.erase(mem);
+    //! \todo we can use atomic map?
+    {
+      std::unique_lock<std::mutex> lock{*alloc_data->mem_mutex_};
+      alloc_data->mem_map_.erase(mem);
+    }
   }
 }
 
@@ -489,11 +498,14 @@ auto VulkanSubPlatform::Callbacks::reallocateMemory(
   if (original_memory && memory) {
     auto alloc_data = zisc::cast<AllocatorData*>(user_data);
     const std::size_t address = zisc::reinterp<std::size_t>(original_memory);
-    //! \todo Thread safe
-    const auto mem = alloc_data->mem_map_.find(address);
-    ZISC_ASSERT(mem != alloc_data->mem_map_.end(), "The mem is null.");
-    const auto& data = mem->second;
-    std::memcpy(memory, original_memory, data.first);
+    //! \todo we can use atomic map?
+    {
+      std::unique_lock<std::mutex> lock{*alloc_data->mem_mutex_};
+      const auto mem = alloc_data->mem_map_.find(address);
+      ZISC_ASSERT(mem != alloc_data->mem_map_.end(), "The mem is null.");
+      const auto& data = mem->second;
+      std::memcpy(memory, original_memory, data.first);
+    }
   }
   // Deallocate the original memory
   if (original_memory)
@@ -542,6 +554,7 @@ void VulkanSubPlatform::initAllocator() noexcept
   allocator_data_ = zisc::pmr::allocateUnique<AllocatorData>(
       alloc,
       mem_resource,
+      std::addressof(memory_mutex_),
       MemoryMap{MemoryMap::allocator_type{mem_resource}});
 }
 

@@ -20,8 +20,10 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <istream>
 #include <iterator>
 #include <memory>
+#include <ostream>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -148,35 +150,33 @@ zisc::pmr::vector<std::byte> encodeSpirVData(
 }
 
 void writeEncodedData(const zisc::pmr::vector<std::byte>& encoded_data,
-                      zisc::pmr::stringstream& bake_code) noexcept
+                      std::ostream* bake_code) noexcept
 {
   constexpr std::size_t bytes_per_line = 8;
   const char* indent = "        ";
+  std::ostream& code = *bake_code;
   for (std::size_t index = 0; index < encoded_data.size(); ++index) {
     if ((index % bytes_per_line == 0))
-      bake_code << indent;
-    bake_code << "b(0x" << std::hex << std::setfill('0') << std::setw(2)
+      code << indent;
+    code << "b(0x" << std::hex << std::setfill('0') << std::setw(2)
               << std::to_integer<int>(encoded_data[index])
               << ")";
     if (index != (encoded_data.size() - 1))
-      bake_code << ",";
+      code << ",";
     if ((index % bytes_per_line) == (bytes_per_line - 1))
-      bake_code << std::endl;
+      code << std::endl;
   }
-  bake_code << std::dec << std::setw(0) << std::endl;
+  code << std::dec << std::setw(0) << std::endl;
 }
 
-zisc::pmr::stringstream generateBakeCode(
-    const zisc::pmr::vector<std::byte>& spv_data,
-    const zisc::pmr::vector<std::byte>& encoded_data,
-    Parameters& params) noexcept
+void generateBakeCode(const zisc::pmr::vector<std::byte>& spv_data,
+                      const zisc::pmr::vector<std::byte>& encoded_data,
+                      Parameters& params,
+                      std::ostream* bake_code) noexcept
 {
-  zisc::pmr::string::allocator_type alloc{params.mem_resource_};
-  zisc::pmr::string tmp{alloc};
-  zisc::pmr::stringstream bake_code{tmp};
-  auto add_line = [&bake_code](const std::string_view line) noexcept
+  auto add_line = [bake_code](const std::string_view line) noexcept
   {
-    bake_code << line << std::endl;
+    (*bake_code) << line << std::endl;
   };
 
   add_line("/*!");
@@ -186,6 +186,7 @@ zisc::pmr::stringstream generateBakeCode(
   add_line("  No detailed description.");
   add_line("  */");
   add_line("");
+  zisc::pmr::string::allocator_type alloc{params.mem_resource_};
   zisc::pmr::string include_guard_name{alloc};
   include_guard_name = "ZIVC_KERNEL_SET_";
   include_guard_name += params.kernel_set_name_.data();
@@ -202,6 +203,7 @@ zisc::pmr::stringstream generateBakeCode(
   add_line("");
   add_line("  No detailed description.");
   add_line("  */");
+  zisc::pmr::string tmp{alloc};
   tmp = "class BakedKernelSet_";
   tmp += params.kernel_set_name_.data();
   add_line(tmp);
@@ -248,13 +250,10 @@ zisc::pmr::stringstream generateBakeCode(
 
   add_line("");
   add_line("#endif // " + include_guard_name);
-
-  return bake_code;
 }
 
 //! Save the bake code
-void saveBakeCode(std::string_view file_path,
-                  zisc::pmr::stringstream& bake_code) noexcept
+void saveBakeCode(std::string_view file_path, std::istream& bake_code) noexcept
 {
   std::ofstream baked_file{file_path.data(), std::ios_base::binary};
   if (!baked_file.is_open()) {
@@ -262,8 +261,6 @@ void saveBakeCode(std::string_view file_path,
               << std::endl;
     std::abort();
   }
-  bake_code.seekg(0, std::ios_base::beg);
-  bake_code.clear();
   baked_file << bake_code.rdbuf();
 }
 
@@ -308,8 +305,14 @@ int main(int /* argc */, char** argv)
                       " MB.");
 
   // Generate a hpp file of the bake code
-  zisc::pmr::stringstream bake_code = ::generateBakeCode(spv_data, encoded_data, params);
-  ::saveBakeCode(baked_spv_file_path, bake_code);
+  {
+    zisc::pmr::string::allocator_type alloc{params.mem_resource_};
+    zisc::pmr::string tmp{alloc};
+    zisc::pmr::stringstream bake_code{std::move(tmp)};
+    ::generateBakeCode(spv_data, encoded_data, params, std::addressof(bake_code));
+    zisc::BSerializer::backToBegin(std::addressof(bake_code));
+    ::saveBakeCode(baked_spv_file_path, bake_code);
+  }
 
   // Memory usage
   ::printDebugMessage("    Memory usage");

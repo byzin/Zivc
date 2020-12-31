@@ -593,7 +593,9 @@ void VulkanDevice::updateDebugInfoImpl() noexcept
       std::strcat(obj_name.data(), id_data.name().data());
       std::strcat(obj_name.data(), "_queue");
       IdData::NameType idx{""};
-      auto [end, result] = std::to_chars(idx.begin(), idx.end(), i);
+      auto [end, result] = std::to_chars(idx.data(),
+                                         idx.data() + idx.size(),
+                                         i);
       *end = '\0';
       std::strcat(obj_name.data(), idx.data());
       const std::string_view name = obj_name.data();
@@ -1001,7 +1003,9 @@ void VulkanDevice::updateFenceDebugInfo(const std::size_t index) noexcept
       std::strcat(obj_name.data(), id_data.name().data());
       std::strcat(obj_name.data(), "_fence");
       IdData::NameType idx{""};
-      auto [end, result] = std::to_chars(idx.begin(), idx.end(), index);
+      auto [end, result] = std::to_chars(idx.data(),
+                                         idx.data() + idx.size(),
+                                         index);
       *end = '\0';
       std::strcat(obj_name.data(), idx.data());
       const std::string_view name = obj_name.data();

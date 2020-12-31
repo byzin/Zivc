@@ -99,6 +99,10 @@ function(Zivc_getZivcFlags zivc_compile_flags zivc_linker_flags zivc_definitions
 
   # C++
   list(APPEND definitions ZIVC_CPU=1)
+  # Suppress warnings
+  if(Z_VISUAL_STUDIO)
+    list(APPEND definitions _CRT_SECURE_NO_WARNINGS)
+  endif()
 
   # Output variables
   set(${zivc_compile_flags} ${compile_flags} PARENT_SCOPE)
@@ -116,6 +120,31 @@ function(Zivc_getZivcWarningFlags zivc_warning_flags)
                               -Wno-covered-switch-default
                               -Wno-sign-conversion
                               )
+    if(Z_VISUAL_STUDIO)
+      # suppress warnings of dependencies
+      list(APPEND warning_flags -Wno-cast-align
+                                -Wno-exit-time-destructors
+                                -Wno-defaulted-function-deleted
+                                -Wno-documentation
+                                -Wno-documentation-deprecated-sync
+                                -Wno-documentation-unknown-command
+                                -Wno-extra-semi-stmt
+                                -Wno-gnu-zero-variadic-macro-arguments
+                                -Wno-implicit-fallthrough
+                                -Wno-missing-field-initializers
+                                -Wno-nested-anon-types
+                                -Wno-nullability-extension
+                                -Wno-nullability-completeness
+                                -Wno-old-style-cast
+                                -Wno-suggest-destructor-override
+                                -Wno-suggest-override
+                                -Wno-switch-enum
+                                -Wno-undef
+                                -Wno-unused-parameter
+                                -Wno-unused-template
+                                -Wno-unused-variable
+                                -Wno-zero-as-null-pointer-constant)
+    endif()
   elseif(Z_GCC)
     list(APPEND warning_flags -Wno-sign-conversion
                               )
@@ -155,6 +184,20 @@ function(Zivc_addZstd zstd_path)
   set(zstd_dest_path ${PROJECT_BINARY_DIR}/Zstd)
   add_subdirectory(${zstd_path}/build/cmake ${zstd_dest_path})
   Zisc_checkTarget(libzstd_static)
+  # Supress warnings
+  if(Z_CLANG AND Z_VISUAL_STUDIO)
+    Zivc_getZivcWarningFlags(zstd_warning_flags)
+    list(APPEND zstd_warning_flags -Wno-comma
+                                   -Wno-disabled-macro-expansion
+                                   -Wno-implicit-int-float-conversion
+                                   -Wno-reserved-id-macro
+                                   -Wno-unknown-attributes
+                                   -Wno-unreachable-code
+                                   -Wno-unused-function
+                                   -Wno-unused-macros
+                                   )
+    target_compile_options(libzstd_static PRIVATE ${zstd_warning_flags})
+  endif()
   # Headers
   file(MAKE_DIRECTORY ${zstd_dest_path}/include)
   file(COPY ${zstd_path}/lib/zstd.h ${zstd_path}/lib/common/zstd_errors.h
@@ -233,7 +276,7 @@ if(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
     add_subdirectory(${PROJECT_SOURCE_DIR}/kernel_baker ${PROJECT_BINARY_DIR}/KernelBaker)
   endif()
   # Vulkan
-  find_package(Vulkan REQUIRED)
+  find_package(Vulkan 1.2.162.0 REQUIRED)
   target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Vulkan)
   # Vulkan Memory Allocator
   set(vma_path ${dependencies_dir}/VulkanMemoryAllocator)

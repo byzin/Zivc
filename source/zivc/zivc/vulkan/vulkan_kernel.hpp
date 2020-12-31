@@ -104,8 +104,10 @@ class VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> :
 
 
   using PodTuple = decltype(makePodTupleType());
+  static_assert(std::is_standard_layout_v<PodTuple>,
+                "The POD values aren't 'plain old data type'.");
   static_assert(zisc::EqualityComparable<PodTuple>,
-                "POD values aren't equality comparable.");
+                "The POD values aren't equality comparable.");
 
 
   //! Check if POD update is needed

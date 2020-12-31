@@ -235,7 +235,11 @@ VulkanSubPlatform::AllocatorData::AllocatorData(
   */
 VulkanSubPlatform::AllocatorData::~AllocatorData() noexcept
 {
-  ZISC_ASSERT(mem_map_.size() == 0, "There are memories which aren't deallocated.");
+  if (0 < mem_map_.size()) {
+    std::cerr << "[ERROR] There are memories which aren't deallocated in Vulkan." << std::endl;
+    for (const auto& mem_data : mem_map_)
+      std::cerr << "    leak: " << mem_data.second.size_ << " bytes." << std::endl;
+  }
 }
 
 /*!

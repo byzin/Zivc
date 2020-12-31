@@ -205,7 +205,7 @@ class KernelArgParser<Arg, RestArgs...>
 {
   // Type check
   using ArgInfo = KernelArgInfo<Arg>;
-  static_assert(!ArgInfo::kIsPod || std::is_pod_v<Arg>,
+  static_assert(!ArgInfo::kIsPod || std::is_standard_layout_v<Arg>,
                 "The POD type doesn't satisfy 'plain old data type'.");
   static_assert(!ArgInfo::kIsPod || zisc::EqualityComparable<Arg>,
                 "The POD type isn't equality comparable.");

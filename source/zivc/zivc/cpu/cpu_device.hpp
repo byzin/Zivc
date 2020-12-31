@@ -78,11 +78,11 @@ class CpuDevice : public Device
   //! Return the peak memory usage of the heap of the given index
   std::size_t peakMemoryUsage(const std::size_t number) const noexcept override;
 
-  //! Return the ownership of the fence to the device
+  //! Return the use of the given fence to the device
   void returnFence(Fence* fence) noexcept override;
 
   //! Set the number of fences
-  void setNumOfFences(const std::size_t s) override;
+  void setFenceSize(const std::size_t s) override;
 
   //! Submit a kernel command
   void submit(const Command& command,
@@ -90,7 +90,7 @@ class CpuDevice : public Device
               std::atomic<uint32b>* id,
               Fence* fence) noexcept;
 
-  //! Take a fence data from the device
+  //! Take a use of a fence from the device
   void takeFence(Fence* fence) override;
 
   //! Return the task batch size per thread

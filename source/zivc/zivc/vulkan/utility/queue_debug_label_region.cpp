@@ -17,6 +17,7 @@
 #include <array>
 #include <memory>
 #include <string_view>
+#include <utility>
 // Zisc
 #include "zisc/non_copyable.hpp"
 // Zivc
@@ -34,14 +35,26 @@ namespace zivc {
   \param [in] label_name No description.
   \param [in] color No description.
   */
-QueueDebugLabelRegion::QueueDebugLabelRegion(const VkQueue& q,
-                                             const VulkanDispatchLoader& dispatcher,
-                                             const std::string_view label_name,
-                                             const std::array<float, 4>& color) noexcept
-    : queue_{q},
-      dispatcher_{std::addressof(dispatcher)}
+QueueDebugLabelRegion::QueueDebugLabelRegion(
+    const VkQueue& q,
+    const VulkanDispatchLoader& dispatcher,
+    const std::string_view label_name,
+    const std::array<float, 4>& color) noexcept :
+        queue_{q},
+        dispatcher_{std::addressof(dispatcher)}
 {
   begin(label_name, color);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in,out] other No description.
+  */
+QueueDebugLabelRegion::QueueDebugLabelRegion(QueueDebugLabelRegion&& other) noexcept
+{
+  std::swap(queue_, other.queue_);
+  std::swap(dispatcher_, other.dispatcher_);
 }
 
 /*!
@@ -50,6 +63,20 @@ QueueDebugLabelRegion::QueueDebugLabelRegion(const VkQueue& q,
 QueueDebugLabelRegion::~QueueDebugLabelRegion() noexcept
 {
   end();
+}
+
+/*!
+  \details No detailed description
+
+  \param [in,out] other No description.
+  \return No description
+  */
+QueueDebugLabelRegion& QueueDebugLabelRegion::operator=(QueueDebugLabelRegion&& other) noexcept
+{
+  end();
+  std::swap(queue_, other.queue_);
+  std::swap(dispatcher_, other.dispatcher_);
+  return *this;
 }
 
 /*!

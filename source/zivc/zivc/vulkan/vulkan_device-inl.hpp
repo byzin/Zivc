@@ -29,6 +29,9 @@
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "vulkan_device_info.hpp"
+#include "utility/cmd_debug_label_region.hpp"
+#include "utility/cmd_record_region.hpp"
+#include "utility/queue_debug_label_region.hpp"
 #include "utility/vulkan.hpp"
 #include "utility/vulkan_dispatch_loader.hpp"
 #include "utility/vulkan_memory_allocator.hpp"
@@ -129,9 +132,9 @@ const VulkanDispatchLoader& VulkanDevice::dispatcher() const noexcept
   \return No description
   */
 inline
-VkQueue& VulkanDevice::getQueue(const uint32b index) noexcept
+VkQueue& VulkanDevice::getQueue(const std::size_t index) noexcept
 {
-  const std::size_t qindex = zisc::cast<std::size_t>(index) % numOfQueues();
+  const std::size_t qindex = index % numOfQueues();
   VkQueue& q = (*queue_list_)[qindex];
   return q;
 }
@@ -143,9 +146,9 @@ VkQueue& VulkanDevice::getQueue(const uint32b index) noexcept
   \return No description
   */
 inline
-const VkQueue& VulkanDevice::getQueue(const uint32b index) const noexcept
+const VkQueue& VulkanDevice::getQueue(const std::size_t index) const noexcept
 {
-  const std::size_t qindex = zisc::cast<std::size_t>(index) % numOfQueues();
+  const std::size_t qindex = index % numOfQueues();
   const VkQueue& q = (*queue_list_)[qindex];
   return q;
 }
@@ -186,8 +189,46 @@ bool VulkanDevice::hasShaderModule(const uint32b id) const noexcept
 inline
 constexpr uint32b VulkanDevice::invalidQueueIndex() noexcept
 {
-  const uint32b index = std::numeric_limits<uint32b>::max();
+  const uint32b index = (std::numeric_limits<uint32b>::max)();
   return index;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Options No description.
+  \param [in] command_buffer No description.
+  \param [in] options No description.
+  \return No description
+  */
+template <LabelOptions Options> inline
+CmdDebugLabelRegion VulkanDevice::makeCmdDebugLabel(
+    const VkCommandBuffer& command_buffer,
+    const Options& options) const noexcept
+{
+  auto region = makeCmdDebugLabel(command_buffer,
+                                  options.label(),
+                                  options.labelColor());
+  return region;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Options No description.
+  \param [in] q No description.
+  \param [in] options No description.
+  \return No description
+  */
+template <LabelOptions Options> inline
+QueueDebugLabelRegion VulkanDevice::makeQueueDebugLabel(
+    const VkQueue& q,
+    const Options& options) const noexcept
+{
+  auto region = makeQueueDebugLabel(q,
+                                    options.label(),
+                                    options.labelColor());
+  return region;
 }
 
 /*!
@@ -215,40 +256,12 @@ const VmaAllocator& VulkanDevice::memoryAllocator() const noexcept
 /*!
   \details No detailed description
 
-  \tparam Type No description.
-  \param [in] command_buffer No description.
-  \param [in] pline_layout No description.
-  \param [in] offset No description.
-  \param [in] data No description.
+  \return No description
   */
-template <typename Type> inline
-void VulkanDevice::pushConstantCmd(const VkCommandBuffer& command_buffer,
-                                   const VkPipelineLayout& pline_layout,
-                                   const std::size_t offset,
-                                   const Type& data)
+inline
+uint32b VulkanDevice::queueFamilyIndex() const noexcept
 {
-  constexpr std::size_t size = sizeof(data);
-  pushConstantCmd(command_buffer, pline_layout, offset, size, std::addressof(data));
-}
-
-/*!
-  \details No detailed description
-
-  \tparam kN No description.
-  \param [in] descriptor_set No description.
-  \param [in] buffer_list No description.
-  \param [in] desc_type_list No description.
-  */
-template <std::size_t kN> inline
-void VulkanDevice::updateDescriptorSet(
-    const VkDescriptorSet& descriptor_set,
-    const std::array<VkBuffer, kN>& buffer_list,
-    const std::array<VkDescriptorType, kN>& desc_type_list)
-{
-  std::array<VkDescriptorBufferInfo, kN> desc_info_list{};
-  std::array<VkWriteDescriptorSet, kN> write_desc_list{};
-  updateDescriptorSet(descriptor_set, kN, buffer_list.data(), desc_type_list.data(),
-                      desc_info_list.data(), write_desc_list.data());
+  return queue_family_index_;
 }
 
 /*!
@@ -261,27 +274,6 @@ inline
 const std::array<uint32b, 3>& VulkanDevice::workGroupSizeDim(const std::size_t dimension) const noexcept
 {
   return work_group_size_list_[dimension - 1];
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] work_dimension No description.
-  \param [in] work_size No description.
-  \return No description
-  */
-inline
-std::array<uint32b, 3> VulkanDevice::calcDispatchSize(
-    const std::size_t work_dimension,
-    const std::array<uint32b, 3>& work_size) const noexcept
-{
-  std::array<uint32b, 3> dispatch_size{{1, 1, 1}};
-  const auto& group_size = workGroupSizeDim(work_dimension);
-  for (std::size_t i = 0; i < work_dimension; ++i) {
-    const uint32b s = (work_size[i] + group_size[i] - 1) / group_size[i];
-    dispatch_size[i] = s;
-  }
-  return dispatch_size;
 }
 
 /*!
@@ -306,17 +298,6 @@ const VulkanSubPlatform& VulkanDevice::parentImpl() const noexcept
 {
   const auto p = getParent();
   return *zisc::reinterp<const VulkanSubPlatform*>(p);
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-inline
-uint32b VulkanDevice::queueFamilyIndex() const noexcept
-{
-  return queue_family_index_;
 }
 
 } // namespace zivc

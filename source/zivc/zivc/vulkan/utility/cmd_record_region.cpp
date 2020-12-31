@@ -15,6 +15,7 @@
 #include "cmd_record_region.hpp"
 // Standard C++ library
 #include <memory>
+#include <utility>
 // Zisc
 #include "zisc/non_copyable.hpp"
 #include "zisc/utility.hpp"
@@ -29,16 +30,27 @@ namespace zivc {
   \details No detailed description
 
   \param [in] command_buffer No description.
-  \param [in] flag No description.
+  \param [in] flags No description.
   \param [in] dispatcher No description.
   */
 CmdRecordRegion::CmdRecordRegion(const VkCommandBuffer& command_buffer,
                                  const VulkanDispatchLoader& dispatcher,
-                                 const VkCommandBufferUsageFlags flag) noexcept :
+                                 const VkCommandBufferUsageFlags flags) noexcept :
     command_buffer_{command_buffer},
     dispatcher_{std::addressof(dispatcher)}
 {
-  begin(flag);
+  begin(flags);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in,out] other No description.
+  */
+CmdRecordRegion::CmdRecordRegion(CmdRecordRegion&& other) noexcept
+{
+  std::swap(command_buffer_, other.command_buffer_);
+  std::swap(dispatcher_, other.dispatcher_);
 }
 
 /*!
@@ -47,6 +59,20 @@ CmdRecordRegion::CmdRecordRegion(const VkCommandBuffer& command_buffer,
 CmdRecordRegion::~CmdRecordRegion() noexcept
 {
   end();
+}
+
+/*!
+  \details No detailed description
+
+  \param [in,out] other No description.
+  \return No description
+  */
+CmdRecordRegion& CmdRecordRegion::operator=(CmdRecordRegion&& other) noexcept
+{
+  end();
+  std::swap(command_buffer_, other.command_buffer_);
+  std::swap(dispatcher_, other.dispatcher_);
+  return *this;
 }
 
 /*!
@@ -66,15 +92,15 @@ void CmdRecordRegion::end() noexcept
 /*!
   \details No detailed description
 
-  \param [in] flag No description.
+  \param [in] flags No description.
   */
-void CmdRecordRegion::begin(const VkCommandBufferUsageFlags flag) noexcept
+void CmdRecordRegion::begin(const VkCommandBufferUsageFlags flags) noexcept
 {
   zivcvk::CommandBuffer command_buffer{command_buffer_};
   if (command_buffer) {
     const auto loader = dispatcher_->loaderImpl();
     const zivcvk::CommandBufferBeginInfo info{
-        zisc::cast<zivcvk::CommandBufferUsageFlags>(flag)};
+        zisc::cast<zivcvk::CommandBufferUsageFlags>(flags)};
     auto result = command_buffer.begin(std::addressof(info), *loader);
   }
 }

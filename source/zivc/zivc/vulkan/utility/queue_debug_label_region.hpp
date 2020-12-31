@@ -43,8 +43,15 @@ class QueueDebugLabelRegion : private zisc::NonCopyable<QueueDebugLabelRegion>
                         const std::string_view label_name,
                         const std::array<float, 4>& color) noexcept;
 
+  //! Move data
+  QueueDebugLabelRegion(QueueDebugLabelRegion&& other) noexcept;
+
   //! Close the debug label region
   ~QueueDebugLabelRegion() noexcept;
+
+
+  //! Move data
+  QueueDebugLabelRegion& operator=(QueueDebugLabelRegion&& other) noexcept;
 
 
   //! Close the debug label region

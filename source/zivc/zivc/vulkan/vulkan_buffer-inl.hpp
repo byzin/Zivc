@@ -27,6 +27,7 @@
 #include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
+#include "vulkan_buffer_impl.hpp"
 #include "vulkan_device.hpp"
 #include "vulkan_device_info.hpp"
 #include "utility/cmd_debug_label_region.hpp"
@@ -243,14 +244,14 @@ void VulkanBuffer<T>::setSize(const std::size_t s)
     Buffer<T>::clear();
     if (0 < s) {
       const std::size_t mem_size = sizeof(Type) * s;
-      auto& device = parentImpl();
-      device.allocateMemory(mem_size,
-                            Buffer<T>::usage(),
-                            descriptorTypeVk(),
-                            std::addressof(Buffer<T>::id()),
-                            std::addressof(buffer()),
-                            std::addressof(allocation()),
-                            std::addressof(vm_alloc_info_));
+      VulkanBufferImpl impl{std::addressof(parentImpl())};
+      impl.allocateMemory(mem_size,
+                          Buffer<T>::usage(),
+                          descriptorTypeVk(),
+                          std::addressof(Buffer<T>::id()),
+                          std::addressof(buffer()),
+                          std::addressof(allocation()),
+                          std::addressof(vm_alloc_info_));
       ZivcObject::updateDebugInfo();
     }
     initCommandBuffer();
@@ -298,10 +299,10 @@ void VulkanBuffer<T>::destroyData() noexcept
 {
   command_buffer_ = VK_NULL_HANDLE;
   if (buffer() != VK_NULL_HANDLE) {
-    auto& device = parentImpl();
-    device.deallocateMemory(std::addressof(buffer()),
-                            std::addressof(allocation()),
-                            std::addressof(vm_alloc_info_));
+    VulkanBufferImpl impl{std::addressof(parentImpl())};
+    impl.deallocateMemory(std::addressof(buffer()),
+                          std::addressof(allocation()),
+                          std::addressof(vm_alloc_info_));
     initData();
   }
 }
@@ -387,16 +388,15 @@ void VulkanBuffer<T>::updateDebugInfoImpl() noexcept
   const IdData& id_data = ZivcObject::id();
   const std::string_view buffer_name = id_data.name();
   if (buffer() != VK_NULL_HANDLE) {
-    auto handle = zisc::reinterp<const uint64b*>(std::addressof(buffer()));
-    device.setDebugInfo(VK_OBJECT_TYPE_BUFFER, *handle, buffer_name, this);
+    device.setDebugInfo(VK_OBJECT_TYPE_BUFFER, buffer(), buffer_name, this);
   }
   if (command_buffer_ != VK_NULL_HANDLE) {
     IdData::NameType obj_name{""};
     const std::string_view suffix{"_commandbuffer"};
     std::strncpy(obj_name.data(), buffer_name.data(), buffer_name.size() + 1);
     std::strncat(obj_name.data(), suffix.data(), suffix.size());
-    auto handle = zisc::reinterp<const uint64b*>(std::addressof(command_buffer_));
-    device.setDebugInfo(VK_OBJECT_TYPE_COMMAND_BUFFER, *handle, obj_name.data(), this);
+    const std::string name = obj_name.data();
+    device.setDebugInfo(VK_OBJECT_TYPE_COMMAND_BUFFER, command_buffer_, name, this);
   }
 }
 
@@ -415,20 +415,17 @@ LaunchResult VulkanBuffer<T>::copyOnDevice(
   VulkanDevice& device = parentImpl();
   VkCommandBuffer command = commandBuffer();
   {
-    CmdDebugLabelRegion debug_region{Buffer<T>::isDebugMode() ? command
-                                                              : VK_NULL_HANDLE,
-                                     device.dispatcher(),
-                                     launch_options.label(),
-                                     launch_options.labelColor()};
+    constexpr auto flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    auto record_region = device.makeCmdRecord(command, flags);
     {
-      CmdRecordRegion record_region{command,
-                                    device.dispatcher(),
-                                    VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT};
+      auto debug_region = device.makeCmdDebugLabel(command, launch_options);
+
       auto src = zisc::cast<const VulkanBuffer*>(std::addressof(source));
       const VkBufferCopy copy_region{launch_options.sourceOffsetInBytes(),
                                      launch_options.destOffsetInBytes(),
                                      launch_options.sizeInBytes()};
-      device.copyBufferCmd(command, src->buffer(), buffer(), copy_region);
+      VulkanBufferImpl impl{std::addressof(device)};
+      impl.copyCmd(command, src->buffer(), buffer(), copy_region);
     }
   }
   LaunchResult result{};
@@ -436,11 +433,7 @@ LaunchResult VulkanBuffer<T>::copyOnDevice(
     VkQueue q = device.getQueue(launch_options.queueIndex());
     if (launch_options.isExternalSyncMode())
       device.takeFence(std::addressof(result.fence()));
-    QueueDebugLabelRegion debug_region{Buffer<T>::isDebugMode() ? q
-                                                                : VK_NULL_HANDLE,
-                                       device.dispatcher(),
-                                       launch_options.label(),
-                                       launch_options.labelColor()};
+    auto debug_region = device.makeQueueDebugLabel(q, launch_options);
     device.submit(command, q, result.fence());
   }
   result.setAsync(true);
@@ -490,20 +483,17 @@ LaunchResult VulkanBuffer<T>::fillFastOnDevice(
   VulkanDevice& device = parentImpl();
   VkCommandBuffer command = commandBuffer();
   {
-    CmdDebugLabelRegion debug_region{Buffer<T>::isDebugMode() ? command 
-                                                              : VK_NULL_HANDLE,
-                                     device.dispatcher(),
-                                     launch_options.label(),
-                                     launch_options.labelColor()};
+    constexpr auto flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    auto record_region = device.makeCmdRecord(command, flags);
     {
-      CmdRecordRegion record_region{command,
-                                    device.dispatcher(),
-                                    VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT};
-      device.fillBufferFastCmd(command,
-                               buffer(),
-                               launch_options.destOffsetInBytes(),
-                               launch_options.sizeInBytes(),
-                               data);
+      auto debug_region = device.makeCmdDebugLabel(command, launch_options);
+
+      VulkanBufferImpl impl{std::addressof(device)};
+      impl.fillFastCmd(command,
+                       buffer(),
+                       launch_options.destOffsetInBytes(),
+                       launch_options.sizeInBytes(),
+                       data);
     }
   }
   LaunchResult result{};
@@ -511,11 +501,7 @@ LaunchResult VulkanBuffer<T>::fillFastOnDevice(
     VkQueue q = device.getQueue(launch_options.queueIndex());
     if (launch_options.isExternalSyncMode())
       device.takeFence(std::addressof(result.fence()));
-    QueueDebugLabelRegion debug_region{Buffer<T>::isDebugMode() ? q
-                                                                : VK_NULL_HANDLE,
-                                       device.dispatcher(),
-                                       launch_options.label(),
-                                       launch_options.labelColor()};
+    auto debug_region = device.makeQueueDebugLabel(q, launch_options);
     device.submit(command, q, result.fence());
   }
   result.setAsync(true);

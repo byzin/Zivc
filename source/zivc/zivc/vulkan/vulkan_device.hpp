@@ -21,12 +21,15 @@
 #include <map>
 #include <memory>
 #include <string_view>
-#include <tuple>
 // Zisc
+#include "zisc/concepts.hpp"
 #include "zisc/memory/memory.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 #include "zisc/thread/bitset.hpp"
 // Zivc
+#include "utility/cmd_debug_label_region.hpp"
+#include "utility/cmd_record_region.hpp"
+#include "utility/queue_debug_label_region.hpp"
 #include "utility/vulkan.hpp"
 #include "utility/vulkan_dispatch_loader.hpp"
 #include "utility/vulkan_memory_allocator.hpp"
@@ -42,6 +45,12 @@ class DeviceInfo;
 class Fence;
 class VulkanDeviceInfo;
 class VulkanSubPlatform;
+
+template <typename Type>
+concept LabelOptions = requires (const Type& o) {
+  {o.label()} -> zisc::template SameAs<std::string_view>;
+  {o.labelColor()} -> zisc::template SameAs<const std::template array<float, 4>&>;
+};
 
 /*!
   \brief No brief description
@@ -93,10 +102,10 @@ class VulkanDevice : public Device
   const VulkanDispatchLoader& dispatcher() const noexcept;
 
   //! Return the queue by the index
-  VkQueue& getQueue(const uint32b index) noexcept;
+  VkQueue& getQueue(const std::size_t index) noexcept;
 
   //! Return the queue by the index
-  const VkQueue& getQueue(const uint32b index) const noexcept;
+  const VkQueue& getQueue(const std::size_t index) const noexcept;
 
   //! Return the shader module by the the given kernel set ID
   const ModuleData& getShaderModule(const uint32b id) const noexcept;
@@ -107,8 +116,35 @@ class VulkanDevice : public Device
   //! Return the invalid queue index in queue families
   static constexpr uint32b invalidQueueIndex() noexcept;
 
+  //! Make a host memory allocator for Vulkan object
+  VkAllocationCallbacks makeAllocator() noexcept;
+
+  //! Make a debug label for a commandbuffer
+  template <LabelOptions Options>
+  CmdDebugLabelRegion makeCmdDebugLabel(const VkCommandBuffer& command_buffer,
+                                        const Options& options) const noexcept;
+
+  //! Make a debug label for a commandbuffer
+  CmdDebugLabelRegion makeCmdDebugLabel(const VkCommandBuffer& command_buffer,
+                                        const std::string_view label_name,
+                                        const std::array<float, 4>& color) const noexcept;
+
+  //! Make a record region for a commandbuffer
+  CmdRecordRegion makeCmdRecord(const VkCommandBuffer& command_buffer,
+                                const VkCommandBufferUsageFlags flags) const noexcept;
+
   //! Make a command buffer
   VkCommandBuffer makeCommandBuffer();
+
+  //! Make a debug label for a queue
+  template <LabelOptions Options>
+  QueueDebugLabelRegion makeQueueDebugLabel(const VkQueue& q,
+                                            const Options& options) const noexcept;
+
+  //! Make a debug label for a queue
+  QueueDebugLabelRegion makeQueueDebugLabel(const VkQueue& q,
+                                            const std::string_view label_name,
+                                            const std::array<float, 4>& color) const noexcept;
 
   //! Return the memory allocator of the device
   VmaAllocator& memoryAllocator() noexcept;
@@ -125,24 +161,27 @@ class VulkanDevice : public Device
   //! Return the peak memory usage of the heap of the given number
   std::size_t peakMemoryUsage(const std::size_t number) const noexcept override;
 
-  //! Return the ownership of the fence to the device
+  //! Return an index of a queue family
+  uint32b queueFamilyIndex() const noexcept;
+
+  //! Return the use of the given fence to the device
   void returnFence(Fence* fence) noexcept override;
 
-  //! Set the debug info
-  void setDebugInfo(const VkObjectType object_type,
-                    const uint64b object_handle,
+  //! Set debug info of the given object
+  void setDebugInfo(const VkObjectType vk_object_type,
+                    const void* vk_handle,
                     const std::string_view object_name,
                     const ZivcObject* zivc_object) noexcept;
 
   //! Set the number of faces
-  void setNumOfFences(const std::size_t s) override;
+  void setFenceSize(const std::size_t s) override;
 
   //! Submit the given command
   void submit(const VkCommandBuffer& command_buffer,
               const VkQueue& q,
               const Fence& fence);
 
-  //! Take a fence data from the device
+  //! Take a use of a fence from the device
   void takeFence(Fence* fence) override;
 
   //! Return the current memory usage of the heap of the given number
@@ -156,93 +195,6 @@ class VulkanDevice : public Device
 
   //! Wait for a fence to be signaled
   void waitForCompletion(const Fence& fence) const noexcept override;
-
-  // For buffer
-
-  //! Allocate a device memory
-  void allocateMemory(const std::size_t size,
-                      const BufferUsage buffer_usage,
-                      const VkBufferUsageFlagBits desc_type,
-                      void* user_data,
-                      VkBuffer* buffer,
-                      VmaAllocation* vm_allocation,
-                      VmaAllocationInfo* alloc_info);
-
-  //! Copy
-  void copyBufferCmd(const VkCommandBuffer& command_buffer,
-                     const VkBuffer& source_buffer,
-                     const VkBuffer& dest_buffer,
-                     const VkBufferCopy& region);
-
-  //! Deallocate a device memory
-  void deallocateMemory(VkBuffer* buffer,
-                        VmaAllocation* vm_allocation,
-                        VmaAllocationInfo* alloc_info) noexcept;
-
-  //! Fill the given buffer with specified value
-  void fillBufferFastCmd(const VkCommandBuffer& command_buffer,
-                         const VkBuffer& buffer,
-                         const std::size_t dest_offset,
-                         const std::size_t size,
-                         const uint32b data) noexcept;
-
-  // For kernel
-
-  //! Add a memory barrier for the given POD buffer
-  void addPodBarrierCmd(const VkCommandBuffer& command_buffer,
-                        const VkBuffer& buffer);
-
-  //! Destroy descriptor set
-  void destroyKernelDescriptorSet(VkDescriptorSetLayout* descriptor_set_layout,
-                                  VkDescriptorPool* descriptor_pool) noexcept;
-
-  //! Destroy pipeline
-  void destroyKernelPipeline(VkPipelineLayout* pipeline_layout,
-                             VkPipeline* compute_pipeline) noexcept;
-
-  //! Record dispatching the given kernel to the vulkan device
-  void dispatchKernelCmd(const VkCommandBuffer& command_buffer,
-                         const VkDescriptorSet& descriptor_set,
-                         const VkPipelineLayout& pipeline_layout,
-                         const VkPipeline& pipeline,
-                         const std::size_t work_dimension,
-                         const std::array<uint32b, 3>& work_group_size);
-
-  //! Initialize a descriptor set of a kernel
-  void initKernelDescriptorSet(const std::size_t num_of_storage_buffers,
-                               const std::size_t num_of_uniform_buffers,
-                               VkDescriptorSetLayout* descriptor_set_layout,
-                               VkDescriptorPool* descriptor_pool,
-                               VkDescriptorSet* descriptor_set);
-
-  //! Initialize a pipeline of a kernel
-  void initKernelPipeline(const std::size_t work_dimension,
-                          const std::size_t num_of_local_args,
-                          const VkDescriptorSetLayout& set_layout,
-                          const VkShaderModule& module,
-                          const std::string_view kernel_name,
-                          VkPipelineLayout* pipeline_layout,
-                          VkPipeline* compute_pipeline);
-
-  //! Record push constant command
-  template <typename Type>
-  void pushConstantCmd(const VkCommandBuffer& command_buffer,
-                       const VkPipelineLayout& pline_layout,
-                       const std::size_t offset,
-                       const Type& data);
-
-  //! Record push constant command
-  void pushConstantCmd(const VkCommandBuffer& command_buffer,
-                       const VkPipelineLayout& pline_layout,
-                       const std::size_t offset,
-                       const std::size_t size,
-                       const void* data);
-
-  //! Update the given descriptor set with the given buffers
-  template <std::size_t kN>
-  void updateDescriptorSet(const VkDescriptorSet& descriptor_set,
-                           const std::array<VkBuffer, kN>& buffer_list,
-                           const std::array<VkDescriptorType, kN>& desc_type_list);
 
   //! Return the work group size of the given dimension
   const std::array<uint32b, 3>& workGroupSizeDim(const std::size_t dimension) const noexcept;
@@ -293,11 +245,6 @@ class VulkanDevice : public Device
                        const zisc::pmr::vector<uint32b>& spirv_code,
                        const std::string_view module_name);
 
-  //! Calculate the dispatch size
-  std::array<uint32b, 3> calcDispatchSize(
-      const std::size_t work_dimension,
-      const std::array<uint32b, 3>& work_size) const noexcept;
-
   //! Find the index of the optimal queue familty
   uint32b findQueueFamily() const noexcept;
 
@@ -331,16 +278,8 @@ class VulkanDevice : public Device
   //! Return the sub-platform
   const VulkanSubPlatform& parentImpl() const noexcept;
 
-  //! Return an index of a queue family
-  uint32b queueFamilyIndex() const noexcept;
-
-  //! Update the given descriptor set with the given buffers
-  void updateDescriptorSet(const VkDescriptorSet& descriptor_set,
-                           const std::size_t n,
-                           const VkBuffer* buffer_list,
-                           const VkDescriptorType* desc_type_list,
-                           VkDescriptorBufferInfo* desc_info_list,
-                           VkWriteDescriptorSet* write_desc_list);
+  //! Update the debug info of the fence by the given index
+  void updateFenceDebugInfo(const std::size_t index) noexcept;
 
   //! Update the debug info of the shader module of the given ID
   void updateShaderModuleDebugInfo(const uint32b id) noexcept;

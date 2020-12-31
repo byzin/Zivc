@@ -48,10 +48,9 @@ namespace zivc {
 
   \param [in] mem_resource No description.
   */
-CpuDeviceInfo::CpuDeviceInfo(zisc::pmr::memory_resource* mem_resource) noexcept :
+CpuDeviceInfo::CpuDeviceInfo([[maybe_unused]] zisc::pmr::memory_resource* mem_resource) noexcept :
     DeviceInfo()
 {
-  static_cast<void>(mem_resource);
 }
 
 /*!
@@ -95,9 +94,8 @@ CpuDeviceInfo& CpuDeviceInfo::operator=(CpuDeviceInfo&& other) noexcept
   \param [in] heap_index No description.
   \return No description
   */
-std::size_t CpuDeviceInfo::availableMemory(const std::size_t heap_index) const noexcept
+std::size_t CpuDeviceInfo::availableMemory([[maybe_unused]] const std::size_t heap_index) const noexcept
 {
-  static_cast<void>(heap_index);
   const std::size_t memory_size = memory_stats_.availablePhysicalMemory();
   return memory_size;
 }
@@ -171,9 +169,8 @@ std::size_t CpuDeviceInfo::numOfHeaps() const noexcept
   \param [in] heap_index No description.
   \return No description
   */
-std::size_t CpuDeviceInfo::totalMemory(const std::size_t heap_index) const noexcept
+std::size_t CpuDeviceInfo::totalMemory([[maybe_unused]] const std::size_t heap_index) const noexcept
 {
-  static_cast<void>(heap_index);
   const std::size_t memory_size = memory_stats_.totalPhysicalMemory();
   return memory_size;
 }

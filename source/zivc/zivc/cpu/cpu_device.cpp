@@ -89,9 +89,8 @@ std::size_t CpuDevice::numOfQueues() const noexcept
   \param [in] number No description.
   \return No description
   */
-std::size_t CpuDevice::peakMemoryUsage(const std::size_t number) const noexcept
+std::size_t CpuDevice::peakMemoryUsage([[maybe_unused]] const std::size_t number) const noexcept
 {
-  static_cast<void>(number);
   return heap_usage_.peak();
 }
 
@@ -111,9 +110,8 @@ void CpuDevice::returnFence(Fence* fence) noexcept
 
   \param [in] s No description.
   */
-void CpuDevice::setNumOfFences(const std::size_t s)
+void CpuDevice::setFenceSize([[maybe_unused]] const std::size_t s)
 {
-  static_cast<void>(s);
 }
 
 /*!
@@ -165,8 +163,7 @@ void CpuDevice::submit(const Command& command,
 void CpuDevice::takeFence(Fence* fence)
 {
   auto memory = std::addressof(fence->data());
-  auto f = ::new (zisc::cast<void*>(memory)) ::CpuFence{};
-  static_cast<void>(f);
+  [[maybe_unused]] auto f = ::new (zisc::cast<void*>(memory)) ::CpuFence{};
 }
 
 /*!
@@ -175,9 +172,8 @@ void CpuDevice::takeFence(Fence* fence)
   \param [in] number No description.
   \return No description
   */
-std::size_t CpuDevice::totalMemoryUsage(const std::size_t number) const noexcept
+std::size_t CpuDevice::totalMemoryUsage([[maybe_unused]] const std::size_t number) const noexcept
 {
-  static_cast<void>(number);
   return heap_usage_.total();
 }
 
@@ -195,9 +191,8 @@ void CpuDevice::waitForCompletion() const noexcept
 
   \param [in] queue_index No description.
   */
-void CpuDevice::waitForCompletion(const uint32b queue_index) const noexcept
+void CpuDevice::waitForCompletion([[maybe_unused]] const uint32b queue_index) const noexcept
 {
-  static_cast<void>(queue_index);
   waitForCompletion();
 }
 

@@ -17,6 +17,7 @@
 #include <array>
 #include <memory>
 #include <string_view>
+#include <utility>
 // Zisc
 #include "zisc/non_copyable.hpp"
 // Zivc
@@ -46,10 +47,35 @@ CmdDebugLabelRegion::CmdDebugLabelRegion(const VkCommandBuffer& command_buffer,
 
 /*!
   \details No detailed description
+
+  \param [in,out] other No description.
+  */
+CmdDebugLabelRegion::CmdDebugLabelRegion(CmdDebugLabelRegion&& other) noexcept
+{
+  std::swap(command_buffer_, other.command_buffer_);
+  std::swap(dispatcher_, other.dispatcher_);
+}
+
+/*!
+  \details No detailed description
   */
 CmdDebugLabelRegion::~CmdDebugLabelRegion() noexcept
 {
   end();
+}
+
+/*!
+  \details No detailed description
+
+  \param [in,out] other No description.
+  \return No description
+  */
+CmdDebugLabelRegion& CmdDebugLabelRegion::operator=(CmdDebugLabelRegion&& other) noexcept
+{
+  end();
+  std::swap(command_buffer_, other.command_buffer_);
+  std::swap(dispatcher_, other.dispatcher_);
+  return *this;
 }
 
 /*!

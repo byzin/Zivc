@@ -22,6 +22,7 @@
 #include <memory>
 #include <type_traits>
 // Zisc
+#include "zisc/concepts.hpp"
 #include "zisc/zisc_config.hpp"
 // Zivc
 #include "zivc/kernel_set.hpp"
@@ -202,8 +203,14 @@ constexpr void KernelArgParseResult::setIndex(const std::size_t index) noexcept
 template <typename Arg, typename ...RestArgs>
 class KernelArgParser<Arg, RestArgs...>
 {
-  // Type aliases
+  // Type check
   using ArgInfo = KernelArgInfo<Arg>;
+  static_assert(!ArgInfo::kIsPod || std::is_pod_v<Arg>,
+                "The POD type doesn't satisfy 'plain old data type'.");
+  static_assert(!ArgInfo::kIsPod || zisc::EqualityComparable<Arg>,
+                "The POD type isn't equality comparable.");
+
+  // Type aliases
   template <std::size_t kDim, DerivedKSet KSet>
   using Params = KernelParams<kDim, KSet, Arg, RestArgs...>;
   using NextParser = KernelArgParser<RestArgs...>;

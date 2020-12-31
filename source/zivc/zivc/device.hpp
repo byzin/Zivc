@@ -96,13 +96,13 @@ class Device : public ZivcObject
   //! Return the peak memory usage of the heap of the given number
   virtual std::size_t peakMemoryUsage(const std::size_t number) const noexcept = 0;
 
-  //! Return the ownership of the fence to the device
+  //! Return the use of the given fence to the device
   virtual void returnFence(Fence* fence) noexcept = 0;
 
   //! Set the number of fences
-  virtual void setNumOfFences(const std::size_t s) = 0;
+  virtual void setFenceSize(const std::size_t s) = 0;
 
-  //! Take a fence data from the device
+  //! Take a use of a fence from the device
   virtual void takeFence(Fence* fence) = 0;
 
   //! Return the current memory usage of the heap of the given number

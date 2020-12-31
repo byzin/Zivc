@@ -37,10 +37,17 @@ class CmdRecordRegion : private zisc::NonCopyable<CmdRecordRegion>
   //! Start recording a command buffer
   CmdRecordRegion(const VkCommandBuffer& command_buffer,
                   const VulkanDispatchLoader& dispatcher,
-                  const VkCommandBufferUsageFlags flag) noexcept;
+                  const VkCommandBufferUsageFlags flags) noexcept;
+
+  //! Move data
+  CmdRecordRegion(CmdRecordRegion&& other) noexcept;
 
   //! Finish recording a command buffer
   ~CmdRecordRegion() noexcept;
+
+
+  //! Move data
+  CmdRecordRegion& operator=(CmdRecordRegion&& other) noexcept;
 
 
   //! Finish recording a command buffer
@@ -48,7 +55,7 @@ class CmdRecordRegion : private zisc::NonCopyable<CmdRecordRegion>
 
  private:
   //! Start recording a command buffer
-  void begin(const VkCommandBufferUsageFlags flag) noexcept;
+  void begin(const VkCommandBufferUsageFlags flags) noexcept;
 
 
   VkCommandBuffer command_buffer_ = VK_NULL_HANDLE;

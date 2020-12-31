@@ -43,8 +43,15 @@ class CmdDebugLabelRegion : private zisc::NonCopyable<CmdDebugLabelRegion>
                        const std::string_view label_name,
                        const std::array<float, 4>& color) noexcept;
 
+   //! Move data
+   CmdDebugLabelRegion(CmdDebugLabelRegion&& other) noexcept;
+
    //! Close the debug label region
    ~CmdDebugLabelRegion() noexcept;
+
+
+   //! Move data
+   CmdDebugLabelRegion& operator=(CmdDebugLabelRegion&& other) noexcept;
 
 
    //! Close the debug label region

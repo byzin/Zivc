@@ -31,7 +31,9 @@
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "vulkan_buffer.hpp"
+#include "vulkan_buffer_impl.hpp"
 #include "vulkan_device.hpp"
+#include "vulkan_kernel_impl.hpp"
 #include "utility/cmd_debug_label_region.hpp"
 #include "utility/cmd_record_region.hpp"
 #include "utility/queue_debug_label_region.hpp"
@@ -112,43 +114,19 @@ run(Args... args, LaunchOptions& launch_options)
   // DescriptorSet
   updateDescriptorSet(args...);
   // POD
-  bool need_to_update_pod = false;
-  if constexpr (hasPodArg()) {
-    const PodTuple pod_params = makePodTuple(args...);
-    auto cache = pod_cache_->mapMemory();
-//    need_to_update_pod = cache[0] != pod_params;
-    need_to_update_pod = true;
-    ZISC_ASSERT(pod_cache_->isHostVisible(), "The cache isn't host visible.");
-    if (need_to_update_pod)
-      cache[0] = pod_params;
-  }
+  const bool need_to_update_pod = checkIfPodUpdateIsNeeded(args...);
   const auto work_size = BaseKernel::expandWorkSize(launch_options.workSize());
   VkCommandBuffer command = commandBuffer();
   // Command recording
   {
-    CmdDebugLabelRegion debug_region{BaseKernel::isDebugMode() ? command
-                                                               : VK_NULL_HANDLE,
-                                     device.dispatcher(),
-                                     launch_options.label(),
-                                     launch_options.labelColor()};
+    const auto flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    auto record_region = device.makeCmdRecord(command, flags);
     {
-      CmdRecordRegion record_region{command,
-                                    device.dispatcher(),
-                                    VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT};
+      auto debug_region = device.makeCmdDebugLabel(command, launch_options);
       // Update global and region offsets
-      {
-        std::array<uint32b, 7> data;
-        data.fill(0);
-        device.pushConstantCmd(command, pipeline_layout_, 0, data);
-      }
-      if (need_to_update_pod) {
-        using BufferT = VulkanBuffer<PodTuple>;
-        const VkBufferCopy copy_region{0, 0, sizeof(PodTuple)};
-        auto pod_cache = zisc::cast<const BufferT*>(pod_cache_.get())->buffer();
-        auto pod_buf = zisc::cast<const BufferT*>(pod_buffer_.get())->buffer();
-        device.copyBufferCmd(command, pod_cache, pod_buf, copy_region);
-        device.addPodBarrierCmd(command, pod_buf);
-      }
+      updateGlobalAndRegionOffsets(launch_options);
+      if (need_to_update_pod)
+        updatePodBuffer();
       dispatchCmd(work_size);
     }
   }
@@ -158,11 +136,7 @@ run(Args... args, LaunchOptions& launch_options)
     const VkQueue q = device.getQueue(launch_options.queueIndex());
     if (launch_options.isExternalSyncMode())
       result.fence().setDevice(std::addressof(device));
-    QueueDebugLabelRegion debug_region{BaseKernel::isDebugMode() ? q
-                                                                 : VK_NULL_HANDLE,
-                                       device.dispatcher(),
-                                       launch_options.label(),
-                                       launch_options.labelColor()};
+    auto debug_region = device.makeQueueDebugLabel(q, launch_options);
     device.submit(command, q, result.fence());
   }
   result.setAsync(true);
@@ -218,13 +192,13 @@ destroyData() noexcept
 {
   command_buffer_ = VK_NULL_HANDLE;
   if (pipeline_ != VK_NULL_HANDLE) {
-    VulkanDevice& device = parentImpl();
     pod_cache_.reset();
     pod_buffer_.reset();
-    device.destroyKernelPipeline(std::addressof(pipeline_layout_),
-                                 std::addressof(pipeline_));
-    device.destroyKernelDescriptorSet(std::addressof(desc_set_layout_),
-                                      std::addressof(desc_pool_));
+    VulkanKernelImpl impl{std::addressof(parentImpl())};
+    impl.destroyPipeline(std::addressof(pipeline_layout_),
+                         std::addressof(pipeline_));
+    impl.destroyDescriptorSet(std::addressof(desc_set_layout_),
+                              std::addressof(desc_pool_));
   }
 }
 
@@ -238,9 +212,8 @@ inline
 void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 dispatchCmd(const std::array<uint32b, 3>& work_size)
 {
-  VulkanDevice& device = parentImpl();
-  device.dispatchKernelCmd(command_buffer_, desc_set_, pipeline_layout_, pipeline_,
-    kDim, work_size);
+  VulkanKernelImpl impl{std::addressof(parentImpl())};
+  impl.dispatchCmd(command_buffer_, desc_set_, pipeline_layout_, pipeline_, kDim, work_size);
 }
 
 /*!
@@ -256,19 +229,20 @@ initData(const Params& params)
   static_assert(hasGlobalArg(), "The kernel doesn't have global argument.");
   VulkanDevice& device = parentImpl();
   device.addShaderModule(KSet{});
-  device.initKernelDescriptorSet(BaseKernel::ArgParser::kNumOfBufferArgs,
-                                 zisc::cast<std::size_t>(hasPodArg() ? 1 : 0),
-                                 std::addressof(desc_set_layout_),
-                                 std::addressof(desc_pool_),
-                                 std::addressof(desc_set_));
+  VulkanKernelImpl impl{std::addressof(device)};
+  impl.initDescriptorSet(BaseKernel::ArgParser::kNumOfBufferArgs,
+                         zisc::cast<std::size_t>(hasPodArg() ? 1 : 0),
+                         std::addressof(desc_set_layout_),
+                         std::addressof(desc_pool_),
+                         std::addressof(desc_set_));
   const auto& module_data = device.getShaderModule(KSet::id());
-  device.initKernelPipeline(BaseKernel::dimension(),
-                            BaseKernel::ArgParser::kNumOfLocalArgs,
-                            desc_set_layout_,
-                            module_data.module_,
-                            params.kernelName(),
-                            std::addressof(pipeline_layout_),
-                            std::addressof(pipeline_));
+  impl.initPipeline(BaseKernel::dimension(),
+                    BaseKernel::ArgParser::kNumOfLocalArgs,
+                    desc_set_layout_,
+                    module_data.module_,
+                    params.kernelName(),
+                    std::addressof(pipeline_layout_),
+                    std::addressof(pipeline_));
   command_buffer_ = device.makeCommandBuffer();
   initPodBuffer();
 }
@@ -292,8 +266,7 @@ updateDebugInfoImpl() noexcept
       IdData::NameType obj_name{""};
       std::strncpy(obj_name.data(), kernel_name.data(), kernel_name.size() + 1);
       std::strncat(obj_name.data(), suffix.data(), suffix.size());
-      auto handle = zisc::reinterp<const uint64b*>(std::addressof(obj));
-      device.setDebugInfo(type, *handle, obj_name.data(), this);
+      device.setDebugInfo(type, obj, obj_name.data(), this);
     }
   };
 
@@ -357,6 +330,29 @@ makePodTupleType() noexcept
     std::tuple<> pod_params{};
     return pod_params;
   }
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] args No description.
+  \return No description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+inline
+bool VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+checkIfPodUpdateIsNeeded(Args... args) const noexcept
+{
+  bool need_to_update_pod = false;
+  if constexpr (hasPodArg()) {
+    const PodTuple pod = makePodTuple(args...);
+    ZISC_ASSERT(pod_cache_->isHostVisible(), "The cache isn't host visible.");
+    auto cache = pod_cache_->mapMemory();
+    need_to_update_pod = cache[0] != pod;
+    if (need_to_update_pod)
+      cache[0] = pod;
+  }
+  return need_to_update_pod;
 }
 
 /*!
@@ -444,7 +440,7 @@ inline
 void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 initPodTuple(PodTuple* pod_params, Type&& value, Types&&... rest) noexcept
 {
-  using T = std::remove_cv_t<std::remove_reference_t<Type>>;
+  using T = std::remove_cvref_t<Type>;
   using ASpaceInfo = AddressSpaceInfo<T>;
   if constexpr (ASpaceInfo::kIsPod)
     std::get<kIndex>(*pod_params) = std::forward<Type>(value);
@@ -524,8 +520,6 @@ inline
 void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 updateDescriptorSet(Args... args)
 {
-  auto& device = parentImpl();
-
   constexpr std::size_t n = numOfBuffers();
   std::array<VkBuffer, n> buffer_list{};
   std::array<VkDescriptorType, n> desc_type_list{};
@@ -535,452 +529,47 @@ updateDescriptorSet(Args... args)
     buffer_list[n - 1] = getBufferHandle(*pod_buffer_);
     desc_type_list[n - 1] = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
   }
-  device.updateDescriptorSet(desc_set_, buffer_list, desc_type_list);
+  VulkanKernelImpl impl{std::addressof(parentImpl())};
+  impl.updateDescriptorSet(desc_set_, buffer_list, desc_type_list);
 }
 
-///*!
-//  */
-//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
-//inline
-//void VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::bindBuffers(
-//    std::add_lvalue_reference_t<BufferArgs>... args) noexcept
-//{
-//  using ParseResult = KernelArgParser<kDim, ArgumentTypes...>;
-//
-//  if ((0 == kNumOfBuffers) || isSameArgs(args...))
-//    return;
-//
-//  std::array<vk::Buffer, kNumOfBuffers> buffer_list{getVkBuffer(args)...};
-//  std::array<vk::DescriptorBufferInfo, kNumOfBuffers> descriptor_info_list;
-//  std::array<vk::WriteDescriptorSet, kNumOfBuffers> descriptor_set_list;
-//
-//  constexpr auto buffer_info_list = ParseResult::getGlobalArgInfoList();
-//  for (std::size_t index = 0; index < kNumOfBuffers; ++index) {
-//    auto& descriptor_info = descriptor_info_list[index];
-//    descriptor_info.buffer = buffer_list[index];
-//    descriptor_info.offset = 0;
-//    descriptor_info.range = VK_WHOLE_SIZE;
-//
-//    auto& buffer_info = buffer_info_list[index];
-//    auto& descriptor_set = descriptor_set_list[index];
-//    const bool is_uniform_buffer = Config::isUniformBufferEnabled() &&
-//        (buffer_info.isConstant() || buffer_info.isPod());
-//    descriptor_set.dstSet = descriptor_set_;
-//    descriptor_set.dstBinding = zisc::cast<uint32b>(buffer_info.index());
-//    descriptor_set.dstArrayElement = 0;
-//    descriptor_set.descriptorCount = 1;
-//    descriptor_set.descriptorType = is_uniform_buffer
-//        ? vk::DescriptorType::eUniformBuffer
-//        : vk::DescriptorType::eStorageBuffer;
-//    descriptor_set.pImageInfo = nullptr;
-//    descriptor_set.pBufferInfo = &descriptor_info;
-//    descriptor_set.pTexelBufferView = nullptr;
-//  }
-//
-//  const auto& device = device_->device();
-//  device.updateDescriptorSets(zisc::cast<uint32b>(kNumOfBuffers),
-//                              descriptor_set_list.data(),
-//                              0,
-//                              nullptr);
-//  buffer_list_ = std::move(buffer_list);
-//}
-//
+/*!
+  \details No detailed description
 
+  \param [in] options No description.
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+inline
+void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+updateGlobalAndRegionOffsets(const LaunchOptions& launch_options)
+{
+  std::array<uint32b, 7> data;
+  data.fill(0);
+  VulkanKernelImpl impl{std::addressof(parentImpl())};
+  impl.pushConstantCmd(commandBuffer(), pipeline_layout_, 0, data);
+}
 
-///*!
-//  */
-//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
-//inline
-//VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::VulkanKernel(
-//    VulkanDevice* device,
-//    const uint32b module_index,
-//    const std::string_view kernel_name) noexcept :
-//        device_{device}
-//{
-//  ZISC_ASSERT(device_ != nullptr, "The device is null.");
-//  initialize(module_index, kernel_name);
-//}
-//
-///*!
-//  */
-//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
-//inline
-//VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::~VulkanKernel()
-//    noexcept
-//{
-//  destroy();
-//}
-//
-///*!
-//  */
-//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
-//inline
-//void VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::destroy()
-//    noexcept
-//{
-//  const auto& device = device_->device();
-//  if (compute_pipeline_) {
-//    device.destroyPipeline(compute_pipeline_, nullptr);
-//    compute_pipeline_ = nullptr;
-//  }
-//  if (pipeline_layout_) {
-//    device.destroyPipelineLayout(pipeline_layout_, nullptr);
-//    pipeline_layout_ = nullptr;
-//  }
-//  if (descriptor_pool_) {
-//    device.destroyDescriptorPool(descriptor_pool_, nullptr);
-//    descriptor_pool_ = nullptr;
-//  }
-//  if (descriptor_set_layout_) {
-//    device.destroyDescriptorSetLayout(descriptor_set_layout_, nullptr);
-//    descriptor_set_layout_ = nullptr;
-//  }
-//}
-//
-///*!
-//  */
-//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
-//inline
-//auto VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::device()
-//    noexcept -> VulkanDevice*
-//{
-//  return device_;
-//}
-//
-///*!
-//  */
-//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
-//inline
-//auto VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::device()
-//    const noexcept -> const VulkanDevice*
-//{
-//  return device_;
-//}
-//
-///*!
-//  */
-//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
-//inline
-//auto VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::SubPlatformType()
-//    const noexcept -> SubPlatformType
-//{
-//  return SubPlatformType::kVulkan;
-//}
-//
-///*!
-//  */
-//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
-//inline
-//void VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::run(
-//    std::add_lvalue_reference_t<BufferArgs>... args,
-//    const std::array<uint32b, kDim> works,
-//    const uint32b queue_index) noexcept
-//{
-//  if (!isSameArgs(args...))
-//    bindBuffers(args...);
-//  dispatch(works);
-//  device()->submit(QueueType::kCompute, queue_index, command_buffer_);
-//}
-//
-///*!
-//  */
-//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
-//inline
-//void VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::bindBuffers(
-//    std::add_lvalue_reference_t<BufferArgs>... args) noexcept
-//{
-//  using ParseResult = KernelArgParser<kDim, ArgumentTypes...>;
-//
-//  if ((0 == kNumOfBuffers) || isSameArgs(args...))
-//    return;
-//
-//  std::array<vk::Buffer, kNumOfBuffers> buffer_list{getVkBuffer(args)...};
-//  std::array<vk::DescriptorBufferInfo, kNumOfBuffers> descriptor_info_list;
-//  std::array<vk::WriteDescriptorSet, kNumOfBuffers> descriptor_set_list;
-//
-//  constexpr auto buffer_info_list = ParseResult::getGlobalArgInfoList();
-//  for (std::size_t index = 0; index < kNumOfBuffers; ++index) {
-//    auto& descriptor_info = descriptor_info_list[index];
-//    descriptor_info.buffer = buffer_list[index];
-//    descriptor_info.offset = 0;
-//    descriptor_info.range = VK_WHOLE_SIZE;
-//
-//    auto& buffer_info = buffer_info_list[index];
-//    auto& descriptor_set = descriptor_set_list[index];
-//    const bool is_uniform_buffer = Config::isUniformBufferEnabled() &&
-//        (buffer_info.isConstant() || buffer_info.isPod());
-//    descriptor_set.dstSet = descriptor_set_;
-//    descriptor_set.dstBinding = zisc::cast<uint32b>(buffer_info.index());
-//    descriptor_set.dstArrayElement = 0;
-//    descriptor_set.descriptorCount = 1;
-//    descriptor_set.descriptorType = is_uniform_buffer
-//        ? vk::DescriptorType::eUniformBuffer
-//        : vk::DescriptorType::eStorageBuffer;
-//    descriptor_set.pImageInfo = nullptr;
-//    descriptor_set.pBufferInfo = &descriptor_info;
-//    descriptor_set.pTexelBufferView = nullptr;
-//  }
-//
-//  const auto& device = device_->device();
-//  device.updateDescriptorSets(zisc::cast<uint32b>(kNumOfBuffers),
-//                              descriptor_set_list.data(),
-//                              0,
-//                              nullptr);
-//  buffer_list_ = std::move(buffer_list);
-//}
-//
-///*!
-//  */
-//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
-//inline
-//void VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::dispatch(
-//    std::array<uint32b, kDim> works) noexcept
-//{
-//  const auto group_size = device_->calcWorkGroupSize(works);
-//  vk::CommandBufferBeginInfo begin_info{};
-//  begin_info.flags = vk::CommandBufferUsageFlagBits::eOneTimeSubmit;
-//  command_buffer_.begin(begin_info);
-//
-//  command_buffer_.bindPipeline(vk::PipelineBindPoint::eCompute, compute_pipeline_);
-//  command_buffer_.bindDescriptorSets(vk::PipelineBindPoint::eCompute,
-//                                     pipeline_layout_,
-//                                     0,
-//                                     1,
-//                                     &descriptor_set_,
-//                                     0,
-//                                     nullptr);
-//  command_buffer_.dispatch(group_size[0], group_size[1], group_size[2]);
-//
-//  command_buffer_.end();
-//}
-//
-///*!
-//  */
-//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
-//template <typename Type> inline
-//auto VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::getVkBuffer(
-//    Type&& buffer) const noexcept -> vk::Buffer&
-//{
-//  ZISC_ASSERT(buffer.SubPlatformType() == SubPlatformType::kVulkan,
-//              "The device type of the buffer isn't vulkan.");
-//
-//  using ElementType = typename std::remove_reference_t<Type>::Type;
-//  constexpr DescriptorType descriptor =
-//      std::remove_reference_t<Type>::descriptorType();
-//  using VulkanBufferT = VulkanBuffer<descriptor, ElementType>;
-//  using VulkanBufferPtr = std::add_pointer_t<VulkanBufferT>;
-//
-//  auto b = zisc::cast<VulkanBufferPtr>(std::addressof(buffer));
-//  return b->buffer();
-//}
-//
-///*!
-//  */
-//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
-//inline
-//void VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::initCommandBuffer()
-//    noexcept
-//{
-//  const vk::CommandBufferAllocateInfo alloc_info{
-//      device_->commandPool(QueueType::kCompute),
-//      vk::CommandBufferLevel::ePrimary,
-//      1};
-//  const auto& device = device_->device();
-//  auto [result, command_buffers] = device.allocateCommandBuffers(alloc_info);
-//  ZISC_ASSERT(result == vk::Result::eSuccess, "Command buffer allocation failed.");
-//  command_buffer_ = command_buffers[0];
-//}
-//
-///*!
-//  */
-//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
-//inline
-//void VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::initComputePipeline(
-//    const uint32b module_index,
-//    const std::string_view kernel_name) noexcept
-//{
-//  using ParseResult = KernelArgParser<kDim, ArgumentTypes...>;
-//
-//  // Set constant IDs
-//  constexpr std::size_t num_of_entries = 3u + ParseResult::kNumOfLocalArgs;
-//  std::array<uint32b, num_of_entries> constant_data;
-//  {
-//    const auto& local_work_size = device_->localWorkSize<kDim>();
-//    for (std::size_t i = 0; i < local_work_size.size(); ++i)
-//      constant_data[i] = local_work_size[i];
-//    for (std::size_t i = local_work_size.size(); i < num_of_entries; ++i)
-//      constant_data[i] = device_->subgroupSize();
-//  }
-//  std::array<vk::SpecializationMapEntry, num_of_entries> entries;
-//  for (std::size_t i = 0; i < entries.size(); ++i) {
-//    entries[i].constantID = zisc::cast<uint32b>(i);
-//    entries[i].offset = zisc::cast<uint32b>(i * sizeof(uint32b));
-//    entries[i].size = sizeof(uint32b);
-//  }
-//  const vk::SpecializationInfo info{zisc::cast<uint32b>(num_of_entries),  
-//                                    entries.data(),
-//                                    num_of_entries * sizeof(uint32b),
-//                                    constant_data.data()};
-//  // Shader stage create info
-//  const auto& shader_module = device_->getShaderModule(module_index);
-//  const vk::PipelineShaderStageCreateInfo shader_stage_create_info{
-//      vk::PipelineShaderStageCreateFlags{},
-//      vk::ShaderStageFlagBits::eCompute,
-//      shader_module,
-//      kernel_name.data(),
-//      &info};
-//  // Pipeline create info
-//  const vk::ComputePipelineCreateInfo create_info{
-//      vk::PipelineCreateFlags{},
-//      shader_stage_create_info,
-//      pipeline_layout_};
-//
-//  const auto& device = device_->device();
-//  auto [result, pipelines] = device.createComputePipelines(vk::PipelineCache{},
-//                                                           create_info);
-//  ZISC_ASSERT(result == vk::Result::eSuccess, "Compute pipeline creation failed.");
-//  compute_pipeline_ = pipelines[0];
-//}
-//
-///*!
-//  */
-//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
-//inline
-//void VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::initDescriptorPool()
-//    noexcept
-//{
-//  using ParseResult = KernelArgParser<kDim, ArgumentTypes...>;
-//  static_assert(0 < ParseResult::kNumOfStorageBuffer,
-//                "The kernel doesn't have any storage buffer argument.");
-//
-//  constexpr bool has_uniform_buffer = Config::isUniformBufferEnabled() &&
-//                                      (0 < ParseResult::kNumOfUniformBuffer);
-//  constexpr std::size_t num_of_info = has_uniform_buffer ? 2 : 1;
-//  std::array<vk::DescriptorPoolSize, num_of_info> pool_size_list;
-//  if constexpr (has_uniform_buffer) {
-//    pool_size_list[0].type = vk::DescriptorType::eUniformBuffer;
-//    pool_size_list[0].descriptorCount =
-//        zisc::cast<uint32b>(ParseResult::kNumOfUniformBuffer);
-//    pool_size_list[1].type = vk::DescriptorType::eStorageBuffer;
-//    pool_size_list[1].descriptorCount =
-//        zisc::cast<uint32b>(ParseResult::kNumOfStorageBuffer);
-//    static_assert(kNumOfBuffers ==
-//        (ParseResult::kNumOfStorageBuffer + ParseResult::kNumOfUniformBuffer),
-//        "The number of arguments is wrong.");
-//  }
-//  else {
-//    pool_size_list[0].type = vk::DescriptorType::eStorageBuffer;
-//    pool_size_list[0].descriptorCount = zisc::cast<uint32b>(kNumOfBuffers);
-//  }
-//  const vk::DescriptorPoolCreateInfo create_info{vk::DescriptorPoolCreateFlags{},
-//                                                 1,
-//                                                 zisc::cast<uint32b>(num_of_info),
-//                                                 pool_size_list.data()};
-//  const auto& device = device_->device();
-//  auto [result, descriptor_pool] = device.createDescriptorPool(create_info);
-//  ZISC_ASSERT(result == vk::Result::eSuccess, "Descriptor pool creation failed.");
-//  descriptor_pool_ = descriptor_pool;
-//}
-//
-///*!
-//  */
-//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
-//inline
-//void VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::initDescriptorSet()
-//    noexcept
-//{
-//  const vk::DescriptorSetAllocateInfo alloc_info{descriptor_pool_,
-//                                                 1,
-//                                                 &descriptor_set_layout_};
-//  const auto& device = device_->device();
-//  auto [result, descriptor_sets] = device.allocateDescriptorSets(alloc_info);
-//  ZISC_ASSERT(result == vk::Result::eSuccess, "Descriptor set allocation failed.");
-//  descriptor_set_ = descriptor_sets[0];
-//}
-//
-///*!
-//  */
-//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
-//inline
-//void VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::initDescriptorSetLayout()
-//    noexcept
-//{
-//  using ParseResult = KernelArgParser<kDim, ArgumentTypes...>;
-//  constexpr auto buffer_info_list = ParseResult::getGlobalArgInfoList();
-//
-//  std::array<vk::DescriptorSetLayoutBinding, kNumOfBuffers> layout_bindings;
-//  for (std::size_t index = 0; index < kNumOfBuffers; ++index) {
-//    auto& buffer_info = buffer_info_list[index];
-//    const bool is_uniform_buffer = Config::isUniformBufferEnabled() &&
-//        (buffer_info.isConstant() || buffer_info.isPod());
-//
-//    layout_bindings[index] = vk::DescriptorSetLayoutBinding{
-//      zisc::cast<uint32b>(index),
-//        is_uniform_buffer ? vk::DescriptorType::eUniformBuffer
-//                          : vk::DescriptorType::eStorageBuffer,
-//        1,
-//        vk::ShaderStageFlagBits::eCompute};
-//  }
-//  const vk::DescriptorSetLayoutCreateInfo create_info{
-//      vk::DescriptorSetLayoutCreateFlags{},
-//      zisc::cast<uint32b>(layout_bindings.size()),
-//      layout_bindings.data()};
-//  const auto& device = device_->device();
-//  auto [result, descriptor_set_layout] = device.createDescriptorSetLayout(create_info);
-//  ZISC_ASSERT(result == vk::Result::eSuccess,
-//              "Descriptor set layout creation failed.");
-//  descriptor_set_layout_ = descriptor_set_layout;
-//}
-//
-///*!
-//  */
-//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
-//inline
-//void VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::initialize(
-//    const uint32b module_index, const std::string_view kernel_name) noexcept
-//{
-//  using ParseResult = KernelArgParser<kDim, ArgumentTypes...>;
-//  static_assert(kNumOfBuffers == ParseResult::kNumOfGlobalArgs,
-//                "The number of buffers is wrong.");
-//
-//  initDescriptorSetLayout();
-//  initDescriptorPool();
-//  initDescriptorSet();
-//  initPipelineLayout();
-//  initComputePipeline(module_index, kernel_name);
-//  initCommandBuffer();
-//}
-//
-///*!
-//  */
-//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
-//inline
-//void VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::initPipelineLayout()
-//    noexcept
-//{
-//  const vk::PipelineLayoutCreateInfo create_info{
-//      vk::PipelineLayoutCreateFlags{},
-//      1,
-//      &descriptor_set_layout_};
-//  const auto& device = device_->device();
-//  auto [result, pipeline_layout] = device.createPipelineLayout(create_info);
-//  ZISC_ASSERT(result == vk::Result::eSuccess, "Pipeline layout creation failed.");
-//  pipeline_layout_ = pipeline_layout;
-//}
-//
-///*!
-//  */
-//template <std::size_t kDim, typename ...ArgumentTypes, typename ...BufferArgs>
-//inline
-//bool VulkanKernel<kDim, void (*)(ArgumentTypes...), BufferArgs...>::isSameArgs(
-//    std::add_lvalue_reference_t<BufferArgs>... args) const noexcept
-//{
-//  std::array<vk::Buffer, kNumOfBuffers> buffer_list{{getVkBuffer(args)...}};
-//  bool result = true;
-//  for (std::size_t i = 0; (i < buffer_list.size()) && result; ++i)
-//    result = buffer_list_[i] == buffer_list[i];
-//  return result;
-//}
+/*!
+  \details No detailed description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+inline
+void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+updatePodBuffer()
+{
+  using BufferT = VulkanBuffer<PodTuple>;
+  const VkBufferCopy copy_region{0, 0, sizeof(PodTuple)};
+  auto pod_cache = zisc::cast<const BufferT*>(pod_cache_.get())->buffer();
+  auto pod_buff = zisc::cast<const BufferT*>(pod_buffer_.get())->buffer();
+  {
+    VulkanBufferImpl impl{std::addressof(parentImpl())};
+    impl.copyCmd(commandBuffer(), pod_cache, pod_buff, copy_region);
+  }
+  {
+    VulkanKernelImpl impl{std::addressof(parentImpl())};
+    impl.addPodBarrierCmd(commandBuffer(), pod_buff);
+  }
+}
 
 } // namespace zivc
 

@@ -20,6 +20,8 @@
 #include <cstddef>
 #include <tuple>
 #include <type_traits>
+// Zisc
+#include "zisc/concepts.hpp"
 // Zivc
 #include "utility/vulkan.hpp"
 #include "zivc/buffer.hpp"
@@ -102,7 +104,12 @@ class VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> :
 
 
   using PodTuple = decltype(makePodTupleType());
+  static_assert(zisc::EqualityComparable<PodTuple>,
+                "POD values aren't equality comparable.");
 
+
+  //! Check if POD update is needed
+  bool checkIfPodUpdateIsNeeded(Args... args) const noexcept;
 
   //! Get the underlying VkBuffer from the given buffer
   template <typename Type>
@@ -136,44 +143,13 @@ class VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> :
   //! Update the underlying descriptor set with the given arguments
   void updateDescriptorSet(Args... args);
 
-//  //! Bind buffers
-//  void bindBuffers(std::add_lvalue_reference_t<BufferArgs>... args) noexcept;
-//
-//  //! Dispatch
-//  void dispatch(const std::array<uint32b, kDim> works) noexcept;
-//
-//  //! Get the VkBuffer of the given buffer
-//  template <typename Type>
-//  vk::Buffer& getVkBuffer(Type&& buffer) const noexcept;
-//
-//  //! Initialize a command buffer
-//  void initCommandBuffer() noexcept;
-//
-//  //! Initialize a compute pipeline
-//  void initComputePipeline(const uint32b module_index,
-//                           const std::string_view kernel_name) noexcept;
-//
-//  //! Initialize a descriptor pool
-//  void initDescriptorPool() noexcept;
-//
-//  //! Initialize a descriptor set
-//  void initDescriptorSet() noexcept;
-//
-//  //! Initialize a descriptor set layout
-//  void initDescriptorSetLayout() noexcept;
-//
-//  //! Initialize a kernel
-//  void initialize(const uint32b module_index,
-//                  const std::string_view kernel_name) noexcept;
-//
-//  //! Initialize a pipeline layout
-//  void initPipelineLayout() noexcept;
-//
-//  //! Check if the current buffers are same as previous buffers
-//  bool isSameArgs(std::add_lvalue_reference_t<BufferArgs>... args) const noexcept;
+  //! Update global and region offsets
+  void updateGlobalAndRegionOffsets(const LaunchOptions& launch_options);
+
+  //! Update POD buffer
+  void updatePodBuffer();
 
 
-//  std::array<vk::Buffer, kNumOfBuffers> buffer_list_;
   VkDescriptorSetLayout desc_set_layout_ = VK_NULL_HANDLE;
   VkDescriptorPool desc_pool_ = VK_NULL_HANDLE;
   VkDescriptorSet desc_set_ = VK_NULL_HANDLE;

@@ -37,8 +37,7 @@ namespace zivc {
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
-LaunchOptions::LaunchOptions() noexcept :
-    queue_index_{0}
+LaunchOptions::LaunchOptions() noexcept
 {
   initialize();
 }
@@ -52,8 +51,7 @@ template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...
 inline
 Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 LaunchOptions::LaunchOptions(const std::array<uint32b, kDim>& work_size) noexcept :
-    work_size_{work_size},
-    queue_index_{0}
+    work_size_{work_size}
 {
   initialize();
 }

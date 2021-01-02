@@ -16,6 +16,7 @@
 #define ZIVC_LAUNCH_RESULT_HPP
 
 // Standard C++ library
+#include <array>
 #include <type_traits>
 // Zisc
 #include "zisc/non_copyable.hpp"
@@ -65,6 +66,7 @@ class LaunchResult : private zisc::NonCopyable<LaunchResult>
  private:
   Fence fence_;
   uint8b is_async_;
+  [[maybe_unused]] std::array<uint8b, std::alignment_of_v<Fence> - 1> padding_;
 };
 
 } // namespace zivc

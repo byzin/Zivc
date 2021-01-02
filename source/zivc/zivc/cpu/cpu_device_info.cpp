@@ -21,23 +21,11 @@
 #include <memory>
 #include <string_view>
 #include <utility>
-// cpu_features
-#include "cpu_features_macros.h"
-#if defined(CPU_FEATURES_ARCH_X86)
-#include "cpuinfo_x86.h"
-#elif defined(CPU_FEATURES_ARCH_ARM)
-#include "cpuinfo_arm.h"
-#elif defined(CPU_FEATURES_ARCH_AARCH64)
-#include "cpuinfo_aarch64.h"
-#elif defined(CPU_FEATURES_ARCH_MIPS)
-#include "cpuinfo_mips.h"
-#elif defined(CPU_FEATURES_ARCH_PPC)
-#include "cpuinfo_ppc.h"
-#endif
 // Zisc
 #include "zisc/memory/memory.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
+#include "cpu_features.hpp"
 #include "zivc/device_info.hpp"
 #include "zivc/zivc_config.hpp"
 

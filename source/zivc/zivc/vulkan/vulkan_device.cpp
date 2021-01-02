@@ -263,12 +263,10 @@ std::size_t VulkanDevice::peakMemoryUsage(const std::size_t number) const noexce
 void VulkanDevice::returnFence(Fence* fence) noexcept
 {
   auto dest = zisc::reinterp<zivcvk::Fence*>(std::addressof(fence->data()));
-  *dest = zivcvk::Fence{};
-
   auto& fence_list = *fence_list_;
   for (std::size_t i = 0; i < fence_list.size(); ++i) {
     if (zisc::cast<zivcvk::Fence>(fence_list[i]) == *dest) {
-      fence_manager_->set(i, true); //!< \todo thread-safe managing
+      fence_manager_->testAndSet(i, true);
       *dest = zivcvk::Fence{};
       break;
     }
@@ -358,7 +356,7 @@ void VulkanDevice::setFenceSize(const std::size_t s)
     const zivcvk::FenceCreateInfo info{};
     zivcvk::Fence fence = d.createFence(info, alloc, *loader);
     auto result = d.resetFences(1, std::addressof(fence), *loader);
-    fence_manager_->set(fence_list.size(), true);
+    fence_manager_->testAndSet(fence_list.size(), true);
     fence_list.emplace_back(zisc::cast<VkFence>(fence));
     updateFenceDebugInfo(i);
   }
@@ -385,12 +383,10 @@ void VulkanDevice::takeFence(Fence* fence)
 
   auto& fence_list = *fence_list_;
   for (std::size_t i = 0; i < fence_list.size(); ++i) {
-    //! \todo thread-safe management
-    if (fence_manager_->test(i)) {
+    if (fence_manager_->testAndSet(i, false)) {
       zivcvk::Fence f = zisc::cast<zivcvk::Fence>(fence_list[i]);
       auto result = d.resetFences(1, std::addressof(f), *loader);
       *dest = f;
-      fence_manager_->set(i, false);
       break;
     }
   }

@@ -259,7 +259,7 @@ updateDebugInfoImpl() noexcept
   const IdData& id_data = ZivcObject::id();
   const std::string_view kernel_name = id_data.name();
 
-  auto set_debug_info = [this, &device, &id_data, &kernel_name]
+  auto set_debug_info = [this, &device, &kernel_name]
   (const VkObjectType type, const auto& obj, const std::string_view suffix) noexcept
   {
     if (obj != VK_NULL_HANDLE) {
@@ -536,13 +536,14 @@ updateDescriptorSet(Args... args)
 /*!
   \details No detailed description
 
-  \param [in] options No description.
+  \param [in] launch_options No description.
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 updateGlobalAndRegionOffsets(const LaunchOptions& launch_options)
 {
+  static_cast<void>(launch_options);
   std::array<uint32b, 7> data;
   data.fill(0);
   VulkanKernelImpl impl{std::addressof(parentImpl())};

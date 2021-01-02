@@ -174,8 +174,9 @@ class VulkanBuffer : public Buffer<T>
   VkBuffer buffer_ = VK_NULL_HANDLE;
   VmaAllocation vm_allocation_ = VK_NULL_HANDLE;
   VmaAllocationInfo vm_alloc_info_;
-  DescriptorType desc_type_ = DescriptorType::kStorage;
   VkCommandBuffer command_buffer_ = VK_NULL_HANDLE;
+  DescriptorType desc_type_ = DescriptorType::kStorage;
+  [[maybe_unused]] uint32b padding_ = 0;
 };
 
 } // namespace zivc

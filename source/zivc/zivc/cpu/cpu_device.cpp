@@ -127,10 +127,10 @@ void CpuDevice::submit(const Command& command,
                        std::atomic<uint32b>* id,
                        Fence* fence) noexcept
 {
-  auto task = [this, command, work_size, id](const int64b, const int64b)
+  const uint32b batch_size = zisc::cast<uint32b>(taskBatchSize());
+  auto task = [command, id, work_size, batch_size](const int64b, const int64b)
   {
     const uint32b num_of_works = work_size[0] * work_size[1] * work_size[2];
-    const uint32b batch_size = zisc::cast<uint32b>(taskBatchSize());
     const uint32b n = (num_of_works + (batch_size - 1)) / batch_size;
     cl::inner::WorkGroup::setWorkGroupSize(work_size);
     for (uint32b block_id = (*id)++; block_id < n; block_id = (*id)++) {

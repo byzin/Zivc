@@ -237,6 +237,7 @@ class Buffer : public ZivcObject
 
  private:
   BufferUsage buffer_usage_;
+  [[maybe_unused]] uint32b padding_ = 0;
 };
 
 // Type aliases

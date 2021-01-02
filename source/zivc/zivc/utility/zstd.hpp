@@ -1,5 +1,5 @@
 /*!
-  \file vulkan_memory_allocator.hpp
+  \file zstd.hpp
   \author Sho Ikeda
   \brief No brief description
 
@@ -12,25 +12,27 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_VULKAN_MEMORY_ALLOCATOR_HPP
-#define ZIVC_VULKAN_MEMORY_ALLOCATOR_HPP
+#ifndef ZIVC_ZSTD_HPP
+#define ZIVC_ZSTD_HPP
 
-// Zivc
-#include "vulkan.hpp"
+#if defined(ZIVC_BAKE_KERNELS)
 
 #if defined(Z_GCC) || defined(Z_CLANG)
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wall"
+#pragma GCC diagnostic ignored "-Wdocumentation"
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Weverything"
+#pragma GCC diagnostic ignored "-Wdocumentation-unknown-command"
 #endif // Z_GCC || Z_CLANG
 
-// VMA
-#include "vk_mem_alloc.h"
+// Zstandard
+#define ZSTD_STATIC_LINKING_ONLY
+#include <zstd.h>
 
 #if defined(Z_GCC) || defined(Z_CLANG)
 #pragma GCC diagnostic pop
 #pragma GCC diagnostic pop
 #endif // Z_GCC || Z_CLANG
 
-#endif // ZIVC_VULKAN_MEMORY_ALLOCATOR_HPP
+#endif // ZIVC_BAKE_KERNELS
+
+#endif // ZIVC_ZSTD_HPP

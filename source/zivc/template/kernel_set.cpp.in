@@ -19,11 +19,6 @@
 #include <fstream>
 #include <memory>
 #include <vector>
-#if defined(ZIVC_BAKE_KERNELS)
-// Zstandard
-#define ZSTD_STATIC_LINKING_ONLY
-#include <zstd.h>
-#endif // ZIVC_BAKE_KERNELS
 // Zisc
 #include "zisc/binary_serializer.hpp"
 #include "zisc/error.hpp"
@@ -32,6 +27,7 @@
 // Zivc
 #include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/utility/zstd.hpp"
 
 #if defined(ZIVC_BAKE_KERNELS)
 namespace {

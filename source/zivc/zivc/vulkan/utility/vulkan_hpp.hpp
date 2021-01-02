@@ -35,7 +35,19 @@
 #define VULKAN_HPP_DEFAULT_DISPATCHER int{0}
 #define VULKAN_HPP_DEFAULT_DISPATCHER_TYPE int
 
+#if defined(Z_GCC) || defined(Z_CLANG)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wall"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Weverything"
+#endif // Z_GCC || Z_CLANG
+
 // Vulkan
 #include <vulkan/vulkan.hpp>
+
+#if defined(Z_GCC) || defined(Z_CLANG)
+#pragma GCC diagnostic pop
+#pragma GCC diagnostic pop
+#endif // Z_GCC || Z_CLANG
 
 #endif // ZIVC_VULKAN_HPP_HPP

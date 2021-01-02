@@ -29,13 +29,12 @@
 #include <string_view>
 #include <utility>
 #include <vector>
-// Zstandard
-#define ZSTD_STATIC_LINKING_ONLY
-#include <zstd.h>
 // Zisc
 #include "zisc/binary_serializer.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 #include "zisc/memory/simple_memory_resource.hpp"
+// Zivc
+#include "zivc/utility/zstd.hpp"
 
 namespace {
 

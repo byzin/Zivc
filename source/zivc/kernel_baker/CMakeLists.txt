@@ -31,7 +31,9 @@ include(${zisc_path}/cmake/compiler.cmake)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20
                                       CXX_STANDARD_REQUIRED ON)
 Zisc_getCxxWarningFlags(cxx_compile_warning_flags)
-target_compile_options(${PROJECT_NAME} PRIVATE ${cxx_compile_warning_flags})
+Zivc_getZivcWarningFlags(zivc_warning_flags)
+target_compile_options(${PROJECT_NAME} PRIVATE ${cxx_compile_warning_flags}
+                                               ${zivc_warning_flags})
 target_link_libraries(${PROJECT_NAME} PRIVATE Zisc Zivc libzstd_static)
 Zisc_enableIpo(${PROJECT_NAME})
 

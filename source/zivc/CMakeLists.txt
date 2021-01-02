@@ -120,31 +120,6 @@ function(Zivc_getZivcWarningFlags zivc_warning_flags)
                               -Wno-covered-switch-default
                               -Wno-sign-conversion
                               )
-    if(Z_VISUAL_STUDIO)
-      # suppress warnings of dependencies
-      list(APPEND warning_flags -Wno-cast-align
-                                -Wno-exit-time-destructors
-                                -Wno-defaulted-function-deleted
-                                -Wno-documentation
-                                -Wno-documentation-deprecated-sync
-                                -Wno-documentation-unknown-command
-                                -Wno-extra-semi-stmt
-                                -Wno-gnu-zero-variadic-macro-arguments
-                                -Wno-implicit-fallthrough
-                                -Wno-missing-field-initializers
-                                -Wno-nested-anon-types
-                                -Wno-nullability-extension
-                                -Wno-nullability-completeness
-                                -Wno-old-style-cast
-                                -Wno-suggest-destructor-override
-                                -Wno-suggest-override
-                                -Wno-switch-enum
-                                -Wno-undef
-                                -Wno-unused-parameter
-                                -Wno-unused-template
-                                -Wno-unused-variable
-                                -Wno-zero-as-null-pointer-constant)
-    endif()
   elseif(Z_GCC)
     list(APPEND warning_flags -Wno-sign-conversion
                               )
@@ -185,17 +160,8 @@ function(Zivc_addZstd zstd_path)
   add_subdirectory(${zstd_path}/build/cmake ${zstd_dest_path})
   Zisc_checkTarget(libzstd_static)
   # Supress warnings
-  if(Z_CLANG AND Z_VISUAL_STUDIO)
-    Zivc_getZivcWarningFlags(zstd_warning_flags)
-    list(APPEND zstd_warning_flags -Wno-comma
-                                   -Wno-disabled-macro-expansion
-                                   -Wno-implicit-int-float-conversion
-                                   -Wno-reserved-id-macro
-                                   -Wno-unknown-attributes
-                                   -Wno-unreachable-code
-                                   -Wno-unused-function
-                                   -Wno-unused-macros
-                                   )
+  if(Z_VISUAL_STUDIO)
+    list(APPEND zstd_warning_flags /w)
     target_compile_options(libzstd_static PRIVATE ${zstd_warning_flags})
   endif()
   # Headers

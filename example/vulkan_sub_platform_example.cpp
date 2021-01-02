@@ -21,10 +21,6 @@
 #include <string_view>
 #include <memory>
 #include <vector>
-// Vulkan
-#if defined(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
-#include <vulkan/vulkan.hpp>
-#endif // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
 // Zisc
 #include "zisc/utility.hpp"
 #include "zisc/memory/simple_memory_resource.hpp"
@@ -34,6 +30,8 @@
 #if defined(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
 #include "zivc/vulkan/vulkan_device_info.hpp"
 #include "zivc/vulkan/vulkan_sub_platform.hpp"
+#include "zivc/vulkan/utility/vulkan_hpp.hpp"
+#include "zivc/vulkan/utility/vulkan_dispatch_loader.hpp"
 #endif // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
 
 namespace {
@@ -48,13 +46,6 @@ double toMegaBytes(const std::size_t bytes) noexcept
 {
   const double mb = zisc::cast<double>(bytes) / (1024.0 * 1024.0);
   return mb;
-}
-
-std::string toVersionString(const zivc::uint32b version)
-{
-  return std::to_string(VK_VERSION_MAJOR(version)) + "." +
-      std::to_string(VK_VERSION_MINOR(version)) + "." +
-      std::to_string(VK_VERSION_PATCH(version));
 }
 
 } // namespace
@@ -83,6 +74,19 @@ int main(int /* argc */, char** /* argv */)
       platform->hasSubPlatform(zivc::SubPlatformType::kVulkan);
   if (has_subplatform) {
 #if defined(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
+    const auto to_version_str = [](const zivc::uint32b version) noexcept
+    {
+      return std::to_string(zivc::vkGetVersionMajor(version)) + "." +
+          std::to_string(zivc::vkGetVersionMinor(version)) + "." +
+          std::to_string(zivc::vkGetVersionPatch(version));
+    };
+
+    platform->updateDeviceInfoList();
+    auto sub_platform = zisc::cast<zivc::VulkanSubPlatform*>(
+        platform->subPlatform(zivc::SubPlatformType::kVulkan));
+
+    const auto loader = sub_platform->dispatcher().loaderImpl();
+
     const std::string indent2 = indent1 + indent1;
     const std::string indent3 = indent2 + indent1;
     const std::string indent4 = indent3 + indent1;
@@ -90,7 +94,8 @@ int main(int /* argc */, char** /* argv */)
     // Show Vulkan instance extensions
     {
       std::cout << indent1 << "Vulkan extensions" << std::endl;
-      auto properties = vk::enumerateInstanceExtensionProperties();
+      auto properties = zivcvk::enumerateInstanceExtensionProperties(nullptr,
+                                                                     *loader);
       using Type = decltype(properties)::value_type;
       auto cmp = [](const Type& lhs, const Type& rhs) noexcept
       {
@@ -100,27 +105,24 @@ int main(int /* argc */, char** /* argv */)
       std::sort(properties.begin(), properties.end(), cmp);
       for (const auto& ext : properties) {
         std::cout << indent2 << ext.extensionName << ": "
-                  << ::toVersionString(ext.specVersion) << std::endl;
+                  << to_version_str(ext.specVersion) << std::endl;
       }
     }
     // Show Vulkan instance layeres
     std::cout << std::endl;
     {
       std::cout << indent1 << "Vulkan layeres" << std::endl;
-      auto properties = vk::enumerateInstanceLayerProperties();
+      auto properties = zivcvk::enumerateInstanceLayerProperties(*loader);
       for (const auto& layer : properties) {
         std::cout << indent2 << layer.layerName << ": "
-                  << ::toVersionString(layer.specVersion)
-                  << " (" << ::toVersionString(layer.implementationVersion)
+                  << to_version_str(layer.specVersion)
+                  << " (" << to_version_str(layer.implementationVersion)
                   << "): " << layer.description 
                   << std::endl;
       }
     }
     // Show Vulkan device info
     std::cout << std::endl;
-    platform->updateDeviceInfoList();
-    auto sub_platform = zisc::cast<zivc::VulkanSubPlatform*>(
-        platform->subPlatform(zivc::SubPlatformType::kVulkan));
     const auto& info_list = sub_platform->deviceInfoList();
     for (std::size_t i = 0; i < info_list.size(); ++i) {
       const zivc::VulkanDeviceInfo& info = info_list[i];
@@ -130,9 +132,9 @@ int main(int /* argc */, char** /* argv */)
         std::cout << indent1 << "## VulkanDevice[" << i << "]: "
                   << props.deviceName << std::endl;
         std::cout << indent2 << "API version: "
-                  << ::toVersionString(props.apiVersion) << std::endl;
+                  << to_version_str(props.apiVersion) << std::endl;
         std::cout << indent2 << "Driver version: "
-                  << ::toVersionString(props.driverVersion) << std::endl;
+                  << to_version_str(props.driverVersion) << std::endl;
       }
       std::cout << std::endl;
       {
@@ -203,7 +205,7 @@ int main(int /* argc */, char** /* argv */)
         std::sort(props.begin(), props.end(), cmp);
         for (const auto& ext : props) {
           std::cout << indent3 << ext.extensionName << ": "
-                    << ::toVersionString(ext.specVersion) << std::endl;
+                    << to_version_str(ext.specVersion) << std::endl;
         }
       }
       // Layer
@@ -213,8 +215,8 @@ int main(int /* argc */, char** /* argv */)
         const auto& props = info.layerPropertiesList();
         for (const auto& layer : props) {
           std::cout << indent3 << layer.layerName << ": "
-                    << ::toVersionString(layer.specVersion)
-                    << " (" << ::toVersionString(layer.implementationVersion)
+                    << to_version_str(layer.specVersion)
+                    << " (" << to_version_str(layer.implementationVersion)
                     << "): " << layer.description 
                     << std::endl;
         }
@@ -230,7 +232,7 @@ int main(int /* argc */, char** /* argv */)
                     << "counts: " << prop.queueCount
                     << ", " << std::endl
                     << indent4 << "capabilities: "
-                    << vk::to_string(zisc::cast<vk::QueueFlags>(prop.queueFlags))
+                    << zivcvk::to_string(zisc::cast<zivcvk::QueueFlags>(prop.queueFlags))
                     << std::endl;
         }
       }
@@ -243,7 +245,7 @@ int main(int /* argc */, char** /* argv */)
         for (std::size_t index = 0; index < mem.memoryHeapCount; ++index) {
           const auto& heap = mem.memoryHeaps[index];
           std::cout << indent3 << "Heap[" << index << "] attribute: "
-                    << vk::to_string(zisc::cast<vk::MemoryHeapFlags>(heap.flags))
+                    << zivcvk::to_string(zisc::cast<zivcvk::MemoryHeapFlags>(heap.flags))
                     << std::endl;
           std::cout << indent4 << "total  : "
                     << ::toMegaBytes(heap.size) << " MB"
@@ -265,7 +267,7 @@ int main(int /* argc */, char** /* argv */)
           const auto& memory = mem.memoryTypes[index];
           std::cout << indent3 << "Memory[" << index << "] -> Heap["
                     << memory.heapIndex << "], properties: "
-                    << vk::to_string(zisc::cast<vk::MemoryPropertyFlags>(memory.propertyFlags))
+                    << zivcvk::to_string(zisc::cast<zivcvk::MemoryPropertyFlags>(memory.propertyFlags))
                     << std::endl;
         }
       }

@@ -25,7 +25,7 @@
 #include "zisc/memory/memory.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
-#include "cpu_features.hpp"
+#include "utility/cpu_features.hpp"
 #include "zivc/device_info.hpp"
 #include "zivc/zivc_config.hpp"
 
@@ -199,54 +199,7 @@ uint32b CpuDeviceInfo::workGroupSize() const noexcept
   */
 void CpuDeviceInfo::initCpuInfo() noexcept
 {
-  auto set_name = [this](const char* n)
-  {
-    std::strcpy(name_.data(), n);
-  };
-  auto set_vendor_name = [this](const char* n)
-  {
-    std::strcpy(vendor_name_.data(), n);
-  };
-
-  using namespace cpu_features;
-  // Initialize device info
-#if defined(CPU_FEATURES_ARCH_X86)
-  {
-    char brand_string[49];
-    FillX86BrandString(brand_string);
-    set_name(brand_string);
-  }
-  {
-    const X86Info info = GetX86Info();
-    set_vendor_name(info.vendor);
-  }
-#elif defined(CPU_FEATURES_ARCH_ARM)
-  static_assert(false, "Not implemented yet.");
-  {
-    const ArmInfo info = GetArmInfo();
-  }
-  set_name("ARM");
-#elif defined(CPU_FEATURES_ARCH_AARCH64)
-  static_assert(false, "Not implemented yet.");
-  {
-    const Aarch64Info info = GetAarch64Info();
-  }
-#elif defined(CPU_FEATURES_ARCH_MIPS)
-  static_assert(false, "Not implemented yet.");
-  {
-    const MipsInfo info = GetMipsInfo();
-  }
-#elif defined(CPU_FEATURES_ARCH_PPC)
-  static_assert(false, "Not implemented yet.");
-  {
-    const PPCInfo info = GetPPCInfo();
-    const PPCPlatformStrings strings = GetPPCPlatformStrings();
-  }
-#endif
-  if (std::string_view{name_.data()}.empty())
-    set_name("N/A");
-  if (std::string_view{vendor_name_.data()}.empty())
-    set_vendor_name("N/A");
+  getCpuFeatures(name_.data(), vendor_name_.data());
 }
 
 } // namespace zivc

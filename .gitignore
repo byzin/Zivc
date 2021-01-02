@@ -49,6 +49,9 @@
 !/source/zivc/zivc/cpu/
 !/source/zivc/zivc/cpu/*.hpp
 !/source/zivc/zivc/cpu/*.cpp
+!/source/zivc/zivc/cpu/utility/
+!/source/zivc/zivc/cpu/utility/*.hpp
+!/source/zivc/zivc/cpu/utility/*.cpp
 !/source/zivc/zivc/utility/
 !/source/zivc/zivc/utility/*.hpp
 !/source/zivc/zivc/utility/*.cpp

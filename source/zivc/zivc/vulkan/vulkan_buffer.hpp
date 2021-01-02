@@ -171,10 +171,10 @@ class VulkanBuffer : public Buffer<T>
   const VulkanDevice& parentImpl() const noexcept;
 
 
-  VkBuffer buffer_ = VK_NULL_HANDLE;
-  VmaAllocation vm_allocation_ = VK_NULL_HANDLE;
+  VkBuffer buffer_ = ZIVC_VK_NULL_HANDLE;
+  VmaAllocation vm_allocation_ = ZIVC_VK_NULL_HANDLE;
   VmaAllocationInfo vm_alloc_info_;
-  VkCommandBuffer command_buffer_ = VK_NULL_HANDLE;
+  VkCommandBuffer command_buffer_ = ZIVC_VK_NULL_HANDLE;
   DescriptorType desc_type_ = DescriptorType::kStorage;
   [[maybe_unused]] uint32b padding_ = 0;
 };

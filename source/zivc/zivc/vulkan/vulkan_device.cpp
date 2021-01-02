@@ -159,7 +159,7 @@ CmdDebugLabelRegion VulkanDevice::makeCmdDebugLabel(
     const std::string_view label_name,
     const std::array<float, 4>& color) const noexcept
 {
-  const VkCommandBuffer& cmd = isDebugMode() ? command_buffer : VK_NULL_HANDLE;
+  const VkCommandBuffer& cmd = isDebugMode() ? command_buffer : ZIVC_VK_NULL_HANDLE;
   return CmdDebugLabelRegion{cmd, dispatcher(), label_name, color};
 }
 
@@ -190,7 +190,7 @@ QueueDebugLabelRegion VulkanDevice::makeQueueDebugLabel(
     const std::string_view label_name,
     const std::array<float, 4>& color) const noexcept
 {
-  const VkQueue& que = isDebugMode() ? q : VK_NULL_HANDLE;
+  const VkQueue& que = isDebugMode() ? q : ZIVC_VK_NULL_HANDLE;
   return QueueDebugLabelRegion{que, dispatcher(), label_name, color};
 }
 
@@ -463,7 +463,7 @@ void VulkanDevice::destroyData() noexcept
 
   if (vm_allocator_) {
     vmaDestroyAllocator(vm_allocator_);
-    vm_allocator_ = VK_NULL_HANDLE;
+    vm_allocator_ = ZIVC_VK_NULL_HANDLE;
   }
 
   zivcvk::Device d{device()};
@@ -490,7 +490,7 @@ void VulkanDevice::destroyData() noexcept
     }
 
     d.destroy(alloc, *loader);
-    device_ = VK_NULL_HANDLE;
+    device_ = ZIVC_VK_NULL_HANDLE;
   }
 
   shader_module_list_.reset();
@@ -885,7 +885,7 @@ void VulkanDevice::initDevice()
   dispatcher_->set(device());
 
   // Initialize queue list
-  queue_list_->resize(numOfQueues(), VK_NULL_HANDLE);
+  queue_list_->resize(numOfQueues(), ZIVC_VK_NULL_HANDLE);
   for (std::size_t i = 0; i < queue_list_->size(); ++i) {
     auto q = d.getQueue(queueFamilyIndex(), zisc::cast<uint32b>(i), *loader);
     (*queue_list_)[i] = zisc::cast<VkQueue>(q);
@@ -959,7 +959,7 @@ void VulkanDevice::initMemoryAllocator()
   create_info.pVulkanFunctions = std::addressof(functions);
   create_info.pRecordSettings = nullptr;
   create_info.instance = sub_platform.instance();
-  create_info.vulkanApiVersion = sub_platform.apiVersion();
+  create_info.vulkanApiVersion = vkGetVulkanApiVersion();
   auto result = vmaCreateAllocator(std::addressof(create_info),
                                    std::addressof(vm_allocator_));
   if (result != VK_SUCCESS) {

@@ -63,7 +63,7 @@ class QueueDebugLabelRegion : private zisc::NonCopyable<QueueDebugLabelRegion>
              const std::array<float, 4>& color) noexcept;
 
 
-  VkQueue queue_ = VK_NULL_HANDLE;
+  VkQueue queue_ = ZIVC_VK_NULL_HANDLE;
   const VulkanDispatchLoader* dispatcher_ = nullptr;
 };
 

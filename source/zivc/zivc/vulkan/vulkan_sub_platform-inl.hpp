@@ -35,17 +35,6 @@ namespace zivc {
   \return No description
   */
 inline
-constexpr uint32b VulkanSubPlatform::apiVersion() noexcept
-{
-  return VK_API_VERSION_1_2;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-inline
 const zisc::pmr::vector<VkPhysicalDevice>& VulkanSubPlatform::deviceList() const noexcept
 {
   return *device_list_;

@@ -100,7 +100,7 @@ void VulkanBufferImpl::allocateMemory(const std::size_t size,
   alloc_create_info.requiredFlags = 0;
   alloc_create_info.preferredFlags = 0;
   alloc_create_info.memoryTypeBits = 0;
-  alloc_create_info.pool = VK_NULL_HANDLE;
+  alloc_create_info.pool = ZIVC_VK_NULL_HANDLE;
   alloc_create_info.pUserData = user_data;
 
   // 

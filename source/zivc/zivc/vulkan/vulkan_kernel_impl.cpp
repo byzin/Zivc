@@ -96,13 +96,13 @@ void VulkanKernelImpl::destroyDescriptorSet(
       zivcvk::DescriptorPool desc_pool{*descriptor_pool};
       if (desc_pool)
         d.destroyDescriptorPool(desc_pool, alloc, *loader);
-      *descriptor_pool = VK_NULL_HANDLE;
+      *descriptor_pool = ZIVC_VK_NULL_HANDLE;
     }
     {
       zivcvk::DescriptorSetLayout desc_set_layout{*descriptor_set_layout};
       if (desc_set_layout)
         d.destroyDescriptorSetLayout(desc_set_layout, alloc, *loader);
-      *descriptor_set_layout = VK_NULL_HANDLE;
+      *descriptor_set_layout = ZIVC_VK_NULL_HANDLE;
     }
   }
 }
@@ -126,13 +126,13 @@ void VulkanKernelImpl::destroyPipeline(
       zivcvk::Pipeline compute_pline{*compute_pipeline};
       if (compute_pline)
         d.destroyPipeline(compute_pline, alloc, *loader);
-      *compute_pipeline = VK_NULL_HANDLE;
+      *compute_pipeline = ZIVC_VK_NULL_HANDLE;
     }
     {
       zivcvk::PipelineLayout pline_layout{*pipeline_layout};
       if (pline_layout)
         d.destroyPipelineLayout(pline_layout, alloc, *loader);
-      *pipeline_layout = VK_NULL_HANDLE;
+      *pipeline_layout = ZIVC_VK_NULL_HANDLE;
     }
   }
 }

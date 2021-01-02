@@ -88,7 +88,7 @@ void CmdDebugLabelRegion::end() noexcept
     const auto loader = dispatcher_->loaderImpl();
     command_buffer.endDebugUtilsLabelEXT(*loader);
   }
-  command_buffer_ = VK_NULL_HANDLE;
+  command_buffer_ = ZIVC_VK_NULL_HANDLE;
   dispatcher_ = nullptr;
 }
 

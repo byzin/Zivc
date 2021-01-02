@@ -67,7 +67,7 @@ class VulkanDevice : public Device
     */
   struct ModuleData
   {
-    VkShaderModule module_ = VK_NULL_HANDLE;
+    VkShaderModule module_ = ZIVC_VK_NULL_HANDLE;
     std::string_view name_;
   };
 
@@ -285,9 +285,9 @@ class VulkanDevice : public Device
   void updateShaderModuleDebugInfo(const uint32b id) noexcept;
 
 
-  VkDevice device_ = VK_NULL_HANDLE;
-  VmaAllocator vm_allocator_ = VK_NULL_HANDLE;
-  VkCommandPool command_pool_ = VK_NULL_HANDLE;
+  VkDevice device_ = ZIVC_VK_NULL_HANDLE;
+  VmaAllocator vm_allocator_ = ZIVC_VK_NULL_HANDLE;
+  VkCommandPool command_pool_ = ZIVC_VK_NULL_HANDLE;
   zisc::pmr::unique_ptr<zisc::Bitset> fence_manager_;
   zisc::pmr::unique_ptr<zisc::pmr::vector<VkFence>> fence_list_;
   zisc::pmr::unique_ptr<zisc::pmr::vector<VkQueue>> queue_list_;

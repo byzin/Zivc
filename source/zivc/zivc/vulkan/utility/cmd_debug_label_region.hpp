@@ -63,7 +63,7 @@ class CmdDebugLabelRegion : private zisc::NonCopyable<CmdDebugLabelRegion>
               const std::array<float, 4>& color) noexcept;
 
 
-   VkCommandBuffer command_buffer_ = VK_NULL_HANDLE;
+   VkCommandBuffer command_buffer_ = ZIVC_VK_NULL_HANDLE;
    const VulkanDispatchLoader* dispatcher_ = nullptr;
 };
 

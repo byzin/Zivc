@@ -58,7 +58,7 @@ class CmdRecordRegion : private zisc::NonCopyable<CmdRecordRegion>
   void begin(const VkCommandBufferUsageFlags flags) noexcept;
 
 
-  VkCommandBuffer command_buffer_ = VK_NULL_HANDLE;
+  VkCommandBuffer command_buffer_ = ZIVC_VK_NULL_HANDLE;
   const VulkanDispatchLoader* dispatcher_ = nullptr;
 };
 

@@ -152,12 +152,12 @@ class VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> :
   void updatePodBuffer();
 
 
-  VkDescriptorSetLayout desc_set_layout_ = VK_NULL_HANDLE;
-  VkDescriptorPool desc_pool_ = VK_NULL_HANDLE;
-  VkDescriptorSet desc_set_ = VK_NULL_HANDLE;
-  VkPipelineLayout pipeline_layout_ = VK_NULL_HANDLE;
-  VkPipeline pipeline_ = VK_NULL_HANDLE;
-  VkCommandBuffer command_buffer_ = VK_NULL_HANDLE;
+  VkDescriptorSetLayout desc_set_layout_ = ZIVC_VK_NULL_HANDLE;
+  VkDescriptorPool desc_pool_ = ZIVC_VK_NULL_HANDLE;
+  VkDescriptorSet desc_set_ = ZIVC_VK_NULL_HANDLE;
+  VkPipelineLayout pipeline_layout_ = ZIVC_VK_NULL_HANDLE;
+  VkPipeline pipeline_ = ZIVC_VK_NULL_HANDLE;
+  VkCommandBuffer command_buffer_ = ZIVC_VK_NULL_HANDLE;
   SharedBuffer<PodTuple> pod_buffer_;
   SharedBuffer<PodTuple> pod_cache_;
 };

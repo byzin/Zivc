@@ -180,7 +180,7 @@ void VulkanSubPlatform::destroyData() noexcept
     zivcvk::AllocationCallbacks alloc{makeAllocator()};
     const auto loader = dispatcher().loaderImpl();
     ins.destroy(alloc, *loader);
-    instance_ = VK_NULL_HANDLE;
+    instance_ = ZIVC_VK_NULL_HANDLE;
   }
 
   allocator_data_.reset();
@@ -525,14 +525,14 @@ VkApplicationInfo VulkanSubPlatform::makeApplicationInfo(
     const uint32b app_version_minor,
     const uint32b app_version_patch) const noexcept
 {
-  const uint32b app_version = VK_MAKE_VERSION(app_version_major,
-                                              app_version_minor,
-                                              app_version_patch);
+  const uint32b app_version = vkMakeVersion(app_version_major,
+                                            app_version_minor,
+                                            app_version_patch);
   std::string_view engine_name = engineName();
-  constexpr uint32b engine_version = VK_MAKE_VERSION(Config::versionMajor(),
-                                                     Config::versionMinor(),
-                                                     Config::versionPatch());
-  constexpr uint32b api_version = apiVersion();
+  constexpr uint32b engine_version = vkMakeVersion(Config::versionMajor(),
+                                                   Config::versionMinor(),
+                                                   Config::versionPatch());
+  constexpr uint32b api_version = vkGetVulkanApiVersion();
   const zivcvk::ApplicationInfo data{app_name.data(),
                                      app_version,
                                      engine_name.data(),
@@ -566,7 +566,7 @@ void VulkanSubPlatform::initInstance(PlatformOptions& platform_options)
   auto ptr = zisc::cast<InstancePtr>(platform_options.vulkanInstancePtr());
   if (ptr) {
     // Use the given instance instead of allocating new instance
-    instance_ = VK_NULL_HANDLE;
+    instance_ = ZIVC_VK_NULL_HANDLE;
     instance_ref_ = ptr;
     return;
   }

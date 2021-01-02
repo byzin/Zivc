@@ -190,8 +190,8 @@ inline
 void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 destroyData() noexcept
 {
-  command_buffer_ = VK_NULL_HANDLE;
-  if (pipeline_ != VK_NULL_HANDLE) {
+  command_buffer_ = ZIVC_VK_NULL_HANDLE;
+  if (pipeline_ != ZIVC_VK_NULL_HANDLE) {
     pod_cache_.reset();
     pod_buffer_.reset();
     VulkanKernelImpl impl{std::addressof(parentImpl())};
@@ -262,7 +262,7 @@ updateDebugInfoImpl() noexcept
   auto set_debug_info = [this, &device, &kernel_name]
   (const VkObjectType type, const auto& obj, const std::string_view suffix) noexcept
   {
-    if (obj != VK_NULL_HANDLE) {
+    if (obj != ZIVC_VK_NULL_HANDLE) {
       IdData::NameType obj_name{""};
       std::strncpy(obj_name.data(), kernel_name.data(), kernel_name.size() + 1);
       std::strncat(obj_name.data(), suffix.data(), suffix.size());

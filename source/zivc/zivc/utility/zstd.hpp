@@ -22,6 +22,8 @@
 #pragma GCC diagnostic ignored "-Wdocumentation"
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdocumentation-unknown-command"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wzero-as-null-pointer-constant"
 #endif // Z_GCC || Z_CLANG
 
 // Zstandard
@@ -29,6 +31,7 @@
 #include <zstd.h>
 
 #if defined(Z_GCC) || defined(Z_CLANG)
+#pragma GCC diagnostic pop
 #pragma GCC diagnostic pop
 #pragma GCC diagnostic pop
 #endif // Z_GCC || Z_CLANG

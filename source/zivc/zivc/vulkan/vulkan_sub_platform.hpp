@@ -55,9 +55,6 @@ class VulkanSubPlatform : public SubPlatform
   ~VulkanSubPlatform() noexcept override;
 
 
-  //! Return the used Vulkan API version
-  static constexpr uint32b apiVersion() noexcept;
-
   //! Return the device list
   const zisc::pmr::vector<VkPhysicalDevice>& deviceList() const noexcept;
 
@@ -238,7 +235,7 @@ class VulkanSubPlatform : public SubPlatform
 
 
   std::mutex memory_mutex_;
-  VkInstance instance_ = VK_NULL_HANDLE;
+  VkInstance instance_ = ZIVC_VK_NULL_HANDLE;
   std::add_pointer_t<VkInstance> instance_ref_ = nullptr;
   zisc::pmr::unique_ptr<VulkanDispatchLoader> dispatcher_;
   zisc::pmr::unique_ptr<AllocatorData> allocator_data_;

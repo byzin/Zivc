@@ -297,8 +297,8 @@ LaunchResult VulkanBuffer<T>::copyFromImpl(
 template <typename T> inline
 void VulkanBuffer<T>::destroyData() noexcept
 {
-  command_buffer_ = VK_NULL_HANDLE;
-  if (buffer() != VK_NULL_HANDLE) {
+  command_buffer_ = ZIVC_VK_NULL_HANDLE;
+  if (buffer() != ZIVC_VK_NULL_HANDLE) {
     VulkanBufferImpl impl{std::addressof(parentImpl())};
     impl.deallocateMemory(std::addressof(buffer()),
                           std::addressof(allocation()),
@@ -340,10 +340,10 @@ template <typename T> inline
 void VulkanBuffer<T>::initData()
 {
   setDescriptorType(DescriptorType::kStorage);
-  buffer_ = VK_NULL_HANDLE;
-  vm_allocation_ = VK_NULL_HANDLE;
+  buffer_ = ZIVC_VK_NULL_HANDLE;
+  vm_allocation_ = ZIVC_VK_NULL_HANDLE;
   vm_alloc_info_.memoryType = 0;
-  vm_alloc_info_.deviceMemory = VK_NULL_HANDLE;
+  vm_alloc_info_.deviceMemory = ZIVC_VK_NULL_HANDLE;
   vm_alloc_info_.offset = 0;
   vm_alloc_info_.size = 0;
   vm_alloc_info_.pMappedData = nullptr;
@@ -387,10 +387,10 @@ void VulkanBuffer<T>::updateDebugInfoImpl() noexcept
   auto& device = parentImpl();
   const IdData& id_data = ZivcObject::id();
   const std::string_view buffer_name = id_data.name();
-  if (buffer() != VK_NULL_HANDLE) {
+  if (buffer() != ZIVC_VK_NULL_HANDLE) {
     device.setDebugInfo(VK_OBJECT_TYPE_BUFFER, buffer(), buffer_name, this);
   }
-  if (command_buffer_ != VK_NULL_HANDLE) {
+  if (command_buffer_ != ZIVC_VK_NULL_HANDLE) {
     IdData::NameType obj_name{""};
     const std::string_view suffix{"_commandbuffer"};
     std::strncpy(obj_name.data(), buffer_name.data(), buffer_name.size() + 1);
@@ -575,7 +575,7 @@ bool VulkanBuffer<T>::hasMemoryProperty(const VkMemoryPropertyFlagBits flag) con
 template <typename T> inline
 void VulkanBuffer<T>::initCommandBuffer()
 {
-  if ((commandBuffer() == VK_NULL_HANDLE) && isDeviceLocal()) {
+  if ((commandBuffer() == ZIVC_VK_NULL_HANDLE) && isDeviceLocal()) {
     auto& device = parentImpl();
     command_buffer_ = device.makeCommandBuffer();
     updateDebugInfoImpl();

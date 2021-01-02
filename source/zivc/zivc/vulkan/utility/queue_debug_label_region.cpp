@@ -89,7 +89,7 @@ void QueueDebugLabelRegion::end() noexcept
     const auto loader = dispatcher_->loaderImpl();
     q.endDebugUtilsLabelEXT(*loader);
   }
-  queue_ = VK_NULL_HANDLE;
+  queue_ = ZIVC_VK_NULL_HANDLE;
   dispatcher_ = nullptr;
 }
 

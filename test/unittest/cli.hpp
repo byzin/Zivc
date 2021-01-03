@@ -1,5 +1,5 @@
 /*!
-  \file googletest.hpp
+  \file cli.hpp
   \author Sho Ikeda
   \brief No brief description
 
@@ -12,8 +12,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_TEST_GOOGLE_TEST_HPP
-#define ZIVC_TEST_GOOGLE_TEST_HPP
+#ifndef ZIVC_TEST_CLI_HPP
+#define ZIVC_TEST_CLI_HPP
 
 #if defined(Z_GCC) || defined(Z_CLANG)
 #pragma GCC diagnostic push
@@ -22,12 +22,12 @@
 #pragma GCC diagnostic ignored "-Weverything"
 #endif // Z_GCC || Z_CLANG
 
-// GoogleTest
-#include "gtest/gtest.h"
+// CLI11
+#include "CLI/CLI.hpp"
 
 #if defined(Z_GCC) || defined(Z_CLANG)
 #pragma GCC diagnostic pop
 #pragma GCC diagnostic pop
 #endif // Z_GCC || Z_CLANG
 
-#endif // ZIVC_TEST_GOOGLE_TEST_HPP
+#endif // ZIVC_TEST_CLI_HPP

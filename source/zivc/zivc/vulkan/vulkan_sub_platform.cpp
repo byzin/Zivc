@@ -28,6 +28,7 @@
 // Zisc
 #include "zisc/error.hpp"
 #include "zisc/utility.hpp"
+#include "zisc/math/unit_multiple.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "vulkan_device.hpp"
@@ -236,9 +237,12 @@ VulkanSubPlatform::AllocatorData::AllocatorData(
 VulkanSubPlatform::AllocatorData::~AllocatorData() noexcept
 {
   if (0 < mem_map_.size()) {
-    std::cerr << "[ERROR] There are memories which aren't deallocated in Vulkan." << std::endl;
+    zisc::MebiUnit total{0};
     for (const auto& mem_data : mem_map_)
-      std::cerr << "    leak: " << mem_data.second.size_ << " bytes." << std::endl;
+      total = total + zisc::ByteUnit{zisc::cast<int64b>(mem_data.second.size_)};
+    std::cerr << "[Warning] There are memories which aren't deallocated in Vulkan: "
+              << zisc::cast<double>(total.value())
+              << " MB." << std::endl;
   }
 }
 

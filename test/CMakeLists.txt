@@ -86,7 +86,8 @@ getTestWarningFlags(test_warning_flags)
 target_compile_options(${PROJECT_NAME} PRIVATE ${test_compile_flags}
                                                ${cxx_compile_warning_flags}
                                                ${test_warning_flags})
-target_link_libraries(${PROJECT_NAME} PRIVATE gtest_main
+target_link_libraries(${PROJECT_NAME} PRIVATE CLI11::CLI11
+                                              gtest_main
                                               Zivc
                                               ${test_linker_flags})
 target_compile_definitions(${PROJECT_NAME} PRIVATE ${test_definitions})

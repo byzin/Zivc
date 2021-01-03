@@ -77,6 +77,7 @@
 !/test/CMakeLists.txt
 !/test/dependencies/
 !/test/dependencies/googletest
+!/test/dependencies/CLI11
 !/test/unittest/
 !/test/unittest/*.hpp
 !/test/unittest/*.cpp

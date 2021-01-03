@@ -16,3 +16,6 @@
 [submodule "test/googletest"]
 	path = test/dependencies/googletest
 	url = https://github.com/google/googletest.git
+[submodule "test/dependencies/CLI11"]
+	path = test/dependencies/CLI11
+	url = https://github.com/CLIUtils/CLI11.git

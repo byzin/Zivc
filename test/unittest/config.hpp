@@ -18,7 +18,6 @@
 // Standard C++ library
 #include <limits>
 #include <memory>
-#include <string>
 // Zisc
 #include "zisc/non_copyable.hpp"
 // Zivc
@@ -41,17 +40,11 @@ class Config : private zisc::NonCopyable<Config>
   //! Return the device ID
   zivc::uint32b deviceId() const noexcept;
 
-  //! Return the device name
-  std::string& deviceName() noexcept;
-
-  //! Return the device name
-  const std::string& deviceName() const noexcept;
-
   //! Return the global config
   static Config& globalConfig() noexcept;
 
   //! Return the device ID
-  static zivc::uint32b getDeviceId(std::string name) noexcept;
+  void setDeviceId(const zivc::uint32b id) noexcept;
 
   //! Return invalid device ID
   static constexpr zivc::uint32b invalidDeviceId() noexcept
@@ -67,7 +60,7 @@ class Config : private zisc::NonCopyable<Config>
   static std::unique_ptr<Config> global_config_;
 
 
-  std::string device_name_ = "cpu";
+  zivc::uint32b device_id_ = invalidDeviceId();
 };
 
 } // namespace ztest

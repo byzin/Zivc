@@ -14,11 +14,7 @@
 
 #include "config.hpp"
 // Standard C++ library
-#include <algorithm>
-#include <charconv>
 #include <memory>
-#include <string>
-#include <string_view>
 // Zivc
 #include "zivc/zivc_config.hpp"
 
@@ -38,56 +34,17 @@ Config::~Config() noexcept
   */
 zivc::uint32b Config::deviceId() const noexcept
 {
-  return getDeviceId(deviceName());
+  return device_id_;
 }
 
 /*!
   \details No detailed description
 
-  \return No description
+  \param [in] id No description.
   */
-std::string& Config::deviceName() noexcept
+void Config::setDeviceId(const zivc::uint32b id) noexcept
 {
-  return device_name_;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-const std::string& Config::deviceName() const noexcept
-{
-  return device_name_;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] name No description.
-  \return No description
-  */
-zivc::uint32b Config::getDeviceId(std::string name) noexcept
-{
-  zivc::uint32b id = invalidDeviceId();
-  std::transform(name.begin(), name.end(), name.begin(), std::tolower);
-  const std::string_view cpu_name{"cpu"};
-  const std::string_view vulkan_name{"vulkan"};
-  if (name == cpu_name) {
-    id = 0;
-  }
-  else if (name.starts_with(vulkan_name)) {
-    name.erase(name.begin(), name.begin() + vulkan_name.size());
-    if (name.empty()) {
-      id = 1;
-    }
-    else {
-      auto [e, result] = std::from_chars(name.data(), name.data() + name.size(), id);
-      if (e != std::addressof(*name.end()))
-        id = invalidDeviceId();
-    }
-  }
-  return id;
+  device_id_ = id;
 }
 
 /*!

@@ -22,21 +22,19 @@
 
 namespace {
 
-std::unique_ptr<CLI::App> makeCommandLineParser() noexcept
+std::unique_ptr<CLI::App> makeCommandLineParser(ztest::CliOption* options) noexcept
 {
   auto parser = std::make_unique<CLI::App>("Zivc unit test.");
   parser->allow_extras();
-
-  ztest::Config& config = ztest::Config::globalConfig();
 
   // Device option
   {
     const char* desc = "Specify the device which is used in the unit test.\n"
                        "possible values: 'cpu', 'vulkan', 'vulkan0' ... 'vulkan15'.";
-    auto option = parser->add_option("--device", config.deviceName(), desc, true);
+    auto option = parser->add_option("--device", options->device_name_, desc, true);
     auto validator = [](const std::string& device_name) noexcept
     {
-      const auto id = ztest::Config::getDeviceId(device_name);
+      const auto id = ztest::getDeviceId(device_name);
       std::string result;
       if (id == ztest::Config::invalidDeviceId())
         result = "Invalid value '" + device_name + "'.";
@@ -48,6 +46,12 @@ std::unique_ptr<CLI::App> makeCommandLineParser() noexcept
   return parser;
 }
 
+void processCommandLineArgs(const ztest::CliOption& options) noexcept
+{
+  auto& config = ztest::Config::globalConfig();
+  config.setDeviceId(ztest::getDeviceId(options.device_name_));
+}
+
 } // namespace
 
 /*!
@@ -56,8 +60,12 @@ std::unique_ptr<CLI::App> makeCommandLineParser() noexcept
 int main(int argc, char** argv)
 {
   // Process command line arguments
-  auto cli_parser = ::makeCommandLineParser();
-  CLI11_PARSE(*cli_parser, argc, argv)
+  {
+    ztest::CliOption cli_options;
+    auto cli_parser = ::makeCommandLineParser(std::addressof(cli_options));
+    CLI11_PARSE(*cli_parser, argc, argv)
+    ::processCommandLineArgs(cli_options);
+  }
 
   // Run unit test
   ::testing::InitGoogleTest(&argc, argv);

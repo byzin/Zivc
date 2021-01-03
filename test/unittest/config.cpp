@@ -15,6 +15,9 @@
 #include "config.hpp"
 // Standard C++ library
 #include <memory>
+// Zisc
+#include "zisc/memory/simple_memory_resource.hpp"
+#include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "zivc/zivc_config.hpp"
 
@@ -35,6 +38,26 @@ Config::~Config() noexcept
 zivc::uint32b Config::deviceId() const noexcept
 {
   return device_id_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+zisc::pmr::memory_resource* Config::memoryResource() noexcept
+{
+  return mem_resource_.get();
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+const zisc::pmr::memory_resource* Config::memoryResource() const noexcept
+{
+  return mem_resource_.get();
 }
 
 /*!
@@ -65,6 +88,15 @@ Config& Config::globalConfig() noexcept
   */
 Config::Config() noexcept
 {
+  initialize();
+}
+
+/*!
+  \details No detailed description
+  */
+void Config::initialize() noexcept
+{
+  mem_resource_ = std::make_unique<zisc::SimpleMemoryResource>();
 }
 
 // Declaration of static member

@@ -20,6 +20,7 @@
 #include <memory>
 // Zisc
 #include "zisc/non_copyable.hpp"
+#include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "zivc/zivc_config.hpp"
 
@@ -43,24 +44,36 @@ class Config : private zisc::NonCopyable<Config>
   //! Return the global config
   static Config& globalConfig() noexcept;
 
-  //! Return the device ID
-  void setDeviceId(const zivc::uint32b id) noexcept;
-
   //! Return invalid device ID
   static constexpr zivc::uint32b invalidDeviceId() noexcept
   {
     return (std::numeric_limits<zivc::uint32b>::max)();
   }
 
+  //! Return the memory resource for unit test
+  zisc::pmr::memory_resource* memoryResource() noexcept;
+
+  //! Return the memory resource for unit test
+  const zisc::pmr::memory_resource* memoryResource() const noexcept;
+
+  //! Return the device ID
+  void setDeviceId(const zivc::uint32b id) noexcept;
+
  private:
   //! Initialize a config
   Config() noexcept;
 
 
+  //! Initialize a confik
+  void initialize() noexcept;
+
+
   static std::unique_ptr<Config> global_config_;
 
 
+  std::unique_ptr<zisc::pmr::memory_resource> mem_resource_;
   zivc::uint32b device_id_ = invalidDeviceId();
+  [[maybe_unused]] zivc::uint32b padding_ = 0;
 };
 
 } // namespace ztest

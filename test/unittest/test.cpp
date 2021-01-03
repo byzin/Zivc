@@ -12,62 +12,37 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-// Standard C++library
-#include <memory>
-#include <string>
+#include "test.hpp"
+// Zisc
+#include "zisc/memory/std_memory_resource.hpp"
+// Zivc
+#include "zivc/zivc.hpp"
+#include "zivc/zivc_config.hpp"
 // Test
-#include "cli.hpp"
 #include "config.hpp"
-#include "googletest.hpp"
 
-namespace {
-
-std::unique_ptr<CLI::App> makeCommandLineParser(ztest::CliOption* options) noexcept
-{
-  auto parser = std::make_unique<CLI::App>("Zivc unit test.");
-  parser->allow_extras();
-
-  // Device option
-  {
-    const char* desc = "Specify the device which is used in the unit test.\n"
-                       "possible values: 'cpu', 'vulkan', 'vulkan0' ... 'vulkan15'.";
-    auto option = parser->add_option("--device", options->device_name_, desc, true);
-    auto validator = [](const std::string& device_name) noexcept
-    {
-      const auto id = ztest::getDeviceId(device_name);
-      std::string result;
-      if (id == ztest::Config::invalidDeviceId())
-        result = "Invalid value '" + device_name + "'.";
-      return result;
-    };
-    option->check(validator);
-  }
-
-  return parser;
-}
-
-void processCommandLineArgs(const ztest::CliOption& options) noexcept
-{
-  auto& config = ztest::Config::globalConfig();
-  config.setDeviceId(ztest::getDeviceId(options.device_name_));
-}
-
-} // namespace
+namespace ztest {
 
 /*!
   \details No detailed description
-  */
-int main(int argc, char** argv)
-{
-  // Process command line arguments
-  {
-    ztest::CliOption cli_options;
-    auto cli_parser = ::makeCommandLineParser(std::addressof(cli_options));
-    CLI11_PARSE(*cli_parser, argc, argv)
-    ::processCommandLineArgs(cli_options);
-  }
 
-  // Run unit test
-  ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+  \return No description
+  */
+zivc::UniquePlatform makePlatform()
+{
+  auto& config = Config::globalConfig();
+  zisc::pmr::memory_resource* mem_resource = config.memoryResource();
+
+  zivc::PlatformOptions options{mem_resource};
+  options.setPlatformName("UnitTest");
+  options.setPlatformVersionMajor(zivc::Config::versionMajor());
+  options.setPlatformVersionMinor(zivc::Config::versionMinor());
+  options.setPlatformVersionPatch(zivc::Config::versionPatch());
+  options.enableVulkanSubPlatform(0 < config.deviceId());
+
+  zivc::UniquePlatform platform = zivc::makePlatform(mem_resource);
+  platform->initialize(options);
+  return platform;
 }
+
+} // namespace ztest

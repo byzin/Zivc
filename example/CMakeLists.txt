@@ -18,9 +18,9 @@ function(getExampleWarningFlags example_warning_flags)
   # Suppress warnings
   if(ZIVC_SUPPRESS_EXCESSIVE_WARNING)
     if(Z_CLANG)
-      list(APPEND warning_flags -Wno-float-equal
+      list(APPEND warning_flags -Wno-covered-switch-default
+                                -Wno-float-equal
                                 # -Wno-padded
-                                -Wno-covered-switch-default
                                 -Wno-sign-conversion
                                 )
     elseif(Z_GCC)

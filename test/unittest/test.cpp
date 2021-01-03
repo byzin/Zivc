@@ -1,5 +1,5 @@
 /*!
-  \file unittest.cpp
+  \file test.cpp
   \author Sho Ikeda
   \brief No brief description
 
@@ -13,9 +13,10 @@
   */
 
 // GoogleTest
-#include "gtest/gtest.h"
+#include "googletest.hpp"
 
 /*!
+  \details No detailed description
   */
 int main(int argc, char** argv)
 {

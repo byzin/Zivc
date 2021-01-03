@@ -38,11 +38,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/example ${PROJECT_BINARY_DIR}/Examples)
 
 # Build unit test
 if(ZIVC_BUILD_TESTS)
-  # GoogleTest
-  set(google_test_path ${PROJECT_SOURCE_DIR}/test/googletest)
-  addGoogleTest(${google_test_path} ${PROJECT_BINARY_DIR}/GoogleTest)
-  attachZivcOption(gtest)
-  attachZivcOption(gtest_main)
+  addZiscGoogleTest()
   add_subdirectory(${PROJECT_SOURCE_DIR}/test ${PROJECT_BINARY_DIR}/UnitTest)
 endif()
 

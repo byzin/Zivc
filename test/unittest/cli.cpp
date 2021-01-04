@@ -53,6 +53,7 @@ zivc::uint32b getDeviceId(std::string name) noexcept
     }
     else {
       auto [e, result] = std::from_chars(name.data(), name.data() + name.size(), id);
+      ++id;
       if (e != std::addressof(*name.end()))
         id = Config::invalidDeviceId();
     }

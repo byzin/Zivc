@@ -51,6 +51,9 @@ class DeviceInfo : private zisc::NonCopyable<DeviceInfo>
   //! Return the amount of actual device memory currently available in bytes
   virtual std::size_t availableMemory(const std::size_t heap_index) const noexcept = 0;
 
+  //! Return invalid name string
+  static std::string_view invalidName() noexcept;
+
   //! Return the maximum size of an allocation in bytes
   virtual std::size_t maxAllocationSize() const noexcept = 0;
 
@@ -74,8 +77,12 @@ class DeviceInfo : private zisc::NonCopyable<DeviceInfo>
 
   //! Return the local work group size of the device
   virtual uint32b workGroupSize() const noexcept = 0;
+
+ private:
+  static constexpr char kInvalidName[] = "N/A";
 };
 
 } // namespace zivc
+#include "device_info-inl.hpp"
 
 #endif // ZIVC_DEVICE_INFO_HPP

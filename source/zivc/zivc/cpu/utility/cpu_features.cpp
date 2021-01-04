@@ -16,6 +16,7 @@
 // Standard C++ library
 #include <array>
 #include <cstring>
+#include <string_view>
 
 #if defined(Z_GCC) || defined(Z_CLANG)
 #pragma GCC diagnostic push
@@ -41,6 +42,7 @@
 #endif // Z_GCC || Z_CLANG
 
 // Zivc
+#include "zivc/device_info.hpp"
 #include "zivc/utility/id_data.hpp"
 
 namespace zivc {
@@ -55,18 +57,18 @@ void getCpuFeatures(char* cpu_name, char* vendor_name) noexcept
 {
   IdData::NameType cpu_n;
   IdData::NameType vendor_n;
-  auto set_cpu_name = [&cpu_n](const char* name)
+  auto set_cpu_name = [&cpu_n](const std::string_view name)
   {
-    std::strcpy(cpu_n.data(), name);
+    std::strncpy(cpu_n.data(), name.data(), name.size() + 1);
   };
-  auto set_vendor_name = [&vendor_n](const char* name)
+  auto set_vendor_name = [&vendor_n](const std::string_view name)
   {
-    std::strcpy(vendor_n.data(), name);
+    std::strncpy(vendor_n.data(), name.data(), name.size() + 1);
   };
 
   // Init data
-  set_cpu_name("N/A");
-  set_vendor_name("N/A");
+  set_cpu_name(DeviceInfo::invalidName());
+  set_vendor_name(DeviceInfo::invalidName());
 
   // Initialize device info
   namespace cpu = cpu_features;

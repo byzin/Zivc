@@ -28,6 +28,7 @@
 #include "cpu/cpu_buffer.hpp"
 #include "cpu/cpu_device.hpp"
 #include "cpu/cpu_kernel.hpp"
+#include "utility/error.hpp"
 #include "utility/kernel_params.hpp"
 #if defined(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
 #include "vulkan/vulkan_buffer.hpp"

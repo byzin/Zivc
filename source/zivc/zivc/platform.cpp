@@ -32,6 +32,7 @@
 #if defined(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
 #include "vulkan/vulkan_sub_platform.hpp"
 #endif // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
+#include "utility/error.hpp"
 
 namespace zivc {
 
@@ -74,13 +75,13 @@ Platform::~Platform() noexcept
   */
 Platform& Platform::operator=(Platform&& other) noexcept
 {
+  device_info_list_ = std::move(other.device_info_list_);
+  id_count_ = other.id_count_.load();
+  is_debug_mode_ = other.is_debug_mode_;
   std::swap(mem_resource_, other.mem_resource_);
   std::move(other.sub_platform_list_.begin(),
             other.sub_platform_list_.end(),
             sub_platform_list_.begin());
-  device_info_list_ = std::move(other.device_info_list_);
-  id_count_ = other.id_count_.load();
-  is_debug_mode_ = other.is_debug_mode_;
   return *this;
 }
 
@@ -103,7 +104,12 @@ void Platform::destroy() noexcept
   */
 SharedDevice Platform::makeDevice(const std::size_t device_index)
 {
-  const DeviceInfo* info = deviceInfoList()[device_index];
+  const auto& info_list = deviceInfoList();
+  if (info_list.size() <= device_index) {
+    throw SystemError{ErrorCode::kInitializationFailed,
+                      "The device index is out of range."};
+  }
+  const DeviceInfo* info = info_list[device_index];
   SubPlatform* sub_platform = subPlatform(info->type());
   auto device = sub_platform->makeDevice(*info);
   return device;

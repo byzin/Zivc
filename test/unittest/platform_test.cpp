@@ -16,6 +16,7 @@
 #include <array>
 #include <cstddef>
 #include <iostream>
+#include <limits>
 #include <string_view>
 // Zisc
 #include "zisc/utility.hpp"
@@ -113,4 +114,15 @@ TEST(PlatformTest, DeviceInfoTest)
                                               << group_count[2] << ")."
                                               << std::endl;
   }
+}
+
+TEST(PlatformTest, MakeDeviceExceptionTest)
+{
+  auto platform = ztest::makePlatform();
+  constexpr std::size_t device_index = (std::numeric_limits<std::size_t>::max)();
+  ASSERT_THROW(platform->makeDevice(device_index), zivc::SystemError)
+      << "The bounds check of device index isn't performed.";
+  const auto& info_list = platform->deviceInfoList();
+  ASSERT_THROW(platform->makeDevice(info_list.size()), zivc::SystemError)
+      << "The bounds check of device index isn't performed.";
 }

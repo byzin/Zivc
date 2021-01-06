@@ -64,6 +64,12 @@ bool checkIfDeviceIsAvailable()
     std::cerr << "[Error] Platform isn't available." << std::endl;
     return false;
   }
+  const ztest::Config& config = ztest::Config::globalConfig();
+  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
+  if (!device) {
+    std::cerr << "[Error] Device isn't available." << std::endl;
+    return false;
+  }
   return true;
 }
 

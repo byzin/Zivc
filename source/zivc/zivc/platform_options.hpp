@@ -99,11 +99,17 @@ class PlatformOptions : private zisc::NonCopyable<PlatformOptions>
   //! Set a ptr of a VkInstance object which is used instead of internal instance
   void setVulkanInstancePtr(void* instance_ptr) noexcept;
 
+  //! Set the name of vulkan library
+  void setVulkanLibraryName(std::string_view name) noexcept;
+
   //! Set a ptr of a PFN_vkGetInstanceProcAddr which is used instead of internal function
   void setVulkanGetProcAddrPtr(void* get_proc_addr_ptr) noexcept;
 
   //! Return a ptr of a VkInstance object
   void* vulkanInstancePtr() noexcept;
+
+  //! Return the name of vulkan library
+  std::string_view vulkanLibraryName() const noexcept;
 
   //! Return a ptr of a PFN_vkGetInstanceProcAddr
   void* vulkanGetProcAddrPtr() noexcept;
@@ -117,6 +123,7 @@ class PlatformOptions : private zisc::NonCopyable<PlatformOptions>
 
 
   IdData::NameType platform_name_;
+  IdData::NameType vulkan_library_name_;
   zisc::pmr::memory_resource* mem_resource_;
   uint32b platform_version_major_;
   uint32b platform_version_minor_;

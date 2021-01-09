@@ -68,7 +68,7 @@ class Platform : private zisc::NonCopyable<Platform>
   bool hasSubPlatform(const SubPlatformType type) const noexcept;
 
   //! Initialize the platform
-  void initialize(PlatformOptions& platform_options);
+  void initialize(PlatformOptions& options);
 
   //! Check if the platform is in debug mode
   bool isDebugMode() const noexcept;
@@ -92,12 +92,12 @@ class Platform : private zisc::NonCopyable<Platform>
   const SubPlatform* subPlatform(const SubPlatformType type) const noexcept;
 
   //! Update the device info list
-  void updateDeviceInfoList() noexcept;
+  void updateDeviceInfoList();
 
  private:
   //! Create a sub-platform
   template <typename SubPlatformType>
-  void initSubPlatform(PlatformOptions& platform_options);
+  void initSubPlatform(PlatformOptions& options);
 
   //! Set debug mode
   void setDebugMode(const bool is_debug_mode) noexcept;
@@ -113,7 +113,7 @@ class Platform : private zisc::NonCopyable<Platform>
   std::array<SharedSubPlatform, kNumOfSubPlatforms> sub_platform_list_;
   zisc::pmr::unique_ptr<zisc::pmr::vector<const DeviceInfo*>> device_info_list_;
   std::atomic<int64b> id_count_ = 0;
-  int32b is_debug_mode_ = Config::scalarResultFalse();
+  int32b is_debug_mode_;
   [[maybe_unused]] int32b padding_ = 0;
 };
 
@@ -121,7 +121,8 @@ class Platform : private zisc::NonCopyable<Platform>
 using UniquePlatform = zisc::pmr::unique_ptr<Platform>;
 
 //! Make a unique platform
-UniquePlatform makePlatform(zisc::pmr::memory_resource* mem_resource) noexcept;
+UniquePlatform makePlatform(zisc::pmr::memory_resource* mem_resource,
+                            PlatformOptions& options);
 
 } // namespace zivc
 

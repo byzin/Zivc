@@ -17,6 +17,7 @@
 
 // Standard C++ library
 #include <memory>
+#include <string_view>
 #include <type_traits>
 // Zisc
 #include "zisc/memory/std_memory_resource.hpp"
@@ -49,7 +50,8 @@ class VulkanDispatchLoader
 
 
   //! Initialize the dispatch loader
-  VulkanDispatchLoader(zisc::pmr::memory_resource* mem_resource);
+  VulkanDispatchLoader(zisc::pmr::memory_resource* mem_resource,
+                       std::string_view library_name);
 
   //! Initialize the dispatch loader
   VulkanDispatchLoader(zisc::pmr::memory_resource* mem_resource,
@@ -89,24 +91,25 @@ class VulkanDispatchLoader
 
  private:
   //! Copy a data
-  void copy(const VulkanDispatchLoader& other) noexcept;
+  void copyFrom(const VulkanDispatchLoader& other) noexcept;
 
   //! Destroy all underlying data
   void destroy() noexcept;
 
   //! Initialize the dispatch loader with dynamic vulkan library
-  void initialize();
+  void initialize(zisc::pmr::memory_resource* mem_resource,
+                  std::string_view library_name);
 
   //! Initialize the dispatch loader
-  void initialize(PFN_vkGetInstanceProcAddr get_proc_addr);
+  void initialize(zisc::pmr::memory_resource* mem_resource,
+                  PFN_vkGetInstanceProcAddr get_proc_addr);
 
   //! Move a data
-  void move(VulkanDispatchLoader& other) noexcept;
+  void moveFrom(VulkanDispatchLoader& other) noexcept;
 
 
-  zisc::pmr::memory_resource* mem_resource_ = nullptr;
   std::shared_ptr<zivcvk::DynamicLoader> dynamic_loader_ = nullptr;
-  LoaderImplPtr loader_impl_ = nullptr;
+  std::shared_ptr<LoaderImpl> loader_impl_ = nullptr;
 };
 
 } // namespace zivc

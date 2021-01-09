@@ -36,6 +36,12 @@ class DeviceInfo;
 class Fence;
 class SubPlatform;
 template <std::size_t, DerivedKSet, typename...> class KernelParams;
+template <typename T>
+SharedBuffer<T> makeBuffer(Device* device, const BufferUsage flag);
+template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
+SharedKernel<kDim, KSet, Args...> makeKernel(
+    Device* device,
+    const KernelParams<kDim, KSet, Args...>& params);
 
 /*!
   \brief No brief description
@@ -71,16 +77,6 @@ class Device : public ZivcObject
   //! Make a buffer
   template <typename T>
   SharedBuffer<T> makeBuffer(const BufferUsage flag);
-
-  //! Make a buffer
-  template <template<typename> typename Derived, typename T>
-  SharedBuffer<T> makeDerivedBuffer(const BufferUsage flag);
-
-  //! Make a kernel from the given parameters
-  template <template<typename, typename...> typename Derived,
-            std::size_t kDim, DerivedKSet KSet, typename ...Args>
-  SharedKernel<kDim, KSet, Args...> makeDerivedKernel(
-      const KernelParams<kDim, KSet, Args...>& params);
 
   //! Make a kernel from the given parameters
   template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
@@ -125,6 +121,23 @@ class Device : public ZivcObject
   virtual void initData() = 0;
 
  private:
+  template <typename T>
+  friend SharedBuffer<T> makeBuffer(Device*, const BufferUsage);
+  template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
+  friend SharedKernel<kDim, KSet, Args...> makeKernel(Device*, const KernelParams<kDim, KSet, Args...>&);
+
+
+  //! Make a buffer
+  template <template<typename> typename Derived, typename T>
+  SharedBuffer<T> makeDerivedBuffer(const BufferUsage flag);
+
+  //! Make a kernel from the given parameters
+  template <template<typename, typename...> typename Derived,
+            std::size_t kDim, DerivedKSet KSet, typename ...Args>
+  SharedKernel<kDim, KSet, Args...> makeDerivedKernel(
+      const KernelParams<kDim, KSet, Args...>& params);
+
+
   const DeviceInfo* device_info_ = nullptr;
 };
 

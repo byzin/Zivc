@@ -35,14 +35,13 @@ inline
 PlatformOptions::PlatformOptions(zisc::pmr::memory_resource* mem_resource)
     noexcept :
         platform_name_{{"Platform"}},
+        vulkan_library_name_{{""}},
         mem_resource_{mem_resource},
         platform_version_major_{0},
         platform_version_minor_{0},
         platform_version_patch_{0},
-        debug_mode_enabled_{Config::scalarResultFalse()},
         cpu_num_of_threads_{0},
         cpu_task_batch_size_{32},
-        vulkan_sub_platform_enabled_{Config::scalarResultTrue()},
         vulkan_instance_ptr_{nullptr},
         vulkan_get_proc_addr_ptr_{nullptr}
 {
@@ -57,6 +56,7 @@ PlatformOptions::PlatformOptions(zisc::pmr::memory_resource* mem_resource)
 inline
 PlatformOptions::PlatformOptions(PlatformOptions&& other) noexcept :
     platform_name_{std::move(other.platform_name_)},
+    vulkan_library_name_{std::move(other.vulkan_library_name_)},
     mem_resource_{other.mem_resource_},
     platform_version_major_{other.platform_version_major_},
     platform_version_minor_{other.platform_version_minor_},
@@ -80,6 +80,7 @@ inline
 PlatformOptions& PlatformOptions::operator=(PlatformOptions&& other) noexcept
 {
   platform_name_ = std::move(other.platform_name_);
+  vulkan_library_name_ = std::move(other.vulkan_library_name_);
   mem_resource_ = other.mem_resource_;
   platform_version_major_ = other.platform_version_major_;
   platform_version_minor_ = other.platform_version_minor_;
@@ -123,8 +124,9 @@ uint32b PlatformOptions::cpuTaskBatchSize() const noexcept
 inline
 void PlatformOptions::enableDebugMode(const bool debug_mode_enabled) noexcept
 {
-  debug_mode_enabled_ = debug_mode_enabled ? Config::scalarResultTrue() :
-                                             Config::scalarResultFalse();
+  debug_mode_enabled_ = debug_mode_enabled
+      ? Config::scalarResultTrue()
+      : Config::scalarResultFalse();
 }
 
 /*!
@@ -300,6 +302,17 @@ void PlatformOptions::setVulkanInstancePtr(void* instance_ptr) noexcept
 /*!
   \details No detailed description
 
+  \param [in] name No description.
+  */
+inline
+void PlatformOptions::setVulkanLibraryName(std::string_view name) noexcept
+{
+  std::strncpy(vulkan_library_name_.data(), name.data(), name.size() + 1);
+}
+
+/*!
+  \details No detailed description
+
   \param [in] get_proc_addr_ptr No description.
   */
 inline
@@ -317,6 +330,18 @@ inline
 void* PlatformOptions::vulkanInstancePtr() noexcept
 {
   return vulkan_instance_ptr_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+std::string_view PlatformOptions::vulkanLibraryName() const noexcept
+{
+  const std::string_view name{vulkan_library_name_.data()};
+  return name;
 }
 
 /*!
@@ -350,7 +375,10 @@ void PlatformOptions::initialize() noexcept
 {
 #if defined(Z_DEBUG_MODE)
   enableDebugMode(true);
+#else // Z_DEBUG_MODE
+  enableDebugMode(false);
 #endif // Z_DEBUG_MODE
+  enableVulkanSubPlatform(true);
 }
 
 } // namespace zivc

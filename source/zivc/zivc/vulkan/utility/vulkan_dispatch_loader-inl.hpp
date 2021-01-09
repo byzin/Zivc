@@ -16,6 +16,8 @@
 #define ZIVC_VULKAN_DISPATCH_LOADER_INL_HPP
 
 #include "vulkan_dispatch_loader.hpp"
+// Standard C++ library
+#include <memory>
 
 namespace zivc {
 
@@ -39,7 +41,7 @@ bool VulkanDispatchLoader::isAvailable() const noexcept
 inline
 auto VulkanDispatchLoader::loaderImpl() noexcept -> LoaderImplPtr
 {
-  return loader_impl_;
+  return loader_impl_.get();
 }
 
 /*!
@@ -50,7 +52,7 @@ auto VulkanDispatchLoader::loaderImpl() noexcept -> LoaderImplPtr
 inline
 auto VulkanDispatchLoader::loaderImpl() const noexcept -> ConstLoaderImplPtr
 {
-  return loader_impl_;
+  return loader_impl_.get();
 }
 
 } // namespace zivc

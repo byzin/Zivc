@@ -146,6 +146,7 @@ void VulkanDeviceInfo::fetch(const VkPhysicalDevice& vdevice,
   initSubgroupSize();
   findDeviceLocalHeaps();
 }
+
 /*!
   \details No detailed description
 
@@ -257,9 +258,8 @@ void VulkanDeviceInfo::fetchExtensionProperties(
     auto result = d.enumerateDeviceExtensionProperties(nullptr, &size,
                                                        nullptr, *loader);
     if (result != zivcvk::Result::eSuccess) {
-      //! \todo Throw an exception
-      std::cerr << "[Error] Fetching device extension props failed." << std::endl;
-      return;
+      const char* message = "Fetching device extension props failed.";
+      zivcvk::throwResultException(result, message);
     }
     extension_properties_list_.resize(zisc::cast<std::size_t>(size));
   }
@@ -268,9 +268,8 @@ void VulkanDeviceInfo::fetchExtensionProperties(
     auto result = d.enumerateDeviceExtensionProperties(nullptr, &size,
                                                        data, *loader);
     if (result != zivcvk::Result::eSuccess) {
-      //! \todo Throw an exception
-      std::cerr << "[Error] Fetching device extension props failed." << std::endl;
-      return;
+      const char* message = "Fetching device extension props failed.";
+      zivcvk::throwResultException(result, message);
     }
   }
 }
@@ -428,9 +427,8 @@ void VulkanDeviceInfo::fetchLayerProperties(
   {
     auto result = d.enumerateDeviceLayerProperties(&size, nullptr, *loader);
     if (result != zivcvk::Result::eSuccess) {
-      //! \todo Throw an exception
-      std::cerr << "[Error] Fetching device layer props failed." << std::endl;
-      return;
+      const char* message = "Fetching device layer props failed.";
+      zivcvk::throwResultException(result, message);
     }
     layer_properties_list_.resize(zisc::cast<std::size_t>(size));
   }
@@ -438,9 +436,8 @@ void VulkanDeviceInfo::fetchLayerProperties(
     auto data = zisc::reinterp<Props*>(layer_properties_list_.data());
     auto result = d.enumerateDeviceLayerProperties(&size, data, *loader);
     if (result != zivcvk::Result::eSuccess) {
-      //! \todo Throw an exception
-      std::cerr << "[Error] Fetching device layer props failed." << std::endl;
-      return;
+      const char* message = "Fetching device layer props failed.";
+      zivcvk::throwResultException(result, message);
     }
   }
 }
@@ -576,9 +573,8 @@ void VulkanDeviceInfo::fetchToolProperties(
   {
     auto result = d.getToolPropertiesEXT(&size, nullptr, *loader);
     if (result != zivcvk::Result::eSuccess) {
-      //! \todo Throw an exception
-      std::cerr << "[Error] Fetching device tool props failed." << std::endl;
-      return;
+      const char* message = "Fetching device tool props failed.";
+      zivcvk::throwResultException(result, message);
     }
     tool_properties_list_.resize(zisc::cast<std::size_t>(size));
   }
@@ -586,9 +582,8 @@ void VulkanDeviceInfo::fetchToolProperties(
     auto data = zisc::reinterp<Props*>(tool_properties_list_.data());
     auto result = d.getToolPropertiesEXT(&size, data, *loader);
     if (result != zivcvk::Result::eSuccess) {
-      //! \todo Throw an exception
-      std::cerr << "[Error] Fetching device tool props failed." << std::endl;
-      return;
+      const char* message = "Fetching device tool props failed.";
+      zivcvk::throwResultException(result, message);
     }
   }
 }
@@ -654,9 +649,9 @@ void VulkanDeviceInfo::initSubgroupSize() noexcept
   */
 void VulkanDeviceInfo::initVendorInfo() noexcept
 {
-  auto set_vendor_name = [this](const char* n)
+  auto set_vendor_name = [this](std::string_view n)
   {
-    std::strcpy(vendor_name_.data(), n);
+    std::strncpy(vendor_name_.data(), n.data(), n.size() + 1);
   };
 
   switch (properties().properties1_.vendorID) {

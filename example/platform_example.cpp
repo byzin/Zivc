@@ -62,8 +62,7 @@ int main(int /* argc */, char** /* argv */)
 
   // Make a platform
   std::cout << "Create a platform." << std::endl;
-  auto platform = zivc::makePlatform(&mem_resource);
-  platform->initialize(platform_options);
+  auto platform = zivc::makePlatform(&mem_resource, platform_options);
 
   const std::string indent1 = "    ";
   const std::string indent2 = indent1 + indent1;

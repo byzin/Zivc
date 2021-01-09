@@ -29,14 +29,6 @@
 
 namespace zivc {
 
-// Forward declaration
-template <typename T>
-SharedBuffer<T> makeBuffer(Device* device, const BufferUsage flag);
-template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
-SharedKernel<kDim, KSet, Args...> makeKernel(
-    Device* device,
-    const KernelParams<kDim, KSet, Args...>& params);
-
 /*!
   \details No detailed description
 
@@ -49,6 +41,34 @@ SharedBuffer<T> Device::makeBuffer(const BufferUsage flag)
 {
   auto buffer = ::zivc::makeBuffer<T>(this, flag);
   return buffer;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kDim No description.
+  \tparam KSet No description.
+  \tparam Args No description.
+  \param [in] params No description.
+  \return No description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...Args> inline
+auto Device::makeKernel(const KernelParams<kDim, KSet, Args...>& params)
+    -> SharedKernel<kDim, KSet, Args...>
+{
+  auto kernel = ::zivc::makeKernel<kDim, KSet, Args...>(this, params);
+  return kernel;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+const DeviceInfo& Device::deviceInfo() const noexcept
+{
+  return *device_info_;
 }
 
 /*!
@@ -101,34 +121,6 @@ auto Device::makeDerivedKernel(const KernelParams<kDim, KSet, Args...>& params)
   kernel->initialize(std::move(parent), std::move(own), params);
 
   return kernel;
-}
-
-/*!
-  \details No detailed description
-
-  \tparam kDim No description.
-  \tparam KSet No description.
-  \tparam Args No description.
-  \param [in] params No description.
-  \return No description
-  */
-template <std::size_t kDim, DerivedKSet KSet, typename ...Args> inline
-auto Device::makeKernel(const KernelParams<kDim, KSet, Args...>& params)
-    -> SharedKernel<kDim, KSet, Args...>
-{
-  auto kernel = ::zivc::makeKernel<kDim, KSet, Args...>(this, params);
-  return kernel;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-inline
-const DeviceInfo& Device::deviceInfo() const noexcept
-{
-  return *device_info_;
 }
 
 } // namespace zivc

@@ -21,6 +21,7 @@
 #include <utility>
 #include <vector>
 // Zisc
+#include "zisc/error.hpp"
 #include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
@@ -41,6 +42,7 @@ namespace zivc {
   */
 Platform::Platform() noexcept
 {
+  setDebugMode(false);
 }
 
 /*!
@@ -106,11 +108,12 @@ SharedDevice Platform::makeDevice(const std::size_t device_index)
 {
   const auto& info_list = deviceInfoList();
   if (info_list.size() <= device_index) {
-    throw SystemError{ErrorCode::kInitializationFailed,
-                      "The device index is out of range."};
+    const char* message = "The device index is out of range.";
+    throw SystemError{ErrorCode::kInitializationFailed, message};
   }
   const DeviceInfo* info = info_list[device_index];
   SubPlatform* sub_platform = subPlatform(info->type());
+  ZISC_ASSERT(sub_platform->isAvailable(), "The platform isn't available.");
   auto device = sub_platform->makeDevice(*info);
   return device;
 }
@@ -118,22 +121,22 @@ SharedDevice Platform::makeDevice(const std::size_t device_index)
 /*!
   \details No detailed description
 
-  \param [in,out] platform_options No description.
+  \param [in,out] options No description.
   */
-void Platform::initialize(PlatformOptions& platform_options)
+void Platform::initialize(PlatformOptions& options)
 {
   // Clear the previous platform data first 
   destroy();
 
-  mem_resource_ = platform_options.memoryResource();
-  setDebugMode(platform_options.debugModeEnabled());
+  mem_resource_ = options.memoryResource();
+  setDebugMode(options.debugModeEnabled());
   id_count_.store(0);
 
   // Initialize sub-platforms
-  initSubPlatform<CpuSubPlatform>(platform_options);
+  initSubPlatform<CpuSubPlatform>(options);
 #if defined(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
-  if (platform_options.vulkanSubPlatformEnabled())
-    initSubPlatform<VulkanSubPlatform>(platform_options);
+  if (options.vulkanSubPlatformEnabled())
+    initSubPlatform<VulkanSubPlatform>(options);
 #endif // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
 
   // Get device info list
@@ -148,7 +151,7 @@ void Platform::initialize(PlatformOptions& platform_options)
 /*!
   \details No detailed description
   */
-void Platform::updateDeviceInfoList() noexcept
+void Platform::updateDeviceInfoList()
 {
   device_info_list_->clear();
   std::size_t num_of_devices = 0;
@@ -171,15 +174,15 @@ void Platform::updateDeviceInfoList() noexcept
   \details No detailed description
 
   \tparam SubPlatformType No description.
-  \param [in,out] platform_options No description.
+  \param [in,out] options No description.
   */
 template <typename SubPlatformType>
-void Platform::initSubPlatform(PlatformOptions& platform_options)
+void Platform::initSubPlatform(PlatformOptions& options)
 {
   zisc::pmr::polymorphic_allocator<SubPlatformType> alloc{memoryResource()};
   SharedSubPlatform sub_platform = std::allocate_shared<SubPlatformType>(alloc, this);
   WeakSubPlatform own{sub_platform};
-  sub_platform->initialize(std::move(own), platform_options);
+  sub_platform->initialize(std::move(own), options);
   setSubPlatform(std::move(sub_platform));
 }
 
@@ -198,11 +201,14 @@ void Platform::setDebugMode(const bool is_debug_mode) noexcept
   \details No detailed description
 
   \param [in,out] mem_resource No description.
+  \param [in,out] options No description.
   \return No description
   */
-UniquePlatform makePlatform(zisc::pmr::memory_resource* mem_resource) noexcept
+UniquePlatform makePlatform(zisc::pmr::memory_resource* mem_resource,
+                            PlatformOptions& options)
 {
   auto platform = zisc::pmr::allocateUnique<Platform>(mem_resource);
+  platform->initialize(options);
   return platform;
 }
 

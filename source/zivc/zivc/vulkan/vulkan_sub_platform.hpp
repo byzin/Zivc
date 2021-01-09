@@ -92,14 +92,14 @@ class VulkanSubPlatform : public SubPlatform
   SubPlatformType type() const noexcept override;
 
   //! Update the device info list
-  void updateDeviceInfoList() noexcept override;
+  void updateDeviceInfoList() override;
 
  protected:
   //! Destroy the sub-platform
   void destroyData() noexcept override;
 
   //! Initialize the sub-platform
-  void initData(PlatformOptions& platform_options) override;
+  void initData(PlatformOptions& options) override;
 
   //! Update the debug info
   void updateDebugInfoImpl() noexcept override;
@@ -222,7 +222,7 @@ class VulkanSubPlatform : public SubPlatform
   void initAllocator() noexcept;
 
   //! Make a vulkan instance
-  void initInstance(PlatformOptions& platform_options);
+  void initInstance(PlatformOptions& options);
 
   //! Initialize the physical device list
   void initDeviceList();
@@ -231,7 +231,7 @@ class VulkanSubPlatform : public SubPlatform
   void initDeviceInfoList() noexcept;
 
   //! Initialize the vulkan dispatch loader
-  void initDispatcher(PlatformOptions& platform_options);
+  void initDispatcher(PlatformOptions& options);
 
 
   std::mutex memory_mutex_;

@@ -40,6 +40,7 @@
 #include "zivc/platform_options.hpp"
 #include "zivc/sub_platform.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/utility/error.hpp"
 
 namespace zivc {
 
@@ -107,22 +108,21 @@ VkAllocationCallbacks VulkanSubPlatform::makeAllocator() noexcept
   */
 SharedDevice VulkanSubPlatform::makeDevice(const DeviceInfo& device_info)
 {
-  if (!isAvailable()) {
-    //! \todo Throw an exception
-    std::cerr << "[Error] Submodule isn't ready." << std::endl;
+  // Check if the given device info is included in the info list
+  {
+    const auto& info_list = deviceInfoList();
+    const auto pred = [&device_info](const DeviceInfo& info) noexcept
+    {
+      const bool result = std::addressof(device_info) == std::addressof(info);
+      return result;
+    };
+    auto it = std::find_if(info_list.begin(), info_list.end(), pred);
+    if (it == info_list.end()) {
+      const char* message = "Invalid vulkan device info is passed.";
+      throw SystemError{ErrorCode::kInitializationFailed, message};
+    }
   }
 
-  const auto& info_list = deviceInfoList();
-  const auto pred = [&device_info](const DeviceInfo& info) noexcept
-  {
-    const bool result = std::addressof(device_info) == std::addressof(info);
-    return result;
-  };
-  auto it = std::find_if(info_list.begin(), info_list.end(), pred);
-  if (it == info_list.end()) {
-    //! \todo Throw an exception
-    std::cerr << "[Error] Invalid device info is passed." << std::endl;
-  }
   zisc::pmr::polymorphic_allocator<VulkanDevice> alloc{memoryResource()};
   SharedDevice device = std::allocate_shared<VulkanDevice>(alloc, issueId());
 
@@ -157,7 +157,7 @@ SubPlatformType VulkanSubPlatform::type() const noexcept
 /*!
   \details No detailed description
   */
-void VulkanSubPlatform::updateDeviceInfoList() noexcept
+void VulkanSubPlatform::updateDeviceInfoList()
 {
   device_info_list_->clear();
   device_info_list_->reserve(numOfDevices());
@@ -191,18 +191,13 @@ void VulkanSubPlatform::destroyData() noexcept
 /*!
   \details No detailed description
 
-  \param [in,out] platform_options No description.
+  \param [in,out] options No description.
   */
-void VulkanSubPlatform::initData(PlatformOptions& platform_options)
+void VulkanSubPlatform::initData(PlatformOptions& options)
 {
-  initDispatcher(platform_options);
-  if (!dispatcher().isAvailable()) {
-    if (isDebugMode())
-      std::cerr << "[Warning] Loading Vulkan functions failed." << std::endl;
-    return;
-  }
+  initDispatcher(options);
   initAllocator();
-  initInstance(platform_options);
+  initInstance(options);
   dispatcher_->set(instance());
   initDeviceList();
   initDeviceInfoList();
@@ -562,12 +557,12 @@ void VulkanSubPlatform::initAllocator() noexcept
 /*!
   \details No detailed description
 
-  \param [in,out] platform_options No description.
+  \param [in,out] options No description.
   */
-void VulkanSubPlatform::initInstance(PlatformOptions& platform_options)
+void VulkanSubPlatform::initInstance(PlatformOptions& options)
 {
   using InstancePtr = std::add_pointer_t<VkInstance>;
-  auto ptr = zisc::cast<InstancePtr>(platform_options.vulkanInstancePtr());
+  auto ptr = zisc::cast<InstancePtr>(options.vulkanInstancePtr());
   if (ptr) {
     // Use the given instance instead of allocating new instance
     instance_ = ZIVC_VK_NULL_HANDLE;
@@ -613,10 +608,10 @@ void VulkanSubPlatform::initInstance(PlatformOptions& platform_options)
       nullptr};
 
   const zivcvk::ApplicationInfo app_info{makeApplicationInfo(
-      platform_options.platformName(),
-      platform_options.platformVersionMajor(),
-      platform_options.platformVersionMinor(),
-      platform_options.platformVersionPatch())};
+      options.platformName(),
+      options.platformVersionMajor(),
+      options.platformVersionMinor(),
+      options.platformVersionPatch())};
   zivcvk::InstanceCreateInfo create_info{zivcvk::InstanceCreateFlags{},
                                          std::addressof(app_info),
                                          zisc::cast<uint32b>(layers.size()),
@@ -670,17 +665,20 @@ void VulkanSubPlatform::initDeviceInfoList() noexcept
 
 /*!
   \details No detailed description
+
+  \param [in] options No description.
   */
-void VulkanSubPlatform::initDispatcher(PlatformOptions& platform_options)
+void VulkanSubPlatform::initDispatcher(PlatformOptions& options)
 {
   auto mem_resource = memoryResource();
   zisc::pmr::polymorphic_allocator<VulkanDispatchLoader> alloc{mem_resource};
 
   using FuncPtr = std::add_pointer_t<PFN_vkGetInstanceProcAddr>;
-  auto ptr = zisc::cast<FuncPtr>(platform_options.vulkanGetProcAddrPtr());
+  auto ptr = zisc::cast<FuncPtr>(options.vulkanGetProcAddrPtr());
+  std::string_view lib = options.vulkanLibraryName();
   dispatcher_ = (ptr) // Use the given loader instead of allocating new one
       ? zisc::pmr::allocateUnique<VulkanDispatchLoader>(alloc, mem_resource, *ptr)
-      : zisc::pmr::allocateUnique<VulkanDispatchLoader>(alloc, mem_resource);
+      : zisc::pmr::allocateUnique<VulkanDispatchLoader>(alloc, mem_resource, lib);
 }
 
 } // namespace zivc

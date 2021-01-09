@@ -29,7 +29,9 @@ namespace zivc {
   */
 enum class ErrorCode : int
 {
-  kInitializationFailed
+  kInitializationFailed,
+  kVulkanInitializationFailed,
+  kVulkanLibraryNotFound
 };
 
 //! Return the string of the given error code

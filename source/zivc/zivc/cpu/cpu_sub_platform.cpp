@@ -29,6 +29,7 @@
 #include "zivc/platform_options.hpp"
 #include "zivc/sub_platform.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/utility/error.hpp"
 
 namespace zivc {
 
@@ -65,18 +66,14 @@ void CpuSubPlatform::getDeviceInfoList(
   \param [in] device_info No description.
   \return No description
   */
-SharedDevice CpuSubPlatform::makeDevice(const DeviceInfo& device_info) noexcept
+SharedDevice CpuSubPlatform::makeDevice(const DeviceInfo& device_info)
 {
-  if (!isAvailable()) {
-    //! \todo Throw an exception
-    std::cerr << "[Error] Submodule isn't ready." << std::endl;
-  }
-
   auto info = zisc::cast<const CpuDeviceInfo*>(std::addressof(device_info));
   if (device_info_.get() != info) {
-    //! \todo Throw an exception
-    std::cerr << "[Error] Invalid device info is passed." << std::endl;
+    const char* message = "Invalid cpu device info is passed.";
+    throw SystemError{ErrorCode::kInitializationFailed, message};
   }
+
   zisc::pmr::polymorphic_allocator<CpuDevice> alloc{memoryResource()};
   SharedDevice device = std::allocate_shared<CpuDevice>(alloc, issueId());
 
@@ -122,7 +119,7 @@ SubPlatformType CpuSubPlatform::type() const noexcept
 /*!
   \details No detailed description
   */
-void CpuSubPlatform::updateDeviceInfoList() noexcept
+void CpuSubPlatform::updateDeviceInfoList()
 {
   device_info_->fetch();
 }
@@ -140,16 +137,16 @@ void CpuSubPlatform::destroyData() noexcept
 /*!
   \details No detailed description
 
-  \param [in,out] platform_options No description.
+  \param [in,out] options No description.
   */
-void CpuSubPlatform::initData(PlatformOptions& platform_options)
+void CpuSubPlatform::initData(PlatformOptions& options)
 {
   auto mem_resource = memoryResource();
   zisc::pmr::polymorphic_allocator<CpuDeviceInfo> alloc{mem_resource};
   device_info_ = zisc::pmr::allocateUnique<CpuDeviceInfo>(alloc, mem_resource);
-  num_of_threads_ = platform_options.cpuNumOfThreads();
+  num_of_threads_ = options.cpuNumOfThreads();
   constexpr uint32b max_batch_size = maxTaskBatchSize();
-  task_batch_size_ = platform_options.cpuTaskBatchSize();
+  task_batch_size_ = options.cpuTaskBatchSize();
   task_batch_size_ = zisc::clamp(task_batch_size_, 1u, max_batch_size);
 }
 

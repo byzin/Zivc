@@ -26,11 +26,10 @@ DeviceInfo::DeviceInfo() noexcept
 /*!
   \details No detailed description
 
-  \param [in] other No description.
+  \param [in,out] other No description.
   */
-DeviceInfo::DeviceInfo(DeviceInfo&& other) noexcept
+DeviceInfo::DeviceInfo([[maybe_unused]] DeviceInfo&& other) noexcept
 {
-  static_cast<void>(other);
 }
 
 /*!
@@ -43,12 +42,11 @@ DeviceInfo::~DeviceInfo() noexcept
 /*!
   \details No detailed description
 
-  \param [in] other No description.
+  \param [in,out] other No description.
   \return No description
   */
-DeviceInfo& DeviceInfo::operator=(DeviceInfo&& other) noexcept
+DeviceInfo& DeviceInfo::operator=([[maybe_unused]] DeviceInfo&& other) noexcept
 {
-  static_cast<void>(other);
   return *this;
 }
 

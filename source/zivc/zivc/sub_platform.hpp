@@ -62,7 +62,7 @@ class SubPlatform : public ZivcObject
       zisc::pmr::vector<const DeviceInfo*>& device_info_list) const noexcept = 0;
 
   //! Initialize the sub-platform
-  void initialize(WeakPtr&& own, PlatformOptions& platform_options);
+  void initialize(WeakPtr&& own, PlatformOptions& options);
 
   //! Check if the sub-platform is available
   virtual bool isAvailable() const noexcept = 0;
@@ -86,14 +86,14 @@ class SubPlatform : public ZivcObject
   virtual std::size_t numOfDevices() const noexcept = 0;
 
   //! Update the device info list
-  virtual void updateDeviceInfoList() noexcept = 0;
+  virtual void updateDeviceInfoList() = 0;
 
  protected:
   //! Destroy the sub-platform
   virtual void destroyData() noexcept = 0;
 
   //! Initialize the sub-platform
-  virtual void initData(PlatformOptions& platform_options) = 0;
+  virtual void initData(PlatformOptions& options) = 0;
 
  private:
   Platform* platform_ = nullptr;

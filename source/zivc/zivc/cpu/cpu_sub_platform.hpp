@@ -55,7 +55,7 @@ class CpuSubPlatform : public SubPlatform
   bool isAvailable() const noexcept override;
 
   //! Make a unique device
-  SharedDevice makeDevice(const DeviceInfo& device_info) noexcept override;
+  SharedDevice makeDevice(const DeviceInfo& device_info) override;
 
   //! Return the maximum task batch size per thread
   static constexpr uint32b maxTaskBatchSize() noexcept;
@@ -73,14 +73,14 @@ class CpuSubPlatform : public SubPlatform
   SubPlatformType type() const noexcept override;
 
   //! Update the device info list
-  void updateDeviceInfoList() noexcept override;
+  void updateDeviceInfoList() override;
 
  protected:
   //! Destroy the sub-platform
   void destroyData() noexcept override;
 
   //! Initialize the sub-platform
-  void initData(PlatformOptions& platform_options) override;
+  void initData(PlatformOptions& options) override;
 
   //! Update debug info
   void updateDebugInfoImpl() noexcept override;

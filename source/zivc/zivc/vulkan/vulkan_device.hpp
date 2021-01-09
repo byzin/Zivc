@@ -264,7 +264,7 @@ class VulkanDevice : public Device
   void initWorkGroupSizeDim() noexcept;
 
   //! Initialize a queue family index list
-  void initQueueFamilyIndexList() noexcept;
+  void initQueueFamilyIndexList();
 
   //! Initialize a vulkan memory allocator
   void initMemoryAllocator();

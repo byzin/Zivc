@@ -56,15 +56,15 @@ void SubPlatform::destroy() noexcept
   \details No detailed description
 
   \param [in,out] own No description.
-  \param [in,out] platform_options No description.
+  \param [in,out] options No description.
   */
-void SubPlatform::initialize(WeakPtr&& own, PlatformOptions& platform_options)
+void SubPlatform::initialize(WeakPtr&& own, PlatformOptions& options)
 {
   // Clear the previous sub-platform data first
   destroy();
 
   initObject(nullptr, std::move(own));
-  initData(platform_options);
+  initData(options);
 
   setNameIfEmpty("SubPlatform");
 }

@@ -44,6 +44,7 @@
 #include "utility/vulkan_memory_allocator.hpp"
 #include "zivc/device_info.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/utility/error.hpp"
 #include "zivc/utility/fence.hpp"
 #include "zivc/utility/id_data.hpp"
 
@@ -355,11 +356,12 @@ void VulkanDevice::setFenceSize(const std::size_t s)
   for (std::size_t i = fence_list.size(); i < s; ++i) {
     const zivcvk::FenceCreateInfo info{};
     zivcvk::Fence fence = d.createFence(info, alloc, *loader);
-    auto result = d.resetFences(1, std::addressof(fence), *loader);
+    d.resetFences(fence, *loader);
     fence_manager_->testAndSet(fence_list.size(), true);
     fence_list.emplace_back(zisc::cast<VkFence>(fence));
     updateFenceDebugInfo(i);
   }
+  waitForCompletion();
   // Remove fences
   for (std::size_t i = fence_list.size(); s < i; --i) {
     zivcvk::Fence fence = zisc::cast<zivcvk::Fence>(fence_list.back());
@@ -385,7 +387,7 @@ void VulkanDevice::takeFence(Fence* fence)
   for (std::size_t i = 0; i < fence_list.size(); ++i) {
     if (fence_manager_->testAndSet(i, false)) {
       zivcvk::Fence f = zisc::cast<zivcvk::Fence>(fence_list[i]);
-      auto result = d.resetFences(1, std::addressof(f), *loader);
+      d.resetFences(f, *loader);
       *dest = f;
       break;
     }
@@ -735,8 +737,8 @@ uint32b VulkanDevice::findQueueFamily() const noexcept
     const auto& queue_family_list = info.queueFamilyPropertiesList();
     for (std::size_t i = 0; i < queue_family_list.size(); ++i) {
       const auto& p = queue_family_list[i];
-      if (has_flags(p, graphics_excluded, sparse_excluded) &&
-          (*num_of_queues <= p.queueCount)) {
+      if ((*num_of_queues <= p.queueCount) &&
+          has_flags(p, graphics_excluded, sparse_excluded)) {
         *index = zisc::cast<uint32b>(i);
         *num_of_queues = p.queueCount;
       }
@@ -929,10 +931,14 @@ void VulkanDevice::initWorkGroupSizeDim() noexcept
 /*!
   \details No detailed description
   */
-void VulkanDevice::initQueueFamilyIndexList() noexcept
+void VulkanDevice::initQueueFamilyIndexList()
 {
   //! \todo Support queue family option
   queue_family_index_ = findQueueFamily();
+  if (queue_family_index_ == invalidQueueIndex()) {
+    const char* message = "Appropriate device queue not found.";
+    throw SystemError{ErrorCode::kVulkanInitializationFailed, message};
+  }
 }
 
 /*!
@@ -960,11 +966,11 @@ void VulkanDevice::initMemoryAllocator()
   create_info.pRecordSettings = nullptr;
   create_info.instance = sub_platform.instance();
   create_info.vulkanApiVersion = vkGetVulkanApiVersion();
-  auto result = vmaCreateAllocator(std::addressof(create_info),
-                                   std::addressof(vm_allocator_));
+  VkResult result = vmaCreateAllocator(std::addressof(create_info),
+                                       std::addressof(vm_allocator_));
   if (result != VK_SUCCESS) {
-    //! \todo Handling exceptions
-    printf("[Warning]: Vma creation failed.\n");
+    const char* message = "VM allocator creation failed.";
+    zivcvk::throwResultException(zisc::cast<zivcvk::Result>(result), message);
   }
 }
 

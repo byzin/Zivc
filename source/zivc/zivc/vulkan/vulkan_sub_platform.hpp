@@ -102,7 +102,7 @@ class VulkanSubPlatform : public SubPlatform
   void initData(PlatformOptions& options) override;
 
   //! Update the debug info
-  void updateDebugInfoImpl() noexcept override;
+  void updateDebugInfoImpl() override;
 
  private:
   /*!

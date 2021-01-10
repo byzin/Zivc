@@ -153,7 +153,7 @@ void CpuSubPlatform::initData(PlatformOptions& options)
 /*!
   \details No detailed description
   */
-void CpuSubPlatform::updateDebugInfoImpl() noexcept
+void CpuSubPlatform::updateDebugInfoImpl()
 {
 }
 

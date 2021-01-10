@@ -131,7 +131,7 @@ class VulkanDevice : public Device
 
   //! Make a record region for a commandbuffer
   CmdRecordRegion makeCmdRecord(const VkCommandBuffer& command_buffer,
-                                const VkCommandBufferUsageFlags flags) const noexcept;
+                                const VkCommandBufferUsageFlags flags) const;
 
   //! Make a command buffer
   VkCommandBuffer makeCommandBuffer();
@@ -171,7 +171,7 @@ class VulkanDevice : public Device
   void setDebugInfo(const VkObjectType vk_object_type,
                     const void* vk_handle,
                     const std::string_view object_name,
-                    const ZivcObject* zivc_object) noexcept;
+                    const ZivcObject* zivc_object);
 
   //! Set the number of faces
   void setFenceSize(const std::size_t s) override;
@@ -188,13 +188,13 @@ class VulkanDevice : public Device
   std::size_t totalMemoryUsage(const std::size_t number) const noexcept override;
 
   //! Wait for a device to be idle
-  void waitForCompletion() const noexcept override;
+  void waitForCompletion() const override;
 
   //! Wait for a queue to be idle
-  void waitForCompletion(const uint32b queue_index) const noexcept override;
+  void waitForCompletion(const uint32b queue_index) const override;
 
   //! Wait for a fence to be signaled
-  void waitForCompletion(const Fence& fence) const noexcept override;
+  void waitForCompletion(const Fence& fence) const override;
 
   //! Return the work group size of the given dimension
   const std::array<uint32b, 3>& workGroupSizeDim(const std::size_t dimension) const noexcept;
@@ -207,7 +207,7 @@ class VulkanDevice : public Device
   void initData() override;
 
   //! Update the debug info
-  void updateDebugInfoImpl() noexcept override;
+  void updateDebugInfoImpl() override;
 
  private:
   /*!
@@ -279,10 +279,10 @@ class VulkanDevice : public Device
   const VulkanSubPlatform& parentImpl() const noexcept;
 
   //! Update the debug info of the fence by the given index
-  void updateFenceDebugInfo(const std::size_t index) noexcept;
+  void updateFenceDebugInfo(const std::size_t index);
 
   //! Update the debug info of the shader module of the given ID
-  void updateShaderModuleDebugInfo(const uint32b id) noexcept;
+  void updateShaderModuleDebugInfo(const uint32b id);
 
 
   VkDevice device_ = ZIVC_VK_NULL_HANDLE;

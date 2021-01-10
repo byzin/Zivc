@@ -121,7 +121,7 @@ const zisc::pmr::memory_resource* ZivcObject::memoryResource() const noexcept
 
   \param [in] object_name No description.
   */
-void ZivcObject::setName(const std::string_view object_name) noexcept
+void ZivcObject::setName(const std::string_view object_name)
 {
   IdData& object_id = id();
   object_id.setName(object_name);
@@ -133,7 +133,7 @@ void ZivcObject::setName(const std::string_view object_name) noexcept
 
   \param [in] object_name No description.
   */
-void ZivcObject::setNameIfEmpty(const std::string_view object_name) noexcept
+void ZivcObject::setNameIfEmpty(const std::string_view object_name)
 {
   IdData& object_id = id();
   if (!object_id.hasName())

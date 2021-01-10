@@ -71,6 +71,10 @@ class VulkanBufferImpl : private zisc::NonCopyable<VulkanBufferImpl>
                    const std::size_t size,
                    const uint32b data) noexcept;
 
+  //!
+  [[noreturn]] static void throwResultException(const VkResult result,
+                                                const char* message);
+
  private:
   //! Return the underlying device object
   VulkanDevice& device() noexcept;

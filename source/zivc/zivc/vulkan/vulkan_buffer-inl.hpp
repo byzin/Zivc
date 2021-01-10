@@ -39,6 +39,7 @@
 #include "zivc/sub_platform.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/id_data.hpp"
+#include "zivc/utility/error.hpp"
 #include "zivc/utility/launch_result.hpp"
 #include "zivc/utility/mapped_memory.hpp"
 #include "zivc/utility/zivc_object.hpp"
@@ -360,10 +361,10 @@ auto VulkanBuffer<T>::mappedMemory() const -> Pointer
 {
   void* p = nullptr;
   const auto& device = parentImpl();
-  const auto result = vmaMapMemory(device.memoryAllocator(), allocation(), &p);
+  const VkResult result = vmaMapMemory(device.memoryAllocator(), allocation(), &p);
   if (result != VK_SUCCESS) {
-    //! \todo Raise an exception
-    printf("[Warning] Memory mapping failed.\n");
+    const char* message = "Memory mapping failed.";
+    VulkanBufferImpl::throwResultException(result, message);
   }
   return zisc::cast<Pointer>(p);
 }

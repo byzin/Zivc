@@ -55,7 +55,7 @@ class CmdRecordRegion : private zisc::NonCopyable<CmdRecordRegion>
 
  private:
   //! Start recording a command buffer
-  void begin(const VkCommandBufferUsageFlags flags) noexcept;
+  void begin(const VkCommandBufferUsageFlags flags);
 
 
   VkCommandBuffer command_buffer_ = ZIVC_VK_NULL_HANDLE;

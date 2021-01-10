@@ -188,7 +188,7 @@ class Buffer : public ZivcObject
   MappedMemory<Type> mapMemory();
 
   //! Map a buffer memory to a host
-  MappedMemory<ConstType> mapMemory() const noexcept;
+  MappedMemory<ConstType> mapMemory() const;
 
   //! Convert a type of a buffer interface to DstType
   template <typename DstType>

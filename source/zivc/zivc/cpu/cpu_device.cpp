@@ -180,7 +180,7 @@ std::size_t CpuDevice::totalMemoryUsage([[maybe_unused]] const std::size_t numbe
 /*!
   \details No detailed description
   */
-void CpuDevice::waitForCompletion() const noexcept
+void CpuDevice::waitForCompletion() const
 {
   auto& manager = const_cast<CpuDevice*>(this)->threadManager();
   manager.waitForCompletion();
@@ -191,7 +191,7 @@ void CpuDevice::waitForCompletion() const noexcept
 
   \param [in] queue_index No description.
   */
-void CpuDevice::waitForCompletion([[maybe_unused]] const uint32b queue_index) const noexcept
+void CpuDevice::waitForCompletion([[maybe_unused]] const uint32b queue_index) const
 {
   waitForCompletion();
 }
@@ -201,7 +201,7 @@ void CpuDevice::waitForCompletion([[maybe_unused]] const uint32b queue_index) co
 
   \param [in] fence No description.
   */
-void CpuDevice::waitForCompletion(const Fence& fence) const noexcept
+void CpuDevice::waitForCompletion(const Fence& fence) const
 {
   const auto memory = std::addressof(fence.data());
   const auto& f = *zisc::reinterp<const ::CpuFence*>(memory);
@@ -236,7 +236,7 @@ void CpuDevice::initData()
 /*!
   \details No detailed description
   */
-void CpuDevice::updateDebugInfoImpl() noexcept
+void CpuDevice::updateDebugInfoImpl()
 {
 }
 

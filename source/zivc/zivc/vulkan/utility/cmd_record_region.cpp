@@ -94,14 +94,14 @@ void CmdRecordRegion::end() noexcept
 
   \param [in] flags No description.
   */
-void CmdRecordRegion::begin(const VkCommandBufferUsageFlags flags) noexcept
+void CmdRecordRegion::begin(const VkCommandBufferUsageFlags flags)
 {
   zivcvk::CommandBuffer command_buffer{command_buffer_};
   if (command_buffer) {
     const auto loader = dispatcher_->loaderImpl();
     const zivcvk::CommandBufferBeginInfo info{
         zisc::cast<zivcvk::CommandBufferUsageFlags>(flags)};
-    auto result = command_buffer.begin(std::addressof(info), *loader);
+    command_buffer.begin(info, *loader);
   }
 }
 

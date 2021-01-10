@@ -106,13 +106,13 @@ class CpuDevice : public Device
   std::size_t totalMemoryUsage(const std::size_t number) const noexcept override;
 
   //! Wait for a device to be idle
-  void waitForCompletion() const noexcept override;
+  void waitForCompletion() const override;
 
   //! Wait for a queue to be idle
-  void waitForCompletion(const uint32b queue_index) const noexcept override;
+  void waitForCompletion(const uint32b queue_index) const override;
 
   //! Wait for a fence to be signaled
-  void waitForCompletion(const Fence& fence) const noexcept override;
+  void waitForCompletion(const Fence& fence) const override;
 
  protected:
   //! Destroy the device
@@ -122,7 +122,7 @@ class CpuDevice : public Device
   void initData() override;
 
   //! Update debug info
-  void updateDebugInfoImpl() noexcept override;
+  void updateDebugInfoImpl() override;
 
  private:
   //! Return the sub-platform

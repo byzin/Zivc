@@ -206,7 +206,7 @@ void VulkanSubPlatform::initData(PlatformOptions& options)
 /*!
   \details No detailed description
   */
-void VulkanSubPlatform::updateDebugInfoImpl() noexcept
+void VulkanSubPlatform::updateDebugInfoImpl()
 {
 }
 

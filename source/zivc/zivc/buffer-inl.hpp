@@ -379,7 +379,9 @@ template <typename T> inline
 auto Buffer<T>::mapMemory() -> MappedMemory<Type>
 {
   using MappedMem = MappedMemory<Type>;
-  typename MappedMem::ConstBufferP p = isHostVisible() ? this : nullptr;
+  typename MappedMem::ConstBufferP p = isHostVisible()
+      ? this
+      : nullptr;
   MappedMem memory{p};
   return memory;
 }
@@ -390,7 +392,7 @@ auto Buffer<T>::mapMemory() -> MappedMemory<Type>
   \return No description
   */
 template <typename T> inline
-auto Buffer<T>::mapMemory() const noexcept -> MappedMemory<ConstType>
+auto Buffer<T>::mapMemory() const -> MappedMemory<ConstType>
 {
   using MappedMem = MappedMemory<ConstType>;
   typename MappedMem::ConstBufferP p = isHostVisible()

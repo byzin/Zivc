@@ -173,7 +173,7 @@ CmdDebugLabelRegion VulkanDevice::makeCmdDebugLabel(
   */
 CmdRecordRegion VulkanDevice::makeCmdRecord(
     const VkCommandBuffer& command_buffer,
-    const VkCommandBufferUsageFlags flags) const noexcept
+    const VkCommandBufferUsageFlags flags) const
 {
   return CmdRecordRegion{command_buffer, dispatcher(), flags};
 }
@@ -272,10 +272,6 @@ void VulkanDevice::returnFence(Fence* fence) noexcept
       break;
     }
   }
-
-  if (*dest) {
-    printf("[Warning] Unmanaged fence\n");
-  }
 }
 
 /*!
@@ -313,7 +309,7 @@ void VulkanDevice::submit(const VkCommandBuffer& command_buffer,
 void VulkanDevice::setDebugInfo(const VkObjectType vk_object_type,
                                 const void* vk_handle,
                                 const std::string_view object_name,
-                                const ZivcObject* zivc_object) noexcept
+                                const ZivcObject* zivc_object)
 {
   const auto loader = dispatcher().loaderImpl();
   zivcvk::Device d{device()};
@@ -324,7 +320,7 @@ void VulkanDevice::setDebugInfo(const VkObjectType vk_object_type,
     const zivcvk::DebugUtilsObjectNameInfoEXT name_info{object_type,
                                                         handle,
                                                         object_name.data()};
-    auto result = d.setDebugUtilsObjectNameEXT(std::addressof(name_info), *loader);
+    d.setDebugUtilsObjectNameEXT(name_info, *loader);
   }
   // Tag
   if (zivc_object != nullptr) {
@@ -334,7 +330,7 @@ void VulkanDevice::setDebugInfo(const VkObjectType vk_object_type,
                                                       tag_name,
                                                       sizeof(zivc_object),
                                                       std::addressof(zivc_object)};
-    auto result = d.setDebugUtilsObjectTagEXT(std::addressof(tag_info), *loader);
+    d.setDebugUtilsObjectTagEXT(tag_info, *loader);
   }
 }
 
@@ -361,7 +357,6 @@ void VulkanDevice::setFenceSize(const std::size_t s)
     fence_list.emplace_back(zisc::cast<VkFence>(fence));
     updateFenceDebugInfo(i);
   }
-  waitForCompletion();
   // Remove fences
   for (std::size_t i = fence_list.size(); s < i; --i) {
     zivcvk::Fence fence = zisc::cast<zivcvk::Fence>(fence_list.back());
@@ -393,9 +388,10 @@ void VulkanDevice::takeFence(Fence* fence)
     }
   }
 
-  if (!*dest) {
+  if (!(*dest)) {
     //! \todo Available fence isn't found. Raise an exception?
-    printf("[Warning] Available fence not found\n");
+    const char* message = "Available fence not found.";
+    throw SystemError{ErrorCode::kAvailableFenceNotFound, message};
   }
 }
 
@@ -418,7 +414,7 @@ std::size_t VulkanDevice::totalMemoryUsage(const std::size_t number) const noexc
 /*!
   \details No detailed description
   */
-void VulkanDevice::waitForCompletion() const noexcept
+void VulkanDevice::waitForCompletion() const
 {
   const zivcvk::Device d{device()};
   const auto loader = dispatcher().loaderImpl();
@@ -430,7 +426,7 @@ void VulkanDevice::waitForCompletion() const noexcept
 
   \param [in] queue_index No description.
   */
-void VulkanDevice::waitForCompletion(const uint32b queue_index) const noexcept
+void VulkanDevice::waitForCompletion(const uint32b queue_index) const
 {
   const auto q = zisc::cast<zivcvk::Queue>(getQueue(queue_index));
   const auto loader = dispatcher().loaderImpl();
@@ -442,18 +438,15 @@ void VulkanDevice::waitForCompletion(const uint32b queue_index) const noexcept
 
   \param [in] fence No description.
   */
-void VulkanDevice::waitForCompletion(const Fence& fence) const noexcept
+void VulkanDevice::waitForCompletion(const Fence& fence) const
 {
   const zivcvk::Device d{device()};
   const auto loader = dispatcher().loaderImpl();
 
   auto f = zisc::reinterp<const zivcvk::Fence*>(std::addressof(fence.data()));
   constexpr uint64b timeout = (std::numeric_limits<uint64b>::max)();
-  const auto result = d.waitForFences(1, f, VK_TRUE, timeout, *loader);
-  if (result != zivcvk::Result::eSuccess) {
-    //! \todo Raise an error
-    printf("[Warning] Waiting for a fence failed.\n");
-  }
+  [[maybe_unused]] const auto result = d.waitForFences(*f, VK_TRUE, timeout, *loader);
+  ZISC_ASSERT(result == zivcvk::Result::eSuccess, "Waiting for a fence failed.");
 }
 
 /*!
@@ -558,7 +551,7 @@ void VulkanDevice::initData()
 /*!
   \details No detailed description
   */
-void VulkanDevice::updateDebugInfoImpl() noexcept
+void VulkanDevice::updateDebugInfoImpl()
 {
   const IdData& id_data = id();
   // Device
@@ -921,9 +914,9 @@ void VulkanDevice::initWorkGroupSizeDim() noexcept
     };
     for (uint32b i = 0; product(work_group_size) < group_size; i = (i + 1) % dim)
       work_group_size[i] *= 2;
-    ZISC_ASSERT(product(work_group_size) == group_size,
-                "The work-group size should be power of 2: group size = ",
-                product(work_group_size));
+    [[maybe_unused]] const uint32b s = product(work_group_size);
+    ZISC_ASSERT(s == group_size,
+                "The work-group size should be power of 2: group size = ", s);
     work_group_size_list_[dim - 1] = work_group_size;
   }
 }
@@ -993,7 +986,7 @@ VmaDeviceMemoryCallbacks VulkanDevice::makeAllocationNotifier() noexcept
 
   \param [in] index No description.
   */
-void VulkanDevice::updateFenceDebugInfo(const std::size_t index) noexcept
+void VulkanDevice::updateFenceDebugInfo(const std::size_t index)
 {
   const zivcvk::Device d{device()};
   if (isDebugMode() && d) {
@@ -1021,7 +1014,7 @@ void VulkanDevice::updateFenceDebugInfo(const std::size_t index) noexcept
 
   \param [in] id No description.
   */
-void VulkanDevice::updateShaderModuleDebugInfo(const uint32b id) noexcept
+void VulkanDevice::updateShaderModuleDebugInfo(const uint32b id)
 {
   const zivcvk::Device d{device()};
   if (isDebugMode() && d) {

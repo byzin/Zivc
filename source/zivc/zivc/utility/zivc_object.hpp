@@ -78,10 +78,10 @@ class ZivcObject : private zisc::NonCopyable<ZivcObject>
   virtual const zisc::pmr::memory_resource* memoryResource() const noexcept;
 
   //! Set the object name
-  void setName(const std::string_view object_name) noexcept;
+  void setName(const std::string_view object_name);
 
   //! Set the object name
-  void setNameIfEmpty(const std::string_view object_name) noexcept;
+  void setNameIfEmpty(const std::string_view object_name);
 
   //! Return the sub-platform type
   virtual SubPlatformType type() const noexcept;
@@ -97,10 +97,10 @@ class ZivcObject : private zisc::NonCopyable<ZivcObject>
   const ZivcObject* getParent() const noexcept;
 
   //! Update debug info
-  void updateDebugInfo() noexcept;
+  void updateDebugInfo();
 
   //! Update debug info
-  virtual void updateDebugInfoImpl() noexcept = 0;
+  virtual void updateDebugInfoImpl() = 0;
 
  private:
   SharedPtr parent_;

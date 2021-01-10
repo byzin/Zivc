@@ -83,7 +83,7 @@ class CpuSubPlatform : public SubPlatform
   void initData(PlatformOptions& options) override;
 
   //! Update debug info
-  void updateDebugInfoImpl() noexcept override;
+  void updateDebugInfoImpl() override;
 
  private:
   zisc::pmr::unique_ptr<CpuDeviceInfo> device_info_;

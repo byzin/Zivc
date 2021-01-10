@@ -105,13 +105,13 @@ class Device : public ZivcObject
   virtual std::size_t totalMemoryUsage(const std::size_t number) const noexcept = 0;
 
   //! Wait for a device to be idle
-  virtual void waitForCompletion() const noexcept = 0;
+  virtual void waitForCompletion() const = 0;
 
   //! Wait for a queue to be idle
-  virtual void waitForCompletion(const uint32b queue_index) const noexcept = 0;
+  virtual void waitForCompletion(const uint32b queue_index) const = 0;
 
   //! Wait for a fence to be signaled
-  virtual void waitForCompletion(const Fence& fence) const noexcept = 0;
+  virtual void waitForCompletion(const Fence& fence) const = 0;
 
  protected:
   //! Destroy the data

@@ -114,7 +114,7 @@ const ZivcObject* ZivcObject::getParent() const noexcept
   \details No detailed description
   */
 inline
-void ZivcObject::updateDebugInfo() noexcept
+void ZivcObject::updateDebugInfo()
 {
   if (isDebugMode())
     updateDebugInfoImpl();

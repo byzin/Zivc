@@ -186,6 +186,18 @@ void VulkanBufferImpl::fillFastCmd(const VkCommandBuffer& command_buffer,
 /*!
   \details No detailed description
 
+  \param [in] result No description.
+  \param [in] message No description.
+  */
+void VulkanBufferImpl::throwResultException(const VkResult result, const char* message)
+{
+  const auto r = zisc::cast<zivcvk::Result>(result);
+  zivcvk::throwResultException(r, message);
+}
+
+/*!
+  \details No detailed description
+
   \return No description
   */
 inline

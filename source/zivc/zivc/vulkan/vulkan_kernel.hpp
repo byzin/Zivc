@@ -82,7 +82,7 @@ class VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> :
   static constexpr bool hasPodArg() noexcept;
 
   //! Execute a kernel
-  LaunchResult run(Args... args, LaunchOptions& launch_options) override;
+  LaunchResult run(Args... args, const LaunchOptions& launch_options) override;
 
  protected:
   //! Clear the contents of the kernel
@@ -95,7 +95,7 @@ class VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> :
   void initData(const Params& params) override;
 
   //! Update the debug info
-  void updateDebugInfoImpl() noexcept override;
+  void updateDebugInfoImpl() override;
 
  private:
   //! Make a tuple of POD parameters
@@ -124,7 +124,7 @@ class VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> :
                              Types&&... rest) noexcept;
 
   //! Initialize the POD buffer
-  void initPodBuffer() noexcept;
+  void initPodBuffer();
 
   //! Initialize the given POD tuple
   template <std::size_t kIndex, typename Type, typename ...Types>

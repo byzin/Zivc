@@ -81,10 +81,10 @@ LaunchOptions::LaunchOptions(const std::array<uint32b, kDim>& work_size,
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 auto Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
-LaunchOptions::cpuCommandStorage() noexcept -> CommandStorage*
+LaunchOptions::cpuCommandStorage() const noexcept -> CommandStorage*
 {
-  auto mem = std::addressof(cpu_command_storage_);
-  return mem;
+  const CommandStorage* mem = std::addressof(cpu_command_storage_);
+  return const_cast<CommandStorage*>(mem);
 }
 
 /*!
@@ -95,38 +95,10 @@ LaunchOptions::cpuCommandStorage() noexcept -> CommandStorage*
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 auto Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
-LaunchOptions::cpuCommandStorage() const noexcept -> const CommandStorage*
+LaunchOptions::cpuAtomicStorage() const noexcept -> AtomicStorage*
 {
-  auto mem = std::addressof(cpu_command_storage_);
-  return mem;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-inline
-auto Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
-LaunchOptions::cpuAtomicStorage() noexcept -> AtomicStorage*
-{
-  auto mem = std::addressof(cpu_atomic_storage_);
-  return mem;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-inline
-auto Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
-LaunchOptions::cpuAtomicStorage() const noexcept -> const AtomicStorage*
-{
-  auto mem = std::addressof(cpu_atomic_storage_);
-  return mem;
+  const AtomicStorage* mem = std::addressof(cpu_atomic_storage_);
+  return const_cast<AtomicStorage*>(mem);
 }
 
 /*!

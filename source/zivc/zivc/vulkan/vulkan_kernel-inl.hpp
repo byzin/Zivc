@@ -108,7 +108,7 @@ commandBuffer() const noexcept
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 LaunchResult VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
-run(Args... args, LaunchOptions& launch_options)
+run(Args... args, const LaunchOptions& launch_options)
 {
   VulkanDevice& device = parentImpl();
   // DescriptorSet
@@ -253,14 +253,14 @@ initData(const Params& params)
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
-updateDebugInfoImpl() noexcept
+updateDebugInfoImpl()
 {
   VulkanDevice& device = parentImpl();
   const IdData& id_data = ZivcObject::id();
   const std::string_view kernel_name = id_data.name();
 
   auto set_debug_info = [this, &device, &kernel_name]
-  (const VkObjectType type, const auto& obj, const std::string_view suffix) noexcept
+  (const VkObjectType type, const auto& obj, const std::string_view suffix)
   {
     if (obj != ZIVC_VK_NULL_HANDLE) {
       IdData::NameType obj_name{""};
@@ -405,7 +405,7 @@ initBufferList(VkBuffer* buffer_list, Type&& value, Types&&... rest) noexcept
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
-initPodBuffer() noexcept
+initPodBuffer()
 {
   if constexpr (hasPodArg()) {
     auto& device = parentImpl();

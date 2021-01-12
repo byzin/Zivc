@@ -27,6 +27,7 @@
 #include "utility/vulkan_hpp.hpp"
 #include "utility/vulkan_memory_allocator.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/utility/error.hpp"
 
 namespace zivc {
 
@@ -79,24 +80,7 @@ void VulkanBufferImpl::allocateMemory(const std::size_t size,
   // VMA allocation create info
   VmaAllocationCreateInfo alloc_create_info;
   alloc_create_info.flags = 0;
-  switch (buffer_usage) {
-   case BufferUsage::kDeviceOnly: {
-    alloc_create_info.usage = VMA_MEMORY_USAGE_GPU_ONLY;
-    break;
-   }
-   case BufferUsage::kHostOnly: {
-    alloc_create_info.usage = VMA_MEMORY_USAGE_CPU_ONLY;
-    break;
-   }
-   case BufferUsage::kHostToDevice: {
-    alloc_create_info.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
-    break;
-   }
-   case BufferUsage::kDeviceToHost: {
-    alloc_create_info.usage = VMA_MEMORY_USAGE_GPU_TO_CPU;
-    break;
-   }
-  }
+  alloc_create_info.usage = toVmaUsage(buffer_usage);
   alloc_create_info.requiredFlags = 0;
   alloc_create_info.preferredFlags = 0;
   alloc_create_info.memoryTypeBits = 0;
@@ -112,8 +96,8 @@ void VulkanBufferImpl::allocateMemory(const std::size_t size,
                                       vm_allocation,
                                       alloc_info);
   if (result != VK_SUCCESS) {
-    //! \todo Handle exception
-    printf("[Warning]: Device memory allocation failed.\n");
+    const char* message = "Device memory allocation failed.";
+    throwResultException(result, message);
   }
 }
 
@@ -204,6 +188,37 @@ inline
 VulkanDevice& VulkanBufferImpl::device() noexcept
 {
   return *device_;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] usage No description.
+  \return No description
+  */
+inline
+constexpr VmaMemoryUsage VulkanBufferImpl::toVmaUsage(const BufferUsage usage) noexcept
+{
+  VmaMemoryUsage mem_usage = VMA_MEMORY_USAGE_UNKNOWN;
+  switch (usage) {
+   case BufferUsage::kDeviceOnly: {
+    mem_usage = VMA_MEMORY_USAGE_GPU_ONLY;
+    break;
+   }
+   case BufferUsage::kHostOnly: {
+    mem_usage = VMA_MEMORY_USAGE_CPU_ONLY;
+    break;
+   }
+   case BufferUsage::kHostToDevice: {
+    mem_usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
+    break;
+   }
+   case BufferUsage::kDeviceToHost: {
+    mem_usage = VMA_MEMORY_USAGE_GPU_TO_CPU;
+    break;
+   }
+  }
+  return mem_usage;
 }
 
 } // namespace zivc

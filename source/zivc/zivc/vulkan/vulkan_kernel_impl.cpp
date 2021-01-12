@@ -365,7 +365,8 @@ void VulkanKernelImpl::initPipeline(const std::size_t work_dimension,
                                           alloc,
                                           *loader);
     if (result.result != zivcvk::Result::eSuccess) {
-      //! \todo Error handling
+      const char* message = "Compute pipeline creation failed.";
+      zivcvk::throwResultException(result.result, message);
     }
     pline = zisc::cast<zivcvk::Pipeline>(result.value);
   }

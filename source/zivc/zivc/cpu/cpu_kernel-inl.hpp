@@ -84,7 +84,7 @@ kernel() const noexcept -> Function
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 LaunchResult CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
-run(Args... args, LaunchOptions& launch_options)
+run(Args... args, const LaunchOptions& launch_options)
 {
   CpuDevice& device = parentImpl();
   // Command recording
@@ -93,11 +93,10 @@ run(Args... args, LaunchOptions& launch_options)
     using LauncherType = Launcher<FuncArgs...>;
     LauncherType::exec(func, launch_options, args...);
   };
+  using StorageType = typename LaunchOptions::CommandStorage;
   using CommandType = decltype(c);
-  static_assert(sizeof(typename LaunchOptions::CommandStorage) ==
-                sizeof(CommandType));
-  static_assert(std::alignment_of_v<typename LaunchOptions::CommandStorage> ==
-                std::alignment_of_v<CommandType>);
+  static_assert(sizeof(StorageType) == sizeof(CommandType));
+  static_assert(std::alignment_of_v<StorageType> == std::alignment_of_v<CommandType>);
   auto command_mem = zisc::cast<void*>(launch_options.cpuCommandStorage());
   CommandType* command = ::new (command_mem) CommandType{c};
 
@@ -146,7 +145,7 @@ initData(const Params& params)
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 void CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
-updateDebugInfoImpl() noexcept
+updateDebugInfoImpl()
 {
 }
 

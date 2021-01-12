@@ -68,7 +68,7 @@ class CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> :
   Function kernel() const noexcept;
 
   //! Execute a kernel
-  LaunchResult run(Args... args, LaunchOptions& launch_options) override;
+  LaunchResult run(Args... args, const LaunchOptions& launch_options) override;
 
  protected:
   //! Clear the contents of the kernel
@@ -78,7 +78,7 @@ class CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> :
   void initData(const Params& params) override;
 
   //! Update debug info
-  void updateDebugInfoImpl() noexcept override;
+  void updateDebugInfoImpl() override;
 
  private:
   /*!

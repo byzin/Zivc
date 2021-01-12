@@ -95,16 +95,10 @@ class Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> : public ZivcObject
 
 
     //! Return the memory for cpu command
-    CommandStorage* cpuCommandStorage() noexcept;
-
-    //! Return the memory for cpu command
-    const CommandStorage* cpuCommandStorage() const noexcept;
+    CommandStorage* cpuCommandStorage() const noexcept;
 
     //! Return the memory for an atomic counter in cpu command
-    AtomicStorage* cpuAtomicStorage() noexcept;
-
-    //! Return the memory for an atomic counter in cpu command
-    const AtomicStorage* cpuAtomicStorage() const noexcept;
+    AtomicStorage* cpuAtomicStorage() const noexcept;
 
     //! Return the work-group dimension
     static constexpr std::size_t dimension() noexcept;
@@ -186,7 +180,7 @@ class Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> : public ZivcObject
   static constexpr std::size_t numOfArgs() noexcept;
 
   //! Execute a kernel
-  virtual LaunchResult run(Args... args, LaunchOptions& launch_options) = 0;
+  virtual LaunchResult run(Args... args, const LaunchOptions& launch_options) = 0;
 
  protected:
   //! Clear the contents of the kernel

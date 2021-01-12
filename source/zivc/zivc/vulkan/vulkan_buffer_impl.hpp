@@ -79,6 +79,9 @@ class VulkanBufferImpl : private zisc::NonCopyable<VulkanBufferImpl>
   //! Return the underlying device object
   VulkanDevice& device() noexcept;
 
+  //! Convert to VMA usage flags
+  static constexpr VmaMemoryUsage toVmaUsage(const BufferUsage usage) noexcept;
+
 
   VulkanDevice* device_ = nullptr;
 };

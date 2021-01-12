@@ -20,8 +20,8 @@
 #include <string_view>
 #include <type_traits>
 // Zisc
-#include "zisc/zisc_config.hpp"
 #include "zisc/utility.hpp"
+#include "zisc/zisc_config.hpp"
 
 namespace zivc {
 
@@ -88,10 +88,18 @@ class Config
   static constexpr bool isVulkanSubPlatformEnabled() noexcept;
 
   //! Represent 'false' value of scalar value comparison
-  static constexpr int32b scalarResultFalse() noexcept;
+  static constexpr int32b scalarResultFalse() noexcept
+  {
+    const int32b result = 0b0;
+    return result; 
+  }
 
   //! Represent 'true' value of scalar value comparison
-  static constexpr int32b scalarResultTrue() noexcept;
+  static constexpr int32b scalarResultTrue() noexcept
+  {
+    const int32b result = 0b1;
+    return result;
+  }
 
   //! Represent 'false' value of scalar value comparison
   template <typename Type>
@@ -116,6 +124,8 @@ class Config
 
 } // namespace zivc
 
+#if __has_include("zivc/zivc_config-inl.hpp")
 #include "zivc/zivc_config-inl.hpp"
+#endif
 
 #endif // ZIVC_CONFIG_HPP

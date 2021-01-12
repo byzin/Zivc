@@ -83,7 +83,10 @@ VkCommandBuffer&
 VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 commandBuffer() noexcept
 {
-  return command_buffer_;
+  VkCommandBuffer& command = command_buffer_ref_
+      ? *command_buffer_ref_
+      : command_buffer_;
+  return command;
 }
 
 /*!
@@ -96,7 +99,10 @@ inline
 const VkCommandBuffer& VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 commandBuffer() const noexcept
 {
-  return command_buffer_;
+  const VkCommandBuffer& command = command_buffer_ref_
+      ? *command_buffer_ref_
+      : command_buffer_;
+  return command;
 }
 
 /*!
@@ -113,9 +119,11 @@ run(Args... args, const LaunchOptions& launch_options)
   VulkanDevice& device = parentImpl();
   // DescriptorSet
   updateDescriptorSet(args...);
-  // POD
+  // POD buffer
   const bool need_to_update_pod = checkIfPodUpdateIsNeeded(args...);
   const auto work_size = BaseKernel::expandWorkSize(launch_options.workSize());
+  // Prepare command buffer
+  prepareCommandBuffer();
   VkCommandBuffer command = commandBuffer();
   // Command recording
   {
@@ -124,9 +132,11 @@ run(Args... args, const LaunchOptions& launch_options)
     {
       auto debug_region = device.makeCmdDebugLabel(command, launch_options);
       // Update global and region offsets
-      updateGlobalAndRegionOffsets(launch_options);
+      updateGlobalAndRegionOffsetsCmd(launch_options);
+      // Update POD buffer
       if (need_to_update_pod)
-        updatePodBuffer();
+        updatePodBufferCmd();
+      // Dispatch the kernel
       dispatchCmd(work_size);
     }
   }
@@ -141,6 +151,18 @@ run(Args... args, const LaunchOptions& launch_options)
   }
   result.setAsync(true);
   return result;
+}
+
+/*!
+  \details No detailed description
+  \param [in] command_ref No description.
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+inline
+void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+setCommandBufferRef(VkCommandBuffer* command_ref) noexcept
+{
+  command_buffer_ref_ = command_ref;
 }
 
 /*!
@@ -191,15 +213,13 @@ void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 destroyData() noexcept
 {
   command_buffer_ = ZIVC_VK_NULL_HANDLE;
-  if (pipeline_ != ZIVC_VK_NULL_HANDLE) {
-    pod_cache_.reset();
-    pod_buffer_.reset();
+  pod_cache_.reset();
+  pod_buffer_.reset();
+  if (desc_pool_ != ZIVC_VK_NULL_HANDLE) {
     VulkanKernelImpl impl{std::addressof(parentImpl())};
-    impl.destroyPipeline(std::addressof(pipeline_layout_),
-                         std::addressof(pipeline_));
-    impl.destroyDescriptorSet(std::addressof(desc_set_layout_),
-                              std::addressof(desc_pool_));
+    impl.destroyDescriptorSet(std::addressof(desc_pool_));
   }
+  kernel_data_ = nullptr;
 }
 
 /*!
@@ -213,7 +233,12 @@ void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 dispatchCmd(const std::array<uint32b, 3>& work_size)
 {
   VulkanKernelImpl impl{std::addressof(parentImpl())};
-  impl.dispatchCmd(command_buffer_, desc_set_, pipeline_layout_, pipeline_, kDim, work_size);
+  VkCommandBuffer command = commandBuffer();
+  impl.dispatchCmd(command,
+                   kernel_data_,
+                   desc_set_,
+                   BaseKernel::dimension(),
+                   work_size);
 }
 
 /*!
@@ -228,22 +253,26 @@ initData(const Params& params)
 {
   static_assert(hasGlobalArg(), "The kernel doesn't have global argument.");
   VulkanDevice& device = parentImpl();
-  device.addShaderModule(KSet{});
+
+  // Add a shader module
+  const auto& module_data = device.addShaderModule(KSet{});
+  // Add a kernel data
+  const std::size_t num_of_storage_buffers = BaseKernel::ArgParser::kNumOfBufferArgs;
+  const std::size_t num_of_uniform_buffers = hasPodArg() ? 1 : 0;
+  const std::size_t num_of_local_args = BaseKernel::ArgParser::kNumOfLocalArgs;
+  const auto& kernel_data = device.addShaderKernel(module_data,
+                                                   params.kernelName(),
+                                                   BaseKernel::dimension(),
+                                                   num_of_storage_buffers,
+                                                   num_of_uniform_buffers,
+                                                   num_of_local_args);
+  kernel_data_ = std::addressof(kernel_data);
   VulkanKernelImpl impl{std::addressof(device)};
-  impl.initDescriptorSet(BaseKernel::ArgParser::kNumOfBufferArgs,
-                         zisc::cast<std::size_t>(hasPodArg() ? 1 : 0),
-                         std::addressof(desc_set_layout_),
+  impl.initDescriptorSet(num_of_storage_buffers,
+                         num_of_uniform_buffers,
+                         kernel_data_,
                          std::addressof(desc_pool_),
                          std::addressof(desc_set_));
-  const auto& module_data = device.getShaderModule(KSet::id());
-  impl.initPipeline(BaseKernel::dimension(),
-                    BaseKernel::ArgParser::kNumOfLocalArgs,
-                    desc_set_layout_,
-                    module_data.module_,
-                    params.kernelName(),
-                    std::addressof(pipeline_layout_),
-                    std::addressof(pipeline_));
-  command_buffer_ = device.makeCommandBuffer();
   initPodBuffer();
 }
 
@@ -270,24 +299,12 @@ updateDebugInfoImpl()
     }
   };
 
-  set_debug_info(VK_OBJECT_TYPE_DESCRIPTOR_SET_LAYOUT,
-                 desc_set_layout_,
-                 "_descsetlayout");
   set_debug_info(VK_OBJECT_TYPE_DESCRIPTOR_POOL,
                  desc_pool_,
                  "_descpool");
   set_debug_info(VK_OBJECT_TYPE_DESCRIPTOR_SET,
                  desc_set_,
                  "_descset");
-  set_debug_info(VK_OBJECT_TYPE_PIPELINE_LAYOUT,
-                 pipeline_layout_,
-                 "_pipelinelayout");
-  set_debug_info(VK_OBJECT_TYPE_PIPELINE,
-                 pipeline_,
-                 "_pipeline");
-  set_debug_info(VK_OBJECT_TYPE_COMMAND_BUFFER,
-                 command_buffer_,
-                 "_commandbuffer");
   if (pod_buffer_) {
     IdData::NameType obj_name{""};
     const std::string_view suffix{"_podbuffer"};
@@ -302,6 +319,7 @@ updateDebugInfoImpl()
     std::strncat(obj_name.data(), suffix.data(), suffix.size());
     pod_cache_->setName(obj_name.data());
   }
+  updateCommandBufferDebugInfo();
 }
 
 /*!
@@ -512,6 +530,50 @@ parentImpl() const noexcept
 
 /*!
   \details No detailed description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+inline
+void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+prepareCommandBuffer()
+{
+  VkCommandBuffer command = commandBuffer();
+  if (command == ZIVC_VK_NULL_HANDLE) {
+    VulkanDevice& device = parentImpl();
+    command_buffer_ = device.makeCommandBuffer();
+    updateCommandBufferDebugInfo();
+  }
+}
+
+/*!
+  \details No detailed description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+inline
+void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+updateCommandBufferDebugInfo()
+{
+  VulkanDevice& device = parentImpl();
+  const IdData& id_data = ZivcObject::id();
+  const std::string_view kernel_name = id_data.name();
+
+  auto set_debug_info = [this, &device, &kernel_name]
+  (const VkObjectType type, const auto& obj, const std::string_view suffix)
+  {
+    if (obj != ZIVC_VK_NULL_HANDLE) {
+      IdData::NameType obj_name{""};
+      std::strncpy(obj_name.data(), kernel_name.data(), kernel_name.size() + 1);
+      std::strncat(obj_name.data(), suffix.data(), suffix.size());
+      device.setDebugInfo(type, obj, obj_name.data(), this);
+    }
+  };
+
+  set_debug_info(VK_OBJECT_TYPE_COMMAND_BUFFER,
+                 command_buffer_,
+                 "_commandbuffer");
+}
+
+/*!
+  \details No detailed description
 
   \param [in] args No description.
   */
@@ -541,13 +603,13 @@ updateDescriptorSet(Args... args)
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
-updateGlobalAndRegionOffsets(const LaunchOptions& launch_options)
+updateGlobalAndRegionOffsetsCmd(const LaunchOptions& launch_options)
 {
   static_cast<void>(launch_options);
   std::array<uint32b, 7> data;
   data.fill(0);
   VulkanKernelImpl impl{std::addressof(parentImpl())};
-  impl.pushConstantCmd(commandBuffer(), pipeline_layout_, 0, data);
+  impl.pushConstantCmd(commandBuffer(), kernel_data_, 0, data);
 }
 
 /*!
@@ -556,7 +618,7 @@ updateGlobalAndRegionOffsets(const LaunchOptions& launch_options)
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
-updatePodBuffer()
+updatePodBufferCmd()
 {
   using BufferT = VulkanBuffer<PodTuple>;
   const VkBufferCopy copy_region{0, 0, sizeof(PodTuple)};

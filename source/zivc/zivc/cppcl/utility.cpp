@@ -24,8 +24,8 @@ namespace cl {
 
 namespace inner {
 
-thread_local std::array<zivc::uint32b, 3> WorkGroup::work_group_id_;
-thread_local std::array<zivc::uint32b, 3> WorkGroup::work_group_size_;
+thread_local std::array<::zivc::uint32b, 3> WorkGroup::work_group_id_;
+thread_local std::array<::zivc::uint32b, 3> WorkGroup::work_group_size_;
 
 } // namespace inner
 

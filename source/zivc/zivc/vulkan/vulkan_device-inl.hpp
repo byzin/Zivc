@@ -20,6 +20,7 @@
 #include <array>
 #include <limits>
 #include <memory>
+#include <mutex>
 #include <string_view>
 #include <type_traits>
 #include <vector>
@@ -46,16 +47,18 @@ namespace zivc {
   \tparam SetType No description.
   */
 template <typename SetType> inline
-void VulkanDevice::addShaderModule(const KernelSet<SetType>& kernel_set)
+auto VulkanDevice::addShaderModule(const KernelSet<SetType>& kernel_set)
+    -> const ModuleData&
 {
   const uint32b id = kernel_set.id();
-  if (!hasShaderModule(id)) {
-    zisc::pmr::vector<uint32b>::allocator_type alloc{memoryResource()};
-    zisc::pmr::vector<uint32b> spirv_code{alloc};
-    kernel_set.loadSpirVCode(std::addressof(spirv_code));
-    const std::string_view module_name = kernel_set.name();
-    addShaderModule(id, spirv_code, module_name);
-  }
+  if (hasShaderModule(id))
+    return getShaderModule(id);
+
+  zisc::pmr::vector<uint32b>::allocator_type alloc{memoryResource()};
+  zisc::pmr::vector<uint32b> spirv_code{alloc};
+  kernel_set.loadSpirVCode(std::addressof(spirv_code));
+  const std::string_view module_name = kernel_set.name();
+  return addShaderModule(id, spirv_code, module_name);
 }
 
 /*!
@@ -160,11 +163,55 @@ const VkQueue& VulkanDevice::getQueue(const std::size_t index) const noexcept
   \return No description
   */
 inline
-auto VulkanDevice::getShaderModule(const uint32b id) const noexcept -> const ModuleData&
+auto VulkanDevice::getShaderKernel(const uint32b id) const noexcept
+    -> const KernelData&
+{
+  ZISC_ASSERT(hasShaderKernel(id), "Kernel data not found. id = ", id);
+  const KernelData* data = nullptr;
+  {
+    //! \todo lock
+    auto kernel = kernel_data_list_->find(id);
+    data = kernel->second.get();
+  }
+  return *data;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] id No description.
+  \return No description
+  */
+inline
+auto VulkanDevice::getShaderModule(const uint32b id) const noexcept
+    -> const ModuleData&
 {
   ZISC_ASSERT(hasShaderModule(id), "Shader module not found. id = ", id);
-  auto module = shader_module_list_->find(id);
-  return module->second;
+  const ModuleData* data = nullptr;
+  {
+    //! \todo lock
+    auto module = module_data_list_->find(id);
+    data = module->second.get();
+  }
+  return *data;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] id No description.
+  \return No description
+  */
+inline
+bool VulkanDevice::hasShaderKernel(const uint32b id) const noexcept
+{
+  bool result = false;
+  {
+    //! \todo lock
+    auto kernel = kernel_data_list_->find(id);
+    result = kernel != kernel_data_list_->end();
+  }
+  return result;
 }
 
 /*!
@@ -176,11 +223,15 @@ auto VulkanDevice::getShaderModule(const uint32b id) const noexcept -> const Mod
 inline
 bool VulkanDevice::hasShaderModule(const uint32b id) const noexcept
 {
-  auto module = shader_module_list_->find(id);
-  const bool result = module != shader_module_list_->end();
+  bool result = false;
+  {
+    //! \todo lock
+    auto module = module_data_list_->find(id);
+    result = module != module_data_list_->end();
+  }
   return result;
 }
- 
+
 /*!
   \details No detailed description
 
@@ -267,14 +318,16 @@ uint32b VulkanDevice::queueFamilyIndex() const noexcept
 /*!
   \details No detailed description
 
-  \param [in] dimension No description.
+  \param [in] dim No description.
   \return No description
   */
 inline
-const std::array<uint32b, 3>& VulkanDevice::workGroupSizeDim(const std::size_t dimension) const noexcept
+const std::array<uint32b, 3>& VulkanDevice::workGroupSizeDim(const std::size_t dim)
+    const noexcept
 {
-  return work_group_size_list_[dimension - 1];
+  return work_group_size_list_[dim - 1];
 }
+
 
 /*!
   \details No detailed description

@@ -84,6 +84,9 @@ class VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> :
   //! Execute a kernel
   LaunchResult run(Args... args, const LaunchOptions& launch_options) override;
 
+  //! Set a command buffer reference
+  void setCommandBufferRef(VkCommandBuffer* command_ref) noexcept;
+
  protected:
   //! Clear the contents of the kernel
   void destroyData() noexcept override;
@@ -142,21 +145,26 @@ class VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> :
   //! Return the device
   const VulkanDevice& parentImpl() const noexcept;
 
+  //! Prepare command buffer
+  void prepareCommandBuffer();
+
+  //! Update debug info of the underlying command buffer
+  void updateCommandBufferDebugInfo();
+
   //! Update the underlying descriptor set with the given arguments
   void updateDescriptorSet(Args... args);
 
   //! Update global and region offsets
-  void updateGlobalAndRegionOffsets(const LaunchOptions& launch_options);
+  void updateGlobalAndRegionOffsetsCmd(const LaunchOptions& launch_options);
 
   //! Update POD buffer
-  void updatePodBuffer();
+  void updatePodBufferCmd();
 
 
-  VkDescriptorSetLayout desc_set_layout_ = ZIVC_VK_NULL_HANDLE;
+  const void* kernel_data_ = nullptr;
   VkDescriptorPool desc_pool_ = ZIVC_VK_NULL_HANDLE;
   VkDescriptorSet desc_set_ = ZIVC_VK_NULL_HANDLE;
-  VkPipelineLayout pipeline_layout_ = ZIVC_VK_NULL_HANDLE;
-  VkPipeline pipeline_ = ZIVC_VK_NULL_HANDLE;
+  VkCommandBuffer* command_buffer_ref_ = nullptr;
   VkCommandBuffer command_buffer_ = ZIVC_VK_NULL_HANDLE;
   SharedBuffer<PodTuple> pod_buffer_;
   SharedBuffer<PodTuple> pod_cache_;

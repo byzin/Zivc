@@ -20,6 +20,7 @@
 #include <cstddef>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <string_view>
 // Zisc
 #include "zisc/concepts.hpp"
@@ -67,8 +68,22 @@ class VulkanDevice : public Device
     */
   struct ModuleData
   {
-    VkShaderModule module_ = ZIVC_VK_NULL_HANDLE;
     std::string_view name_;
+    VkShaderModule module_ = ZIVC_VK_NULL_HANDLE;
+  };
+
+  /*!
+    \brief No brief description
+
+    No detailed description.
+    */
+  struct KernelData
+  {
+    const ModuleData* module_ = nullptr;
+    IdData::NameType kernel_name_;
+    VkDescriptorSetLayout desc_set_layout_ = ZIVC_VK_NULL_HANDLE;
+    VkPipelineLayout pipeline_layout_ = ZIVC_VK_NULL_HANDLE;
+    VkPipeline pipeline_ = ZIVC_VK_NULL_HANDLE;
   };
 
 
@@ -79,9 +94,17 @@ class VulkanDevice : public Device
   ~VulkanDevice() noexcept override;
 
 
+  //! Add a kernel of the give kernel name
+  const KernelData& addShaderKernel(const ModuleData& module,
+                                    const std::string_view kernel_name,
+                                    const std::size_t work_dimension,
+                                    const std::size_t num_of_storage_buffers,
+                                    const std::size_t num_of_uniform_buffers,
+                                    const std::size_t num_of_local_args);
+
   //! Add a shader module of the given kernel set
   template <typename SetType>
-  void addShaderModule(const KernelSet<SetType>& kernel_set);
+  const ModuleData& addShaderModule(const KernelSet<SetType>& kernel_set);
 
   //! Return the command pool
   VkCommandPool& commandPool() noexcept;
@@ -107,8 +130,18 @@ class VulkanDevice : public Device
   //! Return the queue by the index
   const VkQueue& getQueue(const std::size_t index) const noexcept;
 
+  //! Return the kernel id of the given kernel name
+  static uint32b getKernelId(const std::string_view module_name,
+                             const std::string_view kernel_name) noexcept;
+
+  //! Return the shader module by the the given kernel set ID
+  const KernelData& getShaderKernel(const uint32b id) const noexcept;
+
   //! Return the shader module by the the given kernel set ID
   const ModuleData& getShaderModule(const uint32b id) const noexcept;
+
+  //! Check if the device has the kernel of the give kernel id
+  bool hasShaderKernel(const uint32b id) const noexcept;
 
   //! Check if the device has the shader module of the given kernel set ID
   bool hasShaderModule(const uint32b id) const noexcept;
@@ -197,7 +230,7 @@ class VulkanDevice : public Device
   void waitForCompletion(const Fence& fence) const override;
 
   //! Return the work group size of the given dimension
-  const std::array<uint32b, 3>& workGroupSizeDim(const std::size_t dimension) const noexcept;
+  const std::array<uint32b, 3>& workGroupSizeDim(const std::size_t dim) const noexcept;
 
  protected:
   //! Destroy the device
@@ -240,10 +273,19 @@ class VulkanDevice : public Device
         void* user_data);
   };
 
+  using UniqueModuleData = zisc::pmr::unique_ptr<ModuleData>;
+  using UniqueKernelData = zisc::pmr::unique_ptr<KernelData>;
+
+
   //! Add a shader module of the given kernel set
-  void addShaderModule(const uint32b id,
-                       const zisc::pmr::vector<uint32b>& spirv_code,
-                       const std::string_view module_name);
+  const ModuleData& addShaderModule(const uint32b id,
+                                    const zisc::pmr::vector<uint32b>& spirv_code,
+                                    const std::string_view module_name);
+
+  void destroyShaderKernel(KernelData* kernel) noexcept;
+
+  //! Destroy shader module data
+  void destroyShaderModule(ModuleData* module) noexcept;
 
   //! Find the index of the optimal queue familty
   uint32b findQueueFamily() const noexcept;
@@ -281,10 +323,14 @@ class VulkanDevice : public Device
   //! Update the debug info of the fence by the given index
   void updateFenceDebugInfo(const std::size_t index);
 
+  //! Update the debug info of the kernel data of the given ID
+  void updateKernelDataDebugInfo(const KernelData& kernel);
+
   //! Update the debug info of the shader module of the given ID
-  void updateShaderModuleDebugInfo(const uint32b id);
+  void updateShaderModuleDebugInfo(const ModuleData& module);
 
 
+  std::mutex shader_mutex_;
   VkDevice device_ = ZIVC_VK_NULL_HANDLE;
   VmaAllocator vm_allocator_ = ZIVC_VK_NULL_HANDLE;
   VkCommandPool command_pool_ = ZIVC_VK_NULL_HANDLE;
@@ -293,7 +339,8 @@ class VulkanDevice : public Device
   zisc::pmr::unique_ptr<zisc::pmr::vector<VkQueue>> queue_list_;
   zisc::pmr::unique_ptr<zisc::pmr::vector<zisc::Memory::Usage>> heap_usage_list_;
   zisc::pmr::unique_ptr<VulkanDispatchLoader> dispatcher_;
-  zisc::pmr::unique_ptr<zisc::pmr::map<uint32b, ModuleData>> shader_module_list_;
+  zisc::pmr::unique_ptr<zisc::pmr::map<uint32b, UniqueModuleData>> module_data_list_;
+  zisc::pmr::unique_ptr<zisc::pmr::map<uint32b, UniqueKernelData>> kernel_data_list_;
   uint32b queue_family_index_ = invalidQueueIndex();
   std::array<std::array<uint32b, 3>, 3> work_group_size_list_;
 };

@@ -50,41 +50,26 @@ class VulkanKernelImpl : private zisc::NonCopyable<VulkanKernelImpl>
                         const VkBuffer& pod_buffer);
 
   //! Destroy a descriptor set
-  void destroyDescriptorSet(VkDescriptorSetLayout* descriptor_set_layout,
-                            VkDescriptorPool* descriptor_pool) noexcept;
-
-  //! Destroy a pipeline
-  void destroyPipeline(VkPipelineLayout* pipeline_layout,
-                       VkPipeline* compute_pipeline) noexcept;
+  void destroyDescriptorSet(VkDescriptorPool* descriptor_pool) noexcept;
 
   //! Record dispatching the given kernel to the vulkan device
   void dispatchCmd(const VkCommandBuffer& command_buffer,
+                   const void* kernel_data,
                    const VkDescriptorSet& descriptor_set,
-                   const VkPipelineLayout& pipeline_layout,
-                   const VkPipeline& pipeline,
                    const std::size_t work_dimension,
                    const std::array<uint32b, 3>& work_group_size);
 
   //! Initialize a descriptor set of the kernel
   void initDescriptorSet(const std::size_t num_of_storage_buffers,
                          const std::size_t num_of_uniform_buffers,
-                         VkDescriptorSetLayout* descriptor_set_layout,
+                         const void* kernel_data,
                          VkDescriptorPool* descriptor_pool,
                          VkDescriptorSet* descriptor_set);
-
-  //! Initialize a pipeline of the kernel
-  void initPipeline(const std::size_t work_dimension,
-                    const std::size_t num_of_local_args,
-                    const VkDescriptorSetLayout& set_layout,
-                    const VkShaderModule& module,
-                    const std::string_view kernel_name,
-                    VkPipelineLayout* pipeline_layout,
-                    VkPipeline* compute_pipeline);
 
   //! Record push constant command
   template <typename Type>
   void pushConstantCmd(const VkCommandBuffer& command_buffer,
-                       const VkPipelineLayout& pipeline_layout,
+                       const void* kernel_data,
                        const std::size_t offset,
                        const Type& data);
 
@@ -108,7 +93,7 @@ class VulkanKernelImpl : private zisc::NonCopyable<VulkanKernelImpl>
 
   //! Record push constant command
   void pushConstantCmd(const VkCommandBuffer& command_buffer,
-                       const VkPipelineLayout& pipeline_layout,
+                       const void* kernel_data,
                        const std::size_t offset,
                        const std::size_t size,
                        const void* data);

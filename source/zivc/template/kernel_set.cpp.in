@@ -34,9 +34,6 @@ namespace {
 
 #include "@baked_spv_file_path@"
 
-// Type aliases
-using zivc::uint32b;
-
 //! Allocate a memory
 void* allocateMemory(void* opaque, size_t size)
 {
@@ -58,7 +55,7 @@ void freeMemory(void* opaque, void* address)
 
   \param [out] spirv_code_out No description.
   */
-void loadBakedSpirvCode(zisc::pmr::vector<uint32b>* spirv_code_out) noexcept
+void loadBakedSpirvCode(zisc::pmr::vector<zivc::uint32b>* spirv_code_out) noexcept
 {
   using BakedKernelSet = BakedKernelSet_@kernel_set_name@;
   constexpr std::size_t expected_raw_size = BakedKernelSet::rawSize();

@@ -7,6 +7,55 @@
 # 
 
 
+function(Zivc_initZivcKernelOptions)
+  set(option_description "Use built-in math funcs instead of the Zivc funcs.")
+  Zisc_setBooleanOption(ZIVC_MATH_BUILTIN OFF ${option_description})
+
+  set(option_description "Use built-in 'frexp' instead of the Zivc funcs.")
+  Zisc_setBooleanOption(ZIVC_MATH_BUILTIN_FREXP OFF ${option_description})
+
+  set(option_description "Use built-in 'ldexp' instead of the Zivc funcs.")
+  if(Z_MAC)
+    Zisc_setBooleanOption(ZIVC_MATH_BUILTIN_LDEXP OFF ${option_description})
+  else()
+    Zisc_setBooleanOption(ZIVC_MATH_BUILTIN_LDEXP ON ${option_description})
+  endif()
+
+  set(option_description "Use built-in 'ilogb' instead of the Zivc func.")
+  Zisc_setBooleanOption(ZIVC_MATH_BUILTIN_ILOGB OFF ${option_description})
+
+  set(option_description "Use built-in 'modf' instead of the Zivc func.")
+  Zisc_setBooleanOption(ZIVC_MATH_BUILTIN_MODF OFF ${option_description})
+
+  set(option_description "Use built-in 'round' and 'rint' instead of the Zivc funcs.")
+  Zisc_setBooleanOption(ZIVC_MATH_BUILTIN_ROUND OFF ${option_description})
+
+  set(option_description "Use built-in 'fmod' instead of the Zivc func.")
+  Zisc_setBooleanOption(ZIVC_MATH_BUILTIN_FMOD ON ${option_description})
+
+  set(option_description "Use built-in 'exp' and 'exp2' instead of the Zivc funcs.")
+  Zisc_setBooleanOption(ZIVC_MATH_BUILTIN_EXP ON ${option_description})
+
+  set(option_description "Use built-in 'log' and 'log2' instead of the Zivc funcs.")
+  Zisc_setBooleanOption(ZIVC_MATH_BUILTIN_LOG ON ${option_description})
+
+  set(option_description "Use built-in 'pow' instead of the Zivc funcs.")
+  Zisc_setBooleanOption(ZIVC_MATH_BUILTIN_POW ON ${option_description})
+
+  set(option_description "Use built-in 'sqrt' and 'rsqrt' instead of the Zivc funcs.")
+  Zisc_setBooleanOption(ZIVC_MATH_BUILTIN_SQRT ON ${option_description})
+
+  set(option_description "Use built-in 'cbrt' instead of the Zivc funcs.")
+  Zisc_setBooleanOption(ZIVC_MATH_BUILTIN_CBRT OFF ${option_description})
+
+  set(option_description "Use built-in 'sin', 'cos' and 'tan' instead of the Zivc funcs.")
+  Zisc_setBooleanOption(ZIVC_MATH_BUILTIN_TRIGONOMETRIC ON ${option_description})
+
+  set(option_description "Use built-in 'asin', 'acos' and 'atan' instead of the Zivc funcs.")
+  Zisc_setBooleanOption(ZIVC_MATH_BUILTIN_INV_TRIGONOMETRIC ON ${option_description})
+endfunction(Zivc_initZivcKernelOptions)
+
+
 function(Zivc_getZivcKernelFlags zivc_compile_flags zivc_definitions)
   set(compile_flags "")
   set(definitions "")
@@ -92,7 +141,7 @@ function(Zivc_addKernelSet kernel_set_name kernel_set_version)
   set(kernel_set_template_dir ${zivc_path}/template)
   set(kernel_set_base_dir ${CMAKE_CURRENT_SOURCE_DIR})
   set(kernel_set_source_files ${ZIVC_SOURCE_FILES})
-  set(kernel_set_include_dirs ${ZIVC_INCLUDE_DIRS})
+  set(kernel_set_include_dirs ${zivc_path} ${ZIVC_INCLUDE_DIRS})
   set(kernel_set_definitions ${ZIVC_DEFINITIONS})
   set(kernel_set_depends ${ZIVC_DEPENDS})
   set(zisc_path ${zivc_path}/../dependencies/Zisc/source/zisc)

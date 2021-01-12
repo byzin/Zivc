@@ -80,12 +80,9 @@ void VulkanKernelImpl::addPodBarrierCmd(const VkCommandBuffer& command_buffer,
 /*!
   \details No detailed description
 
-  \param [out] descriptor_set_layout No description.
   \param [out] descriptor_pool No description.
   */
-void VulkanKernelImpl::destroyDescriptorSet(
-    VkDescriptorSetLayout* descriptor_set_layout,
-    VkDescriptorPool* descriptor_pool) noexcept
+void VulkanKernelImpl::destroyDescriptorSet(VkDescriptorPool* descriptor_pool) noexcept
 {
   auto& zdevice = device();
   zivcvk::Device d{zdevice.device()};
@@ -98,42 +95,6 @@ void VulkanKernelImpl::destroyDescriptorSet(
         d.destroyDescriptorPool(desc_pool, alloc, *loader);
       *descriptor_pool = ZIVC_VK_NULL_HANDLE;
     }
-    {
-      zivcvk::DescriptorSetLayout desc_set_layout{*descriptor_set_layout};
-      if (desc_set_layout)
-        d.destroyDescriptorSetLayout(desc_set_layout, alloc, *loader);
-      *descriptor_set_layout = ZIVC_VK_NULL_HANDLE;
-    }
-  }
-}
-
-/*!
-  \details No detailed description
-
-  \param [out] pipeline_layout No description.
-  \param [out] compute_pipeline No description.
-  */
-void VulkanKernelImpl::destroyPipeline(
-    VkPipelineLayout* pipeline_layout,
-    VkPipeline* compute_pipeline) noexcept
-{
-  auto& zdevice = device();
-  zivcvk::Device d{zdevice.device()};
-  if (d) {
-    const auto loader = zdevice.dispatcher().loaderImpl();
-    zivcvk::AllocationCallbacks alloc{zdevice.makeAllocator()};
-    {
-      zivcvk::Pipeline compute_pline{*compute_pipeline};
-      if (compute_pline)
-        d.destroyPipeline(compute_pline, alloc, *loader);
-      *compute_pipeline = ZIVC_VK_NULL_HANDLE;
-    }
-    {
-      zivcvk::PipelineLayout pline_layout{*pipeline_layout};
-      if (pline_layout)
-        d.destroyPipelineLayout(pline_layout, alloc, *loader);
-      *pipeline_layout = ZIVC_VK_NULL_HANDLE;
-    }
   }
 }
 
@@ -142,29 +103,28 @@ void VulkanKernelImpl::destroyPipeline(
 
   \param [in] command_buffer No description.
   \param [in] descriptor_set No description.
-  \param [in] pipeline_layout No description.
-  \param [in] pipeline No description.
+  \param [in] kernel_data No description.
   \param [in] work_dimension No description.
   \param [in] work_group_size No description.
   */
 void VulkanKernelImpl::dispatchCmd(const VkCommandBuffer& command_buffer,
+                                   const void* kernel_data,
                                    const VkDescriptorSet& descriptor_set,
-                                   const VkPipelineLayout& pipeline_layout,
-                                   const VkPipeline& pipeline,
                                    const std::size_t work_dimension,
                                    const std::array<uint32b, 3>& work_group_size)
 {
+  const auto kdata = zisc::cast<const VulkanDevice::KernelData*>(kernel_data);
   const auto loader = device().dispatcher().loaderImpl();
 
   const zivcvk::CommandBuffer command{command_buffer};
   ZISC_ASSERT(command, "The given command buffer is null.");
 
   constexpr auto bind_point = zivcvk::PipelineBindPoint::eCompute;
-  const zivcvk::PipelineLayout pline_layout{pipeline_layout};
+  const zivcvk::PipelineLayout pline_layout{kdata->pipeline_layout_};
   const zivcvk::DescriptorSet desc_set{descriptor_set};
   command.bindDescriptorSets(bind_point, pline_layout, 0, desc_set, nullptr, *loader);
 
-  const zivcvk::Pipeline pline{pipeline};
+  const zivcvk::Pipeline pline{kdata->pipeline_};
   command.bindPipeline(bind_point, pline, *loader);
 
   const auto disp_size = calcDispatchSize(work_dimension, work_group_size);
@@ -176,14 +136,14 @@ void VulkanKernelImpl::dispatchCmd(const VkCommandBuffer& command_buffer,
 
   \param [in] num_of_storage_buffers No description.
   \param [in] num_of_uniform_buffers No description.
-  \param [out] descriptor_set_layout No description.
+  \param [in] kernel_data No description.
   \param [out] descriptor_pool No description.
   \param [out] descriptor_set No description.
   */
 void VulkanKernelImpl::initDescriptorSet(
     const std::size_t num_of_storage_buffers,
     const std::size_t num_of_uniform_buffers,
-    VkDescriptorSetLayout* descriptor_set_layout,
+    const void* kernel_data,
     VkDescriptorPool* descriptor_pool,
     VkDescriptorSet* descriptor_set)
 {
@@ -193,37 +153,6 @@ void VulkanKernelImpl::initDescriptorSet(
   const auto loader = zdevice.dispatcher().loaderImpl();
   auto mem_resource = zdevice.memoryResource();
   zivcvk::AllocationCallbacks alloc{zdevice.makeAllocator()};
-
-  // Initialize descriptor set layout
-  zivcvk::DescriptorSetLayout desc_set_layout;
-  {
-    using BindingList = zisc::pmr::vector<zivcvk::DescriptorSetLayoutBinding>;
-    BindingList::allocator_type bindings_alloc{mem_resource};
-    BindingList layout_bindings{bindings_alloc};
-    layout_bindings.resize(num_of_storage_buffers + num_of_uniform_buffers);
-    // Storage buffers
-    for (std::size_t index = 0; index < num_of_storage_buffers; ++index) {
-      layout_bindings[index] = zivcvk::DescriptorSetLayoutBinding{
-          zisc::cast<uint32b>(index),
-          zivcvk::DescriptorType::eStorageBuffer,
-          1,
-          zivcvk::ShaderStageFlagBits::eCompute};
-    }
-    // Uniform buffer
-    for (std::size_t i = 0; i < num_of_uniform_buffers; ++i) {
-      const std::size_t index = num_of_storage_buffers + i;
-      layout_bindings[index] = zivcvk::DescriptorSetLayoutBinding{
-          zisc::cast<uint32b>(index),
-          zivcvk::DescriptorType::eUniformBuffer,
-          1,
-          zivcvk::ShaderStageFlagBits::eCompute};
-    }
-    const zivcvk::DescriptorSetLayoutCreateInfo create_info{
-        zivcvk::DescriptorSetLayoutCreateFlags{},
-        zisc::cast<uint32b>(layout_bindings.size()),
-        layout_bindings.data()};
-    desc_set_layout = d.createDescriptorSetLayout(create_info, alloc, *loader);
-  }
 
   // Initialize descriptor pool
   zivcvk::DescriptorPool desc_pool;
@@ -253,6 +182,8 @@ void VulkanKernelImpl::initDescriptorSet(
 
   // Initialize descriptor set
   {
+    const auto kdata = zisc::cast<const VulkanDevice::KernelData*>(kernel_data);
+    const zivcvk::DescriptorSetLayout desc_set_layout{kdata->desc_set_layout_};
     const zivcvk::DescriptorSetAllocateInfo alloc_info{desc_pool,
                                                        1,
                                                        &desc_set_layout};
@@ -261,118 +192,9 @@ void VulkanKernelImpl::initDescriptorSet(
     ZISC_ASSERT(desc_set.size() == 1, "Multiple descriptor sets were created.");
 
     // Output
-    *descriptor_set_layout = zisc::cast<VkDescriptorSetLayout>(desc_set_layout);
     *descriptor_pool = zisc::cast<VkDescriptorPool>(desc_pool);
     *descriptor_set = zisc::cast<VkDescriptorSet>(desc_set[0]);
   }
-}
-
-/*!
-  \details No detailed description
-
-  \param [out] pipeline_layout No description.
-  \param [out] compute_pipeline No description.
-  */
-void VulkanKernelImpl::initPipeline(const std::size_t work_dimension,
-                                    const std::size_t num_of_local_args,
-                                    const VkDescriptorSetLayout& set_layout,
-                                    const VkShaderModule& module,
-                                    const std::string_view kernel_name,
-                                    VkPipelineLayout* pipeline_layout,
-                                    VkPipeline* compute_pipeline)
-{
-  auto& zdevice = device();
-
-  zivcvk::Device d{zdevice.device()};
-  const auto loader = zdevice.dispatcher().loaderImpl();
-  auto mem_resource = zdevice.memoryResource();
-  zivcvk::AllocationCallbacks alloc{zdevice.makeAllocator()};
-
-  // Pipeline
-  zivcvk::PipelineLayout pline_layout;
-  {
-    // For clspv global and region offsets
-    const zivcvk::PushConstantRange push_constant_range{
-        zivcvk::ShaderStageFlagBits::eCompute, 0, 28};
-
-    zivcvk::DescriptorSetLayout desc_set_layout{set_layout};
-    const zivcvk::PipelineLayoutCreateInfo create_info{
-        zivcvk::PipelineLayoutCreateFlags{},
-        1,
-        std::addressof(desc_set_layout),
-        1,
-        std::addressof(push_constant_range)};
-    pline_layout = d.createPipelineLayout(create_info, alloc, *loader);
-  }
-  // Specialization constants
-  const auto& work_group_size = zdevice.workGroupSizeDim(work_dimension);
-  zisc::pmr::vector<uint32b>::allocator_type spec_alloc{mem_resource};
-  zisc::pmr::vector<uint32b> spec_constants{spec_alloc};
-  {
-    spec_constants.reserve(work_group_size.size() + 1);
-    // For clspv work group size
-    for (const uint32b s : work_group_size)
-      spec_constants.emplace_back(s);
-    // For clspv local element size
-    const auto& info = zdevice.deviceInfoData();
-    spec_constants.emplace_back(info.workGroupSize());
-  }
-  using MapEntryList = zisc::pmr::vector<zivcvk::SpecializationMapEntry>;
-  MapEntryList::allocator_type entry_alloc{mem_resource};
-  MapEntryList entries{entry_alloc};
-  {
-    entries.reserve(work_group_size.size() + num_of_local_args);
-    // For clspv work group size
-    for (std::size_t i = 0; i < work_group_size.size(); ++i) {
-      zivcvk::SpecializationMapEntry entry{
-          zisc::cast<uint32b>(i),
-          zisc::cast<uint32b>(i * sizeof(uint32b)),
-          sizeof(uint32b)};
-      entries.emplace_back(entry);
-    }
-    // For clspv local element size
-    const uint32b local_size_index = zisc::cast<uint32b>(entries.size());
-    for (std::size_t i = 0; i < num_of_local_args; ++i) {
-      zivcvk::SpecializationMapEntry entry{
-          local_size_index + zisc::cast<uint32b>(i),
-          zisc::cast<uint32b>(local_size_index * sizeof(uint32b)),
-          sizeof(uint32b)};
-      entries.emplace_back(entry);
-    }
-  }
-  const zivcvk::SpecializationInfo spec_info{zisc::cast<uint32b>(entries.size()),
-                                             entries.data(),
-                                             spec_constants.size() * sizeof(uint32b),
-                                             spec_constants.data()};
-  // Compute pipeline
-  zivcvk::Pipeline pline;
-  {
-    const zivcvk::PipelineShaderStageCreateInfo stage_info{
-        zivcvk::PipelineShaderStageCreateFlags{},
-        zivcvk::ShaderStageFlagBits::eCompute,
-        zivcvk::ShaderModule{module},
-        kernel_name.data(),
-        std::addressof(spec_info)};
-    zivcvk::PipelineCreateFlags pipeline_flags;
-    if (zdevice.isDebugMode()) {
-      pipeline_flags |= zivcvk::PipelineCreateFlagBits::eCaptureStatisticsKHR;
-    }
-    const zivcvk::ComputePipelineCreateInfo pipeline_info{pipeline_flags,
-                                                          stage_info,
-                                                          pline_layout};
-    auto result = d.createComputePipeline(zivcvk::PipelineCache{},
-                                          pipeline_info,
-                                          alloc,
-                                          *loader);
-    if (result.result != zivcvk::Result::eSuccess) {
-      const char* message = "Compute pipeline creation failed.";
-      zivcvk::throwResultException(result.result, message);
-    }
-    pline = zisc::cast<zivcvk::Pipeline>(result.value);
-  }
-
-  *pipeline_layout = zisc::cast<VkPipelineLayout>(pline_layout);
-  *compute_pipeline = zisc::cast<VkPipeline>(pline);
 }
 
 /*!
@@ -421,20 +243,21 @@ const VulkanDevice& VulkanKernelImpl::device() const noexcept
   \details No detailed description
 
   \param [in] command_buffer No description.
-  \param [in] pipeline_layout No description.
+  \param [in] kernel_data No description.
   \param [in] offset No description.
   \param [in] size No description.
   \param [in] data No description.
   */
 void VulkanKernelImpl::pushConstantCmd(const VkCommandBuffer& command_buffer,
-                                       const VkPipelineLayout& pipeline_layout,
+                                       const void* kernel_data,
                                        const std::size_t offset,
                                        const std::size_t size,
                                        const void* data)
 {
+  const auto kdata = zisc::cast<const VulkanDevice::KernelData*>(kernel_data);
   const auto loader = device().dispatcher().loaderImpl();
   const zivcvk::CommandBuffer command{command_buffer};
-  const zivcvk::PipelineLayout pline_l{pipeline_layout};
+  const zivcvk::PipelineLayout pline_l{kdata->pipeline_layout_};
   constexpr auto stage_flag = zivcvk::ShaderStageFlagBits::eCompute;
   const uint32b o = zisc::cast<uint32b>(offset);
   const uint32b s = zisc::cast<uint32b>(size);

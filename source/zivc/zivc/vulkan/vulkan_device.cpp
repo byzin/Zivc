@@ -22,6 +22,7 @@
 #include <iterator>
 #include <limits>
 #include <memory>
+#include <mutex>
 #include <numeric>
 #include <string_view>
 #include <tuple>
@@ -30,6 +31,7 @@
 // Zisc
 #include "zisc/error.hpp"
 #include "zisc/utility.hpp"
+#include "zisc/hash/fnv_1a_hash_engine.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 #include "zisc/thread/bitset.hpp"
 #include "zisc/utility.hpp"
@@ -134,6 +136,183 @@ VulkanDevice::VulkanDevice(IdData&& id) : Device(std::move(id))
 VulkanDevice::~VulkanDevice() noexcept
 {
   destroy();
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] module No description.
+  \param [in] kernel_name No description.
+  \param [in] work_dimension No description.
+  \param [in] num_of_storage_buffers No description.
+  \param [in] num_of_uniform_buffers No description.
+  \param [in] num_of_local_args No description.
+  \return No description
+  */
+auto VulkanDevice::addShaderKernel(const ModuleData& module,
+                                   const std::string_view kernel_name,
+                                   const std::size_t work_dimension,
+                                   const std::size_t num_of_storage_buffers,
+                                   const std::size_t num_of_uniform_buffers,
+                                   const std::size_t num_of_local_args)
+    -> const KernelData&
+{
+  const uint32b id = getKernelId(module.name_, kernel_name);
+  if (hasShaderKernel(id))
+    return getShaderKernel(id);
+
+  zivcvk::Device d{device()};
+  const auto loader = dispatcher().loaderImpl();
+  auto mem_resource = memoryResource();
+  zivcvk::AllocationCallbacks alloc{makeAllocator()};
+
+  // Initialize descriptor set layout
+  zivcvk::DescriptorSetLayout desc_set_layout;
+  {
+    using BindingList = zisc::pmr::vector<zivcvk::DescriptorSetLayoutBinding>;
+    BindingList::allocator_type bindings_alloc{mem_resource};
+    BindingList layout_bindings{bindings_alloc};
+    layout_bindings.resize(num_of_storage_buffers + num_of_uniform_buffers);
+    // Storage buffers
+    for (std::size_t index = 0; index < num_of_storage_buffers; ++index) {
+      layout_bindings[index] = zivcvk::DescriptorSetLayoutBinding{
+          zisc::cast<uint32b>(index),
+          zivcvk::DescriptorType::eStorageBuffer,
+          1,
+          zivcvk::ShaderStageFlagBits::eCompute};
+    }
+    // Uniform buffer
+    for (std::size_t i = 0; i < num_of_uniform_buffers; ++i) {
+      const std::size_t index = num_of_storage_buffers + i;
+      layout_bindings[index] = zivcvk::DescriptorSetLayoutBinding{
+          zisc::cast<uint32b>(index),
+          zivcvk::DescriptorType::eUniformBuffer,
+          1,
+          zivcvk::ShaderStageFlagBits::eCompute};
+    }
+    const zivcvk::DescriptorSetLayoutCreateInfo create_info{
+        zivcvk::DescriptorSetLayoutCreateFlags{},
+        zisc::cast<uint32b>(layout_bindings.size()),
+        layout_bindings.data()};
+    desc_set_layout = d.createDescriptorSetLayout(create_info, alloc, *loader);
+  }
+
+  // Pipeline
+  zivcvk::PipelineLayout pline_layout;
+  {
+    // For clspv global and region offsets
+    const zivcvk::PushConstantRange push_constant_range{
+        zivcvk::ShaderStageFlagBits::eCompute, 0, 28};
+
+    const zivcvk::PipelineLayoutCreateInfo create_info{
+        zivcvk::PipelineLayoutCreateFlags{},
+        1,
+        std::addressof(desc_set_layout),
+        1,
+        std::addressof(push_constant_range)};
+    pline_layout = d.createPipelineLayout(create_info, alloc, *loader);
+  }
+  // Specialization constants
+  const auto& work_group_size = workGroupSizeDim(work_dimension);
+  zisc::pmr::vector<uint32b>::allocator_type spec_alloc{mem_resource};
+  zisc::pmr::vector<uint32b> spec_constants{spec_alloc};
+  {
+    spec_constants.reserve(work_group_size.size() + 1);
+    // For clspv work group size
+    for (const uint32b s : work_group_size)
+      spec_constants.emplace_back(s);
+    // For clspv local element size
+    const auto& info = deviceInfoData();
+    spec_constants.emplace_back(info.workGroupSize());
+  }
+  using MapEntryList = zisc::pmr::vector<zivcvk::SpecializationMapEntry>;
+  MapEntryList::allocator_type entry_alloc{mem_resource};
+  MapEntryList entries{entry_alloc};
+  {
+    entries.reserve(work_group_size.size() + num_of_local_args);
+    // For clspv work group size
+    for (std::size_t i = 0; i < work_group_size.size(); ++i) {
+      zivcvk::SpecializationMapEntry entry{
+          zisc::cast<uint32b>(i),
+          zisc::cast<uint32b>(i * sizeof(uint32b)),
+          sizeof(uint32b)};
+      entries.emplace_back(entry);
+    }
+    // For clspv local element size
+    const uint32b local_size_index = zisc::cast<uint32b>(entries.size());
+    for (std::size_t i = 0; i < num_of_local_args; ++i) {
+      zivcvk::SpecializationMapEntry entry{
+          local_size_index + zisc::cast<uint32b>(i),
+          zisc::cast<uint32b>(local_size_index * sizeof(uint32b)),
+          sizeof(uint32b)};
+      entries.emplace_back(entry);
+    }
+  }
+  const zivcvk::SpecializationInfo spec_info{zisc::cast<uint32b>(entries.size()),
+                                             entries.data(),
+                                             spec_constants.size() * sizeof(uint32b),
+                                             spec_constants.data()};
+  // Compute pipeline
+  zivcvk::Pipeline pline;
+  {
+    const zivcvk::PipelineShaderStageCreateInfo stage_info{
+        zivcvk::PipelineShaderStageCreateFlags{},
+        zivcvk::ShaderStageFlagBits::eCompute,
+        zivcvk::ShaderModule{module.module_},
+        kernel_name.data(),
+        std::addressof(spec_info)};
+    zivcvk::PipelineCreateFlags pipeline_flags;
+    if (isDebugMode()) {
+      pipeline_flags |= zivcvk::PipelineCreateFlagBits::eCaptureStatisticsKHR;
+    }
+    const zivcvk::ComputePipelineCreateInfo pipeline_info{pipeline_flags,
+                                                          stage_info,
+                                                          pline_layout};
+    auto result = d.createComputePipeline(zivcvk::PipelineCache{},
+                                          pipeline_info,
+                                          alloc,
+                                          *loader);
+    if (result.result != zivcvk::Result::eSuccess) {
+      const char* message = "Compute pipeline creation failed.";
+      zivcvk::throwResultException(result.result, message);
+    }
+    pline = zisc::cast<zivcvk::Pipeline>(result.value);
+  }
+
+  const KernelData* data = nullptr;
+  {
+    zisc::pmr::polymorphic_allocator<KernelData> data_alloc{mem_resource};
+    auto kernel_data = zisc::pmr::allocateUnique(data_alloc);
+    data = kernel_data.get();
+    kernel_data->module_ = std::addressof(module);
+    std::strcpy(kernel_data->kernel_name_.data(), kernel_name.data());
+    kernel_data->desc_set_layout_ =
+        zisc::cast<VkDescriptorSetLayout>(desc_set_layout);
+    kernel_data->pipeline_layout_ = zisc::cast<VkPipelineLayout>(pline_layout);
+    kernel_data->pipeline_ = zisc::cast<VkPipeline>(pline);
+
+    std::unique_lock<std::mutex> lock{shader_mutex_};
+    kernel_data_list_->emplace(id, std::move(kernel_data));
+  }
+  updateKernelDataDebugInfo(*data);
+  return *data;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] module_name No description.
+  \param [in] kernel_name No description.
+  \return No description
+  */
+uint32b VulkanDevice::getKernelId(const std::string_view module_name,
+                                  const std::string_view kernel_name) noexcept
+{
+  IdData::NameType kernel_id_name{""};
+  std::strncpy(kernel_id_name.data(), module_name.data(), module_name.size() + 1);
+  std::strncat(kernel_id_name.data(), kernel_name.data(), kernel_name.size() + 1);
+  const uint32b kernel_id = zisc::Fnv1aHash32::hash(kernel_id_name.data());
+  return kernel_id;
 }
 
 /*!
@@ -341,10 +520,9 @@ void VulkanDevice::setDebugInfo(const VkObjectType vk_object_type,
   */
 void VulkanDevice::setFenceSize(const std::size_t s)
 {
-  auto& sub_platform = parentImpl();
   zivcvk::Device d{device()};
   const auto loader = dispatcher().loaderImpl();
-  zivcvk::AllocationCallbacks alloc{sub_platform.makeAllocator()};
+  zivcvk::AllocationCallbacks alloc{makeAllocator()};
 
   auto& fence_list = *fence_list_;
   fence_manager_->setSize(s);
@@ -463,18 +641,18 @@ void VulkanDevice::destroyData() noexcept
 
   zivcvk::Device d{device()};
   if (d) {
-    auto& sub_platform = parentImpl();
-    zivcvk::AllocationCallbacks alloc{sub_platform.makeAllocator()};
+    zivcvk::AllocationCallbacks alloc{makeAllocator()};
     const auto loader = dispatcher().loaderImpl();
 
     setFenceSize(0); // Destroy all fences
 
+    // Kernel data
+    for (auto& kernel : *kernel_data_list_)
+      destroyShaderKernel(kernel.second.get());
+
     // Shader modules
-    for (auto& module : *shader_module_list_) {
-      zivcvk::ShaderModule m{module.second.module_};
-      if (m)
-        d.destroyShaderModule(m, alloc, *loader);
-    }
+    for (auto& module : *module_data_list_)
+      destroyShaderModule(module.second.get());
 
     // Command pool
     zivcvk::CommandPool command_pool{command_pool_};
@@ -488,7 +666,8 @@ void VulkanDevice::destroyData() noexcept
     device_ = ZIVC_VK_NULL_HANDLE;
   }
 
-  shader_module_list_.reset();
+  kernel_data_list_.reset();
+  module_data_list_.reset();
   dispatcher_.reset();
   heap_usage_list_.reset();
   queue_list_.reset();
@@ -532,11 +711,18 @@ void VulkanDevice::initData()
     heap_usage_list_->resize(info.numOfHeaps());
   }
   {
-    using ShaderModuleList = decltype(shader_module_list_)::element_type;
+    using ShaderModuleList = decltype(module_data_list_)::element_type;
     ShaderModuleList::allocator_type allocs{mem_resource};
     ShaderModuleList module_list{allocs};
     zisc::pmr::polymorphic_allocator<ShaderModuleList> alloc{mem_resource};
-    shader_module_list_ = zisc::pmr::allocateUnique(alloc, std::move(module_list));
+    module_data_list_ = zisc::pmr::allocateUnique(alloc, std::move(module_list));
+  }
+  {
+    using KernelDataList = decltype(kernel_data_list_)::element_type;
+    KernelDataList::allocator_type allocs{mem_resource};
+    KernelDataList module_list{allocs};
+    zisc::pmr::polymorphic_allocator<KernelDataList> alloc{mem_resource};
+    kernel_data_list_ = zisc::pmr::allocateUnique(alloc, std::move(module_list));
   }
 
   initDispatcher();
@@ -597,8 +783,11 @@ void VulkanDevice::updateDebugInfoImpl()
   for (std::size_t i = 0; i < fence_list_->size(); ++i)
     updateFenceDebugInfo(i);
   // Shader modules
-  for (const auto& module : *shader_module_list_)
-    updateShaderModuleDebugInfo(module.first);
+  for (const auto& module : *module_data_list_)
+    updateShaderModuleDebugInfo(*module.second);
+  // Kernel data
+  for (const auto& kernel : *kernel_data_list_)
+    updateKernelDataDebugInfo(*kernel.second);
 }
 
 /*!
@@ -677,24 +866,85 @@ void VulkanDevice::Callbacks::notifyOfDeviceMemoryFreeing(
   \param [in] id No description.
   \param [in] spirv_code No description.
   */
-void VulkanDevice::addShaderModule(const uint32b id,
+auto VulkanDevice::addShaderModule(const uint32b id,
                                    const zisc::pmr::vector<uint32b>& spirv_code,
                                    const std::string_view module_name)
+    -> const ModuleData&
 {
-  auto& sub_platform = parentImpl();
   zivcvk::Device d{device()};
   const auto loader = dispatcher().loaderImpl();
-  zivcvk::AllocationCallbacks alloc{sub_platform.makeAllocator()};
+  auto mem_resource = memoryResource();
+  zivcvk::AllocationCallbacks alloc{makeAllocator()};
 
   const std::size_t code_size = spirv_code.size() * sizeof(spirv_code[0]);
   zivcvk::ShaderModuleCreateInfo create_info{zivcvk::ShaderModuleCreateFlags{},
                                              code_size,
                                              spirv_code.data()};
-
   auto module = d.createShaderModule(create_info, alloc, *loader);
-  ModuleData module_data{zisc::cast<VkShaderModule>(module), module_name};
-  shader_module_list_->emplace(id, std::move(module_data));
-  updateShaderModuleDebugInfo(id);
+
+  const ModuleData* data = nullptr;
+  {
+    zisc::pmr::polymorphic_allocator<ModuleData> data_alloc{mem_resource};
+    auto module_data = zisc::pmr::allocateUnique(data_alloc);
+    data = module_data.get();
+    module_data->name_ = module_name;
+    module_data->module_ = zisc::cast<VkShaderModule>(module);
+
+    std::unique_lock<std::mutex> lock{shader_mutex_};
+    module_data_list_->emplace(id, std::move(module_data));
+  }
+  updateShaderModuleDebugInfo(*data);
+  return *data;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in,out] kernel No description.
+  */
+void VulkanDevice::destroyShaderKernel(KernelData* kernel) noexcept
+{
+  zivcvk::Device d{device()};
+  const auto loader = dispatcher().loaderImpl();
+  zivcvk::AllocationCallbacks alloc{makeAllocator()};
+
+  {
+    zivcvk::Pipeline pline{kernel->pipeline_};
+    if (pline)
+      d.destroyPipeline(pline, alloc, *loader);
+    kernel->pipeline_ = ZIVC_VK_NULL_HANDLE;
+  }
+  {
+    zivcvk::PipelineLayout pline_layout{kernel->pipeline_layout_};
+    if (pline_layout)
+      d.destroyPipelineLayout(pline_layout, alloc, *loader);
+    kernel->pipeline_layout_ = ZIVC_VK_NULL_HANDLE;
+  }
+  {
+    zivcvk::DescriptorSetLayout desc_set_layout{kernel->desc_set_layout_};
+    if (desc_set_layout)
+      d.destroyDescriptorSetLayout(desc_set_layout, alloc, *loader);
+    kernel->desc_set_layout_ = ZIVC_VK_NULL_HANDLE;
+  }
+}
+
+/*!
+  \details No detailed description
+
+  \param [in,out] module No description.
+  */
+void VulkanDevice::destroyShaderModule(ModuleData* module) noexcept
+{
+  zivcvk::Device d{device()};
+  zivcvk::AllocationCallbacks alloc{makeAllocator()};
+  const auto loader = dispatcher().loaderImpl();
+
+  {
+    zivcvk::ShaderModule m{module->module_};
+    if (m)
+      d.destroyShaderModule(m, alloc, *loader);
+    module->module_ = ZIVC_VK_NULL_HANDLE;
+  }
 }
 
 /*!
@@ -803,10 +1053,9 @@ VmaVulkanFunctions VulkanDevice::getVmaVulkanFunctions() noexcept
   */
 void VulkanDevice::initCommandPool()
 {
-  auto& sub_platform = parentImpl();
   zivcvk::Device d{device()};
   const auto loader = dispatcher().loaderImpl();
-  zivcvk::AllocationCallbacks alloc{sub_platform.makeAllocator()};
+  zivcvk::AllocationCallbacks alloc{makeAllocator()};
 
   const zivcvk::CommandPoolCreateInfo create_info{
       zivcvk::CommandPoolCreateFlagBits::eResetCommandBuffer,
@@ -1012,21 +1261,62 @@ void VulkanDevice::updateFenceDebugInfo(const std::size_t index)
 /*!
   \details No detailed description
 
-  \param [in] id No description.
+  \param [in,out] kernel No description.
   */
-void VulkanDevice::updateShaderModuleDebugInfo(const uint32b id)
+void VulkanDevice::updateKernelDataDebugInfo(const KernelData& kernel)
+{
+  const zivcvk::Device d{device()};
+  if (isDebugMode() && d) {
+    auto set_debug_info = [this, &kernel](const auto& handle,
+                                          const auto& obj,
+                                          const std::string_view suffix)
+    {
+      const ModuleData& module = *kernel.module_;
+      if (obj) {
+        IdData::NameType kernel_name{""};
+        std::strcat(kernel_name.data(), module.name_.data());
+        std::strcat(kernel_name.data(), "_");
+        std::strcat(kernel_name.data(), kernel.kernel_name_.data());
+        std::strcat(kernel_name.data(), suffix.data());
+        const std::string_view name = kernel_name.data();
+        setDebugInfo(zisc::cast<VkObjectType>(obj.objectType), handle, name, this);
+      }
+    };
+    {
+      const auto handle = kernel.desc_set_layout_;
+      const zivcvk::DescriptorSetLayout l{handle};
+      set_debug_info(handle, l, "_descsetlayout");
+    }
+    {
+      const auto handle = kernel.pipeline_layout_;
+      const zivcvk::PipelineLayout p{handle};
+      set_debug_info(handle, p, "_pipelinelayout");
+    }
+    {
+      const auto handle = kernel.pipeline_;
+      const zivcvk::Pipeline p{handle};
+      set_debug_info(handle, p, "_pipeline");
+    }
+  }
+}
+
+/*!
+  \details No detailed description
+
+  \param [in,out] module No description.
+  */
+void VulkanDevice::updateShaderModuleDebugInfo(const ModuleData& module)
 {
   const zivcvk::Device d{device()};
   if (isDebugMode() && d) {
     const IdData& id_data = ZivcObject::id();
-    const ModuleData& module_data = getShaderModule(id);
-    const VkShaderModule handle = module_data.module_;
+    const VkShaderModule handle = module.module_;
     const zivcvk::ShaderModule m{handle};
     if (m) {
       IdData::NameType module_name{""};
       std::strcat(module_name.data(), id_data.name().data());
       std::strcat(module_name.data(), "_");
-      std::strcat(module_name.data(), module_data.name_.data());
+      std::strcat(module_name.data(), module.name_.data());
       const std::string_view name = module_name.data();
       setDebugInfo(zisc::cast<VkObjectType>(m.objectType), handle, name, this);
     }

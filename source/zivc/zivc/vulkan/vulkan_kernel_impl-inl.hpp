@@ -30,22 +30,18 @@ namespace zivc {
 
   \tparam Type No description.
   \param [in] command_buffer No description.
-  \param [in] pipeline_layout No description.
+  \param [in] kernel_data No description.
   \param [in] offset No description.
   \param [in] data No description.
   */
 template <typename Type> inline
 void VulkanKernelImpl::pushConstantCmd(const VkCommandBuffer& command_buffer,
-                                       const VkPipelineLayout& pipeline_layout,
+                                       const void* kernel_data,
                                        const std::size_t offset,
                                        const Type& data)
 {
   constexpr std::size_t size = sizeof(data);
-  pushConstantCmd(command_buffer,
-                  pipeline_layout,
-                  offset,
-                  size,
-                  std::addressof(data));
+  pushConstantCmd(command_buffer, kernel_data, offset, size, std::addressof(data));
 }
 
 /*!

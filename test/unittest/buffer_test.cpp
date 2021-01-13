@@ -173,11 +173,11 @@ TEST(BufferTest, DeviceBufferMaxAllocationTest)
   {
     const std::size_t s = info.maxAllocationSize() / sizeof(int);
     buffer->setSize(s);
-    ASSERT_EQ(s, buffer->size()) << "Max alocation failed.";
+    ASSERT_EQ(s, buffer->size()) << "Max alocation of device buffer failed.";
   }
 }
 
-TEST(BufferTest, HostBufferBigSizeAllocationTest)
+TEST(BufferTest, HostBufferMaxAllocationTest)
 {
   auto platform = ztest::makePlatform();
   const ztest::Config& config = ztest::Config::globalConfig();
@@ -185,11 +185,11 @@ TEST(BufferTest, HostBufferBigSizeAllocationTest)
 
   auto buffer = device->makeBuffer<int>(zivc::BufferUsage::kHostOnly);
 
+  const auto& info = device->deviceInfo();
   {
-    constexpr std::size_t alloc_size = 8ull * 1024ull * 1024ull * 1024ull;
-    const std::size_t s = alloc_size / sizeof(int);
+    const std::size_t s = info.maxAllocationSize() / sizeof(int);
     buffer->setSize(s);
-    ASSERT_EQ(s, buffer->size()) << "Big size alocation failed.";
+    ASSERT_EQ(s, buffer->size()) << "Max allocation of host buffer failed.";
   }
 }
 
@@ -201,10 +201,10 @@ TEST(BufferTest, HostBufferMemoryMappingTest)
 
   auto buffer = device->makeBuffer<int>(zivc::BufferUsage::kHostOnly);
 
-  // Bit size allocation test
+  // Max allocation test
   {
-    constexpr std::size_t alloc_size = 4ull * 1024ull * 1024ull * 1024ull;
-    const std::size_t s = alloc_size / sizeof(int);
+    const auto& info = device->deviceInfo();
+    const std::size_t s = info.maxAllocationSize() / sizeof(int);
     buffer->setSize(s);
     ASSERT_EQ(s, buffer->size()) << "Host buffer allocation failed.";
     auto mapped_mem = buffer->mapMemory();
@@ -996,7 +996,7 @@ TEST(BufferTest, FillBufferFastRangeTest)
   }
 }
 
-TEST(BufferTest, FillBufferHostTest)
+TEST(BufferTest, FillHostBufferTest)
 {
   using zisc::int32b;
 
@@ -1029,7 +1029,7 @@ TEST(BufferTest, FillBufferHostTest)
   }
 }
 
-TEST(BufferTest, FillBufferHostRangeTest)
+TEST(BufferTest, FillHostBufferRangeTest)
 {
   using zisc::int32b;
 

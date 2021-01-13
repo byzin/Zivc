@@ -618,13 +618,18 @@ void VulkanDevice::waitForCompletion(const uint32b queue_index) const
   */
 void VulkanDevice::waitForCompletion(const Fence& fence) const
 {
-  const zivcvk::Device d{device()};
-  const auto loader = dispatcher().loaderImpl();
+  if (fence) {
+    const zivcvk::Device d{device()};
+    const auto loader = dispatcher().loaderImpl();
 
-  auto f = zisc::reinterp<const zivcvk::Fence*>(std::addressof(fence.data()));
-  constexpr uint64b timeout = (std::numeric_limits<uint64b>::max)();
-  [[maybe_unused]] const auto result = d.waitForFences(*f, VK_TRUE, timeout, *loader);
-  ZISC_ASSERT(result == zivcvk::Result::eSuccess, "Waiting for a fence failed.");
+    auto f = zisc::reinterp<const zivcvk::Fence*>(std::addressof(fence.data()));
+    constexpr uint64b timeout = (std::numeric_limits<uint64b>::max)();
+    [[maybe_unused]] const auto result = d.waitForFences(*f,
+                                                         VK_TRUE,
+                                                         timeout,
+                                                         *loader);
+    ZISC_ASSERT(result == zivcvk::Result::eSuccess, "Waiting for a fence failed.");
+  }
 }
 
 /*!

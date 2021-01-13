@@ -20,6 +20,8 @@
 #include <cstddef>
 #include <memory>
 #include <type_traits>
+// Zisc
+#include "zisc/concepts.hpp"
 // Zivc
 #include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
@@ -53,6 +55,10 @@ class AddressSpaceInfo
  private:
   static_assert(!std::is_pointer_v<Type>, "The Type is pointer.");
   static_assert(!std::is_reference_v<Type>, "The Type is reference.");
+  static_assert(std::is_trivially_copyable_v<Type>,
+                "The POD type isn't trivially copyable.");
+  static_assert(zisc::EqualityComparable<Type>,
+                "The POD type isn't equality comparable.");
 };
 
 /*!

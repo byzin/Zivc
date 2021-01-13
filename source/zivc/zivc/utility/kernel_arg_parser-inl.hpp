@@ -57,6 +57,8 @@ class AddressSpaceInfo<cl::AddressSpacePointer<kAddressType, Type>>
  private:
   static_assert(!std::is_pointer_v<ElementType>, "The element type is pointer.");
   static_assert(!std::is_reference_v<ElementType>, "The element type is reference.");
+  static_assert(std::is_trivially_copyable_v<ElementType>,
+                "The element type isn't trivially copyable.");
 };
 
 /*!
@@ -203,14 +205,8 @@ constexpr void KernelArgParseResult::setIndex(const std::size_t index) noexcept
 template <typename Arg, typename ...RestArgs>
 class KernelArgParser<Arg, RestArgs...>
 {
-  // Type check
-  using ArgInfo = KernelArgInfo<Arg>;
-  static_assert(!ArgInfo::kIsPod || std::is_standard_layout_v<Arg>,
-                "The POD type doesn't satisfy 'plain old data type'.");
-  static_assert(!ArgInfo::kIsPod || zisc::EqualityComparable<Arg>,
-                "The POD type isn't equality comparable.");
-
   // Type aliases
+  using ArgInfo = KernelArgInfo<Arg>;
   template <std::size_t kDim, DerivedKSet KSet>
   using Params = KernelParams<kDim, KSet, Arg, RestArgs...>;
   using NextParser = KernelArgParser<RestArgs...>;

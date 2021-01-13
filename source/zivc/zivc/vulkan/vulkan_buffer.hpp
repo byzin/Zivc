@@ -170,6 +170,9 @@ class VulkanBuffer : public Buffer<T>
   //! Initialize the command buffer
   void initCommandBuffer();
 
+  //! Make a data for fast fill on device
+  static uint32b makeDataForFillFast(ConstReference value) noexcept;
+
   //! Return the device
   VulkanDevice& parentImpl() noexcept;
 

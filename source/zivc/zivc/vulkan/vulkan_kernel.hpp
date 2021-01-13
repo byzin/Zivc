@@ -18,7 +18,6 @@
 // Standard C++ library
 #include <array>
 #include <cstddef>
-#include <tuple>
 #include <type_traits>
 // Zisc
 #include "zisc/concepts.hpp"
@@ -102,15 +101,14 @@ class VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> :
   void updateDebugInfoImpl() override;
 
  private:
-  //! Make a tuple of POD parameters
+  //! Make a struct of POD arguments 
   template <std::size_t kIndex = 0>
-  static auto makePodTupleType() noexcept;
+  static auto makePodDataType() noexcept;
 
-
-  using PodTuple = decltype(makePodTupleType());
-  static_assert(std::is_standard_layout_v<PodTuple>,
-                "The POD values aren't 'plain old data type'.");
-  static_assert(zisc::EqualityComparable<PodTuple>,
+  using PodDataT = decltype(makePodDataType());
+  static_assert(std::is_trivially_copyable_v<PodDataT>,
+                "The POD values aren't trivially copyable.");
+  static_assert(zisc::EqualityComparable<PodDataT>,
                 "The POD values aren't equality comparable.");
 
 
@@ -130,12 +128,12 @@ class VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> :
   //! Initialize the POD buffer
   void initPodBuffer();
 
-  //! Initialize the given POD tuple
-  template <std::size_t kIndex, typename Type, typename ...Types>
-  static void initPodTuple(PodTuple* pod_params, Type&& value, Types&&... rest) noexcept;
+  //! Make a POD data from the given POD parameters
+  static PodDataT makePodData(Args... args) noexcept;
 
-  //! Initialize the given POD tuple
-  static PodTuple makePodTuple(Args... args) noexcept;
+  //! Initialize the POD data with the given POD parameters
+  template <std::size_t kIndex, typename Type, typename ...Types>
+  static void makePodDataImpl(PodDataT* data, Type&& value, Types&&... rest) noexcept;
 
   //! Return the number of buffers which is needed for the kernel (including pod)
   static constexpr std::size_t numOfBuffers() noexcept;
@@ -167,8 +165,8 @@ class VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> :
   VkDescriptorSet desc_set_ = ZIVC_VK_NULL_HANDLE;
   VkCommandBuffer* command_buffer_ref_ = nullptr;
   VkCommandBuffer command_buffer_ = ZIVC_VK_NULL_HANDLE;
-  SharedBuffer<PodTuple> pod_buffer_;
-  SharedBuffer<PodTuple> pod_cache_;
+  SharedBuffer<PodDataT> pod_buffer_;
+  SharedBuffer<PodDataT> pod_cache_;
 };
 
 } // namespace zivc

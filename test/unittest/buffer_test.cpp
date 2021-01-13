@@ -619,10 +619,8 @@ TEST(BufferTest, CopyHostBufferTest)
     options.setLabel("HostToHostCopy");
     options.setExternalSyncMode(true);
     auto result = zivc::copy(*buffer_host, buffer_host2.get(), options);
-    if (result.isAsync()) {
-      ASSERT_TRUE(result.fence()) << "The result of the copy is wrong.";
-      result.fence().wait();
-    }
+    ASSERT_FALSE(result.isAsync());
+    ASSERT_FALSE(result.fence());
   }
   {
     auto mapped_mem = buffer_host->mapMemory();
@@ -634,10 +632,8 @@ TEST(BufferTest, CopyHostBufferTest)
     options.setLabel("HostToHostCopy");
     options.setExternalSyncMode(true);
     auto result = zivc::copy(*buffer_host2, buffer_host.get(), options);
-    if (result.isAsync()) {
-      ASSERT_TRUE(result.fence()) << "The result of the copy is wrong.";
-      result.fence().wait();
-    }
+    ASSERT_FALSE(result.isAsync());
+    ASSERT_FALSE(result.fence());
   }
   {
     auto mapped_mem = buffer_host->mapMemory();
@@ -683,10 +679,8 @@ TEST(BufferTest, CopyHostBufferRangeTest)
     options.setDestOffset(offset);
     options.setSize(buffer_host2->size() - 2 * offset);
     auto result = zivc::copy(*buffer_host, buffer_host2.get(), options);
-    if (result.isAsync()) {
-      ASSERT_TRUE(result.fence()) << "The result of the copy is wrong.";
-      result.fence().wait();
-    }
+    ASSERT_FALSE(result.isAsync());
+    ASSERT_FALSE(result.fence());
   }
   {
     auto mapped_mem = buffer_host->mapMemory();
@@ -701,10 +695,8 @@ TEST(BufferTest, CopyHostBufferRangeTest)
     options.setDestOffset(offset);
     options.setSize(buffer_host2->size() - 2 * offset);
     auto result = zivc::copy(*buffer_host2, buffer_host.get(), options);
-    if (result.isAsync()) {
-      ASSERT_TRUE(result.fence()) << "The result of the copy is wrong.";
-      result.fence().wait();
-    }
+    ASSERT_FALSE(result.isAsync());
+    ASSERT_FALSE(result.fence());
   }
   {
     auto mapped_mem = buffer_host->mapMemory();
@@ -755,10 +747,8 @@ TEST(BufferTest, CopyHostBufferRangeTest2)
     options.setExternalSyncMode(true);
     options.setDestOffset(offset);
     auto result = zivc::copy(*buffer_host, buffer_host2.get(), options);
-    if (result.isAsync()) {
-      ASSERT_TRUE(result.fence()) << "The result of the copy is wrong.";
-      result.fence().wait();
-    }
+    ASSERT_FALSE(result.isAsync());
+    ASSERT_FALSE(result.fence());
   }
   {
     auto mapped_mem = buffer_host->mapMemory();
@@ -772,10 +762,8 @@ TEST(BufferTest, CopyHostBufferRangeTest2)
     options.setSourceOffset(offset);
     options.setDestOffset(offset);
     auto result = zivc::copy(*buffer_host2, buffer_host.get(), options);
-    if (result.isAsync()) {
-      ASSERT_TRUE(result.fence()) << "The result of the copy is wrong.";
-      result.fence().wait();
-    }
+    ASSERT_FALSE(result.isAsync());
+    ASSERT_FALSE(result.fence());
   }
   {
     auto mapped_mem = buffer_host->mapMemory();
@@ -785,6 +773,307 @@ TEST(BufferTest, CopyHostBufferRangeTest2)
     for (std::size_t i = offset; i < buffer_host->size(); ++i) {
       const uint64b expected = zisc::cast<uint64b>(i - offset);
       ASSERT_EQ(expected, mapped_mem[i]) << "Copying buffer failed.";
+    }
+  }
+}
+
+TEST(BufferTest, FillBufferFastInt8Test)
+{
+  using zisc::int8b;
+
+  auto platform = ztest::makePlatform();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
+
+  auto buffer_device = device->makeBuffer<int8b>(zivc::BufferUsage::kDeviceOnly);
+  auto buffer_host = device->makeBuffer<int8b>(zivc::BufferUsage::kHostOnly);
+
+  // Allocate memories
+  {
+    constexpr std::size_t alloc_size = 16ull * 1024ull * 1024ull;
+    static_assert(alloc_size % 4 == 0);
+    const std::size_t s = alloc_size / sizeof(int8b);
+    buffer_device->setSize(s);
+    buffer_host->setSize(s);
+  }
+  constexpr int8b v = 24;
+  // Fill buffer test
+  {
+    auto options = buffer_device->makeOptions();
+    options.setLabel("FillBuffer");
+    options.setExternalSyncMode(true);
+    auto result = buffer_device->fill(v, options);
+    if (result.isAsync()) {
+      ASSERT_TRUE(result.fence()) << "The result of the filling is wrong.";
+      result.fence().wait();
+    }
+  }
+  // Copy from device to host
+  {
+    auto options = buffer_device->makeOptions();
+    options.setLabel("DeviceToHostCopy");
+    options.setExternalSyncMode(true);
+    auto result = zivc::copy(*buffer_device, buffer_host.get(), options);
+    if (result.isAsync()) {
+      ASSERT_TRUE(result.fence()) << "The result of the copy is wrong.";
+      result.fence().wait();
+    }
+  }
+  {
+    auto mapped_mem = buffer_host->mapMemory();
+    for (std::size_t i = 0; i < mapped_mem.size(); ++i) {
+      ASSERT_EQ(v, mapped_mem[i]) << "Filling buffer failed.";
+    }
+  }
+}
+
+TEST(BufferTest, FillBufferFastInt16Test)
+{
+  using zisc::int16b;
+
+  auto platform = ztest::makePlatform();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
+
+  auto buffer_device = device->makeBuffer<int16b>(zivc::BufferUsage::kDeviceOnly);
+  auto buffer_host = device->makeBuffer<int16b>(zivc::BufferUsage::kHostOnly);
+
+  // Allocate memories
+  {
+    constexpr std::size_t alloc_size = 16ull * 1024ull * 1024ull;
+    static_assert(alloc_size % 4 == 0);
+    const std::size_t s = alloc_size / sizeof(int16b);
+    buffer_device->setSize(s);
+    buffer_host->setSize(s);
+  }
+  constexpr int16b v = 24;
+  // Fill buffer test
+  {
+    auto options = buffer_device->makeOptions();
+    options.setLabel("FillBuffer");
+    options.setExternalSyncMode(true);
+    auto result = buffer_device->fill(v, options);
+    if (result.isAsync()) {
+      ASSERT_TRUE(result.fence()) << "The result of the filling is wrong.";
+      result.fence().wait();
+    }
+  }
+  // Copy from device to host
+  {
+    auto options = buffer_device->makeOptions();
+    options.setLabel("DeviceToHostCopy");
+    options.setExternalSyncMode(true);
+    auto result = zivc::copy(*buffer_device, buffer_host.get(), options);
+    if (result.isAsync()) {
+      ASSERT_TRUE(result.fence()) << "The result of the copy is wrong.";
+      result.fence().wait();
+    }
+  }
+  {
+    auto mapped_mem = buffer_host->mapMemory();
+    for (std::size_t i = 0; i < mapped_mem.size(); ++i) {
+      ASSERT_EQ(v, mapped_mem[i]) << "Filling buffer failed: mem[" << i << "].";
+    }
+  }
+}
+
+TEST(BufferTest, FillBufferFastInt32Test)
+{
+  using zisc::int32b;
+
+  auto platform = ztest::makePlatform();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
+
+  auto buffer_device = device->makeBuffer<int32b>(zivc::BufferUsage::kDeviceOnly);
+  auto buffer_host = device->makeBuffer<int32b>(zivc::BufferUsage::kHostOnly);
+
+  // Allocate memories
+  {
+    constexpr std::size_t alloc_size = 16ull * 1024ull * 1024ull;
+    static_assert(alloc_size % 4 == 0);
+    const std::size_t s = alloc_size / sizeof(int32b);
+    buffer_device->setSize(s);
+    buffer_host->setSize(s);
+  }
+  constexpr int32b v = 24;
+  // Fill buffer test
+  {
+    auto options = buffer_device->makeOptions();
+    options.setLabel("FillBuffer");
+    options.setExternalSyncMode(true);
+    auto result = buffer_device->fill(v, options);
+    if (result.isAsync()) {
+      ASSERT_TRUE(result.fence()) << "The result of the filling is wrong.";
+      result.fence().wait();
+    }
+  }
+  // Copy from device to host
+  {
+    auto options = buffer_device->makeOptions();
+    options.setLabel("DeviceToHostCopy");
+    options.setExternalSyncMode(true);
+    auto result = zivc::copy(*buffer_device, buffer_host.get(), options);
+    if (result.isAsync()) {
+      ASSERT_TRUE(result.fence()) << "The result of the copy is wrong.";
+      result.fence().wait();
+    }
+  }
+  {
+    auto mapped_mem = buffer_host->mapMemory();
+    for (std::size_t i = 0; i < mapped_mem.size(); ++i) {
+      ASSERT_EQ(v, mapped_mem[i]) << "Filling buffer failed.";
+    }
+  }
+}
+
+TEST(BufferTest, FillBufferFastRangeTest)
+{
+  using zisc::int32b;
+
+  auto platform = ztest::makePlatform();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
+
+  auto buffer_device = device->makeBuffer<int32b>(zivc::BufferUsage::kDeviceOnly);
+  auto buffer_host = device->makeBuffer<int32b>(zivc::BufferUsage::kHostOnly);
+
+  // Allocate memories
+  {
+    constexpr std::size_t alloc_size = 16ull * 1024ull * 1024ull;
+    static_assert(alloc_size % 4 == 0);
+    const std::size_t s = alloc_size / sizeof(int32b);
+    buffer_device->setSize(s);
+    buffer_host->setSize(s);
+  }
+  constexpr int32b v = 24;
+  constexpr std::size_t offset = 10;
+  // Fill buffer test
+  {
+    auto options = buffer_device->makeOptions();
+    options.setLabel("FillBuffer");
+    options.setExternalSyncMode(true);
+    {
+      auto result = buffer_device->fill(0, options);
+      if (result.isAsync()) {
+        ASSERT_TRUE(result.fence()) << "The result of the filling is wrong.";
+        result.fence().wait();
+      }
+    }
+    options.setDestOffset(offset);
+    options.setSize(buffer_device->size() - 2 * offset);
+    {
+      auto result = buffer_device->fill(v, options);
+      if (result.isAsync()) {
+        ASSERT_TRUE(result.fence()) << "The result of the filling is wrong.";
+        result.fence().wait();
+      }
+    }
+  }
+  // Copy from device to host
+  {
+    auto options = buffer_device->makeOptions();
+    options.setLabel("DeviceToHostCopy");
+    options.setExternalSyncMode(true);
+    auto result = zivc::copy(*buffer_device, buffer_host.get(), options);
+    if (result.isAsync()) {
+      ASSERT_TRUE(result.fence()) << "The result of the copy is wrong.";
+      result.fence().wait();
+    }
+  }
+  {
+    auto mapped_mem = buffer_host->mapMemory();
+    for (std::size_t i = 0; i < offset; ++i) {
+      ASSERT_EQ(0, mapped_mem[i]) << "Filling buffer range failed.";
+    }
+    const std::size_t s = mapped_mem.size();
+    for (std::size_t i = offset; i < (s - offset); ++i) {
+      ASSERT_EQ(v, mapped_mem[i]) << "Filling buffer range failed.";
+    }
+    for (std::size_t i = s - offset; i < s; ++i) {
+      ASSERT_EQ(0, mapped_mem[i]) << "Filling buffer range failed.";
+    }
+  }
+}
+
+TEST(BufferTest, FillBufferHostTest)
+{
+  using zisc::int32b;
+
+  auto platform = ztest::makePlatform();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
+
+  auto buffer_host = device->makeBuffer<int32b>(zivc::BufferUsage::kHostOnly);
+
+  // Allocate memories
+  {
+    constexpr std::size_t alloc_size = 16ull * 1024ull * 1024ull;
+    const std::size_t s = alloc_size / sizeof(int32b);
+    buffer_host->setSize(s);
+  }
+  constexpr int32b v = 24;
+  // Fill buffer test
+  {
+    auto options = buffer_host->makeOptions();
+    options.setLabel("FillBuffer");
+    options.setExternalSyncMode(true);
+    auto result = buffer_host->fill(v, options);
+    ASSERT_FALSE(result.isAsync());
+  }
+  {
+    auto mapped_mem = buffer_host->mapMemory();
+    for (std::size_t i = 0; i < mapped_mem.size(); ++i) {
+      ASSERT_EQ(v, mapped_mem[i]) << "Filling buffer failed.";
+    }
+  }
+}
+
+TEST(BufferTest, FillBufferHostRangeTest)
+{
+  using zisc::int32b;
+
+  auto platform = ztest::makePlatform();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
+
+  auto buffer_host = device->makeBuffer<int32b>(zivc::BufferUsage::kHostOnly);
+
+  // Allocate memories
+  {
+    constexpr std::size_t alloc_size = 16ull * 1024ull * 1024ull;
+    const std::size_t s = alloc_size / sizeof(int32b);
+    buffer_host->setSize(s);
+  }
+  constexpr int32b v = 24;
+  constexpr std::size_t offset = 10;
+  // Fill buffer test
+  {
+    auto options = buffer_host->makeOptions();
+    options.setLabel("FillBuffer");
+    options.setExternalSyncMode(true);
+    {
+      auto result = buffer_host->fill(0, options);
+      ASSERT_FALSE(result.isAsync());
+    }
+    options.setDestOffset(offset);
+    options.setSize(buffer_host->size() - 2 * offset);
+    {
+      auto result = buffer_host->fill(v, options);
+      ASSERT_FALSE(result.isAsync());
+    }
+  }
+  {
+    auto mapped_mem = buffer_host->mapMemory();
+    for (std::size_t i = 0; i < offset; ++i) {
+      ASSERT_EQ(0, mapped_mem[i]) << "Filling buffer range failed.";
+    }
+    const std::size_t s = mapped_mem.size();
+    for (std::size_t i = offset; i < (s - offset); ++i) {
+      ASSERT_EQ(v, mapped_mem[i]) << "Filling buffer range failed.";
+    }
+    for (std::size_t i = s - offset; i < s; ++i) {
+      ASSERT_EQ(0, mapped_mem[i]) << "Filling buffer range failed.";
     }
   }
 }

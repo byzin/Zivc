@@ -21,6 +21,7 @@
 #include <cstring>
 #include <memory>
 #include <string_view>
+#include <type_traits>
 #include <utility>
 // Zisc
 #include "zisc/bit.hpp"
@@ -482,9 +483,7 @@ LaunchResult VulkanBuffer<T>::fillFastOnDevice(
     const BufferLaunchOptions<T>& launch_options)
 {
   // Create a data for fill
-  uint32b data = 0;
-  constexpr std::size_t n = sizeof(data) / sizeof(T);
-  std::fill_n(zisc::reinterp<Pointer>(std::addressof(data)), n, value);
+  const uint32b data = makeDataForFillFast(value);
 
   VulkanDevice& device = parentImpl();
   VkCommandBuffer command = commandBuffer();
@@ -495,11 +494,9 @@ LaunchResult VulkanBuffer<T>::fillFastOnDevice(
       auto debug_region = device.makeCmdDebugLabel(command, launch_options);
 
       VulkanBufferImpl impl{std::addressof(device)};
-      impl.fillFastCmd(command,
-                       buffer(),
-                       launch_options.destOffsetInBytes(),
-                       launch_options.sizeInBytes(),
-                       data);
+      const std::size_t offsetBytes = launch_options.destOffsetInBytes();
+      const std::size_t sizeBytes = launch_options.sizeInBytes();
+      impl.fillFastCmd(command, buffer(), offsetBytes, sizeBytes, data);
     }
   }
   LaunchResult result{};
@@ -586,6 +583,33 @@ void VulkanBuffer<T>::initCommandBuffer()
     command_buffer_ = device.makeCommandBuffer();
     updateDebugInfoImpl();
   }
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] value No description.
+  \return No description
+  */
+template <typename T> inline
+uint32b VulkanBuffer<T>::makeDataForFillFast(ConstReference value) noexcept
+{
+  uint32b data = 0;
+  constexpr bool vsize_can_be_multiple_of_4 = (sizeof(T) <= sizeof(data)) &&
+                                              zisc::has_single_bit(sizeof(T));
+  if constexpr (vsize_can_be_multiple_of_4) {
+    using ValueT = std::conditional_t<sizeof(T) == 1, uint8b,
+                   std::conditional_t<sizeof(T) == 2, uint16b,
+                                                      uint32b>>;
+    const uint32b v = zisc::cast<uint32b>(zisc::bit_cast<ValueT>(value));
+    constexpr std::size_t n = sizeof(data) / sizeof(ValueT);
+    for (std::size_t i = 0; i < n; ++i) {
+      const std::size_t shift = i * 8 * sizeof(ValueT);
+      const uint32b d = v << shift;
+      data = data | d;
+    }
+  }
+  return data;
 }
 
 /*!

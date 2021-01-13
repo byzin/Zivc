@@ -69,6 +69,7 @@ class ZivcObject : private zisc::NonCopyable<ZivcObject>
   virtual bool isDebugMode() const noexcept;
 
   //! Issue an ID of a child object
+  [[nodiscard]]
   virtual IdData issueId() noexcept;
 
   //! Return the underlying memory resource

@@ -83,6 +83,7 @@ class VulkanSubPlatform : public SubPlatform
   VkAllocationCallbacks makeAllocator() noexcept;
 
   //! Make a unique device
+  [[nodiscard]]
   SharedDevice makeDevice(const DeviceInfo& device_info) override;
 
   //! Return the number of available devices

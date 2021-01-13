@@ -39,6 +39,7 @@ zivc::UniquePlatform makePlatform()
   options.setPlatformVersionMinor(zivc::Config::versionMinor());
   options.setPlatformVersionPatch(zivc::Config::versionPatch());
   options.enableVulkanSubPlatform(0 < config.deviceId());
+  options.enableDebugMode(config.isDebugMode());
 
   zivc::UniquePlatform platform = zivc::makePlatform(mem_resource, options);
   return platform;

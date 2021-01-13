@@ -45,7 +45,7 @@ LaunchResult::LaunchResult() noexcept :
 inline
 LaunchResult::LaunchResult(LaunchResult&& other) noexcept :
     fence_{std::move(other.fence_)},
-    is_async_{zisc::kFalse}
+    is_async_{other.is_async_}
 {
 }
 
@@ -67,6 +67,7 @@ inline
 LaunchResult& LaunchResult::operator=(LaunchResult&& other) noexcept
 {
   fence_ = std::move(other.fence_);
+  is_async_ = other.is_async_;
   return *this;
 }
 
@@ -100,7 +101,7 @@ const Fence& LaunchResult::fence() const noexcept
 inline
 bool LaunchResult::isAsync() const noexcept
 {
-  const bool result = is_async_;
+  const bool result = is_async_ == zisc::kTrue;
   return result;
 }
 

@@ -23,6 +23,7 @@
 #include <string_view>
 #include <utility>
 // Zisc
+#include "zisc/bit.hpp"
 #include "zisc/error.hpp"
 #include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
@@ -40,6 +41,7 @@
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/id_data.hpp"
 #include "zivc/utility/error.hpp"
+#include "zivc/utility/fence.hpp"
 #include "zivc/utility/launch_result.hpp"
 #include "zivc/utility/mapped_memory.hpp"
 #include "zivc/utility/zivc_object.hpp"
@@ -321,9 +323,11 @@ LaunchResult VulkanBuffer<T>::fillImpl(ConstReference value,
 {
   LaunchResult result{};
   if (isDeviceLocal()) {
+    constexpr bool vsize_can_be_multiple_of_4 = (sizeof(T) <= 4) &&
+                                                zisc::has_single_bit(sizeof(T));
     const std::size_t offsetBytes = launch_options.destOffsetInBytes();
     const std::size_t sizeBytes = launch_options.sizeInBytes();
-    if ((4 % sizeof(T) == 0) && (offsetBytes % 4 == 0) && (sizeBytes % 4 == 0))
+    if (vsize_can_be_multiple_of_4 && (offsetBytes % 4 == 0) && (sizeBytes % 4 == 0))
       result = fillFastOnDevice(value, launch_options);
     else
       result = fillOnDevice(value, launch_options);
@@ -413,15 +417,16 @@ LaunchResult VulkanBuffer<T>::copyOnDevice(
     const Buffer<T>& source,
     const BufferLaunchOptions<T>& launch_options)
 {
+  ZISC_ASSERT(isDeviceLocal() || source.isDeviceLocal(), "No device local buffer.");
   VulkanDevice& device = parentImpl();
-  VkCommandBuffer command = commandBuffer();
+  auto src = zisc::cast<const VulkanBuffer*>(std::addressof(source));
+  VkCommandBuffer command = isDeviceLocal() ? commandBuffer() : src->commandBuffer();
   {
     constexpr auto flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
     auto record_region = device.makeCmdRecord(command, flags);
     {
       auto debug_region = device.makeCmdDebugLabel(command, launch_options);
 
-      auto src = zisc::cast<const VulkanBuffer*>(std::addressof(source));
       const VkBufferCopy copy_region{launch_options.sourceOffsetInBytes(),
                                      launch_options.destOffsetInBytes(),
                                      launch_options.sizeInBytes()};
@@ -432,10 +437,10 @@ LaunchResult VulkanBuffer<T>::copyOnDevice(
   LaunchResult result{};
   {
     VkQueue q = device.getQueue(launch_options.queueIndex());
-    if (launch_options.isExternalSyncMode())
-      device.takeFence(std::addressof(result.fence()));
+    Fence& fence = result.fence();
+    fence.setDevice(launch_options.isExternalSyncMode() ? &device : nullptr);
     auto debug_region = device.makeQueueDebugLabel(q, launch_options);
-    device.submit(command, q, result.fence());
+    device.submit(command, q, fence);
   }
   result.setAsync(true);
   return result;
@@ -500,10 +505,10 @@ LaunchResult VulkanBuffer<T>::fillFastOnDevice(
   LaunchResult result{};
   {
     VkQueue q = device.getQueue(launch_options.queueIndex());
-    if (launch_options.isExternalSyncMode())
-      device.takeFence(std::addressof(result.fence()));
+    Fence& fence = result.fence();
+    fence.setDevice(launch_options.isExternalSyncMode() ? &device : nullptr);
     auto debug_region = device.makeQueueDebugLabel(q, launch_options);
-    device.submit(command, q, result.fence());
+    device.submit(command, q, fence);
   }
   result.setAsync(true);
   return result;

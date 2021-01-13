@@ -154,27 +154,33 @@ class VulkanDevice : public Device
 
   //! Make a debug label for a commandbuffer
   template <LabelOptions Options>
+  [[nodiscard]]
   CmdDebugLabelRegion makeCmdDebugLabel(const VkCommandBuffer& command_buffer,
                                         const Options& options) const noexcept;
 
   //! Make a debug label for a commandbuffer
+  [[nodiscard]]
   CmdDebugLabelRegion makeCmdDebugLabel(const VkCommandBuffer& command_buffer,
                                         const std::string_view label_name,
                                         const std::array<float, 4>& color) const noexcept;
 
   //! Make a record region for a commandbuffer
+  [[nodiscard]]
   CmdRecordRegion makeCmdRecord(const VkCommandBuffer& command_buffer,
                                 const VkCommandBufferUsageFlags flags) const;
 
   //! Make a command buffer
+  [[nodiscard]]
   VkCommandBuffer makeCommandBuffer();
 
   //! Make a debug label for a queue
   template <LabelOptions Options>
+  [[nodiscard]]
   QueueDebugLabelRegion makeQueueDebugLabel(const VkQueue& q,
                                             const Options& options) const noexcept;
 
   //! Make a debug label for a queue
+  [[nodiscard]]
   QueueDebugLabelRegion makeQueueDebugLabel(const VkQueue& q,
                                             const std::string_view label_name,
                                             const std::array<float, 4>& color) const noexcept;

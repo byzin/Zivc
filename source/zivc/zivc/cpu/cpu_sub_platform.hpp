@@ -55,6 +55,7 @@ class CpuSubPlatform : public SubPlatform
   bool isAvailable() const noexcept override;
 
   //! Make a unique device
+  [[nodiscard]]
   SharedDevice makeDevice(const DeviceInfo& device_info) override;
 
   //! Return the maximum task batch size per thread

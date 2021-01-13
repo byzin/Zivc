@@ -16,6 +16,7 @@
 // Standard C++ library
 #include <memory>
 // Zisc
+#include "zisc/zisc_config.hpp"
 #include "zisc/memory/simple_memory_resource.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
@@ -38,6 +39,27 @@ Config::~Config() noexcept
 zivc::uint32b Config::deviceId() const noexcept
 {
   return device_id_;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] flag No description.
+  */
+void Config::enableDebugMode(const bool flag) noexcept
+{
+  is_debug_mode_ = flag ? zisc::kTrue : zisc::kFalse;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+bool Config::isDebugMode() const noexcept
+{
+  const bool flag = is_debug_mode_ == zisc::kTrue;
+  return flag;
 }
 
 /*!

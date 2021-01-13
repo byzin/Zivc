@@ -74,9 +74,11 @@ class Platform : private zisc::NonCopyable<Platform>
   bool isDebugMode() const noexcept;
 
   //! Issue an ID of an object
+  [[nodiscard]]
   IdData issueId() noexcept;
 
   //! Make a unique device
+  [[nodiscard]]
   SharedDevice makeDevice(const std::size_t device_index);
 
   //! Return the underlying memory resource
@@ -121,6 +123,7 @@ class Platform : private zisc::NonCopyable<Platform>
 using UniquePlatform = zisc::pmr::unique_ptr<Platform>;
 
 //! Make a unique platform
+[[nodiscard]]
 UniquePlatform makePlatform(zisc::pmr::memory_resource* mem_resource,
                             PlatformOptions& options);
 

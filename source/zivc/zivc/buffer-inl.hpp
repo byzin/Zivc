@@ -449,8 +449,10 @@ template <typename T> inline
 auto Buffer<T>::processOptions(LaunchOptions launch_options) const noexcept
     -> LaunchOptions
 {
-  if (launch_options.size() == kBufferWholeSize)
-    launch_options.setSize(size());
+  if (launch_options.size() == kBufferWholeSize) {
+    const std::size_t s = size() - launch_options.destOffset();
+    launch_options.setSize(s);
+  }
   return launch_options;
 }
 

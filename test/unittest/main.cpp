@@ -47,6 +47,11 @@ std::unique_ptr<CLI::App> makeCommandLineParser(ztest::CliOption* options) noexc
     };
     option->check(validator);
   }
+  // Debug option
+  {
+    const char* desc = "Disable debug mode.";
+    [[maybe_unused]] auto option = parser->add_flag("--nodebug", options->is_nodebug_, desc);
+  }
 
   return parser;
 }
@@ -55,6 +60,7 @@ void processCommandLineArgs(const ztest::CliOption& options) noexcept
 {
   auto& config = ztest::Config::globalConfig();
   config.setDeviceId(ztest::getDeviceId(options.device_name_));
+  config.enableDebugMode(!options.is_nodebug_);
 }
 
 bool checkIfDeviceIsAvailable()

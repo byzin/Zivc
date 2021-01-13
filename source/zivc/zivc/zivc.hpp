@@ -41,10 +41,12 @@ namespace zivc {
 
 //! Make a buffer
 template <typename Type>
+[[nodiscard]]
 SharedBuffer<Type> makeBuffer(Device* device, const BufferUsage flag);
 
 //! Make a kernel
 template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
+[[nodiscard]]
 SharedKernel<kDim, KSet, Args...> makeKernel(
     Device* device,
     const KernelParams<kDim, KSet, Args...>& params);

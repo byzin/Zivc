@@ -120,10 +120,10 @@ TEST(PlatformTest, MakeDeviceExceptionTest)
 {
   auto platform = ztest::makePlatform();
   constexpr std::size_t device_index = (std::numeric_limits<std::size_t>::max)();
-  ASSERT_THROW(platform->makeDevice(device_index), zivc::SystemError)
+  ASSERT_THROW(auto d = platform->makeDevice(device_index), zivc::SystemError)
       << "The bounds check of device index isn't performed.";
   const auto& info_list = platform->deviceInfoList();
-  ASSERT_THROW(platform->makeDevice(info_list.size()), zivc::SystemError)
+  ASSERT_THROW(auto d = platform->makeDevice(info_list.size()), zivc::SystemError)
       << "The bounds check of device index isn't performed.";
 }
 

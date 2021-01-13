@@ -115,6 +115,7 @@ class VulkanBuffer : public Buffer<T>
 
  protected:
   //! Copy from the given buffer
+  [[nodiscard("The result can have a fence when external sync mode is on.")]]
   LaunchResult copyFromImpl(const Buffer<T>& source,
                             const BufferLaunchOptions<T>& launch_options) override;
 
@@ -122,6 +123,7 @@ class VulkanBuffer : public Buffer<T>
   void destroyData() noexcept override;
 
   //! Fill the buffer with specified value
+  [[nodiscard("The result can have a fence when external sync mode is on.")]]
   LaunchResult fillImpl(ConstReference value,
                         const BufferLaunchOptions<T>& launch_options) override;
 
@@ -129,6 +131,7 @@ class VulkanBuffer : public Buffer<T>
   void initData() override;
 
   //! Map a buffer memory to a host
+  [[nodiscard]]
   Pointer mappedMemory() const override;
 
   //! Unmap a buffer memory
@@ -139,6 +142,7 @@ class VulkanBuffer : public Buffer<T>
 
  private:
   //! Copy on the device
+  [[nodiscard("The result can have a fence when external sync mode is on.")]]
   LaunchResult copyOnDevice(const Buffer<T>& source,
                             const BufferLaunchOptions<T>& launch_options);
 
@@ -147,10 +151,12 @@ class VulkanBuffer : public Buffer<T>
                           const BufferLaunchOptions<T>& launch_options) noexcept;
 
   //! Fill the buffer on device with specified value
+  [[nodiscard("The result can have a fence when external sync mode is on.")]]
   LaunchResult fillFastOnDevice(ConstReference value,
                                 const BufferLaunchOptions<T>& launch_options);
 
   //! Fill the buffer on device with specified value
+  [[nodiscard("The result can have a fence when external sync mode is on.")]]
   LaunchResult fillOnDevice(ConstReference value,
                             const BufferLaunchOptions<T>& launch_options);
 

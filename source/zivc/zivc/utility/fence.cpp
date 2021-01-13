@@ -28,6 +28,7 @@ void Fence::clear() noexcept
 {
   if (isActive())
     device_->returnFence(this);
+  device_ = nullptr;
 }
 
 /*!

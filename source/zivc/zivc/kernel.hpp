@@ -180,6 +180,7 @@ class Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> : public ZivcObject
   static constexpr std::size_t numOfArgs() noexcept;
 
   //! Execute a kernel
+  [[nodiscard("The result can have a fence when external sync mode is on.")]]
   virtual LaunchResult run(Args... args, const LaunchOptions& launch_options) = 0;
 
  protected:

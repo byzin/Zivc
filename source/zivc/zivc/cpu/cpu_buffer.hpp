@@ -105,6 +105,7 @@ class CpuBuffer : public Buffer<T>
   void initData() override;
 
   //! Map a buffer memory to a host
+  [[nodiscard]]
   Pointer mappedMemory() const override;
 
   //! Unmap a buffer memory

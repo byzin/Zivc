@@ -101,8 +101,8 @@ std::size_t CpuDevice::peakMemoryUsage([[maybe_unused]] const std::size_t number
   */
 void CpuDevice::returnFence(Fence* fence) noexcept
 {
-  auto memory = zisc::reinterp<::CpuFence*>(std::addressof(fence->data()));
-  std::destroy_at(memory);
+  auto f = zisc::reinterp<::CpuFence*>(std::addressof(fence->data()));
+  std::destroy_at(f);
 }
 
 /*!

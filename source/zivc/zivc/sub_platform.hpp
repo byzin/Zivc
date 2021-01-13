@@ -71,9 +71,11 @@ class SubPlatform : public ZivcObject
   bool isDebugMode() const noexcept override;
 
   //! Issue an ID of an object
+  [[nodiscard]]
   IdData issueId() noexcept override;
 
   //! Make a unique device
+  [[nodiscard]]
   virtual SharedDevice makeDevice(const DeviceInfo& device_info) = 0;
 
   //! Return the underlying memory resource

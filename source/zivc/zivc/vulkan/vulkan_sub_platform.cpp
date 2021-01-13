@@ -344,12 +344,13 @@ auto VulkanSubPlatform::Callbacks::printDebugMessage(
     const VkDebugUtilsMessengerCallbackDataEXT* callback_data,
     void* user_data) -> DebugMessengerReturnType
 {
-  constexpr std::size_t max_message_length = 2048;
-  char message[max_message_length];
+  using MessageType = std::array<char, 1024>;
+  MessageType message{""};
+  MessageType tmp{""};
   bool is_error = false;
 
   if (user_data) {
-    char msg[max_message_length];
+    char* msg = tmp.data();
     const IdData* data = zisc::cast<const IdData*>(user_data);
     std::sprintf(msg, "ID[%ld] -", data->id());
     if (data->hasName()) {
@@ -361,12 +362,12 @@ auto VulkanSubPlatform::Callbacks::printDebugMessage(
       std::sprintf(msg, "%s at line %ld in '%s'", msg, line, file_name.data());
     }
     std::strcat(msg, "\n");
-    std::strcat(message, msg);
+    std::strcat(message.data(), msg);
   }
 
-  const char indent[] = "          ";
+  constexpr char indent[] = "          ";
   {
-    char prefix[64] = "";
+    char* prefix = tmp.data();
     if (severity_flags & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) {
       std::strcpy(prefix, "VERBOSE : ");
     }
@@ -391,17 +392,17 @@ auto VulkanSubPlatform::Callbacks::printDebugMessage(
       std::strcat(prefix, "PERF");
     }
 
-    char msg[max_message_length];
+    char* msg = tmp.data();
     std::sprintf(msg, "%s - Message ID Number %d, Message ID Name %s : %s\n",
         prefix,
         callback_data->messageIdNumber,
         callback_data->pMessageIdName,
         callback_data->pMessage);
-    std::strcat(message, msg);
+    std::strcat(message.data(), msg);
   }
 
   if (0 < callback_data->queueLabelCount) {
-    char msg[max_message_length];
+    char* msg = tmp.data();
     std::sprintf(msg, "\n%sQueue Labels - %d\n",
         indent,
         zisc::cast<int>(callback_data->queueLabelCount));
@@ -417,11 +418,11 @@ auto VulkanSubPlatform::Callbacks::printDebugMessage(
           zisc::cast<double>(label.color[2]),
           zisc::cast<double>(label.color[3]));
     }
-    std::strcat(message, msg);
+    std::strcat(message.data(), msg);
   }
 
   if (0 < callback_data->cmdBufLabelCount) {
-    char msg[max_message_length];
+    char* msg = tmp.data();
     std::sprintf(msg, "\n%sCommand Buffer Labels - %d\n",
         indent,
         zisc::cast<int>(callback_data->cmdBufLabelCount));
@@ -437,11 +438,11 @@ auto VulkanSubPlatform::Callbacks::printDebugMessage(
           zisc::cast<double>(label.color[2]),
           zisc::cast<double>(label.color[3]));
     }
-    std::strcat(message, msg);
+    std::strcat(message.data(), msg);
   }
 
   if (0 < callback_data->objectCount) {
-    char msg[max_message_length];
+    char* msg = tmp.data();
     std::sprintf(msg, "\n%sObjects - %d\n",
         indent,
         zisc::cast<int>(callback_data->objectCount));
@@ -457,12 +458,11 @@ auto VulkanSubPlatform::Callbacks::printDebugMessage(
           object.objectHandle,
           object.pObjectName);
     }
-    std::strcat(message, msg);
+    std::strcat(message.data(), msg);
   }
 
-  std::strcat(message, "\n");
   std::ostream* output = (is_error) ? &std::cerr : &std::cout;
-  (*output) << message;
+  (*output) << message.data() << std::endl;
 
   return VK_FALSE;
 }

@@ -68,6 +68,7 @@ class CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> :
   Function kernel() const noexcept;
 
   //! Execute a kernel
+  [[nodiscard("The result can have a fence when external sync mode is on.")]]
   LaunchResult run(Args... args, const LaunchOptions& launch_options) override;
 
  protected:

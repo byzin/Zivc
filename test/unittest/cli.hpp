@@ -16,6 +16,7 @@
 #define ZIVC_TEST_CLI_HPP
 
 // Standard C++ library
+#include <array>
 #include <string>
 
 #if defined(Z_GCC) || defined(Z_CLANG)
@@ -47,6 +48,8 @@ namespace ztest {
 struct CliOption
 {
   std::string device_name_ = "cpu";
+  bool is_nodebug_ = false;
+  [[maybe_unused]] std::array<zivc::uint8b, 7> padding_;
 };
 
 //! Get the device ID

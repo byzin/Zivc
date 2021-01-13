@@ -33,6 +33,7 @@
 #include "zivc/kernel.hpp"
 #include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/utility/fence.hpp"
 #include "zivc/utility/id_data.hpp"
 #include "zivc/utility/kernel_arg_parser.hpp"
 #include "zivc/utility/kernel_params.hpp"
@@ -106,10 +107,10 @@ run(Args... args, const LaunchOptions& launch_options)
   LaunchResult result{};
   // Command submission
   {
-    if (launch_options.isExternalSyncMode())
-      result.fence().setDevice(std::addressof(device));
+    Fence& fence = result.fence();
+    fence.setDevice(launch_options.isExternalSyncMode() ? &device : nullptr);
     const auto work_size = BaseKernel::expandWorkSize(launch_options.workSize());
-    device.submit(*command, work_size, id, std::addressof(result.fence()));
+    device.submit(*command, work_size, id, std::addressof(fence));
   }
   result.setAsync(true);
   return result;

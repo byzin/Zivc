@@ -157,10 +157,12 @@ class Buffer : public ZivcObject
   void clear() noexcept;
 
   //! Copy from the given buffer
+  [[nodiscard("The result can have a fence when external sync mode is on.")]]
   LaunchResult copyFrom(const Buffer& source,
                         const LaunchOptions& launch_options = LaunchOptions{});
 
   //! Fill the buffer with specified value
+  [[nodiscard("The result can have a fence when external sync mode is on.")]]
   LaunchResult fill(ConstReference value,
                     const LaunchOptions& launch_options = LaunchOptions{});
 
@@ -185,9 +187,11 @@ class Buffer : public ZivcObject
   LaunchOptions makeOptions() const noexcept;
 
   //! Map a buffer memory to a host
+  [[nodiscard]]
   MappedMemory<Type> mapMemory();
 
   //! Map a buffer memory to a host
+  [[nodiscard]]
   MappedMemory<ConstType> mapMemory() const;
 
   //! Convert a type of a buffer interface to DstType
@@ -213,6 +217,7 @@ class Buffer : public ZivcObject
 
 
   //! Copy from the given buffer
+  [[nodiscard("The result can have a fence when external sync mode is on.")]]
   virtual LaunchResult copyFromImpl(const Buffer& source,
                                     const LaunchOptions& launch_options) = 0;
 
@@ -220,6 +225,7 @@ class Buffer : public ZivcObject
   virtual void destroyData() noexcept = 0;
 
   //! Fill the buffer with specified value
+  [[nodiscard("The result can have a fence when external sync mode is on.")]]
   virtual LaunchResult fillImpl(ConstReference value,
                                 const LaunchOptions& launch_options) = 0;
 
@@ -227,9 +233,11 @@ class Buffer : public ZivcObject
   virtual void initData() = 0;
 
   //! Map a buffer memory to a host
+  [[nodiscard]]
   virtual Pointer mappedMemory() const = 0;
 
   //! Process the given options for the buffer
+  [[nodiscard]]
   LaunchOptions processOptions(LaunchOptions launch_options) const noexcept;
 
   //! Unmap a buffer memory
@@ -250,6 +258,7 @@ using BufferLaunchOptions = typename Buffer<Type>::LaunchOptions;
 
 //! Copy from the source to the dest
 template <typename Type>
+[[nodiscard("The result can have a fence when external sync mode is on.")]]
 LaunchResult copy(const Buffer<Type>& source,
                   Buffer<Type>* dest,
                   const BufferLaunchOptions<Type>& launch_options =

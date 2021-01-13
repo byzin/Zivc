@@ -76,10 +76,12 @@ class Device : public ZivcObject
 
   //! Make a buffer
   template <typename T>
+  [[nodiscard]]
   SharedBuffer<T> makeBuffer(const BufferUsage flag);
 
   //! Make a kernel from the given parameters
   template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
+  [[nodiscard]]
   SharedKernel<kDim, KSet, Args...> makeKernel(
       const KernelParams<kDim, KSet, Args...>& params);
 
@@ -129,11 +131,13 @@ class Device : public ZivcObject
 
   //! Make a buffer
   template <template<typename> typename Derived, typename T>
+  [[nodiscard]]
   SharedBuffer<T> makeDerivedBuffer(const BufferUsage flag);
 
   //! Make a kernel from the given parameters
   template <template<typename, typename...> typename Derived,
             std::size_t kDim, DerivedKSet KSet, typename ...Args>
+  [[nodiscard]]
   SharedKernel<kDim, KSet, Args...> makeDerivedKernel(
       const KernelParams<kDim, KSet, Args...>& params);
 

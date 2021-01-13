@@ -82,6 +82,7 @@ class VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> :
   static constexpr bool hasPodArg() noexcept;
 
   //! Execute a kernel
+  [[nodiscard("The result can have a fence when external sync mode is on.")]]
   LaunchResult run(Args... args, const LaunchOptions& launch_options) override;
 
   //! Set a command buffer reference

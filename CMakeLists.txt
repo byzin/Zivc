@@ -40,6 +40,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/example ${PROJECT_BINARY_DIR}/Examples)
 if(ZIVC_BUILD_TESTS)
   addZiscGoogleTest()
   add_subdirectory(${PROJECT_SOURCE_DIR}/test/dependencies/CLI11 ${PROJECT_BINARY_DIR}/CLI11)
+  enable_testing()
   add_subdirectory(${PROJECT_SOURCE_DIR}/test ${PROJECT_BINARY_DIR}/UnitTest)
 endif()
 

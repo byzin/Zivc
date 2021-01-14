@@ -40,6 +40,7 @@
 #include "zivc/platform_options.hpp"
 #include "zivc/sub_platform.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/utility/env_variable.hpp"
 #include "zivc/utility/error.hpp"
 
 namespace zivc {
@@ -344,6 +345,13 @@ auto VulkanSubPlatform::Callbacks::printDebugMessage(
     const VkDebugUtilsMessengerCallbackDataEXT* callback_data,
     void* user_data) -> DebugMessengerReturnType
 {
+  if (getEnvNumber("ZIVC_SUPPRESS_TRIVIAL_WARNINGS")) {
+    // UNASSIGNED-BestPractices-vkCreateInstance-specialuse-extension
+    if (callback_data->messageIdNumber == 767975156) {
+      return VK_FALSE;
+    }
+  }
+
   using MessageType = std::array<char, 1024>;
   MessageType message{""};
   MessageType tmp{""};

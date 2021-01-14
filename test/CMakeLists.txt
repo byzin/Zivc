@@ -99,3 +99,24 @@ Zisc_createLinkToTarget(${PROJECT_NAME} ${PROJECT_BINARY_DIR})
 
 # Save the dependency list
 Zisc_savePrerequisites(${PROJECT_NAME} "" "" "")
+
+# Add tests for CMake
+add_test(NAME ${PROJECT_NAME}-cpu COMMAND ${PROJECT_NAME} --device cpu
+                                  WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
+add_test(NAME ${PROJECT_NAME}-vulkan0 COMMAND ${PROJECT_NAME} --device vulkan0
+                                      WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
+add_test(NAME ${PROJECT_NAME}-vulkan1 COMMAND ${PROJECT_NAME} --device vulkan1
+                                      WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
+add_test(NAME ${PROJECT_NAME}-vulkan2 COMMAND ${PROJECT_NAME} --device vulkan2
+                                      WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
+add_test(NAME ${PROJECT_NAME}-vulkan3 COMMAND ${PROJECT_NAME} --device vulkan3
+                                      WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
+set(test_env_list "")
+list(APPEND test_env_list GTEST_COLOR=1
+                          ZIVC_SUPPRESS_TRIVIAL_WARNINGS=1)
+set_tests_properties(${PROJECT_NAME}-cpu
+                     ${PROJECT_NAME}-vulkan0
+                     ${PROJECT_NAME}-vulkan1
+                     ${PROJECT_NAME}-vulkan2
+                     ${PROJECT_NAME}-vulkan3
+                     PROPERTIES ENVIRONMENT "${test_env_list}")

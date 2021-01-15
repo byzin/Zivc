@@ -185,6 +185,9 @@ class VulkanDeviceInfo : public DeviceInfo
   //! Return the underlying vulkan physical device
   const VkPhysicalDevice& device() const noexcept;
 
+  //! Return the device index in the sub-platform
+  std::size_t deviceIndex() const noexcept;
+
   //! Return extension properties list of the device
   zisc::pmr::vector<VkExtensionProperties>& extensionPropertiesList() noexcept;
 
@@ -234,6 +237,9 @@ class VulkanDeviceInfo : public DeviceInfo
 
   //! Return properties of the device
   const Properties& properties() const noexcept;
+
+  //! Set the device index in the sub-platform
+  void setDeviceIndex(const std::size_t index) noexcept;
 
   //! Return tool properties list of the device
   zisc::pmr::vector<VkPhysicalDeviceToolPropertiesEXT>& toolPropertiesList() noexcept;
@@ -302,6 +308,7 @@ class VulkanDeviceInfo : public DeviceInfo
   // VkExternalImageFormatProperties;
   // VkExternalSemaphoreProperties;
   VkPhysicalDevice device_;
+  std::size_t device_index_ = 0;
   IdData::NameType vendor_name_;
   VendorId vendor_id_;
   uint32b subgroup_size_ = 0;

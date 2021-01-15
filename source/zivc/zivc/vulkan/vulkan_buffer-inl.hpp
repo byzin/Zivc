@@ -563,7 +563,7 @@ template <typename T> inline
 bool VulkanBuffer<T>::hasMemoryProperty(const VkMemoryPropertyFlagBits flag) const noexcept
 {
   const auto& device = parentImpl();
-  const auto& device_info = device.deviceInfoData();
+  const auto& device_info = device.deviceInfoImpl();
   const auto& info = allocationInfo();
 
   const auto& mem_props = device_info.memoryProperties().properties1_;

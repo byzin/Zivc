@@ -58,7 +58,7 @@ class CpuDevice : public Device
 
 
   //! Return the underlying device info
-  const CpuDeviceInfo& deviceInfoData() const noexcept;
+  const CpuDeviceInfo& deviceInfoImpl() const noexcept;
 
   //! Return the memory usage by the given heap index
   zisc::Memory::Usage& memoryUsage(const std::size_t heap_index) noexcept override;

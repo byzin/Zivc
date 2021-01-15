@@ -111,7 +111,7 @@ const VkDevice& VulkanDevice::device() const noexcept
   \return No description
   */
 inline
-const VulkanDeviceInfo& VulkanDevice::deviceInfoData() const noexcept
+const VulkanDeviceInfo& VulkanDevice::deviceInfoImpl() const noexcept
 {
   const auto& info = deviceInfo();
   return *zisc::cast<const VulkanDeviceInfo*>(std::addressof(info));

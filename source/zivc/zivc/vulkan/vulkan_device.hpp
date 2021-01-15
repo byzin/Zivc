@@ -119,7 +119,7 @@ class VulkanDevice : public Device
   const VkDevice& device() const noexcept;
 
   //! Return the underlying device info
-  const VulkanDeviceInfo& deviceInfoData() const noexcept;
+  const VulkanDeviceInfo& deviceInfoImpl() const noexcept;
 
   //! Return the dispatcher of vulkan objects
   const VulkanDispatchLoader& dispatcher() const noexcept;
@@ -269,8 +269,8 @@ class VulkanDevice : public Device
         VkDeviceSize size,
         void* user_data);
 
-    //! Notify of a memory freeing in VMA
-    static void notifyOfDeviceMemoryFreeing(
+    //! Notify of a memory deallocation in VMA
+    static void notifyOfDeviceMemoryDeallocation(
         VmaAllocator vm_allocator,
         uint32b memory_type,
         VkDeviceMemory memory,

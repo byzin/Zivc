@@ -61,6 +61,12 @@ class CpuSubPlatform : public SubPlatform
   //! Return the maximum task batch size per thread
   static constexpr uint32b maxTaskBatchSize() noexcept;
 
+  //! Notify of device memory allocation
+  void notifyOfDeviceMemoryAllocation(const std::size_t size) noexcept;
+
+  //! Notify of device memory deallocation
+  void notifyOfDeviceMemoryDeallocation(const std::size_t size) noexcept;
+
   //! Return the number of available devices
   std::size_t numOfDevices() const noexcept override;
 

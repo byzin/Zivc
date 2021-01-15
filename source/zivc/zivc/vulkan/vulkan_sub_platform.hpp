@@ -86,6 +86,16 @@ class VulkanSubPlatform : public SubPlatform
   [[nodiscard]]
   SharedDevice makeDevice(const DeviceInfo& device_info) override;
 
+  //! Notify of device memory allocation
+  void notifyOfDeviceMemoryAllocation(const std::size_t device_index,
+                                      const std::size_t heap_index,
+                                      const std::size_t size) noexcept;
+
+  //! Notify of device memory deallocation
+  void notifyOfDeviceMemoryDeallocation(const std::size_t device_index,
+                                        const std::size_t heap_index,
+                                        const std::size_t size) noexcept;
+
   //! Return the number of available devices
   std::size_t numOfDevices() const noexcept override;
 
@@ -177,8 +187,8 @@ class VulkanSubPlatform : public SubPlatform
         size_t alignment,
         VkSystemAllocationScope scope);
 
-    //! Free a memory block
-    static void freeMemory(
+    //! Deallocate a memory block
+    static void deallocateMemory(
         void* user_data,
         void* memory);
 
@@ -189,8 +199,8 @@ class VulkanSubPlatform : public SubPlatform
         VkInternalAllocationType type,
         VkSystemAllocationScope scope);
 
-    //! Notify of a memory freeing
-    static void notifyOfMemoryFreeing(
+    //! Notify of a memory deallocation
+    static void notifyOfMemoryDeallocation(
         void* user_data,
         size_t size,
         VkInternalAllocationType type,

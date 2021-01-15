@@ -95,9 +95,9 @@ VkAllocationCallbacks VulkanSubPlatform::makeAllocator() noexcept
   zivcvk::AllocationCallbacks alloc{allocator_data_.get(),
                                     Callbacks::allocateMemory,
                                     Callbacks::reallocateMemory,
-                                    Callbacks::freeMemory,
+                                    Callbacks::deallocateMemory,
                                     Callbacks::notifyOfMemoryAllocation,
-                                    Callbacks::notifyOfMemoryFreeing};
+                                    Callbacks::notifyOfMemoryDeallocation};
   return zisc::cast<VkAllocationCallbacks>(alloc);
 }
 
@@ -162,9 +162,12 @@ void VulkanSubPlatform::updateDeviceInfoList()
 {
   device_info_list_->clear();
   device_info_list_->reserve(numOfDevices());
-  for (const auto& device : deviceList()) {
+  const auto& device_list = deviceList();
+  for (std::size_t i = 0; i < device_list.size(); ++i) {
+    const VkPhysicalDevice& device = device_list[i];
     VulkanDeviceInfo info{memoryResource()};
     info.fetch(device, dispatcher());
+    info.setDeviceIndex(i);
     device_info_list_->emplace_back(std::move(info));
   }
 }
@@ -277,7 +280,7 @@ auto VulkanSubPlatform::Callbacks::allocateMemory(
   \param [in,out] user_data No description.
   \param [in,out] memory No description.
   */
-void VulkanSubPlatform::Callbacks::freeMemory(
+void VulkanSubPlatform::Callbacks::deallocateMemory(
     void* user_data,
     void* memory)
 {
@@ -322,7 +325,7 @@ void VulkanSubPlatform::Callbacks::notifyOfMemoryAllocation(
   \param [in] type No description.
   \param [in] scope No description.
   */
-void VulkanSubPlatform::Callbacks::notifyOfMemoryFreeing(
+void VulkanSubPlatform::Callbacks::notifyOfMemoryDeallocation(
     [[maybe_unused]] void* user_data,
     [[maybe_unused]] size_t size,
     [[maybe_unused]] VkInternalAllocationType type,
@@ -513,7 +516,7 @@ auto VulkanSubPlatform::Callbacks::reallocateMemory(
   }
   // Deallocate the original memory
   if (original_memory)
-    freeMemory(user_data, original_memory);
+    deallocateMemory(user_data, original_memory);
   return memory;
 }
 

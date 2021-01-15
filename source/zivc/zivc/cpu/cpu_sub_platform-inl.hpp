@@ -19,9 +19,12 @@
 // Standard C++ library
 #include <cstddef>
 // Zisc
+#include "zisc/memory/memory.hpp"
 #include "zisc/utility.hpp"
 // Zivc
+#include "cpu_device_info.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/utility/memory_heap_info.hpp"
 
 namespace zivc {
 
@@ -34,6 +37,32 @@ inline
 constexpr uint32b CpuSubPlatform::maxTaskBatchSize() noexcept
 {
   return 1024;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] size No description.
+  */
+inline
+void CpuSubPlatform::notifyOfDeviceMemoryAllocation(const std::size_t size) noexcept
+{
+  MemoryHeapInfo& heap_info = device_info_->heapInfo(0);
+  zisc::Memory::Usage& usage = heap_info.usedSizeForBuffer();
+  usage.add(size);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] size No description.
+  */
+inline
+void CpuSubPlatform::notifyOfDeviceMemoryDeallocation(const std::size_t size) noexcept
+{
+  MemoryHeapInfo& heap_info = device_info_->heapInfo(0);
+  zisc::Memory::Usage& usage = heap_info.usedSizeForBuffer();
+  usage.release(size);
 }
 
 /*!

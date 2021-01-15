@@ -36,7 +36,7 @@ namespace zivc {
   \return No description
   */
 inline
-const CpuDeviceInfo& CpuDevice::deviceInfoData() const noexcept
+const CpuDeviceInfo& CpuDevice::deviceInfoImpl() const noexcept
 {
   const auto& info = deviceInfo();
   return *zisc::cast<const CpuDeviceInfo*>(std::addressof(info));
@@ -51,6 +51,8 @@ inline
 void CpuDevice::notifyAllocation(const std::size_t size) noexcept
 {
   heap_usage_.add(size);
+  CpuSubPlatform& sub_platform = parentImpl();
+  sub_platform.notifyOfDeviceMemoryAllocation(size);
 }
 
 /*!
@@ -62,6 +64,8 @@ inline
 void CpuDevice::notifyDeallocation(const std::size_t size) noexcept
 {
   heap_usage_.release(size);
+  CpuSubPlatform& sub_platform = parentImpl();
+  sub_platform.notifyOfDeviceMemoryDeallocation(size);
 }
 
 /*!

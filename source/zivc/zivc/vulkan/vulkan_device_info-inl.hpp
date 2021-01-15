@@ -49,6 +49,17 @@ const VkPhysicalDevice& VulkanDeviceInfo::device() const noexcept
   \return No description
   */
 inline
+std::size_t VulkanDeviceInfo::deviceIndex() const noexcept
+{
+  return device_index_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
 zisc::pmr::vector<VkExtensionProperties>&
 VulkanDeviceInfo::extensionPropertiesList() noexcept
 {
@@ -197,6 +208,17 @@ inline
 auto VulkanDeviceInfo::properties() const noexcept -> const Properties&
 {
   return properties_;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] index No description.
+  */
+inline
+void VulkanDeviceInfo::setDeviceIndex(const std::size_t index) noexcept
+{
+  device_index_ = index;
 }
 
 /*!

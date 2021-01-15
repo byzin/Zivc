@@ -73,21 +73,22 @@ TEST(PlatformTest, DeviceInfoTest)
   };
 
   // Heap
-  const std::size_t n_heap = info->numOfHeaps();
-  EXPECT_GT(n_heap, 0) << "Heap size is zero.";
-  std::cout << "## Num of heaps: " << n_heap << std::endl;
+  const auto& heap_info_list = info->heapInfoList();
+  EXPECT_GT(heap_info_list.size(), 0) << "Heap size is zero.";
+  std::cout << "## Num of heaps: " << heap_info_list.size() << std::endl;
   // Memory
-  for (std::size_t i = 0; i < n_heap; ++i) {
-    const std::size_t total_mem_size = info->totalMemory(i);
-    EXPECT_GT(total_mem_size, 0)
+  for (std::size_t i = 0; i < heap_info_list.size(); ++i) {
+    const auto& heap_info = heap_info_list[i];
+    std::cout << "    Heap[" << i << "]:          device local: "
+              << heap_info.isDeviceLocal() << std::endl;
+    EXPECT_GT(heap_info.totalSize(), 0)
         << "Heap[" << i << "]: total memory size isn't available.";
     std::cout << "    Heap[" << i << "]:     total memory size: "
-              << to_mb(total_mem_size) << " MB." << std::endl;
-    const std::size_t avail_mem_size = info->availableMemory(i);
-    EXPECT_GT(avail_mem_size, 0)
+              << to_mb(heap_info.totalSize()) << " MB." << std::endl;
+    EXPECT_GT(heap_info.availableSize(), 0)
         << "Heap[" << i << "]: available memory size isn't available.";
     std::cout << "    Heap[" << i << "]: available memory size: "
-              << to_mb(avail_mem_size) << " MB." << std::endl;
+              << to_mb(heap_info.availableSize()) << " MB." << std::endl;
   }
   // Allocation size
   {

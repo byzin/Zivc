@@ -77,7 +77,6 @@ int main(int /* argc */, char** /* argv */)
 
   // Show device info
   std::cout << std::endl;
-  platform->updateDeviceInfoList();
   const auto& device_info_list = platform->deviceInfoList();
   for (std::size_t i = 0; i < device_info_list.size(); ++i) {
     std::cout << std::endl;
@@ -89,8 +88,6 @@ int main(int /* argc */, char** /* argv */)
               << info->name() << std::endl;
     std::cout << indent2 << "Vendor name         : "
               << info->vendorName() << std::endl;
-    std::cout << indent2 << "Num of heaps        : "
-              << info->numOfHeaps() << std::endl;
 
     auto device = platform->makeDevice(i);
     std::cout << indent2 << "Num of queues       : "
@@ -134,13 +131,13 @@ int main(int /* argc */, char** /* argv */)
     print_buffer_info(buffer4.get());
 
     std::cout << std::endl;
-    for (std::size_t num = 0; num < info->numOfHeaps(); ++num) {
-      std::cout << indent2 << "[Heap" << num << "]      Memory usage: "
-                << ::toMegaBytes(device->totalMemoryUsage(num))
-                << " MB." << std::endl;
-      std::cout << indent2 << "[Heap" << num << "] Peak Memory usage: "
-                << ::toMegaBytes(device->peakMemoryUsage(num))
-                << " MB." << std::endl;
+    const auto& heap_info_list = info->heapInfoList();
+    for (std::size_t index = 0; index < heap_info_list.size(); ++index) {
+      const auto& usage = device->memoryUsage(index);
+      std::cout << indent2 << "[Heap" << index << "]      Memory usage: "
+                << ::toMegaBytes(usage.total()) << " MB." << std::endl;
+      std::cout << indent2 << "[Heap" << index << "] Peak Memory usage: "
+                << ::toMegaBytes(usage.peak()) << " MB." << std::endl;
     }
 
     auto kernel_params = ZIVC_MAKE_KERNEL_PARAMS(example, testKernel, 1);

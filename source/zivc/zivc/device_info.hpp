@@ -19,10 +19,13 @@
 #include <array>
 #include <cstddef>
 #include <string_view>
+#include <vector>
 // Zisc
 #include "zisc/non_copyable.hpp"
+#include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "zivc_config.hpp"
+#include "utility/memory_heap_info.hpp"
 
 namespace zivc {
 
@@ -35,7 +38,7 @@ class DeviceInfo : private zisc::NonCopyable<DeviceInfo>
 {
  public:
   //! Initialize the device info
-  DeviceInfo() noexcept;
+  DeviceInfo(zisc::pmr::memory_resource* mem_resource) noexcept;
 
   //! Move a data
   DeviceInfo(DeviceInfo&& other) noexcept;
@@ -48,13 +51,22 @@ class DeviceInfo : private zisc::NonCopyable<DeviceInfo>
   DeviceInfo& operator=(DeviceInfo&& other) noexcept;
 
 
-  //! Return the amount of actual device memory currently available in bytes
-  virtual std::size_t availableMemory(const std::size_t heap_index) const noexcept = 0;
+  //! Return the heap info by the given index
+  MemoryHeapInfo& heapInfo(const std::size_t heap_index) noexcept;
+
+  //! Return the heap info by the given index
+  const MemoryHeapInfo& heapInfo(const std::size_t heap_index) const noexcept;
+
+  //! Return the heap info list
+  zisc::pmr::vector<MemoryHeapInfo>& heapInfoList() noexcept;
+
+  //! Return the heap info list
+  const zisc::pmr::vector<MemoryHeapInfo>& heapInfoList() const noexcept;
 
   //! Return invalid name string
   static std::string_view invalidName() noexcept;
 
-  //! Return the maximum size of an allocation in bytes
+  //! Return the possible maximum size of an allocation in bytes
   virtual std::size_t maxAllocationSize() const noexcept = 0;
 
   //! Return the maximum work group count
@@ -62,12 +74,6 @@ class DeviceInfo : private zisc::NonCopyable<DeviceInfo>
 
   //! Return the device name
   virtual std::string_view name() const noexcept = 0;
-
-  //! Return the number of heaps of the device local
-  virtual std::size_t numOfHeaps() const noexcept = 0;
-
-  //! Return the amount of actual device memory in bytes
-  virtual std::size_t totalMemory(const std::size_t heap_index) const noexcept = 0;
 
   //! Return the sub-platform type
   virtual SubPlatformType type() const noexcept = 0;
@@ -80,6 +86,9 @@ class DeviceInfo : private zisc::NonCopyable<DeviceInfo>
 
  private:
   static constexpr char kInvalidName[] = "N/A";
+
+
+  zisc::pmr::vector<MemoryHeapInfo> heap_info_list_;
 };
 
 } // namespace zivc

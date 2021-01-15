@@ -150,28 +150,6 @@ void Platform::initialize(PlatformOptions& options)
 
 /*!
   \details No detailed description
-  */
-void Platform::updateDeviceInfoList()
-{
-  device_info_list_->clear();
-  std::size_t num_of_devices = 0;
-  // 
-  for (auto& sub_platform : sub_platform_list_) {
-    if (sub_platform && sub_platform->isAvailable()) {
-      sub_platform->updateDeviceInfoList();
-      num_of_devices += sub_platform->numOfDevices();
-    }
-  }
-  //
-  device_info_list_->reserve(num_of_devices);
-  for (const auto& sub_platform : sub_platform_list_) {
-    if (sub_platform && sub_platform->isAvailable())
-      sub_platform->getDeviceInfoList(*device_info_list_);
-  }
-}
-
-/*!
-  \details No detailed description
 
   \tparam SubPlatformType No description.
   \param [in,out] options No description.
@@ -195,6 +173,28 @@ void Platform::setDebugMode(const bool is_debug_mode) noexcept
 {
   is_debug_mode_ = is_debug_mode ? Config::scalarResultTrue()
                                  : Config::scalarResultFalse();
+}
+
+/*!
+  \details No detailed description
+  */
+void Platform::updateDeviceInfoList()
+{
+  device_info_list_->clear();
+  std::size_t num_of_devices = 0;
+  // 
+  for (auto& sub_platform : sub_platform_list_) {
+    if (sub_platform && sub_platform->isAvailable()) {
+      sub_platform->updateDeviceInfoList();
+      num_of_devices += sub_platform->numOfDevices();
+    }
+  }
+  //
+  device_info_list_->reserve(num_of_devices);
+  for (const auto& sub_platform : sub_platform_list_) {
+    if (sub_platform && sub_platform->isAvailable())
+      sub_platform->getDeviceInfoList(*device_info_list_);
+  }
 }
 
 /*!

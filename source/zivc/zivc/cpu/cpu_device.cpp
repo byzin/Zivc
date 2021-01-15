@@ -65,6 +65,28 @@ CpuDevice::~CpuDevice() noexcept
 /*!
   \details No detailed description
 
+  \param [in] heap_index No description.
+  \return No description
+  */
+zisc::Memory::Usage& CpuDevice::memoryUsage([[maybe_unused]] const std::size_t heap_index) noexcept
+{
+  return heap_usage_;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] heap_index No description.
+  \return No description
+  */
+const zisc::Memory::Usage& CpuDevice::memoryUsage([[maybe_unused]] const std::size_t heap_index) const noexcept
+{
+  return heap_usage_;
+}
+
+/*!
+  \details No detailed description
+
   \return No description
   */
 std::size_t CpuDevice::numOfFences() const noexcept
@@ -81,17 +103,6 @@ std::size_t CpuDevice::numOfFences() const noexcept
 std::size_t CpuDevice::numOfQueues() const noexcept
 {
   return 1;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] number No description.
-  \return No description
-  */
-std::size_t CpuDevice::peakMemoryUsage([[maybe_unused]] const std::size_t number) const noexcept
-{
-  return heap_usage_.peak();
 }
 
 /*!
@@ -164,17 +175,6 @@ void CpuDevice::takeFence(Fence* fence)
 {
   auto memory = std::addressof(fence->data());
   [[maybe_unused]] auto f = ::new (zisc::cast<void*>(memory)) ::CpuFence{};
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] number No description.
-  \return No description
-  */
-std::size_t CpuDevice::totalMemoryUsage([[maybe_unused]] const std::size_t number) const noexcept
-{
-  return heap_usage_.total();
 }
 
 /*!

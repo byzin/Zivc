@@ -20,6 +20,7 @@
 #include <memory>
 // Zisc
 #include "zisc/non_copyable.hpp"
+#include "zisc/memory/memory.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "buffer.hpp"
@@ -85,14 +86,17 @@ class Device : public ZivcObject
   SharedKernel<kDim, KSet, Args...> makeKernel(
       const KernelParams<kDim, KSet, Args...>& params);
 
+  //! Return the memory usage by the given heap index
+  virtual zisc::Memory::Usage& memoryUsage(const std::size_t heap_index) noexcept = 0;
+
+  //! Return the memory usage by the given heap index
+  virtual const zisc::Memory::Usage& memoryUsage(const std::size_t heap_index) const noexcept = 0;
+
   //! Return the number of available fences
   virtual std::size_t numOfFences() const noexcept = 0;
 
   //! Return the number of underlying command queues
   virtual std::size_t numOfQueues() const noexcept = 0;
-
-  //! Return the peak memory usage of the heap of the given number
-  virtual std::size_t peakMemoryUsage(const std::size_t number) const noexcept = 0;
 
   //! Return the use of the given fence to the device
   virtual void returnFence(Fence* fence) noexcept = 0;
@@ -102,9 +106,6 @@ class Device : public ZivcObject
 
   //! Take a use of a fence from the device
   virtual void takeFence(Fence* fence) = 0;
-
-  //! Return the current memory usage of the heap of the given number
-  virtual std::size_t totalMemoryUsage(const std::size_t number) const noexcept = 0;
 
   //! Wait for a device to be idle
   virtual void waitForCompletion() const = 0;

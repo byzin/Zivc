@@ -93,9 +93,6 @@ class Platform : private zisc::NonCopyable<Platform>
   //! Return the sub-platform of the given type
   const SubPlatform* subPlatform(const SubPlatformType type) const noexcept;
 
-  //! Update the device info list
-  void updateDeviceInfoList();
-
  private:
   //! Create a sub-platform
   template <typename SubPlatformType>
@@ -106,6 +103,9 @@ class Platform : private zisc::NonCopyable<Platform>
 
   //! Set a sub-platform of the given type
   void setSubPlatform(SharedSubPlatform&& sub_platform) noexcept;
+
+  //! Update the device info list
+  void updateDeviceInfoList();
 
 
   static constexpr std::size_t kNumOfSubPlatforms = 2;

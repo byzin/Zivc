@@ -36,8 +36,8 @@ namespace zivc {
 
   \param [in] mem_resource No description.
   */
-CpuDeviceInfo::CpuDeviceInfo([[maybe_unused]] zisc::pmr::memory_resource* mem_resource) noexcept :
-    DeviceInfo()
+CpuDeviceInfo::CpuDeviceInfo(zisc::pmr::memory_resource* mem_resource) noexcept :
+    DeviceInfo(mem_resource)
 {
 }
 
@@ -78,23 +78,11 @@ CpuDeviceInfo& CpuDeviceInfo::operator=(CpuDeviceInfo&& other) noexcept
 
 /*!
   \details No detailed description
-
-  \param [in] heap_index No description.
-  \return No description
-  */
-std::size_t CpuDeviceInfo::availableMemory([[maybe_unused]] const std::size_t heap_index) const noexcept
-{
-  const std::size_t memory_size = memory_stats_.availablePhysicalMemory();
-  return memory_size;
-}
-
-/*!
-  \details No detailed description
   */
 void CpuDeviceInfo::fetch() noexcept
 {
   initCpuInfo();
-  memory_stats_ = zisc::Memory::retrieveSystemStats();
+  initHeapInfoList();
 }
 
 /*!
@@ -146,28 +134,6 @@ std::string_view CpuDeviceInfo::name() const noexcept
 
   \return No description
   */
-std::size_t CpuDeviceInfo::numOfHeaps() const noexcept
-{
-  return 1;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] heap_index No description.
-  \return No description
-  */
-std::size_t CpuDeviceInfo::totalMemory([[maybe_unused]] const std::size_t heap_index) const noexcept
-{
-  const std::size_t memory_size = memory_stats_.totalPhysicalMemory();
-  return memory_size;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
 SubPlatformType CpuDeviceInfo::type() const noexcept
 {
   return SubPlatformType::kCpu;
@@ -200,6 +166,28 @@ uint32b CpuDeviceInfo::workGroupSize() const noexcept
 void CpuDeviceInfo::initCpuInfo() noexcept
 {
   getCpuFeatures(name_.data(), vendor_name_.data());
+}
+
+/*!
+  \details No detailed description
+  */
+void CpuDeviceInfo::initHeapInfoList() noexcept
+{
+  memory_stats_ = zisc::Memory::retrieveSystemStats();
+  MemoryHeapInfo info;
+  info.setDeviceLocal(true);
+  {
+    const std::size_t size = memory_stats_.totalPhysicalMemory();
+    info.setTotalSize(size);
+  }
+  {
+    const std::size_t size = memory_stats_.availablePhysicalMemory();
+    info.setAvailableSize(size);
+  }
+  auto& heap_info_list = DeviceInfo::heapInfoList();
+  heap_info_list.clear();
+  heap_info_list.resize(1);
+  heap_info_list[0] = info;
 }
 
 } // namespace zivc

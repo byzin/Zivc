@@ -191,14 +191,17 @@ class VulkanDevice : public Device
   //! Return the memory allocator of the device
   const VmaAllocator& memoryAllocator() const noexcept;
 
+  //! Return the memory usage by the given heap index
+  zisc::Memory::Usage& memoryUsage(const std::size_t heap_index) noexcept override;
+
+  //! Return the memory usage by the given heap index
+  const zisc::Memory::Usage& memoryUsage(const std::size_t heap_index) const noexcept override;
+
   //! Return the number of available fences
   std::size_t numOfFences() const noexcept override;
 
   //! Return the number of underlying command queues
   std::size_t numOfQueues() const noexcept override;
-
-  //! Return the peak memory usage of the heap of the given number
-  std::size_t peakMemoryUsage(const std::size_t number) const noexcept override;
 
   //! Return an index of a queue family
   uint32b queueFamilyIndex() const noexcept;
@@ -222,9 +225,6 @@ class VulkanDevice : public Device
 
   //! Take a use of a fence from the device
   void takeFence(Fence* fence) override;
-
-  //! Return the current memory usage of the heap of the given number
-  std::size_t totalMemoryUsage(const std::size_t number) const noexcept override;
 
   //! Wait for a device to be idle
   void waitForCompletion() const override;
@@ -258,9 +258,8 @@ class VulkanDevice : public Device
   {
    public:
     //! Return the index of memory heap
-    static bool getHeapNumber(const VulkanDevice& device,
-                              const uint32b memory_type,
-                              std::size_t* number) noexcept;
+    static std::size_t getHeapIndex(const VulkanDevice& device,
+                                    const uint32b memory_type) noexcept;
 
     //! Notify of a memory allocation in VMA
     static void notifyOfDeviceMemoryAllocation(

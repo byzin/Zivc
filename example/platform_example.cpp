@@ -76,7 +76,6 @@ int main(int /* argc */, char** /* argv */)
 
   // Show device info
   std::cout << std::endl;
-  platform->updateDeviceInfoList();
   const auto& device_info_list = platform->deviceInfoList();
   for (std::size_t i = 0; i < device_info_list.size(); ++i) {
     std::cout << std::endl;
@@ -98,12 +97,16 @@ int main(int /* argc */, char** /* argv */)
     std::cout << indent2 << "Max allocation size : "
               << ::toMegaBytes(info->maxAllocationSize()) << " MB." << std::endl;
     const std::string indent3 = indent2 + indent1;
-    for (std::size_t index = 0; index < info->numOfHeaps(); ++index) {
+    const auto& heap_info_list = info->heapInfoList();
+    for (std::size_t index = 0; index < heap_info_list.size(); ++index) {
       std::cout << indent2 << "MemoryHeap[" << index << "]" << std::endl;
+      const auto& heap_info = heap_info_list[index];
+      std::cout << indent3 << "Device local    : "
+                << heap_info.isDeviceLocal() << std::endl;
       std::cout << indent3 << "Total memory    : "
-                << ::toMegaBytes(info->totalMemory(index)) << " MB." << std::endl;
+                << ::toMegaBytes(heap_info.totalSize()) << " MB." << std::endl;
       std::cout << indent3 << "Available memory: "
-                << ::toMegaBytes(info->availableMemory(index)) << " MB." << std::endl;
+                << ::toMegaBytes(heap_info.availableSize()) << " MB." << std::endl;
     }
   }
 

@@ -56,9 +56,6 @@ class CpuDeviceInfo : public DeviceInfo
   CpuDeviceInfo& operator=(CpuDeviceInfo&& other) noexcept;
 
 
-  //! Return the amount of actual device memory currently available in bytes
-  std::size_t availableMemory(const std::size_t heap_index) const noexcept override;
-
   //! Fetch device info from the host
   void fetch() noexcept;
 
@@ -74,12 +71,6 @@ class CpuDeviceInfo : public DeviceInfo
   //! Return the device name
   std::string_view name() const noexcept override;
 
-  //! Return the number of heaps of the device local
-  std::size_t numOfHeaps() const noexcept override;
-
-  //! Return the amount of actual device memory in bytes
-  std::size_t totalMemory(const std::size_t heap_index) const noexcept override;
-
   //! Return the sub-platform type
   SubPlatformType type() const noexcept override;
 
@@ -92,6 +83,9 @@ class CpuDeviceInfo : public DeviceInfo
  private:
   //! Initialize CPU info
   void initCpuInfo() noexcept;
+
+  //! Initialize the heap info list
+  void initHeapInfoList() noexcept;
 
 
   IdData::NameType name_;

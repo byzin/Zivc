@@ -80,7 +80,6 @@ int main(int /* argc */, char** /* argv */)
           std::to_string(zivc::vkGetVersionPatch(version));
     };
 
-    platform->updateDeviceInfoList();
     auto sub_platform = zisc::cast<zivc::VulkanSubPlatform*>(
         platform->subPlatform(zivc::SubPlatformType::kVulkan));
 

@@ -40,7 +40,7 @@ namespace zivc {
   */
 VulkanDeviceInfo::VulkanDeviceInfo(zisc::pmr::memory_resource* mem_resource)
     noexcept :
-        DeviceInfo(),
+        DeviceInfo(mem_resource),
         extension_properties_list_{
           decltype(extension_properties_list_)::allocator_type{mem_resource}},
         layer_properties_list_{
@@ -49,8 +49,6 @@ VulkanDeviceInfo::VulkanDeviceInfo(zisc::pmr::memory_resource* mem_resource)
           decltype(queue_family_properties_list_)::allocator_type{mem_resource}},
         tool_properties_list_{
           decltype(tool_properties_list_)::allocator_type{mem_resource}},
-        device_local_index_list_{
-          decltype(device_local_index_list_)::allocator_type{mem_resource}},
         vendor_id_{VendorId::kUnknown},
         subgroup_size_{0}
 {
@@ -67,7 +65,6 @@ VulkanDeviceInfo::VulkanDeviceInfo(VulkanDeviceInfo&& other) noexcept :
     layer_properties_list_{std::move(other.layer_properties_list_)},
     queue_family_properties_list_{std::move(other.queue_family_properties_list_)},
     tool_properties_list_{std::move(other.tool_properties_list_)},
-    device_local_index_list_{std::move(other.device_local_index_list_)},
     device_{other.device_},
     vendor_name_{std::move(other.vendor_name_)},
     vendor_id_{other.vendor_id_},
@@ -91,7 +88,6 @@ VulkanDeviceInfo& VulkanDeviceInfo::operator=(VulkanDeviceInfo&& other) noexcept
   layer_properties_list_ = std::move(other.layer_properties_list_);
   queue_family_properties_list_ = std::move(other.queue_family_properties_list_);
   tool_properties_list_ = std::move(other.tool_properties_list_);
-  device_local_index_list_ = std::move(other.device_local_index_list_);
   device_ = other.device_;
   vendor_name_ = std::move(other.vendor_name_);
   vendor_id_ = other.vendor_id_;
@@ -107,20 +103,6 @@ VulkanDeviceInfo& VulkanDeviceInfo::operator=(VulkanDeviceInfo&& other) noexcept
   */
 VulkanDeviceInfo::~VulkanDeviceInfo() noexcept
 {
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] heap_index No description.
-  \return No description
-  */
-std::size_t VulkanDeviceInfo::availableMemory(const std::size_t heap_index) const noexcept
-{
-  const std::size_t index = getDeviceHeapIndex(heap_index);
-  const auto& budget = memoryProperties().budget_;
-  const std::size_t mem = budget.heapBudget[index] - budget.heapUsage[index];
-  return mem;
 }
 
 /*!
@@ -142,9 +124,9 @@ void VulkanDeviceInfo::fetch(const VkPhysicalDevice& vdevice,
   fetchFeatures(dispatcher);
   fetchMemoryProperties(dispatcher);
   // Set device info
+  initHeapInfoList();
   initVendorInfo();
   initSubgroupSize();
-  findDeviceLocalHeaps();
 }
 
 /*!
@@ -182,30 +164,6 @@ std::string_view VulkanDeviceInfo::name() const noexcept
   const Properties& props = properties();
   std::string_view n{props.properties1_.deviceName};
   return n;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-std::size_t VulkanDeviceInfo::numOfHeaps() const noexcept
-{
-  return device_local_index_list_.size();
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] heap_index No description.
-  \return No description
-  */
-std::size_t VulkanDeviceInfo::totalMemory(const std::size_t heap_index) const noexcept
-{
-  const std::size_t index = getDeviceHeapIndex(heap_index);
-  const auto& heap = memoryProperties().properties1_.memoryHeaps[index];
-  const std::size_t mem = heap.size;
-  return mem;
 }
 
 /*!
@@ -616,14 +574,26 @@ void VulkanDeviceInfo::fetchQueueFamilyProperties(
 /*!
   \details No detailed description
   */
-void VulkanDeviceInfo::findDeviceLocalHeaps() noexcept
+void VulkanDeviceInfo::initHeapInfoList() noexcept
 {
-  device_local_index_list_.clear();
   const auto& props = memoryProperties().properties1_;
-  for (std::size_t i = 0; i < props.memoryHeapCount; ++i) {
+  auto& heap_info_list = DeviceInfo::heapInfoList();
+  heap_info_list.clear();
+  heap_info_list.resize(props.memoryHeapCount);
+  for (std::size_t i = 0; i < heap_info_list.size(); ++i) {
+    MemoryHeapInfo& info = heap_info_list[i];
     const zivcvk::MemoryHeap heap{props.memoryHeaps[i]};
-    if(heap.flags & zivcvk::MemoryHeapFlagBits::eDeviceLocal)
-      device_local_index_list_.emplace_back(i);
+    {
+      constexpr auto dflag = zivcvk::MemoryHeapFlagBits::eDeviceLocal;
+      const bool is_device_local = (heap.flags & dflag) == dflag;
+      info.setDeviceLocal(is_device_local);
+    }
+    info.setTotalSize(heap.size);
+    {
+      const auto& budget = memoryProperties().budget_;
+      const std::size_t size = budget.heapBudget[i] - budget.heapUsage[i];
+      info.setAvailableSize(size);
+    }
   }
 }
 

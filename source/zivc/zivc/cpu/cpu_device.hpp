@@ -60,6 +60,12 @@ class CpuDevice : public Device
   //! Return the underlying device info
   const CpuDeviceInfo& deviceInfoData() const noexcept;
 
+  //! Return the memory usage by the given heap index
+  zisc::Memory::Usage& memoryUsage(const std::size_t heap_index) noexcept override;
+
+  //! Return the memory usage by the given heap index
+  const zisc::Memory::Usage& memoryUsage(const std::size_t heap_index) const noexcept override;
+
   //! Notify of device memory allocation
   void notifyAllocation(const std::size_t size) noexcept;
 
@@ -74,9 +80,6 @@ class CpuDevice : public Device
 
   //! Return the number of threads which are used for kernel execution
   std::size_t numOfThreads() const noexcept;
-
-  //! Return the peak memory usage of the heap of the given index
-  std::size_t peakMemoryUsage(const std::size_t number) const noexcept override;
 
   //! Return the use of the given fence to the device
   void returnFence(Fence* fence) noexcept override;
@@ -101,9 +104,6 @@ class CpuDevice : public Device
 
   //! Return the underlying thread manager which is used for kernel exection
   const zisc::ThreadManager& threadManager() const noexcept;
-
-  //! Return the current memory usage of the heap of the given index
-  std::size_t totalMemoryUsage(const std::size_t number) const noexcept override;
 
   //! Wait for a device to be idle
   void waitForCompletion() const override;

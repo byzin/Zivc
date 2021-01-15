@@ -13,13 +13,19 @@
   */
 
 #include "device_info.hpp"
+// Standard C++ library
+#include <utility>
+#include <vector>
+// Zisc
+#include "zisc/memory/std_memory_resource.hpp"
 
 namespace zivc {
 
 /*!
   \details No detailed description
   */
-DeviceInfo::DeviceInfo() noexcept
+DeviceInfo::DeviceInfo(zisc::pmr::memory_resource* mem_resource) noexcept :
+    heap_info_list_{decltype(heap_info_list_)::allocator_type{mem_resource}}
 {
 }
 
@@ -28,7 +34,8 @@ DeviceInfo::DeviceInfo() noexcept
 
   \param [in,out] other No description.
   */
-DeviceInfo::DeviceInfo([[maybe_unused]] DeviceInfo&& other) noexcept
+DeviceInfo::DeviceInfo(DeviceInfo&& other) noexcept :
+    heap_info_list_{std::move(other.heap_info_list_)}
 {
 }
 
@@ -45,8 +52,9 @@ DeviceInfo::~DeviceInfo() noexcept
   \param [in,out] other No description.
   \return No description
   */
-DeviceInfo& DeviceInfo::operator=([[maybe_unused]] DeviceInfo&& other) noexcept
+DeviceInfo& DeviceInfo::operator=(DeviceInfo&& other) noexcept
 {
+  heap_info_list_ = std::move(other.heap_info_list_);
   return *this;
 }
 

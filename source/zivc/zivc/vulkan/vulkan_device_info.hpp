@@ -182,9 +182,6 @@ class VulkanDeviceInfo : public DeviceInfo
   VulkanDeviceInfo& operator=(VulkanDeviceInfo&& other) noexcept;
 
 
-  //! Return the amount of actual device memory currently available in bytes
-  std::size_t availableMemory(const std::size_t heap_index) const noexcept override;
-
   //! Return the underlying vulkan physical device
   const VkPhysicalDevice& device() const noexcept;
 
@@ -203,12 +200,6 @@ class VulkanDeviceInfo : public DeviceInfo
   //! Fetch device info from a physical device
   void fetch(const VkPhysicalDevice& vdevice,
              const VulkanDispatchLoader& dispatcher);
-
-  //! Return the index of the vulkan heap that is device local of the number-th
-  std::size_t getDeviceHeapIndex(const std::size_t number) const noexcept;
-
-  //! Return the number of the vulkan heap by the given index
-  std::size_t getDeviceHeapNumber(const std::size_t index) const noexcept;
 
   //! Initialize a property with the given type
   template <typename CppType, typename CType>
@@ -238,9 +229,6 @@ class VulkanDeviceInfo : public DeviceInfo
   //! Return the device name
   std::string_view name() const noexcept override;
 
-  //! Return the number of heaps of the device local
-  std::size_t numOfHeaps() const noexcept override;
-
   //! Return properties of the device
   Properties& properties() noexcept;
 
@@ -252,9 +240,6 @@ class VulkanDeviceInfo : public DeviceInfo
 
   //! Return tool properties list of the device
   const zisc::pmr::vector<VkPhysicalDeviceToolPropertiesEXT>& toolPropertiesList() const noexcept;
-
-  //! Return the amount of actual device memory in bytes
-  std::size_t totalMemory(const std::size_t heap_index) const noexcept override;
 
   //! Return the sub-platform type
   SubPlatformType type() const noexcept override;
@@ -296,8 +281,8 @@ class VulkanDeviceInfo : public DeviceInfo
   //! Fetch queue family properties from a physical device
   void fetchQueueFamilyProperties(const VulkanDispatchLoader& dispatcher);
 
-  //! Find the indices of device load heaps
-  void findDeviceLocalHeaps() noexcept;
+  //! Initialize the heap info list
+  void initHeapInfoList() noexcept;
 
   //! Initialize the subgroup size of the device
   void initSubgroupSize() noexcept;
@@ -316,7 +301,6 @@ class VulkanDeviceInfo : public DeviceInfo
   // VkExternalFenceProperties;
   // VkExternalImageFormatProperties;
   // VkExternalSemaphoreProperties;
-  zisc::pmr::vector<std::size_t> device_local_index_list_;
   VkPhysicalDevice device_;
   IdData::NameType vendor_name_;
   VendorId vendor_id_;

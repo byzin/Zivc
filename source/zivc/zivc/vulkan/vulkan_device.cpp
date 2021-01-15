@@ -32,6 +32,7 @@
 #include "zisc/error.hpp"
 #include "zisc/utility.hpp"
 #include "zisc/hash/fnv_1a_hash_engine.hpp"
+#include "zisc/memory/memory.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 #include "zisc/thread/bitset.hpp"
 #include "zisc/utility.hpp"
@@ -396,6 +397,30 @@ VkCommandBuffer VulkanDevice::makeCommandBuffer()
 /*!
   \details No detailed description
 
+  \param [in] heap_index No description.
+  \return No description
+  */
+zisc::Memory::Usage& VulkanDevice::memoryUsage(const std::size_t heap_index) noexcept
+{
+  zisc::Memory::Usage& usage = (*heap_usage_list_)[heap_index];
+  return usage;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] heap_index No description.
+  \return No description
+  */
+const zisc::Memory::Usage& VulkanDevice::memoryUsage(const std::size_t heap_index) const noexcept
+{
+  zisc::Memory::Usage& usage = (*heap_usage_list_)[heap_index];
+  return usage;
+}
+
+/*!
+  \details No detailed description
+
   \return No description
   */
 std::size_t VulkanDevice::numOfFences() const noexcept
@@ -417,22 +442,6 @@ std::size_t VulkanDevice::numOfQueues() const noexcept
 
   const std::size_t n = queue_family_list[index].queueCount;
   return n;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] number No description.
-  \return No description
-  */
-std::size_t VulkanDevice::peakMemoryUsage(const std::size_t number) const noexcept
-{
-  std::size_t s = 0;
-  if (heap_usage_list_) {
-    const auto& usage = (*heap_usage_list_)[number];
-    s = usage.peak();
-  }
-  return s;
 }
 
 /*!
@@ -575,22 +584,6 @@ void VulkanDevice::takeFence(Fence* fence)
 
 /*!
   \details No detailed description
-
-  \param [in] number No description.
-  \return No description
-  */
-std::size_t VulkanDevice::totalMemoryUsage(const std::size_t number) const noexcept
-{
-  std::size_t s = 0;
-  if (heap_usage_list_) {
-    const auto& usage = (*heap_usage_list_)[number];
-    s = usage.total();
-  }
-  return s;
-}
-
-/*!
-  \details No detailed description
   */
 void VulkanDevice::waitForCompletion() const
 {
@@ -713,7 +706,7 @@ void VulkanDevice::initData()
     zisc::pmr::polymorphic_allocator<UsageList> alloc{mem_resource};
     heap_usage_list_ = zisc::pmr::allocateUnique(alloc, std::move(usage_list));
     const auto& info = deviceInfoData();
-    heap_usage_list_->resize(info.numOfHeaps());
+    heap_usage_list_->resize(info.heapInfoList().size());
   }
   {
     using ShaderModuleList = decltype(module_data_list_)::element_type;
@@ -800,23 +793,15 @@ void VulkanDevice::updateDebugInfoImpl()
 
   \param [in] device No description.
   \param [in] memory_type No description.
-  \param [out] number No description.
   \return No description
   */
-bool VulkanDevice::Callbacks::getHeapNumber(const VulkanDevice& device,
-                                            const uint32b memory_type,
-                                            std::size_t* number) noexcept
+std::size_t VulkanDevice::Callbacks::getHeapIndex(const VulkanDevice& device,
+                                                  const uint32b memory_type) noexcept
 {
   const auto& info = device.deviceInfoData();
   const auto& mem_props = info.memoryProperties().properties1_;
   const std::size_t index = mem_props.memoryTypes[memory_type].heapIndex;
-  const zivcvk::MemoryHeap heap{mem_props.memoryHeaps[index]};
-  bool is_device_heap = false;
-  if (heap.flags & zivcvk::MemoryHeapFlagBits::eDeviceLocal) {
-    *number = info.getDeviceHeapNumber(index);
-    is_device_heap = true;
-  }
-  return is_device_heap;
+  return index;
 }
 
 /*!
@@ -836,10 +821,8 @@ void VulkanDevice::Callbacks::notifyOfDeviceMemoryAllocation(
     void* user_data)
 {
   auto device = zisc::cast<VulkanDevice*>(user_data);
-  std::size_t heap_index = 0;
-  const bool is_index_found = getHeapNumber(*device, memory_type, &heap_index);
-  if (is_index_found)
-    (*device->heap_usage_list_)[heap_index].add(size);
+  const std::size_t index = getHeapIndex(*device, memory_type);
+  (*device->heap_usage_list_)[index].add(size);
 }
 
 /*!
@@ -859,10 +842,8 @@ void VulkanDevice::Callbacks::notifyOfDeviceMemoryFreeing(
     void* user_data)
 {
   auto device = zisc::cast<VulkanDevice*>(user_data);
-  std::size_t heap_index = 0;
-  const bool is_index_found = getHeapNumber(*device, memory_type, &heap_index);
-  if (is_index_found)
-    (*device->heap_usage_list_)[heap_index].release(size);
+  const std::size_t index = getHeapIndex(*device, memory_type);
+  (*device->heap_usage_list_)[index].release(size);
 }
 
 /*!

@@ -39,7 +39,7 @@ namespace zivc {
   \tparam kAddressType No description.
   \tparam Type No description.
   */
-template <cl::AddressSpaceType kAddressType, typename Type>
+template <cl::AddressSpaceType kAddressType, zisc::TriviallyCopyable Type>
 class AddressSpaceInfo<cl::AddressSpacePointer<kAddressType, Type>>
 {
   using ASpaceType = cl::AddressSpaceType;
@@ -68,7 +68,7 @@ class AddressSpaceInfo<cl::AddressSpacePointer<kAddressType, Type>>
 
   \tparam Type No description.
   */
-template <typename Type>
+template <zisc::TriviallyCopyable Type>
 class AddressSpaceInfo<Buffer<Type>>
 {
  public:

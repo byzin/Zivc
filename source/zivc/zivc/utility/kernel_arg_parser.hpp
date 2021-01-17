@@ -31,7 +31,7 @@ namespace zivc {
 // Forward declaration
 template <std::size_t, DerivedKSet, typename...> class KernelParams;
 template <typename, typename...> class Kernel;
-template <typename> class Buffer;
+template <zisc::TriviallyCopyable> class Buffer;
 
 /*!
   \brief POD type info

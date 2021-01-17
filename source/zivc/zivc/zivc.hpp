@@ -18,6 +18,8 @@
 // Standard C++ library
 #include <cstddef>
 #include <string_view>
+// Zisc
+#include "zisc/concepts.hpp"
 // Zivc
 #include "buffer.hpp"
 #include "device.hpp"
@@ -40,7 +42,7 @@
 namespace zivc {
 
 //! Make a buffer
-template <typename Type>
+template <zisc::TriviallyCopyable Type>
 [[nodiscard]]
 SharedBuffer<Type> makeBuffer(Device* device, const BufferUsage flag);
 

@@ -116,7 +116,7 @@ class VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> :
   bool checkIfPodUpdateIsNeeded(Args... args) const noexcept;
 
   //! Get the underlying VkBuffer from the given buffer
-  template <typename Type>
+  template <zisc::TriviallyCopyable Type>
   static const VkBuffer& getBufferHandle(const Buffer<Type>& buffer) noexcept;
 
   //! Initialize the buffer list

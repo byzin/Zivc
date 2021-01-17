@@ -21,6 +21,8 @@
 #include <memory>
 #include <type_traits>
 // Zivc
+#include "zisc/concepts.hpp"
+// Zivc
 #include "zivc/kernel.hpp"
 #include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
@@ -30,7 +32,7 @@
 namespace zivc {
 
 // Forward declaration
-template <typename> class Buffer;
+template <zisc::TriviallyCopyable> class Buffer;
 class CpuDevice;
 template <std::size_t, DerivedKSet, typename...> class KernelParams;
 template <typename, typename...> class CpuKernel;

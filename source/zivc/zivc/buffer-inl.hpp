@@ -22,6 +22,7 @@
 #include <type_traits>
 #include <utility>
 // Zisc
+#include "zisc/concepts.hpp"
 #include "zisc/utility.hpp"
 #include "zisc/zisc_config.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
@@ -37,7 +38,7 @@ namespace zivc {
 /*!
   \details No detailed description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 Buffer<T>::LaunchOptions::LaunchOptions() noexcept
 {
   initialize();
@@ -48,7 +49,7 @@ Buffer<T>::LaunchOptions::LaunchOptions() noexcept
 
   \param [in] s No description.
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 Buffer<T>::LaunchOptions::LaunchOptions(const std::size_t s) noexcept :
     size_{s}
 {
@@ -61,7 +62,7 @@ Buffer<T>::LaunchOptions::LaunchOptions(const std::size_t s) noexcept :
   \param [in] s No description.
   \param [in] queue_index No description.
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 Buffer<T>::LaunchOptions::LaunchOptions(const std::size_t s,
                                         const uint32b queue_index) noexcept :
     size_{s},
@@ -75,7 +76,7 @@ Buffer<T>::LaunchOptions::LaunchOptions(const std::size_t s,
 
   \return No description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 std::size_t Buffer<T>::LaunchOptions::destOffset() const noexcept
 {
   return dest_offset_;
@@ -86,7 +87,7 @@ std::size_t Buffer<T>::LaunchOptions::destOffset() const noexcept
 
   \return No description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 std::size_t Buffer<T>::LaunchOptions::destOffsetInBytes() const noexcept
 {
   const std::size_t s = sizeof(Type) * destOffset();
@@ -98,7 +99,7 @@ std::size_t Buffer<T>::LaunchOptions::destOffsetInBytes() const noexcept
 
   \return No description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 bool Buffer<T>::LaunchOptions::isExternalSyncMode() const noexcept
 {
   return is_external_sync_mode_;
@@ -109,7 +110,7 @@ bool Buffer<T>::LaunchOptions::isExternalSyncMode() const noexcept
 
   \return No description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 std::string_view Buffer<T>::LaunchOptions::label() const noexcept
 {
   std::string_view l{label_.data()};
@@ -121,7 +122,7 @@ std::string_view Buffer<T>::LaunchOptions::label() const noexcept
 
   \return No description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 const std::array<float, 4>& Buffer<T>::LaunchOptions::labelColor() const noexcept
 {
   return label_color_;
@@ -132,7 +133,7 @@ const std::array<float, 4>& Buffer<T>::LaunchOptions::labelColor() const noexcep
 
   \return No description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 uint32b Buffer<T>::LaunchOptions::queueIndex() const noexcept
 {
   return queue_index_;
@@ -143,7 +144,7 @@ uint32b Buffer<T>::LaunchOptions::queueIndex() const noexcept
 
   \param [in] offset No description.
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 void Buffer<T>::LaunchOptions::setDestOffset(const std::size_t offset) noexcept
 {
   dest_offset_ = offset;
@@ -154,7 +155,7 @@ void Buffer<T>::LaunchOptions::setDestOffset(const std::size_t offset) noexcept
 
   \param [in] is_active No description.
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 void Buffer<T>::LaunchOptions::setExternalSyncMode(const bool is_active) noexcept
 {
   is_external_sync_mode_ = is_active ? zisc::kTrue : zisc::kFalse;
@@ -165,7 +166,7 @@ void Buffer<T>::LaunchOptions::setExternalSyncMode(const bool is_active) noexcep
 
   \param [in] launch_label No description.
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 void Buffer<T>::LaunchOptions::setLabel(const std::string_view launch_label) noexcept
 {
   std::strncpy(label_.data(), launch_label.data(), launch_label.size() + 1);
@@ -176,7 +177,7 @@ void Buffer<T>::LaunchOptions::setLabel(const std::string_view launch_label) noe
 
   \param [in] label_color No description.
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 void Buffer<T>::LaunchOptions::setLabelColor(const std::array<float, 4>& label_color) noexcept
 {
   label_color_ = label_color;
@@ -187,7 +188,7 @@ void Buffer<T>::LaunchOptions::setLabelColor(const std::array<float, 4>& label_c
 
   \param [in] queue_index No description.
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 void Buffer<T>::LaunchOptions::setQueueIndex(const uint32b queue_index) noexcept
 {
   queue_index_ = queue_index;
@@ -198,7 +199,7 @@ void Buffer<T>::LaunchOptions::setQueueIndex(const uint32b queue_index) noexcept
 
   \param [in] s No description.
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 void Buffer<T>::LaunchOptions::setSize(const std::size_t s) noexcept
 {
   size_ = s;
@@ -209,7 +210,7 @@ void Buffer<T>::LaunchOptions::setSize(const std::size_t s) noexcept
 
   \param [in] offset No description.
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 void Buffer<T>::LaunchOptions::setSourceOffset(const std::size_t offset) noexcept
 {
   source_offset_ = offset;
@@ -218,7 +219,7 @@ void Buffer<T>::LaunchOptions::setSourceOffset(const std::size_t offset) noexcep
 /*!
   \details No detailed description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 void Buffer<T>::LaunchOptions::initialize() noexcept
 {
   setLabel("Buffer");
@@ -229,7 +230,7 @@ void Buffer<T>::LaunchOptions::initialize() noexcept
 
   \return No description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 std::size_t Buffer<T>::LaunchOptions::size() const noexcept
 {
   return size_;
@@ -240,7 +241,7 @@ std::size_t Buffer<T>::LaunchOptions::size() const noexcept
 
   \return No description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 std::size_t Buffer<T>::LaunchOptions::sizeInBytes() const noexcept
 {
   const std::size_t s = sizeof(Type) * size();
@@ -252,7 +253,7 @@ std::size_t Buffer<T>::LaunchOptions::sizeInBytes() const noexcept
 
   \return No description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 std::size_t Buffer<T>::LaunchOptions::sourceOffset() const noexcept
 {
   return source_offset_;
@@ -263,7 +264,7 @@ std::size_t Buffer<T>::LaunchOptions::sourceOffset() const noexcept
 
   \return No description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 std::size_t Buffer<T>::LaunchOptions::sourceOffsetInBytes() const noexcept
 {
   const std::size_t s = sizeof(Type) * sourceOffset();
@@ -273,7 +274,7 @@ std::size_t Buffer<T>::LaunchOptions::sourceOffsetInBytes() const noexcept
 /*!
   \details No detailed description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 Buffer<T>::Buffer(IdData&& id) noexcept : ZivcObject(std::move(id))
 {
 }
@@ -281,7 +282,7 @@ Buffer<T>::Buffer(IdData&& id) noexcept : ZivcObject(std::move(id))
 /*!
   \details No detailed description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 Buffer<T>::~Buffer() noexcept
 {
 }
@@ -289,7 +290,7 @@ Buffer<T>::~Buffer() noexcept
 /*!
   \details No detailed description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 void Buffer<T>::destroy() noexcept
 {
   clear();
@@ -299,7 +300,7 @@ void Buffer<T>::destroy() noexcept
 /*!
   \details No detailed description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 void Buffer<T>::clear() noexcept
 {
   destroyData();
@@ -312,7 +313,7 @@ void Buffer<T>::clear() noexcept
   \param [in] launch_options No description.
   \return No description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 LaunchResult Buffer<T>::copyFrom(const Buffer& source,
                                  const LaunchOptions& launch_options)
 {
@@ -328,7 +329,7 @@ LaunchResult Buffer<T>::copyFrom(const Buffer& source,
   \param [in] launch_options No description.
   \return No description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 LaunchResult Buffer<T>::fill(ConstReference value,
                              const LaunchOptions& launch_options)
 {
@@ -344,7 +345,7 @@ LaunchResult Buffer<T>::fill(ConstReference value,
   \param [in] own No description.
   \param [in] buffer_usage No description.
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 void Buffer<T>::initialize(ZivcObject::SharedPtr&& parent,
                            WeakPtr&& own,
                            const BufferUsage buffer_usage)
@@ -364,7 +365,7 @@ void Buffer<T>::initialize(ZivcObject::SharedPtr&& parent,
 
   \return No description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 auto Buffer<T>::makeOptions() const noexcept -> LaunchOptions
 {
   return LaunchOptions{};
@@ -375,7 +376,7 @@ auto Buffer<T>::makeOptions() const noexcept -> LaunchOptions
 
   \return No description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 auto Buffer<T>::mapMemory() -> MappedMemory<Type>
 {
   using MappedMem = MappedMemory<Type>;
@@ -391,7 +392,7 @@ auto Buffer<T>::mapMemory() -> MappedMemory<Type>
 
   \return No description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 auto Buffer<T>::mapMemory() const -> MappedMemory<ConstType>
 {
   using MappedMem = MappedMemory<ConstType>;
@@ -407,7 +408,7 @@ auto Buffer<T>::mapMemory() const -> MappedMemory<ConstType>
 
   \return No description
   */
-template <typename T> template <typename DstType> inline
+template <zisc::TriviallyCopyable T> template <zisc::TriviallyCopyable DstType> inline
 Buffer<DstType>* Buffer<T>::reinterp() noexcept
 {
   using DstBuffer = Buffer<DstType>;
@@ -420,7 +421,7 @@ Buffer<DstType>* Buffer<T>::reinterp() noexcept
 
   \return No description
   */
-template <typename T> template <typename DstType> inline
+template <zisc::TriviallyCopyable T> template <zisc::TriviallyCopyable DstType> inline
 const Buffer<DstType>* Buffer<T>::reinterp() const noexcept
 {
   using DstBuffer = Buffer<DstType>;
@@ -433,7 +434,7 @@ const Buffer<DstType>* Buffer<T>::reinterp() const noexcept
 
   \return No description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 BufferUsage Buffer<T>::usage() const noexcept
 {
   return buffer_usage_;
@@ -445,7 +446,7 @@ BufferUsage Buffer<T>::usage() const noexcept
   \param [in] launch_options No description.
   \return No description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 auto Buffer<T>::processOptions(LaunchOptions launch_options) const noexcept
     -> LaunchOptions
 {
@@ -465,7 +466,7 @@ auto Buffer<T>::processOptions(LaunchOptions launch_options) const noexcept
   \param [in] launch_options No description.
   \return No description
   */
-template <typename Type> inline
+template <zisc::TriviallyCopyable Type> inline
 LaunchResult copy(const Buffer<Type>& source,
                   Buffer<Type>* dest,
                   const BufferLaunchOptions<Type>& launch_options)

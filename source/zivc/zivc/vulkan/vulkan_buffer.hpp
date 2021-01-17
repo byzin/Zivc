@@ -19,6 +19,7 @@
 #include <cstddef>
 #include <memory>
 // Zisc
+#include "zisc/concepts.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "utility/vulkan.hpp"
@@ -33,7 +34,7 @@ namespace zivc {
 // Forward declaration
 class VulkanDevice;
 
-template <typename T>
+template <zisc::TriviallyCopyable T>
 class VulkanBuffer : public Buffer<T>
 {
  public:

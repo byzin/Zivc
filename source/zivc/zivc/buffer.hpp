@@ -34,7 +34,7 @@
 namespace zivc {
 
 // Forward declaration
-template <typename> class MappedMemory;
+template <zisc::TriviallyCopyable> class MappedMemory;
 
 /*!
   \brief No brief description
@@ -43,7 +43,7 @@ template <typename> class MappedMemory;
 
   \tparam T No description.
   */
-template <typename T>
+template <zisc::TriviallyCopyable T>
 class Buffer : public ZivcObject
 {
  public:
@@ -195,11 +195,11 @@ class Buffer : public ZivcObject
   MappedMemory<ConstType> mapMemory() const;
 
   //! Convert a type of a buffer interface to DstType
-  template <typename DstType>
+  template <zisc::TriviallyCopyable DstType>
   Buffer<DstType>* reinterp() noexcept;
 
   //! Convert a type of a buffer interface to DstType
-  template <typename DstType>
+  template <zisc::TriviallyCopyable DstType>
   const Buffer<DstType>* reinterp() const noexcept;
 
   //! Change the number of elements
@@ -249,15 +249,15 @@ class Buffer : public ZivcObject
 };
 
 // Type aliases
-template <typename Type>
+template <zisc::TriviallyCopyable Type>
 using SharedBuffer = typename Buffer<Type>::SharedPtr;
-template <typename Type>
+template <zisc::TriviallyCopyable Type>
 using WeakBuffer = typename Buffer<Type>::WeakPtr;
-template <typename Type>
+template <zisc::TriviallyCopyable Type>
 using BufferLaunchOptions = typename Buffer<Type>::LaunchOptions;
 
 //! Copy from the source to the dest
-template <typename Type>
+template <zisc::TriviallyCopyable Type>
 [[nodiscard("The result can have a fence when external sync mode is on.")]]
 LaunchResult copy(const Buffer<Type>& source,
                   Buffer<Type>* dest,

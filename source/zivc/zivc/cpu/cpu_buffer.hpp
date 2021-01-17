@@ -20,6 +20,7 @@
 #include <memory>
 #include <vector>
 // Zisc
+#include "zisc/concepts.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "zivc/buffer.hpp"
@@ -39,7 +40,7 @@ class CpuDevice;
 
   \tparam T No description.
   */
-template <typename T>
+template <zisc::TriviallyCopyable T>
 class CpuBuffer : public Buffer<T>
 {
  public:

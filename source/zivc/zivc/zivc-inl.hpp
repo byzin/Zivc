@@ -21,6 +21,7 @@
 #include <string_view>
 #include <utility>
 // Zisc
+#include "zisc/concepts.hpp"
 #include "zisc/error.hpp"
 #include "zisc/utility.hpp"
 // Zivc
@@ -50,7 +51,7 @@ namespace zivc {
   \param [in] flag No description.
   \return No description
   */
-template <typename Type> inline
+template <zisc::TriviallyCopyable Type> inline
 SharedBuffer<Type> makeBuffer(Device* device, const BufferUsage flag)
 {
   SharedBuffer<Type> buffer;

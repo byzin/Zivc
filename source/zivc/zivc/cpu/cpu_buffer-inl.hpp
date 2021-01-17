@@ -24,6 +24,7 @@
 #include <utility>
 #include <vector>
 // Zisc
+#include "zisc/concepts.hpp"
 #include "zisc/error.hpp"
 #include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
@@ -41,7 +42,7 @@ namespace zivc {
 /*!
   \details No detailed description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 CpuBuffer<T>::CpuBuffer(IdData&& id) noexcept : Buffer<T>(std::move(id))
 {
 }
@@ -49,7 +50,7 @@ CpuBuffer<T>::CpuBuffer(IdData&& id) noexcept : Buffer<T>(std::move(id))
 /*!
   \details No detailed description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 CpuBuffer<T>::~CpuBuffer() noexcept
 {
   Buffer<T>::destroy();
@@ -60,7 +61,7 @@ CpuBuffer<T>::~CpuBuffer() noexcept
 
   \return No description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 auto CpuBuffer<T>::data() noexcept -> Pointer
 {
   return buffer_->data();
@@ -71,7 +72,7 @@ auto CpuBuffer<T>::data() noexcept -> Pointer
 
   \return No description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 auto CpuBuffer<T>::data() const noexcept -> ConstPointer
 {
   return buffer_->data();
@@ -82,7 +83,7 @@ auto CpuBuffer<T>::data() const noexcept -> ConstPointer
 
   \return No description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 bool CpuBuffer<T>::isDeviceLocal() const noexcept
 {
   return true;
@@ -93,7 +94,7 @@ bool CpuBuffer<T>::isDeviceLocal() const noexcept
 
   \return No description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 bool CpuBuffer<T>::isHostCached() const noexcept
 {
   return false;
@@ -104,7 +105,7 @@ bool CpuBuffer<T>::isHostCached() const noexcept
 
   \return No description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 bool CpuBuffer<T>::isHostCoherent() const noexcept
 {
   return true;
@@ -115,7 +116,7 @@ bool CpuBuffer<T>::isHostCoherent() const noexcept
 
   \return No description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 bool CpuBuffer<T>::isHostVisible() const noexcept
 {
   return true;
@@ -126,7 +127,7 @@ bool CpuBuffer<T>::isHostVisible() const noexcept
 
   \return No description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 auto CpuBuffer<T>::rawBuffer() noexcept -> zisc::pmr::vector<Type>&
 {
   return *buffer_;
@@ -137,7 +138,7 @@ auto CpuBuffer<T>::rawBuffer() noexcept -> zisc::pmr::vector<Type>&
 
   \return No description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 auto CpuBuffer<T>::rawBuffer() const noexcept -> const zisc::pmr::vector<Type>&
 {
   return *buffer_;
@@ -148,7 +149,7 @@ auto CpuBuffer<T>::rawBuffer() const noexcept -> const zisc::pmr::vector<Type>&
 
   \param [in] s No description.
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 void CpuBuffer<T>::setSize(const std::size_t s)
 {
   const std::size_t prev_size = size();
@@ -173,7 +174,7 @@ void CpuBuffer<T>::setSize(const std::size_t s)
 
   \return No description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 std::size_t CpuBuffer<T>::size() const noexcept
 {
   const std::size_t s = (buffer_) ? rawBuffer().size() : 0;
@@ -187,7 +188,7 @@ std::size_t CpuBuffer<T>::size() const noexcept
   \param [in] launch_options No description.
   \return No description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 LaunchResult CpuBuffer<T>::copyFromImpl(const Buffer<T>& source,
                                         const BufferLaunchOptions<T>& launch_options)
 {
@@ -204,7 +205,7 @@ LaunchResult CpuBuffer<T>::copyFromImpl(const Buffer<T>& source,
 /*!
   \details No detailed description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 void CpuBuffer<T>::destroyData() noexcept
 {
   buffer_.reset();
@@ -217,7 +218,7 @@ void CpuBuffer<T>::destroyData() noexcept
   \param [in] launch_options No description.
   \return No description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 LaunchResult CpuBuffer<T>::fillImpl(ConstReference value,
                                     const BufferLaunchOptions<T>& launch_options)
 {
@@ -231,7 +232,7 @@ LaunchResult CpuBuffer<T>::fillImpl(ConstReference value,
 /*!
   \details No detailed description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 void CpuBuffer<T>::initData()
 {
   prepareBuffer();
@@ -242,7 +243,7 @@ void CpuBuffer<T>::initData()
 
   \return No description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 auto CpuBuffer<T>::mappedMemory() const -> Pointer
 {
   Pointer d = const_cast<Pointer>(data());
@@ -253,7 +254,7 @@ auto CpuBuffer<T>::mappedMemory() const -> Pointer
 /*!
   \details No detailed description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 void CpuBuffer<T>::unmapMemory() const noexcept
 {
 }
@@ -261,7 +262,7 @@ void CpuBuffer<T>::unmapMemory() const noexcept
 /*!
   \details No detailed description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 void CpuBuffer<T>::updateDebugInfoImpl() noexcept
 {
 }
@@ -271,7 +272,7 @@ void CpuBuffer<T>::updateDebugInfoImpl() noexcept
 
   \return No description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 CpuDevice& CpuBuffer<T>::parentImpl() noexcept
 {
   auto p = Buffer<T>::getParent();
@@ -283,7 +284,7 @@ CpuDevice& CpuBuffer<T>::parentImpl() noexcept
 
   \return No description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 const CpuDevice& CpuBuffer<T>::parentImpl() const noexcept
 {
   const auto p = Buffer<T>::getParent();
@@ -293,7 +294,7 @@ const CpuDevice& CpuBuffer<T>::parentImpl() const noexcept
 /*!
   \details No detailed description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 void CpuBuffer<T>::prepareBuffer() noexcept
 {
   if (!buffer_) {

@@ -26,7 +26,7 @@
 namespace zivc {
 
 // Forward declaration
-template <typename> class Buffer;
+template <zisc::TriviallyCopyable> class Buffer;
 
 /*!
   \brief No brief description
@@ -35,7 +35,7 @@ template <typename> class Buffer;
 
   \tparam T No description.
   */
-template <typename T>
+template <zisc::TriviallyCopyable T>
 class MappedMemory : private zisc::NonCopyable<MappedMemory<T>>
 {
  public:

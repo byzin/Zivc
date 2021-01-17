@@ -26,6 +26,7 @@
 #include <type_traits>
 #include <utility>
 // Zisc
+#include "zisc/concepts.hpp"
 #include "zisc/error.hpp"
 #include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
@@ -381,7 +382,7 @@ checkIfPodUpdateIsNeeded(Args... args) const noexcept
   \return No description
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-template <typename Type>
+template <zisc::TriviallyCopyable Type>
 inline
 const VkBuffer& VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 getBufferHandle(const Buffer<Type>& buffer) noexcept

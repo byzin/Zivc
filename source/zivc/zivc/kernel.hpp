@@ -23,6 +23,7 @@
 #include <string_view>
 #include <type_traits>
 // Zisc
+#include "zisc/concepts.hpp"
 #include "zisc/algorithm.hpp"
 #include "zisc/zisc_config.hpp"
 // Zivc
@@ -35,7 +36,7 @@
 namespace zivc {
 
 // Forward declaration
-template <typename> class Buffer;
+template <zisc::TriviallyCopyable> class Buffer;
 template <std::size_t, DerivedKSet, typename...> class KernelParams;
 template <typename...> class KernelArgParser;
 template <typename, typename...> class Kernel;

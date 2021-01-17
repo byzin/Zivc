@@ -19,6 +19,7 @@
 #include <cstddef>
 #include <memory>
 // Zisc
+#include "zisc/concepts.hpp"
 #include "zisc/non_copyable.hpp"
 #include "zisc/memory/memory.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
@@ -37,7 +38,7 @@ class DeviceInfo;
 class Fence;
 class SubPlatform;
 template <std::size_t, DerivedKSet, typename...> class KernelParams;
-template <typename T>
+template <zisc::TriviallyCopyable T>
 SharedBuffer<T> makeBuffer(Device* device, const BufferUsage flag);
 template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
 SharedKernel<kDim, KSet, Args...> makeKernel(
@@ -76,7 +77,7 @@ class Device : public ZivcObject
                   const DeviceInfo& device_info);
 
   //! Make a buffer
-  template <typename T>
+  template <zisc::TriviallyCopyable T>
   [[nodiscard]]
   SharedBuffer<T> makeBuffer(const BufferUsage flag);
 
@@ -124,14 +125,14 @@ class Device : public ZivcObject
   virtual void initData() = 0;
 
  private:
-  template <typename T>
+  template <zisc::TriviallyCopyable T>
   friend SharedBuffer<T> makeBuffer(Device*, const BufferUsage);
   template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
   friend SharedKernel<kDim, KSet, Args...> makeKernel(Device*, const KernelParams<kDim, KSet, Args...>&);
 
 
   //! Make a buffer
-  template <template<typename> typename Derived, typename T>
+  template <template<typename> typename Derived, zisc::TriviallyCopyable T>
   [[nodiscard]]
   SharedBuffer<T> makeDerivedBuffer(const BufferUsage flag);
 

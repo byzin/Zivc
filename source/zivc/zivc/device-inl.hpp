@@ -19,6 +19,7 @@
 // Standard C++ library
 #include <memory>
 // Zisc
+#include "zisc/concepts.hpp"
 #include "zisc/error.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
@@ -36,7 +37,7 @@ namespace zivc {
   \param [in] flag No description.
   \return No description
   */
-template <typename T> inline
+template <zisc::TriviallyCopyable T> inline
 SharedBuffer<T> Device::makeBuffer(const BufferUsage flag)
 {
   auto buffer = ::zivc::makeBuffer<T>(this, flag);
@@ -79,7 +80,7 @@ const DeviceInfo& Device::deviceInfo() const noexcept
   \param [in] flag No description.
   \return No description
   */
-template <template<typename> typename Derived, typename T> inline
+template <template<typename> typename Derived, zisc::TriviallyCopyable T> inline
 SharedBuffer<T> Device::makeDerivedBuffer(const BufferUsage flag)
 {
   using BufferT = Derived<T>;

@@ -14,6 +14,7 @@
   */
 
 // Standard C++ library
+#include <array>
 #include <algorithm>
 #include <cstddef>
 #include <utility>
@@ -1242,11 +1243,20 @@ TEST(BufferTest, CopyBufferReinterpTest)
   auto buffer_host2 = buffer_host->reinterp<uint16b>();
   auto buffer_device2 = buffer_device->reinterp<uint16b>();
 
+  constexpr std::array<uint16b, 4> v16{{0b0101'0101'0101'0101,
+                                        0b0011'0011'0011'0011,
+                                        0b1010'1010'1010'1010,
+                                        0b1100'1100'1100'1100}};
+  constexpr uint64b v64 = (zisc::cast<uint64b>(v16[0]) << 0) |
+                          (zisc::cast<uint64b>(v16[1]) << 16) |
+                          (zisc::cast<uint64b>(v16[2]) << 32) |
+                          (zisc::cast<uint64b>(v16[3]) << 48);
+
   // Initialize the source buffer
   {
     auto mapped_mem = buffer_host2->mapMemory();
     for (std::size_t i = 0; i < mapped_mem.size(); ++i)
-      mapped_mem[i] = (std::numeric_limits<uint16b>::max)();
+      mapped_mem[i] = v16[i % v16.size()];
   }
   constexpr std::size_t offset = 10;
   // Copy from host to device
@@ -1288,7 +1298,7 @@ TEST(BufferTest, CopyBufferReinterpTest)
       ASSERT_EQ(0, mapped_mem[i]) << "Copying buffer range failed.";
     }
     for (std::size_t i = offset; i < (s - offset); ++i) {
-      constexpr uint64b expected = (std::numeric_limits<uint64b>::max)();
+      constexpr uint64b expected = v64;
       ASSERT_EQ(expected, mapped_mem[i]) << "Copying buffer failed.";
     }
     for (std::size_t i = s - offset; i < s; ++i) {
@@ -1321,11 +1331,20 @@ TEST(BufferTest, CopyHostBufferReinterpTest)
   auto buffer_host3 = buffer_host->reinterp<uint16b>();
   auto buffer_host4 = buffer_host2->reinterp<uint16b>();
 
+  constexpr std::array<uint16b, 4> v16{{0b0101'0101'0101'0101,
+                                        0b0011'0011'0011'0011,
+                                        0b1010'1010'1010'1010,
+                                        0b1100'1100'1100'1100}};
+  constexpr uint64b v64 = (zisc::cast<uint64b>(v16[0]) << 0) |
+                          (zisc::cast<uint64b>(v16[1]) << 16) |
+                          (zisc::cast<uint64b>(v16[2]) << 32) |
+                          (zisc::cast<uint64b>(v16[3]) << 48);
+
   // Initialize the source buffer
   {
     auto mapped_mem = buffer_host3->mapMemory();
     for (std::size_t i = 0; i < mapped_mem.size(); ++i)
-      mapped_mem[i] = (std::numeric_limits<uint16b>::max)();
+      mapped_mem[i] = v16[i % v16.size()];
   }
   constexpr std::size_t offset = 10;
   // Copy from host to device
@@ -1363,7 +1382,7 @@ TEST(BufferTest, CopyHostBufferReinterpTest)
       ASSERT_EQ(0, mapped_mem[i]) << "Copying buffer range failed.";
     }
     for (std::size_t i = offset; i < (s - offset); ++i) {
-      constexpr uint64b expected = (std::numeric_limits<uint64b>::max)();
+      constexpr uint64b expected = v64;
       ASSERT_EQ(expected, mapped_mem[i]) << "Copying buffer failed.";
     }
     for (std::size_t i = s - offset; i < s; ++i) {

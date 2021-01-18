@@ -28,248 +28,13 @@
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "zivc_config.hpp"
+#include "utility/buffer_launch_options.hpp"
 #include "utility/id_data.hpp"
 #include "utility/launch_result.hpp"
 #include "utility/mapped_memory.hpp"
 #include "utility/zivc_object.hpp"
 
 namespace zivc {
-
-/*!
-  \details No detailed description
-  */
-template <zisc::TriviallyCopyable T> inline
-Buffer<T>::LaunchOptions::LaunchOptions() noexcept
-{
-  initialize();
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] s No description.
-  */
-template <zisc::TriviallyCopyable T> inline
-Buffer<T>::LaunchOptions::LaunchOptions(const std::size_t s) noexcept :
-    size_{s}
-{
-  initialize();
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] s No description.
-  \param [in] queue_index No description.
-  */
-template <zisc::TriviallyCopyable T> inline
-Buffer<T>::LaunchOptions::LaunchOptions(const std::size_t s,
-                                        const uint32b queue_index) noexcept :
-    size_{s},
-    queue_index_{queue_index}
-{
-  initialize();
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <zisc::TriviallyCopyable T> inline
-std::size_t Buffer<T>::LaunchOptions::destOffset() const noexcept
-{
-  return dest_offset_;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <zisc::TriviallyCopyable T> inline
-std::size_t Buffer<T>::LaunchOptions::destOffsetInBytes() const noexcept
-{
-  const std::size_t s = sizeof(Type) * destOffset();
-  return s;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <zisc::TriviallyCopyable T> inline
-bool Buffer<T>::LaunchOptions::isExternalSyncMode() const noexcept
-{
-  return is_external_sync_mode_;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <zisc::TriviallyCopyable T> inline
-std::string_view Buffer<T>::LaunchOptions::label() const noexcept
-{
-  std::string_view l{label_.data()};
-  return l;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <zisc::TriviallyCopyable T> inline
-const std::array<float, 4>& Buffer<T>::LaunchOptions::labelColor() const noexcept
-{
-  return label_color_;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <zisc::TriviallyCopyable T> inline
-uint32b Buffer<T>::LaunchOptions::queueIndex() const noexcept
-{
-  return queue_index_;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] offset No description.
-  */
-template <zisc::TriviallyCopyable T> inline
-void Buffer<T>::LaunchOptions::setDestOffset(const std::size_t offset) noexcept
-{
-  dest_offset_ = offset;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] is_active No description.
-  */
-template <zisc::TriviallyCopyable T> inline
-void Buffer<T>::LaunchOptions::setExternalSyncMode(const bool is_active) noexcept
-{
-  is_external_sync_mode_ = is_active ? zisc::kTrue : zisc::kFalse;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] launch_label No description.
-  */
-template <zisc::TriviallyCopyable T> inline
-void Buffer<T>::LaunchOptions::setLabel(const std::string_view launch_label) noexcept
-{
-  std::strncpy(label_.data(), launch_label.data(), launch_label.size() + 1);
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] label_color No description.
-  */
-template <zisc::TriviallyCopyable T> inline
-void Buffer<T>::LaunchOptions::setLabelColor(const std::array<float, 4>& label_color) noexcept
-{
-  label_color_ = label_color;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] queue_index No description.
-  */
-template <zisc::TriviallyCopyable T> inline
-void Buffer<T>::LaunchOptions::setQueueIndex(const uint32b queue_index) noexcept
-{
-  queue_index_ = queue_index;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] s No description.
-  */
-template <zisc::TriviallyCopyable T> inline
-void Buffer<T>::LaunchOptions::setSize(const std::size_t s) noexcept
-{
-  size_ = s;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] offset No description.
-  */
-template <zisc::TriviallyCopyable T> inline
-void Buffer<T>::LaunchOptions::setSourceOffset(const std::size_t offset) noexcept
-{
-  source_offset_ = offset;
-}
-
-/*!
-  \details No detailed description
-  */
-template <zisc::TriviallyCopyable T> inline
-void Buffer<T>::LaunchOptions::initialize() noexcept
-{
-  setLabel("Buffer");
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <zisc::TriviallyCopyable T> inline
-std::size_t Buffer<T>::LaunchOptions::size() const noexcept
-{
-  return size_;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <zisc::TriviallyCopyable T> inline
-std::size_t Buffer<T>::LaunchOptions::sizeInBytes() const noexcept
-{
-  const std::size_t s = sizeof(Type) * size();
-  return s;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <zisc::TriviallyCopyable T> inline
-std::size_t Buffer<T>::LaunchOptions::sourceOffset() const noexcept
-{
-  return source_offset_;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <zisc::TriviallyCopyable T> inline
-std::size_t Buffer<T>::LaunchOptions::sourceOffsetInBytes() const noexcept
-{
-  const std::size_t s = sizeof(Type) * sourceOffset();
-  return s;
-}
 
 /*!
   \details No detailed description
@@ -289,12 +54,15 @@ Buffer<T>::~Buffer() noexcept
 
 /*!
   \details No detailed description
+
+  \return No description
   */
 template <zisc::TriviallyCopyable T> inline
-void Buffer<T>::destroy() noexcept
+std::size_t Buffer<T>::capacity() const noexcept
 {
-  clear();
-  destroyObject();
+  std::size_t c = capacityImpl();
+  c = correctSize(c);
+  return c;
 }
 
 /*!
@@ -317,9 +85,18 @@ template <zisc::TriviallyCopyable T> inline
 LaunchResult Buffer<T>::copyFrom(const Buffer& source,
                                  const LaunchOptions& launch_options)
 {
-  const LaunchOptions o = processOptions(launch_options);
-  auto result = copyFromImpl(source, o);
+  auto result = zivc::copy(source, this, launch_options);
   return result;
+}
+
+/*!
+  \details No detailed description
+  */
+template <zisc::TriviallyCopyable T> inline
+void Buffer<T>::destroy() noexcept
+{
+  clear();
+  destroyObject();
 }
 
 /*!
@@ -333,8 +110,7 @@ template <zisc::TriviallyCopyable T> inline
 LaunchResult Buffer<T>::fill(ConstReference value,
                              const LaunchOptions& launch_options)
 {
-  const LaunchOptions o = processOptions(launch_options);
-  auto result = fillImpl(value, o);
+  auto result = zivc::fill(this, value, launch_options);
   return result;
 }
 
@@ -435,9 +211,36 @@ const Buffer<DstType>* Buffer<T>::reinterp() const noexcept
   \return No description
   */
 template <zisc::TriviallyCopyable T> inline
+std::size_t Buffer<T>::size() const noexcept
+{
+  std::size_t s = sizeImpl();
+  s = correctSize(s);
+  return s;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <zisc::TriviallyCopyable T> inline
 BufferUsage Buffer<T>::usage() const noexcept
 {
   return buffer_usage_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <zisc::TriviallyCopyable T> inline
+std::size_t Buffer<T>::correctSize(const std::size_t s) const noexcept
+{
+  const std::size_t t_orig = zisc::cast<std::size_t>(type_size_);
+  constexpr std::size_t t_new = sizeof(T);
+  const std::size_t s_new = (t_orig * s) / t_new;
+  return s_new;
 }
 
 /*!
@@ -460,18 +263,38 @@ auto Buffer<T>::processOptions(LaunchOptions launch_options) const noexcept
 /*!
   \details No detailed description
 
-  \tparam Type No description.
+  \tparam Derived No description.
   \param [in] source No description.
-  \param [out] dest No description.
   \param [in] launch_options No description.
   \return No description
   */
-template <zisc::TriviallyCopyable Type> inline
-LaunchResult copy(const Buffer<Type>& source,
-                  Buffer<Type>* dest,
-                  const BufferLaunchOptions<Type>& launch_options)
+template <zisc::TriviallyCopyable T> 
+template <template<typename> typename Derived> inline
+LaunchResult Buffer<T>::copyFromDerived(const Buffer& source,
+                                        const LaunchOptions& launch_options)
 {
-  auto result = dest->copyFrom(source, launch_options);
+  auto dest = zisc::cast<Derived<T>*>(this);
+  const LaunchOptions o = processOptions(launch_options);
+  auto result = dest->copyFromImpl(source, o);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Derived No description.
+  \param [in] value No description.
+  \param [in] launch_options No description.
+  \return No description
+  */
+template <zisc::TriviallyCopyable T> 
+template <template<typename> typename Derived> inline
+LaunchResult Buffer<T>::fillDerived(ConstReference value,
+                                    const LaunchOptions& launch_options)
+{
+  auto dest = zisc::cast<Derived<T>*>(this);
+  const LaunchOptions o = processOptions(launch_options);
+  auto result = dest->fillImpl(value, o);
   return result;
 }
 

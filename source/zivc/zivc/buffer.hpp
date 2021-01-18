@@ -16,17 +16,17 @@
 #define ZIVC_BUFFER_HPP
 
 // Standard C++ library
-#include <array>
 #include <cstddef>
 #include <memory>
-#include <string_view>
 #include <type_traits>
 // Zisc
+#include "zisc/concepts.hpp"
 #include "zisc/non_copyable.hpp"
 #include "zisc/zisc_config.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "zivc_config.hpp"
+#include "utility/buffer_launch_options.hpp"
 #include "utility/id_data.hpp"
 #include "utility/launch_result.hpp"
 #include "utility/zivc_object.hpp"
@@ -56,91 +56,7 @@ class Buffer : public ZivcObject
   using ConstReference = std::add_lvalue_reference_t<ConstType>;
   using Pointer = std::add_pointer_t<Type>;
   using ConstPointer = std::add_pointer_t<ConstType>;
-
-
-  /*!
-    \brief No brief description
-
-    No detailed description.
-    */
-  class LaunchOptions
-  {
-   public:
-    //! Initialize the launch info
-    LaunchOptions() noexcept;
-
-    //! Initialize the launch info
-    LaunchOptions(const std::size_t s) noexcept;
-
-    //! Initialize the launch info
-    LaunchOptions(const std::size_t s, const uint32b queue_index) noexcept;
-
-
-    //! Return the offset index into the dest buffer at which to start
-    std::size_t destOffset() const noexcept;
-
-    //! Return the byte offset into the dest buffer at which to start
-    std::size_t destOffsetInBytes() const noexcept;
-
-    //! Check whether external sync mode is required
-    bool isExternalSyncMode() const noexcept;
-
-    //! Return the label of the launching
-    std::string_view label() const noexcept;
-
-    //! Return the color of the label
-    const std::array<float, 4>& labelColor() const noexcept;
-
-    //! Return the queue index
-    uint32b queueIndex() const noexcept;
-
-    //! Set the offset index into the dest buffer at which to start
-    void setDestOffset(const std::size_t offset) noexcept;
-
-    //! Set external sync mode
-    void setExternalSyncMode(const bool is_active) noexcept;
-
-    //! Set the queue index which is used for a kernel execution
-    void setQueueIndex(const uint32b queue_index) noexcept;
-
-    //! Set the label of the launching
-    void setLabel(const std::string_view launch_label) noexcept;
-
-    //! Set the color of the label
-    void setLabelColor(const std::array<float, 4>& label_color) noexcept;
-
-    //! Set the size of elements to be operated
-    void setSize(const std::size_t s) noexcept;
-
-    //! Set the offset index into the source buffer at which to start
-    void setSourceOffset(const std::size_t offset) noexcept;
-
-    //! Return the size of elements to be operated
-    std::size_t size() const noexcept;
-
-    //! Return the size in bytes to be operated
-    std::size_t sizeInBytes() const noexcept;
-
-    //! Return the offset index into the source buffer at which to start
-    std::size_t sourceOffset() const noexcept;
-
-    //! Return the byte offset into the source buffer at which to start
-    std::size_t sourceOffsetInBytes() const noexcept;
-
-   private:
-    //! Initialize the options
-    void initialize() noexcept;
-
-
-    IdData::NameType label_;
-    std::array<float, 4> label_color_{1.0f, 1.0f, 1.0f, 1.0f};
-    std::size_t source_offset_ = 0;
-    std::size_t dest_offset_ = 0;
-    std::size_t size_ = kBufferWholeSize;
-    uint32b queue_index_ = 0;
-    uint8b is_external_sync_mode_ = zisc::kFalse;
-    [[maybe_unused]] std::array<uint8b, 3> padding_;
-  };
+  using LaunchOptions = BufferLaunchOptions<Type>;
 
 
   //! Initialize the buffer
@@ -150,8 +66,8 @@ class Buffer : public ZivcObject
   ~Buffer() noexcept override;
 
 
-  //! Destroy the buffer
-  void destroy() noexcept;
+  //! Return the capacity of the buffer
+  std::size_t capacity() const noexcept;
 
   //! Clear the contents of the buffer
   void clear() noexcept;
@@ -161,10 +77,16 @@ class Buffer : public ZivcObject
   LaunchResult copyFrom(const Buffer& source,
                         const LaunchOptions& launch_options = LaunchOptions{});
 
+  //! Destroy the buffer
+  void destroy() noexcept;
+
   //! Fill the buffer with specified value
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
   LaunchResult fill(ConstReference value,
                     const LaunchOptions& launch_options = LaunchOptions{});
+
+  //! Return the index of used heap
+  virtual std::size_t heapIndex() const noexcept = 0;
 
   //! Initialize the buffer
   void initialize(ZivcObject::SharedPtr&& parent,
@@ -206,7 +128,7 @@ class Buffer : public ZivcObject
   virtual void setSize(const std::size_t s) = 0;
 
   //! Return the number of elements
-  virtual std::size_t size() const noexcept = 0;
+  std::size_t size() const noexcept;
 
   //! Return the buffer usage flag
   BufferUsage usage() const noexcept;
@@ -216,18 +138,14 @@ class Buffer : public ZivcObject
   friend MappedMemory<ConstType>;
 
 
-  //! Copy from the given buffer
-  [[nodiscard("The result can have a fence when external sync mode is on.")]]
-  virtual LaunchResult copyFromImpl(const Buffer& source,
-                                    const LaunchOptions& launch_options) = 0;
+  //! Return the capacity of the buffer
+  virtual std::size_t capacityImpl() const noexcept = 0;
+
+  //! Return the size of original type
+  std::size_t correctSize(const std::size_t s) const noexcept;
 
   //! Clear the contents of the buffer
   virtual void destroyData() noexcept = 0;
-
-  //! Fill the buffer with specified value
-  [[nodiscard("The result can have a fence when external sync mode is on.")]]
-  virtual LaunchResult fillImpl(ConstReference value,
-                                const LaunchOptions& launch_options) = 0;
 
   //! Initialize the buffer
   virtual void initData() = 0;
@@ -240,12 +158,38 @@ class Buffer : public ZivcObject
   [[nodiscard]]
   LaunchOptions processOptions(LaunchOptions launch_options) const noexcept;
 
+  //! Return the size of the buffer
+  virtual std::size_t sizeImpl() const noexcept = 0;
+
   //! Unmap a buffer memory
   virtual void unmapMemory() const noexcept = 0;
 
  private:
+  template <zisc::TriviallyCopyable Type>
+  friend LaunchResult copy(const Buffer<Type>&,
+                           Buffer<Type>*,
+                           const BufferLaunchOptions<Type>&);
+  template <zisc::TriviallyCopyable Type>
+  friend LaunchResult fill(Buffer<Type>*,
+                           typename Buffer<Type>::ConstReference,
+                           const BufferLaunchOptions<Type>&);
+
+
+  //! Copy from the given buffer
+  template <template<typename> typename Derived>
+  [[nodiscard("The result can have a fence when external sync mode is on.")]]
+  LaunchResult copyFromDerived(const Buffer& source,
+                               const LaunchOptions& launch_options);
+
+  //! Fill the buffer with specified value
+  template <template<typename> typename Derived>
+  [[nodiscard("The result can have a fence when external sync mode is on.")]]
+  LaunchResult fillDerived(ConstReference value,
+                           const LaunchOptions& launch_options);
+
+
   BufferUsage buffer_usage_;
-  [[maybe_unused]] uint32b padding_ = 0;
+  uint32b type_size_ = sizeof(T);
 };
 
 // Type aliases
@@ -253,14 +197,20 @@ template <zisc::TriviallyCopyable Type>
 using SharedBuffer = typename Buffer<Type>::SharedPtr;
 template <zisc::TriviallyCopyable Type>
 using WeakBuffer = typename Buffer<Type>::WeakPtr;
-template <zisc::TriviallyCopyable Type>
-using BufferLaunchOptions = typename Buffer<Type>::LaunchOptions;
 
 //! Copy from the source to the dest
 template <zisc::TriviallyCopyable Type>
 [[nodiscard("The result can have a fence when external sync mode is on.")]]
 LaunchResult copy(const Buffer<Type>& source,
                   Buffer<Type>* dest,
+                  const BufferLaunchOptions<Type>& launch_options =
+                      BufferLaunchOptions<Type>{});
+
+//! Fill the given buffer with specified value
+template <zisc::TriviallyCopyable Type>
+[[nodiscard("The result can have a fence when external sync mode is on.")]]
+LaunchResult fill(Buffer<Type>* buffer,
+                  typename Buffer<Type>::ConstReference value,
                   const BufferLaunchOptions<Type>& launch_options =
                       BufferLaunchOptions<Type>{});
 

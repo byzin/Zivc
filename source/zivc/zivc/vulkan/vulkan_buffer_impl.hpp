@@ -51,25 +51,30 @@ class VulkanBufferImpl : private zisc::NonCopyable<VulkanBufferImpl>
                       void* user_data,
                       VkBuffer* buffer,
                       VmaAllocation* vm_allocation,
-                      VmaAllocationInfo* alloc_info);
+                      VmaAllocationInfo* alloc_info) const;
 
   //! Perform copy operation of buffer memory
   void copyCmd(const VkCommandBuffer& command_buffer,
                const VkBuffer& source_buffer,
                const VkBuffer& dest_buffer,
-               const VkBufferCopy& region);
+               const VkBufferCopy& region) const;
 
   //! Deallocate a device memory
   void deallocateMemory(VkBuffer* buffer,
                         VmaAllocation* vm_allocation,
-                        VmaAllocationInfo* alloc_info) noexcept;
+                        VmaAllocationInfo* alloc_info) const noexcept;
 
   //! Fill the given buffer with the specified value
   void fillFastCmd(const VkCommandBuffer& command_buffer,
                    const VkBuffer& buffer,
                    const std::size_t dest_offset,
                    const std::size_t size,
-                   const uint32b data) noexcept;
+                   const uint32b data) const noexcept;
+
+  //! Initialize allocation info
+  void initAllocationInfo(const BufferUsage buffer_usage,
+                          const VkBufferUsageFlagBits desc_type,
+                          VmaAllocationInfo* alloc_info) const;
 
   //!
   [[noreturn]] static void throwResultException(const VkResult result,
@@ -78,6 +83,19 @@ class VulkanBufferImpl : private zisc::NonCopyable<VulkanBufferImpl>
  private:
   //! Return the underlying device object
   VulkanDevice& device() noexcept;
+
+  //! Return the underlying device object
+  const VulkanDevice& device() const noexcept;
+
+  //! Create a allocation create info
+  VmaAllocationCreateInfo makeAllocCreateInfo(
+      const BufferUsage buffer_usage,
+      void* user_data) const noexcept;
+
+  //! Create a buffer create info
+  VkBufferCreateInfo makeBufferCreateInfo(
+      const std::size_t size,
+      const VkBufferUsageFlagBits desc_type) const noexcept;
 
   //! Convert to VMA usage flags
   static constexpr VmaMemoryUsage toVmaUsage(const BufferUsage usage) noexcept;

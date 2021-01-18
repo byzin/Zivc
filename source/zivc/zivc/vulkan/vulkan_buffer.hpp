@@ -26,6 +26,7 @@
 #include "utility/vulkan_memory_allocator.hpp"
 #include "zivc/buffer.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/utility/buffer_launch_options.hpp"
 #include "zivc/utility/id_data.hpp"
 #include "zivc/utility/launch_result.hpp"
 
@@ -93,6 +94,9 @@ class VulkanBuffer : public Buffer<T>
   //! Return the underlying descriptor type
   VkBufferUsageFlagBits descriptorTypeVk() const noexcept;
 
+  //! Return the index of used heap
+  std::size_t heapIndex() const noexcept override;
+
   //! Check if the buffer is the most efficient for the device access
   bool isDeviceLocal() const noexcept override;
 
@@ -111,22 +115,12 @@ class VulkanBuffer : public Buffer<T>
   //! Change the number of elements
   void setSize(const std::size_t s) override;
 
-  //! Return the number of elements
-  std::size_t size() const noexcept override;
-
  protected:
-  //! Copy from the given buffer
-  [[nodiscard("The result can have a fence when external sync mode is on.")]]
-  LaunchResult copyFromImpl(const Buffer<T>& source,
-                            const BufferLaunchOptions<T>& launch_options) override;
+  //! Return the capacity of the buffer
+  std::size_t capacityImpl() const noexcept override;
 
   //! Clear the contents of the buffer
   void destroyData() noexcept override;
-
-  //! Fill the buffer with specified value
-  [[nodiscard("The result can have a fence when external sync mode is on.")]]
-  LaunchResult fillImpl(ConstReference value,
-                        const BufferLaunchOptions<T>& launch_options) override;
 
   //! Initialize the buffer
   void initData() override;
@@ -135,6 +129,9 @@ class VulkanBuffer : public Buffer<T>
   [[nodiscard]]
   Pointer mappedMemory() const override;
 
+  //! Return the number of elements
+  std::size_t sizeImpl() const noexcept override;
+
   //! Unmap a buffer memory
   void unmapMemory() const noexcept override;
 
@@ -142,6 +139,14 @@ class VulkanBuffer : public Buffer<T>
   void updateDebugInfoImpl() noexcept override;
 
  private:
+  friend Buffer<T>;
+
+
+  //! Copy from the given buffer
+  [[nodiscard("The result can have a fence when external sync mode is on.")]]
+  LaunchResult copyFromImpl(const Buffer<T>& source,
+                            const BufferLaunchOptions<T>& launch_options);
+
   //! Copy on the device
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
   LaunchResult copyOnDevice(const Buffer<T>& source,
@@ -155,6 +160,11 @@ class VulkanBuffer : public Buffer<T>
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
   LaunchResult fillFastOnDevice(ConstReference value,
                                 const BufferLaunchOptions<T>& launch_options);
+
+  //! Fill the buffer with specified value
+  [[nodiscard("The result can have a fence when external sync mode is on.")]]
+  LaunchResult fillImpl(ConstReference value,
+                        const BufferLaunchOptions<T>& launch_options);
 
   //! Fill the buffer on device with specified value
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
@@ -174,6 +184,9 @@ class VulkanBuffer : public Buffer<T>
   //! Make a data for fast fill on device
   static uint32b makeDataForFillFast(ConstReference value) noexcept;
 
+  //! Return the underlying memory type
+  const VkMemoryType& memoryType() const noexcept;
+
   //! Return the device
   VulkanDevice& parentImpl() noexcept;
 
@@ -185,6 +198,7 @@ class VulkanBuffer : public Buffer<T>
   VmaAllocation vm_allocation_ = ZIVC_VK_NULL_HANDLE;
   VmaAllocationInfo vm_alloc_info_;
   VkCommandBuffer command_buffer_ = ZIVC_VK_NULL_HANDLE;
+  std::size_t size_ = 0;
   DescriptorType desc_type_ = DescriptorType::kStorage;
   [[maybe_unused]] uint32b padding_ = 0;
 };

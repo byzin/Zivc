@@ -52,6 +52,7 @@ VulkanBufferImpl::~VulkanBufferImpl() noexcept
 
   \param [in] size No description.
   \param [in] buffer_usage No description.
+  \param [in] desc_type No description.
   \param [in] user_data No description.
   \param [out] buffer No description.
   \param [out] vm_allocation No description.
@@ -63,32 +64,10 @@ void VulkanBufferImpl::allocateMemory(const std::size_t size,
                                       void* user_data,
                                       VkBuffer* buffer,
                                       VmaAllocation* vm_allocation,
-                                      VmaAllocationInfo* alloc_info)
+                                      VmaAllocationInfo* alloc_info) const
 {
-  // Buffer create info
-  zivcvk::BufferCreateInfo buffer_create_info;
-  buffer_create_info.size = size;
-  const auto descriptor_type = zisc::cast<zivcvk::BufferUsageFlagBits>(desc_type);
-  buffer_create_info.usage = zivcvk::BufferUsageFlagBits::eTransferSrc |
-                             zivcvk::BufferUsageFlagBits::eTransferDst |
-                             descriptor_type;
-  buffer_create_info.sharingMode = zivcvk::SharingMode::eExclusive;
-  const uint32b queue_family_index = device().queueFamilyIndex();
-  buffer_create_info.queueFamilyIndexCount = 1;
-  buffer_create_info.pQueueFamilyIndices = std::addressof(queue_family_index);
-
-  // VMA allocation create info
-  VmaAllocationCreateInfo alloc_create_info;
-  alloc_create_info.flags = 0;
-  alloc_create_info.usage = toVmaUsage(buffer_usage);
-  alloc_create_info.requiredFlags = 0;
-  alloc_create_info.preferredFlags = 0;
-  alloc_create_info.memoryTypeBits = 0;
-  alloc_create_info.pool = ZIVC_VK_NULL_HANDLE;
-  alloc_create_info.pUserData = user_data;
-
-  // 
-  const auto binfo = zisc::cast<VkBufferCreateInfo>(buffer_create_info);
+  const auto binfo = makeBufferCreateInfo(size, desc_type);
+  const auto alloc_create_info = makeAllocCreateInfo(buffer_usage, user_data);
   const auto result = vmaCreateBuffer(device().memoryAllocator(),
                                       std::addressof(binfo),
                                       std::addressof(alloc_create_info),
@@ -112,7 +91,7 @@ void VulkanBufferImpl::allocateMemory(const std::size_t size,
 void VulkanBufferImpl::copyCmd(const VkCommandBuffer& command_buffer,
                                const VkBuffer& source_buffer,
                                const VkBuffer& dest_buffer,
-                               const VkBufferCopy& region)
+                               const VkBufferCopy& region) const
 {
   const auto loader = device().dispatcher().loaderImpl();
 
@@ -136,11 +115,16 @@ void VulkanBufferImpl::copyCmd(const VkCommandBuffer& command_buffer,
 void VulkanBufferImpl::deallocateMemory(
     VkBuffer* buffer,
     VmaAllocation* vm_allocation,
-    [[maybe_unused]]VmaAllocationInfo* alloc_info) noexcept
+    VmaAllocationInfo* alloc_info) const noexcept
 {
   if (zivcvk::Buffer{*buffer}) {
     vmaDestroyBuffer(device().memoryAllocator(), *buffer, *vm_allocation);
   }
+  alloc_info->deviceMemory = ZIVC_VK_NULL_HANDLE;
+  alloc_info->offset = 0;
+  alloc_info->size = 0;
+  alloc_info->pMappedData = nullptr;
+  alloc_info->pUserData = nullptr;
 }
 
 /*!
@@ -156,7 +140,7 @@ void VulkanBufferImpl::fillFastCmd(const VkCommandBuffer& command_buffer,
                                    const VkBuffer& buffer,
                                    const std::size_t dest_offset,
                                    const std::size_t size,
-                                   const uint32b data) noexcept
+                                   const uint32b data) const noexcept
 {
   const auto loader = device().dispatcher().loaderImpl();
 
@@ -165,6 +149,36 @@ void VulkanBufferImpl::fillFastCmd(const VkCommandBuffer& command_buffer,
   const zivcvk::Buffer buf{buffer};
   ZISC_ASSERT(buf, "The given buffer is null.");
   command.fillBuffer(buf, dest_offset, size, data, *loader);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] buffer_usage No description.
+  \param [in] desc_type No description.
+  \param [out] alloc_info No description.
+  */
+void VulkanBufferImpl::initAllocationInfo(const BufferUsage buffer_usage,
+                                          const VkBufferUsageFlagBits desc_type,
+                                          VmaAllocationInfo* alloc_info) const
+{
+  // Clear 
+  {
+    VkBuffer buffer = ZIVC_VK_NULL_HANDLE;
+    deallocateMemory(std::addressof(buffer), nullptr, alloc_info);
+  }
+
+  const auto binfo = makeBufferCreateInfo(1, desc_type);
+  const auto alloc_create_info = makeAllocCreateInfo(buffer_usage, nullptr);
+  const auto result = vmaFindMemoryTypeIndexForBufferInfo(
+      device().memoryAllocator(),
+      std::addressof(binfo),
+      std::addressof(alloc_create_info),
+      std::addressof(alloc_info->memoryType));
+  if (result != VK_SUCCESS) {
+    const char* message = "Device memory allocation failed.";
+    throwResultException(result, message);
+  }
 }
 
 /*!
@@ -188,6 +202,68 @@ inline
 VulkanDevice& VulkanBufferImpl::device() noexcept
 {
   return *device_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+const VulkanDevice& VulkanBufferImpl::device() const noexcept
+{
+  return *device_;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] buffer_usage No description.
+  \param [in] user_data No description.
+  \return No description
+
+  */
+VmaAllocationCreateInfo VulkanBufferImpl::makeAllocCreateInfo(
+    const BufferUsage buffer_usage,
+    void* user_data) const noexcept
+{
+  // VMA allocation create info
+  VmaAllocationCreateInfo alloc_create_info;
+  alloc_create_info.flags = 0;
+  alloc_create_info.usage = toVmaUsage(buffer_usage);
+  alloc_create_info.requiredFlags = 0;
+  alloc_create_info.preferredFlags = 0;
+  alloc_create_info.memoryTypeBits = 0;
+  alloc_create_info.pool = ZIVC_VK_NULL_HANDLE;
+  alloc_create_info.pUserData = user_data;
+
+  return alloc_create_info;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] size No description.
+  \param [in] desc_type No description.
+  \return No description
+  */
+VkBufferCreateInfo VulkanBufferImpl::makeBufferCreateInfo(
+    const std::size_t size,
+    const VkBufferUsageFlagBits desc_type) const noexcept
+{
+  // Buffer create info
+  zivcvk::BufferCreateInfo buffer_create_info;
+  buffer_create_info.size = size;
+  const auto descriptor_type = zisc::cast<zivcvk::BufferUsageFlagBits>(desc_type);
+  buffer_create_info.usage = zivcvk::BufferUsageFlagBits::eTransferSrc |
+                             zivcvk::BufferUsageFlagBits::eTransferDst |
+                             descriptor_type;
+  buffer_create_info.sharingMode = zivcvk::SharingMode::eExclusive;
+  const uint32b queue_family_index = device().queueFamilyIndex();
+  buffer_create_info.queueFamilyIndexCount = 1;
+  buffer_create_info.pQueueFamilyIndices = std::addressof(queue_family_index);
+
+  return zisc::cast<VkBufferCreateInfo>(buffer_create_info);
 }
 
 /*!

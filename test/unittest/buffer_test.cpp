@@ -22,6 +22,7 @@
 // Zivc
 #include "zivc/zivc.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zisc/math/unit_multiple.hpp"
 // Test
 #include "config.hpp"
 #include "googletest.hpp"
@@ -32,33 +33,58 @@ TEST(BufferTest, DeviceOnlyBufferInitializationTest)
   auto platform = ztest::makePlatform();
   const ztest::Config& config = ztest::Config::globalConfig();
   zivc::SharedDevice device = platform->makeDevice(config.deviceId());
-
+  // Init test
   auto buffer = device->makeBuffer<int>(zivc::BufferUsage::kDeviceOnly);
   ASSERT_EQ(0, buffer->size()) << "Buffer initialization failed.";
   ASSERT_EQ(zivc::BufferUsage::kDeviceOnly, buffer->usage()) << "Buffer initialization failed.";
-
+  EXPECT_TRUE(buffer->isDeviceLocal()) << "DeviceOnly buffer isn't device local.";
+  // Allocation test
   {
     constexpr std::size_t n = 1;
     buffer->setSize(n);
     ASSERT_EQ(n, buffer->size()) << "Buffer 'setSize(" << n << ")' failed.";
   }
-
+  // Clear test
   buffer->clear();
   ASSERT_EQ(0, buffer->size()) << "Buffer 'clear' failed.";
-
+  EXPECT_TRUE(buffer->isDeviceLocal()) << "DeviceOnly buffer isn't device local.";
+  // Resize test
   {
     constexpr std::size_t n = 3;
     buffer->setSize(n);
     ASSERT_EQ(n, buffer->size()) << "Buffer 'setSize(" << n << ")' failed.";
   }
-
   {
     constexpr std::size_t n = 10;
     buffer->setSize(n);
     ASSERT_EQ(n, buffer->size()) << "Buffer 'setSize(" << n << ")' failed.";
   }
-
-  EXPECT_TRUE(buffer->isDeviceLocal()) << "DeviceOnly buffer isn't device local.";
+  {
+    constexpr std::size_t n = 16;
+    buffer->setSize(n);
+    ASSERT_EQ(n, buffer->size()) << "Buffer 'setSize(" << n << ")' failed.";
+  }
+  {
+    constexpr std::size_t n = 100;
+    buffer->setSize(n);
+    ASSERT_EQ(n, buffer->size()) << "Buffer 'setSize(" << n << ")' failed.";
+  }
+  {
+    constexpr std::size_t n = 1000;
+    buffer->setSize(n);
+    ASSERT_EQ(n, buffer->size()) << "Buffer 'setSize(" << n << ")' failed.";
+  }
+  {
+    constexpr std::size_t n = 2048;
+    buffer->setSize(n);
+    ASSERT_EQ(n, buffer->size()) << "Buffer 'setSize(" << n << ")' failed.";
+  }
+  {
+    constexpr std::size_t n = 1;
+    buffer->setSize(n);
+    ASSERT_EQ(n, buffer->size()) << "Buffer 'setSize(" << n << ")' failed.";
+  }
+  ASSERT_TRUE(buffer->isDeviceLocal()) << "DeviceOnly buffer isn't device local.";
 }
 
 TEST(BufferTest, HostOnlyBufferInitializationTest)
@@ -66,33 +92,58 @@ TEST(BufferTest, HostOnlyBufferInitializationTest)
   auto platform = ztest::makePlatform();
   const ztest::Config& config = ztest::Config::globalConfig();
   zivc::SharedDevice device = platform->makeDevice(config.deviceId());
-
+  // Init test
   auto buffer = device->makeBuffer<int>(zivc::BufferUsage::kHostOnly);
   ASSERT_EQ(0, buffer->size()) << "Buffer initialization failed.";
   ASSERT_EQ(zivc::BufferUsage::kHostOnly, buffer->usage()) << "Buffer initialization failed.";
-
+  EXPECT_TRUE(buffer->isHostVisible()) << "HostOnly buffer isn't host visible.";
+  // Allocation test
   {
     constexpr std::size_t n = 1;
     buffer->setSize(n);
     ASSERT_EQ(n, buffer->size()) << "Buffer 'setSize(" << n << ")' failed.";
   }
-
+  // Clear
   buffer->clear();
   ASSERT_EQ(0, buffer->size()) << "Buffer 'clear' failed.";
-
+  EXPECT_TRUE(buffer->isHostVisible()) << "HostOnly buffer isn't host visible.";
+  // Resize test
   {
     constexpr std::size_t n = 3;
     buffer->setSize(n);
     ASSERT_EQ(n, buffer->size()) << "Buffer 'setSize(" << n << ")' failed.";
   }
-
   {
     constexpr std::size_t n = 10;
     buffer->setSize(n);
     ASSERT_EQ(n, buffer->size()) << "Buffer 'setSize(" << n << ")' failed.";
   }
-
-  EXPECT_TRUE(buffer->isHostVisible()) << "HostOnly buffer isn't host visible.";
+  {
+    constexpr std::size_t n = 16;
+    buffer->setSize(n);
+    ASSERT_EQ(n, buffer->size()) << "Buffer 'setSize(" << n << ")' failed.";
+  }
+  {
+    constexpr std::size_t n = 100;
+    buffer->setSize(n);
+    ASSERT_EQ(n, buffer->size()) << "Buffer 'setSize(" << n << ")' failed.";
+  }
+  {
+    constexpr std::size_t n = 1000;
+    buffer->setSize(n);
+    ASSERT_EQ(n, buffer->size()) << "Buffer 'setSize(" << n << ")' failed.";
+  }
+  {
+    constexpr std::size_t n = 2048;
+    buffer->setSize(n);
+    ASSERT_EQ(n, buffer->size()) << "Buffer 'setSize(" << n << ")' failed.";
+  }
+  {
+    constexpr std::size_t n = 1;
+    buffer->setSize(n);
+    ASSERT_EQ(n, buffer->size()) << "Buffer 'setSize(" << n << ")' failed.";
+  }
+  ASSERT_TRUE(buffer->isHostVisible()) << "HostOnly buffer isn't host visible.";
 }
 
 TEST(BufferTest, HostToDeviceBufferInitializationTest)
@@ -100,32 +151,55 @@ TEST(BufferTest, HostToDeviceBufferInitializationTest)
   auto platform = ztest::makePlatform();
   const ztest::Config& config = ztest::Config::globalConfig();
   zivc::SharedDevice device = platform->makeDevice(config.deviceId());
-
+  // Init test
   auto buffer = device->makeBuffer<int>(zivc::BufferUsage::kHostToDevice);
   ASSERT_EQ(0, buffer->size()) << "Buffer initialization failed.";
   ASSERT_EQ(zivc::BufferUsage::kHostToDevice, buffer->usage()) << "Buffer initialization failed.";
-
+  // Allocation test
   {
     constexpr std::size_t n = 1;
     buffer->setSize(n);
     ASSERT_EQ(n, buffer->size()) << "Buffer 'setSize(" << n << ")' failed.";
   }
-
+  // Clear test
   buffer->clear();
   ASSERT_EQ(0, buffer->size()) << "Buffer 'clear' failed.";
-
+  // Resize test
   {
     constexpr std::size_t n = 3;
     buffer->setSize(n);
     ASSERT_EQ(n, buffer->size()) << "Buffer 'setSize(" << n << ")' failed.";
   }
-
   {
     constexpr std::size_t n = 10;
     buffer->setSize(n);
     ASSERT_EQ(n, buffer->size()) << "Buffer 'setSize(" << n << ")' failed.";
   }
-
+  {
+    constexpr std::size_t n = 16;
+    buffer->setSize(n);
+    ASSERT_EQ(n, buffer->size()) << "Buffer 'setSize(" << n << ")' failed.";
+  }
+  {
+    constexpr std::size_t n = 100;
+    buffer->setSize(n);
+    ASSERT_EQ(n, buffer->size()) << "Buffer 'setSize(" << n << ")' failed.";
+  }
+  {
+    constexpr std::size_t n = 1000;
+    buffer->setSize(n);
+    ASSERT_EQ(n, buffer->size()) << "Buffer 'setSize(" << n << ")' failed.";
+  }
+  {
+    constexpr std::size_t n = 2048;
+    buffer->setSize(n);
+    ASSERT_EQ(n, buffer->size()) << "Buffer 'setSize(" << n << ")' failed.";
+  }
+  {
+    constexpr std::size_t n = 1;
+    buffer->setSize(n);
+    ASSERT_EQ(n, buffer->size()) << "Buffer 'setSize(" << n << ")' failed.";
+  }
   EXPECT_TRUE(buffer->isHostVisible()) << "HostOnly buffer isn't host visible.";
 }
 
@@ -134,28 +208,52 @@ TEST(BufferTest, DeviceToHostBufferInitializationTest)
   auto platform = ztest::makePlatform();
   const ztest::Config& config = ztest::Config::globalConfig();
   zivc::SharedDevice device = platform->makeDevice(config.deviceId());
-
+  // Init test
   auto buffer = device->makeBuffer<int>(zivc::BufferUsage::kDeviceToHost);
   ASSERT_EQ(0, buffer->size()) << "Buffer initialization failed.";
   ASSERT_EQ(zivc::BufferUsage::kDeviceToHost, buffer->usage()) << "Buffer initialization failed.";
-
+  // Allocation test
   {
     constexpr std::size_t n = 1;
     buffer->setSize(n);
     ASSERT_EQ(n, buffer->size()) << "Buffer 'setSize(" << n << ")' failed.";
   }
-
+  // Clear test
   buffer->clear();
   ASSERT_EQ(0, buffer->size()) << "Buffer 'clear' failed.";
-
+  // Resize test
   {
     constexpr std::size_t n = 3;
     buffer->setSize(n);
     ASSERT_EQ(n, buffer->size()) << "Buffer 'setSize(" << n << ")' failed.";
   }
-
   {
     constexpr std::size_t n = 10;
+    buffer->setSize(n);
+    ASSERT_EQ(n, buffer->size()) << "Buffer 'setSize(" << n << ")' failed.";
+  }
+  {
+    constexpr std::size_t n = 16;
+    buffer->setSize(n);
+    ASSERT_EQ(n, buffer->size()) << "Buffer 'setSize(" << n << ")' failed.";
+  }
+  {
+    constexpr std::size_t n = 100;
+    buffer->setSize(n);
+    ASSERT_EQ(n, buffer->size()) << "Buffer 'setSize(" << n << ")' failed.";
+  }
+  {
+    constexpr std::size_t n = 1000;
+    buffer->setSize(n);
+    ASSERT_EQ(n, buffer->size()) << "Buffer 'setSize(" << n << ")' failed.";
+  }
+  {
+    constexpr std::size_t n = 2048;
+    buffer->setSize(n);
+    ASSERT_EQ(n, buffer->size()) << "Buffer 'setSize(" << n << ")' failed.";
+  }
+  {
+    constexpr std::size_t n = 1;
     buffer->setSize(n);
     ASSERT_EQ(n, buffer->size()) << "Buffer 'setSize(" << n << ")' failed.";
   }
@@ -171,9 +269,29 @@ TEST(BufferTest, DeviceBufferMaxAllocationTest)
 
   const auto& info = device->deviceInfo();
   {
-    const std::size_t s = info.maxAllocationSize() / sizeof(int);
+    constexpr std::size_t max_alloc = 4ull * 1024ull * 1024ull * 1024ull;
+    const std::size_t alloc_size = (std::min)(info.maxAllocationSize(), max_alloc);
+    const std::size_t s = alloc_size / sizeof(int);
     buffer->setSize(s);
     ASSERT_EQ(s, buffer->size()) << "Max alocation of device buffer failed.";
+  }
+
+  {
+    const auto to_mb = [](const std::size_t size) noexcept
+    {
+      const zisc::ByteUnit bytes{zisc::cast<zivc::int64b>(size)};
+      const zisc::MebiUnit mega_bytes{bytes};
+      return zisc::cast<double>(mega_bytes.value());
+    };
+
+    const std::size_t alloc_size = sizeof(int) * buffer->capacity();
+    std::cout << "## Max allocation size: "
+              << to_mb(alloc_size) << " MB." << std::endl;
+    const auto& heap_info = info.heapInfo(buffer->heapIndex());
+    const auto& usage = heap_info.usedSizeForBuffer();
+    ASSERT_GT(usage.peak(), 0) << "Memory usage isn't updated.";
+    std::cout << "## Used memory size: "
+              << to_mb(usage.peak()) << " MB." << std::endl;
   }
 }
 
@@ -187,9 +305,29 @@ TEST(BufferTest, HostBufferMaxAllocationTest)
 
   const auto& info = device->deviceInfo();
   {
-    const std::size_t s = info.maxAllocationSize() / sizeof(int);
+    constexpr std::size_t max_alloc = 4ull * 1024ull * 1024ull * 1024ull;
+    const std::size_t alloc_size = (std::min)(info.maxAllocationSize(), max_alloc);
+    const std::size_t s = alloc_size / sizeof(int);
     buffer->setSize(s);
     ASSERT_EQ(s, buffer->size()) << "Max allocation of host buffer failed.";
+  }
+
+  {
+    const auto to_mb = [](const std::size_t size) noexcept
+    {
+      const zisc::ByteUnit bytes{zisc::cast<zivc::int64b>(size)};
+      const zisc::MebiUnit mega_bytes{bytes};
+      return zisc::cast<double>(mega_bytes.value());
+    };
+
+    const std::size_t alloc_size = sizeof(int) * buffer->capacity();
+    std::cout << "## Max allocation size: "
+              << to_mb(alloc_size) << " MB." << std::endl;
+    const auto& heap_info = info.heapInfo(buffer->heapIndex());
+    const auto& usage = heap_info.usedSizeForBuffer();
+    ASSERT_GT(usage.peak(), 0) << "Memory usage isn't updated.";
+    std::cout << "## Used memory size: "
+              << to_mb(usage.peak()) << " MB." << std::endl;
   }
 }
 
@@ -204,7 +342,9 @@ TEST(BufferTest, HostBufferMemoryMappingTest)
   // Max allocation test
   {
     const auto& info = device->deviceInfo();
-    const std::size_t s = info.maxAllocationSize() / sizeof(int);
+    constexpr std::size_t max_alloc = 4ull * 1024ull * 1024ull * 1024ull;
+    const std::size_t alloc_size = (std::min)(info.maxAllocationSize(), max_alloc);
+    const std::size_t s = alloc_size / sizeof(int);
     buffer->setSize(s);
     ASSERT_EQ(s, buffer->size()) << "Host buffer allocation failed.";
     auto mapped_mem = buffer->mapMemory();
@@ -1074,6 +1214,160 @@ TEST(BufferTest, FillHostBufferRangeTest)
     }
     for (std::size_t i = s - offset; i < s; ++i) {
       ASSERT_EQ(0, mapped_mem[i]) << "Filling buffer range failed.";
+    }
+  }
+}
+
+TEST(BufferTest, CopyBufferReinterpTest)
+{
+  using zivc::uint16b;
+  using zivc::uint64b;
+
+  auto platform = ztest::makePlatform();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
+
+  auto buffer_host = device->makeBuffer<uint64b>(zivc::BufferUsage::kHostOnly);
+  auto buffer_device = device->makeBuffer<uint64b>(zivc::BufferUsage::kDeviceOnly);
+
+  // Allocate memories
+  {
+    constexpr std::size_t alloc_size = 16ull * 1024ull * 1024ull;
+    const std::size_t s = alloc_size / sizeof(uint64b);
+    buffer_host->setSize(s);
+    buffer_device->setSize(s);
+  }
+
+  constexpr std::size_t k = sizeof(uint64b) / sizeof(uint16b);
+  auto buffer_host2 = buffer_host->reinterp<uint16b>();
+  auto buffer_device2 = buffer_device->reinterp<uint16b>();
+
+  // Initialize the source buffer
+  {
+    auto mapped_mem = buffer_host2->mapMemory();
+    for (std::size_t i = 0; i < mapped_mem.size(); ++i)
+      mapped_mem[i] = (std::numeric_limits<uint16b>::max)();
+  }
+  constexpr std::size_t offset = 10;
+  // Copy from host to device
+  {
+    auto options = buffer_device2->makeOptions();
+    options.setLabel("HostToDeviceCopy");
+    options.setExternalSyncMode(true);
+    options.setSourceOffset(k * offset);
+    options.setDestOffset(k * offset);
+    options.setSize(buffer_device2->size() - 2 * k * offset);
+    auto result = zivc::copy(*buffer_host2, buffer_device2, options);
+    if (result.isAsync()) {
+      ASSERT_TRUE(result.fence()) << "The result of the copy is wrong.";
+      result.fence().wait();
+    }
+  }
+  {
+    auto mapped_mem = buffer_host2->mapMemory();
+    std::fill_n(mapped_mem.begin(), mapped_mem.size(), 0);
+  }
+  // Copy from device to host
+  {
+    auto options = buffer_device2->makeOptions();
+    options.setLabel("DeviceToHostCopy");
+    options.setExternalSyncMode(true);
+    options.setSourceOffset(k * offset);
+    options.setDestOffset(k * offset);
+    options.setSize(buffer_device2->size() - 2 * k * offset);
+    auto result = zivc::copy(*buffer_device2, buffer_host2, options);
+    if (result.isAsync()) {
+      ASSERT_TRUE(result.fence()) << "The result of the copy is wrong.";
+      result.fence().wait();
+    }
+  }
+  {
+    auto mapped_mem = buffer_host->mapMemory();
+    const std::size_t s = buffer_host->size();
+    for (std::size_t i = 0; i < offset; ++i) {
+      ASSERT_EQ(0, mapped_mem[i]) << "Copying buffer range failed.";
+    }
+    for (std::size_t i = offset; i < (s - offset); ++i) {
+      constexpr uint64b expected = (std::numeric_limits<uint64b>::max)();
+      ASSERT_EQ(expected, mapped_mem[i]) << "Copying buffer failed.";
+    }
+    for (std::size_t i = s - offset; i < s; ++i) {
+      ASSERT_EQ(0, mapped_mem[i]) << "Copying buffer range failed.";
+    }
+  }
+}
+
+TEST(BufferTest, CopyHostBufferReinterpTest)
+{
+  using zivc::uint16b;
+  using zivc::uint64b;
+
+  auto platform = ztest::makePlatform();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
+
+  auto buffer_host = device->makeBuffer<uint64b>(zivc::BufferUsage::kHostOnly);
+  auto buffer_host2 = device->makeBuffer<uint64b>(zivc::BufferUsage::kHostOnly);
+
+  // Allocate memories
+  {
+    constexpr std::size_t alloc_size = 16ull * 1024ull * 1024ull;
+    const std::size_t s = alloc_size / sizeof(uint64b);
+    buffer_host->setSize(s);
+    buffer_host2->setSize(s);
+  }
+
+  constexpr std::size_t k = sizeof(uint64b) / sizeof(uint16b);
+  auto buffer_host3 = buffer_host->reinterp<uint16b>();
+  auto buffer_host4 = buffer_host2->reinterp<uint16b>();
+
+  // Initialize the source buffer
+  {
+    auto mapped_mem = buffer_host3->mapMemory();
+    for (std::size_t i = 0; i < mapped_mem.size(); ++i)
+      mapped_mem[i] = (std::numeric_limits<uint16b>::max)();
+  }
+  constexpr std::size_t offset = 10;
+  // Copy from host to device
+  {
+    auto options = buffer_host3->makeOptions();
+    options.setLabel("HostToHostCopy");
+    options.setExternalSyncMode(true);
+    options.setSourceOffset(k * offset);
+    options.setDestOffset(k * offset);
+    options.setSize(buffer_host3->size() - 2 * k * offset);
+    auto result = zivc::copy(*buffer_host3, buffer_host4, options);
+    ASSERT_FALSE(result.isAsync());
+    ASSERT_FALSE(result.fence());
+  }
+  {
+    auto mapped_mem = buffer_host3->mapMemory();
+    std::fill_n(mapped_mem.begin(), mapped_mem.size(), 0);
+  }
+  // Copy from device to host
+  {
+    auto options = buffer_host4->makeOptions();
+    options.setLabel("HostToHostCopy");
+    options.setExternalSyncMode(true);
+    options.setSourceOffset(k * offset);
+    options.setDestOffset(k * offset);
+    options.setSize(buffer_host3->size() - 2 * k * offset);
+    auto result = zivc::copy(*buffer_host4, buffer_host3, options);
+    ASSERT_FALSE(result.isAsync());
+    ASSERT_FALSE(result.fence());
+  }
+  {
+    auto mapped_mem = buffer_host->mapMemory();
+    const std::size_t s = buffer_host->size();
+    for (std::size_t i = 0; i < offset; ++i) {
+      ASSERT_EQ(0, mapped_mem[i]) << "Copying buffer range failed.";
+    }
+    for (std::size_t i = offset; i < (s - offset); ++i) {
+      constexpr uint64b expected = (std::numeric_limits<uint64b>::max)();
+      ASSERT_EQ(expected, mapped_mem[i]) << "Copying buffer failed.";
+    }
+    for (std::size_t i = s - offset; i < s; ++i) {
+      ASSERT_EQ(0, mapped_mem[i]) << "Copying buffer range failed.";
     }
   }
 }

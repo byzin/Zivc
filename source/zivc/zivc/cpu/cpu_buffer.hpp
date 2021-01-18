@@ -25,6 +25,7 @@
 // Zivc
 #include "zivc/buffer.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/utility/buffer_launch_options.hpp"
 #include "zivc/utility/id_data.hpp"
 #include "zivc/utility/launch_result.hpp"
 
@@ -66,6 +67,9 @@ class CpuBuffer : public Buffer<T>
   //! Return the underlying data pointer
   ConstPointer data() const noexcept;
 
+  //! Return the index of used heap
+  std::size_t heapIndex() const noexcept override;
+
   //! Check if the buffer is the most efficient for the device access
   bool isDeviceLocal() const noexcept override;
 
@@ -87,20 +91,12 @@ class CpuBuffer : public Buffer<T>
   //! Change the number of elements
   void setSize(const std::size_t s) override;
 
-  //! Return the number of elements
-  std::size_t size() const noexcept override;
-
  protected:
-  //! Copy from the given buffer
-  LaunchResult copyFromImpl(const Buffer<T>& source,
-                            const BufferLaunchOptions<T>& launch_options) override;
+  //! Return the capacity of the buffer
+  std::size_t capacityImpl() const noexcept override;
 
   //! Clear the contents of the buffer
   void destroyData() noexcept override;
-
-  //! Fill the buffer with specified value
-  LaunchResult fillImpl(ConstReference value,
-                        const BufferLaunchOptions<T>& launch_options) override;
 
   //! Initialize the buffer
   void initData() override;
@@ -109,6 +105,9 @@ class CpuBuffer : public Buffer<T>
   [[nodiscard]]
   Pointer mappedMemory() const override;
 
+  //! Return the capacity of the buffer
+  std::size_t sizeImpl() const noexcept override;
+
   //! Unmap a buffer memory
   void unmapMemory() const noexcept override;
 
@@ -116,6 +115,17 @@ class CpuBuffer : public Buffer<T>
   void updateDebugInfoImpl() noexcept override;
 
  private:
+  friend Buffer<T>;
+
+
+  //! Copy from the given buffer
+  LaunchResult copyFromImpl(const Buffer<T>& source,
+                            const BufferLaunchOptions<T>& launch_options);
+
+  //! Fill the buffer with specified value
+  LaunchResult fillImpl(ConstReference value,
+                        const BufferLaunchOptions<T>& launch_options);
+
   //! Return the device
   CpuDevice& parentImpl() noexcept;
 

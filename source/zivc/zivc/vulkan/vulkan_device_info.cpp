@@ -66,6 +66,7 @@ VulkanDeviceInfo::VulkanDeviceInfo(VulkanDeviceInfo&& other) noexcept :
     queue_family_properties_list_{std::move(other.queue_family_properties_list_)},
     tool_properties_list_{std::move(other.tool_properties_list_)},
     device_{other.device_},
+    device_index_{other.device_index_},
     vendor_name_{std::move(other.vendor_name_)},
     vendor_id_{other.vendor_id_},
     subgroup_size_{other.subgroup_size_},
@@ -89,6 +90,7 @@ VulkanDeviceInfo& VulkanDeviceInfo::operator=(VulkanDeviceInfo&& other) noexcept
   queue_family_properties_list_ = std::move(other.queue_family_properties_list_);
   tool_properties_list_ = std::move(other.tool_properties_list_);
   device_ = other.device_;
+  device_index_ = other.device_index_;
   vendor_name_ = std::move(other.vendor_name_);
   vendor_id_ = other.vendor_id_;
   subgroup_size_ = other.subgroup_size_;

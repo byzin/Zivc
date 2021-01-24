@@ -26,7 +26,7 @@
 namespace zivc {
 
 // Forward declaration
-template <zisc::TriviallyCopyable> class Buffer;
+class BufferCommon;
 
 /*!
   \brief No brief description
@@ -47,10 +47,6 @@ class MappedMemory : private zisc::NonCopyable<MappedMemory<T>>
   using ConstPointer = std::add_pointer_t<ConstType>;
   using Iterator = Pointer;
   using ConstIterator = ConstPointer;
-  using Buffer = zivc::Buffer<T>;
-  using ConstBuffer = std::add_const_t<Buffer>;
-  using BufferP = std::add_pointer_t<Buffer>;
-  using ConstBufferP = std::add_pointer_t<ConstBuffer>;
   // For STL compatibility
   using value_type = Type;
   using size_type = std::size_t;
@@ -67,7 +63,7 @@ class MappedMemory : private zisc::NonCopyable<MappedMemory<T>>
   MappedMemory() noexcept;
 
   //! Create a mapped memory
-  MappedMemory(ConstBufferP buffer);
+  MappedMemory(const BufferCommon* buffer);
 
   //! Move data
   MappedMemory(MappedMemory&& other) noexcept;
@@ -134,12 +130,16 @@ class MappedMemory : private zisc::NonCopyable<MappedMemory<T>>
   void unmap() noexcept;
 
  private:
+  //! Return the internal buffer
+  const BufferCommon* internalBuffer() const noexcept;
+
+
   static_assert(!std::is_pointer_v<Type>, "The Type is pointer.");
   static_assert(!std::is_reference_v<Type>, "The Type is reference.");
 
 
   Pointer data_ = nullptr;
-  ConstBufferP buffer_ = nullptr;
+  const BufferCommon* buffer_ = nullptr;
 };
 
 } // namespace zivc

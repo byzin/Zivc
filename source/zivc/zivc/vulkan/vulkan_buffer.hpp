@@ -46,6 +46,7 @@ class VulkanBuffer : public Buffer<T>
   using ConstReference = typename Buffer<T>::ConstReference;
   using Pointer = typename Buffer<T>::Pointer;
   using ConstPointer = typename Buffer<T>::ConstPointer;
+  using LaunchOptions = typename Buffer<T>::LaunchOptions;
 
 
   /*!
@@ -82,6 +83,9 @@ class VulkanBuffer : public Buffer<T>
   //! Return the buffer data
   const VkBuffer& buffer() const noexcept;
 
+  //! Return the capacity of the buffer in bytes
+  std::size_t capacityInBytes() const noexcept override;
+
   //! Return the command buffer reference
   VkCommandBuffer& commandBuffer() noexcept;
 
@@ -109,71 +113,68 @@ class VulkanBuffer : public Buffer<T>
   //! Check if the buffer can be mapped for the host access
   bool isHostVisible() const noexcept override;
 
+  //! Map a buffer memory to a host
+  [[nodiscard]]
+  void* mapMemory() const override;
+
   //! Set the descriptor type
   void setDescriptorType(const DescriptorType type) noexcept;
 
   //! Change the number of elements
   void setSize(const std::size_t s) override;
 
- protected:
-  //! Return the capacity of the buffer
-  std::size_t capacityImpl() const noexcept override;
-
-  //! Clear the contents of the buffer
-  void destroyData() noexcept override;
-
-  //! Initialize the buffer
-  void initData() override;
-
-  //! Map a buffer memory to a host
-  [[nodiscard]]
-  Pointer mappedMemory() const override;
-
-  //! Return the number of elements
-  std::size_t sizeImpl() const noexcept override;
+  //! Return the size of the buffer in bytes
+  std::size_t sizeInBytes() const noexcept override;
 
   //! Unmap a buffer memory
   void unmapMemory() const noexcept override;
 
-  //! Update the debug info
-  void updateDebugInfoImpl() noexcept override;
-
- private:
+ protected:
   friend Buffer<T>;
 
 
   //! Copy from the given buffer
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
   LaunchResult copyFromImpl(const Buffer<T>& source,
-                            const BufferLaunchOptions<T>& launch_options);
+                            const LaunchOptions& launch_options);
 
-  //! Copy on the device
-  [[nodiscard("The result can have a fence when external sync mode is on.")]]
-  LaunchResult copyOnDevice(const Buffer<T>& source,
-                            const BufferLaunchOptions<T>& launch_options);
-
-  //! Copy on the host
-  LaunchResult copyOnHost(const Buffer<T>& source,
-                          const BufferLaunchOptions<T>& launch_options) noexcept;
-
-  //! Fill the buffer on device with specified value
-  [[nodiscard("The result can have a fence when external sync mode is on.")]]
-  LaunchResult fillFastOnDevice(ConstReference value,
-                                const BufferLaunchOptions<T>& launch_options);
+  //! Clear the contents of the buffer
+  void destroyData() noexcept override;
 
   //! Fill the buffer with specified value
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
   LaunchResult fillImpl(ConstReference value,
-                        const BufferLaunchOptions<T>& launch_options);
+                        const LaunchOptions& launch_options);
+
+  //! Initialize the buffer
+  void initData() override;
+
+  //! Update the debug info
+  void updateDebugInfoImpl() noexcept override;
+
+ private:
+  //! Copy on the device
+  [[nodiscard("The result can have a fence when external sync mode is on.")]]
+  LaunchResult copyOnDevice(const Buffer<T>& source,
+                            const LaunchOptions& launch_options);
+
+  //! Copy on the host
+  LaunchResult copyOnHost(const Buffer<T>& source,
+                          const LaunchOptions& launch_options) noexcept;
+
+  //! Fill the buffer on device with specified value
+  [[nodiscard("The result can have a fence when external sync mode is on.")]]
+  LaunchResult fillFastOnDevice(ConstReference value,
+                                const LaunchOptions& launch_options);
 
   //! Fill the buffer on device with specified value
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
   LaunchResult fillOnDevice(ConstReference value,
-                            const BufferLaunchOptions<T>& launch_options);
+                            const LaunchOptions& launch_options);
 
   //! Fill the buffer on host with specified value
   LaunchResult fillOnHost(ConstReference value,
-                          const BufferLaunchOptions<T>& launch_options) noexcept;
+                          const LaunchOptions& launch_options) noexcept;
 
   //! Check if the buffer has the given memory property flag
   bool hasMemoryProperty(const VkMemoryPropertyFlagBits flag) const noexcept;

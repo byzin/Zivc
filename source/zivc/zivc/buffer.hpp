@@ -25,6 +25,7 @@
 #include "zisc/zisc_config.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
+#include "buffer_common.hpp"
 #include "zivc_config.hpp"
 #include "utility/buffer_launch_options.hpp"
 #include "utility/id_data.hpp"
@@ -36,6 +37,7 @@ namespace zivc {
 // Forward declaration
 template <zisc::TriviallyCopyable> class MappedMemory;
 
+
 /*!
   \brief No brief description
 
@@ -44,7 +46,7 @@ template <zisc::TriviallyCopyable> class MappedMemory;
   \tparam T No description.
   */
 template <zisc::TriviallyCopyable T>
-class Buffer : public ZivcObject
+class Buffer : public BufferCommon
 {
  public:
   // Type aliases
@@ -85,101 +87,54 @@ class Buffer : public ZivcObject
   LaunchResult fill(ConstReference value,
                     const LaunchOptions& launch_options = LaunchOptions{});
 
-  //! Return the index of used heap
-  virtual std::size_t heapIndex() const noexcept = 0;
-
   //! Initialize the buffer
   void initialize(ZivcObject::SharedPtr&& parent,
                   WeakPtr&& own,
                   const BufferUsage buffer_usage);
 
-  //! Check if the buffer is the most efficient for the device access
-  virtual bool isDeviceLocal() const noexcept = 0;
+  //! Map a buffer memory to a host
+  [[nodiscard]]
+  MappedMemory<Type> makeMappedMemory();
 
-  //! Check if the buffer is cached on the host
-  virtual bool isHostCached() const noexcept = 0;
-
-  //! Check if the buffer doesn't need to be unmapped
-  virtual bool isHostCoherent() const noexcept = 0;
-
-  //! Check if the buffer can be mapped for the host access
-  virtual bool isHostVisible() const noexcept = 0;
+  //! Map a buffer memory to a host
+  [[nodiscard]]
+  MappedMemory<ConstType> makeMappedMemory() const;
 
   //! Make launch options
   LaunchOptions makeOptions() const noexcept;
 
-  //! Map a buffer memory to a host
+  //! Convert a type of a buffer interface to NewType
+  template <zisc::TriviallyCopyable NewType>
   [[nodiscard]]
-  MappedMemory<Type> mapMemory();
+  Buffer<NewType>* reinterp() noexcept;
 
-  //! Map a buffer memory to a host
+  //! Convert a type of a buffer interface to NewType
+  template <zisc::TriviallyCopyable NewType>
   [[nodiscard]]
-  MappedMemory<ConstType> mapMemory() const;
+  const Buffer<NewType>* reinterp() const noexcept;
 
-  //! Convert a type of a buffer interface to DstType
-  template <zisc::TriviallyCopyable DstType>
-  Buffer<DstType>* reinterp() noexcept;
-
-  //! Convert a type of a buffer interface to DstType
-  template <zisc::TriviallyCopyable DstType>
-  const Buffer<DstType>* reinterp() const noexcept;
-
-  //! Change the number of elements
-  virtual void setSize(const std::size_t s) = 0;
-
-  //! Return the number of elements
+  //! Return the number of elements of the buffer
   std::size_t size() const noexcept;
 
-  //! Return the buffer usage flag
-  BufferUsage usage() const noexcept;
-
  protected:
-  friend MappedMemory<Type>;
-  friend MappedMemory<ConstType>;
-
-
-  //! Return the capacity of the buffer
-  virtual std::size_t capacityImpl() const noexcept = 0;
-
-  //! Return the size of original type
-  std::size_t correctSize(const std::size_t s) const noexcept;
-
-  //! Clear the contents of the buffer
-  virtual void destroyData() noexcept = 0;
-
-  //! Initialize the buffer
-  virtual void initData() = 0;
-
-  //! Map a buffer memory to a host
-  [[nodiscard]]
-  virtual Pointer mappedMemory() const = 0;
-
-  //! Process the given options for the buffer
-  [[nodiscard]]
-  LaunchOptions processOptions(LaunchOptions launch_options) const noexcept;
-
-  //! Return the size of the buffer
-  virtual std::size_t sizeImpl() const noexcept = 0;
-
-  //! Unmap a buffer memory
-  virtual void unmapMemory() const noexcept = 0;
-
- private:
   template <zisc::TriviallyCopyable Type>
   friend LaunchResult copy(const Buffer<Type>&,
                            Buffer<Type>*,
                            const BufferLaunchOptions<Type>&);
   template <zisc::TriviallyCopyable Type>
-  friend LaunchResult fill(Buffer<Type>*,
-                           typename Buffer<Type>::ConstReference,
+  friend LaunchResult fill(typename Buffer<Type>::ConstReference,
+                           Buffer<Type>*,
                            const BufferLaunchOptions<Type>&);
 
 
   //! Copy from the given buffer
   template <template<typename> typename Derived>
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
-  LaunchResult copyFromDerived(const Buffer& source,
+  LaunchResult copyFromDerived(const Buffer<T>& source,
                                const LaunchOptions& launch_options);
+
+  //! Clear the contents of the buffer
+  virtual void destroyData() noexcept = 0;
 
   //! Fill the buffer with specified value
   template <template<typename> typename Derived>
@@ -187,16 +142,17 @@ class Buffer : public ZivcObject
   LaunchResult fillDerived(ConstReference value,
                            const LaunchOptions& launch_options);
 
-
-  BufferUsage buffer_usage_;
-  uint32b type_size_ = sizeof(T);
+  //! Initialize the buffer
+  virtual void initData() = 0;
 };
+
 
 // Type aliases
 template <zisc::TriviallyCopyable Type>
 using SharedBuffer = typename Buffer<Type>::SharedPtr;
 template <zisc::TriviallyCopyable Type>
 using WeakBuffer = typename Buffer<Type>::WeakPtr;
+
 
 //! Copy from the source to the dest
 template <zisc::TriviallyCopyable Type>
@@ -206,11 +162,11 @@ LaunchResult copy(const Buffer<Type>& source,
                   const BufferLaunchOptions<Type>& launch_options =
                       BufferLaunchOptions<Type>{});
 
-//! Fill the given buffer with specified value
+//! Fill the buffer with specified value
 template <zisc::TriviallyCopyable Type>
 [[nodiscard("The result can have a fence when external sync mode is on.")]]
-LaunchResult fill(Buffer<Type>* buffer,
-                  typename Buffer<Type>::ConstReference value,
+LaunchResult fill(typename Buffer<Type>::ConstReference value,
+                  Buffer<Type>* dest,
                   const BufferLaunchOptions<Type>& launch_options =
                       BufferLaunchOptions<Type>{});
 

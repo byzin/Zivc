@@ -51,10 +51,6 @@ enum class SubPlatformType : uint32b
   kVulkan
 };
 
-// Buffer
-
-constexpr std::size_t kBufferWholeSize = (std::numeric_limits<uint64b>::max)();
-
 /*!
   \brief No brief description
 

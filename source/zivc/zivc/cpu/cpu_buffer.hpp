@@ -52,6 +52,7 @@ class CpuBuffer : public Buffer<T>
   using ConstReference = typename Buffer<T>::ConstReference;
   using Pointer = typename Buffer<T>::Pointer;
   using ConstPointer = typename Buffer<T>::ConstPointer;
+  using LaunchOptions = typename Buffer<T>::LaunchOptions;
 
 
   //! Initialize the buffer
@@ -60,6 +61,9 @@ class CpuBuffer : public Buffer<T>
   //! Finalize the buffer
   ~CpuBuffer() noexcept override;
 
+
+  //! Return the capacity of the buffer in bytes
+  std::size_t capacityInBytes() const noexcept override;
 
   //! Return the underlying data pointer
   Pointer data() noexcept;
@@ -82,6 +86,10 @@ class CpuBuffer : public Buffer<T>
   //! Check if the buffer can be mapped for the host access
   bool isHostVisible() const noexcept override;
 
+  //! Map a buffer memory to a host
+  [[nodiscard]]
+  void* mapMemory() const override;
+
   //! Return the underlying buffer data
   zisc::pmr::vector<Type>& rawBuffer() noexcept;
 
@@ -91,41 +99,34 @@ class CpuBuffer : public Buffer<T>
   //! Change the number of elements
   void setSize(const std::size_t s) override;
 
- protected:
-  //! Return the capacity of the buffer
-  std::size_t capacityImpl() const noexcept override;
-
-  //! Clear the contents of the buffer
-  void destroyData() noexcept override;
-
-  //! Initialize the buffer
-  void initData() override;
-
-  //! Map a buffer memory to a host
-  [[nodiscard]]
-  Pointer mappedMemory() const override;
-
-  //! Return the capacity of the buffer
-  std::size_t sizeImpl() const noexcept override;
+  //! Return the size of the buffer in bytes
+  std::size_t sizeInBytes() const noexcept override;
 
   //! Unmap a buffer memory
   void unmapMemory() const noexcept override;
 
-  //! Update debug info
-  void updateDebugInfoImpl() noexcept override;
-
- private:
+ protected:
   friend Buffer<T>;
 
 
   //! Copy from the given buffer
   LaunchResult copyFromImpl(const Buffer<T>& source,
-                            const BufferLaunchOptions<T>& launch_options);
+                            const LaunchOptions& launch_options);
+
+  //! Clear the contents of the buffer
+  void destroyData() noexcept override;
 
   //! Fill the buffer with specified value
   LaunchResult fillImpl(ConstReference value,
-                        const BufferLaunchOptions<T>& launch_options);
+                        const LaunchOptions& launch_options);
 
+  //! Initialize the buffer
+  void initData() override;
+
+  //! Update debug info
+  void updateDebugInfoImpl() noexcept override;
+
+ private:
   //! Return the device
   CpuDevice& parentImpl() noexcept;
 

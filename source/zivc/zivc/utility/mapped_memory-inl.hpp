@@ -23,7 +23,7 @@
 #include "zisc/error.hpp"
 #include "zisc/utility.hpp"
 // Zivc
-#include "zivc/buffer.hpp"
+#include "zivc/buffer_common.hpp"
 #include "zivc/zivc_config.hpp"
 
 namespace zivc {
@@ -42,8 +42,8 @@ MappedMemory<T>::MappedMemory() noexcept
   \param [in] buffer No description.
   */
 template <zisc::TriviallyCopyable T> inline
-MappedMemory<T>::MappedMemory(ConstBufferP buffer) :
-    data_{buffer ? buffer->mappedMemory() : nullptr},
+MappedMemory<T>::MappedMemory(const BufferCommon* buffer) :
+    data_{buffer ? zisc::cast<Pointer>(buffer->mapMemory()) : nullptr},
     buffer_{buffer}
 {
 }
@@ -291,7 +291,9 @@ void MappedMemory<T>::set(const std::size_t index, ConstReference value) noexcep
 template <zisc::TriviallyCopyable T> inline
 std::size_t MappedMemory<T>::size() const noexcept
 {
-  const std::size_t s = hasMemory() ? buffer_->size() : 0;
+  const std::size_t s = hasMemory()
+      ? internalBuffer()->template getSize<Type>()
+      : 0;
   return s;
 }
 
@@ -302,9 +304,21 @@ template <zisc::TriviallyCopyable T> inline
 void MappedMemory<T>::unmap() noexcept
 {
   if (hasMemory())
-    buffer_->unmapMemory();
+    internalBuffer()->unmapMemory();
   data_ = nullptr;
   buffer_ = nullptr;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <zisc::TriviallyCopyable T> inline
+const BufferCommon* MappedMemory<T>::internalBuffer() const noexcept
+{
+  ZISC_ASSERT(buffer_ != nullptr, "The internal buffer is null.");
+  return buffer_;
 }
 
 } // namespace zivc

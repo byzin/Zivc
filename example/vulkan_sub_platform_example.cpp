@@ -12,7 +12,6 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#define NOMINMAX
 // Standard C++ library
 #include <algorithm>
 #include <iostream>
@@ -36,7 +35,7 @@
 
 namespace {
 
-double toKiloBytes(const std::size_t bytes) noexcept
+[[maybe_unused]] double toKiloBytes(const std::size_t bytes) noexcept
 {
   const double kb = zisc::cast<double>(bytes) / 1024.0;
   return kb;

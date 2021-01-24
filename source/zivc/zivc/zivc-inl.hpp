@@ -65,12 +65,14 @@ LaunchResult copy(const Buffer<Type>& source,
     result = dest->template copyFromDerived<CpuBuffer>(source, launch_options);
     break;
    }
-#if defined(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
    case SubPlatformType::kVulkan: {
+#if defined(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
     result = dest->template copyFromDerived<VulkanBuffer>(source, launch_options);
     break;
-   }
+#else // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
+    [[fallthrough]];
 #endif // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
+   }
    default: {
     ZISC_ASSERT(false, "Error: Unsupported device type is specified.");
     break;
@@ -83,14 +85,14 @@ LaunchResult copy(const Buffer<Type>& source,
   \details No detailed description
 
   \tparam Type No description.
-  \param [out] buffer No description.
   \param [in] value No description.
+  \param [out] buffer No description.
   \param [in] launch_options No description.
   \return No description
   */
 template <zisc::TriviallyCopyable Type> inline
-LaunchResult fill(Buffer<Type>* buffer,
-                  typename Buffer<Type>::ConstReference value,
+LaunchResult fill(typename Buffer<Type>::ConstReference value,
+                  Buffer<Type>* buffer,
                   const BufferLaunchOptions<Type>& launch_options)
 {
   LaunchResult result;
@@ -99,12 +101,14 @@ LaunchResult fill(Buffer<Type>* buffer,
     result = buffer->template fillDerived<CpuBuffer>(value, launch_options);
     break;
    }
-#if defined(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
    case SubPlatformType::kVulkan: {
+#if defined(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
     result = buffer->template fillDerived<VulkanBuffer>(value, launch_options);
     break;
-   }
+#else // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
+    [[fallthrough]];
 #endif // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
+   }
    default: {
     ZISC_ASSERT(false, "Error: Unsupported device type is specified.");
     break;
@@ -130,12 +134,14 @@ SharedBuffer<Type> makeBuffer(Device* device, const BufferUsage flag)
     buffer = device->makeDerivedBuffer<CpuBuffer, Type>(flag);
     break;
    }
-#if defined(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
    case SubPlatformType::kVulkan: {
+#if defined(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
     buffer = device->makeDerivedBuffer<VulkanBuffer, Type>(flag);
     break;
-   }
+#else // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
+    [[fallthrough]];
 #endif // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
+   }
    default: {
     ZISC_ASSERT(false, "Error: Unsupported device type is specified.");
     break;
@@ -165,12 +171,14 @@ SharedKernel<kDim, KSet, Args...> makeKernel(
     kernel = device->makeDerivedKernel<CpuKernel>(params);
     break;
    }
-#if defined(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
    case SubPlatformType::kVulkan: {
+#if defined(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
     kernel = device->makeDerivedKernel<VulkanKernel>(params);
     break;
-   }
+#else // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
+    [[fallthrough]];
 #endif // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
+   }
    default: {
     ZISC_ASSERT(false, "Error: Unsupported device type is specified.");
     break;

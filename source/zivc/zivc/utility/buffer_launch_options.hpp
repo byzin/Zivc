@@ -110,7 +110,7 @@ class BufferLaunchOptions
   std::array<float, 4> label_color_{1.0f, 1.0f, 1.0f, 1.0f};
   std::size_t source_offset_ = 0;
   std::size_t dest_offset_ = 0;
-  std::size_t size_ = kBufferWholeSize;
+  std::size_t size_ = 0;
   uint32b queue_index_ = 0;
   uint8b is_external_sync_mode_ = zisc::kFalse;
   [[maybe_unused]] std::array<uint8b, 3> padding_;

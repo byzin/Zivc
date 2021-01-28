@@ -53,6 +53,9 @@ class IdData : private zisc::NonCopyable<IdData>
   IdData& operator=(IdData&& other) noexcept;
 
 
+  //! Copy the id data
+  IdData copy() const noexcept;
+
   //! Return the array size of the data
   static constexpr std::size_t dataSize() noexcept;
 

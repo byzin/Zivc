@@ -25,6 +25,7 @@
 #include <utility>
 // Zisc
 #include "zisc/bit.hpp"
+#include "zisc/concepts.hpp"
 #include "zisc/error.hpp"
 #include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
@@ -75,7 +76,7 @@ VulkanBuffer<T>::~VulkanBuffer() noexcept
 template <zisc::TriviallyCopyable T> inline
 VmaAllocation& VulkanBuffer<T>::allocation() noexcept
 {
-  return vm_allocation_;
+  return rawBuffer().vm_allocation_;
 }
 
 /*!
@@ -86,7 +87,7 @@ VmaAllocation& VulkanBuffer<T>::allocation() noexcept
 template <zisc::TriviallyCopyable T> inline
 const VmaAllocation& VulkanBuffer<T>::allocation() const noexcept
 {
-  return vm_allocation_;
+  return rawBuffer().vm_allocation_;
 }
 
 /*!
@@ -97,7 +98,7 @@ const VmaAllocation& VulkanBuffer<T>::allocation() const noexcept
 template <zisc::TriviallyCopyable T> inline
 const VmaAllocationInfo& VulkanBuffer<T>::allocationInfo() const noexcept
 {
-  return vm_alloc_info_;
+  return rawBuffer().vm_alloc_info_;
 }
 
 /*!
@@ -108,7 +109,7 @@ const VmaAllocationInfo& VulkanBuffer<T>::allocationInfo() const noexcept
 template <zisc::TriviallyCopyable T> inline
 VkBuffer& VulkanBuffer<T>::buffer() noexcept
 {
-  return buffer_;
+  return rawBuffer().buffer_;
 }
 
 /*!
@@ -119,7 +120,7 @@ VkBuffer& VulkanBuffer<T>::buffer() noexcept
 template <zisc::TriviallyCopyable T> inline
 const VkBuffer& VulkanBuffer<T>::buffer() const noexcept
 {
-  return buffer_;
+  return rawBuffer().buffer_;
 }
 
 /*!
@@ -143,7 +144,7 @@ std::size_t VulkanBuffer<T>::capacityInBytes() const noexcept
 template <zisc::TriviallyCopyable T> inline
 VkCommandBuffer& VulkanBuffer<T>::commandBuffer() noexcept
 {
-  return command_buffer_;
+  return rawBuffer().command_buffer_;
 }
 
 /*!
@@ -154,7 +155,7 @@ VkCommandBuffer& VulkanBuffer<T>::commandBuffer() noexcept
 template <zisc::TriviallyCopyable T> inline
 const VkCommandBuffer& VulkanBuffer<T>::commandBuffer() const noexcept
 {
-  return command_buffer_;
+  return rawBuffer().command_buffer_;
 }
 
 /*!
@@ -165,7 +166,7 @@ const VkCommandBuffer& VulkanBuffer<T>::commandBuffer() const noexcept
 template <zisc::TriviallyCopyable T> inline
 auto VulkanBuffer<T>::descriptorType() const noexcept -> DescriptorType
 {
-  return desc_type_;
+  return rawBuffer().desc_type_;
 }
 
 /*!
@@ -256,7 +257,7 @@ bool VulkanBuffer<T>::isHostVisible() const noexcept
   \return No description
   */
 template <zisc::TriviallyCopyable T> inline
-void* VulkanBuffer<T>::mapMemory() const
+void* VulkanBuffer<T>::mapMemoryData() const
 {
   void* p = nullptr;
   const auto& device = parentImpl();
@@ -271,12 +272,56 @@ void* VulkanBuffer<T>::mapMemory() const
 /*!
   \details No detailed description
 
+  \return No description
+  */
+template <zisc::TriviallyCopyable T> inline
+auto VulkanBuffer<T>::rawBuffer() noexcept -> BufferData&
+{
+  return buffer_data_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <zisc::TriviallyCopyable T> inline
+auto VulkanBuffer<T>::rawBuffer() const noexcept -> const BufferData&
+{
+  return buffer_data_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <zisc::TriviallyCopyable T> inline
+void* VulkanBuffer<T>::rawBufferData() noexcept
+{
+  return std::addressof(rawBuffer());
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <zisc::TriviallyCopyable T> inline
+const void* VulkanBuffer<T>::rawBufferData() const noexcept
+{
+  return std::addressof(rawBuffer());
+}
+
+/*!
+  \details No detailed description
+
   \param [in] type No description.
   */
 template <zisc::TriviallyCopyable T> inline
 void VulkanBuffer<T>::setDescriptorType(const DescriptorType type) noexcept
 {
-  desc_type_ = type;
+  rawBuffer().desc_type_ = type;
 }
 
 /*!
@@ -298,7 +343,7 @@ void VulkanBuffer<T>::setSize(const std::size_t s)
                         std::addressof(Buffer<T>::id()),
                         std::addressof(buffer()),
                         std::addressof(allocation()),
-                        std::addressof(vm_alloc_info_));
+                        std::addressof(rawBuffer().vm_alloc_info_));
     ZivcObject::updateDebugInfo();
     initCommandBuffer();
   }
@@ -321,30 +366,10 @@ std::size_t VulkanBuffer<T>::sizeInBytes() const noexcept
   \details No detailed description
   */
 template <zisc::TriviallyCopyable T> inline
-void VulkanBuffer<T>::unmapMemory() const noexcept
+void VulkanBuffer<T>::unmapMemoryData() const noexcept
 {
   const auto& device = parentImpl();
   vmaUnmapMemory(device.memoryAllocator(), allocation());
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] source No description.
-  \param [in] launch_options No description.
-  \return No description
-  */
-template <zisc::TriviallyCopyable T> inline
-LaunchResult VulkanBuffer<T>::copyFromImpl(const Buffer<T>& source,
-                                           const LaunchOptions& launch_options)
-{
-  ZISC_ASSERT(source.type() == SubPlatformType::kVulkan, "'source' isn't vulkan type.");
-  LaunchResult result{};
-  if (isDeviceLocal() || source.isDeviceLocal())
-    result = copyOnDevice(source, launch_options);
-  else
-    result = copyOnHost(source, launch_options);
-  return result;
 }
 
 /*!
@@ -357,39 +382,11 @@ void VulkanBuffer<T>::destroyData() noexcept
     const VulkanBufferImpl impl{std::addressof(parentImpl())};
     impl.deallocateMemory(std::addressof(buffer()),
                           std::addressof(allocation()),
-                          std::addressof(vm_alloc_info_));
-    buffer_ = ZIVC_VK_NULL_HANDLE;
-    vm_allocation_ = ZIVC_VK_NULL_HANDLE;
+                          std::addressof(rawBuffer().vm_alloc_info_));
+    rawBuffer().buffer_ = ZIVC_VK_NULL_HANDLE;
+    rawBuffer().vm_allocation_ = ZIVC_VK_NULL_HANDLE;
     size_ = 0;
   }
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] value No description.
-  \param [in] launch_options No description.
-  \return No description
-  */
-template <zisc::TriviallyCopyable T> inline
-LaunchResult VulkanBuffer<T>::fillImpl(ConstReference value,
-                                       const LaunchOptions& launch_options)
-{
-  LaunchResult result{};
-  if (isDeviceLocal()) {
-    constexpr bool vsize_can_be_multiple_of_4 = (sizeof(T) <= 4) &&
-                                                zisc::has_single_bit(sizeof(T));
-    const std::size_t offsetBytes = launch_options.destOffsetInBytes();
-    const std::size_t sizeBytes = launch_options.sizeInBytes();
-    if (vsize_can_be_multiple_of_4 && (offsetBytes % 4 == 0) && (sizeBytes % 4 == 0))
-      result = fillFastOnDevice(value, launch_options);
-    else
-      result = fillOnDevice(value, launch_options);
-  }
-  else {
-    result = fillOnHost(value, launch_options);
-  }
-  return result;
 }
 
 /*!
@@ -403,7 +400,7 @@ void VulkanBuffer<T>::initData()
     const VulkanBufferImpl impl{std::addressof(device)};
     impl.initAllocationInfo(Buffer<T>::usage(),
                             descriptorTypeVk(),
-                            std::addressof(vm_alloc_info_));
+                            std::addressof(rawBuffer().vm_alloc_info_));
   }
 }
 
@@ -419,13 +416,13 @@ void VulkanBuffer<T>::updateDebugInfoImpl() noexcept
   if (buffer() != ZIVC_VK_NULL_HANDLE) {
     device.setDebugInfo(VK_OBJECT_TYPE_BUFFER, buffer(), buffer_name, this);
   }
-  if (command_buffer_ != ZIVC_VK_NULL_HANDLE) {
+  if (rawBuffer().command_buffer_ != ZIVC_VK_NULL_HANDLE) {
     IdData::NameType obj_name{""};
     const std::string_view suffix{"_commandbuffer"};
     std::strncpy(obj_name.data(), buffer_name.data(), buffer_name.size() + 1);
     std::strncat(obj_name.data(), suffix.data(), suffix.size());
     const std::string name = obj_name.data();
-    device.setDebugInfo(VK_OBJECT_TYPE_COMMAND_BUFFER, command_buffer_, name, this);
+    device.setDebugInfo(VK_OBJECT_TYPE_COMMAND_BUFFER, rawBuffer().command_buffer_, name, this);
   }
 }
 
@@ -433,17 +430,45 @@ void VulkanBuffer<T>::updateDebugInfoImpl() noexcept
   \details No detailed description
 
   \param [in] source No description.
+  \param [out] dest No description.
   \param [in] launch_options No description.
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
-LaunchResult VulkanBuffer<T>::copyOnDevice(const Buffer<T>& source,
-                                           const LaunchOptions& launch_options)
+template <zisc::TriviallyCopyable T> template <zisc::TriviallyCopyable D> inline
+LaunchResult VulkanBuffer<T>::copyFromImpl(
+    const BufferCommon& source,
+    BufferCommon* dest,
+    const BufferLaunchOptions<D>& launch_options)
 {
-  ZISC_ASSERT(isDeviceLocal() || source.isDeviceLocal(), "No device local buffer.");
-  VulkanDevice& device = parentImpl();
-  auto src = zisc::cast<const VulkanBuffer*>(std::addressof(source));
-  VkCommandBuffer command = isDeviceLocal() ? commandBuffer() : src->commandBuffer();
+  LaunchResult result{};
+  if (source.isDeviceLocal() || dest->isDeviceLocal())
+    result = copyOnDevice(source, dest, launch_options);
+  else
+    result = copyOnHost(source, dest, launch_options);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] source No description.
+  \param [out] dest No description.
+  \param [in] launch_options No description.
+  \return No description
+  */
+template <zisc::TriviallyCopyable T> template <zisc::TriviallyCopyable D> inline
+LaunchResult VulkanBuffer<T>::copyOnDevice(
+    const BufferCommon& source,
+    BufferCommon* dest,
+    const BufferLaunchOptions<D>& launch_options)
+{
+  VulkanDevice& device = *zisc::cast<VulkanDevice*>(dest->getParent());
+
+  const auto& src_data = *zisc::cast<const BufferData*>(source.rawBufferData());
+  auto& dst_data = *zisc::cast<BufferData*>(dest->rawBufferData());
+
+  VkCommandBuffer command = dest->isDeviceLocal() ? dst_data.command_buffer_
+                                                  : src_data.command_buffer_;
   {
     constexpr auto flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
     auto record_region = device.makeCmdRecord(command, flags);
@@ -454,7 +479,7 @@ LaunchResult VulkanBuffer<T>::copyOnDevice(const Buffer<T>& source,
                                      launch_options.destOffsetInBytes(),
                                      launch_options.sizeInBytes()};
       const VulkanBufferImpl impl{std::addressof(device)};
-      impl.copyCmd(command, src->buffer(), buffer(), copy_region);
+      impl.copyCmd(command, src_data.buffer_, dst_data.buffer_, copy_region);
     }
   }
   LaunchResult result{};
@@ -474,19 +499,23 @@ LaunchResult VulkanBuffer<T>::copyOnDevice(const Buffer<T>& source,
   \details No detailed description
 
   \param [in] source No description.
+  \param [out] dest No description.
   \param [in] launch_options No description.
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
-LaunchResult VulkanBuffer<T>::copyOnHost(const Buffer<T>& source,
-                                         const LaunchOptions& launch_options) noexcept
+template <zisc::TriviallyCopyable T> template <zisc::TriviallyCopyable D> inline
+LaunchResult VulkanBuffer<T>::copyOnHost(
+    const BufferCommon& source,
+    BufferCommon* dest,
+    const BufferLaunchOptions<D>& launch_options) noexcept
 {
   {
-    auto source_mem = source.makeMappedMemory();
-    auto memory = Buffer<T>::makeMappedMemory();
-    ConstPointer src = source_mem.begin() + launch_options.sourceOffset();
-    Pointer dest = memory.begin() + launch_options.destOffset();
-    std::copy_n(src, launch_options.size(), dest);
+    using ConstD = std::add_const_t<D>;
+    auto src_data = source.makeMappedMemory<ConstD>();
+    auto* src = src_data.begin() + launch_options.sourceOffset();
+    auto dst_data = dest->makeMappedMemory<D>();
+    auto* dst = dst_data.begin() + launch_options.destOffset();
+    std::copy_n(src, launch_options.size(), dst);
   }
   LaunchResult result{};
   return result;
@@ -496,18 +525,23 @@ LaunchResult VulkanBuffer<T>::copyOnHost(const Buffer<T>& source,
   \details No detailed description
 
   \param [in] value No description.
+  \param [out] dest No description.
   \param [in] launch_options No description.
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
-LaunchResult VulkanBuffer<T>::fillFastOnDevice(ConstReference value,
-                                               const LaunchOptions& launch_options)
+template <zisc::TriviallyCopyable T> template <zisc::TriviallyCopyable D> inline
+LaunchResult VulkanBuffer<T>::fillFastOnDevice(
+    typename Buffer<D>::ConstReference value,
+    BufferCommon* dest,
+    const BufferLaunchOptions<D>& launch_options)
 {
+  VulkanDevice& device = *zisc::cast<VulkanDevice*>(dest->getParent());
+
   // Create a data for fill
   const uint32b data = makeDataForFillFast(value);
-
-  VulkanDevice& device = parentImpl();
-  VkCommandBuffer command = commandBuffer();
+  auto& dst_data = *zisc::cast<BufferData*>(dest->rawBufferData());
+  VkCommandBuffer command = dst_data.command_buffer_;
+  // Record commands
   {
     constexpr auto flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
     auto record_region = device.makeCmdRecord(command, flags);
@@ -517,7 +551,7 @@ LaunchResult VulkanBuffer<T>::fillFastOnDevice(ConstReference value,
       const VulkanBufferImpl impl{std::addressof(device)};
       const std::size_t offsetBytes = launch_options.destOffsetInBytes();
       const std::size_t sizeBytes = launch_options.sizeInBytes();
-      impl.fillFastCmd(command, buffer(), offsetBytes, sizeBytes, data);
+      impl.fillFastCmd(command, dst_data.buffer_, offsetBytes, sizeBytes, data);
     }
   }
   LaunchResult result{};
@@ -537,14 +571,49 @@ LaunchResult VulkanBuffer<T>::fillFastOnDevice(ConstReference value,
   \details No detailed description
 
   \param [in] value No description.
+  \param [out] dest No description.
   \param [in] launch_options No description.
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
-LaunchResult VulkanBuffer<T>::fillOnDevice(ConstReference value,
-                                           const LaunchOptions& launch_options)
+template <zisc::TriviallyCopyable T> template <zisc::TriviallyCopyable D> inline
+LaunchResult VulkanBuffer<T>::fillImpl(
+    typename Buffer<D>::ConstReference value,
+    BufferCommon* dest,
+    const BufferLaunchOptions<D>& launch_options)
+{
+  LaunchResult result{};
+  if (dest->isDeviceLocal()) {
+    constexpr bool vsize_is_factor_of_4 = (sizeof(T) <= 4) &&
+                                          zisc::has_single_bit(sizeof(T));
+    const std::size_t offsetBytes = launch_options.destOffsetInBytes();
+    const std::size_t sizeBytes = launch_options.sizeInBytes();
+    if (vsize_is_factor_of_4 && (offsetBytes % 4 == 0) && (sizeBytes % 4 == 0))
+      result = fillFastOnDevice(value, dest, launch_options);
+    else
+      result = fillOnDevice(value, dest, launch_options);
+  }
+  else {
+    result = fillOnHost(value, dest, launch_options);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] value No description.
+  \param [out] dest No description.
+  \param [in] launch_options No description.
+  \return No description
+  */
+template <zisc::TriviallyCopyable T> template <zisc::TriviallyCopyable D> inline
+LaunchResult VulkanBuffer<T>::fillOnDevice(
+    typename Buffer<D>::ConstReference value,
+    BufferCommon* dest,
+    const BufferLaunchOptions<D>& launch_options)
 {
   static_cast<void>(value);
+  static_cast<void>(dest);
   static_cast<void>(launch_options);
   ZISC_ASSERT(false, "'fillDevice' isn't implemented yet.");
   //! \todo Make a fill array and copy to the device?
@@ -557,17 +626,20 @@ LaunchResult VulkanBuffer<T>::fillOnDevice(ConstReference value,
   \details No detailed description
 
   \param [in] value No description.
+  \param [out] dest No description.
   \param [in] launch_options No description.
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
-LaunchResult VulkanBuffer<T>::fillOnHost(ConstReference value,
-                                         const LaunchOptions& launch_options) noexcept
+template <zisc::TriviallyCopyable T> template <zisc::TriviallyCopyable D> inline
+LaunchResult VulkanBuffer<T>::fillOnHost(
+    typename Buffer<D>::ConstReference value,
+    BufferCommon* dest,
+    const BufferLaunchOptions<D>& launch_options) noexcept
 {
   {
-    auto memory = Buffer<T>::makeMappedMemory();
-    Pointer dest = memory.begin() + launch_options.destOffset();
-    std::fill_n(dest, launch_options.size(), value);
+    auto dst_data = dest->makeMappedMemory<D>();
+    auto dst = dst_data.begin() + launch_options.destOffset();
+    std::fill_n(dst, launch_options.size(), value);
   }
   LaunchResult result{};
   return result;
@@ -595,7 +667,7 @@ void VulkanBuffer<T>::initCommandBuffer()
 {
   if ((commandBuffer() == ZIVC_VK_NULL_HANDLE) && isDeviceLocal()) {
     auto& device = parentImpl();
-    command_buffer_ = device.makeCommandBuffer();
+    rawBuffer().command_buffer_ = device.makeCommandBuffer();
     updateDebugInfoImpl();
   }
 }
@@ -626,21 +698,17 @@ const VkMemoryType& VulkanBuffer<T>::memoryType() const noexcept
 template <zisc::TriviallyCopyable T> inline
 uint32b VulkanBuffer<T>::makeDataForFillFast(ConstReference value) noexcept
 {
+  using ValueT = std::conditional_t<sizeof(T) == 1, uint8b,
+                 std::conditional_t<sizeof(T) == 2, uint16b,
+                 std::conditional_t<sizeof(T) == 4, uint32b,
+                                                    void*>>>;
   uint32b data = 0;
-  constexpr bool vsize_can_be_multiple_of_4 = (sizeof(T) <= sizeof(data)) &&
-                                              zisc::has_single_bit(sizeof(T));
-  if constexpr (vsize_can_be_multiple_of_4) {
-    using ValueT = std::conditional_t<sizeof(T) == 1, uint8b,
-                   std::conditional_t<sizeof(T) == 2, uint16b,
-                                                      uint32b>>;
-    const uint32b v = zisc::cast<uint32b>(zisc::bit_cast<ValueT>(value));
-    constexpr std::size_t n = sizeof(data) / sizeof(ValueT);
-    for (std::size_t i = 0; i < n; ++i) {
-      constexpr std::size_t bits = 8 * sizeof(ValueT);
-      const std::size_t shift = i * bits;
-      const uint32b d = v << shift;
-      data = data | d;
-    }
+  if constexpr (zisc::UnsignedInteger<ValueT>) {
+    data = zisc::cast<uint32b>(zisc::bit_cast<ValueT>(value));
+    if constexpr (sizeof(ValueT) == 1)
+      data = zisc::cast<uint32b>(data << 8) | data;
+    if constexpr (sizeof(ValueT) <= 2)
+      data = zisc::cast<uint32b>(data << 16) | data;
   }
   return data;
 }

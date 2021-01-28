@@ -87,7 +87,7 @@ SharedBuffer<T> Device::makeDerivedBuffer(const BufferUsage flag)
   zisc::pmr::polymorphic_allocator<BufferT> alloc{memoryResource()};
   SharedBuffer<T> buffer = std::allocate_shared<BufferT>(alloc, issueId());
 
-  ZivcObject::SharedPtr parent{getOwn()};
+  ZivcObject::SharedPtr parent{getOwnPtr()};
   WeakBuffer<T> own{buffer};
   buffer->initialize(std::move(parent), std::move(own), flag);
 
@@ -117,7 +117,7 @@ auto Device::makeDerivedKernel(const KernelParams<kDim, KSet, Args...>& params)
   zisc::pmr::polymorphic_allocator<KernelT> alloc{memoryResource()};
   SharedKernelT kernel = std::allocate_shared<KernelT>(alloc, issueId());
 
-  ZivcObject::SharedPtr parent{getOwn()};
+  ZivcObject::SharedPtr parent{getOwnPtr()};
   WeakKernelT own{kernel};
   kernel->initialize(std::move(parent), std::move(own), params);
 

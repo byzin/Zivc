@@ -366,7 +366,7 @@ checkIfPodUpdateIsNeeded(Args... args) const noexcept
   if constexpr (hasPodArg()) {
     const PodDataT data = makePodData(args...);
     ZISC_ASSERT(pod_cache_->isHostVisible(), "The cache isn't host visible.");
-    auto cache = pod_cache_->makeMappedMemory();
+    auto cache = pod_cache_->mapMemory();
     need_to_update_pod = cache[0] == data;
     if (need_to_update_pod)
       cache[0] = data;

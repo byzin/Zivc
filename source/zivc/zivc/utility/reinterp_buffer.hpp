@@ -1,5 +1,5 @@
 /*!
-  \file cpu_buffer.hpp
+  \file reinterp_buffer.hpp
   \author Sho Ikeda
   \brief No brief description
 
@@ -12,27 +12,25 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_CPU_BUFFER_HPP
-#define ZIVC_CPU_BUFFER_HPP
+#ifndef ZIVC_REINTERP_BUFFER_HPP
+#define ZIVC_REINTERP_BUFFER_HPP
 
 // Standard C++ library
 #include <cstddef>
-#include <memory>
-#include <vector>
+#include <type_traits>
 // Zisc
 #include "zisc/concepts.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "zivc/buffer.hpp"
 #include "zivc/zivc_config.hpp"
-#include "zivc/utility/buffer_launch_options.hpp"
 #include "zivc/utility/id_data.hpp"
-#include "zivc/utility/launch_result.hpp"
+#include "zivc/utility/zivc_object.hpp"
 
 namespace zivc {
 
 // Forward declaration
-class CpuDevice;
+class BufferCommon;
 
 /*!
   \brief No brief description
@@ -41,8 +39,8 @@ class CpuDevice;
 
   \tparam T No description.
   */
-template <zisc::TriviallyCopyable T>
-class CpuBuffer : public Buffer<T>
+template <DerivedBuffer Derived, zisc::TriviallyCopyable T>
+class ReinterpBuffer : public Buffer<T>
 {
  public:
   // Type aliases
@@ -52,27 +50,41 @@ class CpuBuffer : public Buffer<T>
   using ConstReference = typename Buffer<T>::ConstReference;
   using Pointer = typename Buffer<T>::Pointer;
   using ConstPointer = typename Buffer<T>::ConstPointer;
-  using LaunchOptions = typename Buffer<T>::LaunchOptions;
+  using BufferT = std::remove_volatile_t<Derived>;
+  using BufferP = std::add_pointer_t<BufferT>;
+  using ConstBufferP = std::add_const_t<BufferP>;
 
 
   //! Initialize the buffer
-  CpuBuffer(IdData&& id) noexcept;
+  ReinterpBuffer(BufferP buffer, IdData&& id) noexcept;
+
+  //! Move data
+  ReinterpBuffer(ReinterpBuffer&& other) noexcept;
 
   //! Finalize the buffer
-  ~CpuBuffer() noexcept override;
+  ~ReinterpBuffer() noexcept override;
 
 
   //! Return the capacity of the buffer in bytes
   std::size_t capacityInBytes() const noexcept override;
 
-  //! Return the underlying data pointer
-  Pointer data() noexcept;
+  //! Return the parent pointer
+  ZivcObject* getParent() noexcept override;
 
-  //! Return the underlying data pointer
-  ConstPointer data() const noexcept;
+  //! Return the parent pointer
+  const ZivcObject* getParent() const noexcept override;
+
+  //! Return the own pointer
+  ZivcObject* getOwn() noexcept override;
+
+  //! Return the own pointer
+  const ZivcObject* getOwn() const noexcept override;
 
   //! Return the index of used heap
   std::size_t heapIndex() const noexcept override;
+
+  //! Check if the zivc object is in debug mode
+  bool isDebugMode() const noexcept override;
 
   //! Check if the buffer is the most efficient for the device access
   bool isDeviceLocal() const noexcept override;
@@ -90,11 +102,11 @@ class CpuBuffer : public Buffer<T>
   [[nodiscard]]
   void* mapMemoryData() const override;
 
-  //! Return the underlying buffer data
-  zisc::pmr::vector<Type>& rawBuffer() noexcept;
+  //! Return the underlying memory resource
+  zisc::pmr::memory_resource* memoryResource() noexcept override;
 
-  //! Return the underlying buffer data
-  const zisc::pmr::vector<Type>& rawBuffer() const noexcept;
+  //! Return the underlying memory resource
+  const zisc::pmr::memory_resource* memoryResource() const noexcept override;
 
   //! Return the underlying buffer data
   void* rawBufferData() noexcept override;
@@ -107,6 +119,9 @@ class CpuBuffer : public Buffer<T>
 
   //! Return the size of the buffer in bytes
   std::size_t sizeInBytes() const noexcept override;
+
+  //! Return the sub-platform type
+  SubPlatformType type() const noexcept override;
 
   //! Unmap a buffer memory
   void unmapMemoryData() const noexcept override;
@@ -122,36 +137,18 @@ class CpuBuffer : public Buffer<T>
   void updateDebugInfoImpl() noexcept override;
 
  private:
-  friend Buffer<T>;
+  //! Return the internal buffer pointer
+  BufferP internalBuffer() noexcept;
+
+  //! Return the internal buffer pointer
+  ConstBufferP internalBuffer() const noexcept;
 
 
-  //! Copy from the given buffer
-  template <zisc::TriviallyCopyable D>
-  static LaunchResult copyFromImpl(const BufferCommon& source,
-                                   BufferCommon* dest,
-                                   const BufferLaunchOptions<D>& launch_options);
-
-  //! Fill the buffer with specified value
-  template <zisc::TriviallyCopyable D>
-  static LaunchResult fillImpl(typename Buffer<D>::ConstReference value,
-                               BufferCommon* dest,
-                               const BufferLaunchOptions<D>& launch_options);
-
-  //! Return the device
-  CpuDevice& parentImpl() noexcept;
-
-  //! Return the device
-  const CpuDevice& parentImpl() const noexcept;
-
-  //! Prepare a buffer for use
-  void prepareBuffer() noexcept;
-
-
-  zisc::pmr::unique_ptr<zisc::pmr::vector<Type>> buffer_data_;
+  BufferP buffer_ = nullptr;
 };
 
 } // namespace zivc
 
-#include "cpu_buffer-inl.hpp"
+#include "reinterp_buffer-inl.hpp"
 
-#endif // ZIVC_CPU_BUFFER_HPP
+#endif // ZIVC_REINTERP_BUFFER_HPP

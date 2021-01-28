@@ -91,6 +91,19 @@ IdData& IdData::operator=(IdData&& other) noexcept
   \return No description
   */
 inline
+IdData IdData::copy() const noexcept
+{
+  IdData other{id()};
+  other.setFileInfo(fileName(), lineNumber());
+  return other;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
 constexpr std::size_t IdData::dataSize() noexcept
 {
   return kDataSize;

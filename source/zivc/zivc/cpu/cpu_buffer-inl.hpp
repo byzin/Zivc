@@ -65,7 +65,7 @@ CpuBuffer<T>::~CpuBuffer() noexcept
 template <zisc::TriviallyCopyable T> inline
 std::size_t CpuBuffer<T>::capacityInBytes() const noexcept
 {
-  const std::size_t n = (buffer_) ? rawBuffer().capacity() : 0;
+  const std::size_t n = (buffer_data_) ? rawBuffer().capacity() : 0;
   const std::size_t c = sizeof(Type) * n;
   return c;
 }
@@ -78,7 +78,7 @@ std::size_t CpuBuffer<T>::capacityInBytes() const noexcept
 template <zisc::TriviallyCopyable T> inline
 auto CpuBuffer<T>::data() noexcept -> Pointer
 {
-  return buffer_->data();
+  return buffer_data_ ? rawBuffer().data() : nullptr;
 }
 
 /*!
@@ -89,7 +89,7 @@ auto CpuBuffer<T>::data() noexcept -> Pointer
 template <zisc::TriviallyCopyable T> inline
 auto CpuBuffer<T>::data() const noexcept -> ConstPointer
 {
-  return buffer_->data();
+  return buffer_data_ ? rawBuffer().data() : nullptr;
 }
 
 /*!
@@ -153,7 +153,7 @@ bool CpuBuffer<T>::isHostVisible() const noexcept
   \return No description
   */
 template <zisc::TriviallyCopyable T> inline
-void* CpuBuffer<T>::mapMemory() const
+void* CpuBuffer<T>::mapMemoryData() const
 {
   Pointer d = const_cast<Pointer>(data());
   ZISC_ASSERT(d != nullptr, "The data is null.");
@@ -168,7 +168,7 @@ void* CpuBuffer<T>::mapMemory() const
 template <zisc::TriviallyCopyable T> inline
 auto CpuBuffer<T>::rawBuffer() noexcept -> zisc::pmr::vector<Type>&
 {
-  return *buffer_;
+  return *buffer_data_;
 }
 
 /*!
@@ -179,7 +179,31 @@ auto CpuBuffer<T>::rawBuffer() noexcept -> zisc::pmr::vector<Type>&
 template <zisc::TriviallyCopyable T> inline
 auto CpuBuffer<T>::rawBuffer() const noexcept -> const zisc::pmr::vector<Type>&
 {
-  return *buffer_;
+  return *buffer_data_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <zisc::TriviallyCopyable T> inline
+void* CpuBuffer<T>::rawBufferData() noexcept
+{
+  void* p = zisc::cast<void*>(data());
+  return p;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <zisc::TriviallyCopyable T> inline
+const void* CpuBuffer<T>::rawBufferData() const noexcept
+{
+  const void* p = zisc::cast<const void*>(data());
+  return p;
 }
 
 /*!
@@ -216,7 +240,7 @@ void CpuBuffer<T>::setSize(const std::size_t s)
 template <zisc::TriviallyCopyable T> inline
 std::size_t CpuBuffer<T>::sizeInBytes() const noexcept
 {
-  const std::size_t n = (buffer_) ? rawBuffer().size() : 0;
+  const std::size_t n = (buffer_data_) ? rawBuffer().size() : 0;
   const std::size_t s = sizeof(Type) * n;
   return s;
 }
@@ -225,30 +249,8 @@ std::size_t CpuBuffer<T>::sizeInBytes() const noexcept
   \details No detailed description
   */
 template <zisc::TriviallyCopyable T> inline
-void CpuBuffer<T>::unmapMemory() const noexcept
+void CpuBuffer<T>::unmapMemoryData() const noexcept
 {
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] source No description.
-  \param [in] launch_options No description.
-  \return No description
-  */
-template <zisc::TriviallyCopyable T> inline
-LaunchResult CpuBuffer<T>::copyFromImpl(const Buffer<T>& source,
-                                        const LaunchOptions& launch_options)
-{
-  ZISC_ASSERT(source.type() == SubPlatformType::kCpu, "'source' isn't cpu type.");
-  const auto cpu_source = zisc::cast<const CpuBuffer*>(std::addressof(source));
-  const auto& src_buffer = cpu_source->rawBuffer();
-  const auto src = src_buffer.begin() + launch_options.sourceOffset();
-  auto& dst_buffer = rawBuffer();
-  auto dst = dst_buffer.begin() + launch_options.destOffset();
-  std::copy_n(src, launch_options.size(), dst);
-  LaunchResult result{};
-  return result;
 }
 
 /*!
@@ -257,25 +259,7 @@ LaunchResult CpuBuffer<T>::copyFromImpl(const Buffer<T>& source,
 template <zisc::TriviallyCopyable T> inline
 void CpuBuffer<T>::destroyData() noexcept
 {
-  buffer_.reset();
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] value No description.
-  \param [in] launch_options No description.
-  \return No description
-  */
-template <zisc::TriviallyCopyable T> inline
-LaunchResult CpuBuffer<T>::fillImpl(ConstReference value,
-                                    const LaunchOptions& launch_options)
-{
-  auto& dest_buffer = rawBuffer();
-  auto dest = dest_buffer.begin() + launch_options.destOffset();
-  std::fill_n(dest, launch_options.size(), value);
-  LaunchResult result{};
-  return result;
+  buffer_data_.reset();
 }
 
 /*!
@@ -293,6 +277,50 @@ void CpuBuffer<T>::initData()
 template <zisc::TriviallyCopyable T> inline
 void CpuBuffer<T>::updateDebugInfoImpl() noexcept
 {
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] source No description.
+  \param [out] dest No description.
+  \param [in] launch_options No description.
+  \return No description
+  */
+template <zisc::TriviallyCopyable T> template <zisc::TriviallyCopyable D> inline
+LaunchResult CpuBuffer<T>::copyFromImpl(const BufferCommon& source,
+                                        BufferCommon* dest,
+                                        const BufferLaunchOptions<D>& launch_options)
+{
+  const auto src_data = zisc::cast<const D*>(source.rawBufferData());
+  const auto src = src_data + launch_options.sourceOffset();
+  auto dst_data = zisc::cast<D*>(dest->rawBufferData());
+  auto dst = dst_data + launch_options.destOffset();
+  std::copy_n(src, launch_options.size(), dst);
+
+  LaunchResult result{};
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] value No description.
+  \param [out] dest No description.
+  \param [in] launch_options No description.
+  \return No description
+  */
+template <zisc::TriviallyCopyable T> template <zisc::TriviallyCopyable D> inline
+LaunchResult CpuBuffer<T>::fillImpl(typename Buffer<D>::ConstReference value,
+                                    BufferCommon* dest,
+                                    const BufferLaunchOptions<D>& launch_options)
+{
+  auto dst_data = zisc::cast<D*>(dest->rawBufferData());
+  auto dst = dst_data + launch_options.destOffset();
+  std::fill_n(dst, launch_options.size(), value);
+
+  LaunchResult result{};
+  return result;
 }
 
 /*!
@@ -325,13 +353,13 @@ const CpuDevice& CpuBuffer<T>::parentImpl() const noexcept
 template <zisc::TriviallyCopyable T> inline
 void CpuBuffer<T>::prepareBuffer() noexcept
 {
-  if (!buffer_) {
+  if (!buffer_data_) {
     auto mem_resource = Buffer<T>::memoryResource();
-    using BufferImplType = typename decltype(buffer_)::element_type;
+    using BufferImplType = typename decltype(buffer_data_)::element_type;
     typename BufferImplType::allocator_type alloc{mem_resource};
     BufferImplType buffer{alloc};
-    buffer_ = zisc::pmr::allocateUnique<BufferImplType>(mem_resource,
-                                                        std::move(buffer));
+    buffer_data_ = zisc::pmr::allocateUnique<BufferImplType>(mem_resource,
+                                                             std::move(buffer));
   }
 }
 

@@ -20,6 +20,7 @@
 #include "zisc/utility.hpp"
 // Zivc
 #include "zivc_config.hpp"
+#include "utility/mapped_memory.hpp"
 
 namespace zivc {
 
@@ -52,12 +53,15 @@ std::size_t BufferCommon::getSize() const noexcept
 /*!
   \details No detailed description
 
+  \tparam T No description.
   \return No description
   */
-inline
-std::size_t BufferCommon::typeSize() const noexcept
+template <zisc::TriviallyCopyable T> inline
+MappedMemory<T> BufferCommon::makeMappedMemory() const
 {
-  return type_size_;
+  const BufferCommon* p = isHostVisible() ? this : nullptr;
+  MappedMemory<T> memory{p};
+  return memory;
 }
 
 /*!
@@ -83,17 +87,6 @@ std::size_t BufferCommon::calcSize(const std::size_t s) const noexcept
 {
   const std::size_t n = s / sizeof(T);
   return n;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] s No description.
-  */
-inline
-void BufferCommon::setTypeSize(const std::size_t s) noexcept
-{
-  type_size_ = zisc::cast<uint32b>(s);
 }
 
 /*!

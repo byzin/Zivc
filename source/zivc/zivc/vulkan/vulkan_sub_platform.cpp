@@ -80,7 +80,7 @@ void VulkanSubPlatform::getDeviceInfoList(
   */
 bool VulkanSubPlatform::isAvailable() const noexcept
 {
-  const auto& own = getOwn();
+  const auto& own = getOwnPtr();
   const bool result = !own.expired() && (instance_ref_ != nullptr);
   return result;
 }
@@ -127,7 +127,7 @@ SharedDevice VulkanSubPlatform::makeDevice(const DeviceInfo& device_info)
   zisc::pmr::polymorphic_allocator<VulkanDevice> alloc{memoryResource()};
   SharedDevice device = std::allocate_shared<VulkanDevice>(alloc, issueId());
 
-  ZivcObject::SharedPtr parent{getOwn()};
+  ZivcObject::SharedPtr parent{getOwnPtr()};
   WeakDevice own{device};
   device->initialize(std::move(parent), std::move(own), device_info);
 

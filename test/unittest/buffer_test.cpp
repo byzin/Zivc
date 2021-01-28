@@ -348,12 +348,12 @@ TEST(BufferTest, HostBufferMemoryMappingTest)
     const std::size_t s = alloc_size / sizeof(int);
     buffer->setSize(s);
     ASSERT_EQ(s, buffer->size()) << "Host buffer allocation failed.";
-    auto mapped_mem = buffer->makeMappedMemory();
+    auto mapped_mem = buffer->mapMemory();
     ASSERT_TRUE(mapped_mem) << "Memory mapping failed.";
     ASSERT_EQ(s, mapped_mem.size()) << "Memory mapping failed.";
   }
   {
-    auto mapped_mem = buffer->makeMappedMemory();
+    auto mapped_mem = buffer->mapMemory();
     for (std::size_t i = 0; i < mapped_mem.size(); ++i)
       mapped_mem[i] = zisc::cast<int>(i);
   }
@@ -364,19 +364,19 @@ TEST(BufferTest, HostBufferMemoryMappingTest)
     const std::size_t s = alloc_size / sizeof(int);
     buffer->setSize(s);
     ASSERT_EQ(s, buffer->size()) << "Host buffer allocation failed.";
-    auto mapped_mem = buffer->makeMappedMemory();
+    auto mapped_mem = buffer->mapMemory();
     ASSERT_TRUE(mapped_mem) << "Memory mapping failed.";
     ASSERT_EQ(s, mapped_mem.size()) << "Memory mapping failed.";
   }
 
   // Test1
   {
-    auto mapped_mem = buffer->makeMappedMemory();
+    auto mapped_mem = buffer->mapMemory();
     for (std::size_t i = 0; i < mapped_mem.size(); ++i)
       mapped_mem[i] = zisc::cast<int>(i);
   }
   {
-    auto mapped_mem = buffer->makeMappedMemory();
+    auto mapped_mem = buffer->mapMemory();
     for (std::size_t i = 0; i < mapped_mem.size(); ++i) {
       const int expected = zisc::cast<int>(i);
       ASSERT_EQ(expected, mapped_mem[i]) << "Memory mappling failed.";
@@ -384,14 +384,14 @@ TEST(BufferTest, HostBufferMemoryMappingTest)
   }
   // Test2
   {
-    auto mapped_mem = buffer->makeMappedMemory();
+    auto mapped_mem = buffer->mapMemory();
     for (std::size_t i = 0; i < mapped_mem.size(); ++i) {
       const std::size_t value = mapped_mem.size() - i;
       mapped_mem.set(i, zisc::cast<int>(value));
     }
   }
   {
-    auto mapped_mem = buffer->makeMappedMemory();
+    auto mapped_mem = buffer->mapMemory();
     for (std::size_t i = 0; i < mapped_mem.size(); ++i) {
       const int expected = zisc::cast<int>(mapped_mem.size() - i);
       ASSERT_EQ(expected, mapped_mem[i]) << "'set' failed.";
@@ -400,11 +400,11 @@ TEST(BufferTest, HostBufferMemoryMappingTest)
   // Test3
   constexpr int test3_value = 8;
   {
-    auto mapped_mem = buffer->makeMappedMemory();
+    auto mapped_mem = buffer->mapMemory();
     std::fill(mapped_mem.begin(), mapped_mem.end(), test3_value);
   }
   {
-    auto mapped_mem = buffer->makeMappedMemory();
+    auto mapped_mem = buffer->mapMemory();
     std::size_t n = 0;
     for (auto ite = mapped_mem.cbegin(); ite != mapped_mem.cend(); ++ite) {
       ASSERT_EQ(test3_value, *ite) << "iterator of MappedMemory failed.";
@@ -427,18 +427,18 @@ TEST(BufferTest, HostToDeviceBufferMemoryMappingTest)
     const std::size_t s = alloc_size / sizeof(int);
     buffer->setSize(s);
     ASSERT_EQ(s, buffer->size()) << "HostToDevice buffer allocation failed.";
-    auto mapped_mem = buffer->makeMappedMemory();
+    auto mapped_mem = buffer->mapMemory();
     ASSERT_TRUE(mapped_mem) << "Memory mapping failed.";
     ASSERT_EQ(s, mapped_mem.size()) << "Memory mapping failed.";
   }
   // Test1
   {
-    auto mapped_mem = buffer->makeMappedMemory();
+    auto mapped_mem = buffer->mapMemory();
     for (std::size_t i = 0; i < mapped_mem.size(); ++i)
       mapped_mem[i] = zisc::cast<int>(i);
   }
   {
-    auto mapped_mem = buffer->makeMappedMemory();
+    auto mapped_mem = buffer->mapMemory();
     for (std::size_t i = 0; i < mapped_mem.size(); ++i) {
       const int expected = zisc::cast<int>(i);
       ASSERT_EQ(expected, mapped_mem[i]) << "Memory mappling failed.";
@@ -446,14 +446,14 @@ TEST(BufferTest, HostToDeviceBufferMemoryMappingTest)
   }
   // Test2
   {
-    auto mapped_mem = buffer->makeMappedMemory();
+    auto mapped_mem = buffer->mapMemory();
     for (std::size_t i = 0; i < mapped_mem.size(); ++i) {
       const std::size_t value = mapped_mem.size() - i;
       mapped_mem.set(i, zisc::cast<int>(value));
     }
   }
   {
-    auto mapped_mem = buffer->makeMappedMemory();
+    auto mapped_mem = buffer->mapMemory();
     for (std::size_t i = 0; i < mapped_mem.size(); ++i) {
       const int expected = zisc::cast<int>(mapped_mem.size() - i);
       ASSERT_EQ(expected, mapped_mem[i]) << "'set' failed.";
@@ -462,11 +462,11 @@ TEST(BufferTest, HostToDeviceBufferMemoryMappingTest)
   // Test3
   constexpr int test3_value = 8;
   {
-    auto mapped_mem = buffer->makeMappedMemory();
+    auto mapped_mem = buffer->mapMemory();
     std::fill(mapped_mem.begin(), mapped_mem.end(), test3_value);
   }
   {
-    auto mapped_mem = buffer->makeMappedMemory();
+    auto mapped_mem = buffer->mapMemory();
     std::size_t n = 0;
     for (auto ite = mapped_mem.cbegin(); ite != mapped_mem.cend(); ++ite) {
       ASSERT_EQ(test3_value, *ite) << "iterator of MappedMemory failed.";
@@ -498,7 +498,7 @@ TEST(BufferTest, CopyMaxAllocBufferTest)
   }
   // Initialize the source buffer
   {
-    auto mapped_mem = buffer_host->makeMappedMemory();
+    auto mapped_mem = buffer_host->mapMemory();
     for (std::size_t i = 0; i < mapped_mem.size(); ++i)
       mapped_mem[i] = zisc::cast<uint64b>(i);
   }
@@ -514,7 +514,7 @@ TEST(BufferTest, CopyMaxAllocBufferTest)
     }
   }
   {
-    auto mapped_mem = buffer_host->makeMappedMemory();
+    auto mapped_mem = buffer_host->mapMemory();
     std::fill_n(mapped_mem.begin(), mapped_mem.size(), 0);
   }
   // Copy from device to host
@@ -550,7 +550,7 @@ TEST(BufferTest, CopyBufferTest)
   }
   // Initialize the source buffer
   {
-    auto mapped_mem = buffer_host->makeMappedMemory();
+    auto mapped_mem = buffer_host->mapMemory();
     for (std::size_t i = 0; i < mapped_mem.size(); ++i)
       mapped_mem[i] = zisc::cast<uint64b>(i);
   }
@@ -566,7 +566,7 @@ TEST(BufferTest, CopyBufferTest)
     }
   }
   {
-    auto mapped_mem = buffer_host->makeMappedMemory();
+    auto mapped_mem = buffer_host->mapMemory();
     std::fill_n(mapped_mem.begin(), mapped_mem.size(), 0);
   }
   // Copy from device to host
@@ -581,7 +581,7 @@ TEST(BufferTest, CopyBufferTest)
     }
   }
   {
-    auto mapped_mem = buffer_host->makeMappedMemory();
+    auto mapped_mem = buffer_host->mapMemory();
     for (std::size_t i = 0; i < mapped_mem.size(); ++i) {
       const uint64b expected = zisc::cast<uint64b>(i);
       ASSERT_EQ(expected, mapped_mem[i]) << "Copying buffer failed.";
@@ -609,7 +609,7 @@ TEST(BufferTest, CopyBufferRangeTest)
   }
   // Initialize the source buffer
   {
-    auto mapped_mem = buffer_host->makeMappedMemory();
+    auto mapped_mem = buffer_host->mapMemory();
     for (std::size_t i = 0; i < mapped_mem.size(); ++i)
       mapped_mem[i] = zisc::cast<uint64b>(i);
   }
@@ -630,7 +630,7 @@ TEST(BufferTest, CopyBufferRangeTest)
     }
   }
   {
-    auto mapped_mem = buffer_host->makeMappedMemory();
+    auto mapped_mem = buffer_host->mapMemory();
     std::fill_n(mapped_mem.begin(), mapped_mem.size(), v);
   }
   // Copy from device to host
@@ -648,7 +648,7 @@ TEST(BufferTest, CopyBufferRangeTest)
     }
   }
   {
-    auto mapped_mem = buffer_host->makeMappedMemory();
+    auto mapped_mem = buffer_host->mapMemory();
     const std::size_t s = buffer_host->size();
     for (std::size_t i = 0; i < offset; ++i) {
       ASSERT_EQ(v, mapped_mem[i]) << "Copying buffer range failed.";
@@ -683,7 +683,7 @@ TEST(BufferTest, CopyBufferRangeTest2)
   }
   // Initialize the source buffer
   {
-    auto mapped_mem = buffer_host->makeMappedMemory();
+    auto mapped_mem = buffer_host->mapMemory();
     for (std::size_t i = 0; i < mapped_mem.size(); ++i)
       mapped_mem[i] = zisc::cast<uint64b>(i);
   }
@@ -703,7 +703,7 @@ TEST(BufferTest, CopyBufferRangeTest2)
     }
   }
   {
-    auto mapped_mem = buffer_host->makeMappedMemory();
+    auto mapped_mem = buffer_host->mapMemory();
     std::fill_n(mapped_mem.begin(), mapped_mem.size(), v);
   }
   // Copy from device to host
@@ -721,7 +721,7 @@ TEST(BufferTest, CopyBufferRangeTest2)
     }
   }
   {
-    auto mapped_mem = buffer_host->makeMappedMemory();
+    auto mapped_mem = buffer_host->mapMemory();
     for (std::size_t i = 0; i < offset; ++i) {
       ASSERT_EQ(v, mapped_mem[i]) << "Copying buffer range failed.";
     }
@@ -752,7 +752,7 @@ TEST(BufferTest, CopyHostBufferTest)
   }
   // Initialize the source buffer
   {
-    auto mapped_mem = buffer_host->makeMappedMemory();
+    auto mapped_mem = buffer_host->mapMemory();
     for (std::size_t i = 0; i < mapped_mem.size(); ++i)
       mapped_mem[i] = zisc::cast<uint64b>(i);
   }
@@ -766,7 +766,7 @@ TEST(BufferTest, CopyHostBufferTest)
     ASSERT_FALSE(result.fence());
   }
   {
-    auto mapped_mem = buffer_host->makeMappedMemory();
+    auto mapped_mem = buffer_host->mapMemory();
     std::fill_n(mapped_mem.begin(), mapped_mem.size(), 0);
   }
   // Copy from device to host
@@ -779,7 +779,7 @@ TEST(BufferTest, CopyHostBufferTest)
     ASSERT_FALSE(result.fence());
   }
   {
-    auto mapped_mem = buffer_host->makeMappedMemory();
+    auto mapped_mem = buffer_host->mapMemory();
     for (std::size_t i = 0; i < mapped_mem.size(); ++i) {
       const uint64b expected = zisc::cast<uint64b>(i);
       ASSERT_EQ(expected, mapped_mem[i]) << "Copying buffer failed.";
@@ -807,7 +807,7 @@ TEST(BufferTest, CopyHostBufferRangeTest)
   }
   // Initialize the source buffer
   {
-    auto mapped_mem = buffer_host->makeMappedMemory();
+    auto mapped_mem = buffer_host->mapMemory();
     for (std::size_t i = 0; i < mapped_mem.size(); ++i)
       mapped_mem[i] = zisc::cast<uint64b>(i);
   }
@@ -826,7 +826,7 @@ TEST(BufferTest, CopyHostBufferRangeTest)
     ASSERT_FALSE(result.fence());
   }
   {
-    auto mapped_mem = buffer_host->makeMappedMemory();
+    auto mapped_mem = buffer_host->mapMemory();
     std::fill_n(mapped_mem.begin(), mapped_mem.size(), v);
   }
   // Copy from device to host
@@ -842,7 +842,7 @@ TEST(BufferTest, CopyHostBufferRangeTest)
     ASSERT_FALSE(result.fence());
   }
   {
-    auto mapped_mem = buffer_host->makeMappedMemory();
+    auto mapped_mem = buffer_host->mapMemory();
     const std::size_t s = buffer_host->size();
     for (std::size_t i = 0; i < offset; ++i) {
       ASSERT_EQ(v, mapped_mem[i]) << "Copying buffer range failed.";
@@ -877,7 +877,7 @@ TEST(BufferTest, CopyHostBufferRangeTest2)
   }
   // Initialize the source buffer
   {
-    auto mapped_mem = buffer_host->makeMappedMemory();
+    auto mapped_mem = buffer_host->mapMemory();
     for (std::size_t i = 0; i < mapped_mem.size(); ++i)
       mapped_mem[i] = zisc::cast<uint64b>(i);
   }
@@ -895,7 +895,7 @@ TEST(BufferTest, CopyHostBufferRangeTest2)
     ASSERT_FALSE(result.fence());
   }
   {
-    auto mapped_mem = buffer_host->makeMappedMemory();
+    auto mapped_mem = buffer_host->mapMemory();
     std::fill_n(mapped_mem.begin(), mapped_mem.size(), v);
   }
   // Copy from device to host
@@ -911,7 +911,7 @@ TEST(BufferTest, CopyHostBufferRangeTest2)
     ASSERT_FALSE(result.fence());
   }
   {
-    auto mapped_mem = buffer_host->makeMappedMemory();
+    auto mapped_mem = buffer_host->mapMemory();
     for (std::size_t i = 0; i < offset; ++i) {
       ASSERT_EQ(v, mapped_mem[i]) << "Copying buffer range failed.";
     }
@@ -965,7 +965,7 @@ TEST(BufferTest, FillBufferFastInt8Test)
     }
   }
   {
-    auto mapped_mem = buffer_host->makeMappedMemory();
+    auto mapped_mem = buffer_host->mapMemory();
     for (std::size_t i = 0; i < mapped_mem.size(); ++i) {
       ASSERT_EQ(v, mapped_mem[i]) << "Filling buffer failed.";
     }
@@ -1015,7 +1015,7 @@ TEST(BufferTest, FillBufferFastInt16Test)
     }
   }
   {
-    auto mapped_mem = buffer_host->makeMappedMemory();
+    auto mapped_mem = buffer_host->mapMemory();
     for (std::size_t i = 0; i < mapped_mem.size(); ++i) {
       ASSERT_EQ(v, mapped_mem[i]) << "Filling buffer failed: mem[" << i << "].";
     }
@@ -1065,7 +1065,7 @@ TEST(BufferTest, FillBufferFastInt32Test)
     }
   }
   {
-    auto mapped_mem = buffer_host->makeMappedMemory();
+    auto mapped_mem = buffer_host->mapMemory();
     for (std::size_t i = 0; i < mapped_mem.size(); ++i) {
       ASSERT_EQ(v, mapped_mem[i]) << "Filling buffer failed.";
     }
@@ -1127,7 +1127,7 @@ TEST(BufferTest, FillBufferFastRangeTest)
     }
   }
   {
-    auto mapped_mem = buffer_host->makeMappedMemory();
+    auto mapped_mem = buffer_host->mapMemory();
     for (std::size_t i = 0; i < offset; ++i) {
       ASSERT_EQ(0, mapped_mem[i]) << "Filling buffer range failed.";
     }
@@ -1167,7 +1167,7 @@ TEST(BufferTest, FillHostBufferTest)
     ASSERT_FALSE(result.isAsync());
   }
   {
-    auto mapped_mem = buffer_host->makeMappedMemory();
+    auto mapped_mem = buffer_host->mapMemory();
     for (std::size_t i = 0; i < mapped_mem.size(); ++i) {
       ASSERT_EQ(v, mapped_mem[i]) << "Filling buffer failed.";
     }
@@ -1209,7 +1209,7 @@ TEST(BufferTest, FillHostBufferRangeTest)
     }
   }
   {
-    auto mapped_mem = buffer_host->makeMappedMemory();
+    auto mapped_mem = buffer_host->mapMemory();
     for (std::size_t i = 0; i < offset; ++i) {
       ASSERT_EQ(0, mapped_mem[i]) << "Filling buffer range failed.";
     }
@@ -1258,45 +1258,45 @@ TEST(BufferTest, CopyBufferReinterpTest)
 
   // Initialize the source buffer
   {
-    auto mapped_mem = buffer_host2->makeMappedMemory();
+    auto mapped_mem = buffer_host2.mapMemory();
     for (std::size_t i = 0; i < mapped_mem.size(); ++i)
       mapped_mem[i] = v16[i % v16.size()];
   }
   constexpr std::size_t offset = 10;
   // Copy from host to device
   {
-    auto options = buffer_device2->makeOptions();
+    auto options = buffer_device2.makeOptions();
     options.setLabel("HostToDeviceCopy");
     options.setExternalSyncMode(true);
     options.setSourceOffset(k * offset);
     options.setDestOffset(k * offset);
-    options.setSize(buffer_device2->size() - 2 * k * offset);
-    auto result = zivc::copy(*buffer_host2, buffer_device2, options);
+    options.setSize(buffer_device2.size() - 2 * k * offset);
+    auto result = zivc::copy(buffer_host2, &buffer_device2, options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.fence()) << "The result of the copy is wrong.";
       result.fence().wait();
     }
   }
   {
-    auto mapped_mem = buffer_host2->makeMappedMemory();
+    auto mapped_mem = buffer_host2.mapMemory();
     std::fill_n(mapped_mem.begin(), mapped_mem.size(), 0);
   }
   // Copy from device to host
   {
-    auto options = buffer_device2->makeOptions();
+    auto options = buffer_device2.makeOptions();
     options.setLabel("DeviceToHostCopy");
     options.setExternalSyncMode(true);
     options.setSourceOffset(k * offset);
     options.setDestOffset(k * offset);
-    options.setSize(buffer_device2->size() - 2 * k * offset);
-    auto result = zivc::copy(*buffer_device2, buffer_host2, options);
+    options.setSize(buffer_device2.size() - 2 * k * offset);
+    auto result = zivc::copy(buffer_device2, &buffer_host2, options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.fence()) << "The result of the copy is wrong.";
       result.fence().wait();
     }
   }
   {
-    auto mapped_mem = buffer_host->makeMappedMemory();
+    auto mapped_mem = buffer_host->mapMemory();
     const std::size_t s = buffer_host->size();
     for (std::size_t i = 0; i < offset; ++i) {
       ASSERT_EQ(0, mapped_mem[i]) << "Copying buffer range failed.";
@@ -1346,41 +1346,41 @@ TEST(BufferTest, CopyHostBufferReinterpTest)
 
   // Initialize the source buffer
   {
-    auto mapped_mem = buffer_host3->makeMappedMemory();
+    auto mapped_mem = buffer_host3.mapMemory();
     for (std::size_t i = 0; i < mapped_mem.size(); ++i)
       mapped_mem[i] = v16[i % v16.size()];
   }
   constexpr std::size_t offset = 10;
   // Copy from host to device
   {
-    auto options = buffer_host3->makeOptions();
+    auto options = buffer_host3.makeOptions();
     options.setLabel("HostToHostCopy");
     options.setExternalSyncMode(true);
     options.setSourceOffset(k * offset);
     options.setDestOffset(k * offset);
-    options.setSize(buffer_host3->size() - 2 * k * offset);
-    auto result = zivc::copy(*buffer_host3, buffer_host4, options);
+    options.setSize(buffer_host3.size() - 2 * k * offset);
+    auto result = zivc::copy(buffer_host3, &buffer_host4, options);
     ASSERT_FALSE(result.isAsync());
     ASSERT_FALSE(result.fence());
   }
   {
-    auto mapped_mem = buffer_host3->makeMappedMemory();
+    auto mapped_mem = buffer_host3.mapMemory();
     std::fill_n(mapped_mem.begin(), mapped_mem.size(), 0);
   }
   // Copy from device to host
   {
-    auto options = buffer_host4->makeOptions();
+    auto options = buffer_host4.makeOptions();
     options.setLabel("HostToHostCopy");
     options.setExternalSyncMode(true);
     options.setSourceOffset(k * offset);
     options.setDestOffset(k * offset);
-    options.setSize(buffer_host3->size() - 2 * k * offset);
-    auto result = zivc::copy(*buffer_host4, buffer_host3, options);
+    options.setSize(buffer_host3.size() - 2 * k * offset);
+    auto result = zivc::copy(buffer_host4, &buffer_host3, options);
     ASSERT_FALSE(result.isAsync());
     ASSERT_FALSE(result.fence());
   }
   {
-    auto mapped_mem = buffer_host->makeMappedMemory();
+    auto mapped_mem = buffer_host->mapMemory();
     const std::size_t s = buffer_host->size();
     for (std::size_t i = 0; i < offset; ++i) {
       ASSERT_EQ(0, mapped_mem[i]) << "Copying buffer range failed.";

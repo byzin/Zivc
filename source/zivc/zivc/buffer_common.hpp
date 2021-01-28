@@ -17,6 +17,7 @@
 
 // Standard C++ library
 #include <cstddef>
+#include <type_traits>
 // Zisc
 #include "zisc/concepts.hpp"
 // Zivc
@@ -25,6 +26,14 @@
 #include "utility/zivc_object.hpp"
 
 namespace zivc {
+
+// Forward declaration
+template <zisc::TriviallyCopyable> class MappedMemory;
+class BufferCommon;
+
+// Concepts
+template <typename Derived>
+concept DerivedBuffer = zisc::DerivedFrom<BufferCommon, std::remove_cv_t<Derived>>;
 
 /*!
   \brief No brief description
@@ -68,8 +77,19 @@ class BufferCommon : public ZivcObject
   virtual bool isHostVisible() const noexcept = 0;
 
   //! Map a buffer memory to a host
+  template <zisc::TriviallyCopyable T>
   [[nodiscard]]
-  virtual void* mapMemory() const = 0;
+  MappedMemory<T> makeMappedMemory() const;
+
+  //! Map a buffer memory to a host
+  [[nodiscard]]
+  virtual void* mapMemoryData() const = 0;
+
+  //! Return the underlying buffer data
+  virtual void* rawBufferData() noexcept = 0;
+
+  //! Return the underlying buffer data
+  virtual const void* rawBufferData() const noexcept = 0;
 
   //! Change the number of elements
   virtual void setSize(const std::size_t s) = 0;
@@ -77,11 +97,8 @@ class BufferCommon : public ZivcObject
   //! Return the size of the buffer in bytes
   virtual std::size_t sizeInBytes() const noexcept = 0;
 
-  //! Return the underlying type size in bytes
-  std::size_t typeSize() const noexcept;
-
   //! Unmap a buffer memory
-  virtual void unmapMemory() const noexcept = 0;
+  virtual void unmapMemoryData() const noexcept = 0;
 
   //! Return the buffer usage flag
   BufferUsage usage() const noexcept;
@@ -91,15 +108,12 @@ class BufferCommon : public ZivcObject
   template <zisc::TriviallyCopyable T>
   std::size_t calcSize(const std::size_t s) const noexcept;
 
-  //! Set internal type size
-  void setTypeSize(const std::size_t s) noexcept;
-
   //! Set buffer usage flag
   void setUsage(const BufferUsage flag) noexcept;
 
 
   BufferUsage buffer_usage_;
-  uint32b type_size_ = 0;
+  [[maybe_unused]] uint32b padding_ = 0;
 };
 
 } // namespace zivc

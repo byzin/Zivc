@@ -55,6 +55,59 @@ void ZivcObject::destroyObject() noexcept
 /*!
   \details No detailed description
 
+  \return No description
+  */
+ZivcObject* ZivcObject::getParent() noexcept
+{
+  auto p = parent_.get();
+  return p;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+const ZivcObject* ZivcObject::getParent() const noexcept
+{
+  const auto p = parent_.get();
+  return p;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+ZivcObject* ZivcObject::getOwn() noexcept
+{
+  return this;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+const ZivcObject* ZivcObject::getOwn() const noexcept
+{
+  return this;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+bool ZivcObject::hasParent() const noexcept
+{
+  const bool result = getParent() != nullptr;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
   \param [in] parent No description.
   \param [in] own No description.
   */

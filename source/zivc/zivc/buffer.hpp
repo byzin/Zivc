@@ -36,6 +36,7 @@ namespace zivc {
 
 // Forward declaration
 template <zisc::TriviallyCopyable> class MappedMemory;
+template <DerivedBuffer, zisc::TriviallyCopyable> class ReinterpBuffer;
 
 
 /*!
@@ -59,6 +60,10 @@ class Buffer : public BufferCommon
   using Pointer = std::add_pointer_t<Type>;
   using ConstPointer = std::add_pointer_t<ConstType>;
   using LaunchOptions = BufferLaunchOptions<Type>;
+  template <zisc::TriviallyCopyable NewType>
+  using ReinterpBufferT = ReinterpBuffer<BufferCommon, NewType>;
+  template <zisc::TriviallyCopyable NewType>
+  using ConstReinterpBufferT = ReinterpBuffer<const BufferCommon, NewType>;
 
 
   //! Initialize the buffer
@@ -94,11 +99,11 @@ class Buffer : public BufferCommon
 
   //! Map a buffer memory to a host
   [[nodiscard]]
-  MappedMemory<Type> makeMappedMemory();
+  MappedMemory<Type> mapMemory();
 
   //! Map a buffer memory to a host
   [[nodiscard]]
-  MappedMemory<ConstType> makeMappedMemory() const;
+  MappedMemory<ConstType> mapMemory() const;
 
   //! Make launch options
   LaunchOptions makeOptions() const noexcept;
@@ -106,12 +111,12 @@ class Buffer : public BufferCommon
   //! Convert a type of a buffer interface to NewType
   template <zisc::TriviallyCopyable NewType>
   [[nodiscard]]
-  Buffer<NewType>* reinterp() noexcept;
+  ReinterpBufferT<NewType> reinterp() noexcept;
 
   //! Convert a type of a buffer interface to NewType
   template <zisc::TriviallyCopyable NewType>
   [[nodiscard]]
-  const Buffer<NewType>* reinterp() const noexcept;
+  ConstReinterpBufferT<NewType> reinterp() const noexcept;
 
   //! Return the number of elements of the buffer
   std::size_t size() const noexcept;

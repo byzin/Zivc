@@ -77,7 +77,7 @@ SharedDevice CpuSubPlatform::makeDevice(const DeviceInfo& device_info)
   zisc::pmr::polymorphic_allocator<CpuDevice> alloc{memoryResource()};
   SharedDevice device = std::allocate_shared<CpuDevice>(alloc, issueId());
 
-  ZivcObject::SharedPtr parent{getOwn()};
+  ZivcObject::SharedPtr parent{getOwnPtr()};
   WeakDevice own{device};
   device->initialize(std::move(parent), std::move(own), device_info);
 
@@ -91,7 +91,7 @@ SharedDevice CpuSubPlatform::makeDevice(const DeviceInfo& device_info)
   */
 bool CpuSubPlatform::isAvailable() const noexcept
 {
-  const auto& own = getOwn();
+  const auto& own = getOwnPtr();
   const bool result = !own.expired();
   return result;
 }

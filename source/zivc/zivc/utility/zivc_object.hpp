@@ -50,11 +50,20 @@ class ZivcObject : private zisc::NonCopyable<ZivcObject>
   //! Destroy the object
   void destroyObject() noexcept;
 
-  //! Check if the object has own weak pointer
-  bool hasOwn() const noexcept;
+  //! Return the parent pointer
+  virtual ZivcObject* getParent() noexcept;
+
+  //! Return the parent pointer
+  virtual const ZivcObject* getParent() const noexcept;
+
+  //! Return the own pointer
+  virtual ZivcObject* getOwn() noexcept;
+
+  //! Return the own pointer
+  virtual const ZivcObject* getOwn() const noexcept;
 
   //! Check if the object has shared parent pointer
-  bool hasParent() const noexcept;
+  virtual bool hasParent() const noexcept;
 
   //! Return the underlying ID data
   IdData& id() noexcept;
@@ -89,13 +98,10 @@ class ZivcObject : private zisc::NonCopyable<ZivcObject>
 
  protected:
   //! Return the own weak pointer
-  const WeakPtr& getOwn() const noexcept;
+  const WeakPtr& getOwnPtr() const noexcept;
 
-  //! Return the parent pointer
-  ZivcObject* getParent() noexcept;
-
-  //! Return the parent pointer
-  const ZivcObject* getParent() const noexcept;
+  //! Check if the object has own weak pointer
+  bool hasOwnPtr() const noexcept;
 
   //! Update debug info
   void updateDebugInfo();

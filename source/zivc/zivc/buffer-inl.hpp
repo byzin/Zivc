@@ -23,6 +23,7 @@
 #include <utility>
 // Zisc
 #include "zisc/concepts.hpp"
+#include "zisc/error.hpp"
 #include "zisc/utility.hpp"
 #include "zisc/zisc_config.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
@@ -33,6 +34,7 @@
 #include "utility/id_data.hpp"
 #include "utility/launch_result.hpp"
 #include "utility/mapped_memory.hpp"
+#include "utility/reinterp_buffer.hpp"
 #include "utility/zivc_object.hpp"
 
 namespace zivc {
@@ -131,7 +133,6 @@ void Buffer<T>::initialize(ZivcObject::SharedPtr&& parent,
 
   initObject(std::move(parent), std::move(own));
   setUsage(buffer_usage);
-  setTypeSize(sizeof(Type));
   initData();
 
   ZivcObject::setNameIfEmpty("Buffer");
@@ -143,11 +144,9 @@ void Buffer<T>::initialize(ZivcObject::SharedPtr&& parent,
   \return No description
   */
 template <zisc::TriviallyCopyable T> inline
-auto Buffer<T>::makeMappedMemory() -> MappedMemory<Type>
+auto Buffer<T>::mapMemory() -> MappedMemory<Type>
 {
-  const BufferCommon* p = isHostVisible() ? this : nullptr;
-  MappedMemory<Type> memory{p};
-  return memory;
+  return makeMappedMemory<Type>();
 }
 
 /*!
@@ -156,11 +155,9 @@ auto Buffer<T>::makeMappedMemory() -> MappedMemory<Type>
   \return No description
   */
 template <zisc::TriviallyCopyable T> inline
-auto Buffer<T>::makeMappedMemory() const -> MappedMemory<ConstType>
+auto Buffer<T>::mapMemory() const -> MappedMemory<ConstType>
 {
-  const BufferCommon* p = isHostVisible() ? this : nullptr;
-  MappedMemory<ConstType> memory{p};
-  return memory;
+  return makeMappedMemory<ConstType>();
 }
 
 /*!
@@ -181,9 +178,11 @@ auto Buffer<T>::makeOptions() const noexcept -> LaunchOptions
   \return No description
   */
 template <zisc::TriviallyCopyable T> template <zisc::TriviallyCopyable NewType> inline
-Buffer<NewType>* Buffer<T>::reinterp() noexcept
+auto Buffer<T>::reinterp() noexcept -> ReinterpBufferT<NewType>
 {
-  auto new_buffer = zisc::reinterp<Buffer<NewType>*>(this);
+  auto id_copy = id().copy();
+  auto own = zisc::cast<BufferCommon*>(getOwn());
+  ReinterpBufferT<NewType> new_buffer{own, std::move(id_copy)};
   return new_buffer;
 }
 
@@ -193,9 +192,11 @@ Buffer<NewType>* Buffer<T>::reinterp() noexcept
   \return No description
   */
 template <zisc::TriviallyCopyable T> template <zisc::TriviallyCopyable NewType> inline
-const Buffer<NewType>* Buffer<T>::reinterp() const noexcept
+auto Buffer<T>::reinterp() const noexcept -> ConstReinterpBufferT<NewType>
 {
-  auto new_buffer = zisc::reinterp<const Buffer<NewType>*>(this);
+  auto id_copy = id().copy();
+  auto own = zisc::cast<const BufferCommon*>(getOwn());
+  ConstReinterpBufferT<NewType> new_buffer{own, std::move(id_copy)};
   return new_buffer;
 }
 
@@ -221,9 +222,11 @@ template <template<typename> typename Derived> inline
 LaunchResult Buffer<T>::copyFromDerived(const Buffer<T>& source,
                                         const LaunchOptions& launch_options)
 {
-  using DerivedBufferP = std::add_pointer_t<Derived<T>>;
-  auto dest = zisc::cast<DerivedBufferP>(this);
-  auto result = dest->copyFromImpl(source, launch_options);
+  //! \todo Remove me
+  ZISC_ASSERT(type() == source.type(), "Type mismatch found.");
+  //! \todo Remove me
+  ZISC_ASSERT(getParent() == source.getParent(), "Type mismatch found.");
+  auto result = Derived<T>::copyFromImpl(source, this, launch_options);
   return result;
 }
 
@@ -237,9 +240,7 @@ template <template<typename> typename Derived> inline
 LaunchResult Buffer<T>::fillDerived(ConstReference value,
                                     const LaunchOptions& launch_options)
 {
-  using DerivedBufferP = std::add_pointer_t<Derived<T>>;
-  auto dest = zisc::cast<DerivedBufferP>(this);
-  auto result = dest->fillImpl(value, launch_options);
+  auto result = Derived<T>::fillImpl(value, this, launch_options);
   return result;
 }
 

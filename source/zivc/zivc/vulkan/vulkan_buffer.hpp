@@ -61,6 +61,22 @@ class VulkanBuffer : public Buffer<T>
   };
 
 
+  /*!
+    \brief No brief description
+
+    No detailed description.
+    */
+  struct BufferData
+  {
+    VkBuffer buffer_ = ZIVC_VK_NULL_HANDLE;
+    VmaAllocation vm_allocation_ = ZIVC_VK_NULL_HANDLE;
+    VmaAllocationInfo vm_alloc_info_;
+    VkCommandBuffer command_buffer_ = ZIVC_VK_NULL_HANDLE;
+    DescriptorType desc_type_ = DescriptorType::kStorage;
+    [[maybe_unused]] uint32b padding_ = 0;
+  };
+
+
   //! Initialize the buffer
   VulkanBuffer(IdData&& id) noexcept;
 
@@ -115,7 +131,19 @@ class VulkanBuffer : public Buffer<T>
 
   //! Map a buffer memory to a host
   [[nodiscard]]
-  void* mapMemory() const override;
+  void* mapMemoryData() const override;
+
+  //! Return the underlying buffer data
+  BufferData& rawBuffer() noexcept;
+
+  //! Return the underlying buffer data
+  const BufferData& rawBuffer() const noexcept;
+
+  //! Return the underlying buffer data
+  void* rawBufferData() noexcept override;
+
+  //! Return the underlying buffer data
+  const void* rawBufferData() const noexcept override;
 
   //! Set the descriptor type
   void setDescriptorType(const DescriptorType type) noexcept;
@@ -127,24 +155,11 @@ class VulkanBuffer : public Buffer<T>
   std::size_t sizeInBytes() const noexcept override;
 
   //! Unmap a buffer memory
-  void unmapMemory() const noexcept override;
+  void unmapMemoryData() const noexcept override;
 
  protected:
-  friend Buffer<T>;
-
-
-  //! Copy from the given buffer
-  [[nodiscard("The result can have a fence when external sync mode is on.")]]
-  LaunchResult copyFromImpl(const Buffer<T>& source,
-                            const LaunchOptions& launch_options);
-
   //! Clear the contents of the buffer
   void destroyData() noexcept override;
-
-  //! Fill the buffer with specified value
-  [[nodiscard("The result can have a fence when external sync mode is on.")]]
-  LaunchResult fillImpl(ConstReference value,
-                        const LaunchOptions& launch_options);
 
   //! Initialize the buffer
   void initData() override;
@@ -153,28 +168,55 @@ class VulkanBuffer : public Buffer<T>
   void updateDebugInfoImpl() noexcept override;
 
  private:
-  //! Copy on the device
+  friend Buffer<T>;
+
+
+  //! Copy from the given buffer
+  template <zisc::TriviallyCopyable D>
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
-  LaunchResult copyOnDevice(const Buffer<T>& source,
-                            const LaunchOptions& launch_options);
+  static LaunchResult copyFromImpl(const BufferCommon& source,
+                                   BufferCommon* dest,
+                                   const BufferLaunchOptions<D>& launch_options);
+
+  //! Copy on the device
+  template <zisc::TriviallyCopyable D>
+  [[nodiscard("The result can have a fence when external sync mode is on.")]]
+  static LaunchResult copyOnDevice(const BufferCommon& source,
+                                   BufferCommon* dest,
+                                   const BufferLaunchOptions<D>& launch_options);
 
   //! Copy on the host
-  LaunchResult copyOnHost(const Buffer<T>& source,
-                          const LaunchOptions& launch_options) noexcept;
+  template <zisc::TriviallyCopyable D>
+  static LaunchResult copyOnHost(const BufferCommon& source,
+                                 BufferCommon* dest,
+                                 const BufferLaunchOptions<D>& launch_options) noexcept;
 
   //! Fill the buffer on device with specified value
+  template <zisc::TriviallyCopyable D>
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
-  LaunchResult fillFastOnDevice(ConstReference value,
-                                const LaunchOptions& launch_options);
+  static LaunchResult fillFastOnDevice(typename Buffer<D>::ConstReference value,
+                                       BufferCommon* dest,
+                                       const BufferLaunchOptions<D>& launch_options);
+
+  //! Fill the buffer with specified value
+  template <zisc::TriviallyCopyable D>
+  [[nodiscard("The result can have a fence when external sync mode is on.")]]
+  static LaunchResult fillImpl(typename Buffer<D>::ConstReference value,
+                               BufferCommon* dest,
+                               const BufferLaunchOptions<D>& launch_options);
 
   //! Fill the buffer on device with specified value
+  template <zisc::TriviallyCopyable D>
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
-  LaunchResult fillOnDevice(ConstReference value,
-                            const LaunchOptions& launch_options);
+  static LaunchResult fillOnDevice(typename Buffer<D>::ConstReference value,
+                                   BufferCommon* dest,
+                                   const BufferLaunchOptions<D>& launch_options);
 
   //! Fill the buffer on host with specified value
-  LaunchResult fillOnHost(ConstReference value,
-                          const LaunchOptions& launch_options) noexcept;
+  template <zisc::TriviallyCopyable D>
+  static LaunchResult fillOnHost(typename Buffer<D>::ConstReference value,
+                                 BufferCommon* dest,
+                                 const BufferLaunchOptions<D>& launch_options) noexcept;
 
   //! Check if the buffer has the given memory property flag
   bool hasMemoryProperty(const VkMemoryPropertyFlagBits flag) const noexcept;
@@ -195,13 +237,8 @@ class VulkanBuffer : public Buffer<T>
   const VulkanDevice& parentImpl() const noexcept;
 
 
-  VkBuffer buffer_ = ZIVC_VK_NULL_HANDLE;
-  VmaAllocation vm_allocation_ = ZIVC_VK_NULL_HANDLE;
-  VmaAllocationInfo vm_alloc_info_;
-  VkCommandBuffer command_buffer_ = ZIVC_VK_NULL_HANDLE;
+  BufferData buffer_data_;
   std::size_t size_ = 0;
-  DescriptorType desc_type_ = DescriptorType::kStorage;
-  [[maybe_unused]] uint32b padding_ = 0;
 };
 
 } // namespace zivc

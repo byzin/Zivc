@@ -34,31 +34,6 @@ namespace zivc {
   \return No description
   */
 inline
-bool ZivcObject::hasOwn() const noexcept
-{
-  const auto& o = getOwn();
-  const bool result = !o.expired();
-  return result;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-inline
-bool ZivcObject::hasParent() const noexcept
-{
-  const bool result = getParent() != nullptr;
-  return result;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-inline
 IdData& ZivcObject::id() noexcept
 {
   return id_;
@@ -81,7 +56,7 @@ const IdData& ZivcObject::id() const noexcept
   \return No description
   */
 inline
-auto ZivcObject::getOwn() const noexcept -> const WeakPtr&
+auto ZivcObject::getOwnPtr() const noexcept -> const WeakPtr&
 {
   return own_;
 }
@@ -92,22 +67,11 @@ auto ZivcObject::getOwn() const noexcept -> const WeakPtr&
   \return No description
   */
 inline
-ZivcObject* ZivcObject::getParent() noexcept
+bool ZivcObject::hasOwnPtr() const noexcept
 {
-  auto p = parent_.get();
-  return p;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-inline
-const ZivcObject* ZivcObject::getParent() const noexcept
-{
-  const auto p = parent_.get();
-  return p;
+  const auto& o = getOwnPtr();
+  const bool result = !o.expired();
+  return result;
 }
 
 /*!

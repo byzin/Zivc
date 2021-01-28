@@ -43,7 +43,7 @@ MappedMemory<T>::MappedMemory() noexcept
   */
 template <zisc::TriviallyCopyable T> inline
 MappedMemory<T>::MappedMemory(const BufferCommon* buffer) :
-    data_{buffer ? zisc::cast<Pointer>(buffer->mapMemory()) : nullptr},
+    data_{buffer ? zisc::cast<Pointer>(buffer->mapMemoryData()) : nullptr},
     buffer_{buffer}
 {
 }
@@ -304,7 +304,7 @@ template <zisc::TriviallyCopyable T> inline
 void MappedMemory<T>::unmap() noexcept
 {
   if (hasMemory())
-    internalBuffer()->unmapMemory();
+    internalBuffer()->unmapMemoryData();
   data_ = nullptr;
   buffer_ = nullptr;
 }

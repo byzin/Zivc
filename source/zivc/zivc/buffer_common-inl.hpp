@@ -70,6 +70,17 @@ MappedMemory<T> BufferCommon::makeMappedMemory() const
   \return No description
   */
 inline
+std::size_t BufferCommon::typeSize() const noexcept
+{
+  return zisc::cast<std::size_t>(type_size_);
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
 BufferUsage BufferCommon::usage() const noexcept
 {
   return buffer_usage_;
@@ -87,6 +98,17 @@ std::size_t BufferCommon::calcSize(const std::size_t s) const noexcept
 {
   const std::size_t n = s / sizeof(T);
   return n;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] s No description.
+  */
+inline
+void BufferCommon::setTypeSize(const std::size_t s) noexcept
+{
+  type_size_ = zisc::cast<uint32b>(s);
 }
 
 /*!

@@ -97,6 +97,9 @@ class BufferCommon : public ZivcObject
   //! Return the size of the buffer in bytes
   virtual std::size_t sizeInBytes() const noexcept = 0;
 
+  //! Return the type size
+  std::size_t typeSize() const noexcept;
+
   //! Unmap a buffer memory
   virtual void unmapMemoryData() const noexcept = 0;
 
@@ -108,12 +111,15 @@ class BufferCommon : public ZivcObject
   template <zisc::TriviallyCopyable T>
   std::size_t calcSize(const std::size_t s) const noexcept;
 
+  //! Set the type size
+  void setTypeSize(const std::size_t s) noexcept;
+
   //! Set buffer usage flag
   void setUsage(const BufferUsage flag) noexcept;
 
 
   BufferUsage buffer_usage_;
-  [[maybe_unused]] uint32b padding_ = 0;
+  uint32b type_size_ = 0;
 };
 
 } // namespace zivc

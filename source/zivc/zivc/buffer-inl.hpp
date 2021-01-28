@@ -133,6 +133,7 @@ void Buffer<T>::initialize(ZivcObject::SharedPtr&& parent,
 
   initObject(std::move(parent), std::move(own));
   setUsage(buffer_usage);
+  setTypeSize(sizeof(Type));
   initData();
 
   ZivcObject::setNameIfEmpty("Buffer");

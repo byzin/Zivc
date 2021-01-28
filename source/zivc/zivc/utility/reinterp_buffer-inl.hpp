@@ -291,8 +291,9 @@ void ReinterpBuffer<Derived, T>::setSize(const std::size_t s)
     ZISC_ASSERT(false, "'setSize' cannot be called with const qualified buffer.");
   }
   else {
-    ZISC_ASSERT(false, "Not implemented yet.");
-    // auto b = internalBuffer();
+    auto b = internalBuffer();
+    const std::size_t new_size = (sizeof(Type) * s) / b->typeSize();
+    b->setSize(new_size);
   }
 }
 

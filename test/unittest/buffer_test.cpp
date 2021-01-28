@@ -1225,6 +1225,7 @@ TEST(BufferTest, FillHostBufferRangeTest)
 
 TEST(BufferTest, CopyBufferReinterpTest)
 {
+  using zivc::uint8b;
   using zivc::uint16b;
   using zivc::uint64b;
 
@@ -1245,7 +1246,93 @@ TEST(BufferTest, CopyBufferReinterpTest)
 
   constexpr std::size_t k = sizeof(uint64b) / sizeof(uint16b);
   auto buffer_host2 = buffer_host->reinterp<uint16b>();
+  {
+    ASSERT_EQ(buffer_host->capacityInBytes(), buffer_host2.capacityInBytes())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_host->getParent(), buffer_host2.getParent())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_host->getOwn(), buffer_host2.getOwn())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_host->heapIndex(), buffer_host2.heapIndex())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_host->isDebugMode(), buffer_host2.isDebugMode())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_host->isDeviceLocal(), buffer_host2.isDeviceLocal())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_host->isHostCached(), buffer_host2.isHostCached())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_host->isHostCoherent(), buffer_host2.isHostCoherent())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_host->isHostVisible(), buffer_host2.isHostVisible())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_host->memoryResource(), buffer_host2.memoryResource())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_host->sizeInBytes(), buffer_host2.sizeInBytes())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_host->type(), buffer_host2.type())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_host->type(), buffer_host2.type())
+        << " Reinterp adopter is wrong.";
+  }
   auto buffer_device2 = buffer_device->reinterp<uint16b>();
+  {
+    ASSERT_EQ(buffer_device->capacityInBytes(), buffer_device2.capacityInBytes())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_device->getParent(), buffer_device2.getParent())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_device->getOwn(), buffer_device2.getOwn())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_device->heapIndex(), buffer_device2.heapIndex())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_device->isDebugMode(), buffer_device2.isDebugMode())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_device->isDeviceLocal(), buffer_device2.isDeviceLocal())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_device->isHostCached(), buffer_device2.isHostCached())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_device->isHostCoherent(), buffer_device2.isHostCoherent())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_device->isHostVisible(), buffer_device2.isHostVisible())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_device->memoryResource(), buffer_device2.memoryResource())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_device->sizeInBytes(), buffer_device2.sizeInBytes())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_device->type(), buffer_device2.type())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_device->type(), buffer_device2.type())
+        << " Reinterp adopter is wrong.";
+  }
+  // Reinterp-reinterp test
+  {
+    auto buffer_device3 = buffer_device2.reinterp<uint8b>();
+    ASSERT_EQ(buffer_device->capacityInBytes(), buffer_device3.capacityInBytes())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_device->getParent(), buffer_device3.getParent())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_device->getOwn(), buffer_device3.getOwn())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_device->heapIndex(), buffer_device3.heapIndex())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_device->isDebugMode(), buffer_device3.isDebugMode())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_device->isDeviceLocal(), buffer_device3.isDeviceLocal())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_device->isHostCached(), buffer_device3.isHostCached())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_device->isHostCoherent(), buffer_device3.isHostCoherent())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_device->isHostVisible(), buffer_device3.isHostVisible())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_device->memoryResource(), buffer_device3.memoryResource())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_device->sizeInBytes(), buffer_device3.sizeInBytes())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_device->type(), buffer_device3.type())
+        << " Reinterp adopter is wrong.";
+    ASSERT_EQ(buffer_device->type(), buffer_device3.type())
+        << " Reinterp adopter is wrong.";
+  }
 
   constexpr std::array<uint16b, 4> v16{{0b0101'0101'0101'0101,
                                         0b0011'0011'0011'0011,
@@ -1393,4 +1480,27 @@ TEST(BufferTest, CopyHostBufferReinterpTest)
       ASSERT_EQ(0, mapped_mem[i]) << "Copying buffer range failed.";
     }
   }
+}
+
+TEST(BufferTest, ResizeBufferReinterpTest)
+{
+  using zivc::uint16b;
+  using zivc::uint64b;
+
+  auto platform = ztest::makePlatform();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
+
+  auto buffer_device = device->makeBuffer<uint64b>(zivc::BufferUsage::kDeviceOnly);
+  auto buffer_device2 = buffer_device->reinterp<uint16b>();
+
+  constexpr std::size_t k = sizeof(uint64b) / sizeof(uint16b);
+  constexpr std::size_t n = 100;
+  constexpr std::size_t s = sizeof(uint16b) * n;
+
+  buffer_device2.setSize(n);
+  ASSERT_EQ(buffer_device2.size(), n) << "Reinterp adapter is wrong.";
+  ASSERT_EQ(buffer_device2.sizeInBytes(), s) << "Reinterp adapter is wrong.";
+  ASSERT_EQ(buffer_device->size(), n / k) << "Reinterp adapter is wrong.";
+  ASSERT_EQ(buffer_device->sizeInBytes(), s) << "Reinterp adapter is wrong.";
 }

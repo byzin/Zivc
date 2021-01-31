@@ -303,7 +303,7 @@ class KernelArgParser<Arg, RestArgs...>
   //! Return the info of arguments
   static constexpr ResultList<kNumOfArgs> getArgInfoList() noexcept
   {
-    ResultList<kNumOfArgs> result_list;
+    ResultList<kNumOfArgs> result_list{};
     if constexpr (0u < NextParser::kNumOfArgs) {
       auto parent_list = NextParser::getArgInfoList();
       for (std::size_t i = 0; i < NextParser::kNumOfArgs; ++i) {
@@ -319,7 +319,7 @@ class KernelArgParser<Arg, RestArgs...>
   //! Return the info of local arguments
   static constexpr ResultList<kNumOfLocalArgs> getLocalArgInfoList() noexcept
   {
-    ResultList<kNumOfLocalArgs> result_list;
+    ResultList<kNumOfLocalArgs> result_list{};
     const std::size_t offset = ArgInfo::kIsLocal ? 1u : 0u;
     if constexpr (0u < NextParser::kNumOfLocalArgs) {
       auto parent_list = NextParser::getLocalArgInfoList();
@@ -338,7 +338,7 @@ class KernelArgParser<Arg, RestArgs...>
   //! Return the info of POD arguments
   static constexpr ResultList<kNumOfPodArgs> getPodArgInfoList() noexcept
   {
-    ResultList<kNumOfPodArgs> result_list;
+    ResultList<kNumOfPodArgs> result_list{};
     const std::size_t offset = ArgInfo::kIsPod ? 1u : 0u;
     if constexpr (0u < NextParser::kNumOfPodArgs) {
       auto parent_list = NextParser::getPodArgInfoList();
@@ -357,7 +357,7 @@ class KernelArgParser<Arg, RestArgs...>
   //! Return the info of buffer arguments
   static constexpr ResultList<kNumOfBufferArgs> getBufferArgInfoList() noexcept
   {
-    ResultList<kNumOfBufferArgs> result_list;
+    ResultList<kNumOfBufferArgs> result_list{};
     const std::size_t offset = ArgInfo::kIsBuffer ? 1u : 0u;
     if constexpr (0u < NextParser::kNumOfBufferArgs) {
       auto parent_list = NextParser::getBufferArgInfoList();

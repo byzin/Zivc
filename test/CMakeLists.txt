@@ -100,6 +100,16 @@ Zisc_createLinkToTarget(${PROJECT_NAME} ${PROJECT_BINARY_DIR})
 # Save the dependency list
 Zisc_savePrerequisites(${PROJECT_NAME} "" "" "")
 
+# Add kernel sets
+## KernelTest
+set(kernel_set_kernel_test_dir ${PROJECT_SOURCE_DIR}/unittest/kernels/kernel_test)
+file(GLOB_RECURSE kernel_test_sources ${kernel_set_kernel_test_dir}/*.cl)
+include(${CMAKE_SOURCE_DIR}/source/zivc/cmake/kernel.cmake)
+Zivc_addKernelSet(kernel_test ${PROJECT_VERSION}
+    SOURCE_FILES ${kernel_test_sources}
+    INCLUDE_DIRS ${kernel_set_kernel_test_dir})
+target_link_libraries(${PROJECT_NAME} PRIVATE KernelSet_kernel_test)
+
 # Add tests for CMake
 add_test(NAME ${PROJECT_NAME}-cpu COMMAND ${PROJECT_NAME} --device cpu
                                   WORKING_DIRECTORY ${PROJECT_BINARY_DIR})

@@ -18,6 +18,7 @@
 #include "cpu_kernel.hpp"
 // Standard C++ library
 #include <array>
+#include <atomic>
 #include <cstddef>
 #include <functional>
 #include <memory>
@@ -34,6 +35,7 @@
 #include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/fence.hpp"
+#include "zivc/utility/kernel_launch_options.hpp"
 #include "zivc/utility/id_data.hpp"
 #include "zivc/utility/kernel_arg_parser.hpp"
 #include "zivc/utility/kernel_params.hpp"
@@ -94,14 +96,13 @@ run(Args... args, const LaunchOptions& launch_options)
     using LauncherType = Launcher<FuncArgs...>;
     LauncherType::exec(func, launch_options, args...);
   };
-  using StorageType = typename LaunchOptions::CommandStorage;
-  using CommandType = decltype(c);
-  static_assert(sizeof(StorageType) == sizeof(CommandType));
-  static_assert(std::alignment_of_v<StorageType> == std::alignment_of_v<CommandType>);
-  auto command_mem = zisc::cast<void*>(launch_options.cpuCommandStorage());
-  CommandType* command = ::new (command_mem) CommandType{c};
-
-  auto atomic_mem = zisc::cast<void*>(launch_options.cpuAtomicStorage());
+  using CommandT = decltype(c);
+  static_assert(sizeof(CommandStorage) == sizeof(CommandT));
+  static_assert(std::alignment_of_v<CommandStorage> == std::alignment_of_v<CommandT>);
+  auto command_mem = zisc::cast<void*>(commandStorage());
+  CommandT* command = ::new (command_mem) CommandT{c};
+  // id counter
+  auto atomic_mem = zisc::cast<void*>(atomicStorage());
   std::atomic<uint32b>* id = ::new (atomic_mem) std::atomic<uint32b>{0};
 
   LaunchResult result{};
@@ -195,16 +196,43 @@ Launcher<UnprocessedArgs...>::exec(Function func,
     }
     else { // Process a global argument
       using BufferT = std::remove_reference_t<Type>;
-      using CpuBufferT = CpuBuffer<typename BufferT::Type>;
-      using CpuBufferPtr = std::add_pointer_t<CpuBufferT>;
-      auto buffer = zisc::cast<CpuBufferPtr>(std::addressof(value));
-      ArgT cl_arg{buffer->data()};
+      using ValueP = typename BufferT::Pointer;
+      auto data = zisc::cast<ValueP>(value.rawBufferData());
+      ArgT cl_arg{data};
       NextLauncher::exec(func,
                          launch_options,
                          std::forward<Types>(rest)...,
                          cl_arg);
     }
   }
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+inline
+auto
+CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+atomicStorage() noexcept -> AtomicStorage*
+{
+  return std::addressof(atomic_storage_);
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+inline
+auto
+CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+commandStorage() noexcept -> CommandStorage*
+{
+  return std::addressof(command_storage_);
 }
 
 /*!

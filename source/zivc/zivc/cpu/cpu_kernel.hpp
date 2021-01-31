@@ -17,6 +17,7 @@
 
 // Standard C++ library
 #include <array>
+#include <atomic>
 #include <cstddef>
 #include <memory>
 #include <type_traits>
@@ -26,6 +27,7 @@
 #include "zivc/kernel.hpp"
 #include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/utility/kernel_launch_options.hpp"
 #include "zivc/utility/id_data.hpp"
 #include "zivc/utility/launch_result.hpp"
 
@@ -84,6 +86,15 @@ class CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> :
   void updateDebugInfoImpl() override;
 
  private:
+  // Storage types
+  using CommandStorage = std::aligned_storage_t<
+      sizeof(void*) * (sizeof...(Args) + 2),
+      std::alignment_of_v<void*>>;
+  using AtomicStorage = std::aligned_storage_t<
+      sizeof(std::atomic<uint32b>),
+      std::alignment_of_v<std::atomic<uint32b>>>;
+
+
   /*!
     \brief No brief description
 
@@ -117,6 +128,12 @@ class CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> :
     using NextLauncher = Launcher<Types...>;
   };
 
+  //! Return the memory for command
+  AtomicStorage* atomicStorage() noexcept;
+
+  //! Return the memory for command
+  CommandStorage* commandStorage() noexcept;
+
   //! Return the device
   CpuDevice& parentImpl() noexcept;
 
@@ -125,6 +142,9 @@ class CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> :
 
 
   Function kernel_ = nullptr;
+  CommandStorage command_storage_;
+  AtomicStorage atomic_storage_;
+  [[maybe_unused]] uint32b padding_;
 };
 
 } // namespace zivc

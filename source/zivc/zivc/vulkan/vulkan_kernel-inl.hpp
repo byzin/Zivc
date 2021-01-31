@@ -119,10 +119,9 @@ LaunchResult VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 run(Args... args, const LaunchOptions& launch_options)
 {
   VulkanDevice& device = parentImpl();
-  // DescriptorSet
+
   updateDescriptorSet(args...);
-  // POD buffer
-  const bool need_to_update_pod = checkIfPodUpdateIsNeeded(args...);
+  const bool have_new_pod = updatePodCacheIfNeeded(args...);
   const auto work_size = BaseKernel::expandWorkSize(launch_options.workSize());
   // Prepare command buffer
   prepareCommandBuffer();
@@ -136,7 +135,7 @@ run(Args... args, const LaunchOptions& launch_options)
       // Update global and region offsets
       updateGlobalAndRegionOffsetsCmd(launch_options);
       // Update POD buffer
-      if (need_to_update_pod)
+      if (have_new_pod)
         updatePodBufferCmd();
       // Dispatch the kernel
       dispatchCmd(work_size);
@@ -354,29 +353,6 @@ makePodDataType() noexcept
 /*!
   \details No detailed description
 
-  \param [in] args No description.
-  \return No description
-  */
-template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-inline
-bool VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
-checkIfPodUpdateIsNeeded(Args... args) const noexcept
-{
-  bool need_to_update_pod = false;
-  if constexpr (hasPodArg()) {
-    const PodDataT data = makePodData(args...);
-    ZISC_ASSERT(pod_cache_->isHostVisible(), "The cache isn't host visible.");
-    auto cache = pod_cache_->mapMemory();
-    need_to_update_pod = cache[0] == data;
-    if (need_to_update_pod)
-      cache[0] = data;
-  }
-  return need_to_update_pod;
-}
-
-/*!
-  \details No detailed description
-
   \tparam Type No description.
   \param [in] buffer No description.
   \return No description
@@ -387,9 +363,11 @@ inline
 const VkBuffer& VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 getBufferHandle(const Buffer<Type>& buffer) noexcept
 {
+  ZISC_ASSERT(buffer.type() == SubPlatformType::kVulkan, "The buffer isn't vulkan.");
   using BufferT = VulkanBuffer<Type>;
-  auto& handle = zisc::cast<const BufferT*>(std::addressof(buffer))->buffer();
-  return handle;
+  using BufferData = typename BufferT::BufferData;
+  auto data = zisc::cast<const BufferData*>(buffer.rawBufferData());
+  return data->buffer_;
 }
 
 /*!
@@ -621,11 +599,10 @@ inline
 void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 updatePodBufferCmd()
 {
-  using BufferT = VulkanBuffer<PodDataT>;
-  const VkBufferCopy copy_region{0, 0, sizeof(PodDataT)};
-  auto pod_cache = zisc::cast<const BufferT*>(pod_cache_.get())->buffer();
-  auto pod_buff = zisc::cast<const BufferT*>(pod_buffer_.get())->buffer();
+  auto pod_cache = getBufferHandle(*pod_cache_);
+  auto pod_buff = getBufferHandle(*pod_buffer_);
   {
+    const VkBufferCopy copy_region{0, 0, sizeof(PodDataT)};
     VulkanBufferImpl impl{std::addressof(parentImpl())};
     impl.copyCmd(commandBuffer(), pod_cache, pod_buff, copy_region);
   }
@@ -633,6 +610,29 @@ updatePodBufferCmd()
     VulkanKernelImpl impl{std::addressof(parentImpl())};
     impl.addPodBarrierCmd(commandBuffer(), pod_buff);
   }
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] args No description.
+  \return No description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+inline
+bool VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+updatePodCacheIfNeeded(Args... args) const noexcept
+{
+  bool have_new_pod = false;
+  if constexpr (hasPodArg()) {
+    const PodDataT data = makePodData(args...);
+    ZISC_ASSERT(pod_cache_->isHostVisible(), "The cache isn't host visible.");
+    auto cache = pod_cache_->mapMemory();
+    have_new_pod = cache[0] == data;
+    if (have_new_pod)
+      cache[0] = data;
+  }
+  return have_new_pod;
 }
 
 } // namespace zivc

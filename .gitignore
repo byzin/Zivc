@@ -81,6 +81,9 @@
 !/test/unittest/
 !/test/unittest/*.hpp
 !/test/unittest/*.cpp
+!/test/unittest/kernels/
+!/test/unittest/kernels/kernel_test/
+!/test/unittest/kernels/kernel_test/*.cl
 
 # Example
 !/example/

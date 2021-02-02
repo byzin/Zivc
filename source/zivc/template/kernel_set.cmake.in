@@ -207,7 +207,6 @@ function(Zivc_getClspvCompileFlags clspv_compile_flags)
                       --long-vector
                       --pod-ubo
                       --spv-version=1.3
-                      --work-dim
                       )
   # Optimization options
   list(APPEND options -O=3

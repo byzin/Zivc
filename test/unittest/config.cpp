@@ -107,6 +107,16 @@ Config& Config::globalConfig() noexcept
 
 /*!
   \details No detailed description
+
+  \return No description
+  */
+std::size_t Config::testKernelWorkSize1d() const noexcept
+{
+  return 1920 * 1080;
+}
+
+/*!
+  \details No detailed description
   */
 Config::Config() noexcept
 {

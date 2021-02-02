@@ -51,7 +51,7 @@ void PodData<Type, Types...>::set(const T& value) noexcept
   if constexpr (kIndex == kPosition)
     value_ = value;
   else
-    ParentData::set<kIndex>(value);
+    ParentData::template set<kIndex>(value);
 }
 
 /*!

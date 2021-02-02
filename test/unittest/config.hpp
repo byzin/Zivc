@@ -67,6 +67,9 @@ class Config : private zisc::NonCopyable<Config>
   //! Return the device ID
   void setDeviceId(const zivc::uint32b id) noexcept;
 
+  //! Return the work size of test kernel
+  std::size_t testKernelWorkSize1d() const noexcept;
+
  private:
   //! Initialize a config
   Config() noexcept;

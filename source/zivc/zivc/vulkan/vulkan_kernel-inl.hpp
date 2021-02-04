@@ -628,7 +628,7 @@ updatePodCacheIfNeeded(Args... args) const noexcept
     const PodDataT data = makePodData(args...);
     ZISC_ASSERT(pod_cache_->isHostVisible(), "The cache isn't host visible.");
     auto cache = pod_cache_->mapMemory();
-    have_new_pod = cache[0] == data;
+    have_new_pod = cache[0] != data;
     if (have_new_pod)
       cache[0] = data;
   }

@@ -135,6 +135,51 @@ TEST(KernelTest, Pod1Test)
   zivc::SharedDevice device = platform->makeDevice(config.deviceId());
   [[maybe_unused]] const auto& info = device->deviceInfo();
 
+  using zivc::int32b;
+  using zivc::uint32b;
+
+  // Allocate buffers
+  auto buff_device = device->makeBuffer<uint32b>(zivc::BufferUsage::kDeviceOnly);
+  buff_device->setSize(1);
+  auto buff_host = device->makeBuffer<uint32b>(zivc::BufferUsage::kHostOnly);
+  buff_host->setSize(1);
+
+  // Make a kernel
+  auto kernel_params = ZIVC_MAKE_KERNEL_PARAMS(kernel_test, pod1Kernel, 1);
+  auto kernel = device->makeKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(2, kernel->argSize()) << "Wrong kernel property.";
+
+  constexpr uint32b expected = 0b01010101'10101010'11110000'00001111u;
+  // Launch the kernel
+  {
+    auto launch_options = kernel->makeOptions();
+    launch_options.setWorkSize({1});
+    launch_options.setExternalSyncMode(false);
+    launch_options.setLabel("Pod1Kernel");
+    auto result = kernel->run(*buff_device, expected, launch_options);
+    device->waitForCompletion();
+  }
+
+  // Check the outputs
+  {
+    auto options = buff_device->makeOptions();
+    options.setExternalSyncMode(true);
+    auto result = zivc::copy(*buff_device, buff_host.get(), options);
+    device->waitForCompletion(result.fence());
+
+    const auto mem = buff_host->mapMemory();
+    EXPECT_EQ(expected, mem[0]) << "Copying POD value failed.";
+  }
+}
+
+TEST(KernelTest, Pod2Test)
+{
+  auto platform = ztest::makePlatform();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
+  [[maybe_unused]] const auto& info = device->deviceInfo();
+
   const std::size_t n = config.testKernelWorkSize1d();
 
   using zivc::int32b;
@@ -161,7 +206,7 @@ TEST(KernelTest, Pod1Test)
   }
 
   // Make a kernel
-  auto kernel_params = ZIVC_MAKE_KERNEL_PARAMS(kernel_test, pod1Kernel, 1);
+  auto kernel_params = ZIVC_MAKE_KERNEL_PARAMS(kernel_test, pod2Kernel, 1);
   auto kernel = device->makeKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(3, kernel->argSize()) << "Wrong kernel property.";
@@ -172,7 +217,7 @@ TEST(KernelTest, Pod1Test)
     auto launch_options = kernel->makeOptions();
     launch_options.setWorkSize({res});
     launch_options.setExternalSyncMode(false);
-    launch_options.setLabel("Pod1Kernel");
+    launch_options.setLabel("Pod2Kernel");
     auto result = kernel->run(*buff_device1, *buff_device2, res, launch_options);
     device->waitForCompletion();
   }
@@ -197,7 +242,7 @@ TEST(KernelTest, Pod1Test)
   }
 }
 
-TEST(KernelTest, Pod2Test)
+TEST(KernelTest, Pod3Test)
 {
   auto platform = ztest::makePlatform();
   const ztest::Config& config = ztest::Config::globalConfig();
@@ -216,7 +261,7 @@ TEST(KernelTest, Pod2Test)
   buff_device_f->setSize(3);
 
   // Make a kernel
-  auto kernel_params = ZIVC_MAKE_KERNEL_PARAMS(kernel_test, pod2Kernel, 1);
+  auto kernel_params = ZIVC_MAKE_KERNEL_PARAMS(kernel_test, pod3Kernel, 1);
   auto kernel = device->makeKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(12, kernel->argSize()) << "Wrong kernel property.";
@@ -224,9 +269,9 @@ TEST(KernelTest, Pod2Test)
   constexpr int32b i0 = (std::numeric_limits<int32b>::min)();
   constexpr int32b i1 = 0b01010101'10101010'11110000'00001111;
   constexpr int32b i2 = (std::numeric_limits<int32b>::max)();
-  constexpr int32b u0 = (std::numeric_limits<uint32b>::min)();
-  constexpr int32b u1 = 0b01010101'10101010'11110000'00001111u;
-  constexpr int32b u2 = (std::numeric_limits<uint32b>::max)();
+  constexpr uint32b u0 = (std::numeric_limits<uint32b>::min)();
+  constexpr uint32b u1 = 0b01010101'10101010'11110000'00001111u;
+  constexpr uint32b u2 = (std::numeric_limits<uint32b>::max)();
   constexpr float f0 = (std::numeric_limits<float>::min)();
   constexpr float f1 = std::numbers::pi_v<float>;
   constexpr float f2 = (std::numeric_limits<float>::max)();
@@ -236,7 +281,7 @@ TEST(KernelTest, Pod2Test)
     auto launch_options = kernel->makeOptions();
     launch_options.setWorkSize({1});
     launch_options.setExternalSyncMode(false);
-    launch_options.setLabel("Pod2Kernel");
+    launch_options.setLabel("Pod3Kernel");
     auto result = kernel->run(
         i0, u0, f0,
         i1, u1, f1,

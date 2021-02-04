@@ -55,11 +55,25 @@ __kernel void inputOutput1Kernel(zivc::ConstGlobalPtr<int32b> inputs,
 /*!
   \details No detailed description
 
+  \param [out] outputs No description.
+  \param [in] value No description.
+  */
+__kernel void pod1Kernel(zivc::GlobalPtr<uint32b> outputs, const uint32b value)
+{
+  const size_t index = zivc::getGlobalIdX();
+  if (index == 0) {
+    outputs[0] = value;
+  }
+}
+
+/*!
+  \details No detailed description
+
   \param [in] inputs No description.
   \param [out] outputs No description.
   \param [in] resolution No description.
   */
-__kernel void pod1Kernel(zivc::ConstGlobalPtr<int32b> inputs,
+__kernel void pod2Kernel(zivc::ConstGlobalPtr<int32b> inputs,
                          zivc::GlobalPtr<int32b> outputs,
                          const uint32b resolution)
 {
@@ -87,7 +101,7 @@ __kernel void pod1Kernel(zivc::ConstGlobalPtr<int32b> inputs,
   \param [out] uoutputs No description.
   \param [out] foutputs No description.
   */
-__kernel void pod2Kernel(const int32b i0, const uint32b u0, const float f0,
+__kernel void pod3Kernel(const int32b i0, const uint32b u0, const float f0,
                          const int32b i1, const uint32b u1, const float f1,
                          const int32b i2, const uint32b u2, const float f2,
                          zivc::GlobalPtr<int32b> ioutputs,

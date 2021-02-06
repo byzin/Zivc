@@ -806,12 +806,10 @@ TEST(KernelTest, InputOutput2Test)
     {
       auto mem = buff_host->mapMemory();
       for (std::size_t i = 0; i < mem.size(); ++i) {
-        mem[i].d_ = zisc::cast<double>(i);
         mem[i].i16_ = zisc::cast<zivc::int16b>(i);
         mem[i].u_ = zisc::cast<zivc::uint32b>(i);
         mem[i].u8_ = zisc::cast<zivc::uint8b>(i);
         mem[i].u16_ = zisc::cast<zivc::uint16b>(i);
-        mem[i].i64_ = zisc::cast<zivc::int64b>(i);
         mem[i].f_ = zisc::cast<float>(i);
       }
     }
@@ -850,11 +848,6 @@ TEST(KernelTest, InputOutput2Test)
     for (std::size_t i = 0; i < mem.size(); ++i) {
       const std::size_t v = i / 2;
       {
-        const auto expected = zisc::cast<double>(v);
-        ASSERT_EQ(expected, mem[i].d())
-            << "Copying inputs[" << i << "] to outputs[" << i << "] failed.";
-      }
-      {
         const auto expected = zisc::cast<zivc::int16b>(v);
         ASSERT_EQ(expected, mem[i].i16())
             << "Copying inputs[" << i << "] to outputs[" << i << "] failed.";
@@ -872,11 +865,6 @@ TEST(KernelTest, InputOutput2Test)
       {
         const auto expected = zisc::cast<zivc::uint16b>(v);
         ASSERT_EQ(expected, mem[i].u16())
-            << "Copying inputs[" << i << "] to outputs[" << i << "] failed.";
-      }
-      {
-        const auto expected = zisc::cast<zivc::int64b>(v);
-        ASSERT_EQ(expected, mem[i].i64())
             << "Copying inputs[" << i << "] to outputs[" << i << "] failed.";
       }
       {

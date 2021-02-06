@@ -174,20 +174,16 @@ __kernel void basicTypeSizeKernel(zivc::GlobalPtr<uint32b> outputs)
 class ClassSizeTest1
 {
  public:
-  double d() const noexcept {return d_;}
   int16b i16() const noexcept {return i16_;}
   uint32b u() const noexcept {return u_;}
   uint8b u8() const noexcept {return u8_;}
   uint16b u16() const noexcept {return u16_;}
-  int64b i64() const noexcept {return i64_;}
   float f() const noexcept {return f_;}
 
-  double d_;
   int16b i16_;
   uint32b u_;
   uint8b u8_;
   uint16b u16_;
-  int64b i64_;
   float f_;
 };
 
@@ -241,12 +237,10 @@ __kernel void inputOutput2Kernel(zivc::ConstGlobalPtr<ClassSizeTest1> inputs,
   zivc::ConstGlobalPtr<ClassSizeTest1> in = inputs + index;
   {
     zivc::GlobalPtr<ClassSizeTest1> o1 = outputs + (2 * index);
-    o1->d_ = in->d();
     o1->i16_ = in->i16();
     o1->u_ = in->u();
     o1->u8_ = in->u8();
     o1->u16_ = in->u16();
-    o1->i64_ = in->i64();
     o1->f_ = in->f();
   }
   {

@@ -201,9 +201,9 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
   // Pipeline
   zivcvk::PipelineLayout pline_layout;
   {
-    // For clspv global and region offsets
+    // For clspv module scope push constants
     const zivcvk::PushConstantRange push_constant_range{
-        zivcvk::ShaderStageFlagBits::eCompute, 0, 28};
+        zivcvk::ShaderStageFlagBits::eCompute, 0, 92};
 
     const zivcvk::PipelineLayoutCreateInfo create_info{
         zivcvk::PipelineLayoutCreateFlags{},
@@ -218,10 +218,12 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
   zisc::pmr::vector<uint32b>::allocator_type spec_alloc{mem_resource};
   zisc::pmr::vector<uint32b> spec_constants{spec_alloc};
   {
-    spec_constants.reserve(work_group_size.size() + 1);
+    spec_constants.reserve(work_group_size.size() + 2);
     // For clspv work group size
     for (const uint32b s : work_group_size)
       spec_constants.emplace_back(s);
+    // Work dimension
+    spec_constants.emplace_back(zisc::cast<uint32b>(work_dimension));
     // For clspv local element size
     const auto& info = deviceInfoImpl();
     spec_constants.emplace_back(info.workGroupSize());
@@ -230,7 +232,7 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
   MapEntryList::allocator_type entry_alloc{mem_resource};
   MapEntryList entries{entry_alloc};
   {
-    entries.reserve(work_group_size.size() + num_of_local_args);
+    entries.reserve(work_group_size.size() + 1 + num_of_local_args);
     // For clspv work group size
     for (std::size_t i = 0; i < work_group_size.size(); ++i) {
       zivcvk::SpecializationMapEntry entry{
@@ -239,11 +241,20 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
           sizeof(uint32b)};
       entries.emplace_back(entry);
     }
-    // For clspv local element size
-    const uint32b local_size_index = zisc::cast<uint32b>(entries.size());
-    for (std::size_t i = 0; i < num_of_local_args; ++i) {
+    // Work dimension
+    {
+      const uint32b work_dim_index = zisc::cast<uint32b>(entries.size());
       zivcvk::SpecializationMapEntry entry{
-          local_size_index + zisc::cast<uint32b>(i),
+          work_dim_index,
+          zisc::cast<uint32b>(work_dim_index * sizeof(uint32b)),
+          sizeof(uint32b)};
+      entries.emplace_back(entry);
+    }
+    // For clspv local element size
+    for (std::size_t i = 0; i < num_of_local_args; ++i) {
+      const uint32b local_size_index = zisc::cast<uint32b>(entries.size());
+      zivcvk::SpecializationMapEntry entry{
+          local_size_index,
           zisc::cast<uint32b>(local_size_index * sizeof(uint32b)),
           sizeof(uint32b)};
       entries.emplace_back(entry);

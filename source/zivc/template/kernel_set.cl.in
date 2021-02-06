@@ -27,6 +27,44 @@
 
 @kernel_inclusion_lines@
 
+__kernel void __zivcClspvInitKernel(__global uint* outputs)
+{
+  size_t i = 0;
+  outputs[i++] = get_work_dim();
+  outputs[i++] = get_global_size(0);
+  outputs[i++] = get_global_size(1);
+  outputs[i++] = get_global_size(2);
+  outputs[i++] = get_global_id(0);
+  outputs[i++] = get_global_id(1);
+  outputs[i++] = get_global_id(2);
+  outputs[i++] = get_local_size(0);
+  outputs[i++] = get_local_size(1);
+  outputs[i++] = get_local_size(2);
+  outputs[i++] = get_enqueued_local_size(0);
+  outputs[i++] = get_enqueued_local_size(1);
+  outputs[i++] = get_enqueued_local_size(2);
+  outputs[i++] = get_local_id(0);
+  outputs[i++] = get_local_id(1);
+  outputs[i++] = get_local_id(2);
+  outputs[i++] = get_num_groups(0);
+  outputs[i++] = get_num_groups(1);
+  outputs[i++] = get_num_groups(2);
+  outputs[i++] = get_group_id(0);
+  outputs[i++] = get_group_id(1);
+  outputs[i++] = get_group_id(2);
+  outputs[i++] = get_global_offset(0);
+  outputs[i++] = get_global_offset(1);
+  outputs[i++] = get_global_offset(2);
+//  outputs[i++] = get_global_linear_id();
+//  outputs[i++] = get_local_linear_id();
+  outputs[i++] = get_sub_group_size();
+//  outputs[i++] = get_max_sub_group_size();
+  outputs[i++] = get_num_sub_groups();
+//  outputs[i++] = get_enqueued_num_sub_groups();
+  outputs[i++] = get_sub_group_id();
+  outputs[i++] = get_sub_group_local_id();
+}
+
 static_assert(ZIVC_KERNEL_SET_@kernel_set_name@_CL == @kernel_set_number@,
               "The ID number of the kernel set isn't valid.");
 

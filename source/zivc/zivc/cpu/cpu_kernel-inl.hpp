@@ -110,8 +110,11 @@ run(Args... args, const LaunchOptions& launch_options)
   {
     Fence& fence = result.fence();
     fence.setDevice(launch_options.isExternalSyncMode() ? &device : nullptr);
-    const auto work_size = BaseKernel::expandWorkSize(launch_options.workSize());
-    device.submit(*command, work_size, id, std::addressof(fence));
+    constexpr uint32b dim = BaseKernel::dimension();
+    const auto work_size = BaseKernel::expandWorkSize(launch_options.workSize(), 1);
+    const auto global_offset =
+        BaseKernel::expandWorkSize(launch_options.globalIdOffset(), 0);
+    device.submit(*command, dim, work_size, global_offset, id, std::addressof(fence));
   }
   result.setAsync(true);
   return result;
@@ -247,7 +250,7 @@ CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 parentImpl() noexcept
 {
   auto p = BaseKernel::getParent();
-  return *zisc::reinterp<CpuDevice*>(p);
+  return *zisc::cast<CpuDevice*>(p);
 }
 
 /*!
@@ -262,7 +265,7 @@ CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 parentImpl() const noexcept
 {
   const auto p = BaseKernel::getParent();
-  return *zisc::reinterp<const CpuDevice*>(p);
+  return *zisc::cast<const CpuDevice*>(p);
 }
 
 } // namespace zivc

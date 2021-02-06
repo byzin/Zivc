@@ -80,218 +80,488 @@ void assertIfFalse(const int32b condition,
 #endif
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 inline
-uint32b getGlobalSize(const uint32b dimension) noexcept
+uint32b getWorkDim() noexcept
 {
-  const uint32b size = get_global_size(dimension);
+  const uint dim = get_work_dim();
+  return dim;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] dimension No description.
+  \return No description
+  */
+inline
+size_t getGlobalSize(const uint32b dimension) noexcept
+{
+  const size_t size = get_global_size(dimension);
   return size;
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 inline
-uint32b getGlobalSizeX() noexcept
+size_t getGlobalSizeX() noexcept
 {
-  const uint32b size = getGlobalSize(0);
+  const size_t size = getGlobalSize(0);
   return size;
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 inline
-uint32b getGlobalSizeY() noexcept
+size_t getGlobalSizeY() noexcept
 {
-  const uint32b size = getGlobalSize(1);
+  const size_t size = getGlobalSize(1);
   return size;
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 inline
-uint32b getGlobalSizeZ() noexcept
+size_t getGlobalSizeZ() noexcept
 {
-  const uint32b size = getGlobalSize(2);
+  const size_t size = getGlobalSize(2);
   return size;
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] dimension No description.
+  \return No description
   */
 inline
-uint32b getGlobalId(const uint32b dimension) noexcept
+size_t getGlobalId(const uint32b dimension) noexcept
 {
-  const uint32b id = get_global_id(dimension);
+  const size_t id = get_global_id(dimension);
   return id;
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 inline
-uint32b getGlobalIdX() noexcept
+size_t getGlobalIdX() noexcept
 {
-  const uint32b id = getGlobalId(0);
+  const size_t id = getGlobalId(0);
   return id;
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 inline
-uint32b getGlobalIdY() noexcept
+size_t getGlobalIdY() noexcept
 {
-  const uint32b id = getGlobalId(1);
+  const size_t id = getGlobalId(1);
   return id;
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 inline
-uint32b getGlobalIdZ() noexcept
+size_t getGlobalIdZ() noexcept
 {
-  const uint32b id = getGlobalId(2);
+  const size_t id = getGlobalId(2);
   return id;
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] dimension No description.
+  \return No description
   */
 inline
-uint32b getLocalSize(const uint32b dimension) noexcept
+size_t getLocalSize(const uint32b dimension) noexcept
 {
-  const uint32b size = get_local_size(dimension);
+  const size_t size = get_local_size(dimension);
   return size;
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 inline
-uint32b getLocalSizeX() noexcept
+size_t getLocalSizeX() noexcept
 {
-  const uint32b size = getLocalSize(0);
+  const size_t size = getLocalSize(0);
   return size;
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 inline
-uint32b getLocalSizeY() noexcept
+size_t getLocalSizeY() noexcept
 {
-  const uint32b size = getLocalSize(1);
+  const size_t size = getLocalSize(1);
   return size;
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 inline
-uint32b getLocalSizeZ() noexcept
+size_t getLocalSizeZ() noexcept
 {
-  const uint32b size = getLocalSize(2);
+  const size_t size = getLocalSize(2);
   return size;
 }
 
 /*!
-  */
-inline
-uint32b getLocalId(const uint32b dimension) noexcept
-{
-  const uint32b id = get_local_id(dimension);
-  return id;
-}
+  \details No detailed description
 
-/*!
+  \param [in] dimension No description.
+  \return No description
   */
 inline
-uint32b getLocalIdX() noexcept
+size_t getEnqueuedLocalSize(const uint32b dimension) noexcept
 {
-  const uint32b id = getLocalId(0);
-  return id;
-}
-
-/*!
-  */
-inline
-uint32b getLocalIdY() noexcept
-{
-  const uint32b id = getLocalId(1);
-  return id;
-}
-
-/*!
-  */
-inline
-uint32b getLocalIdZ() noexcept
-{
-  const uint32b id = getLocalId(2);
-  return id;
-}
-
-/*!
-  */
-inline
-uint32b getNumGroups(const uint32b dimension) noexcept
-{
-  const uint32b size = get_num_groups(dimension);
+  const size_t size = get_enqueued_local_size(dimension);
   return size;
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 inline
-uint32b getNumGroupsX() noexcept
+size_t getEnqueuedLocalSizeX() noexcept
 {
-  const uint32b size = getNumGroups(0);
+  const size_t size = getEnqueuedLocalSize(0);
   return size;
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 inline
-uint32b getNumGroupsY() noexcept
+size_t getEnqueuedLocalSizeY() noexcept
 {
-  const uint32b size = getNumGroups(1);
+  const size_t size = getEnqueuedLocalSize(1);
   return size;
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 inline
-uint32b getNumGroupsZ() noexcept
+size_t getEnqueuedLocalSizeZ() noexcept
 {
-  const uint32b size = getNumGroups(2);
+  const size_t size = getEnqueuedLocalSize(2);
   return size;
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] dimension No description.
+  \return No description
   */
 inline
-uint32b getGroupId(const uint32b dimension) noexcept
+size_t getLocalId(const uint32b dimension) noexcept
 {
-  const uint32b id = get_group_id(dimension);
+  const size_t id = get_local_id(dimension);
   return id;
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 inline
-uint32b getGroupIdX() noexcept
+size_t getLocalIdX() noexcept
 {
-  const uint32b id = getGroupId(0);
+  const size_t id = getLocalId(0);
   return id;
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 inline
-uint32b getGroupIdY() noexcept
+size_t getLocalIdY() noexcept
 {
-  const uint32b id = getGroupId(1);
+  const size_t id = getLocalId(1);
   return id;
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 inline
-uint32b getGroupIdZ() noexcept
+size_t getLocalIdZ() noexcept
 {
-  const uint32b id = getGroupId(2);
+  const size_t id = getLocalId(2);
+  return id;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] dimension No description.
+  \return No description
+  */
+inline
+size_t getNumGroups(const uint32b dimension) noexcept
+{
+  const size_t size = get_num_groups(dimension);
+  return size;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+size_t getNumGroupsX() noexcept
+{
+  const size_t size = getNumGroups(0);
+  return size;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+size_t getNumGroupsY() noexcept
+{
+  const size_t size = getNumGroups(1);
+  return size;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+size_t getNumGroupsZ() noexcept
+{
+  const size_t size = getNumGroups(2);
+  return size;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] dimension No description.
+  \return No description
+  */
+inline
+size_t getGroupId(const uint32b dimension) noexcept
+{
+  const size_t id = get_group_id(dimension);
+  return id;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+size_t getGroupIdX() noexcept
+{
+  const size_t id = getGroupId(0);
+  return id;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+size_t getGroupIdY() noexcept
+{
+  const size_t id = getGroupId(1);
+  return id;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+size_t getGroupIdZ() noexcept
+{
+  const size_t id = getGroupId(2);
+  return id;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] dimension No description.
+  \return No description
+  */
+inline
+size_t getGlobalOffset(const uint32b dimension) noexcept
+{
+  const size_t offset = get_global_offset(dimension);
+  return offset;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+size_t getGlobalOffsetX() noexcept
+{
+  const size_t offset = getGlobalOffset(0);
+  return offset;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+size_t getGlobalOffsetY() noexcept
+{
+  const size_t offset = getGlobalOffset(1);
+  return offset;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+size_t getGlobalOffsetZ() noexcept
+{
+  const size_t offset = getGlobalOffset(2);
+  return offset;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+size_t getGlobalLinearId1d() noexcept
+{
+  const size_t gx = getGlobalIdX() - getGlobalOffsetX();
+  const size_t id = gx;
+  return id;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+size_t getGlobalLinearId2d() noexcept
+{
+  const size_t n = getGlobalSizeX();
+  const size_t gy = getGlobalIdY() - getGlobalOffsetY();
+  const size_t id = getGlobalLinearId1d() + n * gy;
+  return id;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+size_t getGlobalLinearId3d() noexcept
+{
+  const size_t n = getGlobalSizeX() * getGlobalSizeY();
+  const size_t gz = getGlobalIdZ() - getGlobalOffsetZ();
+  const size_t id = getGlobalLinearId2d() + n * gz;
+  return id;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+size_t getLocalLinearId1d() noexcept
+{
+  const size_t lx = getLocalIdX();
+  const size_t id = lx;
+  return id;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+size_t getLocalLinearId2d() noexcept
+{
+  const size_t n = getLocalSizeX();
+  const size_t ly = getLocalIdY();
+  const size_t id = getLocalLinearId1d() + n * ly;
+  return id;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+size_t getLocalLinearId3d() noexcept
+{
+  const size_t n = getLocalSizeX() * getLocalSizeY();
+  const size_t lz = getLocalIdZ();
+  const size_t id = getLocalLinearId2d() + n * lz;
   return id;
 }
 

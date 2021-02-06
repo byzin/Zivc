@@ -28,77 +28,122 @@ void assertIfFalse(const int32b condition,
 
 // Work-Item functions
 
-//! Return the number of global work-items
-uint32b getGlobalSize(const uint32b dimension) noexcept;
+//! Return the number of dimensions in use
+uint32b getWorkDim() noexcept;
+
+//! Return the number of global work-items for dimension by 'dimension'
+size_t getGlobalSize(const uint32b dimension) noexcept;
 
 //! Return the number of global work-items of x dimension
-uint32b getGlobalSizeX() noexcept;
+size_t getGlobalSizeX() noexcept;
 
 //! Return the number of global work-items of y dimension
-uint32b getGlobalSizeY() noexcept;
+size_t getGlobalSizeY() noexcept;
 
 //! Return the number of global work-items of z dimension
-uint32b getGlobalSizeZ() noexcept;
+size_t getGlobalSizeZ() noexcept;
 
-//! Return the global work-item ID
-uint32b getGlobalId(const uint32b dimension) noexcept;
+//! Return the global work-item ID for dimension by 'dimension'
+size_t getGlobalId(const uint32b dimension) noexcept;
 
 //! Return the global work-item ID of x dimension
-uint32b getGlobalIdX() noexcept;
+size_t getGlobalIdX() noexcept;
 
 //! Return the global work-item ID of y dimension
-uint32b getGlobalIdY() noexcept;
+size_t getGlobalIdY() noexcept;
 
 //! Return the global work-item ID of z dimension
-uint32b getGlobalIdZ() noexcept;
+size_t getGlobalIdZ() noexcept;
 
-//! Return the number of local work-items
-uint32b getLocalSize(const uint32b dimension) noexcept;
+//! Return the number of local work-items for dimension by 'dimension'
+size_t getLocalSize(const uint32b dimension) noexcept;
 
 //! Return the number of local work-items of x dimension
-uint32b getLocalSizeX() noexcept;
+size_t getLocalSizeX() noexcept;
 
 //! Return the number of local work-items of y dimension
-uint32b getLocalSizeY() noexcept;
+size_t getLocalSizeY() noexcept;
 
 //! Return the number of local work-items of z dimension
-uint32b getLocalSizeZ() noexcept;
+size_t getLocalSizeZ() noexcept;
 
-//! Return the local work-item ID
-uint32b getLocalId(const uint32b dimension) noexcept;
+//! Return the number of local work-items for dimension by 'dimension'
+size_t getEnqueuedLocalSize(const uint32b dimension) noexcept;
+
+//! Return the number of local work-items of x dimension
+size_t getEnqueuedLocalSizeX() noexcept;
+
+//! Return the number of local work-items of y dimension
+size_t getEnqueuedLocalSizeY() noexcept;
+
+//! Return the number of local work-items of z dimension
+size_t getEnqueuedLocalSizeZ() noexcept;
+
+//! Return the local work-item ID for dimension by 'dimension'
+size_t getLocalId(const uint32b dimension) noexcept;
 
 //! Return the local work-item ID of x dimension
-uint32b getLocalIdX() noexcept;
+size_t getLocalIdX() noexcept;
 
 //! Return the local work-item ID of y dimension
-uint32b getLocalIdY() noexcept;
+size_t getLocalIdY() noexcept;
 
 //! Return the local work-item ID of z dimension
-uint32b getLocalIdZ() noexcept;
+size_t getLocalIdZ() noexcept;
 
-//! Return the number of work-groups
-uint32b getNumGroups(const uint32b dimension) noexcept;
+//! Return the number of work-groups for dimension by 'dimension'
+size_t getNumGroups(const uint32b dimension) noexcept;
 
 //! Return the number of work-groups of x dimension
-uint32b getNumGroupsX() noexcept;
+size_t getNumGroupsX() noexcept;
 
 //! Return the number of work-groups of y dimension
-uint32b getNumGroupsY() noexcept;
+size_t getNumGroupsY() noexcept;
 
 //! Return the number of work-groups of z dimension
-uint32b getNumGroupsZ() noexcept;
+size_t getNumGroupsZ() noexcept;
 
-//! Return the work-group ID
-uint32b getGroupId(const uint32b dimension) noexcept;
+//! Return the work-group ID for dimension by 'dimension'
+size_t getGroupId(const uint32b dimension) noexcept;
 
 //! Return the work-group ID of x dimension
-uint32b getGroupIdX() noexcept;
+size_t getGroupIdX() noexcept;
 
 //! Return the work-group ID of y dimension
-uint32b getGroupIdY() noexcept;
+size_t getGroupIdY() noexcept;
 
 //! Return the work-group ID of z dimension
-uint32b getGroupIdZ() noexcept;
+size_t getGroupIdZ() noexcept;
+
+//! Return the global offset value used in global id calculation for dimension
+size_t getGlobalOffset(const uint32b dimension) noexcept;
+
+//! Return the global offset of x dimension value used in global id calculation
+size_t getGlobalOffsetX() noexcept;
+
+//! Return the global offset of y dimension value used in global id calculation
+size_t getGlobalOffsetY() noexcept;
+
+//! Return the global offset of z dimension value used in global id calculation
+size_t getGlobalOffsetZ() noexcept;
+
+//! Return the work-items 1-dimensional global ID for 1d
+size_t getGlobalLinearId1d() noexcept;
+
+//! Return the work-items 1-dimensional global ID for 2d
+size_t getGlobalLinearId2d() noexcept;
+
+//! Return the work-items 1-dimensional global ID for 3d
+size_t getGlobalLinearId3d() noexcept;
+
+//! Return the work-items 1-dimensional local ID for 1d
+size_t getLocalLinearId1d() noexcept;
+
+//! Return the work-items 1-dimensional local ID for 2d
+size_t getLocalLinearId2d() noexcept;
+
+//! Return the work-items 1-dimensional local ID for 3d
+size_t getLocalLinearId3d() noexcept;
 
 // Type utilities
 

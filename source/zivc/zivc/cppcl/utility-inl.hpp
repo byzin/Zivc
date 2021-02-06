@@ -37,50 +37,47 @@ namespace inner {
 
   No detailed description.
   */
-class WorkGroup
+class WorkItem
 {
  public:
-  //! Return the work-group id
-  static uint32b getWorkGroupId(const uint32b dimension) noexcept
-  {
-    const size_t id = zisc::isInBounds(dimension, 0u, get_work_dim())
-        ? work_group_id_[dimension]
-        : 0u;
-    return id;
-  }
+  //! Return the number of dimensions in use
+  static uint32b getDimension() noexcept;
 
-  //! Return the work-group size
-  static size_t getWorkGroupSize(const uint32b dimension) noexcept
-  {
-    const size_t size = zisc::isInBounds(dimension, 0u, get_work_dim())
-        ? work_group_size_[dimension]
-        : 1u;
-    return size;
-  }
-  //! Set a work-group id
-  static void setWorkGroupId(const uint32b id) noexcept
-  {
-    work_group_id_[0] = id % work_group_size_[0];
-    work_group_id_[1] = (id / work_group_size_[0]) % work_group_size_[1];
-    work_group_id_[2] = id / (work_group_size_[0] * work_group_size_[1]);
-    ZISC_ASSERT(work_group_id_[2] < work_group_size_[2],
-                "The workgroup ID is invalid: ID=", id);
-  }
+  //! Return the 3d global offset used in global id calculation
+  static size_t getGlobalIdOffset(const uint32b dimension) noexcept;
 
-  //! Set a work-group size
-  static void setWorkGroupSize(const std::array<uint32b, 3>& size) noexcept
-  {
-    work_group_size_ = size;
-  }
+  //! Return the number of work-groups for dimension
+  static size_t getNumOfGroups(const uint32b dimension) noexcept;
+
+  //! Return the work-group ID for dimension
+  static size_t getWorkGroupId(const uint32b dimension) noexcept;
+
+  //! Set the number of dimensions in use
+  static void setDimension(const uint32b dimension) noexcept;
+
+  //! Set the 3d global offset used in global id calculation
+  static void setGlobalIdOffset(const std::array<uint32b, 3>& offset) noexcept;
+
+  //! Set the number of work-grous
+  static void setNumOfGroups(const std::array<uint32b, 3>& size) noexcept;
+
+  //! Set the work-group ID
+  static void setWorkGroupId(const uint32b id) noexcept;
 
  private:
+  static thread_local uint32b dimension_;
+  static thread_local std::array<uint32b, 3> global_id_offset_;
+  static thread_local std::array<uint32b, 3> num_of_work_groups_;
   static thread_local std::array<uint32b, 3> work_group_id_;
-  static thread_local std::array<uint32b, 3> work_group_size_;
 };
 
 } // namespace inner
 
 /*!
+  \details No detailed description
+
+  \param [in] format No description.
+  \param [in] value No description.
   */
 template <typename Type> inline
 void printf(const char* format, const Type& value) noexcept
@@ -89,6 +86,22 @@ void printf(const char* format, const Type& value) noexcept
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] dimension No description.
+  \return No description
+  */
+inline
+constexpr size_t get_enqueued_local_size([[maybe_unused]] const uint32b dimension) noexcept
+{
+  return 1;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] dimension No description.
+  \return No description
   */
 inline
 size_t get_global_id(const uint32b dimension) noexcept
@@ -98,14 +111,22 @@ size_t get_global_id(const uint32b dimension) noexcept
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] dimension No description.
+  \return No description
   */
 inline
-constexpr size_t get_global_offset(const uint32b /* dimension */) noexcept
+size_t get_global_offset(const uint32b dimension) noexcept
 {
-  return 0;
+  return inner::WorkItem::getGlobalIdOffset(dimension);
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] dimension No description.
+  \return No description
   */
 inline
 size_t get_global_size(const uint32b dimension) noexcept
@@ -114,43 +135,74 @@ size_t get_global_size(const uint32b dimension) noexcept
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] dimension No description.
+  \return No description
   */
 inline
 size_t get_group_id(const uint32b dimension) noexcept
 {
-  return inner::WorkGroup::getWorkGroupId(dimension);
+  return inner::WorkItem::getWorkGroupId(dimension);
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] dimension No description.
+  \return No description
   */
 inline
-constexpr size_t get_local_id(const uint32b /* dimension */) noexcept
+constexpr size_t get_local_id([[maybe_unused]] const uint32b dimension) noexcept
 {
   return 0;
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] dimension No description.
+  \return No description
   */
 inline
-constexpr size_t get_local_size(const uint32b /* dimension */) noexcept
+constexpr size_t get_local_linear_id([[maybe_unused]] const uint32b dimension) noexcept
+{
+  return 0;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] dimension No description.
+  \return No description
+  */
+inline
+constexpr size_t get_local_size([[maybe_unused]] const uint32b dimension) noexcept
 {
   return 1;
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] dimension No description.
+  \return No description
   */
 inline
 size_t get_num_groups(const uint32b dimension) noexcept
 {
-  return inner::WorkGroup::getWorkGroupSize(dimension);
+  return inner::WorkItem::getNumOfGroups(dimension);
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
 inline
-constexpr uint32b get_work_dim() noexcept
+uint32b get_work_dim() noexcept
 {
-  return 3;
+  return inner::WorkItem::getDimension();
 }
 
 namespace inner {

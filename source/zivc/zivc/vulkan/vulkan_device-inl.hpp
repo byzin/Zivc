@@ -30,6 +30,7 @@
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "vulkan_device_info.hpp"
+#include "vulkan_sub_platform.hpp"
 #include "utility/cmd_debug_label_region.hpp"
 #include "utility/cmd_record_region.hpp"
 #include "utility/queue_debug_label_region.hpp"
@@ -338,7 +339,7 @@ inline
 VulkanSubPlatform& VulkanDevice::parentImpl() noexcept
 {
   auto p = getParent();
-  return *zisc::reinterp<VulkanSubPlatform*>(p);
+  return *zisc::cast<VulkanSubPlatform*>(p);
 }
 
 /*!
@@ -350,7 +351,7 @@ inline
 const VulkanSubPlatform& VulkanDevice::parentImpl() const noexcept
 {
   const auto p = getParent();
-  return *zisc::reinterp<const VulkanSubPlatform*>(p);
+  return *zisc::cast<const VulkanSubPlatform*>(p);
 }
 
 } // namespace zivc

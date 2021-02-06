@@ -112,6 +112,9 @@ class VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> :
                 "The POD values aren't equality comparable.");
 
 
+  //! Calculate the dispatch work size
+  std::array<uint32b, 3> calcDispatchWorkSize(const std::array<uint32b, kDim>& work_size) const noexcept;
+
   //! Get the underlying VkBuffer from the given buffer
   template <zisc::TriviallyCopyable Type>
   static const VkBuffer& getBufferHandle(const Buffer<Type>& buffer) noexcept;
@@ -150,8 +153,9 @@ class VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> :
   //! Update the underlying descriptor set with the given arguments
   void updateDescriptorSet(Args... args);
 
-  //! Update global and region offsets
-  void updateGlobalAndRegionOffsetsCmd(const LaunchOptions& launch_options);
+  //! Update module scope push constans
+  void updateModuleScopePushConstantsCmd(const std::array<uint32b, 3>& work_size,
+                                         const LaunchOptions& launch_options);
 
   //! Update pod cache with the given args if needed
   bool updatePodCacheIfNeeded(Args... args) const noexcept;

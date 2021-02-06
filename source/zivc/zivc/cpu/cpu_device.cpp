@@ -129,26 +129,33 @@ void CpuDevice::setFenceSize([[maybe_unused]] const std::size_t s)
   \details No detailed description
 
   \param [in] command No description.
+  \param [in] dimension No description.
   \param [in] work_size No description.
+  \param [in] global_id_offset No description.
   \param [in] id No description.
   \param [out] fence No description.
   */
 void CpuDevice::submit(const Command& command,
+                       const uint32b dimension,
                        const std::array<uint32b, 3>& work_size,
+                       const std::array<uint32b, 3>& global_id_offset,
                        std::atomic<uint32b>* id,
                        Fence* fence) noexcept
 {
   const uint32b batch_size = zisc::cast<uint32b>(taskBatchSize());
-  auto task = [command, id, work_size, batch_size](const int64b, const int64b)
+  auto task = [command, id, dimension, work_size, global_id_offset, batch_size]
+  (const int64b, const int64b) noexcept
   {
+    cl::inner::WorkItem::setDimension(dimension);
+    cl::inner::WorkItem::setGlobalIdOffset(global_id_offset);
+    cl::inner::WorkItem::setNumOfGroups(work_size);
     const uint32b num_of_works = work_size[0] * work_size[1] * work_size[2];
     const uint32b n = (num_of_works + (batch_size - 1)) / batch_size;
-    cl::inner::WorkGroup::setWorkGroupSize(work_size);
     for (uint32b block_id = (*id)++; block_id < n; block_id = (*id)++) {
       for (uint32b i = 0; i < batch_size; ++i) {
         const uint32b group_id = block_id * batch_size + i;
         if (group_id < num_of_works) {
-          cl::inner::WorkGroup::setWorkGroupId(group_id);
+          cl::inner::WorkItem::setWorkGroupId(group_id);
           command();
         }
       }

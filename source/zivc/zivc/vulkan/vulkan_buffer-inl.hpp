@@ -722,7 +722,7 @@ template <zisc::TriviallyCopyable T> inline
 VulkanDevice& VulkanBuffer<T>::parentImpl() noexcept
 {
   auto p = Buffer<T>::getParent();
-  return *zisc::reinterp<VulkanDevice*>(p);
+  return *zisc::cast<VulkanDevice*>(p);
 }
 
 /*!
@@ -734,7 +734,7 @@ template <zisc::TriviallyCopyable T> inline
 const VulkanDevice& VulkanBuffer<T>::parentImpl() const noexcept
 {
   const auto p = Buffer<T>::getParent();
-  return *zisc::reinterp<const VulkanDevice*>(p);
+  return *zisc::cast<const VulkanDevice*>(p);
 }
 
 } // namespace zivc

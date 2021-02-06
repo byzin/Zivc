@@ -89,7 +89,9 @@ class CpuDevice : public Device
 
   //! Submit a kernel command
   void submit(const Command& command,
+              const uint32b dimension,
               const std::array<uint32b, 3>& work_size,
+              const std::array<uint32b, 3>& global_id_offset,
               std::atomic<uint32b>* id,
               Fence* fence) noexcept;
 

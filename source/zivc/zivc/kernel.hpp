@@ -109,7 +109,8 @@ class Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> : public KernelComm
 
   //! Expand the given work size to 3d work size array
   static std::array<uint32b, 3> expandWorkSize(
-      const std::array<uint32b, kDim>& work_size) noexcept;
+      const std::array<uint32b, kDim>& work_size,
+      const uint32b fill_value) noexcept;
 
   //! Initialize the kernel 
   virtual void initData(const Params& params) = 0;

@@ -66,6 +66,9 @@ class KernelLaunchOptions<KernelParams<kDim, KSet, FuncArgs...>, Args...>
   //! Return the work-group dimension
   static constexpr std::size_t dimension() noexcept;
 
+  //! Return the 3d global offset used in global id calculations
+  const std::array<uint32b, kDim>& globalIdOffset() const noexcept;
+
   //! Check whether external sync mode is required
   bool isExternalSyncMode() const noexcept;
 
@@ -83,6 +86,12 @@ class KernelLaunchOptions<KernelParams<kDim, KSet, FuncArgs...>, Args...>
 
   //! Set external sync mode
   void setExternalSyncMode(const bool is_active) noexcept;
+
+  //! Set the 3d global offset used in global id calculations
+  void setGlobalIdOffset(const uint32b offset, const std::size_t dim) noexcept;
+
+  //! Set the 3d global offset used in global id calculations
+  void setGlobalIdOffset(const std::array<uint32b, kDim>& offset) noexcept;
 
   //! Set the label of the launching
   void setLabel(const std::string_view launch_label) noexcept;
@@ -110,9 +119,10 @@ class KernelLaunchOptions<KernelParams<kDim, KSet, FuncArgs...>, Args...>
   IdData::NameType label_;
   std::array<float, 4> label_color_ = {1.0f, 1.0f, 1.0f, 1.0f};
   std::array<uint32b, kDim> work_size_;
+  std::array<uint32b, kDim> global_id_offset_;
   uint32b queue_index_ = 0;
   int8b is_external_sync_mode_ = zisc::kFalse;
-  [[maybe_unused]] std::array<uint8b, 7 - 4 * (kDim % 2)> padding_;
+  [[maybe_unused]] std::array<uint8b, 7> padding_;
 };
 
 } // namespace zivc

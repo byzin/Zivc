@@ -121,19 +121,20 @@ run(Args... args, const LaunchOptions& launch_options)
   VulkanDevice& device = parentImpl();
 
   updateDescriptorSet(args...);
-  const bool have_new_pod = updatePodCacheIfNeeded(args...);
-  const auto work_size = BaseKernel::expandWorkSize(launch_options.workSize());
   // Prepare command buffer
   prepareCommandBuffer();
   VkCommandBuffer command = commandBuffer();
   // Command recording
   {
+    const bool have_new_pod = updatePodCacheIfNeeded(args...);
+    const auto work_size = calcDispatchWorkSize(launch_options.workSize());
+
     const auto flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
     auto record_region = device.makeCmdRecord(command, flags);
     {
       auto debug_region = device.makeCmdDebugLabel(command, launch_options);
       // Update global and region offsets
-      updateGlobalAndRegionOffsetsCmd(launch_options);
+      updateModuleScopePushConstantsCmd(work_size, launch_options);
       // Update POD buffer
       if (have_new_pod)
         updatePodBufferCmd();
@@ -145,8 +146,7 @@ run(Args... args, const LaunchOptions& launch_options)
   // Command submission
   {
     const VkQueue q = device.getQueue(launch_options.queueIndex());
-    if (launch_options.isExternalSyncMode())
-      result.fence().setDevice(std::addressof(device));
+    result.fence().setDevice(launch_options.isExternalSyncMode() ? &device : nullptr);
     auto debug_region = device.makeQueueDebugLabel(q, launch_options);
     device.submit(command, q, result.fence());
   }
@@ -238,7 +238,6 @@ dispatchCmd(const std::array<uint32b, 3>& work_size)
   impl.dispatchCmd(command,
                    kernel_data_,
                    desc_set_,
-                   BaseKernel::dimension(),
                    work_size);
 }
 
@@ -348,6 +347,27 @@ makePodDataType() noexcept
     PodData<void> data{};
     return data;
   }
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] work_size No description.
+  \return No description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+inline
+std::array<uint32b, 3> VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+calcDispatchWorkSize(const std::array<uint32b, kDim>& work_size) const noexcept
+{
+  const VulkanDevice& device = parentImpl();
+  const auto& group_size = device.workGroupSizeDim(BaseKernel::dimension());
+  std::array<uint32b, 3> dispatch_size{{1, 1, 1}};
+  for (std::size_t i = 0; i < BaseKernel::dimension(); ++i) {
+    const uint32b s = (work_size[i] + group_size[i] - 1) / group_size[i];
+    dispatch_size[i] = s;
+  }
+  return dispatch_size;
 }
 
 /*!
@@ -490,7 +510,7 @@ VulkanDevice& VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 parentImpl() noexcept
 {
   auto p = BaseKernel::getParent();
-  return *zisc::reinterp<VulkanDevice*>(p);
+  return *zisc::cast<VulkanDevice*>(p);
 }
 
 /*!
@@ -504,7 +524,7 @@ const VulkanDevice& VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>
 parentImpl() const noexcept
 {
   auto p = BaseKernel::getParent();
-  return *zisc::reinterp<VulkanDevice*>(p);
+  return *zisc::cast<const VulkanDevice*>(p);
 }
 
 /*!
@@ -582,13 +602,43 @@ updateDescriptorSet(Args... args)
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
-updateGlobalAndRegionOffsetsCmd(const LaunchOptions& launch_options)
+updateModuleScopePushConstantsCmd(const std::array<uint32b, 3>& work_size,
+                                  const LaunchOptions& launch_options)
 {
-  static_cast<void>(launch_options);
-  std::array<uint32b, 7> data;
-  data.fill(0);
+  std::array<uint32b, 23> constans;
+  constans.fill(0);
+
+  const VulkanDevice& device = parentImpl();
+  const auto& group_size = device.workGroupSizeDim(BaseKernel::dimension());
+  // Global offset
+  {
+    const auto global_offset =
+        BaseKernel::expandWorkSize(launch_options.globalIdOffset(), 0);
+    constexpr std::size_t offset = 0;
+    for (std::size_t i = 0; i < work_size.size(); ++i)
+      constans[offset + i] = global_offset[i];
+  }
+  // Enqueued local size
+  {
+    constexpr std::size_t offset = 4;
+    for (std::size_t i = 0; i < work_size.size(); ++i)
+      constans[offset + i] = group_size[i];
+  }
+  // Global size
+  {
+    constexpr std::size_t offset = 8;
+    for (std::size_t i = 0; i < work_size.size(); ++i)
+      constans[offset + i] = work_size[i] * group_size[i];
+  }
+  // Num of workgroups
+  {
+    constexpr std::size_t offset = 16;
+    for (std::size_t i = 0; i < work_size.size(); ++i)
+      constans[offset + i] = work_size[i];
+  }
+
   VulkanKernelImpl impl{std::addressof(parentImpl())};
-  impl.pushConstantCmd(commandBuffer(), kernel_data_, 0, data);
+  impl.pushConstantCmd(commandBuffer(), kernel_data_, 0, constans);
 }
 
 /*!

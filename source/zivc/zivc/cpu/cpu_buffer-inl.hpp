@@ -332,7 +332,7 @@ template <zisc::TriviallyCopyable T> inline
 CpuDevice& CpuBuffer<T>::parentImpl() noexcept
 {
   auto p = Buffer<T>::getParent();
-  return *zisc::reinterp<CpuDevice*>(p);
+  return *zisc::cast<CpuDevice*>(p);
 }
 
 /*!
@@ -344,7 +344,7 @@ template <zisc::TriviallyCopyable T> inline
 const CpuDevice& CpuBuffer<T>::parentImpl() const noexcept
 {
   const auto p = Buffer<T>::getParent();
-  return *zisc::reinterp<const CpuDevice*>(p);
+  return *zisc::cast<const CpuDevice*>(p);
 }
 
 /*!

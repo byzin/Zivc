@@ -16,6 +16,7 @@
 #define ZIVC_TEST_KERNEL_TEST_CL
 
 // Zivc
+#include "zivc/cl/atomic.cl"
 #include "zivc/cl/types.cl"
 #include "zivc/cl/utility.cl"
 
@@ -27,6 +28,12 @@ using zivc::uint8b;
 using zivc::uint16b;
 using zivc::uint32b;
 using zivc::uint64b;
+
+namespace inner {
+
+void writeWorkItemProperties(zivc::GlobalPtr<uint32b> properties) noexcept;
+
+}
 
 /*!
   \details No detailed description
@@ -41,6 +48,172 @@ __kernel void simpleKernel([[maybe_unused]] zivc::ConstGlobalPtr<int32b> inputs)
 /*!
   \details No detailed description
 
+  \param [out] outputs No description.
+  */
+__kernel void basicTypeSizeKernel(zivc::GlobalPtr<uint32b> outputs)
+{
+  const size_t index = zivc::getGlobalIdX();
+  if (index == 0) {
+    size_t i = 0;
+
+    outputs[i++] = sizeof(int8b);
+    outputs[i++] = alignof(int8b);
+    outputs[i++] = sizeof(int16b);
+    outputs[i++] = alignof(int16b);
+    outputs[i++] = sizeof(int32b);
+    outputs[i++] = alignof(int32b);
+    outputs[i++] = sizeof(int64b);
+    outputs[i++] = alignof(int64b);
+
+    outputs[i++] = sizeof(char2);
+    outputs[i++] = alignof(char2);
+    outputs[i++] = sizeof(char3);
+    outputs[i++] = alignof(char3);
+    outputs[i++] = sizeof(char4);
+    outputs[i++] = alignof(char4);
+    outputs[i++] = sizeof(short2);
+    outputs[i++] = alignof(short2);
+    outputs[i++] = sizeof(short3);
+    outputs[i++] = alignof(short3);
+    outputs[i++] = sizeof(short4);
+    outputs[i++] = alignof(short4);
+    outputs[i++] = sizeof(int2);
+    outputs[i++] = alignof(int2);
+    outputs[i++] = sizeof(int3);
+    outputs[i++] = alignof(int3);
+    outputs[i++] = sizeof(int4);
+    outputs[i++] = alignof(int4);
+    outputs[i++] = sizeof(long2);
+    outputs[i++] = alignof(long2);
+    outputs[i++] = sizeof(long3);
+    outputs[i++] = alignof(long3);
+    outputs[i++] = sizeof(long4);
+    outputs[i++] = alignof(long4);
+
+    outputs[i++] = sizeof(uint8b);
+    outputs[i++] = alignof(uint8b);
+    outputs[i++] = sizeof(uint16b);
+    outputs[i++] = alignof(uint16b);
+    outputs[i++] = sizeof(uint32b);
+    outputs[i++] = alignof(uint32b);
+    outputs[i++] = sizeof(uint64b);
+    outputs[i++] = alignof(uint64b);
+
+    outputs[i++] = sizeof(uchar2);
+    outputs[i++] = alignof(uchar2);
+    outputs[i++] = sizeof(uchar3);
+    outputs[i++] = alignof(uchar3);
+    outputs[i++] = sizeof(uchar4);
+    outputs[i++] = alignof(uchar4);
+    outputs[i++] = sizeof(ushort2);
+    outputs[i++] = alignof(ushort2);
+    outputs[i++] = sizeof(ushort3);
+    outputs[i++] = alignof(ushort3);
+    outputs[i++] = sizeof(ushort4);
+    outputs[i++] = alignof(ushort4);
+    outputs[i++] = sizeof(uint2);
+    outputs[i++] = alignof(uint2);
+    outputs[i++] = sizeof(uint3);
+    outputs[i++] = alignof(uint3);
+    outputs[i++] = sizeof(uint4);
+    outputs[i++] = alignof(uint4);
+    outputs[i++] = sizeof(ulong2);
+    outputs[i++] = alignof(ulong2);
+    outputs[i++] = sizeof(ulong3);
+    outputs[i++] = alignof(ulong3);
+    outputs[i++] = sizeof(ulong4);
+    outputs[i++] = alignof(ulong4);
+
+    outputs[i++] = sizeof(half);
+    outputs[i++] = alignof(half);
+    outputs[i++] = sizeof(float);
+    outputs[i++] = alignof(float);
+    outputs[i++] = sizeof(double);
+    outputs[i++] = alignof(double);
+
+    outputs[i++] = sizeof(half2);
+    outputs[i++] = alignof(half2);
+    outputs[i++] = sizeof(half3);
+    outputs[i++] = alignof(half3);
+    outputs[i++] = sizeof(half4);
+    outputs[i++] = alignof(half4);
+    outputs[i++] = sizeof(float2);
+    outputs[i++] = alignof(float2);
+    outputs[i++] = sizeof(float3);
+    outputs[i++] = alignof(float3);
+    outputs[i++] = sizeof(float4);
+    outputs[i++] = alignof(float4);
+    outputs[i++] = sizeof(double2);
+    outputs[i++] = alignof(double2);
+    outputs[i++] = sizeof(double3);
+    outputs[i++] = alignof(double3);
+    outputs[i++] = sizeof(double4);
+    outputs[i++] = alignof(double4);
+
+    outputs[i++] = sizeof(size_t);
+    outputs[i++] = alignof(size_t);
+    outputs[i++] = sizeof(ptrdiff_t);
+    outputs[i++] = alignof(ptrdiff_t);
+    outputs[i++] = sizeof(intptr_t);
+    outputs[i++] = alignof(intptr_t);
+    outputs[i++] = sizeof(uintptr_t);
+    outputs[i++] = alignof(uintptr_t);
+  }
+}
+
+#if defined(Z_GCC) || defined(Z_CLANG)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpadded"
+#endif // Z_GCC || Z_CLANG
+
+/*!
+  \brief No brief description
+
+  No detailed description.
+  */
+class ClassSizeTest1
+{
+ public:
+  double d() const noexcept {return d_;}
+  int16b i16() const noexcept {return i16_;}
+  uint32b u() const noexcept {return u_;}
+  uint8b u8() const noexcept {return u8_;}
+  uint16b u16() const noexcept {return u16_;}
+  int64b i64() const noexcept {return i64_;}
+  float f() const noexcept {return f_;}
+
+  double d_;
+  int16b i16_;
+  uint32b u_;
+  uint8b u8_;
+  uint16b u16_;
+  int64b i64_;
+  float f_;
+};
+
+#if defined(Z_GCC) || defined(Z_CLANG)
+#pragma GCC diagnostic pop
+#endif // Z_GCC || Z_CLANG
+
+/*!
+  \details No detailed description
+
+  \param [out] outputs No description.
+  */
+__kernel void classSize1Kernel(zivc::GlobalPtr<uint32b> outputs)
+{
+  const size_t index = zivc::getGlobalIdX();
+  if (index == 0) {
+    size_t i = 0;
+
+    outputs[i++] = sizeof(ClassSizeTest1);
+    outputs[i++] = alignof(ClassSizeTest1);
+  }
+}
+
+/*!
+  \details No detailed description
+
   \param [in] inputs No description.
   \param [out] outputs No description.
   */
@@ -50,6 +223,36 @@ __kernel void inputOutput1Kernel(zivc::ConstGlobalPtr<int32b> inputs,
   const size_t index = zivc::getGlobalIdX();
   const int32b v = inputs[index];
   outputs[index] = v;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] inputs No description.
+  \param [out] outputs No description.
+  */
+__kernel void inputOutput2Kernel(zivc::ConstGlobalPtr<ClassSizeTest1> inputs,
+                                 zivc::GlobalPtr<ClassSizeTest1> outputs)
+{
+  const size_t index = zivc::getGlobalIdX();
+  if (256 <= index)
+    return;
+
+  zivc::ConstGlobalPtr<ClassSizeTest1> in = inputs + index;
+  {
+    zivc::GlobalPtr<ClassSizeTest1> o1 = outputs + (2 * index);
+    o1->d_ = in->d();
+    o1->i16_ = in->i16();
+    o1->u_ = in->u();
+    o1->u8_ = in->u8();
+    o1->u16_ = in->u16();
+    o1->i64_ = in->i64();
+    o1->f_ = in->f();
+  }
+  {
+    zivc::GlobalPtr<ClassSizeTest1> o2 = outputs + (2 * index + 1);
+    o2[0] = in[0];
+  }
 }
 
 /*!
@@ -121,6 +324,184 @@ __kernel void pod3Kernel(const int32b i0, const uint32b u0, const float f0,
   foutputs[0] = f0;
   foutputs[1] = f1;
   foutputs[2] = f2;
+}
+
+namespace inner {
+
+/*!
+  \details No detailed description
+
+  \param [out] properties No description.
+  */
+inline
+void writeWorkItemProperties(zivc::GlobalPtr<uint32b> properties) noexcept
+{
+  size_t i = 0;
+  properties[i++] = zivc::getWorkDim();
+  properties[i++] = zivc::getGlobalSizeX();
+  properties[i++] = zivc::getGlobalSizeY();
+  properties[i++] = zivc::getGlobalSizeZ();
+  properties[i++] = zivc::getLocalSizeX();
+  properties[i++] = zivc::getLocalSizeY();
+  properties[i++] = zivc::getLocalSizeZ();
+  properties[i++] = zivc::getEnqueuedLocalSizeX();
+  properties[i++] = zivc::getEnqueuedLocalSizeY();
+  properties[i++] = zivc::getEnqueuedLocalSizeZ();
+  properties[i++] = zivc::getNumGroupsX();
+  properties[i++] = zivc::getNumGroupsY();
+  properties[i++] = zivc::getNumGroupsZ();
+  properties[i++] = zivc::getGlobalOffsetX();
+  properties[i++] = zivc::getGlobalOffsetY();
+  properties[i++] = zivc::getGlobalOffsetZ();
+}
+
+} // namespace inner
+
+/*!
+  \details No detailed description
+
+  \param [out] outputs No description.
+  \param [in] resolution No description.
+  */
+__kernel void workItem1dKernel(zivc::GlobalPtr<uint32b> outputs,
+                               zivc::GlobalPtr<uint32b> properties,
+                               const uint32b resolution)
+{
+  const size_t wx = zivc::getGroupIdX();
+
+  // Global ID test
+  const size_t index = zivc::getGlobalLinearId1d();
+  if (index < resolution) {
+    if (wx == 0) {
+      zivc::GlobalPtr<uint32b> num_of_work_groups = outputs + (resolution + 1);
+      zivc::atomic_inc(num_of_work_groups);
+    }
+
+    if (index == 0) {
+      inner::writeWorkItemProperties(properties);
+      const size_t nlx = zivc::getLocalSizeX();
+      zivc::GlobalPtr<uint32b> num_of_work_groups = outputs + (resolution + 2);
+      num_of_work_groups[0] = nlx;
+    }
+
+    zivc::atomic_inc(outputs + index);
+  }
+  else {
+    zivc::GlobalPtr<uint32b> outlier = outputs + resolution;
+    zivc::atomic_inc(outlier);
+  }
+
+  // Local ID test
+  const size_t local_id = zivc::getLocalLinearId1d();
+  const size_t nlx = zivc::getLocalSizeX();
+  const size_t group_size = nlx;
+  const size_t group_id = wx;
+  const size_t index2 = local_id + group_size * group_id;
+  if (index2 < resolution) {
+    zivc::atomic_inc(outputs + index2);
+  }
+}
+
+/*!
+  \details No detailed description
+
+  \param [out] outputs No description.
+  \param [in] resolution No description.
+  */
+__kernel void workItem2dKernel(zivc::GlobalPtr<uint32b> outputs,
+                               zivc::GlobalPtr<uint32b> properties,
+                               const uint32b resolution)
+{
+  const size_t wx = zivc::getGroupIdX();
+  const size_t wy = zivc::getGroupIdY();
+
+  // Global ID test
+  const size_t index = zivc::getGlobalLinearId2d();
+  if (index < resolution) {
+    if ((wx + wy) == 0) {
+      zivc::GlobalPtr<uint32b> num_of_work_groups = outputs + (resolution + 1);
+      zivc::atomic_inc(num_of_work_groups);
+    }
+
+    if (index == 0) {
+      inner::writeWorkItemProperties(properties);
+      const size_t nlx = zivc::getLocalSizeX();
+      const size_t nly = zivc::getLocalSizeY();
+      zivc::GlobalPtr<uint32b> num_of_work_groups = outputs + (resolution + 2);
+      num_of_work_groups[0] = nlx * nly;
+    }
+
+    zivc::atomic_inc(outputs + index);
+  }
+  else {
+    zivc::GlobalPtr<uint32b> outlier = outputs + resolution;
+    zivc::atomic_inc(outlier);
+  }
+
+  // Local ID test
+  const size_t local_id = zivc::getLocalLinearId2d();
+  const size_t nlx = zivc::getLocalSizeX();
+  const size_t nly = zivc::getLocalSizeY();
+  const size_t group_size = nlx * nly;
+  const size_t nwx = zivc::getNumGroupsX();
+  const size_t group_id = wx + nwx * wy;
+  const size_t index2 = local_id + group_size * group_id;
+  if (index2 < resolution) {
+    zivc::atomic_inc(outputs + index2);
+  }
+}
+
+/*!
+  \details No detailed description
+
+  \param [out] outputs No description.
+  \param [in] resolution No description.
+  */
+__kernel void workItem3dKernel(zivc::GlobalPtr<uint32b> outputs,
+                               zivc::GlobalPtr<uint32b> properties,
+                               const uint32b resolution)
+{
+  const size_t wx = zivc::getGroupIdX();
+  const size_t wy = zivc::getGroupIdY();
+  const size_t wz = zivc::getGroupIdZ();
+
+  // Global ID test
+  const size_t index = zivc::getGlobalLinearId3d();
+  if (index < resolution) {
+    if ((wx + wy + wz) == 0) {
+      zivc::GlobalPtr<uint32b> num_of_work_groups = outputs + (resolution + 1);
+      zivc::atomic_inc(num_of_work_groups);
+    }
+
+    if (index == 0) {
+      inner::writeWorkItemProperties(properties);
+      const size_t nlx = zivc::getLocalSizeX();
+      const size_t nly = zivc::getLocalSizeY();
+      const size_t nlz = zivc::getLocalSizeZ();
+      zivc::GlobalPtr<uint32b> num_of_work_groups = outputs + (resolution + 2);
+      num_of_work_groups[0] = nlx * nly * nlz;
+    }
+
+    zivc::atomic_inc(outputs + index);
+  }
+  else {
+    zivc::GlobalPtr<uint32b> outlier = outputs + resolution;
+    zivc::atomic_inc(outlier);
+  }
+
+  // Local ID test
+  const size_t local_id = zivc::getLocalLinearId3d();
+  const size_t nlx = zivc::getLocalSizeX();
+  const size_t nly = zivc::getLocalSizeY();
+  const size_t nlz = zivc::getLocalSizeZ();
+  const size_t group_size = nlx * nly * nlz;
+  const size_t nwx = zivc::getNumGroupsX();
+  const size_t nwy = zivc::getNumGroupsY();
+  const size_t group_id = wx + nwx * wy + (nwx * nwy) * wz;
+  const size_t index2 = local_id + group_size * group_id;
+  if (index2 < resolution) {
+    zivc::atomic_inc(outputs + index2);
+  }
 }
 
 #endif // ZIVC_TEST_KERNEL_TEST_CL

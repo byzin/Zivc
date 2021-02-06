@@ -163,9 +163,10 @@ numOfArgs() noexcept
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 std::array<uint32b, 3> Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
-expandWorkSize(const std::array<uint32b, kDim>& work_size) noexcept
+expandWorkSize(const std::array<uint32b, kDim>& work_size,
+               const uint32b fill_value) noexcept
 {
-  std::array<uint32b, 3> work_size_3d{{1, 1, 1}};
+  std::array<uint32b, 3> work_size_3d{{fill_value, fill_value, fill_value}};
   for (std::size_t i = 0; i < kDim; ++i)
     work_size_3d[i] = work_size[i];
   return work_size_3d;

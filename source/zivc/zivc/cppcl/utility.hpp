@@ -27,13 +27,19 @@ void printf(const char* format, const Type& value) noexcept;
 
 // Work-Item functions
 
-//! Return the global work-item ID
+//! Return the number of local work-items
+constexpr size_t get_enqueued_local_size(const uint32b dimension) noexcept;
+
+//! Return the global work-item ID for dimension
 size_t get_global_id(const uint32b dimension) noexcept;
 
-//! Return the offset values
-constexpr size_t get_global_offset(const uint32b dimension) noexcept;
+//! Return the work-items 1-dimensional global ID
+size_t get_global_linear_id() noexcept;
 
-//! Return the number of global work-items
+//! Return the 3d global offset used in global ID calculation
+size_t get_global_offset(const uint32b dimension) noexcept;
+
+//! Return the number of global work-items for dimension
 size_t get_global_size(const uint32b dimension) noexcept;
 
 //! Return the work-group ID
@@ -42,14 +48,19 @@ size_t get_group_id(const uint32b dimension) noexcept;
 //! Return the unique local work-item ID
 constexpr size_t get_local_id(const uint32b dimension) noexcept;
 
-//! Return the number of local work-item
+//! Return the work-items 1-dimensional local ID
+constexpr size_t get_local_linear_id() noexcept;
+
+//! Return the number of local work-items
 constexpr size_t get_local_size(const uint32b dimension) noexcept;
 
 //! Return the number of work-groups that will execute a kernel
 size_t get_num_groups(const uint32b dimension) noexcept;
 
 //! Return the number of dimensions in use
-constexpr uint32b get_work_dim() noexcept;
+uint32b get_work_dim() noexcept;
+
+//
 
 //! Convert to a char value
 template <typename Type>

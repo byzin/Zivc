@@ -104,14 +104,12 @@ void VulkanKernelImpl::destroyDescriptorSet(VkDescriptorPool* descriptor_pool) n
   \param [in] command_buffer No description.
   \param [in] descriptor_set No description.
   \param [in] kernel_data No description.
-  \param [in] work_dimension No description.
-  \param [in] work_group_size No description.
+  \param [in] dispatch_size No description.
   */
 void VulkanKernelImpl::dispatchCmd(const VkCommandBuffer& command_buffer,
                                    const void* kernel_data,
                                    const VkDescriptorSet& descriptor_set,
-                                   const std::size_t work_dimension,
-                                   const std::array<uint32b, 3>& work_group_size)
+                                   const std::array<uint32b, 3>& dispatch_size)
 {
   const auto kdata = zisc::cast<const VulkanDevice::KernelData*>(kernel_data);
   const auto loader = device().dispatcher().loaderImpl();
@@ -127,8 +125,7 @@ void VulkanKernelImpl::dispatchCmd(const VkCommandBuffer& command_buffer,
   const zivcvk::Pipeline pline{kdata->pipeline_};
   command.bindPipeline(bind_point, pline, *loader);
 
-  const auto disp_size = calcDispatchSize(work_dimension, work_group_size);
-  command.dispatch(disp_size[0], disp_size[1], disp_size[2], *loader);
+  command.dispatch(dispatch_size[0], dispatch_size[1], dispatch_size[2], *loader);
 }
 
 /*!
@@ -195,26 +192,6 @@ void VulkanKernelImpl::initDescriptorSet(
     *descriptor_pool = zisc::cast<VkDescriptorPool>(desc_pool);
     *descriptor_set = zisc::cast<VkDescriptorSet>(desc_set[0]);
   }
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] work_dimension No description.
-  \param [in] work_size No description.
-  \return No description
-  */
-std::array<uint32b, 3> VulkanKernelImpl::calcDispatchSize(
-    const std::size_t work_dimension,
-    const std::array<uint32b, 3>& work_size) const noexcept
-{
-  std::array<uint32b, 3> dispatch_size{{1, 1, 1}};
-  const auto& group_size = device().workGroupSizeDim(work_dimension);
-  for (std::size_t i = 0; i < work_dimension; ++i) {
-    const uint32b s = (work_size[i] + group_size[i] - 1) / group_size[i];
-    dispatch_size[i] = s;
-  }
-  return dispatch_size;
 }
 
 /*!

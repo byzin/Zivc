@@ -51,6 +51,8 @@ enum class SubPlatformType : uint32b
   kVulkan
 };
 
+// Buffer
+
 /*!
   \brief No brief description
 
@@ -63,6 +65,13 @@ enum class BufferUsage : uint32b
   kHostToDevice = 0b1u << 2,
   kDeviceToHost = 0b1u << 3,
 };
+
+// Kernel
+
+//! A kernel parameter is standard layout type and trivially copyable
+template <typename Type>
+concept KernelParameter = std::is_standard_layout_v<Type> &&
+                          std::is_trivially_copyable_v<Type>;
 
 /*!
   \brief config values in zivc

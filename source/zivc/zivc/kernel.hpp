@@ -38,8 +38,8 @@
 namespace zivc {
 
 // Forward declaration
-template <zisc::TriviallyCopyable> class Buffer;
-template <std::size_t, DerivedKSet, typename...> class KernelParams;
+template <KernelParameter> class Buffer;
+template <std::size_t, DerivedKSet, typename...> class KernelInitParams;
 template <typename...> class KernelArgParser;
 template <typename, typename...> class Kernel;
 
@@ -54,7 +54,7 @@ template <typename, typename...> class Kernel;
   \tparam Args No description.
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-class Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> : public KernelCommon
+class Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> : public KernelCommon
 {
   static_assert(zisc::Algorithm::isInBounds(kDim, 1u, 4u),
                 "The kDim must be 1, 2 or 3.");
@@ -64,8 +64,8 @@ class Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> : public KernelComm
   using SharedPtr = std::shared_ptr<Kernel>;
   using WeakPtr = std::weak_ptr<Kernel>;
   using ArgParser = KernelArgParser<FuncArgs...>;
-  using Params = KernelParams<kDim, KSet, FuncArgs...>;
-  using LaunchOptions = KernelLaunchOptions<KernelParams<kDim, KSet, FuncArgs...>,
+  using Params = KernelInitParams<kDim, KSet, FuncArgs...>;
+  using LaunchOptions = KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>,
                                             Args...>;
 
 

@@ -29,9 +29,9 @@
 namespace zivc {
 
 // Forward declaration
-template <std::size_t, DerivedKSet, typename...> class KernelParams;
+template <std::size_t, DerivedKSet, typename...> class KernelInitParams;
 template <typename, typename...> class Kernel;
-template <zisc::TriviallyCopyable> class Buffer;
+template <KernelParameter> class Buffer;
 
 /*!
   \brief POD type info
@@ -55,8 +55,8 @@ class AddressSpaceInfo
  private:
   static_assert(!std::is_pointer_v<Type>, "The Type is pointer.");
   static_assert(!std::is_reference_v<Type>, "The Type is reference.");
-  static_assert(std::is_trivially_copyable_v<Type>,
-                "The POD type isn't trivially copyable.");
+  static_assert(KernelParameter<Type>,
+                "The POD type isn't standard layout or trivially copyable.");
   static_assert(zisc::EqualityComparable<Type>,
                 "The POD type isn't equality comparable.");
 };
@@ -153,7 +153,7 @@ class KernelArgParser
   template <std::size_t kSize>
   using ResultList = std::array<KernelArgParseResult, kSize>;
   template <std::size_t kDim, DerivedKSet KSet>
-  using KernelType = Kernel<KernelParams<kDim, KSet, Args...>>;
+  using KernelType = Kernel<KernelInitParams<kDim, KSet, Args...>>;
 
 
   static constexpr std::size_t kNumOfArgs = 0; //!< The number of arguments

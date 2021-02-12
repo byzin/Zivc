@@ -211,8 +211,9 @@ constexpr Constant<int32b> kIsRValueReference = IsRValueReference<T>::kValue;
 //! Check if two types are same
 template <typename T1, typename T2> struct IsSame;
 
+//! Check if two types are same
 template <typename T1, typename T2>
-constexpr Constant<int32b> kIsSame = IsSame<T1, T2>::kValue;
+constexpr int32b kIsSame = IsSame<T1, T2>::kValue;
 
 // Miscellaneous transformations
 
@@ -302,12 +303,33 @@ using TypeIdentityType = typename TypeIdentity<T>::Type;
 
 // Comparison type
 
-constexpr Constant<int32b> kResultFalse = 0b0;
+//constexpr Constant<int32b> kResultFalse = 0b0;
+//
+//template <typename T>
+//constexpr Constant<int32b> kResultTrue = (VectorTypeInfo<T>::size() == 1)
+//    ? 0b1
+//    : ~0b0;
 
-template <typename T>
-constexpr Constant<int32b> kResultTrue = (VectorTypeInfo<T>::size() == 1)
-    ? 0b1
-    : ~0b0;
+//constexpr Constant<int32b> kSFalse = 0b0; //!< Represent 'false' for scalar
+//
+//constexpr Constant<int32b> kSTrue = 0b1; //!< Represent 'true' for scalar
+//
+//constexpr Constant<int32b> kVFalse = 0b0; //!< Represent 'false' for vector
+//
+//constexpr Constant<int32b> kVTrue = ~0b0; //!< Represent 'true' for vector
+
+constexpr int32b kSFalse = 0b0; //!< Represent 'false' for scalar
+
+constexpr int32b kSTrue = 0b1; //!< Represent 'true' for scalar
+
+constexpr int32b kVFalse = 0b0; //!< Represent 'false' for vector
+
+constexpr int32b kVTrue = ~0b0; //!< Represent 'true' for vector
+
+constexpr int32b kResultFalse = kSFalse; //!< Represent 'false'
+
+template <typename Type>
+constexpr int32b kResultTrue = (VectorTypeInfo<Type>::size() == 1) ? kSTrue : kVTrue; //!< Represent 'true'
 
 //! Integer type that is used as a comparison result of the given type
 template <typename T>

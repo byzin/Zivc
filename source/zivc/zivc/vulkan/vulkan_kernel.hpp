@@ -34,7 +34,7 @@ namespace zivc {
 
 // Forward declaration
 class VulkanDevice;
-template <std::size_t, DerivedKSet, typename...> class KernelParams;
+template <std::size_t, DerivedKSet, typename...> class KernelInitParams;
 template <typename, typename...> class VulkanKernel;
 
 /*!
@@ -48,12 +48,12 @@ template <typename, typename...> class VulkanKernel;
   \tparam Args No description.
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-class VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> :
-    public Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>
+class VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
+    public Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>
 {
  public:
   // Type aliases
-  using BaseKernel = Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>;
+  using BaseKernel = Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>;
   using Params = typename BaseKernel::Params;
   using LaunchOptions = typename BaseKernel::LaunchOptions;
 
@@ -116,7 +116,7 @@ class VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> :
   std::array<uint32b, 3> calcDispatchWorkSize(const std::array<uint32b, kDim>& work_size) const noexcept;
 
   //! Get the underlying VkBuffer from the given buffer
-  template <zisc::TriviallyCopyable Type>
+  template <KernelParameter Type>
   static const VkBuffer& getBufferHandle(const Buffer<Type>& buffer) noexcept;
 
   //! Initialize the buffer list

@@ -1,7 +1,12 @@
 /*!
   \file address_space_pointer.hpp
   \author Sho Ikeda
+  \brief No brief description
 
+  \details
+  No detailed description.
+
+  \copyright
   Copyright (c) 2015-2021 Sho Ikeda
   This software is released under the MIT License.
   http://opensource.org/licenses/mit-license.php
@@ -13,7 +18,10 @@
 // Standard C++ library
 #include <cstddef>
 #include <type_traits>
+// Zisc
+#include "zisc/concepts.hpp"
 // Zivc
+#include "address_space_value.hpp"
 #include "types.hpp"
 #include "zivc/zivc_config.hpp"
 
@@ -22,62 +30,61 @@ namespace zivc {
 namespace cl {
 
 /*!
-  \brief Represent address space type
- */
-enum class AddressSpaceType: uint32b
-{
-  kGlobal = 0,
-  kLocal,
-  kConstant,
-  kPrivate
-};
+  \brief Represent a address space pointer
 
-/*!
- \brief Represent a address space pointer
- */
-template <AddressSpaceType kAddressSpaceType, typename T>
+  No detailed description.
+
+  \tparam kASpaceType No description.
+  \tparam T No description.
+  */
+template <AddressSpaceType kASpaceType, KernelParameter T>
 class AddressSpacePointer
 {
-  static_assert(!std::is_pointer_v<T>, "The 'T' is pointer type.");
-  static_assert(!std::is_reference_v<T>, "The 'T' is reference type.");
+  //
+  template <KernelParameter Type>
+  using ASpacePointerT = AddressSpacePointer<kASpaceType, Type>;
+
  public:
+  // Type aliases
   using Type = std::remove_volatile_t<T>;
   using PlainType = std::remove_const_t<Type>;
-  using ASpacePointerRef = std::add_lvalue_reference_t<AddressSpacePointer>;
-  using ConstASpacePointerRef = std::add_const_t<ASpacePointerRef>;
+  using ConstType = std::add_const_t<PlainType>;
   using Reference = std::add_lvalue_reference_t<Type>;
-  using ConstReference = std::add_const_t<Reference>;
+  using ConstReference = std::add_lvalue_reference<ConstType>;
   using Pointer = std::add_pointer_t<Type>;
-  using ConstPointer = std::add_pointer_t<std::add_const_t<Type>>;
+  using ConstPointer = std::add_pointer_t<ConstType>;
+  using ASpacePointerRef = std::add_lvalue_reference_t<AddressSpacePointer>;
+  using ConstASpacePointer = std::add_const_t<AddressSpacePointer>;
+  using ConstASpacePointerRef = std::add_lvalue_reference<ConstASpacePointer>;
+  using ASpaceValue = AddressSpaceValue<kASpaceType, T>;
+  using ConstASpaceValue = AddressSpaceValue<kASpaceType, std::add_const_t<T>>;
 
 
   //! Initialize a pointer by nullptr
   AddressSpacePointer() noexcept;
 
-  //! Initialize a pointer
-  AddressSpacePointer(Pointer data) noexcept;
+  //! Initialize a pointer with the given value
+  template <zisc::ConvertibleTo<Pointer> PointerT>
+  AddressSpacePointer(PointerT p) noexcept;
 
-  //! Initialize a pointer by other pointer
-  AddressSpacePointer(AddressSpacePointer<kAddressSpaceType, PlainType>& other)
-      noexcept;
-
-  //! Assign a pointer
-  ASpacePointerRef operator=(Pointer data) noexcept;
+  //! Initialize a pointer with the given value 
+  AddressSpacePointer(ASpacePointerT<PlainType>& p) noexcept;
 
   //! Assign a pointer
-  ASpacePointerRef operator=(AddressSpacePointer<kAddressSpaceType, PlainType>& other) noexcept;
+  template <zisc::ConvertibleTo<Pointer> PointerT>
+  ASpacePointerRef operator=(PointerT data) noexcept;
+
+  //! Assign a pointer
+  ASpacePointerRef operator=(ASpacePointerT<PlainType>& p) noexcept;
 
   //! Check whether this owns an object
-  explicit operator bool() const noexcept
-  {
-    return data_ != nullptr;
-  }
+  explicit operator bool() const noexcept;
 
   //! Dereference pointer to the managed object
-  Reference operator*() noexcept;
+  ASpaceValue operator*() noexcept;
 
   //! Dereference pointer to the managed object
-  ConstReference operator*() const noexcept;
+  ConstASpaceValue operator*() const noexcept;
 
   //! Dereference pointer to the managed object
   Pointer operator->() noexcept;
@@ -85,11 +92,11 @@ class AddressSpacePointer
   //! Dereference pointer to the managed object
   ConstPointer operator->() const noexcept;
 
-  //! Return the reference by index
-  Reference operator[](const size_t index) noexcept;
+  //! Dereference pointer to the managed object by the given index
+  ASpaceValue operator[](const size_t index) noexcept;
 
-  //! Return the reference by index
-  ConstReference operator[](const size_t index) const noexcept;
+  //! Dereference pointer to the managed object by the given index
+  ConstASpaceValue operator[](const size_t index) const noexcept;
 
   //! Get a pointer to n-th element and assign it
   ASpacePointerRef operator+=(const ptrdiff_t n) noexcept;
@@ -104,20 +111,23 @@ class AddressSpacePointer
   ASpacePointerRef operator-=(const size_t n) noexcept;
 
   //! Return a pointer to the managed object
-  Pointer operator+() noexcept;
+  ASpacePointerRef operator+() noexcept;
 
   //! Pre-increment a pointer address
-  Pointer operator++() noexcept;
+  ASpacePointerRef operator++() noexcept;
 
   //! Pre-decrement a pointer address
-  Pointer operator--() noexcept;
+  ASpacePointerRef operator--() noexcept;
 
   //! Post-increment a pointer address
-  Pointer operator++(int) noexcept;
+  AddressSpacePointer operator++(int) noexcept;
 
   //! Post-decrement a pointer address
-  Pointer operator--(int) noexcept;
+  AddressSpacePointer operator--(int) noexcept;
 
+
+  //! Return the underlying address space type
+  static constexpr AddressSpaceType type() noexcept;
 
   //! Return a pointer to the managed object
   Pointer get() noexcept;
@@ -130,106 +140,106 @@ class AddressSpacePointer
 };
 
 //! Compute a pointer to n-th element
-template <AddressSpaceType kAddressSpaceType, typename Type>
-AddressSpacePointer<kAddressSpaceType, Type> operator+(
-    AddressSpacePointer<kAddressSpaceType, Type>& p,
+template <AddressSpaceType kASpaceType, typename Type>
+AddressSpacePointer<kASpaceType, Type> operator+(
+    AddressSpacePointer<kASpaceType, Type> p,
     const ptrdiff_t n) noexcept;
 
 //! Compute a pointer to n-th element
-template <AddressSpaceType kAddressSpaceType, typename Type>
-AddressSpacePointer<kAddressSpaceType, Type> operator+(
-    AddressSpacePointer<kAddressSpaceType, Type>& p,
+template <AddressSpaceType kASpaceType, typename Type>
+AddressSpacePointer<kASpaceType, Type> operator+(
+    AddressSpacePointer<kASpaceType, Type> p,
     const size_t n) noexcept;
 
 //! Compute a pointer to n-th element
-template <AddressSpaceType kAddressSpaceType, typename Type>
-AddressSpacePointer<kAddressSpaceType, Type> operator+(
+template <AddressSpaceType kASpaceType, typename Type>
+AddressSpacePointer<kASpaceType, Type> operator+(
     const ptrdiff_t n,
-    AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept;
+    AddressSpacePointer<kASpaceType, Type> p) noexcept;
 
 //! Compute a pointer to n-th element
-template <AddressSpaceType kAddressSpaceType, typename Type>
-AddressSpacePointer<kAddressSpaceType, Type> operator+(
+template <AddressSpaceType kASpaceType, typename Type>
+AddressSpacePointer<kASpaceType, Type> operator+(
     const size_t n,
-    AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept;
+    AddressSpacePointer<kASpaceType, Type> p) noexcept;
 
 //! Compute a pointer to -n-th element
-template <AddressSpaceType kAddressSpaceType, typename Type>
-AddressSpacePointer<kAddressSpaceType, Type> operator-(
-    AddressSpacePointer<kAddressSpaceType, Type>& p,
+template <AddressSpaceType kASpaceType, typename Type>
+AddressSpacePointer<kASpaceType, Type> operator-(
+    AddressSpacePointer<kASpaceType, Type> p,
     const ptrdiff_t n) noexcept;
 
 //! Compute a pointer to -n-th element
-template <AddressSpaceType kAddressSpaceType, typename Type>
-AddressSpacePointer<kAddressSpaceType, Type> operator-(
-    AddressSpacePointer<kAddressSpaceType, Type>& p,
+template <AddressSpaceType kASpaceType, typename Type>
+AddressSpacePointer<kASpaceType, Type> operator-(
+    AddressSpacePointer<kASpaceType, Type> p,
     const size_t n) noexcept;
 
 //! Compute the distance between lhs and rhs
-template <AddressSpaceType kAddressSpaceType, typename Type>
+template <AddressSpaceType kASpaceType, typename Type>
 ptrdiff_t operator-(
-    const AddressSpacePointer<kAddressSpaceType, Type>& lhs,
-    const AddressSpacePointer<kAddressSpaceType, Type>& rhs) noexcept;
+    const AddressSpacePointer<kASpaceType, Type>& lhs,
+    const AddressSpacePointer<kASpaceType, Type>& rhs) noexcept;
 
 //! Return true if lhs is equal to rhs, false otherwise
-template <AddressSpaceType kAddressSpaceType, typename Type>
+template <AddressSpaceType kASpaceType, typename Type>
 bool operator==(
-    const AddressSpacePointer<kAddressSpaceType, Type>& lhs,
-    const AddressSpacePointer<kAddressSpaceType, Type>& rhs) noexcept;
+    const AddressSpacePointer<kASpaceType, Type>& lhs,
+    const AddressSpacePointer<kASpaceType, Type>& rhs) noexcept;
 
 //! Return true if lhs is equal to rhs, false otherwise
-template <AddressSpaceType kAddressSpaceType, typename Type>
+template <AddressSpaceType kASpaceType, typename Type>
 bool operator==(
-    const AddressSpacePointer<kAddressSpaceType, Type>& lhs,
+    const AddressSpacePointer<kASpaceType, Type>& lhs,
     const std::nullptr_t rhs) noexcept;
 
 //! Return true if lhs is equal to rhs, false otherwise
-template <AddressSpaceType kAddressSpaceType, typename Type>
+template <AddressSpaceType kASpaceType, typename Type>
 bool operator==(
     const std::nullptr_t lhs,
-    const AddressSpacePointer<kAddressSpaceType, Type>& rhs) noexcept;
+    const AddressSpacePointer<kASpaceType, Type>& rhs) noexcept;
 
 //! Return true if lhs is not equal to rhs, false otherwise
-template <AddressSpaceType kAddressSpaceType, typename Type>
+template <AddressSpaceType kASpaceType, typename Type>
 bool operator!=(
-    const AddressSpacePointer<kAddressSpaceType, Type>& lhs,
-    const AddressSpacePointer<kAddressSpaceType, Type>& rhs) noexcept;
+    const AddressSpacePointer<kASpaceType, Type>& lhs,
+    const AddressSpacePointer<kASpaceType, Type>& rhs) noexcept;
 
 //! Return true if lhs is not equal to rhs, false otherwise
-template <AddressSpaceType kAddressSpaceType, typename Type>
+template <AddressSpaceType kASpaceType, typename Type>
 bool operator!=(
-    const AddressSpacePointer<kAddressSpaceType, Type>& lhs,
+    const AddressSpacePointer<kASpaceType, Type>& lhs,
     const std::nullptr_t rhs) noexcept;
 
 //! Return true if lhs is not equal to rhs, false otherwise
-template <AddressSpaceType kAddressSpaceType, typename Type>
+template <AddressSpaceType kASpaceType, typename Type>
 bool operator!=(
     const std::nullptr_t lhs,
-    const AddressSpacePointer<kAddressSpaceType, Type>& rhs) noexcept;
+    const AddressSpacePointer<kASpaceType, Type>& rhs) noexcept;
 
 //! Return true if lhs is less than rhs, false otherwise
-template <AddressSpaceType kAddressSpaceType, typename Type>
+template <AddressSpaceType kASpaceType, typename Type>
 bool operator<(
-    const AddressSpacePointer<kAddressSpaceType, Type>& lhs,
-    const AddressSpacePointer<kAddressSpaceType, Type>& rhs) noexcept;
+    const AddressSpacePointer<kASpaceType, Type>& lhs,
+    const AddressSpacePointer<kASpaceType, Type>& rhs) noexcept;
 
 //! Return true if lhs is less than or equal rhs, false otherwise
-template <AddressSpaceType kAddressSpaceType, typename Type>
+template <AddressSpaceType kASpaceType, typename Type>
 bool operator<=(
-    const AddressSpacePointer<kAddressSpaceType, Type>& lhs,
-    const AddressSpacePointer<kAddressSpaceType, Type>& rhs) noexcept;
+    const AddressSpacePointer<kASpaceType, Type>& lhs,
+    const AddressSpacePointer<kASpaceType, Type>& rhs) noexcept;
 
 //! Return true if lhs is greater than rhs, false otherwise
-template <AddressSpaceType kAddressSpaceType, typename Type>
+template <AddressSpaceType kASpaceType, typename Type>
 bool operator>(
-    const AddressSpacePointer<kAddressSpaceType, Type>& lhs,
-    const AddressSpacePointer<kAddressSpaceType, Type>& rhs) noexcept;
+    const AddressSpacePointer<kASpaceType, Type>& lhs,
+    const AddressSpacePointer<kASpaceType, Type>& rhs) noexcept;
 
 //! Return true if lhs is greater than or equal rhs, false otherwise
-template <AddressSpaceType kAddressSpaceType, typename Type>
+template <AddressSpaceType kASpaceType, typename Type>
 bool operator>=(
-    const AddressSpacePointer<kAddressSpaceType, Type>& lhs,
-    const AddressSpacePointer<kAddressSpaceType, Type>& rhs) noexcept;
+    const AddressSpacePointer<kASpaceType, Type>& lhs,
+    const AddressSpacePointer<kASpaceType, Type>& rhs) noexcept;
 
 } // namespace cl
 

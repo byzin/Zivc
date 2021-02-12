@@ -34,7 +34,7 @@
 #include "cpu/cpu_kernel.hpp"
 #include "utility/buffer_launch_options.hpp"
 #include "utility/kernel_arg_parser.hpp"
-#include "utility/kernel_params.hpp"
+#include "utility/kernel_init_params.hpp"
 #include "utility/launch_result.hpp"
 #if defined(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
 #include "vulkan/vulkan_buffer.hpp"
@@ -54,7 +54,7 @@ namespace zivc {
   \param [in] launch_options No description.
   \return No description
   */
-template <zisc::TriviallyCopyable Type> inline
+template <KernelParameter Type> inline
 LaunchResult copy(const Buffer<Type>& source,
                   Buffer<Type>* dest,
                   const BufferLaunchOptions<Type>& launch_options)
@@ -90,7 +90,7 @@ LaunchResult copy(const Buffer<Type>& source,
   \param [in] launch_options No description.
   \return No description
   */
-template <zisc::TriviallyCopyable Type> inline
+template <KernelParameter Type> inline
 LaunchResult fill(typename Buffer<Type>::ConstReference value,
                   Buffer<Type>* buffer,
                   const BufferLaunchOptions<Type>& launch_options)
@@ -125,7 +125,7 @@ LaunchResult fill(typename Buffer<Type>::ConstReference value,
   \param [in] flag No description.
   \return No description
   */
-template <zisc::TriviallyCopyable Type> inline
+template <KernelParameter Type> inline
 SharedBuffer<Type> makeBuffer(Device* device, const BufferUsage flag)
 {
   SharedBuffer<Type> buffer;
@@ -163,7 +163,7 @@ SharedBuffer<Type> makeBuffer(Device* device, const BufferUsage flag)
 template <std::size_t kDim, DerivedKSet KSet, typename ...Args> inline
 SharedKernel<kDim, KSet, Args...> makeKernel(
     Device* device,
-    const KernelParams<kDim, KSet, Args...>& params)
+    const KernelInitParams<kDim, KSet, Args...>& params)
 {
   SharedKernel<kDim, KSet, Args...> kernel;
   switch (device->type()) {
@@ -199,21 +199,21 @@ SharedKernel<kDim, KSet, Args...> makeKernel(
   \return No description
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...Args> inline
-KernelParams<kDim, KSet, Args...> makeKernelParams(
+KernelInitParams<kDim, KSet, Args...> makeKernelInitParams(
     [[maybe_unused]] const KernelSet<KSet>& kernel_set,
     void (*func)(Args...),
     std::string_view kernel_name) noexcept
 {
-  KernelParams<kDim, KSet, Args...> params{func, kernel_name};
+  KernelInitParams<kDim, KSet, Args...> params{func, kernel_name};
   return params;
 }
 
-#if defined(ZIVC_MAKE_KERNEL_PARAMS)
-#undef ZIVC_MAKE_KERNEL_PARAMS
-#endif // ZIVC_MAKE_KERNEL_PARAMS
+#if defined(ZIVC_MAKE_KERNEL_INIT_PARAMS)
+#undef ZIVC_MAKE_KERNEL_INIT_PARAMS
+#endif // ZIVC_MAKE_KERNEL_INIT_PARAMS
 
 /*!
-  \def ZIVC_MAKE_KERNEL_PARAMS
+  \def ZIVC_MAKE_KERNEL_INIT_PARAMS
   \brief No brief description
 
   No detailed description.
@@ -223,8 +223,8 @@ KernelParams<kDim, KSet, Args...> makeKernelParams(
   \param [in] dimension No description.
   \return No description
   */
-#define ZIVC_MAKE_KERNEL_PARAMS(kernel_set_name, kernel_name, dimension) \
-    ::zivc::makeKernelParams< dimension >( \
+#define ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_set_name, kernel_name, dimension) \
+    ::zivc::makeKernelInitParams< dimension >( \
         ::zivc::kernel_set::KernelSet_ ## kernel_set_name {}, \
         ::zivc::cl:: kernel_set_name :: kernel_name, \
         #kernel_name )

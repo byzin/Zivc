@@ -36,7 +36,7 @@ namespace zivc {
 
   \tparam T No description.
   */
-template <zisc::TriviallyCopyable T>
+template <KernelParameter T>
 class BufferLaunchOptions
 {
  public:

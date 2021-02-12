@@ -529,13 +529,13 @@ struct IsRValueReference<T&&>
 template <typename T1, typename T2>
 struct IsSame
 {
-  static constexpr int32b kValue = kResultFalse;
+  static constexpr int32b kValue = kSFalse;
 };
 
 template <typename T>
 struct IsSame<T, T>
 {
-  static constexpr int32b kValue = kResultTrue<int32b>;
+  static constexpr int32b kValue = kSTrue;
 };
 
 template <typename T>

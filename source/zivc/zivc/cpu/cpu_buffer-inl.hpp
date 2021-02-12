@@ -43,7 +43,7 @@ namespace zivc {
 /*!
   \details No detailed description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 CpuBuffer<T>::CpuBuffer(IdData&& id) noexcept : Buffer<T>(std::move(id))
 {
 }
@@ -51,7 +51,7 @@ CpuBuffer<T>::CpuBuffer(IdData&& id) noexcept : Buffer<T>(std::move(id))
 /*!
   \details No detailed description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 CpuBuffer<T>::~CpuBuffer() noexcept
 {
   Buffer<T>::destroy();
@@ -62,7 +62,7 @@ CpuBuffer<T>::~CpuBuffer() noexcept
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 std::size_t CpuBuffer<T>::capacityInBytes() const noexcept
 {
   const std::size_t n = (buffer_data_) ? rawBuffer().capacity() : 0;
@@ -75,7 +75,7 @@ std::size_t CpuBuffer<T>::capacityInBytes() const noexcept
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 auto CpuBuffer<T>::data() noexcept -> Pointer
 {
   return buffer_data_ ? rawBuffer().data() : nullptr;
@@ -86,7 +86,7 @@ auto CpuBuffer<T>::data() noexcept -> Pointer
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 auto CpuBuffer<T>::data() const noexcept -> ConstPointer
 {
   return buffer_data_ ? rawBuffer().data() : nullptr;
@@ -97,7 +97,7 @@ auto CpuBuffer<T>::data() const noexcept -> ConstPointer
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 std::size_t CpuBuffer<T>::heapIndex() const noexcept
 {
   return 0;
@@ -108,7 +108,7 @@ std::size_t CpuBuffer<T>::heapIndex() const noexcept
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 bool CpuBuffer<T>::isDeviceLocal() const noexcept
 {
   return true;
@@ -119,7 +119,7 @@ bool CpuBuffer<T>::isDeviceLocal() const noexcept
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 bool CpuBuffer<T>::isHostCached() const noexcept
 {
   return false;
@@ -130,7 +130,7 @@ bool CpuBuffer<T>::isHostCached() const noexcept
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 bool CpuBuffer<T>::isHostCoherent() const noexcept
 {
   return true;
@@ -141,7 +141,7 @@ bool CpuBuffer<T>::isHostCoherent() const noexcept
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 bool CpuBuffer<T>::isHostVisible() const noexcept
 {
   return true;
@@ -152,7 +152,7 @@ bool CpuBuffer<T>::isHostVisible() const noexcept
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 void* CpuBuffer<T>::mapMemoryData() const
 {
   Pointer d = const_cast<Pointer>(data());
@@ -165,7 +165,7 @@ void* CpuBuffer<T>::mapMemoryData() const
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 auto CpuBuffer<T>::rawBuffer() noexcept -> zisc::pmr::vector<Type>&
 {
   return *buffer_data_;
@@ -176,7 +176,7 @@ auto CpuBuffer<T>::rawBuffer() noexcept -> zisc::pmr::vector<Type>&
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 auto CpuBuffer<T>::rawBuffer() const noexcept -> const zisc::pmr::vector<Type>&
 {
   return *buffer_data_;
@@ -187,7 +187,7 @@ auto CpuBuffer<T>::rawBuffer() const noexcept -> const zisc::pmr::vector<Type>&
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 void* CpuBuffer<T>::rawBufferData() noexcept
 {
   void* p = zisc::cast<void*>(data());
@@ -199,7 +199,7 @@ void* CpuBuffer<T>::rawBufferData() noexcept
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 const void* CpuBuffer<T>::rawBufferData() const noexcept
 {
   const void* p = zisc::cast<const void*>(data());
@@ -211,7 +211,7 @@ const void* CpuBuffer<T>::rawBufferData() const noexcept
 
   \param [in] s No description.
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 void CpuBuffer<T>::setSize(const std::size_t s)
 {
   //! \todo Throw exception when this method is called from reinterp buffer
@@ -237,7 +237,7 @@ void CpuBuffer<T>::setSize(const std::size_t s)
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 std::size_t CpuBuffer<T>::sizeInBytes() const noexcept
 {
   const std::size_t n = (buffer_data_) ? rawBuffer().size() : 0;
@@ -248,7 +248,7 @@ std::size_t CpuBuffer<T>::sizeInBytes() const noexcept
 /*!
   \details No detailed description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 void CpuBuffer<T>::unmapMemoryData() const noexcept
 {
 }
@@ -256,7 +256,7 @@ void CpuBuffer<T>::unmapMemoryData() const noexcept
 /*!
   \details No detailed description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 void CpuBuffer<T>::destroyData() noexcept
 {
   buffer_data_.reset();
@@ -265,7 +265,7 @@ void CpuBuffer<T>::destroyData() noexcept
 /*!
   \details No detailed description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 void CpuBuffer<T>::initData()
 {
   prepareBuffer();
@@ -274,7 +274,7 @@ void CpuBuffer<T>::initData()
 /*!
   \details No detailed description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 void CpuBuffer<T>::updateDebugInfoImpl() noexcept
 {
 }
@@ -287,7 +287,7 @@ void CpuBuffer<T>::updateDebugInfoImpl() noexcept
   \param [in] launch_options No description.
   \return No description
   */
-template <zisc::TriviallyCopyable T> template <zisc::TriviallyCopyable D> inline
+template <KernelParameter T> template <KernelParameter D> inline
 LaunchResult CpuBuffer<T>::copyFromImpl(const BufferCommon& source,
                                         BufferCommon* dest,
                                         const BufferLaunchOptions<D>& launch_options)
@@ -310,7 +310,7 @@ LaunchResult CpuBuffer<T>::copyFromImpl(const BufferCommon& source,
   \param [in] launch_options No description.
   \return No description
   */
-template <zisc::TriviallyCopyable T> template <zisc::TriviallyCopyable D> inline
+template <KernelParameter T> template <KernelParameter D> inline
 LaunchResult CpuBuffer<T>::fillImpl(typename Buffer<D>::ConstReference value,
                                     BufferCommon* dest,
                                     const BufferLaunchOptions<D>& launch_options)
@@ -328,7 +328,7 @@ LaunchResult CpuBuffer<T>::fillImpl(typename Buffer<D>::ConstReference value,
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 CpuDevice& CpuBuffer<T>::parentImpl() noexcept
 {
   auto p = Buffer<T>::getParent();
@@ -340,7 +340,7 @@ CpuDevice& CpuBuffer<T>::parentImpl() noexcept
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 const CpuDevice& CpuBuffer<T>::parentImpl() const noexcept
 {
   const auto p = Buffer<T>::getParent();
@@ -350,7 +350,7 @@ const CpuDevice& CpuBuffer<T>::parentImpl() const noexcept
 /*!
   \details No detailed description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 void CpuBuffer<T>::prepareBuffer() noexcept
 {
   if (!buffer_data_) {

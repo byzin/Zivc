@@ -40,8 +40,9 @@ void writeWorkItemProperties(zivc::GlobalPtr<uint32b> properties) noexcept;
 
   \param [in] inputs No description.
   */
-__kernel void simpleKernel([[maybe_unused]] zivc::ConstGlobalPtr<int32b> inputs)
+__kernel void simpleKernel(zivc::ConstGlobalPtr<int32b> inputs)
 {
+  static_cast<void>(inputs); //!< Remove me
   // Do nothing here
 }
 
@@ -217,8 +218,7 @@ __kernel void inputOutput1Kernel(zivc::ConstGlobalPtr<int32b> inputs,
                                  zivc::GlobalPtr<int32b> outputs)
 {
   const size_t index = zivc::getGlobalIdX();
-  const int32b v = inputs[index];
-  outputs[index] = v;
+  outputs[index] = inputs[index];
 }
 
 /*!
@@ -378,7 +378,7 @@ __kernel void workItem1dKernel(zivc::GlobalPtr<uint32b> outputs,
       num_of_work_groups[0] = nlx;
     }
 
-    zivc::atomic_inc(outputs + index);
+    zivc::atomic_inc(&outputs[index]);
   }
   else {
     zivc::GlobalPtr<uint32b> outlier = outputs + resolution;
@@ -425,7 +425,7 @@ __kernel void workItem2dKernel(zivc::GlobalPtr<uint32b> outputs,
       num_of_work_groups[0] = nlx * nly;
     }
 
-    zivc::atomic_inc(outputs + index);
+    zivc::atomic_inc(&outputs[index]);
   }
   else {
     zivc::GlobalPtr<uint32b> outlier = outputs + resolution;
@@ -476,7 +476,7 @@ __kernel void workItem3dKernel(zivc::GlobalPtr<uint32b> outputs,
       num_of_work_groups[0] = nlx * nly * nlz;
     }
 
-    zivc::atomic_inc(outputs + index);
+    zivc::atomic_inc(&outputs[index]);
   }
   else {
     zivc::GlobalPtr<uint32b> outlier = outputs + resolution;

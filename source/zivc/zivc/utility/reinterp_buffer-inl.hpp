@@ -35,7 +35,7 @@ namespace zivc {
 /*!
   \details No detailed description
   */
-template <DerivedBuffer Derived, zisc::TriviallyCopyable T> inline
+template <DerivedBuffer Derived, KernelParameter T> inline
 ReinterpBuffer<Derived, T>::ReinterpBuffer(BufferP buffer, IdData&& id) noexcept :
     Buffer<T>(std::move(id)),
     buffer_{buffer}
@@ -45,7 +45,7 @@ ReinterpBuffer<Derived, T>::ReinterpBuffer(BufferP buffer, IdData&& id) noexcept
 /*!
   \details No detailed description
   */
-template <DerivedBuffer Derived, zisc::TriviallyCopyable T> inline
+template <DerivedBuffer Derived, KernelParameter T> inline
 ReinterpBuffer<Derived, T>::ReinterpBuffer(ReinterpBuffer&& other) noexcept :
     Buffer<T>(std::move(other.id().copy())),
     buffer_{other.internalBuffer()}
@@ -55,7 +55,7 @@ ReinterpBuffer<Derived, T>::ReinterpBuffer(ReinterpBuffer&& other) noexcept :
 /*!
   \details No detailed description
   */
-template <DerivedBuffer Derived, zisc::TriviallyCopyable T> inline
+template <DerivedBuffer Derived, KernelParameter T> inline
 ReinterpBuffer<Derived, T>::~ReinterpBuffer() noexcept
 {
 }
@@ -65,7 +65,7 @@ ReinterpBuffer<Derived, T>::~ReinterpBuffer() noexcept
 
   \return No description
   */
-template <DerivedBuffer Derived, zisc::TriviallyCopyable T> inline
+template <DerivedBuffer Derived, KernelParameter T> inline
 ZivcObject* ReinterpBuffer<Derived, T>::getParent() noexcept
 {
   ZivcObject* data = nullptr;
@@ -84,7 +84,7 @@ ZivcObject* ReinterpBuffer<Derived, T>::getParent() noexcept
 
   \return No description
   */
-template <DerivedBuffer Derived, zisc::TriviallyCopyable T> inline
+template <DerivedBuffer Derived, KernelParameter T> inline
 const ZivcObject* ReinterpBuffer<Derived, T>::getParent() const noexcept
 {
   auto b = internalBuffer();
@@ -96,7 +96,7 @@ const ZivcObject* ReinterpBuffer<Derived, T>::getParent() const noexcept
 
   \return No description
   */
-template <DerivedBuffer Derived, zisc::TriviallyCopyable T> inline
+template <DerivedBuffer Derived, KernelParameter T> inline
 ZivcObject* ReinterpBuffer<Derived, T>::getOwn() noexcept
 {
   ZivcObject* data = nullptr;
@@ -115,7 +115,7 @@ ZivcObject* ReinterpBuffer<Derived, T>::getOwn() noexcept
 
   \return No description
   */
-template <DerivedBuffer Derived, zisc::TriviallyCopyable T> inline
+template <DerivedBuffer Derived, KernelParameter T> inline
 const ZivcObject* ReinterpBuffer<Derived, T>::getOwn() const noexcept
 {
   auto b = internalBuffer();
@@ -127,7 +127,7 @@ const ZivcObject* ReinterpBuffer<Derived, T>::getOwn() const noexcept
 
   \return No description
   */
-template <DerivedBuffer Derived, zisc::TriviallyCopyable T> inline
+template <DerivedBuffer Derived, KernelParameter T> inline
 std::size_t ReinterpBuffer<Derived, T>::capacityInBytes() const noexcept
 {
   auto b = internalBuffer();
@@ -139,7 +139,7 @@ std::size_t ReinterpBuffer<Derived, T>::capacityInBytes() const noexcept
 
   \return No description
   */
-template <DerivedBuffer Derived, zisc::TriviallyCopyable T> inline
+template <DerivedBuffer Derived, KernelParameter T> inline
 std::size_t ReinterpBuffer<Derived, T>::heapIndex() const noexcept
 {
   auto b = internalBuffer();
@@ -151,7 +151,7 @@ std::size_t ReinterpBuffer<Derived, T>::heapIndex() const noexcept
 
   \return No description
   */
-template <DerivedBuffer Derived, zisc::TriviallyCopyable T> inline
+template <DerivedBuffer Derived, KernelParameter T> inline
 bool ReinterpBuffer<Derived, T>::isDebugMode() const noexcept
 {
   auto b = internalBuffer();
@@ -163,7 +163,7 @@ bool ReinterpBuffer<Derived, T>::isDebugMode() const noexcept
 
   \return No description
   */
-template <DerivedBuffer Derived, zisc::TriviallyCopyable T> inline
+template <DerivedBuffer Derived, KernelParameter T> inline
 bool ReinterpBuffer<Derived, T>::isDeviceLocal() const noexcept
 {
   auto b = internalBuffer();
@@ -175,7 +175,7 @@ bool ReinterpBuffer<Derived, T>::isDeviceLocal() const noexcept
 
   \return No description
   */
-template <DerivedBuffer Derived, zisc::TriviallyCopyable T> inline
+template <DerivedBuffer Derived, KernelParameter T> inline
 bool ReinterpBuffer<Derived, T>::isHostCached() const noexcept
 {
   auto b = internalBuffer();
@@ -187,7 +187,7 @@ bool ReinterpBuffer<Derived, T>::isHostCached() const noexcept
 
   \return No description
   */
-template <DerivedBuffer Derived, zisc::TriviallyCopyable T> inline
+template <DerivedBuffer Derived, KernelParameter T> inline
 bool ReinterpBuffer<Derived, T>::isHostCoherent() const noexcept
 {
   auto b = internalBuffer();
@@ -199,7 +199,7 @@ bool ReinterpBuffer<Derived, T>::isHostCoherent() const noexcept
 
   \return No description
   */
-template <DerivedBuffer Derived, zisc::TriviallyCopyable T> inline
+template <DerivedBuffer Derived, KernelParameter T> inline
 bool ReinterpBuffer<Derived, T>::isHostVisible() const noexcept
 {
   auto b = internalBuffer();
@@ -211,7 +211,7 @@ bool ReinterpBuffer<Derived, T>::isHostVisible() const noexcept
 
   \return No description
   */
-template <DerivedBuffer Derived, zisc::TriviallyCopyable T> inline
+template <DerivedBuffer Derived, KernelParameter T> inline
 void* ReinterpBuffer<Derived, T>::mapMemoryData() const
 {
   auto b = internalBuffer();
@@ -223,7 +223,7 @@ void* ReinterpBuffer<Derived, T>::mapMemoryData() const
 
   \return No description
   */
-template <DerivedBuffer Derived, zisc::TriviallyCopyable T> inline
+template <DerivedBuffer Derived, KernelParameter T> inline
 zisc::pmr::memory_resource* ReinterpBuffer<Derived, T>::memoryResource() noexcept
 {
   zisc::pmr::memory_resource* mem_resource = nullptr;
@@ -243,7 +243,7 @@ zisc::pmr::memory_resource* ReinterpBuffer<Derived, T>::memoryResource() noexcep
 
   \return No description
   */
-template <DerivedBuffer Derived, zisc::TriviallyCopyable T> inline
+template <DerivedBuffer Derived, KernelParameter T> inline
 const zisc::pmr::memory_resource* ReinterpBuffer<Derived, T>::memoryResource() const noexcept
 {
   auto b = internalBuffer();
@@ -255,7 +255,7 @@ const zisc::pmr::memory_resource* ReinterpBuffer<Derived, T>::memoryResource() c
 
   \return No description
   */
-template <DerivedBuffer Derived, zisc::TriviallyCopyable T> inline
+template <DerivedBuffer Derived, KernelParameter T> inline
 void* ReinterpBuffer<Derived, T>::rawBufferData() noexcept
 {
   void* data = nullptr;
@@ -274,7 +274,7 @@ void* ReinterpBuffer<Derived, T>::rawBufferData() noexcept
 
   \return No description
   */
-template <DerivedBuffer Derived, zisc::TriviallyCopyable T> inline
+template <DerivedBuffer Derived, KernelParameter T> inline
 const void* ReinterpBuffer<Derived, T>::rawBufferData() const noexcept
 {
   auto b = internalBuffer();
@@ -284,7 +284,7 @@ const void* ReinterpBuffer<Derived, T>::rawBufferData() const noexcept
 /*!
   \details No detailed description
   */
-template <DerivedBuffer Derived, zisc::TriviallyCopyable T> inline
+template <DerivedBuffer Derived, KernelParameter T> inline
 void ReinterpBuffer<Derived, T>::setSize(const std::size_t s)
 {
   if constexpr (std::is_const_v<BufferT>) {
@@ -302,7 +302,7 @@ void ReinterpBuffer<Derived, T>::setSize(const std::size_t s)
 
   \return No description
   */
-template <DerivedBuffer Derived, zisc::TriviallyCopyable T> inline
+template <DerivedBuffer Derived, KernelParameter T> inline
 std::size_t ReinterpBuffer<Derived, T>::sizeInBytes() const noexcept
 {
   auto b = internalBuffer();
@@ -314,7 +314,7 @@ std::size_t ReinterpBuffer<Derived, T>::sizeInBytes() const noexcept
 
   \return No description
   */
-template <DerivedBuffer Derived, zisc::TriviallyCopyable T> inline
+template <DerivedBuffer Derived, KernelParameter T> inline
 SubPlatformType ReinterpBuffer<Derived, T>::type() const noexcept
 {
   auto b = internalBuffer();
@@ -324,7 +324,7 @@ SubPlatformType ReinterpBuffer<Derived, T>::type() const noexcept
 /*!
   \details No detailed description
   */
-template <DerivedBuffer Derived, zisc::TriviallyCopyable T> inline
+template <DerivedBuffer Derived, KernelParameter T> inline
 void ReinterpBuffer<Derived, T>::unmapMemoryData() const noexcept
 {
   auto b = internalBuffer();
@@ -334,7 +334,7 @@ void ReinterpBuffer<Derived, T>::unmapMemoryData() const noexcept
 /*!
   \details No detailed description
   */
-template <DerivedBuffer Derived, zisc::TriviallyCopyable T> inline
+template <DerivedBuffer Derived, KernelParameter T> inline
 void ReinterpBuffer<Derived, T>::destroyData() noexcept
 {
 }
@@ -342,7 +342,7 @@ void ReinterpBuffer<Derived, T>::destroyData() noexcept
 /*!
   \details No detailed description
   */
-template <DerivedBuffer Derived, zisc::TriviallyCopyable T> inline
+template <DerivedBuffer Derived, KernelParameter T> inline
 void ReinterpBuffer<Derived, T>::initData()
 {
 }
@@ -350,7 +350,7 @@ void ReinterpBuffer<Derived, T>::initData()
 /*!
   \details No detailed description
   */
-template <DerivedBuffer Derived, zisc::TriviallyCopyable T> inline
+template <DerivedBuffer Derived, KernelParameter T> inline
 void ReinterpBuffer<Derived, T>::updateDebugInfoImpl() noexcept
 {
 }
@@ -360,7 +360,7 @@ void ReinterpBuffer<Derived, T>::updateDebugInfoImpl() noexcept
 
   \return No description
   */
-template <DerivedBuffer Derived, zisc::TriviallyCopyable T> inline
+template <DerivedBuffer Derived, KernelParameter T> inline
 auto ReinterpBuffer<Derived, T>::internalBuffer() noexcept -> BufferP
 {
   ZISC_ASSERT(buffer_ != nullptr, "The internal buffer is null.");
@@ -372,7 +372,7 @@ auto ReinterpBuffer<Derived, T>::internalBuffer() noexcept -> BufferP
 
   \return No description
   */
-template <DerivedBuffer Derived, zisc::TriviallyCopyable T> inline
+template <DerivedBuffer Derived, KernelParameter T> inline
 auto ReinterpBuffer<Derived, T>::internalBuffer() const noexcept -> ConstBufferP
 {
   ZISC_ASSERT(buffer_ != nullptr, "The internal buffer is null.");

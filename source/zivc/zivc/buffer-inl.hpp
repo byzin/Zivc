@@ -42,7 +42,7 @@ namespace zivc {
 /*!
   \details No detailed description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 Buffer<T>::Buffer(IdData&& id) noexcept : BufferCommon(std::move(id))
 {
 }
@@ -50,7 +50,7 @@ Buffer<T>::Buffer(IdData&& id) noexcept : BufferCommon(std::move(id))
 /*!
   \details No detailed description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 Buffer<T>::~Buffer() noexcept
 {
 }
@@ -60,7 +60,7 @@ Buffer<T>::~Buffer() noexcept
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 std::size_t Buffer<T>::capacity() const noexcept
 {
   const std::size_t c = getCapacity<Type>();
@@ -70,7 +70,7 @@ std::size_t Buffer<T>::capacity() const noexcept
 /*!
   \details No detailed description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 void Buffer<T>::clear() noexcept
 {
   destroyData();
@@ -83,7 +83,7 @@ void Buffer<T>::clear() noexcept
   \param [in] launch_options No description.
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 LaunchResult Buffer<T>::copyFrom(const Buffer& source,
                                  const LaunchOptions& launch_options)
 {
@@ -94,7 +94,7 @@ LaunchResult Buffer<T>::copyFrom(const Buffer& source,
 /*!
   \details No detailed description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 void Buffer<T>::destroy() noexcept
 {
   clear();
@@ -108,7 +108,7 @@ void Buffer<T>::destroy() noexcept
   \param [in] launch_options No description.
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 LaunchResult Buffer<T>::fill(ConstReference value,
                              const LaunchOptions& launch_options)
 {
@@ -123,7 +123,7 @@ LaunchResult Buffer<T>::fill(ConstReference value,
   \param [in] own No description.
   \param [in] buffer_usage No description.
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 void Buffer<T>::initialize(ZivcObject::SharedPtr&& parent,
                            WeakPtr&& own,
                            const BufferUsage buffer_usage)
@@ -144,7 +144,7 @@ void Buffer<T>::initialize(ZivcObject::SharedPtr&& parent,
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 auto Buffer<T>::mapMemory() -> MappedMemory<Type>
 {
   return makeMappedMemory<Type>();
@@ -155,7 +155,7 @@ auto Buffer<T>::mapMemory() -> MappedMemory<Type>
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 auto Buffer<T>::mapMemory() const -> MappedMemory<ConstType>
 {
   return makeMappedMemory<ConstType>();
@@ -166,7 +166,7 @@ auto Buffer<T>::mapMemory() const -> MappedMemory<ConstType>
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 auto Buffer<T>::makeOptions() const noexcept -> LaunchOptions
 {
   LaunchOptions options{size()};
@@ -178,7 +178,7 @@ auto Buffer<T>::makeOptions() const noexcept -> LaunchOptions
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> template <zisc::TriviallyCopyable NewType> inline
+template <KernelParameter T> template <KernelParameter NewType> inline
 auto Buffer<T>::reinterp() noexcept -> ReinterpBufferT<NewType>
 {
   auto id_copy = id().copy();
@@ -192,7 +192,7 @@ auto Buffer<T>::reinterp() noexcept -> ReinterpBufferT<NewType>
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> template <zisc::TriviallyCopyable NewType> inline
+template <KernelParameter T> template <KernelParameter NewType> inline
 auto Buffer<T>::reinterp() const noexcept -> ConstReinterpBufferT<NewType>
 {
   auto id_copy = id().copy();
@@ -206,7 +206,7 @@ auto Buffer<T>::reinterp() const noexcept -> ConstReinterpBufferT<NewType>
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 std::size_t Buffer<T>::size() const noexcept
 {
   const std::size_t s = getSize<Type>();
@@ -218,7 +218,7 @@ std::size_t Buffer<T>::size() const noexcept
 
   \return No description
   */
-template <zisc::TriviallyCopyable T>
+template <KernelParameter T>
 template <template<typename> typename Derived> inline
 LaunchResult Buffer<T>::copyFromDerived(const Buffer<T>& source,
                                         const LaunchOptions& launch_options)
@@ -236,7 +236,7 @@ LaunchResult Buffer<T>::copyFromDerived(const Buffer<T>& source,
 
   \return No description
   */
-template <zisc::TriviallyCopyable T>
+template <KernelParameter T>
 template <template<typename> typename Derived> inline
 LaunchResult Buffer<T>::fillDerived(ConstReference value,
                                     const LaunchOptions& launch_options)

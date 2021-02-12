@@ -40,7 +40,7 @@ namespace zivc {
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::Kernel(IdData&& id) noexcept :
+Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::Kernel(IdData&& id) noexcept :
     KernelCommon(std::move(id))
 {
 }
@@ -50,7 +50,7 @@ Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::Kernel(IdData&& id) noex
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::~Kernel() noexcept
+Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::~Kernel() noexcept
 {
 }
 
@@ -61,7 +61,7 @@ Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::~Kernel() noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-std::size_t Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+std::size_t Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 argSize() const noexcept
 {
   return numOfArgs();
@@ -72,7 +72,7 @@ argSize() const noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::destroy() noexcept
+void Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::destroy() noexcept
 {
   destroyData();
   destroyObject();
@@ -85,7 +85,7 @@ void Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::destroy() noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-constexpr std::size_t Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+constexpr std::size_t Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 dimension() noexcept
 {
   return kDim;
@@ -98,7 +98,7 @@ dimension() noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-std::size_t Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+std::size_t Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 dimensionSize() const noexcept
 {
   return dimension();
@@ -113,7 +113,7 @@ dimensionSize() const noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+void Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 initialize(ZivcObject::SharedPtr&& parent,
            WeakPtr&& own,
            const Params& params)
@@ -134,7 +134,7 @@ initialize(ZivcObject::SharedPtr&& parent,
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-auto Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+auto Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 makeOptions() const noexcept -> LaunchOptions
 {
   return LaunchOptions{};
@@ -147,7 +147,7 @@ makeOptions() const noexcept -> LaunchOptions
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-constexpr std::size_t Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+constexpr std::size_t Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 numOfArgs() noexcept
 {
   const std::size_t size = sizeof...(Args);
@@ -162,7 +162,7 @@ numOfArgs() noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-std::array<uint32b, 3> Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+std::array<uint32b, 3> Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 expandWorkSize(const std::array<uint32b, kDim>& work_size,
                const uint32b fill_value) noexcept
 {

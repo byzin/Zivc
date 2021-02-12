@@ -1,7 +1,12 @@
 /*!
   \file address_space_pointer-inl.hpp
   \author Sho Ikeda
+  \brief No brief description
 
+  \details
+  No detailed description.
+
+  \copyright
   Copyright (c) 2015-2021 Sho Ikeda
   This software is released under the MIT License.
   http://opensource.org/licenses/mit-license.php
@@ -15,8 +20,10 @@
 #include <cstddef>
 #include <type_traits>
 // Zisc
+#include "zisc/concepts.hpp"
 #include "zisc/utility.hpp"
 // Zivc
+#include "address_space_value.hpp"
 #include "types.hpp"
 #include "zivc/zivc_config.hpp"
 
@@ -25,116 +32,167 @@ namespace zivc {
 namespace cl {
 
 /*!
+  \details No detailed description
   */
-template <AddressSpaceType kAddressSpaceType, typename T> inline
-AddressSpacePointer<kAddressSpaceType, T>::AddressSpacePointer() noexcept :
-    data_{nullptr}
+template <AddressSpaceType kASpaceType, KernelParameter T> inline
+AddressSpacePointer<kASpaceType, T>::AddressSpacePointer() noexcept
 {
 }
 
 /*!
+  \details No detailed description
+
+  \tparam PointerT No description.
+  \param [in,out] p No description.
   */
-template <AddressSpaceType kAddressSpaceType, typename T> inline
-AddressSpacePointer<kAddressSpaceType, T>::AddressSpacePointer(
-    Pointer data) noexcept :
-        data_{data}
+template <AddressSpaceType kASpaceType, KernelParameter T>
+template <zisc::ConvertibleTo<std::add_pointer_t<std::remove_volatile_t<T>>> PointerT>
+inline
+AddressSpacePointer<kASpaceType, T>::AddressSpacePointer(PointerT p) noexcept :
+    data_{zisc::cast<Pointer>(p)}
 {
 }
 
 /*!
+  \details No detailed description
+
+  \param [in,out] p No description.
   */
-template <AddressSpaceType kAddressSpaceType, typename T> inline
-AddressSpacePointer<kAddressSpaceType, T>::AddressSpacePointer(
-    AddressSpacePointer<kAddressSpaceType, PlainType>& other) noexcept :
-        data_{other.get()}
+template <AddressSpaceType kASpaceType, KernelParameter T> inline
+AddressSpacePointer<kASpaceType, T>::AddressSpacePointer(ASpacePointerT<PlainType>& p) noexcept :
+    data_{p.get()}
 {
 }
 
 /*!
+  \details No detailed description
+
+  \tparam PointerT No description.
+  \param [in,out] p No description.
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename T> inline
-auto AddressSpacePointer<kAddressSpaceType, T>::operator=(
-    Pointer data) noexcept -> ASpacePointerRef
+template <AddressSpaceType kASpaceType, KernelParameter T>
+template <zisc::ConvertibleTo<std::add_pointer_t<std::remove_volatile_t<T>>> PointerT>
+inline
+auto AddressSpacePointer<kASpaceType, T>::operator=(PointerT p) noexcept
+    -> ASpacePointerRef
 {
-  data_ = data;
+  data_ = zisc::cast<Pointer>(p);
   return *this;
 }
 
 /*!
+  \details No detailed description
+
+  \param [in,out] p No description.
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename T> inline
-auto AddressSpacePointer<kAddressSpaceType, T>::operator=(
-    AddressSpacePointer<kAddressSpaceType, PlainType>& other) noexcept -> ASpacePointerRef
+template <AddressSpaceType kASpaceType, KernelParameter T> inline
+auto AddressSpacePointer<kASpaceType, T>::operator=(ASpacePointerT<PlainType>& p) noexcept -> ASpacePointerRef
 {
-  data_ = other.get();
+  data_ = p.get();
   return *this;
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename T> inline
-auto AddressSpacePointer<kAddressSpaceType, T>::operator*() noexcept
-    -> Reference
+template <AddressSpaceType kASpaceType, KernelParameter T> inline
+AddressSpacePointer<kASpaceType, T>::operator bool() const noexcept
 {
-  auto data = get();
-  return *data;
+  const bool result = get() != nullptr;
+  return result;
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename T> inline
-auto AddressSpacePointer<kAddressSpaceType, T>::operator*() const noexcept
-    -> ConstReference
+template <AddressSpaceType kASpaceType, KernelParameter T> inline
+auto AddressSpacePointer<kASpaceType, T>::operator*() noexcept -> ASpaceValue
 {
-  auto data = get();
-  return *data;
+  ASpaceValue value{get()};
+  return value;
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename T> inline
-auto AddressSpacePointer<kAddressSpaceType, T>::operator->() noexcept
-    -> Pointer
+template <AddressSpaceType kASpaceType, KernelParameter T> inline
+auto AddressSpacePointer<kASpaceType, T>::operator*() const noexcept -> ConstASpaceValue
+{
+  ConstASpaceValue value{get()};
+  return value;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <AddressSpaceType kASpaceType, KernelParameter T> inline
+auto AddressSpacePointer<kASpaceType, T>::operator->() noexcept -> Pointer
 {
   auto data = get();
   return data;
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename T> inline
-auto AddressSpacePointer<kAddressSpaceType, T>::operator->() const noexcept
-    -> ConstPointer
+template <AddressSpaceType kASpaceType, KernelParameter T> inline
+auto AddressSpacePointer<kASpaceType, T>::operator->() const noexcept -> ConstPointer
 {
   auto data = get();
   return data;
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] index No description.
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename T> inline
-auto AddressSpacePointer<kAddressSpaceType, T>::operator[](
-    const size_t index) noexcept -> Reference
+template <AddressSpaceType kASpaceType, KernelParameter T> inline
+auto AddressSpacePointer<kASpaceType, T>::operator[](const size_t index) noexcept
+    -> ASpaceValue 
 {
   auto data = get();
-  return data[index];
+  ASpaceValue value{data + index};
+  return value;
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] index No description.
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename T> inline
-auto AddressSpacePointer<kAddressSpaceType, T>::operator[](
-    const size_t index) const noexcept -> ConstReference
+template <AddressSpaceType kASpaceType, KernelParameter T> inline
+auto AddressSpacePointer<kASpaceType, T>::operator[](const size_t index) const noexcept
+    -> ConstASpaceValue
 {
   auto data = get();
-  return data[index];
+  ConstASpaceValue value{data + index};
+  return value;
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] n No description.
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename T> inline
-auto AddressSpacePointer<kAddressSpaceType, T>::operator+=(
-    const ptrdiff_t n) noexcept -> ASpacePointerRef
+template <AddressSpaceType kASpaceType, KernelParameter T> inline
+auto AddressSpacePointer<kASpaceType, T>::operator+=(const ptrdiff_t n) noexcept
+    -> ASpacePointerRef
 {
   auto data = get() + n;
   data_ = data;
@@ -142,20 +200,28 @@ auto AddressSpacePointer<kAddressSpaceType, T>::operator+=(
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] n No description.
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename T> inline
-auto AddressSpacePointer<kAddressSpaceType, T>::operator+=(
-    const size_t n) noexcept -> ASpacePointerRef
+template <AddressSpaceType kASpaceType, KernelParameter T> inline
+auto AddressSpacePointer<kASpaceType, T>::operator+=(const size_t n) noexcept
+    -> ASpacePointerRef
 {
   ASpacePointerRef data = (*this += zisc::cast<ptrdiff_t>(n));
   return data;
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] n No description.
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename T> inline
-auto AddressSpacePointer<kAddressSpaceType, T>::operator-=(
-    const ptrdiff_t n) noexcept -> ASpacePointerRef
+template <AddressSpaceType kASpaceType, KernelParameter T> inline
+auto AddressSpacePointer<kASpaceType, T>::operator-=(const ptrdiff_t n) noexcept
+    -> ASpacePointerRef
 {
   auto data = get() - n;
   data_ = data;
@@ -163,176 +229,263 @@ auto AddressSpacePointer<kAddressSpaceType, T>::operator-=(
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] n No description.
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename T> inline
-auto AddressSpacePointer<kAddressSpaceType, T>::operator-=(
-    const size_t n) noexcept -> ASpacePointerRef
+template <AddressSpaceType kASpaceType, KernelParameter T> inline
+auto AddressSpacePointer<kASpaceType, T>::operator-=(const size_t n) noexcept
+    -> ASpacePointerRef
 {
   ASpacePointerRef data = (*this -= zisc::cast<ptrdiff_t>(n));
   return data;
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename T> inline
-auto AddressSpacePointer<kAddressSpaceType, T>::operator+() noexcept -> Pointer 
+template <AddressSpaceType kASpaceType, KernelParameter T> inline
+auto AddressSpacePointer<kASpaceType, T>::operator+() noexcept -> ASpacePointerRef
 {
-  auto data = get();
-  return data;
+  return *this;
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename T> inline
-auto AddressSpacePointer<kAddressSpaceType, T>::operator++() noexcept
-    -> Pointer 
+template <AddressSpaceType kASpaceType, KernelParameter T> inline
+auto AddressSpacePointer<kASpaceType, T>::operator++() noexcept
+    -> ASpacePointerRef
 {
   auto data = get() + 1;
   data_ = data;
-  return data;
+  return *this;
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename T> inline
-auto AddressSpacePointer<kAddressSpaceType, T>::operator--() noexcept
-    -> Pointer 
+template <AddressSpaceType kASpaceType, KernelParameter T> inline
+auto AddressSpacePointer<kASpaceType, T>::operator--() noexcept
+    -> ASpacePointerRef
 {
   auto data = get() - 1;
   data_ = data;
-  return data;
+  return *this;
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename T> inline
-auto AddressSpacePointer<kAddressSpaceType, T>::operator++(int) noexcept
-    -> Pointer 
+template <AddressSpaceType kASpaceType, KernelParameter T> inline
+auto AddressSpacePointer<kASpaceType, T>::operator++(int) noexcept
+    -> AddressSpacePointer
 {
   auto data = get();
   data_ = data + 1;
-  return data;
+  return AddressSpacePointer{data};
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename T> inline
-auto AddressSpacePointer<kAddressSpaceType, T>::operator--(int) noexcept
-    -> Pointer 
+template <AddressSpaceType kASpaceType, KernelParameter T> inline
+auto AddressSpacePointer<kASpaceType, T>::operator--(int) noexcept
+    -> AddressSpacePointer
 {
   auto data = get();
   data_ = data - 1;
-  return data;
+  return AddressSpacePointer{data};
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename T> inline
-auto AddressSpacePointer<kAddressSpaceType, T>::get() noexcept
-    -> Pointer 
+template <AddressSpaceType kASpaceType, KernelParameter T> inline
+auto AddressSpacePointer<kASpaceType, T>::get() noexcept -> Pointer 
 {
   return data_;
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename T> inline
-auto AddressSpacePointer<kAddressSpaceType, T>::get() const noexcept
-    -> ConstPointer 
+template <AddressSpaceType kASpaceType, KernelParameter T> inline
+auto AddressSpacePointer<kASpaceType, T>::get() const noexcept -> ConstPointer 
 {
   return data_;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \tparam Type No description.
+  \param [in] p No description.
+  \param [in] n No description.
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename Type> inline
-auto operator+(AddressSpacePointer<kAddressSpaceType, Type>& p,
-               const ptrdiff_t n) noexcept
-    -> AddressSpacePointer<kAddressSpaceType, Type>
+template <AddressSpaceType kASpaceType, KernelParameter Type> inline
+AddressSpacePointer<kASpaceType, Type> operator+(
+    AddressSpacePointer<kASpaceType, Type> p,
+    const ptrdiff_t n) noexcept
 {
-  const auto result = p.get() + n;
-  return AddressSpacePointer<kAddressSpaceType, Type>{result};
+  AddressSpacePointer<kASpaceType, Type> result = p;
+  result += n;
+  return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \tparam Type No description.
+  \param [in] p No description.
+  \param [in] n No description.
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename Type> inline
-auto operator+(AddressSpacePointer<kAddressSpaceType, Type>& p,
-               const size_t n) noexcept
-    -> AddressSpacePointer<kAddressSpaceType, Type>
+template <AddressSpaceType kASpaceType, KernelParameter Type> inline
+AddressSpacePointer<kASpaceType, Type> operator+(
+    AddressSpacePointer<kASpaceType, Type> p,
+    const size_t n) noexcept
 {
   auto result = p + zisc::cast<ptrdiff_t>(n);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \tparam Type No description.
+  \param [in] n No description.
+  \param [in] p No description.
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename Type> inline
-auto operator+(const ptrdiff_t n,
-               AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept
-    -> AddressSpacePointer<kAddressSpaceType, Type>
+template <AddressSpaceType kASpaceType, KernelParameter Type> inline
+AddressSpacePointer<kASpaceType, Type> operator+(
+    const ptrdiff_t n,
+    AddressSpacePointer<kASpaceType, Type> p) noexcept
 {
-  const auto result = p + n;
+  auto result = p + n;
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \tparam Type No description.
+  \param [in] n No description.
+  \param [in] p No description.
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename Type> inline
-auto operator+(const size_t n,
-               AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept
-    -> AddressSpacePointer<kAddressSpaceType, Type>
+template <AddressSpaceType kASpaceType, KernelParameter Type> inline
+AddressSpacePointer<kASpaceType, Type> operator+(
+    const size_t n,
+    AddressSpacePointer<kASpaceType, Type> p) noexcept
 {
-  auto result = zisc::cast<ptrdiff_t>(n) + p;
+  auto result = p + n;
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \tparam Type No description.
+  \param [in] p No description.
+  \param [in] n No description.
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename Type> inline
-auto operator-(AddressSpacePointer<kAddressSpaceType, Type>& p,
-               const ptrdiff_t n) noexcept
-    -> AddressSpacePointer<kAddressSpaceType, Type>
+template <AddressSpaceType kASpaceType, KernelParameter Type> inline
+AddressSpacePointer<kASpaceType, Type> operator-(
+    AddressSpacePointer<kASpaceType, Type> p,
+    const ptrdiff_t n) noexcept
 {
-  const auto result = p.get() - n;
-  return AddressSpacePointer<kAddressSpaceType, Type>{result};
+  AddressSpacePointer<kASpaceType, Type> result = p;
+  result -= n;
+  return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \tparam Type No description.
+  \param [in] p No description.
+  \param [in] n No description.
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename Type> inline
-auto operator-(AddressSpacePointer<kAddressSpaceType, Type>& p,
-               const size_t n) noexcept
-    -> AddressSpacePointer<kAddressSpaceType, Type>
+template <AddressSpaceType kASpaceType, KernelParameter Type> inline
+AddressSpacePointer<kASpaceType, Type> operator-(
+    AddressSpacePointer<kASpaceType, Type> p,
+    const size_t n) noexcept
 {
   auto result = p - zisc::cast<ptrdiff_t>(n);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \tparam Type No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename Type> inline
-ptrdiff_t operator-(const AddressSpacePointer<kAddressSpaceType, Type>& lhs,
-                    const AddressSpacePointer<kAddressSpaceType, Type>& rhs) noexcept
+template <AddressSpaceType kASpaceType, KernelParameter Type> inline
+ptrdiff_t operator-(const AddressSpacePointer<kASpaceType, Type>& lhs,
+                    const AddressSpacePointer<kASpaceType, Type>& rhs) noexcept
 {
   const ptrdiff_t diff = zisc::cast<ptrdiff_t>(lhs.get() - rhs.get());
   return diff;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \tparam Type No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename Type> inline
-bool operator==(const AddressSpacePointer<kAddressSpaceType, Type>& lhs,
-                const AddressSpacePointer<kAddressSpaceType, Type>& rhs) noexcept
+template <AddressSpaceType kASpaceType, KernelParameter Type> inline
+bool operator==(const AddressSpacePointer<kASpaceType, Type>& lhs,
+                const AddressSpacePointer<kASpaceType, Type>& rhs) noexcept
 {
   const bool result = lhs.get() == rhs.get();
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \tparam Type No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename Type> inline
-bool operator==(const AddressSpacePointer<kAddressSpaceType, Type>& lhs,
+template <AddressSpaceType kASpaceType, KernelParameter Type> inline
+bool operator==(const AddressSpacePointer<kASpaceType, Type>& lhs,
                 const std::nullptr_t rhs) noexcept
 {
   const bool result = lhs.get() == rhs;
@@ -340,82 +493,138 @@ bool operator==(const AddressSpacePointer<kAddressSpaceType, Type>& lhs,
 }
 
 /*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \tparam Type No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename Type> inline
+template <AddressSpaceType kASpaceType, KernelParameter Type> inline
 bool operator==(const std::nullptr_t lhs,
-                const AddressSpacePointer<kAddressSpaceType, Type>& rhs) noexcept
+                const AddressSpacePointer<kASpaceType, Type>& rhs) noexcept
 {
   const bool result = lhs == rhs.get();
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \tparam Type No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename Type> inline
-bool operator!=(const AddressSpacePointer<kAddressSpaceType, Type>& lhs,
-                const AddressSpacePointer<kAddressSpaceType, Type>& rhs) noexcept
+template <AddressSpaceType kASpaceType, KernelParameter Type> inline
+bool operator!=(const AddressSpacePointer<kASpaceType, Type>& lhs,
+                const AddressSpacePointer<kASpaceType, Type>& rhs) noexcept
 {
-  const bool result = lhs.get() != rhs.get();
+  const bool result = !(lhs == rhs);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \tparam Type No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename Type> inline
-bool operator!=(const AddressSpacePointer<kAddressSpaceType, Type>& lhs,
+template <AddressSpaceType kASpaceType, KernelParameter Type> inline
+bool operator!=(const AddressSpacePointer<kASpaceType, Type>& lhs,
                 const std::nullptr_t rhs) noexcept
 {
-  const bool result = lhs.get() != rhs;
+  const bool result = !(lhs == rhs);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \tparam Type No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename Type> inline
+template <AddressSpaceType kASpaceType, KernelParameter Type> inline
 bool operator!=(const std::nullptr_t lhs,
-                const AddressSpacePointer<kAddressSpaceType, Type>& rhs) noexcept
+                const AddressSpacePointer<kASpaceType, Type>& rhs) noexcept
 {
-  const bool result = lhs != rhs.get();
+  const bool result = !(lhs == rhs);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \tparam Type No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename Type> inline
-bool operator<(const AddressSpacePointer<kAddressSpaceType, Type>& lhs,
-               const AddressSpacePointer<kAddressSpaceType, Type>& rhs) noexcept
+template <AddressSpaceType kASpaceType, KernelParameter Type> inline
+bool operator<(const AddressSpacePointer<kASpaceType, Type>& lhs,
+               const AddressSpacePointer<kASpaceType, Type>& rhs) noexcept
 {
   const bool result = lhs.get() < rhs.get();
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \tparam Type No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename Type> inline
-bool operator<=(const AddressSpacePointer<kAddressSpaceType, Type>& lhs,
-                const AddressSpacePointer<kAddressSpaceType, Type>& rhs) noexcept
+template <AddressSpaceType kASpaceType, KernelParameter Type> inline
+bool operator<=(const AddressSpacePointer<kASpaceType, Type>& lhs,
+                const AddressSpacePointer<kASpaceType, Type>& rhs) noexcept
 {
   const bool result = lhs.get() <= rhs.get();
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \tparam Type No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename Type> inline
-bool operator>(const AddressSpacePointer<kAddressSpaceType, Type>& lhs,
-               const AddressSpacePointer<kAddressSpaceType, Type>& rhs) noexcept
+template <AddressSpaceType kASpaceType, KernelParameter Type> inline
+bool operator>(const AddressSpacePointer<kASpaceType, Type>& lhs,
+               const AddressSpacePointer<kASpaceType, Type>& rhs) noexcept
 {
-  const bool result = lhs.get() > rhs.get();
+  const bool result = rhs < lhs;
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \tparam Type No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <AddressSpaceType kAddressSpaceType, typename Type> inline
-bool operator>=(const AddressSpacePointer<kAddressSpaceType, Type>& lhs,
-                const AddressSpacePointer<kAddressSpaceType, Type>& rhs) noexcept
+template <AddressSpaceType kASpaceType, KernelParameter Type> inline
+bool operator>=(const AddressSpacePointer<kASpaceType, Type>& lhs,
+                const AddressSpacePointer<kASpaceType, Type>& rhs) noexcept
 {
-  const bool result = lhs.get() >= rhs.get();
+  const bool result = rhs <= lhs;
   return result;
 }
 

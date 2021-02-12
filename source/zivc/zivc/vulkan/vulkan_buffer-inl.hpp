@@ -54,7 +54,7 @@ namespace zivc {
 /*!
   \details No detailed description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 VulkanBuffer<T>::VulkanBuffer(IdData&& id) noexcept : Buffer<T>(std::move(id))
 {
 }
@@ -62,7 +62,7 @@ VulkanBuffer<T>::VulkanBuffer(IdData&& id) noexcept : Buffer<T>(std::move(id))
 /*!
   \details No detailed description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 VulkanBuffer<T>::~VulkanBuffer() noexcept
 {
   Buffer<T>::destroy();
@@ -73,7 +73,7 @@ VulkanBuffer<T>::~VulkanBuffer() noexcept
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 VmaAllocation& VulkanBuffer<T>::allocation() noexcept
 {
   return rawBuffer().vm_allocation_;
@@ -84,7 +84,7 @@ VmaAllocation& VulkanBuffer<T>::allocation() noexcept
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 const VmaAllocation& VulkanBuffer<T>::allocation() const noexcept
 {
   return rawBuffer().vm_allocation_;
@@ -95,7 +95,7 @@ const VmaAllocation& VulkanBuffer<T>::allocation() const noexcept
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 const VmaAllocationInfo& VulkanBuffer<T>::allocationInfo() const noexcept
 {
   return rawBuffer().vm_alloc_info_;
@@ -106,7 +106,7 @@ const VmaAllocationInfo& VulkanBuffer<T>::allocationInfo() const noexcept
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 VkBuffer& VulkanBuffer<T>::buffer() noexcept
 {
   return rawBuffer().buffer_;
@@ -117,7 +117,7 @@ VkBuffer& VulkanBuffer<T>::buffer() noexcept
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 const VkBuffer& VulkanBuffer<T>::buffer() const noexcept
 {
   return rawBuffer().buffer_;
@@ -128,7 +128,7 @@ const VkBuffer& VulkanBuffer<T>::buffer() const noexcept
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 std::size_t VulkanBuffer<T>::capacityInBytes() const noexcept
 {
   const auto& info = allocationInfo();
@@ -141,7 +141,7 @@ std::size_t VulkanBuffer<T>::capacityInBytes() const noexcept
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 VkCommandBuffer& VulkanBuffer<T>::commandBuffer() noexcept
 {
   return rawBuffer().command_buffer_;
@@ -152,7 +152,7 @@ VkCommandBuffer& VulkanBuffer<T>::commandBuffer() noexcept
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 const VkCommandBuffer& VulkanBuffer<T>::commandBuffer() const noexcept
 {
   return rawBuffer().command_buffer_;
@@ -163,7 +163,7 @@ const VkCommandBuffer& VulkanBuffer<T>::commandBuffer() const noexcept
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 auto VulkanBuffer<T>::descriptorType() const noexcept -> DescriptorType
 {
   return rawBuffer().desc_type_;
@@ -174,7 +174,7 @@ auto VulkanBuffer<T>::descriptorType() const noexcept -> DescriptorType
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 VkBufferUsageFlagBits VulkanBuffer<T>::descriptorTypeVk() const noexcept
 {
   VkBufferUsageFlagBits flag = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
@@ -196,7 +196,7 @@ VkBufferUsageFlagBits VulkanBuffer<T>::descriptorTypeVk() const noexcept
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 std::size_t VulkanBuffer<T>::heapIndex() const noexcept
 {
   const auto& mem_type = memoryType();
@@ -208,7 +208,7 @@ std::size_t VulkanBuffer<T>::heapIndex() const noexcept
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 bool VulkanBuffer<T>::isDeviceLocal() const noexcept
 {
   const bool result = hasMemoryProperty(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
@@ -220,7 +220,7 @@ bool VulkanBuffer<T>::isDeviceLocal() const noexcept
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 bool VulkanBuffer<T>::isHostCached() const noexcept
 {
   const bool result = hasMemoryProperty(VK_MEMORY_PROPERTY_HOST_CACHED_BIT);
@@ -232,7 +232,7 @@ bool VulkanBuffer<T>::isHostCached() const noexcept
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 bool VulkanBuffer<T>::isHostCoherent() const noexcept
 {
   const bool result = hasMemoryProperty(VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
@@ -244,7 +244,7 @@ bool VulkanBuffer<T>::isHostCoherent() const noexcept
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 bool VulkanBuffer<T>::isHostVisible() const noexcept
 {
   const bool result = hasMemoryProperty(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
@@ -256,7 +256,7 @@ bool VulkanBuffer<T>::isHostVisible() const noexcept
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 void* VulkanBuffer<T>::mapMemoryData() const
 {
   void* p = nullptr;
@@ -274,7 +274,7 @@ void* VulkanBuffer<T>::mapMemoryData() const
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 auto VulkanBuffer<T>::rawBuffer() noexcept -> BufferData&
 {
   return buffer_data_;
@@ -285,7 +285,7 @@ auto VulkanBuffer<T>::rawBuffer() noexcept -> BufferData&
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 auto VulkanBuffer<T>::rawBuffer() const noexcept -> const BufferData&
 {
   return buffer_data_;
@@ -296,7 +296,7 @@ auto VulkanBuffer<T>::rawBuffer() const noexcept -> const BufferData&
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 void* VulkanBuffer<T>::rawBufferData() noexcept
 {
   return std::addressof(rawBuffer());
@@ -307,7 +307,7 @@ void* VulkanBuffer<T>::rawBufferData() noexcept
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 const void* VulkanBuffer<T>::rawBufferData() const noexcept
 {
   return std::addressof(rawBuffer());
@@ -318,7 +318,7 @@ const void* VulkanBuffer<T>::rawBufferData() const noexcept
 
   \param [in] type No description.
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 void VulkanBuffer<T>::setDescriptorType(const DescriptorType type) noexcept
 {
   rawBuffer().desc_type_ = type;
@@ -329,7 +329,7 @@ void VulkanBuffer<T>::setDescriptorType(const DescriptorType type) noexcept
 
   \param [in] s No description.
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 void VulkanBuffer<T>::setSize(const std::size_t s)
 {
   const std::size_t prev_cap = Buffer<T>::capacity();
@@ -355,7 +355,7 @@ void VulkanBuffer<T>::setSize(const std::size_t s)
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 std::size_t VulkanBuffer<T>::sizeInBytes() const noexcept
 {
   const std::size_t s = sizeof(Type) * size_;
@@ -365,7 +365,7 @@ std::size_t VulkanBuffer<T>::sizeInBytes() const noexcept
 /*!
   \details No detailed description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 void VulkanBuffer<T>::unmapMemoryData() const noexcept
 {
   const auto& device = parentImpl();
@@ -375,7 +375,7 @@ void VulkanBuffer<T>::unmapMemoryData() const noexcept
 /*!
   \details No detailed description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 void VulkanBuffer<T>::destroyData() noexcept
 {
   if (buffer() != ZIVC_VK_NULL_HANDLE) {
@@ -392,7 +392,7 @@ void VulkanBuffer<T>::destroyData() noexcept
 /*!
   \details No detailed description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 void VulkanBuffer<T>::initData()
 {
   VulkanDevice& device = parentImpl();
@@ -407,7 +407,7 @@ void VulkanBuffer<T>::initData()
 /*!
   \details No detailed description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 void VulkanBuffer<T>::updateDebugInfoImpl() noexcept
 {
   auto& device = parentImpl();
@@ -434,7 +434,7 @@ void VulkanBuffer<T>::updateDebugInfoImpl() noexcept
   \param [in] launch_options No description.
   \return No description
   */
-template <zisc::TriviallyCopyable T> template <zisc::TriviallyCopyable D> inline
+template <KernelParameter T> template <KernelParameter D> inline
 LaunchResult VulkanBuffer<T>::copyFromImpl(
     const BufferCommon& source,
     BufferCommon* dest,
@@ -456,7 +456,7 @@ LaunchResult VulkanBuffer<T>::copyFromImpl(
   \param [in] launch_options No description.
   \return No description
   */
-template <zisc::TriviallyCopyable T> template <zisc::TriviallyCopyable D> inline
+template <KernelParameter T> template <KernelParameter D> inline
 LaunchResult VulkanBuffer<T>::copyOnDevice(
     const BufferCommon& source,
     BufferCommon* dest,
@@ -503,7 +503,7 @@ LaunchResult VulkanBuffer<T>::copyOnDevice(
   \param [in] launch_options No description.
   \return No description
   */
-template <zisc::TriviallyCopyable T> template <zisc::TriviallyCopyable D> inline
+template <KernelParameter T> template <KernelParameter D> inline
 LaunchResult VulkanBuffer<T>::copyOnHost(
     const BufferCommon& source,
     BufferCommon* dest,
@@ -529,7 +529,7 @@ LaunchResult VulkanBuffer<T>::copyOnHost(
   \param [in] launch_options No description.
   \return No description
   */
-template <zisc::TriviallyCopyable T> template <zisc::TriviallyCopyable D> inline
+template <KernelParameter T> template <KernelParameter D> inline
 LaunchResult VulkanBuffer<T>::fillFastOnDevice(
     typename Buffer<D>::ConstReference value,
     BufferCommon* dest,
@@ -575,7 +575,7 @@ LaunchResult VulkanBuffer<T>::fillFastOnDevice(
   \param [in] launch_options No description.
   \return No description
   */
-template <zisc::TriviallyCopyable T> template <zisc::TriviallyCopyable D> inline
+template <KernelParameter T> template <KernelParameter D> inline
 LaunchResult VulkanBuffer<T>::fillImpl(
     typename Buffer<D>::ConstReference value,
     BufferCommon* dest,
@@ -606,7 +606,7 @@ LaunchResult VulkanBuffer<T>::fillImpl(
   \param [in] launch_options No description.
   \return No description
   */
-template <zisc::TriviallyCopyable T> template <zisc::TriviallyCopyable D> inline
+template <KernelParameter T> template <KernelParameter D> inline
 LaunchResult VulkanBuffer<T>::fillOnDevice(
     typename Buffer<D>::ConstReference value,
     BufferCommon* dest,
@@ -630,7 +630,7 @@ LaunchResult VulkanBuffer<T>::fillOnDevice(
   \param [in] launch_options No description.
   \return No description
   */
-template <zisc::TriviallyCopyable T> template <zisc::TriviallyCopyable D> inline
+template <KernelParameter T> template <KernelParameter D> inline
 LaunchResult VulkanBuffer<T>::fillOnHost(
     typename Buffer<D>::ConstReference value,
     BufferCommon* dest,
@@ -651,7 +651,7 @@ LaunchResult VulkanBuffer<T>::fillOnHost(
   \param [in] flag No description.
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 bool VulkanBuffer<T>::hasMemoryProperty(const VkMemoryPropertyFlagBits flag) const noexcept
 {
   const auto& mem_type = memoryType();
@@ -662,7 +662,7 @@ bool VulkanBuffer<T>::hasMemoryProperty(const VkMemoryPropertyFlagBits flag) con
 /*!
   \details No detailed description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 void VulkanBuffer<T>::initCommandBuffer()
 {
   if ((commandBuffer() == ZIVC_VK_NULL_HANDLE) && isDeviceLocal()) {
@@ -677,7 +677,7 @@ void VulkanBuffer<T>::initCommandBuffer()
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 const VkMemoryType& VulkanBuffer<T>::memoryType() const noexcept
 {
   const auto& device = parentImpl();
@@ -695,7 +695,7 @@ const VkMemoryType& VulkanBuffer<T>::memoryType() const noexcept
   \param [in] value No description.
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 uint32b VulkanBuffer<T>::makeDataForFillFast(ConstReference value) noexcept
 {
   using ValueT = std::conditional_t<sizeof(T) == 1, uint8b,
@@ -718,7 +718,7 @@ uint32b VulkanBuffer<T>::makeDataForFillFast(ConstReference value) noexcept
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 VulkanDevice& VulkanBuffer<T>::parentImpl() noexcept
 {
   auto p = Buffer<T>::getParent();
@@ -730,7 +730,7 @@ VulkanDevice& VulkanBuffer<T>::parentImpl() noexcept
 
   \return No description
   */
-template <zisc::TriviallyCopyable T> inline
+template <KernelParameter T> inline
 const VulkanDevice& VulkanBuffer<T>::parentImpl() const noexcept
 {
   const auto p = Buffer<T>::getParent();

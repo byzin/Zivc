@@ -34,7 +34,7 @@ namespace zivc {
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-KernelLaunchOptions<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 KernelLaunchOptions() noexcept
 {
   initialize();
@@ -47,7 +47,7 @@ KernelLaunchOptions() noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-KernelLaunchOptions<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 KernelLaunchOptions(const std::array<uint32b, kDim>& work_size) noexcept :
     work_size_{work_size}
 {
@@ -62,7 +62,7 @@ KernelLaunchOptions(const std::array<uint32b, kDim>& work_size) noexcept :
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-KernelLaunchOptions<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 KernelLaunchOptions(const std::array<uint32b, kDim>& work_size,
                     const uint32b queue_index) noexcept :
     work_size_{work_size},
@@ -79,7 +79,7 @@ KernelLaunchOptions(const std::array<uint32b, kDim>& work_size,
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 constexpr std::size_t
-KernelLaunchOptions<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 dimension() noexcept
 {
   return kDim;
@@ -92,7 +92,7 @@ dimension() noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-auto KernelLaunchOptions<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+auto KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 globalIdOffset() const noexcept -> const std::array<uint32b, kDim>&
 {
   return global_id_offset_;
@@ -105,7 +105,7 @@ globalIdOffset() const noexcept -> const std::array<uint32b, kDim>&
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-bool KernelLaunchOptions<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+bool KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 isExternalSyncMode() const noexcept
 {
   const bool result = is_external_sync_mode_;
@@ -119,7 +119,7 @@ isExternalSyncMode() const noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-std::string_view KernelLaunchOptions<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+std::string_view KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 label() const noexcept
 {
   std::string_view l{label_.data()};
@@ -133,7 +133,7 @@ label() const noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-const std::array<float, 4>& KernelLaunchOptions<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+const std::array<float, 4>& KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 labelColor() const noexcept
 {
   return label_color_;
@@ -146,7 +146,7 @@ labelColor() const noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-constexpr std::size_t KernelLaunchOptions<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+constexpr std::size_t KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 numOfArgs() noexcept
 {
   const std::size_t s = sizeof...(Args);
@@ -160,7 +160,7 @@ numOfArgs() noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-uint32b KernelLaunchOptions<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+uint32b KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 queueIndex() const noexcept
 {
   return queue_index_;
@@ -173,7 +173,7 @@ queueIndex() const noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void KernelLaunchOptions<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+void KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 setExternalSyncMode(const bool is_active) noexcept
 {
   is_external_sync_mode_ = is_active ? zisc::kTrue : zisc::kFalse;
@@ -187,7 +187,7 @@ setExternalSyncMode(const bool is_active) noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void KernelLaunchOptions<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+void KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 setGlobalIdOffset(const uint32b offset, const std::size_t dim) noexcept
 {
   global_id_offset_[dim] = offset;
@@ -200,7 +200,7 @@ setGlobalIdOffset(const uint32b offset, const std::size_t dim) noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void KernelLaunchOptions<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+void KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 setGlobalIdOffset(const std::array<uint32b, kDim>& offset) noexcept
 {
   global_id_offset_ = offset;
@@ -213,7 +213,7 @@ setGlobalIdOffset(const std::array<uint32b, kDim>& offset) noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void KernelLaunchOptions<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+void KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 setLabel(const std::string_view launch_label) noexcept
 {
   std::strncpy(label_.data(), launch_label.data(), launch_label.size() + 1);
@@ -226,7 +226,7 @@ setLabel(const std::string_view launch_label) noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void KernelLaunchOptions<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+void KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 setLabelColor(const std::array<float, 4>& label_color) noexcept
 {
   label_color_ = label_color;
@@ -239,7 +239,7 @@ setLabelColor(const std::array<float, 4>& label_color) noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void KernelLaunchOptions<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+void KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 setQueueIndex(const uint32b queue_index) noexcept
 {
   queue_index_ = queue_index;
@@ -253,7 +253,7 @@ setQueueIndex(const uint32b queue_index) noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void KernelLaunchOptions<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+void KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 setWorkSize(const uint32b work_size, const std::size_t dim) noexcept
 {
   work_size_[dim] = work_size;
@@ -266,7 +266,7 @@ setWorkSize(const uint32b work_size, const std::size_t dim) noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void KernelLaunchOptions<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+void KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 setWorkSize(const std::array<uint32b, kDim>& work_size) noexcept
 {
   work_size_ = work_size;
@@ -279,7 +279,7 @@ setWorkSize(const std::array<uint32b, kDim>& work_size) noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-auto KernelLaunchOptions<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+auto KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 workSize() const noexcept -> const std::array<uint32b, kDim>&
 {
   return work_size_;
@@ -290,7 +290,7 @@ workSize() const noexcept -> const std::array<uint32b, kDim>&
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void KernelLaunchOptions<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+void KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 initialize() noexcept
 {
   work_size_.fill(1);

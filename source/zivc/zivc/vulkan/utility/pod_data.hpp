@@ -19,6 +19,8 @@
 #include <cstddef>
 // Zisc
 #include "zisc/concepts.hpp"
+// Zivc
+#include "zivc/zivc_config.hpp"
 
 namespace zivc {
 
@@ -31,23 +33,22 @@ namespace zivc {
   \tparam Types No description.
   */
 template <typename Type, typename ...Types>
-class PodData : public PodData<Types...>
+class PodData
 {
-  using ParentData = PodData<Types...>;
-
  public:
   //! Check if two POD data are equal in values
   bool isEqual(const PodData& other) const noexcept;
 
   //! Set a value by the given position
-  template <std::size_t kIndex, zisc::TriviallyCopyable T>
+  template <std::size_t kIndex, KernelParameter T>
   void set(const T& value) noexcept;
 
  private:
   static constexpr std::size_t kPosition = sizeof...(Types);
 
 
-  static_assert(zisc::TriviallyCopyable<Type>);
+  PodData<Types...> precedence_;
+  static_assert(KernelParameter<Type>);
   Type value_;
 };
 
@@ -64,7 +65,7 @@ class PodData<void>
   bool isEqual(const PodData& other) const noexcept;
 
   //! Dummy function
-  template <std::size_t kIndex, zisc::TriviallyCopyable T>
+  template <std::size_t kIndex, KernelParameter T>
   void set(const T& value) noexcept;
 };
 
@@ -75,7 +76,7 @@ class PodData<void>
 
   \tparam Type No description.
   */
-template <zisc::TriviallyCopyable Type>
+template <KernelParameter Type>
 class PodData<Type>
 {
  public:
@@ -83,7 +84,7 @@ class PodData<Type>
   bool isEqual(const PodData& other) const noexcept;
 
   //! Set a value by the given position
-  template <std::size_t kIndex, zisc::TriviallyCopyable T>
+  template <std::size_t kIndex, KernelParameter T>
   void set(const T& value) noexcept;
 
  private:

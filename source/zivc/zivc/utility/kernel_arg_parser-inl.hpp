@@ -39,7 +39,7 @@ namespace zivc {
   \tparam kAddressType No description.
   \tparam Type No description.
   */
-template <cl::AddressSpaceType kAddressType, zisc::TriviallyCopyable Type>
+template <cl::AddressSpaceType kAddressType, KernelParameter Type>
 class AddressSpaceInfo<cl::AddressSpacePointer<kAddressType, Type>>
 {
   using ASpaceType = cl::AddressSpaceType;
@@ -57,8 +57,6 @@ class AddressSpaceInfo<cl::AddressSpacePointer<kAddressType, Type>>
  private:
   static_assert(!std::is_pointer_v<ElementType>, "The element type is pointer.");
   static_assert(!std::is_reference_v<ElementType>, "The element type is reference.");
-  static_assert(std::is_trivially_copyable_v<ElementType>,
-                "The element type isn't trivially copyable.");
 };
 
 /*!
@@ -68,7 +66,7 @@ class AddressSpaceInfo<cl::AddressSpacePointer<kAddressType, Type>>
 
   \tparam Type No description.
   */
-template <zisc::TriviallyCopyable Type>
+template <KernelParameter Type>
 class AddressSpaceInfo<Buffer<Type>>
 {
  public:
@@ -208,10 +206,10 @@ class KernelArgParser<Arg, RestArgs...>
   // Type aliases
   using ArgInfo = KernelArgInfo<Arg>;
   template <std::size_t kDim, DerivedKSet KSet>
-  using Params = KernelParams<kDim, KSet, Arg, RestArgs...>;
+  using Params = KernelInitParams<kDim, KSet, Arg, RestArgs...>;
   using NextParser = KernelArgParser<RestArgs...>;
   template <std::size_t kDim, DerivedKSet KSet>
-  using NextParams = KernelParams<kDim, KSet, RestArgs...>;
+  using NextParams = KernelInitParams<kDim, KSet, RestArgs...>;
   template <std::size_t kDim, DerivedKSet KSet>
   using NextKernel = typename NextParser::template KernelType<kDim, KSet>;
 

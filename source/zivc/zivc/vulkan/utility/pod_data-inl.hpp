@@ -20,6 +20,8 @@
 #include <type_traits>
 // Zisc
 #include "zisc/concepts.hpp"
+// Zivc
+#include "zivc/zivc_config.hpp"
 
 namespace zivc {
 
@@ -32,9 +34,9 @@ namespace zivc {
 template <typename Type, typename ...Types> inline
 bool PodData<Type, Types...>::isEqual(const PodData& other) const noexcept
 {
-  bool result = value_ == other.value_;
-  result = result && ParentData::isEqual(other);
-  return result;
+  const bool result1 = precedence_ == other.precedence_;
+  const bool result2 = value_ == other.value_;
+  return result1 && result2;
 }
 
 /*!
@@ -45,13 +47,14 @@ bool PodData<Type, Types...>::isEqual(const PodData& other) const noexcept
   \param [in] value No description.
   */
 template <typename Type, typename ...Types>
-template <std::size_t kIndex, zisc::TriviallyCopyable T> inline
+template <std::size_t kIndex, KernelParameter T> inline
 void PodData<Type, Types...>::set(const T& value) noexcept
 {
-  if constexpr (kIndex == kPosition)
+  static_assert(kIndex <= kPosition, "The given index is out of range.");
+  if constexpr (kIndex < kPosition)
+    precedence_.template set<kIndex>(value);
+  else if constexpr (kIndex == kPosition)
     value_ = value;
-  else
-    ParentData::template set<kIndex>(value);
 }
 
 /*!
@@ -73,7 +76,7 @@ bool PodData<void>::isEqual([[maybe_unused]] const PodData& other) const noexcep
   \tparam T No description.
   \param [in] value No description.
   */
-template <std::size_t kIndex, zisc::TriviallyCopyable T> inline
+template <std::size_t kIndex, KernelParameter T> inline
 void PodData<void>::set([[maybe_unused]] const T& value) noexcept
 {
 }
@@ -84,7 +87,7 @@ void PodData<void>::set([[maybe_unused]] const T& value) noexcept
   \param [in] other No description.
   \return No description
   */
-template <zisc::TriviallyCopyable Type> inline
+template <KernelParameter Type> inline
 bool PodData<Type>::isEqual(const PodData& other) const noexcept
 {
   bool result = value_ == other.value_;
@@ -98,11 +101,11 @@ bool PodData<Type>::isEqual(const PodData& other) const noexcept
   \tparam T No description.
   \param [in] value No description.
   */
-template <zisc::TriviallyCopyable Type>
-template <std::size_t kIndex, zisc::TriviallyCopyable T> inline
+template <KernelParameter Type>
+template <std::size_t kIndex, KernelParameter T> inline
 void PodData<Type>::set(const T& value) noexcept
 {
-  static_assert(kIndex == 0, "Missed POD data is passed.");
+  static_assert(kIndex == 0, "The given index is out of range.");
   value_ = value;
 }
 

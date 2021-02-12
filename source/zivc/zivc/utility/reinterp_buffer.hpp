@@ -39,7 +39,7 @@ class BufferCommon;
 
   \tparam T No description.
   */
-template <DerivedBuffer Derived, zisc::TriviallyCopyable T>
+template <DerivedBuffer Derived, KernelParameter T>
 class ReinterpBuffer : public Buffer<T>
 {
  public:

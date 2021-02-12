@@ -32,7 +32,7 @@
 namespace zivc {
 
 // Forward declaration
-template <std::size_t, DerivedKSet, typename...> class KernelParams;
+template <std::size_t, DerivedKSet, typename...> class KernelInitParams;
 template <typename, typename...> class KernelLaunchOptions;
 
 /*!
@@ -46,7 +46,7 @@ template <typename, typename...> class KernelLaunchOptions;
   \tparam Args No description.
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-class KernelLaunchOptions<KernelParams<kDim, KSet, FuncArgs...>, Args...>
+class KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>
 {
   static_assert(zisc::Algorithm::isInBounds(kDim, 1u, 4u),
                 "The kDim must be 1, 2 or 3.");

@@ -46,7 +46,7 @@
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/id_data.hpp"
 #include "zivc/utility/kernel_arg_parser.hpp"
-#include "zivc/utility/kernel_params.hpp"
+#include "zivc/utility/kernel_init_params.hpp"
 #include "zivc/utility/launch_result.hpp"
 
 namespace zivc {
@@ -58,7 +58,7 @@ namespace zivc {
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 VulkanKernel(IdData&& id) noexcept : BaseKernel(std::move(id))
 {
 }
@@ -68,7 +68,7 @@ VulkanKernel(IdData&& id) noexcept : BaseKernel(std::move(id))
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 ~VulkanKernel() noexcept
 {
   BaseKernel::destroy();
@@ -82,7 +82,7 @@ VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 VkCommandBuffer&
-VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 commandBuffer() noexcept
 {
   VkCommandBuffer& command = command_buffer_ref_
@@ -98,7 +98,7 @@ commandBuffer() noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-const VkCommandBuffer& VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+const VkCommandBuffer& VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 commandBuffer() const noexcept
 {
   const VkCommandBuffer& command = command_buffer_ref_
@@ -115,7 +115,7 @@ commandBuffer() const noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-LaunchResult VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+LaunchResult VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 run(Args... args, const LaunchOptions& launch_options)
 {
   VulkanDevice& device = parentImpl();
@@ -160,7 +160,7 @@ run(Args... args, const LaunchOptions& launch_options)
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 setCommandBufferRef(VkCommandBuffer* command_ref) noexcept
 {
   command_buffer_ref_ = command_ref;
@@ -172,7 +172,7 @@ setCommandBufferRef(VkCommandBuffer* command_ref) noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-constexpr bool VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+constexpr bool VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 hasGlobalArg() noexcept
 {
   const bool result = 0 < BaseKernel::ArgParser::kNumOfGlobalArgs;
@@ -185,7 +185,7 @@ hasGlobalArg() noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-constexpr bool VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+constexpr bool VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 hasLocalArg() noexcept
 {
   const bool result = 0 < BaseKernel::ArgParser::kNumOfLocalArgs;
@@ -198,7 +198,7 @@ hasLocalArg() noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-constexpr bool VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+constexpr bool VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 hasPodArg() noexcept
 {
   const bool result = 0 < BaseKernel::ArgParser::kNumOfPodArgs;
@@ -210,7 +210,7 @@ hasPodArg() noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 destroyData() noexcept
 {
   command_buffer_ = ZIVC_VK_NULL_HANDLE;
@@ -230,7 +230,7 @@ destroyData() noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 dispatchCmd(const std::array<uint32b, 3>& work_size)
 {
   VulkanKernelImpl impl{std::addressof(parentImpl())};
@@ -248,7 +248,7 @@ dispatchCmd(const std::array<uint32b, 3>& work_size)
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 initData(const Params& params)
 {
   static_assert(hasGlobalArg(), "The kernel doesn't have global argument.");
@@ -281,7 +281,7 @@ initData(const Params& params)
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 updateDebugInfoImpl()
 {
   VulkanDevice& device = parentImpl();
@@ -331,7 +331,7 @@ updateDebugInfoImpl()
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 template <std::size_t kIndex>
 inline
-auto VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+auto VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 makePodDataType() noexcept
 {
   constexpr auto pod_arg_info = BaseKernel::ArgParser::getPodArgInfoList();
@@ -357,7 +357,7 @@ makePodDataType() noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-std::array<uint32b, 3> VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+std::array<uint32b, 3> VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 calcDispatchWorkSize(const std::array<uint32b, kDim>& work_size) const noexcept
 {
   const VulkanDevice& device = parentImpl();
@@ -378,9 +378,9 @@ calcDispatchWorkSize(const std::array<uint32b, kDim>& work_size) const noexcept
   \return No description
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-template <zisc::TriviallyCopyable Type>
+template <KernelParameter Type>
 inline
-const VkBuffer& VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+const VkBuffer& VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 getBufferHandle(const Buffer<Type>& buffer) noexcept
 {
   ZISC_ASSERT(buffer.type() == SubPlatformType::kVulkan, "The buffer isn't vulkan.");
@@ -403,7 +403,7 @@ getBufferHandle(const Buffer<Type>& buffer) noexcept
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 template <std::size_t kIndex, typename Type, typename ...Types>
 inline
-void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 initBufferList(VkBuffer* buffer_list, Type&& value, Types&&... rest) noexcept
 {
   using T = std::remove_cvref_t<Type>;
@@ -421,7 +421,7 @@ initBufferList(VkBuffer* buffer_list, Type&& value, Types&&... rest) noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 initPodBuffer()
 {
   if constexpr (hasPodArg()) {
@@ -449,7 +449,7 @@ initPodBuffer()
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-auto VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+auto VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 makePodData(Args... args) noexcept -> PodDataT
 {
   PodDataT data{};
@@ -471,7 +471,7 @@ makePodData(Args... args) noexcept -> PodDataT
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 template <std::size_t kIndex, typename Type, typename ...Types>
 inline
-void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 makePodDataImpl(PodDataT* data, Type&& value, Types&&... rest) noexcept
 {
   using T = std::remove_cvref_t<Type>;
@@ -491,7 +491,7 @@ makePodDataImpl(PodDataT* data, Type&& value, Types&&... rest) noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-constexpr std::size_t VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+constexpr std::size_t VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 numOfBuffers() noexcept
 {
   std::size_t n = BaseKernel::ArgParser::kNumOfGlobalArgs;
@@ -506,7 +506,7 @@ numOfBuffers() noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-VulkanDevice& VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+VulkanDevice& VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 parentImpl() noexcept
 {
   auto p = BaseKernel::getParent();
@@ -520,7 +520,7 @@ parentImpl() noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-const VulkanDevice& VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+const VulkanDevice& VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 parentImpl() const noexcept
 {
   auto p = BaseKernel::getParent();
@@ -532,7 +532,7 @@ parentImpl() const noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 prepareCommandBuffer()
 {
   VkCommandBuffer command = commandBuffer();
@@ -548,7 +548,7 @@ prepareCommandBuffer()
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 updateCommandBufferDebugInfo()
 {
   VulkanDevice& device = parentImpl();
@@ -578,7 +578,7 @@ updateCommandBufferDebugInfo()
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 updateDescriptorSet(Args... args)
 {
   constexpr std::size_t n = numOfBuffers();
@@ -601,7 +601,7 @@ updateDescriptorSet(Args... args)
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 updateModuleScopePushConstantsCmd(const std::array<uint32b, 3>& work_size,
                                   const LaunchOptions& launch_options)
 {
@@ -646,7 +646,7 @@ updateModuleScopePushConstantsCmd(const std::array<uint32b, 3>& work_size,
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 updatePodBufferCmd()
 {
   auto pod_cache = getBufferHandle(*pod_cache_);
@@ -670,7 +670,7 @@ updatePodBufferCmd()
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-bool VulkanKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+bool VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 updatePodCacheIfNeeded(Args... args) const noexcept
 {
   bool have_new_pod = false;

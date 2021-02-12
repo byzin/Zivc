@@ -140,7 +140,7 @@ int main(int /* argc */, char** /* argv */)
                 << ::toMegaBytes(usage.peak()) << " MB." << std::endl;
     }
 
-    auto kernel_params = ZIVC_MAKE_KERNEL_PARAMS(example, testKernel, 1);
+    auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(example, testKernel, 1);
     auto kernel = device->makeKernel(kernel_params);
     auto kernel2 = device->makeKernel(kernel_params);
 

@@ -38,7 +38,7 @@
 #include "zivc/utility/kernel_launch_options.hpp"
 #include "zivc/utility/id_data.hpp"
 #include "zivc/utility/kernel_arg_parser.hpp"
-#include "zivc/utility/kernel_params.hpp"
+#include "zivc/utility/kernel_init_params.hpp"
 #include "zivc/utility/launch_result.hpp"
 
 namespace zivc {
@@ -50,7 +50,7 @@ namespace zivc {
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 CpuKernel(IdData&& id) noexcept : BaseKernel(std::move(id))
 {
 }
@@ -60,7 +60,7 @@ CpuKernel(IdData&& id) noexcept : BaseKernel(std::move(id))
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 ~CpuKernel() noexcept
 {
 }
@@ -72,7 +72,7 @@ CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-auto CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+auto CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 kernel() const noexcept -> Function
 {
   return kernel_;
@@ -86,7 +86,7 @@ kernel() const noexcept -> Function
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-LaunchResult CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+LaunchResult CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 run(Args... args, const LaunchOptions& launch_options)
 {
   CpuDevice& device = parentImpl();
@@ -125,7 +125,7 @@ run(Args... args, const LaunchOptions& launch_options)
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+void CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 destroyData() noexcept
 {
   kernel_ = nullptr;
@@ -138,7 +138,7 @@ destroyData() noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+void CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 initData(const Params& params)
 {
   kernel_ = params.func();
@@ -149,7 +149,7 @@ initData(const Params& params)
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-void CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+void CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 updateDebugInfoImpl()
 {
 }
@@ -167,7 +167,7 @@ template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...
 template <typename ...UnprocessedArgs> template <typename Type, typename ...Types>
 inline
 void
-CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 Launcher<UnprocessedArgs...>::exec(Function func,
                                    const LaunchOptions& launch_options,
                                    Type&& value,
@@ -218,7 +218,7 @@ Launcher<UnprocessedArgs...>::exec(Function func,
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 auto
-CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 atomicStorage() noexcept -> AtomicStorage*
 {
   return std::addressof(atomic_storage_);
@@ -232,7 +232,7 @@ atomicStorage() noexcept -> AtomicStorage*
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 auto
-CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 commandStorage() noexcept -> CommandStorage*
 {
   return std::addressof(command_storage_);
@@ -246,7 +246,7 @@ commandStorage() noexcept -> CommandStorage*
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 CpuDevice&
-CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 parentImpl() noexcept
 {
   auto p = BaseKernel::getParent();
@@ -261,7 +261,7 @@ parentImpl() noexcept
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 const CpuDevice&
-CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>::
+CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 parentImpl() const noexcept
 {
   const auto p = BaseKernel::getParent();

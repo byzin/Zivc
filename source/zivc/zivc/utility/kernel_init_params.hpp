@@ -1,5 +1,5 @@
 /*!
-  \file kernel_params.hpp
+  \file kernel_init_params.hpp
   \author Sho Ikeda
   \brief No brief description
 
@@ -12,8 +12,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_KERNEL_PARAMS_HPP
-#define ZIVC_KERNEL_PARAMS_HPP
+#ifndef ZIVC_KERNEL_INIT_PARAMS_HPP
+#define ZIVC_KERNEL_INIT_PARAMS_HPP
 
 // Standard C++ library
 #include <array>
@@ -35,7 +35,7 @@ namespace zivc {
   \tparam Args No description.
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
-class KernelParams
+class KernelInitParams
 {
  public:
   // Type aliases
@@ -44,7 +44,7 @@ class KernelParams
 
 
   //! Initialize parameters
-  KernelParams(Function ptr, std::string_view kernel_name) noexcept;
+  KernelInitParams(Function ptr, std::string_view kernel_name) noexcept;
 
 
   //! Return the dimension of the kernel
@@ -76,6 +76,6 @@ class KernelParams
 
 } // namespace zivc
 
-#include "kernel_params-inl.hpp"
+#include "kernel_init_params-inl.hpp"
 
-#endif // ZIVC_KERNEL_PARAMS_HPP
+#endif // ZIVC_KERNEL_INIT_PARAMS_HPP

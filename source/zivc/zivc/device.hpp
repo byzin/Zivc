@@ -37,13 +37,13 @@ namespace zivc {
 class DeviceInfo;
 class Fence;
 class SubPlatform;
-template <std::size_t, DerivedKSet, typename...> class KernelParams;
-template <zisc::TriviallyCopyable T>
+template <std::size_t, DerivedKSet, typename...> class KernelInitParams;
+template <KernelParameter T>
 SharedBuffer<T> makeBuffer(Device* device, const BufferUsage flag);
 template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
 SharedKernel<kDim, KSet, Args...> makeKernel(
     Device* device,
-    const KernelParams<kDim, KSet, Args...>& params);
+    const KernelInitParams<kDim, KSet, Args...>& params);
 
 /*!
   \brief No brief description
@@ -77,7 +77,7 @@ class Device : public ZivcObject
                   const DeviceInfo& device_info);
 
   //! Make a buffer
-  template <zisc::TriviallyCopyable T>
+  template <KernelParameter T>
   [[nodiscard]]
   SharedBuffer<T> makeBuffer(const BufferUsage flag);
 
@@ -85,7 +85,7 @@ class Device : public ZivcObject
   template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
   [[nodiscard]]
   SharedKernel<kDim, KSet, Args...> makeKernel(
-      const KernelParams<kDim, KSet, Args...>& params);
+      const KernelInitParams<kDim, KSet, Args...>& params);
 
   //! Return the memory usage by the given heap index
   virtual zisc::Memory::Usage& memoryUsage(const std::size_t heap_index) noexcept = 0;
@@ -125,14 +125,14 @@ class Device : public ZivcObject
   virtual void initData() = 0;
 
  private:
-  template <zisc::TriviallyCopyable T>
+  template <KernelParameter T>
   friend SharedBuffer<T> makeBuffer(Device*, const BufferUsage);
   template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
-  friend SharedKernel<kDim, KSet, Args...> makeKernel(Device*, const KernelParams<kDim, KSet, Args...>&);
+  friend SharedKernel<kDim, KSet, Args...> makeKernel(Device*, const KernelInitParams<kDim, KSet, Args...>&);
 
 
   //! Make a buffer
-  template <template<typename> typename Derived, zisc::TriviallyCopyable T>
+  template <template<typename> typename Derived, KernelParameter T>
   [[nodiscard]]
   SharedBuffer<T> makeDerivedBuffer(const BufferUsage flag);
 
@@ -141,7 +141,7 @@ class Device : public ZivcObject
             std::size_t kDim, DerivedKSet KSet, typename ...Args>
   [[nodiscard]]
   SharedKernel<kDim, KSet, Args...> makeDerivedKernel(
-      const KernelParams<kDim, KSet, Args...>& params);
+      const KernelInitParams<kDim, KSet, Args...>& params);
 
 
   const DeviceInfo* device_info_ = nullptr;

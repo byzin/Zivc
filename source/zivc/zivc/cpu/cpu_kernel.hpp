@@ -34,9 +34,9 @@
 namespace zivc {
 
 // Forward declaration
-template <zisc::TriviallyCopyable> class Buffer;
+template <KernelParameter> class Buffer;
 class CpuDevice;
-template <std::size_t, DerivedKSet, typename...> class KernelParams;
+template <std::size_t, DerivedKSet, typename...> class KernelInitParams;
 template <typename, typename...> class CpuKernel;
 
 /*!
@@ -50,12 +50,12 @@ template <typename, typename...> class CpuKernel;
   \tparam Args No description.
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-class CpuKernel<KernelParams<kDim, KSet, FuncArgs...>, Args...> :
-    public Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>
+class CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
+    public Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>
 {
  public:
   // Type aliases
-  using BaseKernel = Kernel<KernelParams<kDim, KSet, FuncArgs...>, Args...>;
+  using BaseKernel = Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>;
   using Params = typename BaseKernel::Params;
   using Function = typename Params::Function;
   using LaunchOptions = typename BaseKernel::LaunchOptions;

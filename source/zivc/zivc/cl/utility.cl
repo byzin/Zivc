@@ -127,23 +127,11 @@ size_t getGlobalOffsetY() noexcept;
 //! Return the global offset of z dimension value used in global id calculation
 size_t getGlobalOffsetZ() noexcept;
 
-//! Return the work-items 1-dimensional global ID for 1d
-size_t getGlobalLinearId1d() noexcept;
+//! Return the work-items 1-dimensional global ID
+size_t getGlobalLinearId() noexcept;
 
-//! Return the work-items 1-dimensional global ID for 2d
-size_t getGlobalLinearId2d() noexcept;
-
-//! Return the work-items 1-dimensional global ID for 3d
-size_t getGlobalLinearId3d() noexcept;
-
-//! Return the work-items 1-dimensional local ID for 1d
-size_t getLocalLinearId1d() noexcept;
-
-//! Return the work-items 1-dimensional local ID for 2d
-size_t getLocalLinearId2d() noexcept;
-
-//! Return the work-items 1-dimensional local ID for 3d
-size_t getLocalLinearId3d() noexcept;
+//! Return the work-items 1-dimensional local ID
+size_t getLocalLinearId() noexcept;
 
 // Type utilities
 

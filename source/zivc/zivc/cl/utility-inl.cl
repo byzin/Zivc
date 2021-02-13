@@ -489,10 +489,27 @@ size_t getGlobalOffsetZ() noexcept
   \return No description
   */
 inline
-size_t getGlobalLinearId1d() noexcept
+size_t getGlobalLinearId() noexcept
 {
+  //! \todo Use built-in 'get_global_linear_id`
+  const uint32b dim = getWorkDim();
+
+  // 1d
   const size_t gx = getGlobalIdX() - getGlobalOffsetX();
-  const size_t id = gx;
+  size_t id = gx;
+  // 2d
+  if (2 <= dim) {
+    const size_t n = getGlobalSizeX();
+    const size_t gy = getGlobalIdY() - getGlobalOffsetY();
+    id = id + n * gy;
+  }
+  // 3d
+  if (3 <= dim) {
+    const size_t n = getGlobalSizeX() * getGlobalSizeY();
+    const size_t gz = getGlobalIdZ() - getGlobalOffsetZ();
+    id = id + n * gz;
+  }
+
   return id;
 }
 
@@ -502,66 +519,27 @@ size_t getGlobalLinearId1d() noexcept
   \return No description
   */
 inline
-size_t getGlobalLinearId2d() noexcept
+size_t getLocalLinearId() noexcept
 {
-  const size_t n = getGlobalSizeX();
-  const size_t gy = getGlobalIdY() - getGlobalOffsetY();
-  const size_t id = getGlobalLinearId1d() + n * gy;
-  return id;
-}
+  //! \todo Use built-in 'get_local_linear_id`
+  const uint32b dim = getWorkDim();
 
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-inline
-size_t getGlobalLinearId3d() noexcept
-{
-  const size_t n = getGlobalSizeX() * getGlobalSizeY();
-  const size_t gz = getGlobalIdZ() - getGlobalOffsetZ();
-  const size_t id = getGlobalLinearId2d() + n * gz;
-  return id;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-inline
-size_t getLocalLinearId1d() noexcept
-{
+  // 1d
   const size_t lx = getLocalIdX();
-  const size_t id = lx;
-  return id;
-}
+  size_t id = lx;
+  // 2d
+  if (2 <= dim) {
+    const size_t n = getLocalSizeX();
+    const size_t ly = getLocalIdY();
+    id = id + n * ly;
+  }
+  // 3d
+  if (3 <= dim) {
+    const size_t n = getLocalSizeX() * getLocalSizeY();
+    const size_t lz = getLocalIdZ();
+    id = id + n * lz;
+  }
 
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-inline
-size_t getLocalLinearId2d() noexcept
-{
-  const size_t n = getLocalSizeX();
-  const size_t ly = getLocalIdY();
-  const size_t id = getLocalLinearId1d() + n * ly;
-  return id;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-inline
-size_t getLocalLinearId3d() noexcept
-{
-  const size_t n = getLocalSizeX() * getLocalSizeY();
-  const size_t lz = getLocalIdZ();
-  const size_t id = getLocalLinearId2d() + n * lz;
   return id;
 }
 

@@ -64,18 +64,30 @@ class AddressSpacePointer
   AddressSpacePointer() noexcept;
 
   //! Initialize a pointer with the given value
-  template <zisc::ConvertibleTo<Pointer> PointerT>
+  template <ConvertibleToPointer<T> PointerT>
   AddressSpacePointer(PointerT p) noexcept;
 
   //! Initialize a pointer with the given value 
-  AddressSpacePointer(ASpacePointerT<PlainType>& p) noexcept;
+  template <ConvertiblePointerToPointer<T> ValueT>
+  AddressSpacePointer(ASpacePointerT<ValueT>& p) noexcept;
+
+  //! Move a pointer
+  template <ConvertiblePointerToPointer<T> ValueT>
+  AddressSpacePointer(ASpacePointerT<ValueT>&& p) noexcept;
+
 
   //! Assign a pointer
-  template <zisc::ConvertibleTo<Pointer> PointerT>
+  template <ConvertibleToPointer<T> PointerT>
   ASpacePointerRef operator=(PointerT data) noexcept;
 
-  //! Assign a pointer
-  ASpacePointerRef operator=(ASpacePointerT<PlainType>& p) noexcept;
+  //! Copy a pointer
+  template <ConvertiblePointerToPointer<T> ValueT>
+  ASpacePointerRef operator=(ASpacePointerT<ValueT>& p) noexcept;
+
+  //! Move a pointer
+  template <ConvertiblePointerToPointer<T> ValueT>
+  ASpacePointerRef operator=(ASpacePointerT<ValueT>&& p) noexcept;
+
 
   //! Check whether this owns an object
   explicit operator bool() const noexcept;
@@ -99,16 +111,12 @@ class AddressSpacePointer
   ConstASpaceValue operator[](const size_t index) const noexcept;
 
   //! Get a pointer to n-th element and assign it
-  ASpacePointerRef operator+=(const ptrdiff_t n) noexcept;
-
-  //! Get a pointer to n-th element and assign it
-  ASpacePointerRef operator+=(const size_t n) noexcept;
+  template <zisc::Integer Integer>
+  ASpacePointerRef operator+=(const Integer n) noexcept;
 
   //! Get a pointer to -n-th element and assign it
-  ASpacePointerRef operator-=(const ptrdiff_t n) noexcept;
-
-  //! Get a pointer to -n-th element and assign it
-  ASpacePointerRef operator-=(const size_t n) noexcept;
+  template <zisc::Integer Integer>
+  ASpacePointerRef operator-=(const Integer n) noexcept;
 
   //! Return a pointer to the managed object
   ASpacePointerRef operator+() noexcept;
@@ -140,40 +148,22 @@ class AddressSpacePointer
 };
 
 //! Compute a pointer to n-th element
-template <AddressSpaceType kASpaceType, typename Type>
+template <AddressSpaceType kASpaceType, typename Type, zisc::Integer Integer>
 AddressSpacePointer<kASpaceType, Type> operator+(
     AddressSpacePointer<kASpaceType, Type> p,
-    const ptrdiff_t n) noexcept;
+    const Integer n) noexcept;
 
 //! Compute a pointer to n-th element
-template <AddressSpaceType kASpaceType, typename Type>
+template <AddressSpaceType kASpaceType, typename Type, zisc::Integer Integer>
 AddressSpacePointer<kASpaceType, Type> operator+(
-    AddressSpacePointer<kASpaceType, Type> p,
-    const size_t n) noexcept;
-
-//! Compute a pointer to n-th element
-template <AddressSpaceType kASpaceType, typename Type>
-AddressSpacePointer<kASpaceType, Type> operator+(
-    const ptrdiff_t n,
-    AddressSpacePointer<kASpaceType, Type> p) noexcept;
-
-//! Compute a pointer to n-th element
-template <AddressSpaceType kASpaceType, typename Type>
-AddressSpacePointer<kASpaceType, Type> operator+(
-    const size_t n,
+    const Integer n,
     AddressSpacePointer<kASpaceType, Type> p) noexcept;
 
 //! Compute a pointer to -n-th element
-template <AddressSpaceType kASpaceType, typename Type>
+template <AddressSpaceType kASpaceType, typename Type, zisc::Integer Integer>
 AddressSpacePointer<kASpaceType, Type> operator-(
     AddressSpacePointer<kASpaceType, Type> p,
-    const ptrdiff_t n) noexcept;
-
-//! Compute a pointer to -n-th element
-template <AddressSpaceType kASpaceType, typename Type>
-AddressSpacePointer<kASpaceType, Type> operator-(
-    AddressSpacePointer<kASpaceType, Type> p,
-    const size_t n) noexcept;
+    const Integer n) noexcept;
 
 //! Compute the distance between lhs and rhs
 template <AddressSpaceType kASpaceType, typename Type>

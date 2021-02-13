@@ -19,12 +19,25 @@
 #include <type_traits>
 // Zisc
 #include "zisc/concepts.hpp"
+#include "zisc/non_copyable.hpp"
 // Zivc
 #include "zivc/zivc_config.hpp"
 
 namespace zivc {
 
 namespace cl {
+
+// Concepts
+//! Specity a type is implicitly convertible to another pointer of another type
+template <typename From, typename To>
+concept ConvertibleToPointer =
+    zisc::ConvertibleTo<From,
+                        std::add_pointer_t<std::remove_volatile_t<To>>>;
+//! Specity pointer of a type is implicitly convertible to pointer of another type
+template <typename From, typename To>
+concept ConvertiblePointerToPointer =
+    zisc::ConvertibleTo<std::add_pointer_t<std::remove_volatile_t<From>>,
+                        std::add_pointer_t<std::remove_volatile_t<To>>>;
 
 /*!
   \brief Represent address space type
@@ -54,8 +67,12 @@ template <AddressSpaceType, KernelParameter> class AddressSpacePointer;
   \attention No attention.
   */
 template <AddressSpaceType kASpaceType, KernelParameter T>
-class AddressSpaceValue
+class AddressSpaceValue : private zisc::NonCopyable<AddressSpaceValue<kASpaceType, T>>
 {
+  //
+  template <KernelParameter Type>
+  using ASpaceValueT = AddressSpaceValue<kASpaceType, Type>;
+
  public:
   // Type aliases
   using Type = std::remove_volatile_t<T>;
@@ -75,9 +92,13 @@ class AddressSpaceValue
   //! Initialize a data with nullptr
   AddressSpaceValue() noexcept;
 
-  //! Initialize a data with the given value
-  template <zisc::ConvertibleTo<Pointer> PointerT>
-  AddressSpaceValue(PointerT p) noexcept;
+  //! Copy a pointer
+  template <ConvertiblePointerToPointer<T> ValueT>
+  AddressSpaceValue(ASpaceValueT<ValueT>& other) noexcept;
+
+  //! Move a pointer
+  template <ConvertiblePointerToPointer<T> ValueT>
+  AddressSpaceValue(ASpaceValueT<ValueT>&& other) noexcept;
 
 
   //! Dereference pointer to the managed object
@@ -92,9 +113,15 @@ class AddressSpaceValue
   //! Return the address space pointer to the managed object
   ConstASpacePointer operator&() const noexcept;
 
-  //! Replace the conents with the given value
+  //! Replace the conents in the underlying pointer with the given value
   ASpaceValueRef operator=(ConstReference value) noexcept;
 
+
+  //! Return the underlying pointer
+  Pointer address() noexcept;
+
+  //! Return the underlying pointer
+  ConstPointer address() const noexcept;
 
   //! Return the pointer to the managed object
   ASpacePointer data() noexcept;
@@ -109,6 +136,14 @@ class AddressSpaceValue
   ConstReference get() const noexcept;
 
  private:
+  friend AddressSpacePointer<kASpaceType, T>;
+
+
+  //! Initialize a data with the given pointer
+  template <ConvertibleToPointer<T> PointerT>
+  AddressSpaceValue(PointerT p) noexcept;
+
+
   Pointer data_ = nullptr;
 };
 

@@ -42,7 +42,7 @@ __kernel void testKernel(zivc::ConstGlobalPtr<int32b> inputs,
     zivc::GlobalPtr<int32b> outputs,
     const uint32b resolution)
 {
-  const uint32b index = zivc::getGlobalIdX();
+  const size_t index = zivc::getGlobalIdX();
   if (index < resolution) {
     outputs[index] = 2 * inputs[index];
   }

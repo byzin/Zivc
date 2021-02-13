@@ -10,6 +10,8 @@
 #ifndef ZIVC_CL_TYPES_HPP
 #define ZIVC_CL_TYPES_HPP
 
+// Standard C++ library
+#include <cstddef>
 // Zisc
 #include "zisc/ieee_754_binary.hpp"
 // Zivc
@@ -25,10 +27,10 @@ using ushort = uint16b;
 using ulong = uint64b;
 using half = zisc::Binary16;
 // Pointer types
-using size_t = uint32b;
-using ptrdiff_t = int32b;
-using intptr_t = int32b;
-using uintptr_t = uint32b;
+using size_t = std::size_t;
+using ptrdiff_t = std::ptrdiff_t;
+using intptr_t = std::intptr_t;
+using uintptr_t = std::uintptr_t;
 
 } // namespace cl
 

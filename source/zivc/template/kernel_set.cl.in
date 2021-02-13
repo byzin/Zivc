@@ -55,8 +55,8 @@ __kernel void __zivcClspvInitKernel(__global uint* outputs)
   outputs[i++] = get_global_offset(0);
   outputs[i++] = get_global_offset(1);
   outputs[i++] = get_global_offset(2);
-//  outputs[i++] = get_global_linear_id();
-//  outputs[i++] = get_local_linear_id();
+//  outputs[i++] = get_global_linear_id(); //!< \todo Try me
+//  outputs[i++] = get_local_linear_id(); //!< \todo Try me
   outputs[i++] = get_sub_group_size();
 //  outputs[i++] = get_max_sub_group_size();
   outputs[i++] = get_num_sub_groups();

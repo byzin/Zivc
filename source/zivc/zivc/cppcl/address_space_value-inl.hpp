@@ -40,14 +40,26 @@ AddressSpaceValue<kASpaceType, T>::AddressSpaceValue() noexcept
 /*!
   \details No detailed description
 
-  \tparam PointerT No description.
-  \param [in,out] p No description.
+  \tparam ValueT No description.
+  \param [in] other No description.
   */
 template <AddressSpaceType kASpaceType, KernelParameter T>
-template <zisc::ConvertibleTo<std::add_pointer_t<std::remove_volatile_t<T>>> PointerT>
-inline
-AddressSpaceValue<kASpaceType, T>::AddressSpaceValue(PointerT p) noexcept :
-    data_{zisc::cast<Pointer>(p)}
+template <ConvertiblePointerToPointer<T> ValueT> inline
+AddressSpaceValue<kASpaceType, T>::AddressSpaceValue(ASpaceValueT<ValueT>& other) noexcept : 
+    data_{zisc::cast<Pointer>(other.address())}
+{
+}
+
+/*!
+  \details No detailed description
+
+  \tparam ValueT No description.
+  \param [in] other No description.
+  */
+template <AddressSpaceType kASpaceType, KernelParameter T>
+template <ConvertiblePointerToPointer<T> ValueT> inline
+AddressSpaceValue<kASpaceType, T>::AddressSpaceValue(ASpaceValueT<ValueT>&& other) noexcept : 
+    data_{zisc::cast<Pointer>(other.address())}
 {
 }
 
@@ -109,6 +121,29 @@ auto AddressSpaceValue<kASpaceType, T>::operator=(ConstReference value) noexcept
   ref = value;
   return *this;
 }
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <AddressSpaceType kASpaceType, KernelParameter T> inline
+auto AddressSpaceValue<kASpaceType, T>::address() noexcept -> Pointer 
+{
+  return data_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <AddressSpaceType kASpaceType, KernelParameter T> inline
+auto AddressSpaceValue<kASpaceType, T>::address() const noexcept -> ConstPointer 
+{
+  return data_;
+}
+
 /*!
   \details No detailed description
 
@@ -117,7 +152,7 @@ auto AddressSpaceValue<kASpaceType, T>::operator=(ConstReference value) noexcept
 template <AddressSpaceType kASpaceType, KernelParameter T> inline
 auto AddressSpaceValue<kASpaceType, T>::data() noexcept -> ASpacePointer
 {
-  ASpacePointer p{data_};
+  ASpacePointer p{address()};
   return p;
 }
 
@@ -129,7 +164,7 @@ auto AddressSpaceValue<kASpaceType, T>::data() noexcept -> ASpacePointer
 template <AddressSpaceType kASpaceType, KernelParameter T> inline
 auto AddressSpaceValue<kASpaceType, T>::data() const noexcept -> ConstASpacePointer
 {
-  ConstASpacePointer p{data_};
+  ConstASpacePointer p{address()};
   return p;
 }
 
@@ -141,7 +176,8 @@ auto AddressSpaceValue<kASpaceType, T>::data() const noexcept -> ConstASpacePoin
 template <AddressSpaceType kASpaceType, KernelParameter T> inline
 auto AddressSpaceValue<kASpaceType, T>::get() noexcept -> Reference
 {
-  return *data_;
+  auto p = address();
+  return *p;
 }
 
 /*!
@@ -152,7 +188,21 @@ auto AddressSpaceValue<kASpaceType, T>::get() noexcept -> Reference
 template <AddressSpaceType kASpaceType, KernelParameter T> inline
 auto AddressSpaceValue<kASpaceType, T>::get() const noexcept -> ConstReference
 {
-  return *data_;
+  auto p = address();
+  return *p;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam PointerT No description.
+  \param [in,out] p No description.
+  */
+template <AddressSpaceType kASpaceType, KernelParameter T>
+template <ConvertibleToPointer<T> PointerT> inline
+AddressSpaceValue<kASpaceType, T>::AddressSpaceValue(PointerT p) noexcept :
+    data_{zisc::cast<Pointer>(p)}
+{
 }
 
 } // namespace cl

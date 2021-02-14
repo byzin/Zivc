@@ -615,13 +615,13 @@ updateModuleScopePushConstantsCmd(const std::array<uint32b, 3>& work_size,
     const auto global_offset =
         BaseKernel::expandWorkSize(launch_options.globalIdOffset(), 0);
     constexpr std::size_t offset = 0;
-    for (std::size_t i = 0; i < work_size.size(); ++i)
+    for (std::size_t i = 0; i < global_offset.size(); ++i)
       constans[offset + i] = global_offset[i];
   }
   // Enqueued local size
   {
     constexpr std::size_t offset = 4;
-    for (std::size_t i = 0; i < work_size.size(); ++i)
+    for (std::size_t i = 0; i < group_size.size(); ++i)
       constans[offset + i] = group_size[i];
   }
   // Global size

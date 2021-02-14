@@ -23,7 +23,6 @@
 #include "zisc/concepts.hpp"
 #include "zisc/utility.hpp"
 // Zivc
-#include "address_space_value.hpp"
 #include "types.hpp"
 #include "zivc/zivc_config.hpp"
 
@@ -135,13 +134,29 @@ AddressSpacePointer<kASpaceType, T>::operator bool() const noexcept
 /*!
   \details No detailed description
 
+  \param [in] index No description.
   \return No description
   */
-template <AddressSpaceType kASpaceType, KernelParameter T> inline
-auto AddressSpacePointer<kASpaceType, T>::operator*() noexcept -> ASpaceValue
+template <AddressSpaceType kASpaceType, KernelParameter T>
+template <zisc::Integer Integer> inline
+auto AddressSpacePointer<kASpaceType, T>::operator[](const Integer index) noexcept -> Reference
 {
-  ASpaceValue value{get()};
-  return value;
+  auto p = get() + zisc::cast<ptrdiff_t>(index);
+  return *p;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] index No description.
+  \return No description
+  */
+template <AddressSpaceType kASpaceType, KernelParameter T>
+template <zisc::Integer Integer> inline
+auto AddressSpacePointer<kASpaceType, T>::operator[](const Integer index) const noexcept -> ConstReference
+{
+  auto p = get() + zisc::cast<ptrdiff_t>(index);
+  return *p;
 }
 
 /*!
@@ -150,10 +165,22 @@ auto AddressSpacePointer<kASpaceType, T>::operator*() noexcept -> ASpaceValue
   \return No description
   */
 template <AddressSpaceType kASpaceType, KernelParameter T> inline
-auto AddressSpacePointer<kASpaceType, T>::operator*() const noexcept -> ConstASpaceValue
+auto AddressSpacePointer<kASpaceType, T>::operator*() noexcept -> Reference
 {
-  ConstASpaceValue value{get()};
-  return value;
+  auto p = get();
+  return *p;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <AddressSpaceType kASpaceType, KernelParameter T> inline
+auto AddressSpacePointer<kASpaceType, T>::operator*() const noexcept -> ConstReference 
+{
+  auto p = get();
+  return *p;
 }
 
 /*!
@@ -178,36 +205,6 @@ auto AddressSpacePointer<kASpaceType, T>::operator->() const noexcept -> ConstPo
 {
   auto data = get();
   return data;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] index No description.
-  \return No description
-  */
-template <AddressSpaceType kASpaceType, KernelParameter T> inline
-auto AddressSpacePointer<kASpaceType, T>::operator[](const size_t index) noexcept
-    -> ASpaceValue 
-{
-  auto data = get();
-  ASpaceValue value{data + index};
-  return value;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] index No description.
-  \return No description
-  */
-template <AddressSpaceType kASpaceType, KernelParameter T> inline
-auto AddressSpacePointer<kASpaceType, T>::operator[](const size_t index) const noexcept
-    -> ConstASpaceValue
-{
-  auto data = get();
-  ConstASpaceValue value{data + index};
-  return value;
 }
 
 /*!

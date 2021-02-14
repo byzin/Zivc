@@ -106,7 +106,7 @@ constexpr size_t get_enqueued_local_size([[maybe_unused]] const uint32b dimensio
 inline
 size_t get_global_id(const uint32b dimension) noexcept
 {
-  const auto id = get_group_id(dimension);
+  const auto id = get_group_id(dimension) + get_global_offset(dimension);
   return id;
 }
 

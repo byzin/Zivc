@@ -21,13 +21,37 @@
 // Zisc
 #include "zisc/concepts.hpp"
 // Zivc
-#include "address_space_value.hpp"
 #include "types.hpp"
 #include "zivc/zivc_config.hpp"
 
 namespace zivc {
 
 namespace cl {
+
+// Concepts
+//! Specity a type is implicitly convertible to another pointer of another type
+template <typename From, typename To>
+concept ConvertibleToPointer =
+    zisc::ConvertibleTo<From,
+                        std::add_pointer_t<std::remove_volatile_t<To>>>;
+//! Specity pointer of a type is implicitly convertible to pointer of another type
+template <typename From, typename To>
+concept ConvertiblePointerToPointer =
+    zisc::ConvertibleTo<std::add_pointer_t<std::remove_volatile_t<From>>,
+                        std::add_pointer_t<std::remove_volatile_t<To>>>;
+
+/*!
+  \brief Represent address space type
+
+  No detailed description.
+  */
+enum class AddressSpaceType: uint32b
+{
+  kGlobal = 0,
+  kLocal,
+  kConstant,
+  kPrivate
+};
 
 /*!
   \brief Represent a address space pointer
@@ -47,17 +71,12 @@ class AddressSpacePointer
  public:
   // Type aliases
   using Type = std::remove_volatile_t<T>;
-  using PlainType = std::remove_const_t<Type>;
-  using ConstType = std::add_const_t<PlainType>;
+  using ConstType = std::add_const_t<Type>;
   using Reference = std::add_lvalue_reference_t<Type>;
   using ConstReference = std::add_lvalue_reference<ConstType>;
   using Pointer = std::add_pointer_t<Type>;
   using ConstPointer = std::add_pointer_t<ConstType>;
   using ASpacePointerRef = std::add_lvalue_reference_t<AddressSpacePointer>;
-  using ConstASpacePointer = std::add_const_t<AddressSpacePointer>;
-  using ConstASpacePointerRef = std::add_lvalue_reference<ConstASpacePointer>;
-  using ASpaceValue = AddressSpaceValue<kASpaceType, T>;
-  using ConstASpaceValue = AddressSpaceValue<kASpaceType, std::add_const_t<T>>;
 
 
   //! Initialize a pointer by nullptr
@@ -92,23 +111,25 @@ class AddressSpacePointer
   //! Check whether this owns an object
   explicit operator bool() const noexcept;
 
-  //! Dereference pointer to the managed object
-  ASpaceValue operator*() noexcept;
+  //! Dereference pointer to the managed object by the given index
+  template <zisc::Integer Integer>
+  Reference operator[](const Integer index) noexcept;
+
+  //! Dereference pointer to the managed object by the given index
+  template <zisc::Integer Integer>
+  ConstReference operator[](const Integer index) const noexcept;
 
   //! Dereference pointer to the managed object
-  ConstASpaceValue operator*() const noexcept;
+  Reference operator*() noexcept;
+
+  //! Dereference pointer to the managed object
+  ConstReference operator*() const noexcept;
 
   //! Dereference pointer to the managed object
   Pointer operator->() noexcept;
 
   //! Dereference pointer to the managed object
   ConstPointer operator->() const noexcept;
-
-  //! Dereference pointer to the managed object by the given index
-  ASpaceValue operator[](const size_t index) noexcept;
-
-  //! Dereference pointer to the managed object by the given index
-  ConstASpaceValue operator[](const size_t index) const noexcept;
 
   //! Get a pointer to n-th element and assign it
   template <zisc::Integer Integer>

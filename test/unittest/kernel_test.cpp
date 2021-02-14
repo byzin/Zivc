@@ -1412,3 +1412,303 @@ TEST(KernelTest, WorkItem3dTest)
     }
   }
 }
+
+TEST(KernelTest, WorkItemOffset1dTest)
+{
+  auto platform = ztest::makePlatform();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
+  [[maybe_unused]] const auto& info = device->deviceInfo();
+
+  using zivc::int32b;
+  using zivc::uint32b;
+
+  constexpr std::size_t n_dim = 1000;
+  constexpr std::size_t n = n_dim;
+  constexpr std::size_t offset_x = 19;
+
+  // Allocate buffers
+  auto buff_device1 = device->makeBuffer<uint32b>(zivc::BufferUsage::kDeviceOnly);
+  buff_device1->setSize(n);
+  auto buff_device2 = device->makeBuffer<uint32b>(zivc::BufferUsage::kDeviceOnly);
+  buff_device2->setSize(n + info.workGroupSize() + offset_x);
+  auto buff_device3 = device->makeBuffer<uint32b>(zivc::BufferUsage::kDeviceOnly);
+  buff_device3->setSize(2 * n);
+  auto buff_properties = device->makeBuffer<uint32b>(zivc::BufferUsage::kDeviceOnly);
+  buff_properties->setSize(1);
+
+  // Init buffers
+  {
+    auto options = buff_device1->makeOptions();
+    options.setExternalSyncMode(true);
+    auto result = buff_device1->fill(0, options);
+    device->waitForCompletion(result.fence());
+  }
+  {
+    auto options = buff_device2->makeOptions();
+    options.setExternalSyncMode(true);
+    auto result = buff_device2->fill(0, options);
+    device->waitForCompletion(result.fence());
+  }
+  {
+    auto options = buff_device3->makeOptions();
+    options.setExternalSyncMode(true);
+    auto result = buff_device3->fill(0, options);
+    device->waitForCompletion(result.fence());
+  }
+  {
+    auto options = buff_properties->makeOptions();
+    options.setExternalSyncMode(true);
+    auto result = buff_properties->fill(0, options);
+    device->waitForCompletion(result.fence());
+  }
+
+  // Make a kernel
+  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test, workItemOffset1dKernel, 1);
+  auto kernel = device->makeKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(5, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  {
+    auto launch_options = kernel->makeOptions();
+    launch_options.setWorkSize({n_dim});
+    launch_options.setGlobalIdOffset({offset_x});
+    launch_options.setExternalSyncMode(false);
+    launch_options.setLabel("workItemOffset1dKernel");
+    auto result = kernel->run(*buff_device1, *buff_device2, *buff_device3, *buff_properties, n, launch_options);
+    device->waitForCompletion();
+  }
+
+  // Check the outputs
+  {
+    auto buff_host = device->makeBuffer<uint32b>(zivc::BufferUsage::kHostOnly);
+    buff_host->setSize(buff_properties->size());
+
+    auto options = buff_properties->makeOptions();
+    options.setExternalSyncMode(true);
+    auto result = zivc::copy(*buff_properties, buff_host.get(), options);
+    device->waitForCompletion(result.fence());
+
+    {
+      auto mem = buff_host->mapMemory();
+      ASSERT_EQ(offset_x, mem[0]) << "Global offset x is wrong.";
+    }
+  }
+  {
+    auto buff_host = device->makeBuffer<uint32b>(zivc::BufferUsage::kHostOnly);
+    buff_host->setSize(buff_device1->size());
+
+    auto options = buff_device1->makeOptions();
+    options.setExternalSyncMode(true);
+    auto result = zivc::copy(*buff_device1, buff_host.get(), options);
+    device->waitForCompletion(result.fence());
+
+    {
+      auto mem = buff_host->mapMemory();
+      for (std::size_t i = 0; i < n; i++)
+        ASSERT_EQ(2, mem[i]) << "Work item[" << i << "] prop isn't set properly.";
+    }
+  }
+  {
+    auto buff_host = device->makeBuffer<uint32b>(zivc::BufferUsage::kHostOnly);
+    buff_host->setSize(buff_device2->size());
+
+    auto options = buff_device2->makeOptions();
+    options.setExternalSyncMode(true);
+    auto result = zivc::copy(*buff_device2, buff_host.get(), options);
+    device->waitForCompletion(result.fence());
+
+    {
+      auto mem = buff_host->mapMemory();
+//      for (std::size_t i = 0; i < mem.size(); ++i) {
+//        std::cout << "mem[" << i << "] = " << mem[i] << std::endl;
+//      }
+      for (std::size_t i = 0; i < offset_x; ++i) {
+        ASSERT_EQ(0, mem[i]) << "Work item[" << i << "] prop isn't set properly.";
+      }
+      for (std::size_t i = 0; i < n; ++i) {
+        const std::size_t index = i + offset_x;
+        ASSERT_EQ(i, mem[index]) << "Work item[" << index << "] prop isn't set properly.";
+      }
+    }
+  }
+  {
+    auto buff_host = device->makeBuffer<uint32b>(zivc::BufferUsage::kHostOnly);
+    buff_host->setSize(buff_device3->size());
+
+    auto options = buff_device3->makeOptions();
+    options.setExternalSyncMode(true);
+    auto result = zivc::copy(*buff_device3, buff_host.get(), options);
+    device->waitForCompletion(result.fence());
+
+    {
+      auto mem = buff_host->mapMemory();
+      for (std::size_t i = 0; i < n; ++i) {
+        {
+          const uint32b x = zisc::cast<uint32b>(i);
+          ASSERT_EQ(x, mem[2 * i + 0]) << "Work item[" << i << "] prop isn't set properly.";
+        }
+        {
+          const uint32b x = zisc::cast<uint32b>(i) + offset_x;
+          ASSERT_EQ(x, mem[2 * i + 1]) << "Work item[" << i << "] prop isn't set properly.";
+        }
+      }
+    }
+  }
+}
+
+TEST(KernelTest, WorkItemOffset3dTest)
+{
+  auto platform = ztest::makePlatform();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
+  [[maybe_unused]] const auto& info = device->deviceInfo();
+
+  using zivc::int32b;
+  using zivc::uint32b;
+  using GlobalId = zivc::cl::kernel_test::inner::GlobalId3d;
+
+  constexpr std::size_t n_dim = 250;
+  constexpr std::size_t n = n_dim * n_dim * n_dim;
+
+  // Allocate buffers
+  auto buff_device1 = device->makeBuffer<uint32b>(zivc::BufferUsage::kDeviceOnly);
+  buff_device1->setSize(n);
+  auto buff_device2 = device->makeBuffer<GlobalId>(zivc::BufferUsage::kDeviceOnly);
+  buff_device2->setSize(2 * n);
+  auto buff_properties = device->makeBuffer<uint32b>(zivc::BufferUsage::kDeviceOnly);
+  buff_properties->setSize(3);
+
+  // Init buffers
+  {
+    auto options = buff_device1->makeOptions();
+    options.setExternalSyncMode(true);
+    auto result = buff_device1->fill(0, options);
+    device->waitForCompletion(result.fence());
+  }
+  {
+    auto buff_host = device->makeBuffer<GlobalId>(zivc::BufferUsage::kHostOnly);
+    buff_host->setSize(buff_device2->size());
+    {
+      constexpr uint32b init_v = 0;
+      const GlobalId id{init_v, init_v, init_v};
+      auto options = buff_host->makeOptions();
+      auto result = buff_host->fill(id, options);
+      ASSERT_FALSE(result.isAsync());
+    }
+
+    auto options = buff_device2->makeOptions();
+    options.setExternalSyncMode(true);
+    auto result = zivc::copy(*buff_host, buff_device2.get(), options);
+    device->waitForCompletion(result.fence());
+  }
+  {
+    auto options = buff_properties->makeOptions();
+    options.setExternalSyncMode(true);
+    auto result = buff_properties->fill(0, options);
+    device->waitForCompletion(result.fence());
+  }
+
+  // Make a kernel
+  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test, workItemOffset3dKernel, 3);
+  auto kernel = device->makeKernel(kernel_params);
+  ASSERT_EQ(3, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(4, kernel->argSize()) << "Wrong kernel property.";
+
+  constexpr uint32b offset_x = 15;
+  constexpr uint32b offset_y = 9;
+  constexpr uint32b offset_z = 5;
+
+  // Launch the kernel
+  {
+    auto launch_options = kernel->makeOptions();
+    launch_options.setWorkSize({n_dim, n_dim, n_dim});
+    launch_options.setGlobalIdOffset({offset_x, offset_y, offset_z});
+    launch_options.setExternalSyncMode(false);
+    launch_options.setLabel("workItemOffset3dKernel");
+    auto result = kernel->run(*buff_device1, *buff_device2, *buff_properties, n, launch_options);
+    device->waitForCompletion();
+  }
+
+  // Check the outputs
+  {
+    auto buff_host = device->makeBuffer<uint32b>(zivc::BufferUsage::kHostOnly);
+    buff_host->setSize(buff_properties->size());
+
+    auto options = buff_properties->makeOptions();
+    options.setExternalSyncMode(true);
+    auto result = zivc::copy(*buff_properties, buff_host.get(), options);
+    device->waitForCompletion(result.fence());
+
+    {
+      auto mem = buff_host->mapMemory();
+      ASSERT_EQ(offset_x, mem[0]) << "Global offset x is wrong.";
+      ASSERT_EQ(offset_y, mem[1]) << "Global offset y is wrong.";
+      ASSERT_EQ(offset_z, mem[2]) << "Global offset z is wrong.";
+    }
+  }
+  {
+    auto buff_host = device->makeBuffer<uint32b>(zivc::BufferUsage::kHostOnly);
+    buff_host->setSize(buff_device1->size());
+
+    auto options = buff_device1->makeOptions();
+    options.setExternalSyncMode(true);
+    auto result = zivc::copy(*buff_device1, buff_host.get(), options);
+    device->waitForCompletion(result.fence());
+
+    {
+      auto mem = buff_host->mapMemory();
+      for (std::size_t i = 0; i < n; i++)
+        ASSERT_EQ(2, mem[i]) << "Work item[" << i << "] prop isn't set properly.";
+    }
+  }
+  {
+    auto buff_host = device->makeBuffer<GlobalId>(zivc::BufferUsage::kHostOnly);
+    buff_host->setSize(buff_device2->size());
+
+    auto options = buff_device2->makeOptions();
+    options.setExternalSyncMode(true);
+    auto result = zivc::copy(*buff_device2, buff_host.get(), options);
+    device->waitForCompletion(result.fence());
+
+    {
+      auto mem = buff_host->mapMemory();
+      std::size_t index = 0;
+      for (std::size_t z = 0; z < n_dim; ++z) {
+        const uint32b z_id = zisc::cast<uint32b>(z) + offset_z;
+        for (std::size_t y = 0; y < n_dim; ++y) {
+          const uint32b y_id = zisc::cast<uint32b>(y) + offset_y;
+          for (std::size_t x = 0; x < n_dim; ++x) {
+            const std::size_t i = index++;
+            const uint32b x_id = zisc::cast<uint32b>(x) + offset_x;
+            {
+              const GlobalId& id = mem[2 * i + 0];
+              ASSERT_EQ(x, id.x_)
+                  << "Global offset x is wrong: index=" << i 
+                  << " (" << x << "," << y << "," << z << ").";
+              ASSERT_EQ(y, id.y_)
+                  << "Global offset y is wrong: index=" << i
+                  << " (" << x << "," << y << "," << z << ").";
+              ASSERT_EQ(z, id.z_)
+                  << "Global offset z is wrong: index=" << i
+                  << " (" << x << "," << y << "," << z << ").";
+            }
+            {
+              const GlobalId& id = mem[2 * i + 1];
+              ASSERT_EQ(x_id, id.x_)
+                  << "Global offset x is wrong: index=" << i 
+                  << " (" << x << "," << y << "," << z << ").";
+              ASSERT_EQ(y_id, id.y_)
+                  << "Global offset y is wrong: index=" << i
+                  << " (" << x << "," << y << "," << z << ").";
+              ASSERT_EQ(z_id, id.z_)
+                  << "Global offset z is wrong: index=" << i
+                  << " (" << x << "," << y << "," << z << ").";
+            }
+          }
+        }
+      }
+    }
+  }
+}

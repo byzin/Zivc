@@ -355,6 +355,7 @@ void writeWorkItemProperties(zivc::GlobalPtr<uint32b> properties) noexcept
   \details No detailed description
 
   \param [out] outputs No description.
+  \param [out] properties No description.
   \param [in] resolution No description.
   */
 __kernel void workItem1dKernel(zivc::GlobalPtr<uint32b> outputs,
@@ -378,7 +379,8 @@ __kernel void workItem1dKernel(zivc::GlobalPtr<uint32b> outputs,
       num_of_work_groups[0] = static_cast<uint32b>(nlx);
     }
 
-    zivc::atomic_inc(&outputs[index]);
+    zivc::GlobalPtr<uint32b> ptr = &outputs[index];
+    zivc::atomic_inc(ptr);
   }
   else {
     zivc::GlobalPtr<uint32b> outlier = outputs + resolution;
@@ -392,7 +394,8 @@ __kernel void workItem1dKernel(zivc::GlobalPtr<uint32b> outputs,
   const size_t group_id = wx;
   const size_t index2 = local_id + group_size * group_id;
   if (index2 < resolution) {
-    zivc::atomic_inc(outputs + index2);
+    zivc::GlobalPtr<uint32b> ptr = &outputs[index2];
+    zivc::atomic_inc(ptr);
   }
 }
 
@@ -400,6 +403,7 @@ __kernel void workItem1dKernel(zivc::GlobalPtr<uint32b> outputs,
   \details No detailed description
 
   \param [out] outputs No description.
+  \param [out] properties No description.
   \param [in] resolution No description.
   */
 __kernel void workItem2dKernel(zivc::GlobalPtr<uint32b> outputs,
@@ -425,7 +429,8 @@ __kernel void workItem2dKernel(zivc::GlobalPtr<uint32b> outputs,
       num_of_work_groups[0] = static_cast<uint32b>(nlx * nly);
     }
 
-    zivc::atomic_inc(&outputs[index]);
+    zivc::GlobalPtr<uint32b> ptr = &outputs[index];
+    zivc::atomic_inc(ptr);
   }
   else {
     zivc::GlobalPtr<uint32b> outlier = outputs + resolution;
@@ -441,7 +446,8 @@ __kernel void workItem2dKernel(zivc::GlobalPtr<uint32b> outputs,
   const size_t group_id = wx + nwx * wy;
   const size_t index2 = local_id + group_size * group_id;
   if (index2 < resolution) {
-    zivc::atomic_inc(outputs + index2);
+    zivc::GlobalPtr<uint32b> ptr = &outputs[index2];
+    zivc::atomic_inc(ptr);
   }
 }
 
@@ -449,6 +455,7 @@ __kernel void workItem2dKernel(zivc::GlobalPtr<uint32b> outputs,
   \details No detailed description
 
   \param [out] outputs No description.
+  \param [out] properties No description.
   \param [in] resolution No description.
   */
 __kernel void workItem3dKernel(zivc::GlobalPtr<uint32b> outputs,
@@ -476,7 +483,8 @@ __kernel void workItem3dKernel(zivc::GlobalPtr<uint32b> outputs,
       num_of_work_groups[0] = static_cast<uint32b>(nlx * nly * nlz);
     }
 
-    zivc::atomic_inc(&outputs[index]);
+    zivc::GlobalPtr<uint32b> ptr = &outputs[index];
+    zivc::atomic_inc(ptr);
   }
   else {
     zivc::GlobalPtr<uint32b> outlier = outputs + resolution;
@@ -494,7 +502,123 @@ __kernel void workItem3dKernel(zivc::GlobalPtr<uint32b> outputs,
   const size_t group_id = wx + nwx * wy + (nwx * nwy) * wz;
   const size_t index2 = local_id + group_size * group_id;
   if (index2 < resolution) {
-    zivc::atomic_inc(outputs + index2);
+    zivc::GlobalPtr<uint32b> ptr = &outputs[index2];
+    zivc::atomic_inc(ptr);
+  }
+}
+
+namespace inner {
+
+/*!
+  \brief No brief description
+
+  No detailed description.
+  */
+struct GlobalId3d
+{
+  uint32b x_ = 0;
+  uint32b y_ = 0;
+  uint32b z_ = 0;
+};
+
+} // namespace inner
+
+/*!
+  \details No detailed description
+
+  \param [out] outputs No description.
+  \param [out] ids No description.
+  \param [out] properties No description.
+  \param [in] resolution No description.
+  */
+__kernel void workItemOffset1dKernel(zivc::GlobalPtr<uint32b> outputs,
+                                     zivc::GlobalPtr<uint32b> outputs2,
+                                     zivc::GlobalPtr<uint32b> ids,
+                                     zivc::GlobalPtr<uint32b> properties,
+                                     const uint32b resolution)
+{
+  // Global ID test
+  const size_t index = zivc::getGlobalLinearId();
+  if (index == 0) {
+    properties[0] = static_cast<uint32b>(zivc::getGlobalOffsetX());
+  }
+  if (index < resolution) {
+    zivc::GlobalPtr<uint32b> ptr = &outputs[index];
+    zivc::atomic_inc(ptr);
+    ids[2 * index + 0] = static_cast<uint32b>(zivc::getGlobalIdX() -
+                                              zivc::getGlobalOffsetX());
+    ids[2 * index + 1] = static_cast<uint32b>(zivc::getGlobalIdX());
+  }
+
+  // Offset test
+  {
+    const size_t i = zivc::getGlobalIdX();
+    outputs2[i] = static_cast<uint32b>(index);
+  }
+
+  // Local ID test
+  const size_t wx = zivc::getGroupIdX();
+  const size_t local_id = zivc::getLocalLinearId();
+  const size_t nlx = zivc::getLocalSizeX();
+  const size_t group_size = nlx;
+  const size_t group_id = wx;
+  const size_t index2 = local_id + group_size * group_id;
+  if (index2 < resolution) {
+    zivc::GlobalPtr<uint32b> ptr = &outputs[index2];
+    zivc::atomic_inc(ptr);
+  }
+}
+
+/*!
+  \details No detailed description
+
+  \param [out] outputs No description.
+  \param [out] ids No description.
+  \param [out] properties No description.
+  \param [in] resolution No description.
+  */
+__kernel void workItemOffset3dKernel(zivc::GlobalPtr<uint32b> outputs,
+                                     zivc::GlobalPtr<inner::GlobalId3d> ids,
+                                     zivc::GlobalPtr<uint32b> properties,
+                                     const uint32b resolution)
+{
+  // Global ID test
+  const size_t index = zivc::getGlobalLinearId();
+  if (index == 0) {
+    properties[0] = static_cast<uint32b>(zivc::getGlobalOffsetX());
+    properties[1] = static_cast<uint32b>(zivc::getGlobalOffsetY());
+    properties[2] = static_cast<uint32b>(zivc::getGlobalOffsetZ());
+  }
+  if (index < resolution) {
+    zivc::GlobalPtr<uint32b> ptr = &outputs[index];
+    zivc::atomic_inc(ptr);
+    ids[2 * index + 0].x_ = static_cast<uint32b>(zivc::getGlobalIdX() -
+                                                 zivc::getGlobalOffsetX());
+    ids[2 * index + 0].y_ = static_cast<uint32b>(zivc::getGlobalIdY() -
+                                                 zivc::getGlobalOffsetY());
+    ids[2 * index + 0].z_ = static_cast<uint32b>(zivc::getGlobalIdZ() -
+                                                 zivc::getGlobalOffsetZ());
+    ids[2 * index + 1].x_ = static_cast<uint32b>(zivc::getGlobalIdX());
+    ids[2 * index + 1].y_ = static_cast<uint32b>(zivc::getGlobalIdY());
+    ids[2 * index + 1].z_ = static_cast<uint32b>(zivc::getGlobalIdZ());
+  }
+
+  // Local ID test
+  const size_t wx = zivc::getGroupIdX();
+  const size_t wy = zivc::getGroupIdY();
+  const size_t wz = zivc::getGroupIdZ();
+  const size_t local_id = zivc::getLocalLinearId();
+  const size_t nlx = zivc::getLocalSizeX();
+  const size_t nly = zivc::getLocalSizeY();
+  const size_t nlz = zivc::getLocalSizeZ();
+  const size_t group_size = nlx * nly * nlz;
+  const size_t nwx = zivc::getNumGroupsX();
+  const size_t nwy = zivc::getNumGroupsY();
+  const size_t group_id = wx + nwx * wy + (nwx * nwy) * wz;
+  const size_t index2 = local_id + group_size * group_id;
+  if (index2 < resolution) {
+    zivc::GlobalPtr<uint32b> ptr = &outputs[index2];
+    zivc::atomic_inc(ptr);
   }
 }
 

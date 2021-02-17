@@ -38,7 +38,7 @@
 namespace zivc {
 
 // Forward declaration
-template <KernelParameter> class Buffer;
+template <KernelArg> class Buffer;
 template <std::size_t, DerivedKSet, typename...> class KernelInitParams;
 template <typename...> class KernelArgParser;
 template <typename, typename...> class Kernel;

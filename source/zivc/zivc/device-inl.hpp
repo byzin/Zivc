@@ -37,7 +37,7 @@ namespace zivc {
   \param [in] flag No description.
   \return No description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 SharedBuffer<T> Device::makeBuffer(const BufferUsage flag)
 {
   auto buffer = ::zivc::makeBuffer<T>(this, flag);
@@ -80,7 +80,7 @@ const DeviceInfo& Device::deviceInfo() const noexcept
   \param [in] flag No description.
   \return No description
   */
-template <template<typename> typename Derived, KernelParameter T> inline
+template <template<typename> typename Derived, KernelArg T> inline
 SharedBuffer<T> Device::makeDerivedBuffer(const BufferUsage flag)
 {
   using BufferT = Derived<T>;
@@ -110,7 +110,7 @@ auto Device::makeDerivedKernel(const KernelInitParams<kDim, KSet, Args...>& para
     -> SharedKernel<kDim, KSet, Args...>
 {
   using Parser = KernelArgParser<Args...>;
-  using KernelT = typename Parser::template DerivedKernelType<Derived, kDim, KSet>;
+  using KernelT = typename Parser::template KernelType<Derived, kDim, KSet>;
   using SharedKernelT = SharedKernel<kDim, KSet, Args...>;
   using WeakKernelT = WeakKernel<kDim, KSet, Args...>;
 

@@ -47,7 +47,7 @@ bool PodData<Type, Types...>::isEqual(const PodData& other) const noexcept
   \param [in] value No description.
   */
 template <typename Type, typename ...Types>
-template <std::size_t kIndex, KernelParameter T> inline
+template <std::size_t kIndex, KernelArg T> inline
 void PodData<Type, Types...>::set(const T& value) noexcept
 {
   static_assert(kIndex <= kPosition, "The given index is out of range.");
@@ -76,7 +76,7 @@ bool PodData<void>::isEqual([[maybe_unused]] const PodData& other) const noexcep
   \tparam T No description.
   \param [in] value No description.
   */
-template <std::size_t kIndex, KernelParameter T> inline
+template <std::size_t kIndex, KernelArg T> inline
 void PodData<void>::set([[maybe_unused]] const T& value) noexcept
 {
 }
@@ -87,7 +87,7 @@ void PodData<void>::set([[maybe_unused]] const T& value) noexcept
   \param [in] other No description.
   \return No description
   */
-template <KernelParameter Type> inline
+template <KernelArg Type> inline
 bool PodData<Type>::isEqual(const PodData& other) const noexcept
 {
   bool result = value_ == other.value_;
@@ -101,8 +101,8 @@ bool PodData<Type>::isEqual(const PodData& other) const noexcept
   \tparam T No description.
   \param [in] value No description.
   */
-template <KernelParameter Type>
-template <std::size_t kIndex, KernelParameter T> inline
+template <KernelArg Type>
+template <std::size_t kIndex, KernelArg T> inline
 void PodData<Type>::set(const T& value) noexcept
 {
   static_assert(kIndex == 0, "The given index is out of range.");

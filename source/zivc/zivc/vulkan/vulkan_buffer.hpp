@@ -35,7 +35,7 @@ namespace zivc {
 // Forward declaration
 class VulkanDevice;
 
-template <KernelParameter T>
+template <KernelArg T>
 class VulkanBuffer : public Buffer<T>
 {
  public:
@@ -172,48 +172,48 @@ class VulkanBuffer : public Buffer<T>
 
 
   //! Copy from the given buffer
-  template <KernelParameter D>
+  template <KernelArg D>
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
   static LaunchResult copyFromImpl(const BufferCommon& source,
                                    BufferCommon* dest,
                                    const BufferLaunchOptions<D>& launch_options);
 
   //! Copy on the device
-  template <KernelParameter D>
+  template <KernelArg D>
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
   static LaunchResult copyOnDevice(const BufferCommon& source,
                                    BufferCommon* dest,
                                    const BufferLaunchOptions<D>& launch_options);
 
   //! Copy on the host
-  template <KernelParameter D>
+  template <KernelArg D>
   static LaunchResult copyOnHost(const BufferCommon& source,
                                  BufferCommon* dest,
                                  const BufferLaunchOptions<D>& launch_options) noexcept;
 
   //! Fill the buffer on device with specified value
-  template <KernelParameter D>
+  template <KernelArg D>
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
   static LaunchResult fillFastOnDevice(typename Buffer<D>::ConstReference value,
                                        BufferCommon* dest,
                                        const BufferLaunchOptions<D>& launch_options);
 
   //! Fill the buffer with specified value
-  template <KernelParameter D>
+  template <KernelArg D>
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
   static LaunchResult fillImpl(typename Buffer<D>::ConstReference value,
                                BufferCommon* dest,
                                const BufferLaunchOptions<D>& launch_options);
 
   //! Fill the buffer on device with specified value
-  template <KernelParameter D>
+  template <KernelArg D>
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
   static LaunchResult fillOnDevice(typename Buffer<D>::ConstReference value,
                                    BufferCommon* dest,
                                    const BufferLaunchOptions<D>& launch_options);
 
   //! Fill the buffer on host with specified value
-  template <KernelParameter D>
+  template <KernelArg D>
   static LaunchResult fillOnHost(typename Buffer<D>::ConstReference value,
                                  BufferCommon* dest,
                                  const BufferLaunchOptions<D>& launch_options) noexcept;

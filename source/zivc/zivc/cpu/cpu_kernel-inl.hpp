@@ -180,10 +180,10 @@ Launcher<UnprocessedArgs...>::exec(Function func,
   }
   else { // Process arguments
     using ArgT = std::remove_volatile_t<typename std::tuple_element_t<0, ArgTuple>>;
-    using ArgInfo = KernelArgInfo<ArgT>;
+    using ArgTypeInfo = KernelArgTypeInfo<ArgT>;
     using NextLauncher = typename LauncherHelper<UnprocessedArgs...>::NextLauncher;
-    if constexpr (ArgInfo::kIsLocal) { // Process a local argument
-      typename ArgInfo::ElementType storage{};
+    if constexpr (ArgTypeInfo::kIsLocal) { // Process a local argument
+      typename ArgTypeInfo::ElementType storage{};
       ArgT cl_arg{std::addressof(storage)};
       NextLauncher::exec(func,
                          launch_options,
@@ -191,7 +191,7 @@ Launcher<UnprocessedArgs...>::exec(Function func,
                          std::forward<Types>(rest)...,
                          cl_arg);
     }
-    else if constexpr (ArgInfo::kIsPod) {
+    else if constexpr (ArgTypeInfo::kIsPod) {
       NextLauncher::exec(func,
                          launch_options,
                          std::forward<Types>(rest)...,

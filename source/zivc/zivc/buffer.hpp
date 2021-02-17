@@ -35,8 +35,8 @@
 namespace zivc {
 
 // Forward declaration
-template <KernelParameter> class MappedMemory;
-template <DerivedBuffer, KernelParameter> class ReinterpBuffer;
+template <KernelArg> class MappedMemory;
+template <DerivedBuffer, KernelArg> class ReinterpBuffer;
 
 
 /*!
@@ -46,7 +46,7 @@ template <DerivedBuffer, KernelParameter> class ReinterpBuffer;
 
   \tparam T No description.
   */
-template <KernelParameter T>
+template <KernelArg T>
 class Buffer : public BufferCommon
 {
  public:
@@ -60,9 +60,9 @@ class Buffer : public BufferCommon
   using Pointer = std::add_pointer_t<Type>;
   using ConstPointer = std::add_pointer_t<ConstType>;
   using LaunchOptions = BufferLaunchOptions<Type>;
-  template <KernelParameter NewType>
+  template <KernelArg NewType>
   using ReinterpBufferT = ReinterpBuffer<BufferCommon, NewType>;
-  template <KernelParameter NewType>
+  template <KernelArg NewType>
   using ConstReinterpBufferT = ReinterpBuffer<const BufferCommon, NewType>;
 
 
@@ -109,12 +109,12 @@ class Buffer : public BufferCommon
   LaunchOptions makeOptions() const noexcept;
 
   //! Convert a type of a buffer interface to NewType
-  template <KernelParameter NewType>
+  template <KernelArg NewType>
   [[nodiscard]]
   ReinterpBufferT<NewType> reinterp() noexcept;
 
   //! Convert a type of a buffer interface to NewType
-  template <KernelParameter NewType>
+  template <KernelArg NewType>
   [[nodiscard]]
   ConstReinterpBufferT<NewType> reinterp() const noexcept;
 
@@ -122,11 +122,11 @@ class Buffer : public BufferCommon
   std::size_t size() const noexcept;
 
  protected:
-  template <KernelParameter Type>
+  template <KernelArg Type>
   friend LaunchResult copy(const Buffer<Type>&,
                            Buffer<Type>*,
                            const BufferLaunchOptions<Type>&);
-  template <KernelParameter Type>
+  template <KernelArg Type>
   friend LaunchResult fill(typename Buffer<Type>::ConstReference,
                            Buffer<Type>*,
                            const BufferLaunchOptions<Type>&);
@@ -153,14 +153,14 @@ class Buffer : public BufferCommon
 
 
 // Type aliases
-template <KernelParameter Type>
+template <KernelArg Type>
 using SharedBuffer = typename Buffer<Type>::SharedPtr;
-template <KernelParameter Type>
+template <KernelArg Type>
 using WeakBuffer = typename Buffer<Type>::WeakPtr;
 
 
 //! Copy from the source to the dest
-template <KernelParameter Type>
+template <KernelArg Type>
 [[nodiscard("The result can have a fence when external sync mode is on.")]]
 LaunchResult copy(const Buffer<Type>& source,
                   Buffer<Type>* dest,
@@ -168,7 +168,7 @@ LaunchResult copy(const Buffer<Type>& source,
                       BufferLaunchOptions<Type>{});
 
 //! Fill the buffer with specified value
-template <KernelParameter Type>
+template <KernelArg Type>
 [[nodiscard("The result can have a fence when external sync mode is on.")]]
 LaunchResult fill(typename Buffer<Type>::ConstReference value,
                   Buffer<Type>* dest,

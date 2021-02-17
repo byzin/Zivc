@@ -28,7 +28,7 @@
 namespace zivc {
 
 // Forward declaration
-template <KernelParameter> class MappedMemory;
+template <KernelArg> class MappedMemory;
 class BufferCommon;
 
 // Concepts
@@ -54,11 +54,11 @@ class BufferCommon : public ZivcObject
   virtual std::size_t capacityInBytes() const noexcept = 0;
 
   //! Return the capacity of the buffer
-  template <KernelParameter T>
+  template <KernelArg T>
   std::size_t getCapacity() const noexcept;
 
   //! Return the number of elements of the buffer
-  template <KernelParameter T>
+  template <KernelArg T>
   std::size_t getSize() const noexcept;
 
   //! Return the index of used heap
@@ -77,7 +77,7 @@ class BufferCommon : public ZivcObject
   virtual bool isHostVisible() const noexcept = 0;
 
   //! Map a buffer memory to a host
-  template <KernelParameter T>
+  template <KernelArg T>
   [[nodiscard]]
   MappedMemory<T> makeMappedMemory() const;
 
@@ -108,7 +108,7 @@ class BufferCommon : public ZivcObject
 
  protected:
   //! Calculate the number of elements from the given size
-  template <KernelParameter T>
+  template <KernelArg T>
   std::size_t calcSize(const std::size_t s) const noexcept;
 
   //! Set the type size

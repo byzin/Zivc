@@ -29,19 +29,21 @@
 namespace zivc {
 
 // Forward declaration
+template <KernelArg> class Buffer;
 template <std::size_t, DerivedKSet, typename...> class KernelInitParams;
 template <typename, typename...> class Kernel;
-template <KernelParameter> class Buffer;
+template <typename...> class KernelArgParserImpl;
+template <typename ...> struct KernelArgTypePack;
 
 /*!
-  \brief POD type info
+  \brief Information of a pod kernel argument
 
   No detailed description.
 
   \tparam Type No description.
   */
 template <typename Type>
-class AddressSpaceInfo
+class KernelArgTypeInfo
 {
  public:
   using ElementType = std::remove_cv_t<Type>;
@@ -51,60 +53,35 @@ class AddressSpaceInfo
   static constexpr bool kIsLocal = false;
   static constexpr bool kIsConstant = false;
   static constexpr bool kIsPod = true;
+  static constexpr bool kIsBuffer = false;
 
  private:
-  static_assert(!std::is_pointer_v<Type>, "The Type is pointer.");
-  static_assert(!std::is_reference_v<Type>, "The Type is reference.");
-  static_assert(KernelParameter<Type>,
-                "The POD type isn't standard layout or trivially copyable.");
-  static_assert(zisc::EqualityComparable<Type>,
+  static_assert(!std::is_pointer_v<ElementType>, "The Type is pointer.");
+  static_assert(!std::is_reference_v<ElementType>, "The Type is reference.");
+  static_assert(std::is_standard_layout_v<ElementType>,
+                "The POD type isn't standard layout type.");
+  static_assert(std::is_trivially_copyable_v<ElementType>,
+                "The POD type isn't trivially copyable type.");
+  static_assert(zisc::EqualityComparable<ElementType>,
                 "The POD type isn't equality comparable.");
-};
-
-/*!
-  \brief Type information of a kernel arg
-
-  No detailed description.
-
-  \tparam Type No description.
-  */
-template <typename Type>
-class KernelArgInfo
-{
-  using ASpaceInfo = AddressSpaceInfo<std::remove_cv_t<Type>>;
-
- public:
-  using ElementType = typename ASpaceInfo::ElementType;
-
-
-  static constexpr bool kIsGlobal = ASpaceInfo::kIsGlobal;
-  static constexpr bool kIsLocal = ASpaceInfo::kIsLocal;
-  static constexpr bool kIsConstant = ASpaceInfo::kIsConstant;
-  static constexpr bool kIsPod = ASpaceInfo::kIsPod;
-  static constexpr bool kIsBuffer = kIsGlobal || kIsConstant;
-
- private:
-  static_assert(!std::is_pointer_v<Type>, "The Type is pointer.");
-  static_assert(!std::is_reference_v<Type>, "The Type is reference.");
 };
 
 /*!
   \brief No brief description
 
-  No detailed description.
-  */
-class KernelArgParseResult
+  No detailed description.  */
+class KernelArgInfo
 {
  public:
   //! Initialize a parse result
-  constexpr KernelArgParseResult() noexcept;
+  constexpr KernelArgInfo() noexcept;
 
   //! Initialize a parse result
-  constexpr KernelArgParseResult(const bool is_global,
-                                 const bool is_local,
-                                 const bool is_constant,
-                                 const bool is_pod,
-                                 const bool is_buffer) noexcept;
+  constexpr KernelArgInfo(const bool is_global,
+                          const bool is_local,
+                          const bool is_constant,
+                          const bool is_pod,
+                          const bool is_buffer) noexcept;
 
 
   //! Check if the argument is global qualified
@@ -139,73 +116,74 @@ class KernelArgParseResult
 };
 
 /*!
-  \brief Type information of kernel arguments
+  \brief Parse kernel arguments and provide kernel information
 
   No detailed description.
 
   \tparam Args No description.
   */
 template <typename ...Args>
-class KernelArgParser
+class KernelArgParser 
 {
+  using Impl = KernelArgParserImpl<Args...>;
+
+
  public:
+  //! Make a kernel helper
+  template <template<typename, typename...> typename KernelT,
+            std::size_t kDim, DerivedKSet KSet, typename ...KArgs>
+  static auto makeKernelType(const KernelArgTypePack<KArgs...>&) noexcept
+  {
+    using InitParamsT = KernelInitParams<kDim, KSet, Args...>;
+    struct Helper
+    {
+      using Type = KernelT<InitParamsT, KArgs...>;
+    };
+    return Helper{};
+  }
+
+  //!
+  template <template<typename, typename...> typename KernelT,
+            std::size_t kDim, DerivedKSet KSet>
+  using Helper = decltype(makeKernelType<KernelT, kDim, KSet>(typename Impl::ArgTypePack{}));
+
   // Type aliases
   template <std::size_t kSize>
-  using ResultList = std::array<KernelArgParseResult, kSize>;
-  template <std::size_t kDim, DerivedKSet KSet>
-  using KernelType = Kernel<KernelInitParams<kDim, KSet, Args...>>;
+  using ArgInfoList = std::array<KernelArgInfo, kSize>;
+  template <template<typename, typename...> typename KernelT,
+            std::size_t kDim, DerivedKSet KSet>
+  using KernelType = typename Helper<KernelT, kDim, KSet>::Type;
 
 
-  static constexpr std::size_t kNumOfArgs = 0; //!< The number of arguments
-  static constexpr std::size_t kNumOfGlobalArgs = 0; //!< The number of globals
-  static constexpr std::size_t kNumOfLocalArgs = 0; //!< The number of locals
-  static constexpr std::size_t kNumOfConstantArgs = 0; //!< The number of constants
-  static constexpr std::size_t kNumOfPodArgs = 0; //!< The number of PODs
-  static constexpr std::size_t kNumOfBufferArgs = 0; //!< The number of buffers
+  // The number of kernel arguments
+  static constexpr std::size_t kNumOfArgs = Impl::kNumOfArgs; //!< The number of arguments
+  static constexpr std::size_t kNumOfGlobalArgs = Impl::kNumOfGlobalArgs; //!< The number of globals
+  static constexpr std::size_t kNumOfLocalArgs = Impl::kNumOfLocalArgs; //!< The number of locals
+  static constexpr std::size_t kNumOfConstantArgs = Impl::kNumOfConstantArgs; //!< The number of constants
+  static constexpr std::size_t kNumOfPodArgs = Impl::kNumOfPodArgs; //!< The number of PODs
+  static constexpr std::size_t kNumOfBufferArgs = Impl::kNumOfBufferArgs; //!< The number of buffers
 
 
   //! Return the info of arguments
-  static constexpr ResultList<kNumOfArgs> getArgInfoList() noexcept
-  {
-    ResultList<kNumOfArgs> result_list;
-    return result_list;
-  }
+  static constexpr ArgInfoList<kNumOfArgs> getArgInfoList() noexcept;
 
   //! Return the info of local arguments
-  static constexpr ResultList<kNumOfLocalArgs> getLocalArgInfoList() noexcept
-  {
-    ResultList<kNumOfLocalArgs> result_list;
-    return result_list;
-  }
+  static constexpr ArgInfoList<kNumOfLocalArgs> getLocalArgInfoList() noexcept;
 
   //! Return the info of POD arguments
-  static constexpr ResultList<kNumOfPodArgs> getPodArgInfoList() noexcept
-  {
-    ResultList<kNumOfPodArgs> result_list;
-    return result_list;
-  }
+  static constexpr ArgInfoList<kNumOfPodArgs> getPodArgInfoList() noexcept;
 
   //! Return the info of buffer arguments
-  static constexpr ResultList<kNumOfBufferArgs> getBufferArgInfoList() noexcept
-  {
-    ResultList<kNumOfBufferArgs> result_list;
-    return result_list;
-  }
-
-  //! Check if there are any const local arguments in the kernel arguments 
-  static constexpr bool hasConstLocal() noexcept
-  {
-    return false;
-  }
+  static constexpr ArgInfoList<kNumOfBufferArgs> getBufferArgInfoList() noexcept;
 };
 
 // Type aliases
 template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
 using SharedKernel = std::shared_ptr<typename KernelArgParser<Args...>::
-                                         template KernelType<kDim, KSet>>;
+                                         template KernelType<Kernel, kDim, KSet>>;
 template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
 using WeakKernel = std::weak_ptr<typename KernelArgParser<Args...>::
-                                     template KernelType<kDim, KSet>>;
+                                     template KernelType<Kernel, kDim, KSet>>;
 
 } // namespace zivc
 

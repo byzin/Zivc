@@ -42,7 +42,7 @@
 namespace zivc {
 
 //! Make a buffer
-template <KernelParameter Type>
+template <KernelArg Type>
 [[nodiscard]]
 SharedBuffer<Type> makeBuffer(Device* device, const BufferUsage flag);
 

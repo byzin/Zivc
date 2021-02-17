@@ -54,7 +54,7 @@ namespace zivc {
   \param [in] launch_options No description.
   \return No description
   */
-template <KernelParameter Type> inline
+template <KernelArg Type> inline
 LaunchResult copy(const Buffer<Type>& source,
                   Buffer<Type>* dest,
                   const BufferLaunchOptions<Type>& launch_options)
@@ -90,7 +90,7 @@ LaunchResult copy(const Buffer<Type>& source,
   \param [in] launch_options No description.
   \return No description
   */
-template <KernelParameter Type> inline
+template <KernelArg Type> inline
 LaunchResult fill(typename Buffer<Type>::ConstReference value,
                   Buffer<Type>* buffer,
                   const BufferLaunchOptions<Type>& launch_options)
@@ -125,7 +125,7 @@ LaunchResult fill(typename Buffer<Type>::ConstReference value,
   \param [in] flag No description.
   \return No description
   */
-template <KernelParameter Type> inline
+template <KernelArg Type> inline
 SharedBuffer<Type> makeBuffer(Device* device, const BufferUsage flag)
 {
   SharedBuffer<Type> buffer;

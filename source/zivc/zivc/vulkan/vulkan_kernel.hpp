@@ -116,7 +116,7 @@ class VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   std::array<uint32b, 3> calcDispatchWorkSize(const std::array<uint32b, kDim>& work_size) const noexcept;
 
   //! Get the underlying VkBuffer from the given buffer
-  template <KernelParameter Type>
+  template <KernelArg Type>
   static const VkBuffer& getBufferHandle(const Buffer<Type>& buffer) noexcept;
 
   //! Initialize the buffer list

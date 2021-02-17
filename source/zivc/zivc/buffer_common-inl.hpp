@@ -30,7 +30,7 @@ namespace zivc {
   \tparam T No description.
   \return No description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 std::size_t BufferCommon::getCapacity() const noexcept
 {
   const std::size_t c = calcSize<T>(capacityInBytes());
@@ -43,7 +43,7 @@ std::size_t BufferCommon::getCapacity() const noexcept
   \tparam T No description.
   \return No description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 std::size_t BufferCommon::getSize() const noexcept
 {
   const std::size_t s = calcSize<T>(sizeInBytes());
@@ -56,7 +56,7 @@ std::size_t BufferCommon::getSize() const noexcept
   \tparam T No description.
   \return No description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 MappedMemory<T> BufferCommon::makeMappedMemory() const
 {
   const BufferCommon* p = isHostVisible() ? this : nullptr;
@@ -93,7 +93,7 @@ BufferUsage BufferCommon::usage() const noexcept
   \param [in] s No description.
   \return No description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 std::size_t BufferCommon::calcSize(const std::size_t s) const noexcept
 {
   const std::size_t n = s / sizeof(T);

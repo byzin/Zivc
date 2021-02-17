@@ -31,7 +31,7 @@ namespace zivc {
 /*!
   \details No detailed description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 MappedMemory<T>::MappedMemory() noexcept
 {
 }
@@ -41,7 +41,7 @@ MappedMemory<T>::MappedMemory() noexcept
 
   \param [in] buffer No description.
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 MappedMemory<T>::MappedMemory(const BufferCommon* buffer) :
     data_{buffer ? zisc::cast<Pointer>(buffer->mapMemoryData()) : nullptr},
     buffer_{buffer}
@@ -53,7 +53,7 @@ MappedMemory<T>::MappedMemory(const BufferCommon* buffer) :
 
   \param [in] other No description.
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 MappedMemory<T>::MappedMemory(MappedMemory&& other) noexcept
 {
   zisc::swap(data_, other.data_);
@@ -63,7 +63,7 @@ MappedMemory<T>::MappedMemory(MappedMemory&& other) noexcept
 /*!
   \details No detailed description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 MappedMemory<T>::~MappedMemory() noexcept
 {
   unmap();
@@ -74,7 +74,7 @@ MappedMemory<T>::~MappedMemory() noexcept
 
   \return No description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 auto MappedMemory<T>::begin() noexcept -> Iterator
 {
   auto ite = data();
@@ -87,7 +87,7 @@ auto MappedMemory<T>::begin() noexcept -> Iterator
 
   \return No description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 auto MappedMemory<T>::begin() const noexcept -> ConstIterator
 {
   auto ite = data();
@@ -100,7 +100,7 @@ auto MappedMemory<T>::begin() const noexcept -> ConstIterator
 
   \return No description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 auto MappedMemory<T>::cbegin() const noexcept -> ConstIterator
 {
   auto ite = data();
@@ -113,7 +113,7 @@ auto MappedMemory<T>::cbegin() const noexcept -> ConstIterator
 
   \return No description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 auto MappedMemory<T>::end() noexcept -> Iterator
 {
   auto ite = data();
@@ -127,7 +127,7 @@ auto MappedMemory<T>::end() noexcept -> Iterator
 
   \return No description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 auto MappedMemory<T>::end() const noexcept -> ConstIterator
 {
   auto ite = data();
@@ -141,7 +141,7 @@ auto MappedMemory<T>::end() const noexcept -> ConstIterator
 
   \return No description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 auto MappedMemory<T>::cend() const noexcept -> ConstIterator
 {
   auto ite = data();
@@ -156,7 +156,7 @@ auto MappedMemory<T>::cend() const noexcept -> ConstIterator
   \param [in,out] other No description.
   \return No description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 auto MappedMemory<T>::operator=(MappedMemory&& other) noexcept -> MappedMemory&
 {
   zisc::swap(data_, other.data_);
@@ -169,7 +169,7 @@ auto MappedMemory<T>::operator=(MappedMemory&& other) noexcept -> MappedMemory&
 
   \return No description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 MappedMemory<T>::operator bool() const noexcept
 {
   const bool result = hasMemory();
@@ -182,7 +182,7 @@ MappedMemory<T>::operator bool() const noexcept
   \param [in] index No description.
   \return No description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 auto MappedMemory<T>::operator[](const std::size_t index) noexcept
     -> Reference
 {
@@ -195,7 +195,7 @@ auto MappedMemory<T>::operator[](const std::size_t index) noexcept
   \param [in] index No description.
   \return No description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 auto MappedMemory<T>::operator[](const std::size_t index) const noexcept
     -> ConstReference
 {
@@ -207,7 +207,7 @@ auto MappedMemory<T>::operator[](const std::size_t index) const noexcept
 
   \return No description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 auto MappedMemory<T>::data() noexcept -> Pointer
 {
   return data_;
@@ -218,7 +218,7 @@ auto MappedMemory<T>::data() noexcept -> Pointer
 
   \return No description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 auto MappedMemory<T>::data() const noexcept -> ConstPointer
 {
   return data_;
@@ -230,7 +230,7 @@ auto MappedMemory<T>::data() const noexcept -> ConstPointer
   \param [in] index No description.
   \return No description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 auto MappedMemory<T>::get(const std::size_t index) noexcept -> Reference
 {
   auto d = data();
@@ -246,7 +246,7 @@ auto MappedMemory<T>::get(const std::size_t index) noexcept -> Reference
   \param [in] index No description.
   \return No description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 auto MappedMemory<T>::get(const std::size_t index) const noexcept -> ConstReference
 {
   auto d = data();
@@ -261,7 +261,7 @@ auto MappedMemory<T>::get(const std::size_t index) const noexcept -> ConstRefere
 
   \return No description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 bool MappedMemory<T>::hasMemory() const noexcept
 {
   const bool result = data() != nullptr;
@@ -274,7 +274,7 @@ bool MappedMemory<T>::hasMemory() const noexcept
   \param [in] index No description.
   \param [in] value No description.
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 void MappedMemory<T>::set(const std::size_t index, ConstReference value) noexcept
 {
   auto d = data();
@@ -288,7 +288,7 @@ void MappedMemory<T>::set(const std::size_t index, ConstReference value) noexcep
 
   \return No description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 std::size_t MappedMemory<T>::size() const noexcept
 {
   const std::size_t s = hasMemory()
@@ -300,7 +300,7 @@ std::size_t MappedMemory<T>::size() const noexcept
 /*!
   \details No detailed description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 void MappedMemory<T>::unmap() noexcept
 {
   if (hasMemory())
@@ -314,7 +314,7 @@ void MappedMemory<T>::unmap() noexcept
 
   \return No description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 const BufferCommon* MappedMemory<T>::internalBuffer() const noexcept
 {
   ZISC_ASSERT(buffer_ != nullptr, "The internal buffer is null.");

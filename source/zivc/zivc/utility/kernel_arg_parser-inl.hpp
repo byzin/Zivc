@@ -32,27 +32,52 @@
 namespace zivc {
 
 /*!
-  \brief Global or Local type info
+  \brief Information of address space kernel argument
 
   No detailed description.
 
-  \tparam kAddressType No description.
+  \tparam kASpaceType No description.
   \tparam Type No description.
   */
-template <cl::AddressSpaceType kAddressType, KernelParameter Type>
-class AddressSpaceInfo<cl::AddressSpacePointer<kAddressType, Type>>
+template <cl::AddressSpaceType kASpaceType, KernelArg Type>
+class KernelArgTypeInfo<cl::AddressSpacePointer<kASpaceType, Type>>
 {
-  using ASpaceType = cl::AddressSpaceType;
-
  public:
   using ElementType = std::remove_cv_t<Type>;
 
 
-  static constexpr bool kIsGlobal = kAddressType == ASpaceType::kGlobal;
-  static constexpr bool kIsLocal = kAddressType == ASpaceType::kLocal;
-  static constexpr bool kIsConstant = kAddressType == ASpaceType::kConstant;
+  static constexpr bool kIsGlobal = kASpaceType == cl::AddressSpaceType::kGlobal;
+  static constexpr bool kIsLocal = kASpaceType == cl::AddressSpaceType::kLocal;
+  static constexpr bool kIsConstant = kASpaceType == cl::AddressSpaceType::kConstant;
   static constexpr bool kIsPod = false;
-  static_assert(kIsGlobal || kIsLocal || kIsConstant, "The address space is wrong.");
+  static constexpr bool kIsBuffer = kIsGlobal || kIsConstant;
+
+ private:
+  static_assert(!std::is_pointer_v<ElementType>, "The element type is pointer.");
+  static_assert(!std::is_reference_v<ElementType>, "The element type is reference.");
+  static_assert(kASpaceType != cl::AddressSpaceType::kPrivate,
+                "Private address space argument isn't allowed.");
+};
+
+/*!
+  \brief Information of buffer kernel argument
+
+  No detailed description.
+
+  \tparam Type No description.
+  */
+template <KernelArg Type>
+class KernelArgTypeInfo<Buffer<Type>>
+{
+ public:
+  using ElementType = std::remove_cv_t<Type>;
+
+
+  static constexpr bool kIsGlobal = true;
+  static constexpr bool kIsLocal = false;
+  static constexpr bool kIsConstant = false;
+  static constexpr bool kIsPod = false;
+  static constexpr bool kIsBuffer = kIsGlobal || kIsConstant;
 
  private:
   static_assert(!std::is_pointer_v<ElementType>, "The element type is pointer.");
@@ -60,30 +85,10 @@ class AddressSpaceInfo<cl::AddressSpacePointer<kAddressType, Type>>
 };
 
 /*!
-  \brief No brief description
-
-  No detailed description.
-
-  \tparam Type No description.
-  */
-template <KernelParameter Type>
-class AddressSpaceInfo<Buffer<Type>>
-{
- public:
-  using ElementType = std::remove_cv_t<Type>;
-
-
-  static constexpr bool kIsGlobal = false;
-  static constexpr bool kIsLocal = false;
-  static constexpr bool kIsConstant = false;
-  static constexpr bool kIsPod = false;
-};
-
-/*!
   \details No detailed description
   */
 inline
-constexpr KernelArgParseResult::KernelArgParseResult() noexcept :
+constexpr KernelArgInfo::KernelArgInfo() noexcept :
     index_{0},
     is_global_{zisc::kFalse},
     is_local_{zisc::kFalse},
@@ -98,15 +103,16 @@ constexpr KernelArgParseResult::KernelArgParseResult() noexcept :
 
   \param [in] is_global No description.
   \param [in] is_local No description.
-  \param [in] is_pod No description.
   \param [in] is_constant No description.
+  \param [in] is_pod No description.
+  \param [in] is_buffer No description.
   */
 inline
-constexpr KernelArgParseResult::KernelArgParseResult(const bool is_global,
-                                                     const bool is_local,
-                                                     const bool is_constant,
-                                                     const bool is_pod,
-                                                     const bool is_buffer) noexcept :
+constexpr KernelArgInfo::KernelArgInfo(const bool is_global,
+                                       const bool is_local,
+                                       const bool is_constant,
+                                       const bool is_pod,
+                                       const bool is_buffer) noexcept :
     index_{0},
     is_global_{is_global ? zisc::kTrue : zisc::kFalse},
     is_local_{is_local ? zisc::kTrue : zisc::kFalse},
@@ -122,7 +128,7 @@ constexpr KernelArgParseResult::KernelArgParseResult(const bool is_global,
   \return No description
   */
 inline
-constexpr bool KernelArgParseResult::isGlobal() const noexcept
+constexpr bool KernelArgInfo::isGlobal() const noexcept
 {
   return is_global_;
 }
@@ -133,7 +139,7 @@ constexpr bool KernelArgParseResult::isGlobal() const noexcept
   \return No description
   */
 inline
-constexpr bool KernelArgParseResult::isLocal() const noexcept
+constexpr bool KernelArgInfo::isLocal() const noexcept
 {
   return is_local_;
 }
@@ -144,7 +150,7 @@ constexpr bool KernelArgParseResult::isLocal() const noexcept
   \return No description
   */
 inline
-constexpr bool KernelArgParseResult::isConstant() const noexcept
+constexpr bool KernelArgInfo::isConstant() const noexcept
 {
   return is_constant_;
 }
@@ -155,7 +161,7 @@ constexpr bool KernelArgParseResult::isConstant() const noexcept
   \return No description
   */
 inline
-constexpr bool KernelArgParseResult::isPod() const noexcept
+constexpr bool KernelArgInfo::isPod() const noexcept
 {
   return is_pod_;
 }
@@ -166,7 +172,7 @@ constexpr bool KernelArgParseResult::isPod() const noexcept
   \return No description
   */
 inline
-constexpr bool KernelArgParseResult::isBuffer() const noexcept
+constexpr bool KernelArgInfo::isBuffer() const noexcept
 {
   return is_buffer_;
 }
@@ -176,7 +182,7 @@ constexpr bool KernelArgParseResult::isBuffer() const noexcept
   \return No description
   */
 inline
-constexpr std::size_t KernelArgParseResult::index() const noexcept
+constexpr std::size_t KernelArgInfo::index() const noexcept
 {
   return index_;
 }
@@ -187,10 +193,91 @@ constexpr std::size_t KernelArgParseResult::index() const noexcept
   \param [in] index No description.
   */
 inline
-constexpr void KernelArgParseResult::setIndex(const std::size_t index) noexcept
+constexpr void KernelArgInfo::setIndex(const std::size_t index) noexcept
 {
   index_ = index;
 }
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <typename ...Args> inline
+constexpr auto KernelArgParser<Args...>::getArgInfoList() noexcept
+    -> ArgInfoList<kNumOfArgs>
+{
+  ArgInfoList<kNumOfArgs> info_list{};
+  Impl::setArgInfo(0, 0, info_list.data());
+  return info_list;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <typename ...Args> inline
+constexpr auto KernelArgParser<Args...>::getLocalArgInfoList() noexcept
+    -> ArgInfoList<kNumOfLocalArgs>
+{
+  ArgInfoList<kNumOfLocalArgs> info_list{};
+  Impl::setLocalArgInfo(0, 0, info_list.data());
+  return info_list;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <typename ...Args> inline
+constexpr auto KernelArgParser<Args...>::getPodArgInfoList() noexcept
+    -> ArgInfoList<kNumOfPodArgs>
+{
+  ArgInfoList<kNumOfPodArgs> info_list{};
+  Impl::setPodArgInfo(0, 0, info_list.data());
+  return info_list;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <typename ...Args> inline
+constexpr auto KernelArgParser<Args...>::getBufferArgInfoList() noexcept
+    -> ArgInfoList<kNumOfBufferArgs>
+{
+  ArgInfoList<kNumOfBufferArgs> info_list{};
+  Impl::setBufferArgInfo(0, 0, info_list.data());
+  return info_list;
+}
+
+/*!
+  \brief Type information of kernel arguments
+
+  No detailed description.
+
+  \tparam Args No description.
+  */
+template <typename ...Args>
+class KernelArgParserImpl
+{
+ public:
+  // The parsing results
+
+  //!
+  using ArgTypePack = KernelArgTypePack<>;
+
+
+  static constexpr std::size_t kNumOfArgs = 0; //!< The number of arguments
+  static constexpr std::size_t kNumOfGlobalArgs = 0; //!< The number of globals
+  static constexpr std::size_t kNumOfLocalArgs = 0; //!< The number of locals
+  static constexpr std::size_t kNumOfConstantArgs = 0; //!< The number of constants
+  static constexpr std::size_t kNumOfPodArgs = 0; //!< The number of PODs
+  static constexpr std::size_t kNumOfBufferArgs = 0; //!< The number of buffers
+};
 
 /*!
   \brief No brief description
@@ -201,183 +288,133 @@ constexpr void KernelArgParseResult::setIndex(const std::size_t index) noexcept
   \tparam RestArgs No description.
   */
 template <typename Arg, typename ...RestArgs>
-class KernelArgParser<Arg, RestArgs...>
+class KernelArgParserImpl<Arg, RestArgs...>
 {
   // Type aliases
-  using ArgInfo = KernelArgInfo<Arg>;
-  template <std::size_t kDim, DerivedKSet KSet>
-  using Params = KernelInitParams<kDim, KSet, Arg, RestArgs...>;
-  using NextParser = KernelArgParser<RestArgs...>;
-  template <std::size_t kDim, DerivedKSet KSet>
-  using NextParams = KernelInitParams<kDim, KSet, RestArgs...>;
-  template <std::size_t kDim, DerivedKSet KSet>
-  using NextKernel = typename NextParser::template KernelType<kDim, KSet>;
+  using ArgTypeInfo = KernelArgTypeInfo<Arg>;
+  using NextParser = KernelArgParserImpl<RestArgs...>;
 
-  template <typename> struct KernelT;
-  /*!
-    \brief No brief description
 
-    No detailed description.
-
-    \tparam kDim No description.
-    \tparam KSet No description.
-    \tparam Args No description.
-    */
-  template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
-  struct KernelT<Kernel<NextParams<kDim, KSet>, Args...>>
+  //! Make a new kernel argument type pack
+  template <typename ...Args>
+  static constexpr auto makeArgTypePack(const KernelArgTypePack<Args...>& pack)
   {
-    using Type = Kernel<Params<kDim, KSet>, Args...>;
-    template <template<typename, typename...> typename Derived>
-    using DerivedType = Derived<Params<kDim, KSet>, Args...>;
-  };
+    if constexpr (ArgTypeInfo::kIsLocal) {
+      return pack;
+    }
+    else {
+      using ElementT = typename ArgTypeInfo::ElementType;
+      using ArgT = std::conditional_t<ArgTypeInfo::kIsPod,
+          std::add_const_t<ElementT>,
+          std::add_lvalue_reference_t<Buffer<ElementT>>>;
+      return KernelArgTypePack<ArgT, Args...>{};
+    }
+  }
 
-  template <typename> struct ExtendedKernelT;
-  /*!
-    \brief No brief description
-
-    No detailed description.
-
-    \tparam kDim No description.
-    \tparam KSet No description.
-    \tparam Args No description.
-    */
-  template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
-  struct ExtendedKernelT<Kernel<NextParams<kDim, KSet>, Args...>>
+  //! Make an arg info
+  static constexpr KernelArgInfo makeArgInfo() noexcept
   {
-    using ArgT = std::conditional_t<ArgInfo::kIsPod,
-        std::add_const_t<typename ArgInfo::ElementType>,
-        std::add_lvalue_reference_t<Buffer<typename ArgInfo::ElementType>>>;
-    using Type = Kernel<Params<kDim, KSet>, ArgT, Args...>;
-    template <template<typename, typename...> typename Derived>
-    using DerivedType = Derived<Params<kDim, KSet>, ArgT, Args...>;
-  };
-
-  template <std::size_t kDim, DerivedKSet KSet>
-  using KernelTypeHelper = std::conditional_t<ArgInfo::kIsLocal,
-      KernelT<NextKernel<kDim, KSet>>,
-      ExtendedKernelT<NextKernel<kDim, KSet>>>;
-
-  //! Make the parse result of the Arg
-  static constexpr KernelArgParseResult makeArgParseResult() noexcept
-  {
-    return KernelArgParseResult{ArgInfo::kIsGlobal,
-                                ArgInfo::kIsLocal,
-                                ArgInfo::kIsConstant,
-                                ArgInfo::kIsPod,
-                                ArgInfo::kIsBuffer};
+    return KernelArgInfo{ArgTypeInfo::kIsGlobal,
+                         ArgTypeInfo::kIsLocal,
+                         ArgTypeInfo::kIsConstant,
+                         ArgTypeInfo::kIsPod,
+                         ArgTypeInfo::kIsBuffer};
   }
 
  public:
-  // Type aliases
-  template <std::size_t kSize>
-  using ResultList = std::array<KernelArgParseResult, kSize>;
-  template <std::size_t kDim, DerivedKSet KSet>
-  using KernelType = typename KernelTypeHelper<kDim, KSet>::Type;
-  template <template<typename, typename...> typename Derived,
-            std::size_t kDim,
-            DerivedKSet KSet>
-  using DerivedKernelType = typename KernelTypeHelper<kDim, KSet>::
-                                template DerivedType<Derived>;
+  // The parsing results
+
+  //!
+  using ArgTypePack = decltype(makeArgTypePack(typename NextParser::ArgTypePack{}));
 
 
   static constexpr std::size_t kNumOfArgs = NextParser::kNumOfArgs + 1;
-  static constexpr std::size_t kNumOfGlobalArgs = ArgInfo::kIsGlobal
+  static constexpr std::size_t kNumOfGlobalArgs = ArgTypeInfo::kIsGlobal
       ? NextParser::kNumOfGlobalArgs + 1
       : NextParser::kNumOfGlobalArgs;
-  static constexpr std::size_t kNumOfLocalArgs = ArgInfo::kIsLocal
+  static constexpr std::size_t kNumOfLocalArgs = ArgTypeInfo::kIsLocal
       ? NextParser::kNumOfLocalArgs + 1
       : NextParser::kNumOfLocalArgs;
-  static constexpr std::size_t kNumOfConstantArgs = ArgInfo::kIsConstant
+  static constexpr std::size_t kNumOfConstantArgs = ArgTypeInfo::kIsConstant
       ? NextParser::kNumOfConstantArgs + 1
       : NextParser::kNumOfConstantArgs;
-  static constexpr std::size_t kNumOfPodArgs = ArgInfo::kIsPod
+  static constexpr std::size_t kNumOfPodArgs = ArgTypeInfo::kIsPod
       ? NextParser::kNumOfPodArgs + 1
       : NextParser::kNumOfPodArgs;
-  static constexpr std::size_t kNumOfBufferArgs = ArgInfo::kIsBuffer
+  static constexpr std::size_t kNumOfBufferArgs = ArgTypeInfo::kIsBuffer
       ? NextParser::kNumOfBufferArgs + 1
       : NextParser::kNumOfBufferArgs;
 
 
-  //! Return the info of arguments
-  static constexpr ResultList<kNumOfArgs> getArgInfoList() noexcept
+  //! Set a kernel arg info by the given index
+  static constexpr void setArgInfo(const std::size_t position,
+                                   std::size_t index,
+                                   KernelArgInfo* info_list) noexcept
   {
-    ResultList<kNumOfArgs> result_list{};
-    if constexpr (0u < NextParser::kNumOfArgs) {
-      auto parent_list = NextParser::getArgInfoList();
-      for (std::size_t i = 0; i < NextParser::kNumOfArgs; ++i) {
-        result_list[i + 1] = parent_list[i];
-        result_list[i + 1].setIndex(i + 1);
-      }
-    }
-    result_list[0] = makeArgParseResult();
-    result_list[0].setIndex(0);
-    return result_list;
+    KernelArgInfo info = makeArgInfo();
+    info.setIndex(position);
+    info_list[index] = info;
+    index = index + 1;
+    if constexpr (1 <= NextParser::kNumOfArgs)
+      NextParser::setArgInfo(position + 1, index, info_list);
   }
 
-  //! Return the info of local arguments
-  static constexpr ResultList<kNumOfLocalArgs> getLocalArgInfoList() noexcept
+  //! Set a local kernel arg info by the given index
+  static constexpr void setLocalArgInfo(const std::size_t position,
+                                        std::size_t index,
+                                        KernelArgInfo* info_list) noexcept
   {
-    ResultList<kNumOfLocalArgs> result_list{};
-    const std::size_t offset = ArgInfo::kIsLocal ? 1u : 0u;
-    if constexpr (0u < NextParser::kNumOfLocalArgs) {
-      auto parent_list = NextParser::getLocalArgInfoList();
-      for (std::size_t i = 0; i < NextParser::kNumOfLocalArgs; ++i) {
-        result_list[i + offset] = parent_list[i];
-        result_list[i + offset].setIndex(result_list[i + offset].index() + 1);
-      }
+    if constexpr (ArgTypeInfo::kIsLocal) {
+      KernelArgInfo info = makeArgInfo();
+      info.setIndex(position);
+      info_list[index] = info;
+      index = index + 1;
     }
-    if constexpr (offset) {
-      result_list[0] = makeArgParseResult();
-      result_list[0].setIndex(0);
-    }
-    return result_list;
+    if constexpr (1 <= NextParser::kNumOfLocalArgs)
+      NextParser::setLocalArgInfo(position + 1, index, info_list);
   }
 
-  //! Return the info of POD arguments
-  static constexpr ResultList<kNumOfPodArgs> getPodArgInfoList() noexcept
+  //! Set a POD kernel arg info by the given index
+  static constexpr void setPodArgInfo(const std::size_t position,
+                                      std::size_t index,
+                                      KernelArgInfo* info_list) noexcept
   {
-    ResultList<kNumOfPodArgs> result_list{};
-    const std::size_t offset = ArgInfo::kIsPod ? 1u : 0u;
-    if constexpr (0u < NextParser::kNumOfPodArgs) {
-      auto parent_list = NextParser::getPodArgInfoList();
-      for (std::size_t i = 0; i < NextParser::kNumOfPodArgs; ++i) {
-        result_list[i + offset] = parent_list[i];
-        result_list[i + offset].setIndex(result_list[i + offset].index() + 1);
-      }
+    if constexpr (ArgTypeInfo::kIsPod) {
+      KernelArgInfo info = makeArgInfo();
+      info.setIndex(position);
+      info_list[index] = info;
+      index = index + 1;
     }
-    if constexpr (offset) {
-      result_list[0] = makeArgParseResult();
-      result_list[0].setIndex(0);
-    }
-    return result_list;
+    if constexpr (1 <= NextParser::kNumOfPodArgs)
+      NextParser::setPodArgInfo(position + 1, index, info_list);
   }
 
-  //! Return the info of buffer arguments
-  static constexpr ResultList<kNumOfBufferArgs> getBufferArgInfoList() noexcept
+  //! Set a buffer kernel arg info by the given index
+  static constexpr void setBufferArgInfo(const std::size_t position,
+                                         std::size_t index,
+                                         KernelArgInfo* info_list) noexcept
   {
-    ResultList<kNumOfBufferArgs> result_list{};
-    const std::size_t offset = ArgInfo::kIsBuffer ? 1u : 0u;
-    if constexpr (0u < NextParser::kNumOfBufferArgs) {
-      auto parent_list = NextParser::getBufferArgInfoList();
-      for (std::size_t i = 0; i < NextParser::kNumOfBufferArgs; ++i) {
-        result_list[i + offset] = parent_list[i];
-        result_list[i + offset].setIndex(result_list[i + offset].index() + 1);
-      }
+    if constexpr (ArgTypeInfo::kIsBuffer) {
+      KernelArgInfo info = makeArgInfo();
+      info.setIndex(position);
+      info_list[index] = info;
+      index = index + 1;
     }
-    if constexpr (offset) {
-      result_list[0] = makeArgParseResult();
-      result_list[0].setIndex(0);
-    }
-    return result_list;
+    if constexpr (1 <= NextParser::kNumOfBufferArgs)
+      NextParser::setBufferArgInfo(position + 1, index, info_list);
   }
+};
 
+/*!
+  \brief Pack kernel argument types
 
-  //! Check if there are const local arguments in the kernel arguments
-  static constexpr bool hasConstLocal() noexcept
-  {
-    const bool is_const_local = std::is_const_v<Arg> && ArgInfo::kIsLocal;
-    return is_const_local || NextParser::hasConstLocal();
-  }
+  No detailed description.
+
+  \tparam Args No description.
+  */
+template <typename ...Args>
+struct KernelArgTypePack
+{
 };
 
 } // namespace zivc

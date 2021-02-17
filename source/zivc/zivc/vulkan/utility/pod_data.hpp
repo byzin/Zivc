@@ -40,7 +40,7 @@ class PodData
   bool isEqual(const PodData& other) const noexcept;
 
   //! Set a value by the given position
-  template <std::size_t kIndex, KernelParameter T>
+  template <std::size_t kIndex, KernelArg T>
   void set(const T& value) noexcept;
 
  private:
@@ -48,7 +48,7 @@ class PodData
 
 
   PodData<Types...> precedence_;
-  static_assert(KernelParameter<Type>);
+  static_assert(KernelArg<Type>);
   Type value_;
 };
 
@@ -65,7 +65,7 @@ class PodData<void>
   bool isEqual(const PodData& other) const noexcept;
 
   //! Dummy function
-  template <std::size_t kIndex, KernelParameter T>
+  template <std::size_t kIndex, KernelArg T>
   void set(const T& value) noexcept;
 };
 
@@ -76,7 +76,7 @@ class PodData<void>
 
   \tparam Type No description.
   */
-template <KernelParameter Type>
+template <KernelArg Type>
 class PodData<Type>
 {
  public:
@@ -84,7 +84,7 @@ class PodData<Type>
   bool isEqual(const PodData& other) const noexcept;
 
   //! Set a value by the given position
-  template <std::size_t kIndex, KernelParameter T>
+  template <std::size_t kIndex, KernelArg T>
   void set(const T& value) noexcept;
 
  private:

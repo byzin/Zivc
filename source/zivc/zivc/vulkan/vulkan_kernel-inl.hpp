@@ -378,7 +378,7 @@ calcDispatchWorkSize(const std::array<uint32b, kDim>& work_size) const noexcept
   \return No description
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-template <KernelParameter Type>
+template <KernelArg Type>
 inline
 const VkBuffer& VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 getBufferHandle(const Buffer<Type>& buffer) noexcept
@@ -407,11 +407,11 @@ void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 initBufferList(VkBuffer* buffer_list, Type&& value, Types&&... rest) noexcept
 {
   using T = std::remove_cvref_t<Type>;
-  using ASpaceInfo = AddressSpaceInfo<T>;
-  if constexpr (!ASpaceInfo::kIsPod)
+  using ArgTypeInfo = KernelArgTypeInfo<T>;
+  if constexpr (!ArgTypeInfo::kIsPod)
     buffer_list[kIndex] = getBufferHandle(value);
   if constexpr (0 < sizeof...(Types)) {
-    constexpr std::size_t next_index = !ASpaceInfo::kIsPod ? kIndex + 1 : kIndex;
+    constexpr std::size_t next_index = !ArgTypeInfo::kIsPod ? kIndex + 1 : kIndex;
     initBufferList<next_index>(buffer_list, std::forward<Types>(rest)...);
   }
 }
@@ -475,11 +475,11 @@ void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 makePodDataImpl(PodDataT* data, Type&& value, Types&&... rest) noexcept
 {
   using T = std::remove_cvref_t<Type>;
-  using ASpaceInfo = AddressSpaceInfo<T>;
-  if constexpr (ASpaceInfo::kIsPod)
+  using ArgTypeInfo = KernelArgTypeInfo<T>;
+  if constexpr (ArgTypeInfo::kIsPod)
     data->template set<kIndex>(value);
   if constexpr (0 < sizeof...(Types)) {
-    constexpr std::size_t next_index = ASpaceInfo::kIsPod ? kIndex + 1 : kIndex;
+    constexpr std::size_t next_index = ArgTypeInfo::kIsPod ? kIndex + 1 : kIndex;
     makePodDataImpl<next_index>(data, std::forward<Types>(rest)...);
   }
 }

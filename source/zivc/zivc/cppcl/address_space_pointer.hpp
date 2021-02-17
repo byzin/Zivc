@@ -61,11 +61,11 @@ enum class AddressSpaceType: uint32b
   \tparam kASpaceType No description.
   \tparam T No description.
   */
-template <AddressSpaceType kASpaceType, KernelParameter T>
+template <AddressSpaceType kASpaceType, KernelArg T>
 class AddressSpacePointer
 {
   //
-  template <KernelParameter Type>
+  template <KernelArg Type>
   using ASpacePointerT = AddressSpacePointer<kASpaceType, Type>;
 
  public:

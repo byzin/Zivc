@@ -39,7 +39,7 @@ class BufferCommon;
 
   \tparam T No description.
   */
-template <DerivedBuffer Derived, KernelParameter T>
+template <DerivedBuffer Derived, KernelArg T>
 class ReinterpBuffer : public Buffer<T>
 {
  public:

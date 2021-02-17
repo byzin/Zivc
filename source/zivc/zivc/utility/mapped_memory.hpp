@@ -35,7 +35,7 @@ class BufferCommon;
 
   \tparam T No description.
   */
-template <KernelParameter T>
+template <KernelArg T>
 class MappedMemory : private zisc::NonCopyable<MappedMemory<T>>
 {
  public:

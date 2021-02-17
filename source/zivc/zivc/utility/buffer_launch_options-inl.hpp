@@ -35,7 +35,7 @@ namespace zivc {
 /*!
   \details No detailed description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 BufferLaunchOptions<T>::BufferLaunchOptions() noexcept
 {
   initialize();
@@ -46,7 +46,7 @@ BufferLaunchOptions<T>::BufferLaunchOptions() noexcept
 
   \param [in] s No description.
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 BufferLaunchOptions<T>::BufferLaunchOptions(const std::size_t s) noexcept :
     size_{s}
 {
@@ -59,7 +59,7 @@ BufferLaunchOptions<T>::BufferLaunchOptions(const std::size_t s) noexcept :
   \param [in] s No description.
   \param [in] queue_index No description.
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 BufferLaunchOptions<T>::BufferLaunchOptions(const std::size_t s,
                                             const uint32b queue_index) noexcept :
     size_{s},
@@ -73,7 +73,7 @@ BufferLaunchOptions<T>::BufferLaunchOptions(const std::size_t s,
 
   \return No description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 std::size_t BufferLaunchOptions<T>::destOffset() const noexcept
 {
   return dest_offset_;
@@ -84,7 +84,7 @@ std::size_t BufferLaunchOptions<T>::destOffset() const noexcept
 
   \return No description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 std::size_t BufferLaunchOptions<T>::destOffsetInBytes() const noexcept
 {
   const std::size_t s = sizeof(T) * destOffset();
@@ -96,7 +96,7 @@ std::size_t BufferLaunchOptions<T>::destOffsetInBytes() const noexcept
 
   \return No description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 bool BufferLaunchOptions<T>::isExternalSyncMode() const noexcept
 {
   return is_external_sync_mode_;
@@ -107,7 +107,7 @@ bool BufferLaunchOptions<T>::isExternalSyncMode() const noexcept
 
   \return No description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 std::string_view BufferLaunchOptions<T>::label() const noexcept
 {
   std::string_view l{label_.data()};
@@ -119,7 +119,7 @@ std::string_view BufferLaunchOptions<T>::label() const noexcept
 
   \return No description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 const std::array<float, 4>& BufferLaunchOptions<T>::labelColor() const noexcept
 {
   return label_color_;
@@ -130,7 +130,7 @@ const std::array<float, 4>& BufferLaunchOptions<T>::labelColor() const noexcept
 
   \return No description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 uint32b BufferLaunchOptions<T>::queueIndex() const noexcept
 {
   return queue_index_;
@@ -141,7 +141,7 @@ uint32b BufferLaunchOptions<T>::queueIndex() const noexcept
 
   \param [in] offset No description.
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 void BufferLaunchOptions<T>::setDestOffset(const std::size_t offset) noexcept
 {
   dest_offset_ = offset;
@@ -152,7 +152,7 @@ void BufferLaunchOptions<T>::setDestOffset(const std::size_t offset) noexcept
 
   \param [in] is_active No description.
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 void BufferLaunchOptions<T>::setExternalSyncMode(const bool is_active) noexcept
 {
   is_external_sync_mode_ = is_active ? zisc::kTrue : zisc::kFalse;
@@ -163,7 +163,7 @@ void BufferLaunchOptions<T>::setExternalSyncMode(const bool is_active) noexcept
 
   \param [in] launch_label No description.
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 void BufferLaunchOptions<T>::setLabel(const std::string_view launch_label) noexcept
 {
   std::strncpy(label_.data(), launch_label.data(), launch_label.size() + 1);
@@ -174,7 +174,7 @@ void BufferLaunchOptions<T>::setLabel(const std::string_view launch_label) noexc
 
   \param [in] label_color No description.
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 void BufferLaunchOptions<T>::setLabelColor(const std::array<float, 4>& label_color) noexcept
 {
   label_color_ = label_color;
@@ -185,7 +185,7 @@ void BufferLaunchOptions<T>::setLabelColor(const std::array<float, 4>& label_col
 
   \param [in] queue_index No description.
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 void BufferLaunchOptions<T>::setQueueIndex(const uint32b queue_index) noexcept
 {
   queue_index_ = queue_index;
@@ -196,7 +196,7 @@ void BufferLaunchOptions<T>::setQueueIndex(const uint32b queue_index) noexcept
 
   \param [in] s No description.
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 void BufferLaunchOptions<T>::setSize(const std::size_t s) noexcept
 {
   size_ = s;
@@ -207,7 +207,7 @@ void BufferLaunchOptions<T>::setSize(const std::size_t s) noexcept
 
   \param [in] offset No description.
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 void BufferLaunchOptions<T>::setSourceOffset(const std::size_t offset) noexcept
 {
   source_offset_ = offset;
@@ -216,7 +216,7 @@ void BufferLaunchOptions<T>::setSourceOffset(const std::size_t offset) noexcept
 /*!
   \details No detailed description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 void BufferLaunchOptions<T>::initialize() noexcept
 {
   setLabel("Buffer");
@@ -227,7 +227,7 @@ void BufferLaunchOptions<T>::initialize() noexcept
 
   \return No description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 std::size_t BufferLaunchOptions<T>::size() const noexcept
 {
   return size_;
@@ -238,7 +238,7 @@ std::size_t BufferLaunchOptions<T>::size() const noexcept
 
   \return No description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 std::size_t BufferLaunchOptions<T>::sizeInBytes() const noexcept
 {
   const std::size_t s = sizeof(T) * size();
@@ -250,7 +250,7 @@ std::size_t BufferLaunchOptions<T>::sizeInBytes() const noexcept
 
   \return No description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 std::size_t BufferLaunchOptions<T>::sourceOffset() const noexcept
 {
   return source_offset_;
@@ -261,7 +261,7 @@ std::size_t BufferLaunchOptions<T>::sourceOffset() const noexcept
 
   \return No description
   */
-template <KernelParameter T> inline
+template <KernelArg T> inline
 std::size_t BufferLaunchOptions<T>::sourceOffsetInBytes() const noexcept
 {
   const std::size_t s = sizeof(T) * sourceOffset();

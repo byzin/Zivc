@@ -36,7 +36,7 @@ namespace zivc {
 
   \tparam T No description.
   */
-template <KernelParameter T>
+template <KernelArg T>
 class BufferLaunchOptions
 {
  public:

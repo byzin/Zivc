@@ -41,7 +41,7 @@ class CpuDevice;
 
   \tparam T No description.
   */
-template <KernelParameter T>
+template <KernelArg T>
 class CpuBuffer : public Buffer<T>
 {
  public:
@@ -126,13 +126,13 @@ class CpuBuffer : public Buffer<T>
 
 
   //! Copy from the given buffer
-  template <KernelParameter D>
+  template <KernelArg D>
   static LaunchResult copyFromImpl(const BufferCommon& source,
                                    BufferCommon* dest,
                                    const BufferLaunchOptions<D>& launch_options);
 
   //! Fill the buffer with specified value
-  template <KernelParameter D>
+  template <KernelArg D>
   static LaunchResult fillImpl(typename Buffer<D>::ConstReference value,
                                BufferCommon* dest,
                                const BufferLaunchOptions<D>& launch_options);

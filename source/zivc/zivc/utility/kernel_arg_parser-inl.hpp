@@ -27,6 +27,7 @@
 // Zivc
 #include "kernel_arg_info.hpp"
 #include "kernel_arg_type_info.hpp"
+#include "type_pack.hpp"
 #include "zivc/zivc_config.hpp"
 
 namespace zivc {
@@ -101,7 +102,7 @@ class KernelArgParserImpl
   // The parsing results
 
   //!
-  using ArgTypePack = KernelArgTypePack<>;
+  using ArgTypePack = TypePack<>;
 
 
   static constexpr std::size_t kNumOfArgs = 0; //!< The number of arguments
@@ -130,7 +131,7 @@ class KernelArgParserImpl<Arg, RestArgs...>
 
   //! Make a new kernel argument type pack
   template <typename ...Args>
-  static constexpr auto makeArgTypePack(const KernelArgTypePack<Args...>& pack)
+  static constexpr auto makeArgTypePack(const TypePack<Args...>& pack)
   {
     if constexpr (ArgTypeInfo::kIsLocal) {
       return pack;
@@ -140,7 +141,7 @@ class KernelArgParserImpl<Arg, RestArgs...>
       using ArgT = std::conditional_t<ArgTypeInfo::kIsPod,
           std::add_const_t<ElementT>,
           std::add_lvalue_reference_t<Buffer<ElementT>>>;
-      return KernelArgTypePack<ArgT, Args...>{};
+      return TypePack<ArgT, Args...>{};
     }
   }
 
@@ -236,18 +237,6 @@ class KernelArgParserImpl<Arg, RestArgs...>
     if constexpr (1 <= NextParser::kNumOfBufferArgs)
       NextParser::setBufferArgInfo(position + 1, index, info_list);
   }
-};
-
-/*!
-  \brief Pack kernel argument types
-
-  No detailed description.
-
-  \tparam Args No description.
-  */
-template <typename ...Args>
-struct KernelArgTypePack
-{
 };
 
 } // namespace zivc

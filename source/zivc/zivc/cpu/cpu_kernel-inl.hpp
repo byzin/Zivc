@@ -35,11 +35,12 @@
 #include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/fence.hpp"
-#include "zivc/utility/kernel_launch_options.hpp"
 #include "zivc/utility/id_data.hpp"
-#include "zivc/utility/kernel_arg_parser.hpp"
+#include "zivc/utility/kernel_arg_type_info.hpp"
+#include "zivc/utility/kernel_launch_options.hpp"
 #include "zivc/utility/kernel_init_params.hpp"
 #include "zivc/utility/launch_result.hpp"
+#include "zivc/utility/type_pack.hpp"
 
 namespace zivc {
 
@@ -157,6 +158,25 @@ updateDebugInfoImpl()
 /*!
   \details No detailed description
 
+  \tparam Types No description.
+  \param [in] func No description.
+  \param [in] values No description.
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+template <typename ...UnprocessedArgs> template <typename ...Types> inline
+void
+CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+Launcher<UnprocessedArgs...>::exec(
+    Function func,
+    [[maybe_unused]] const LaunchOptions& launch_options,
+    Types&&... values) noexcept
+{
+  std::invoke(func, std::forward<Types>(values)...);
+}
+
+/*!
+  \details No detailed description
+
   \tparam Type No description.
   \tparam Types No description.
   \param [in] func No description.
@@ -164,49 +184,43 @@ updateDebugInfoImpl()
   \param [in] rest No description.
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-template <typename ...UnprocessedArgs> template <typename Type, typename ...Types>
-inline
+template <typename UnprocessedArg, typename ...RestArgs>
+template <typename Type, typename ...Types> inline
 void
 CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-Launcher<UnprocessedArgs...>::exec(Function func,
-                                   const LaunchOptions& launch_options,
-                                   Type&& value,
-                                   Types&&... rest) noexcept
+Launcher<UnprocessedArg, RestArgs...>::exec(
+    Function func,
+    const LaunchOptions& launch_options,
+    Type&& value,
+    Types&&... rest) noexcept
 {
-  using ArgTuple = std::tuple<UnprocessedArgs...>;
-  constexpr std::size_t is_ready_to_run = std::tuple_size_v<ArgTuple> == 0;
-  if constexpr (is_ready_to_run) { // Invoke the underlying kernel
-    std::invoke(func, std::forward<Type>(value), std::forward<Types>(rest)...);
+  using ArgT = std::remove_volatile_t<UnprocessedArg>;
+  using ArgTypeInfo = KernelArgTypeInfo<ArgT>;
+  using NextLauncher = Launcher<RestArgs...>;
+  if constexpr (ArgTypeInfo::kIsLocal) { // Process a local argument
+    typename ArgTypeInfo::ElementType storage{};
+    ArgT cl_arg{std::addressof(storage)};
+    NextLauncher::exec(func,
+                       launch_options,
+                       std::forward<Type>(value),
+                       std::forward<Types>(rest)...,
+                       cl_arg);
   }
-  else { // Process arguments
-    using ArgT = std::remove_volatile_t<typename std::tuple_element_t<0, ArgTuple>>;
-    using ArgTypeInfo = KernelArgTypeInfo<ArgT>;
-    using NextLauncher = typename LauncherHelper<UnprocessedArgs...>::NextLauncher;
-    if constexpr (ArgTypeInfo::kIsLocal) { // Process a local argument
-      typename ArgTypeInfo::ElementType storage{};
-      ArgT cl_arg{std::addressof(storage)};
-      NextLauncher::exec(func,
-                         launch_options,
-                         std::forward<Type>(value),
-                         std::forward<Types>(rest)...,
-                         cl_arg);
-    }
-    else if constexpr (ArgTypeInfo::kIsPod) {
-      NextLauncher::exec(func,
-                         launch_options,
-                         std::forward<Types>(rest)...,
-                         std::forward<Type>(value));
-    }
-    else { // Process a global argument
-      using BufferT = std::remove_reference_t<Type>;
-      using ValueP = typename BufferT::Pointer;
-      auto data = zisc::cast<ValueP>(value.rawBufferData());
-      ArgT cl_arg{data};
-      NextLauncher::exec(func,
-                         launch_options,
-                         std::forward<Types>(rest)...,
-                         cl_arg);
-    }
+  else if constexpr (ArgTypeInfo::kIsPod) {
+    NextLauncher::exec(func,
+                       launch_options,
+                       std::forward<Types>(rest)...,
+                       std::forward<Type>(value));
+  }
+  else { // Process a global argument
+    using BufferT = std::remove_reference_t<Type>;
+    using ValueP = typename BufferT::Pointer;
+    auto data = zisc::cast<ValueP>(value.rawBufferData());
+    ArgT cl_arg{data};
+    NextLauncher::exec(func,
+                       launch_options,
+                       std::forward<Types>(rest)...,
+                       cl_arg);
   }
 }
 

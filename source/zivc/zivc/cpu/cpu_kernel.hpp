@@ -105,6 +105,26 @@ class CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   template <typename ...UnprocessedArgs>
   class Launcher 
   {
+    static_assert(sizeof...(UnprocessedArgs) == 0);
+   public:
+    //! Launch the given function 
+    template <typename ...Types>
+    static void exec(Function func,
+                     const LaunchOptions& launch_options,
+                     Types&&... values) noexcept;
+  };
+
+  /*!
+    \brief No brief description
+
+    No detailed description.
+
+    \tparam UnprocessedArg No description.
+    \tparam RestArgs No description.
+    */
+  template <typename UnprocessedArg, typename ...RestArgs>
+  class Launcher<UnprocessedArg, RestArgs...>
+  {
    public:
     //! Launch the given function 
     template <typename Type, typename ...Types>
@@ -114,19 +134,6 @@ class CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
                      Types&&... rest) noexcept;
   };
 
-  /*!
-    \brief No brief description
-
-    No detailed description.
-
-    \tparam Type No description.
-    \tparam Types No description.
-    */
-  template <typename Type, typename ...Types>
-  struct LauncherHelper
-  {
-    using NextLauncher = Launcher<Types...>;
-  };
 
   //! Return the memory for command
   AtomicStorage* atomicStorage() noexcept;

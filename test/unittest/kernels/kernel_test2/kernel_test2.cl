@@ -36,8 +36,6 @@ struct ParamTest
   float f_;
 };
 
-//#define ZIVC_TEST_64_PARAMETERS_TEST
-
 /*!
   \details No detailed description
   */
@@ -57,9 +55,7 @@ __kernel void largeNumOfParametersKernel(
     zivc::GlobalPtr<uint16b> o13,
     zivc::GlobalPtr<uint32b> o14,
     zivc::GlobalPtr<float> o15,
-    zivc::GlobalPtr<ParamTest> o16
-#if defined(ZIVC_TEST_64_PARAMETERS_TEST)
-    ,
+    zivc::GlobalPtr<ParamTest> o16,
     zivc::GlobalPtr<int8b> o17,
     zivc::GlobalPtr<int16b> o18,
     zivc::GlobalPtr<int32b> o19,
@@ -107,9 +103,7 @@ __kernel void largeNumOfParametersKernel(
     zivc::GlobalPtr<uint16b> o61,
     zivc::GlobalPtr<uint32b> o62,
     zivc::GlobalPtr<float> o63,
-    zivc::GlobalPtr<ParamTest> o64
-#endif // ZIVC_TEST_64_PARAMETERS_TEST
-    )
+    zivc::GlobalPtr<ParamTest> o64)
 {
   const size_t index = zivc::getGlobalLinearId();
   if (0 < index)
@@ -133,7 +127,6 @@ __kernel void largeNumOfParametersKernel(
   o15[0] = 1.0f;
   o16[0] = ParamTest{1, 1, 1.0f};
 
-#if defined(ZIVC_TEST_64_PARAMETERS_TEST)
   o17[0] = 1;
   o18[0] = 1;
   o19[0] = 1;
@@ -187,7 +180,6 @@ __kernel void largeNumOfParametersKernel(
   o62[0] = 1;
   o63[0] = 1.0f;
   o64[0] = ParamTest{1, 1, 1.0f};
-#endif // ZIVC_TEST_64_PARAMETERS_TEST
 }
 
 #endif // ZIVC_TEST_KERNEL_TEST2_CL

@@ -33,7 +33,7 @@ namespace zivc {
 template <std::size_t, DerivedKSet, typename...> class KernelInitParams;
 template <typename, typename...> class Kernel;
 template <typename...> class KernelArgParserImpl;
-template <typename ...> struct KernelArgTypePack;
+template <typename ...> struct TypePack;
 
 /*!
   \brief Parse kernel arguments and provide kernel information
@@ -50,7 +50,7 @@ class KernelArgParser
 
   //! A kernel type helper class
   template <typename ...KArgs>
-  struct KernelTypeHelper<KernelArgTypePack<KArgs...>>
+  struct KernelTypeHelper<TypePack<KArgs...>>
   {
     template <template<typename, typename...> typename KernelT,
               std::size_t kDim, DerivedKSet KSet>

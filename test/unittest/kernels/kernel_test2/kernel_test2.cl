@@ -48,6 +48,7 @@ __kernel void largeNumOfParametersKernel(
     zivc::GlobalPtr<uint32b> o6,
     zivc::GlobalPtr<float> o7,
     zivc::GlobalPtr<ParamTest> o8,
+    const int32b s1,
     zivc::GlobalPtr<int8b> o9,
     zivc::GlobalPtr<int16b> o10,
     zivc::GlobalPtr<int32b> o11,
@@ -56,6 +57,7 @@ __kernel void largeNumOfParametersKernel(
     zivc::GlobalPtr<uint32b> o14,
     zivc::GlobalPtr<float> o15,
     zivc::GlobalPtr<ParamTest> o16,
+    const uint32b s2,
     zivc::GlobalPtr<int8b> o17,
     zivc::GlobalPtr<int16b> o18,
     zivc::GlobalPtr<int32b> o19,
@@ -64,6 +66,8 @@ __kernel void largeNumOfParametersKernel(
     zivc::GlobalPtr<uint32b> o22,
     zivc::GlobalPtr<float> o23,
     zivc::GlobalPtr<ParamTest> o24,
+    const float s3,
+#if !defined(Z_MAC)
     zivc::GlobalPtr<int8b> o25,
     zivc::GlobalPtr<int16b> o26,
     zivc::GlobalPtr<int32b> o27,
@@ -71,7 +75,8 @@ __kernel void largeNumOfParametersKernel(
     zivc::GlobalPtr<uint16b> o29,
     zivc::GlobalPtr<uint32b> o30,
     zivc::GlobalPtr<float> o31,
-    zivc::GlobalPtr<ParamTest> o32 ,
+    zivc::GlobalPtr<ParamTest> o32,
+    const int32b s4,
     zivc::GlobalPtr<int8b> o33,
     zivc::GlobalPtr<int16b> o34,
     zivc::GlobalPtr<int32b> o35,
@@ -80,6 +85,7 @@ __kernel void largeNumOfParametersKernel(
     zivc::GlobalPtr<uint32b> o38,
     zivc::GlobalPtr<float> o39,
     zivc::GlobalPtr<ParamTest> o40,
+    const uint32b s5,
     zivc::GlobalPtr<int8b> o41,
     zivc::GlobalPtr<int16b> o42,
     zivc::GlobalPtr<int32b> o43,
@@ -88,6 +94,7 @@ __kernel void largeNumOfParametersKernel(
     zivc::GlobalPtr<uint32b> o46,
     zivc::GlobalPtr<float> o47,
     zivc::GlobalPtr<ParamTest> o48,
+    const float s6,
     zivc::GlobalPtr<int8b> o49,
     zivc::GlobalPtr<int16b> o50,
     zivc::GlobalPtr<int32b> o51,
@@ -96,6 +103,7 @@ __kernel void largeNumOfParametersKernel(
     zivc::GlobalPtr<uint32b> o54,
     zivc::GlobalPtr<float> o55,
     zivc::GlobalPtr<ParamTest> o56,
+    const int32b s7,
     zivc::GlobalPtr<int8b> o57,
     zivc::GlobalPtr<int16b> o58,
     zivc::GlobalPtr<int32b> o59,
@@ -103,7 +111,9 @@ __kernel void largeNumOfParametersKernel(
     zivc::GlobalPtr<uint16b> o61,
     zivc::GlobalPtr<uint32b> o62,
     zivc::GlobalPtr<float> o63,
-    zivc::GlobalPtr<ParamTest> o64)
+    zivc::GlobalPtr<ParamTest> o64,
+#endif // Z_MAC
+    const uint32b s8)
 {
   const size_t index = zivc::getGlobalLinearId();
   if (0 < index)
@@ -117,6 +127,7 @@ __kernel void largeNumOfParametersKernel(
   o6[0] = 1;
   o7[0] = 1.0f;
   o8[0] = ParamTest{1, 1, 1.0f};
+  static_cast<void>(s1);
 
   o9[0] = 1;
   o10[0] = 1;
@@ -126,6 +137,7 @@ __kernel void largeNumOfParametersKernel(
   o14[0] = 1;
   o15[0] = 1.0f;
   o16[0] = ParamTest{1, 1, 1.0f};
+  static_cast<void>(s2);
 
   o17[0] = 1;
   o18[0] = 1;
@@ -135,7 +147,9 @@ __kernel void largeNumOfParametersKernel(
   o22[0] = 1;
   o23[0] = 1.0f;
   o24[0] = ParamTest{1, 1, 1.0f};
+  static_cast<void>(s3);
 
+#if !defined(Z_MAC)
   o25[0] = 1;
   o26[0] = 1;
   o27[0] = 1;
@@ -144,6 +158,7 @@ __kernel void largeNumOfParametersKernel(
   o30[0] = 1;
   o31[0] = 1.0f;
   o32[0] = ParamTest{1, 1, 1.0f};
+  static_cast<void>(s4);
 
   o33[0] = 1;
   o34[0] = 1;
@@ -153,6 +168,7 @@ __kernel void largeNumOfParametersKernel(
   o38[0] = 1;
   o39[0] = 1.0f;
   o40[0] = ParamTest{1, 1, 1.0f};
+  static_cast<void>(s5);
 
   o41[0] = 1;
   o42[0] = 1;
@@ -162,6 +178,7 @@ __kernel void largeNumOfParametersKernel(
   o46[0] = 1;
   o47[0] = 1.0f;
   o48[0] = ParamTest{1, 1, 1.0f};
+  static_cast<void>(s6);
 
   o49[0] = 1;
   o50[0] = 1;
@@ -171,6 +188,7 @@ __kernel void largeNumOfParametersKernel(
   o54[0] = 1;
   o55[0] = 1.0f;
   o56[0] = ParamTest{1, 1, 1.0f};
+  static_cast<void>(s7);
 
   o57[0] = 1;
   o58[0] = 1;
@@ -180,6 +198,8 @@ __kernel void largeNumOfParametersKernel(
   o62[0] = 1;
   o63[0] = 1.0f;
   o64[0] = ParamTest{1, 1, 1.0f};
+#endif // Z_MAC
+  static_cast<void>(s8);
 }
 
 #endif // ZIVC_TEST_KERNEL_TEST2_CL

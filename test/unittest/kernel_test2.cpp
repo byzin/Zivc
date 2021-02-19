@@ -142,6 +142,7 @@ TEST(KernelTest, LargeNumOfParametersTest)
   auto buff_device24 = device->makeBuffer<ParamTest>(zivc::BufferUsage::kDeviceOnly);
   buff_device24->setSize(1);
 
+#if !defined(Z_MAC)
   auto buff_device25 = device->makeBuffer<int8b>(zivc::BufferUsage::kDeviceOnly);
   buff_device25->setSize(1);
   auto buff_device26 = device->makeBuffer<int16b>(zivc::BufferUsage::kDeviceOnly);
@@ -226,6 +227,7 @@ TEST(KernelTest, LargeNumOfParametersTest)
   buff_device63->setSize(1);
   auto buff_device64 = device->makeBuffer<ParamTest>(zivc::BufferUsage::kDeviceOnly);
   buff_device64->setSize(1);
+#endif // Z_MAC
 
   auto init_test_buffer = [](zivc::Device& d, zivc::Buffer<ParamTest>& buffer)
   {
@@ -266,6 +268,7 @@ TEST(KernelTest, LargeNumOfParametersTest)
   ::initScalarBuffer(*device, *buff_device22);
   ::initScalarBuffer(*device, *buff_device23);
   init_test_buffer(*device, *buff_device24);
+#if !defined(Z_MAC)
   ::initScalarBuffer(*device, *buff_device25);
   ::initScalarBuffer(*device, *buff_device26);
   ::initScalarBuffer(*device, *buff_device27);
@@ -306,12 +309,19 @@ TEST(KernelTest, LargeNumOfParametersTest)
   ::initScalarBuffer(*device, *buff_device62);
   ::initScalarBuffer(*device, *buff_device63);
   init_test_buffer(*device, *buff_device64);
+#endif // Z_MAC
 
   // Make a kernel
   auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test2, largeNumOfParametersKernel, 1);
   auto kernel = device->makeKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
-  ASSERT_EQ(64, kernel->argSize()) << "Wrong kernel property.";
+  constexpr std::size_t num_of_args =
+#if !defined(Z_MAC)
+      72;
+#else // Z_MAC
+      28;
+#endif // Z_MAC
+  ASSERT_EQ(num_of_args, kernel->argSize()) << "Wrong kernel property.";
 
   // Launch the kernel
   {
@@ -321,28 +331,31 @@ TEST(KernelTest, LargeNumOfParametersTest)
     launch_options.setLabel("LargeNumOfParametersKernel");
     auto result = kernel->run(*buff_device1, *buff_device2, *buff_device3,
                               *buff_device4, *buff_device5, *buff_device6,
-                              *buff_device7, *buff_device8, *buff_device9,
-                              *buff_device10, *buff_device11, *buff_device12,
-                              *buff_device13, *buff_device14, *buff_device15,
-                              *buff_device16,
+                              *buff_device7, *buff_device8, 0,
+                              *buff_device9, *buff_device10, *buff_device11,
+                              *buff_device12, *buff_device13, *buff_device14,
+                              *buff_device15, *buff_device16, 1,
                               *buff_device17, *buff_device18, *buff_device19,
                               *buff_device20, *buff_device21, *buff_device22,
-                              *buff_device23, *buff_device24, *buff_device25,
-                              *buff_device26, *buff_device27, *buff_device28,
-                              *buff_device29, *buff_device30, *buff_device31,
-                              *buff_device32,
+                              *buff_device23, *buff_device24, 2.0f,
+#if !defined(Z_MAC)
+                              *buff_device25, *buff_device26, *buff_device27,
+                              *buff_device28, *buff_device29, *buff_device30,
+                              *buff_device31, *buff_device32, 3,
                               *buff_device33, *buff_device34, *buff_device35,
                               *buff_device36, *buff_device37, *buff_device38,
-                              *buff_device39, *buff_device40, *buff_device41,
-                              *buff_device42, *buff_device43, *buff_device44,
-                              *buff_device45, *buff_device46, *buff_device47,
-                              *buff_device48,
+                              *buff_device39, *buff_device40, 4,
+                              *buff_device41, *buff_device42, *buff_device43,
+                              *buff_device44, *buff_device45, *buff_device46,
+                              *buff_device47, *buff_device48, 5.0f,
                               *buff_device49, *buff_device50, *buff_device51,
                               *buff_device52, *buff_device53, *buff_device54,
-                              *buff_device55, *buff_device56, *buff_device57,
-                              *buff_device58, *buff_device59, *buff_device60,
-                              *buff_device61, *buff_device62, *buff_device63,
-                              *buff_device64,
+                              *buff_device55, *buff_device56, 6,
+                              *buff_device57, *buff_device58, *buff_device59,
+                              *buff_device60, *buff_device61, *buff_device62,
+                              *buff_device63, *buff_device64,
+#endif // Z_MAC
+                              7,
                               launch_options);
     device->waitForCompletion();
   }
@@ -367,68 +380,70 @@ TEST(KernelTest, LargeNumOfParametersTest)
     }
   };
 
-  ::testScalarBuffer(*device, *buff_device1);
-  ::testScalarBuffer(*device, *buff_device2);
-  ::testScalarBuffer(*device, *buff_device3);
-  ::testScalarBuffer(*device, *buff_device4);
-  ::testScalarBuffer(*device, *buff_device5);
-  ::testScalarBuffer(*device, *buff_device6);
-  ::testScalarBuffer(*device, *buff_device7);
-  test_test_buffer(*device, *buff_device8);
-  ::testScalarBuffer(*device, *buff_device9);
-  ::testScalarBuffer(*device, *buff_device10);
-  ::testScalarBuffer(*device, *buff_device11);
-  ::testScalarBuffer(*device, *buff_device12);
-  ::testScalarBuffer(*device, *buff_device13);
-  ::testScalarBuffer(*device, *buff_device14);
-  ::testScalarBuffer(*device, *buff_device15);
-  test_test_buffer(*device, *buff_device16);
-  ::testScalarBuffer(*device, *buff_device17);
-  ::testScalarBuffer(*device, *buff_device18);
-  ::testScalarBuffer(*device, *buff_device19);
-  ::testScalarBuffer(*device, *buff_device20);
-  ::testScalarBuffer(*device, *buff_device21);
-  ::testScalarBuffer(*device, *buff_device22);
-  ::testScalarBuffer(*device, *buff_device23);
-  test_test_buffer(*device, *buff_device24);
-  ::testScalarBuffer(*device, *buff_device25);
-  ::testScalarBuffer(*device, *buff_device26);
-  ::testScalarBuffer(*device, *buff_device27);
-  ::testScalarBuffer(*device, *buff_device28);
-  ::testScalarBuffer(*device, *buff_device29);
-  ::testScalarBuffer(*device, *buff_device30);
-  ::testScalarBuffer(*device, *buff_device31);
-  test_test_buffer(*device, *buff_device32);
-  ::testScalarBuffer(*device, *buff_device33);
-  ::testScalarBuffer(*device, *buff_device34);
-  ::testScalarBuffer(*device, *buff_device35);
-  ::testScalarBuffer(*device, *buff_device36);
-  ::testScalarBuffer(*device, *buff_device37);
-  ::testScalarBuffer(*device, *buff_device38);
-  ::testScalarBuffer(*device, *buff_device39);
-  test_test_buffer(*device, *buff_device40);
-  ::testScalarBuffer(*device, *buff_device41);
-  ::testScalarBuffer(*device, *buff_device42);
-  ::testScalarBuffer(*device, *buff_device43);
-  ::testScalarBuffer(*device, *buff_device44);
-  ::testScalarBuffer(*device, *buff_device45);
-  ::testScalarBuffer(*device, *buff_device46);
-  ::testScalarBuffer(*device, *buff_device47);
-  test_test_buffer(*device, *buff_device48);
-  ::testScalarBuffer(*device, *buff_device49);
-  ::testScalarBuffer(*device, *buff_device50);
-  ::testScalarBuffer(*device, *buff_device51);
-  ::testScalarBuffer(*device, *buff_device52);
-  ::testScalarBuffer(*device, *buff_device53);
-  ::testScalarBuffer(*device, *buff_device54);
-  ::testScalarBuffer(*device, *buff_device55);
-  test_test_buffer(*device, *buff_device56);
-  ::testScalarBuffer(*device, *buff_device57);
-  ::testScalarBuffer(*device, *buff_device58);
-  ::testScalarBuffer(*device, *buff_device59);
-  ::testScalarBuffer(*device, *buff_device60);
-  ::testScalarBuffer(*device, *buff_device61);
-  ::testScalarBuffer(*device, *buff_device62);
-  ::testScalarBuffer(*device, *buff_device63);
-  test_test_buffer(*device, *buff_device64);
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device1));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device2));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device3));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device4));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device5));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device6));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device7));
+  ASSERT_TRUE(test_test_buffer(*device, *buff_device8));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device9));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device10));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device11));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device12));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device13));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device14));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device15));
+  ASSERT_TRUE(test_test_buffer(*device, *buff_device16));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device17));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device18));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device19));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device20));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device21));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device22));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device23));
+  ASSERT_TRUE(test_test_buffer(*device, *buff_device24));
+#if !defined(Z_MAC)
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device25));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device26));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device27));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device28));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device29));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device30));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device31));
+  ASSERT_TRUE(test_test_buffer(*device, *buff_device32));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device33));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device34));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device35));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device36));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device37));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device38));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device39));
+  ASSERT_TRUE(test_test_buffer(*device, *buff_device40));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device41));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device42));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device43));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device44));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device45));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device46));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device47));
+  ASSERT_TRUE(test_test_buffer(*device, *buff_device48));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device49));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device50));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device51));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device52));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device53));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device54));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device55));
+  ASSERT_TRUE(test_test_buffer(*device, *buff_device56));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device57));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device58));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device59));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device60));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device61));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device62));
+  ASSERT_TRUE(::testScalarBuffer(*device, *buff_device63));
+  ASSERT_TRUE(test_test_buffer(*device, *buff_device64));
+#endif // Z_MAC
 }

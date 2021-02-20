@@ -496,9 +496,9 @@ makePodDataImpl(PodDataT* data, Type&& value, Types&&... rest) noexcept
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 constexpr std::size_t VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-numOfBuffers() noexcept
+numOfAllBuffers() noexcept
 {
-  std::size_t n = BaseKernel::ArgParser::kNumOfGlobalArgs;
+  std::size_t n = BaseKernel::ArgParser::kNumOfBufferArgs;
   n += hasPodArg() ? 1 : 0;
   return n;
 }
@@ -585,7 +585,7 @@ inline
 void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 updateDescriptorSet(Args... args)
 {
-  constexpr std::size_t n = numOfBuffers();
+  constexpr std::size_t n = numOfAllBuffers();
   std::array<VkBuffer, n> buffer_list{};
   std::array<VkDescriptorType, n> desc_type_list{};
   initBufferList<0>(buffer_list.data(), args...);
@@ -699,12 +699,12 @@ validateData()
 {
   const VulkanDevice& device = parentImpl();
   const DeviceInfo& info = device.deviceInfo();
-  if (info.maxNumOfBuffersPerKernel() < numOfBuffers()) {
+  if (info.maxNumOfBuffersPerKernel() < BaseKernel::numOfBuffers()) {
     char message[256] = "";
     std::sprintf(message,
         "The number of buffer arguments in the kernel exceeded the limit. limit=%d, buffers=%d",
         zisc::cast<int>(info.maxNumOfBuffersPerKernel()),
-        zisc::cast<int>(numOfBuffers()));
+        zisc::cast<int>(BaseKernel::numOfBuffers()));
     throw SystemError{ErrorCode::kNumOfParametersLimitExceeded, message};
   }
 }

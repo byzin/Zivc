@@ -136,7 +136,7 @@ class VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   static void makePodDataImpl(PodDataT* data, Type&& value, Types&&... rest) noexcept;
 
   //! Return the number of buffers which is needed for the kernel (including pod)
-  static constexpr std::size_t numOfBuffers() noexcept;
+  static constexpr std::size_t numOfAllBuffers() noexcept;
 
   //! Return the device
   VulkanDevice& parentImpl() noexcept;

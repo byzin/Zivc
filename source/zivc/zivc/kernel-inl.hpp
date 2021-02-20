@@ -26,6 +26,7 @@
 // Zivc
 #include "kernel_common.hpp"
 #include "kernel_set.hpp"
+#include "utility/kernel_arg_parser.hpp"
 #include "utility/kernel_launch_options.hpp"
 #include "utility/id_data.hpp"
 #include "utility/zivc_object.hpp"
@@ -151,6 +152,34 @@ constexpr std::size_t Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>
 numOfArgs() noexcept
 {
   const std::size_t size = sizeof...(Args);
+  return size;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+inline
+constexpr std::size_t Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+numOfBuffers() noexcept
+{
+  constexpr std::size_t size = ArgParser::kNumOfBufferArgs;
+  return size;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+inline
+constexpr std::size_t Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+numOfPods() noexcept
+{
+  constexpr std::size_t size = ArgParser::kNumOfPodArgs;
   return size;
 }
 

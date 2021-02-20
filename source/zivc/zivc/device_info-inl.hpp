@@ -86,6 +86,17 @@ const zisc::pmr::vector<MemoryHeapInfo>& DeviceInfo::heapInfoList() const noexce
   return heap_info_list_;
 }
 
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+constexpr std::size_t DeviceInfo::maxNumOfFunctionParameters() noexcept
+{
+  return 256;
+}
+
 } // namespace zivc
 
 #endif // ZIVC_DEVICE_INFO_INL_HPP

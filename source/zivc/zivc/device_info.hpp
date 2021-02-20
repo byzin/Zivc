@@ -69,6 +69,9 @@ class DeviceInfo : private zisc::NonCopyable<DeviceInfo>
   //! Return the possible maximum size of an allocation in bytes
   virtual std::size_t maxAllocationSize() const noexcept = 0;
 
+  //! Return the possible maximum number of buffer arguments per kernel
+  virtual std::size_t maxNumOfBuffersPerKernel() const noexcept = 0;
+
   //! Return the maximum work group count
   virtual std::array<uint32b, 3> maxWorkGroupCount() const noexcept = 0;
 
@@ -83,6 +86,10 @@ class DeviceInfo : private zisc::NonCopyable<DeviceInfo>
 
   //! Return the local work group size of the device
   virtual uint32b workGroupSize() const noexcept = 0;
+
+ protected:
+  //! Return the maximum number of parameters for a function
+  static constexpr std::size_t maxNumOfFunctionParameters() noexcept;
 
  private:
   static constexpr char kInvalidName[] = "N/A";

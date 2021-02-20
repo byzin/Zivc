@@ -97,6 +97,12 @@ TEST(PlatformTest, DeviceInfoTest)
     std::cout << "## Max allocation size: "
               << to_mb(max_alloc_size) << " MB." << std::endl;
   }
+  {
+    const std::size_t max_buffers = info->maxNumOfBuffersPerKernel();
+    EXPECT_GT(max_buffers, 0) << "The max num of buffers isn't available.";
+    std::cout << "## Max num of buffers per kernel: "
+              << max_buffers << std::endl;
+  }
   // Work group
   {
     const std::size_t group_size = info->workGroupSize();

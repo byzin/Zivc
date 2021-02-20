@@ -163,6 +163,9 @@ class VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   //! Update POD buffer
   void updatePodBufferCmd();
 
+  //! Validate kernel data
+  void validateData();
+
 
   const void* kernel_data_ = nullptr;
   VkDescriptorPool desc_pool_ = ZIVC_VK_NULL_HANDLE;

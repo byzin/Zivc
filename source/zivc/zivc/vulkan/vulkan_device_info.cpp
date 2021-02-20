@@ -14,6 +14,7 @@
 
 #include "vulkan_device_info.hpp"
 // Standard C++ library
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstring>
@@ -141,6 +142,21 @@ std::size_t VulkanDeviceInfo::maxAllocationSize() const noexcept
   const Properties& props = properties();
   const std::size_t max_alloc = props.maintenance3_.maxMemoryAllocationSize;
   return max_alloc;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+std::size_t VulkanDeviceInfo::maxNumOfBuffersPerKernel() const noexcept
+{
+  const Properties& props = properties();
+  const auto counts = props.properties1_.limits.maxPerStageDescriptorStorageBuffers;
+  constexpr std::size_t num_of_reserved = 7;
+  const std::size_t n = (num_of_reserved < counts) ? counts - num_of_reserved : 0;
+  const std::size_t max_n = (std::min)(n, maxNumOfFunctionParameters());
+  return max_n;
 }
 
 /*!

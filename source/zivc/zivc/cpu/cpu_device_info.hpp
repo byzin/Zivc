@@ -59,8 +59,11 @@ class CpuDeviceInfo : public DeviceInfo
   //! Fetch device info from the host
   void fetch() noexcept;
 
-  //! Return the maximum size of an allocation in bytes
+  //! Return the possible maximum size of an allocation in bytes
   std::size_t maxAllocationSize() const noexcept override;
+
+  //! Return the possible maximum number of buffer arguments per kernel
+  std::size_t maxNumOfBuffersPerKernel() const noexcept override;
 
   //! Return the maximum work group count
   std::array<uint32b, 3> maxWorkGroupCount() const noexcept override;

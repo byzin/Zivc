@@ -19,6 +19,7 @@
 // Standard C++ library
 #include <array>
 #include <cstddef>
+#include <cstdio>
 #include <cstring>
 #include <memory>
 #include <string_view>
@@ -41,9 +42,11 @@
 #include "utility/queue_debug_label_region.hpp"
 #include "utility/vulkan.hpp"
 #include "zivc/buffer.hpp"
+#include "zivc/device_info.hpp"
 #include "zivc/kernel.hpp"
 #include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/utility/error.hpp"
 #include "zivc/utility/id_data.hpp"
 #include "zivc/utility/kernel_arg_parser.hpp"
 #include "zivc/utility/kernel_init_params.hpp"
@@ -252,6 +255,7 @@ void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 initData(const Params& params)
 {
   static_assert(hasGlobalArg(), "The kernel doesn't have global argument.");
+  validateData();
   VulkanDevice& device = parentImpl();
 
   // Add a shader module
@@ -683,6 +687,26 @@ updatePodCacheIfNeeded(Args... args) const noexcept
       cache[0] = data;
   }
   return have_new_pod;
+}
+
+/*!
+  \details No detailed description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+inline
+void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+validateData()
+{
+  const VulkanDevice& device = parentImpl();
+  const DeviceInfo& info = device.deviceInfo();
+  if (info.maxNumOfBuffersPerKernel() < numOfBuffers()) {
+    char message[256] = "";
+    std::sprintf(message,
+        "The number of buffer arguments in the kernel exceeded the limit. limit=%d, buffers=%d",
+        zisc::cast<int>(info.maxNumOfBuffersPerKernel()),
+        zisc::cast<int>(numOfBuffers()));
+    throw SystemError{ErrorCode::kNumOfParametersLimitExceeded, message};
+  }
 }
 
 } // namespace zivc

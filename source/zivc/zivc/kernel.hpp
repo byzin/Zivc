@@ -96,8 +96,14 @@ class Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> : public Kernel
   //! Make launch options
   LaunchOptions makeOptions() const noexcept;
 
-  //! Return the number of kernel arguments
+  //! Return the number of kernel arguments required
   static constexpr std::size_t numOfArgs() noexcept;
+
+  //! Return the number of buffer arguments required
+  static constexpr std::size_t numOfBuffers() noexcept;
+
+  //! Return the number of pod arguments required
+  static constexpr std::size_t numOfPods() noexcept;
 
   //! Execute a kernel
   [[nodiscard("The result can have a fence when external sync mode is on.")]]

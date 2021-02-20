@@ -101,6 +101,16 @@ std::size_t CpuDeviceInfo::maxAllocationSize() const noexcept
 
   \return No description
   */
+std::size_t CpuDeviceInfo::maxNumOfBuffersPerKernel() const noexcept
+{
+  return maxNumOfFunctionParameters();
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
 std::array<uint32b, 3> CpuDeviceInfo::maxWorkGroupCount() const noexcept
 {
   constexpr uint32b m = (std::numeric_limits<uint32b>::max)();

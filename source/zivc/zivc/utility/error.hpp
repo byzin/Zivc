@@ -31,6 +31,7 @@ enum class ErrorCode : int
 {
   kInitializationFailed,
   kAvailableFenceNotFound,
+  kNumOfParametersLimitExceeded,
   kVulkanInitializationFailed,
   kVulkanLibraryNotFound,
 };

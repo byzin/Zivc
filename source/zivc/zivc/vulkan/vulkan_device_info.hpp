@@ -217,8 +217,11 @@ class VulkanDeviceInfo : public DeviceInfo
   template <typename Type1, typename Type2, typename ...Types>
   static void link(Type1&& value1, Type2&& value2, Types&&... values) noexcept;
 
-  //! Return the maximum size of an allocation
+  //! Return the possible maximum size of an allocation
   std::size_t maxAllocationSize() const noexcept override;
+
+  //! Return the possible maximum number of buffer arguments per kernel
+  std::size_t maxNumOfBuffersPerKernel() const noexcept override;
 
   //! Return the maximum work group count
   std::array<uint32b, 3> maxWorkGroupCount() const noexcept override;

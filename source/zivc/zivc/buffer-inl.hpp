@@ -219,8 +219,8 @@ std::size_t Buffer<T>::size() const noexcept
   \return No description
   */
 template <KernelArg T>
-template <template<typename> typename Derived> inline
-LaunchResult Buffer<T>::copyFromDerived(const Buffer<T>& source,
+template <template<typename> typename Derived, KernelArg SrcType> inline
+LaunchResult Buffer<T>::copyFromDerived(const Buffer<SrcType>& source,
                                         const LaunchOptions& launch_options)
 {
   //! \todo Remove me

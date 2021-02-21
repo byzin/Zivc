@@ -122,10 +122,10 @@ class Buffer : public BufferCommon
   std::size_t size() const noexcept;
 
  protected:
-  template <KernelArg Type>
-  friend LaunchResult copy(const Buffer<Type>&,
-                           Buffer<Type>*,
-                           const BufferLaunchOptions<Type>&);
+  template <KernelArg SrcType, zisc::SameAs<std::remove_const_t<SrcType>> DstType>
+  friend LaunchResult copy(const Buffer<SrcType>&,
+                           Buffer<DstType>*,
+                           const BufferLaunchOptions<DstType>&);
   template <KernelArg Type>
   friend LaunchResult fill(typename Buffer<Type>::ConstReference,
                            Buffer<Type>*,
@@ -133,9 +133,9 @@ class Buffer : public BufferCommon
 
 
   //! Copy from the given buffer
-  template <template<typename> typename Derived>
+  template <template<typename> typename Derived, KernelArg SrcType>
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
-  LaunchResult copyFromDerived(const Buffer<T>& source,
+  LaunchResult copyFromDerived(const Buffer<SrcType>& source,
                                const LaunchOptions& launch_options);
 
   //! Clear the contents of the buffer
@@ -160,12 +160,12 @@ using WeakBuffer = typename Buffer<Type>::WeakPtr;
 
 
 //! Copy from the source to the dest
-template <KernelArg Type>
+template <KernelArg SrcType, zisc::SameAs<std::remove_const_t<SrcType>> DstType>
 [[nodiscard("The result can have a fence when external sync mode is on.")]]
-LaunchResult copy(const Buffer<Type>& source,
-                  Buffer<Type>* dest,
-                  const BufferLaunchOptions<Type>& launch_options =
-                      BufferLaunchOptions<Type>{});
+LaunchResult copy(const Buffer<SrcType>& source,
+                  Buffer<DstType>* dest,
+                  const BufferLaunchOptions<DstType>& launch_options =
+                      BufferLaunchOptions<DstType>{});
 
 //! Fill the buffer with specified value
 template <KernelArg Type>

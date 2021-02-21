@@ -48,16 +48,17 @@ namespace zivc {
 /*!
   \details No detailed description
 
-  \tparam Type No description.
+  \tparam SrcType No description.
+  \tparam DstType No description.
   \param [in] source No description.
   \param [out] dest No description.
   \param [in] launch_options No description.
   \return No description
   */
-template <KernelArg Type> inline
-LaunchResult copy(const Buffer<Type>& source,
-                  Buffer<Type>* dest,
-                  const BufferLaunchOptions<Type>& launch_options)
+template <KernelArg SrcType, zisc::SameAs<std::remove_const_t<SrcType>> DstType> inline
+LaunchResult copy(const Buffer<SrcType>& source,
+                  Buffer<DstType>* dest,
+                  const BufferLaunchOptions<DstType>& launch_options)
 {
   LaunchResult result;
   switch (dest->type()) {

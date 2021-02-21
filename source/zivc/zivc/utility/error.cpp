@@ -50,6 +50,7 @@ std::string getErrorCodeString(const ErrorCode code) noexcept
   switch (code) {
     ERROR_CODE_STRING_CASE(InitializationFailed, code_str)
     ERROR_CODE_STRING_CASE(AvailableFenceNotFound, code_str)
+    ERROR_CODE_STRING_CASE(NumOfParametersLimitExceeded, code_str)
     ERROR_CODE_STRING_CASE(VulkanInitializationFailed, code_str)
     ERROR_CODE_STRING_CASE(VulkanLibraryNotFound, code_str)
   }

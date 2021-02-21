@@ -81,16 +81,14 @@ class Buffer : public BufferCommon
 
   //! Copy from the given buffer
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
-  LaunchResult copyFrom(const Buffer& source,
-                        const LaunchOptions& launch_options = LaunchOptions{});
+  LaunchResult copyFrom(const Buffer& source, const LaunchOptions& launch_options);
 
   //! Destroy the buffer
   void destroy() noexcept;
 
   //! Fill the buffer with specified value
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
-  LaunchResult fill(ConstReference value,
-                    const LaunchOptions& launch_options = LaunchOptions{});
+  LaunchResult fill(ConstReference value, const LaunchOptions& launch_options);
 
   //! Initialize the buffer
   void initialize(ZivcObject::SharedPtr&& parent,
@@ -164,16 +162,14 @@ template <KernelArg SrcType, zisc::SameAs<std::remove_const_t<SrcType>> DstType>
 [[nodiscard("The result can have a fence when external sync mode is on.")]]
 LaunchResult copy(const Buffer<SrcType>& source,
                   Buffer<DstType>* dest,
-                  const BufferLaunchOptions<DstType>& launch_options =
-                      BufferLaunchOptions<DstType>{});
+                  const BufferLaunchOptions<DstType>& launch_options);
 
 //! Fill the buffer with specified value
 template <KernelArg Type>
 [[nodiscard("The result can have a fence when external sync mode is on.")]]
 LaunchResult fill(typename Buffer<Type>::ConstReference value,
                   Buffer<Type>* dest,
-                  const BufferLaunchOptions<Type>& launch_options =
-                      BufferLaunchOptions<Type>{});
+                  const BufferLaunchOptions<Type>& launch_options);
 
 } // namespace zivc
 

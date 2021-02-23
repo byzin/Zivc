@@ -340,7 +340,7 @@ TEST(KernelTest, PodSizeAlignmentTest)
     {
       const auto mem = buff_host->mapMemory();
       ASSERT_EQ(u8, mem[0]) << "POD value isn't processed properly.";
-//      ASSERT_EQ(u8, mem[1]) << "POD structure isn't processed properly.";
+      ASSERT_EQ(u8, mem[1]) << "POD structure isn't processed properly.";
     }
   }
   {
@@ -352,7 +352,7 @@ TEST(KernelTest, PodSizeAlignmentTest)
     {
       const auto mem = buff_host->mapMemory();
       ASSERT_EQ(f32, mem[0]) << "POD value isn't processed properly.";
-//      ASSERT_EQ(f32, mem[1]) << "POD structure isn't processed properly.";
+      ASSERT_EQ(f32, mem[1]) << "POD structure isn't processed properly.";
     }
   }
   {
@@ -364,7 +364,7 @@ TEST(KernelTest, PodSizeAlignmentTest)
     {
       const auto mem = buff_host->mapMemory();
       ASSERT_EQ(i8, mem[0]) << "POD value isn't processed properly.";
-//      ASSERT_EQ(i8, mem[1]) << "POD structure isn't processed properly.";
+      ASSERT_EQ(i8, mem[1]) << "POD structure isn't processed properly.";
     }
   }
   {
@@ -376,7 +376,7 @@ TEST(KernelTest, PodSizeAlignmentTest)
     {
       const auto mem = buff_host->mapMemory();
       ASSERT_EQ(i16, mem[0]) << "POD value isn't processed properly.";
-//      ASSERT_EQ(i16, mem[1]) << "POD structure isn't processed properly.";
+      ASSERT_EQ(i16, mem[1]) << "POD structure isn't processed properly.";
     }
   }
   {
@@ -388,7 +388,7 @@ TEST(KernelTest, PodSizeAlignmentTest)
     {
       const auto mem = buff_host->mapMemory();
       ASSERT_EQ(u16, mem[0]) << "POD value isn't processed properly.";
-//      ASSERT_EQ(u16, mem[1]) << "POD structure isn't processed properly.";
+      ASSERT_EQ(u16, mem[1]) << "POD structure isn't processed properly.";
     }
   }
   {
@@ -400,7 +400,7 @@ TEST(KernelTest, PodSizeAlignmentTest)
     {
       const auto mem = buff_host->mapMemory();
       ASSERT_EQ(i32, mem[0]) << "POD value isn't processed properly.";
-//      ASSERT_EQ(i32, mem[1]) << "POD structure isn't processed properly.";
+      ASSERT_EQ(i32, mem[1]) << "POD structure isn't processed properly.";
     }
   }
   {
@@ -412,17 +412,17 @@ TEST(KernelTest, PodSizeAlignmentTest)
     {
       const auto mem = buff_host->mapMemory();
       ASSERT_EQ(u8, mem[0].u8_) << "POD value isn't processed properly.";
-//      ASSERT_EQ(u8, mem[1].u8_) << "POD structure isn't processed properly.";
+      ASSERT_EQ(u8, mem[1].u8_) << "POD structure isn't processed properly.";
       ASSERT_EQ(f32, mem[0].f_) << "POD value isn't processed properly.";
-//      ASSERT_EQ(f32, mem[1].f_) << "POD structure isn't processed properly.";
+      ASSERT_EQ(f32, mem[1].f_) << "POD structure isn't processed properly.";
       ASSERT_EQ(i8, mem[0].i8_) << "POD value isn't processed properly.";
-//      ASSERT_EQ(i8, mem[1].i8_) << "POD structure isn't processed properly.";
+      ASSERT_EQ(i8, mem[1].i8_) << "POD structure isn't processed properly.";
       ASSERT_EQ(i16, mem[0].i16_) << "POD value isn't processed properly.";
-//      ASSERT_EQ(i16, mem[1].i16_) << "POD structure isn't processed properly.";
+      ASSERT_EQ(i16, mem[1].i16_) << "POD structure isn't processed properly.";
       ASSERT_EQ(u16, mem[0].u16_) << "POD value isn't processed properly.";
-//      ASSERT_EQ(u16, mem[1].u16_) << "POD structure isn't processed properly.";
+      ASSERT_EQ(u16, mem[1].u16_) << "POD structure isn't processed properly.";
       ASSERT_EQ(i32, mem[0].i32_) << "POD value isn't processed properly.";
-//      ASSERT_EQ(i32, mem[1].i32_) << "POD structure isn't processed properly.";
+      ASSERT_EQ(i32, mem[1].i32_) << "POD structure isn't processed properly.";
     }
   }
 }

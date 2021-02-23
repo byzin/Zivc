@@ -27,6 +27,7 @@
 #include "zivc/kernel.hpp"
 #include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/utility/kernel_arg_cache.hpp"
 #include "zivc/utility/id_data.hpp"
 #include "zivc/utility/launch_result.hpp"
 
@@ -101,14 +102,15 @@ class VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   void updateDebugInfoImpl() override;
 
  private:
-  //! Make a struct of POD arguments 
-  template <std::size_t kIndex = 0>
-  static auto makePodDataType() noexcept;
+  //! Make a struct of POD cache
+  template <std::size_t kIndex, typename ...PodTypes>
+  static auto makePodCacheType(const KernelArgCache<PodTypes...>& cache) noexcept;
 
-  using PodDataT = decltype(makePodDataType());
-  static_assert(std::is_trivially_copyable_v<PodDataT>,
+
+  using PodCacheT = decltype(makePodCacheType<0>(KernelArgCache<void>{}));
+  static_assert(std::is_trivially_copyable_v<PodCacheT>,
                 "The POD values aren't trivially copyable.");
-  static_assert(zisc::EqualityComparable<PodDataT>,
+  static_assert(zisc::EqualityComparable<PodCacheT>,
                 "The POD values aren't equality comparable.");
 
 
@@ -128,12 +130,12 @@ class VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   //! Initialize the POD buffer
   void initPodBuffer();
 
-  //! Make a POD data from the given POD parameters
-  static PodDataT makePodData(Args... args) noexcept;
-
-  //! Initialize the POD data with the given POD parameters
+  //! Initialize a POD cache from the given arguments
   template <std::size_t kIndex, typename Type, typename ...Types>
-  static void makePodDataImpl(PodDataT* data, Type&& value, Types&&... rest) noexcept;
+  static void initPodCache(PodCacheT* cache, Type&& value, Types&&... rest) noexcept;
+
+  //! Make a POD data from the given POD parameters
+  static PodCacheT makePodCache(Args... args) noexcept;
 
   //! Return the number of buffers which is needed for the kernel (including pod)
   static constexpr std::size_t numOfAllBuffers() noexcept;
@@ -172,8 +174,8 @@ class VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   VkDescriptorSet desc_set_ = ZIVC_VK_NULL_HANDLE;
   VkCommandBuffer* command_buffer_ref_ = nullptr;
   VkCommandBuffer command_buffer_ = ZIVC_VK_NULL_HANDLE;
-  SharedBuffer<PodDataT> pod_buffer_;
-  SharedBuffer<PodDataT> pod_cache_;
+  SharedBuffer<PodCacheT> pod_buffer_;
+  SharedBuffer<PodCacheT> pod_cache_;
 };
 
 } // namespace zivc

@@ -27,6 +27,7 @@
 #include "zivc/kernel.hpp"
 #include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/utility/kernel_arg_cache.hpp"
 #include "zivc/utility/kernel_launch_options.hpp"
 #include "zivc/utility/id_data.hpp"
 #include "zivc/utility/launch_result.hpp"
@@ -86,53 +87,19 @@ class CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   void updateDebugInfoImpl() override;
 
  private:
+  //! Make a struct of arg cache
+  template <typename Type, typename ...Types, typename ...ArgTypes>
+  static auto makeArgCacheType(const KernelArgCache<ArgTypes...>& cache) noexcept;
+
+
   // Storage types
+  using ArgCache = decltype(makeArgCacheType<Args...>(KernelArgCache<void>{}));
   using CommandStorage = std::aligned_storage_t<
-      sizeof(void*) * (sizeof...(Args) + 2),
+      sizeof(void*),
       std::alignment_of_v<void*>>;
   using AtomicStorage = std::aligned_storage_t<
       sizeof(std::atomic<uint32b>),
       std::alignment_of_v<std::atomic<uint32b>>>;
-
-
-  /*!
-    \brief No brief description
-
-    No detailed description.
-
-    \tparam UnprocessedArgs No description.
-    */
-  template <typename ...UnprocessedArgs>
-  class Launcher 
-  {
-    static_assert(sizeof...(UnprocessedArgs) == 0);
-   public:
-    //! Launch the given function 
-    template <typename ...Types>
-    static void exec(Function func,
-                     const LaunchOptions& launch_options,
-                     Types&&... values) noexcept;
-  };
-
-  /*!
-    \brief No brief description
-
-    No detailed description.
-
-    \tparam UnprocessedArg No description.
-    \tparam RestArgs No description.
-    */
-  template <typename UnprocessedArg, typename ...RestArgs>
-  class Launcher<UnprocessedArg, RestArgs...>
-  {
-   public:
-    //! Launch the given function 
-    template <typename Type, typename ...Types>
-    static void exec(Function func,
-                     const LaunchOptions& launch_options,
-                     Type&& value,
-                     Types&&... rest) noexcept;
-  };
 
 
   //! Return the memory for command
@@ -147,8 +114,21 @@ class CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   //! Return the device
   const CpuDevice& parentImpl() const noexcept;
 
+  //! Run the underlying kernel
+  template <std::size_t kIndex, std::size_t kCacheIndex, typename ...Types>
+  void runImpl(Types&&... cl_args) noexcept;
+
+  //! Update arg cache
+  template <std::size_t kIndex, KernelArg Type, typename ...Types>
+  void updateArgCache(const Type value, Types&&... values) noexcept;
+
+  //! Update arg cache
+  template <std::size_t kIndex, KernelArg Type, typename ...Types>
+  void updateArgCache(Buffer<Type>& value, Types&&... values) noexcept;
+
 
   Function kernel_ = nullptr;
+  ArgCache arg_cache_;
   CommandStorage command_storage_;
   AtomicStorage atomic_storage_;
   [[maybe_unused]] uint32b padding_;

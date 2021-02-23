@@ -116,6 +116,13 @@ Zivc_addKernelSet(kernel_test2 ${PROJECT_VERSION}
     SOURCE_FILES ${kernel_test2_sources}
     INCLUDE_DIRS ${kernel_set_kernel_test2_dir})
 target_link_libraries(${PROJECT_NAME} PRIVATE KernelSet_kernel_test2)
+## kernelTestPod
+set(kernel_set_kernel_test_pod_dir ${PROJECT_SOURCE_DIR}/unittest/kernels/kernel_test_pod)
+file(GLOB_RECURSE kernel_test_pod_sources ${kernel_set_kernel_test_pod_dir}/*.cl)
+Zivc_addKernelSet(kernel_test_pod ${PROJECT_VERSION}
+    SOURCE_FILES ${kernel_test_pod_sources}
+    INCLUDE_DIRS ${kernel_set_kernel_test_pod_dir})
+target_link_libraries(${PROJECT_NAME} PRIVATE KernelSet_kernel_test_pod)
 
 # Add tests for CMake
 add_test(NAME ${PROJECT_NAME}-cpu COMMAND ${PROJECT_NAME} --device cpu

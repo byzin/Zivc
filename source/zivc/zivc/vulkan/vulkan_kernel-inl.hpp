@@ -38,7 +38,6 @@
 #include "vulkan_kernel_impl.hpp"
 #include "utility/cmd_debug_label_region.hpp"
 #include "utility/cmd_record_region.hpp"
-#include "utility/pod_data.hpp"
 #include "utility/queue_debug_label_region.hpp"
 #include "utility/vulkan.hpp"
 #include "zivc/buffer.hpp"
@@ -49,6 +48,7 @@
 #include "zivc/utility/error.hpp"
 #include "zivc/utility/id_data.hpp"
 #include "zivc/utility/kernel_arg_parser.hpp"
+#include "zivc/utility/kernel_arg_cache.hpp"
 #include "zivc/utility/kernel_init_params.hpp"
 #include "zivc/utility/launch_result.hpp"
 
@@ -330,28 +330,29 @@ updateDebugInfoImpl()
   \details No detailed description
 
   \tparam kIndex No description.
+  \tparam PodTypes No description.
+  \param [in] cache No description.
   \return No description
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-template <std::size_t kIndex>
-inline
+template <std::size_t kIndex, typename ...PodTypes> inline
 auto VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-makePodDataType() noexcept
+makePodCacheType(const KernelArgCache<PodTypes...>& cache) noexcept
 {
-  constexpr auto pod_arg_info = BaseKernel::ArgParser::getPodArgInfoList();
-  if constexpr (kIndex < pod_arg_info.size()) {
+  using ArgParser = typename BaseKernel::ArgParser;
+  if constexpr (kIndex < ArgParser::kNumOfPodArgs) {
+    constexpr auto pod_arg_info = ArgParser::getPodArgInfoList();
     constexpr std::size_t pod_index = pod_arg_info[kIndex].index();
     using ArgTuple = std::tuple<FuncArgs...>;
     using PodType = std::tuple_element_t<pod_index, ArgTuple>;
-    auto prev_data = makePodDataType<kIndex + 1>();
-    auto data = concatPodData<PodType>(prev_data);
-    return data;
+    auto precedence = concatArgCache<PodType>(cache);
+    return makePodCacheType<kIndex + 1>(precedence);
   }
   else {
-    PodData<void> data{};
-    return data;
+    return cache;
   }
 }
+
 
 /*!
   \details No detailed description
@@ -430,18 +431,44 @@ initPodBuffer()
 {
   if constexpr (hasPodArg()) {
     auto& device = parentImpl();
-    using BuffType = VulkanBuffer<PodDataT>;
+    using BuffType = VulkanBuffer<PodCacheT>;
     constexpr auto desc_uniform = BuffType::DescriptorType::kUniform;
     {
-      pod_buffer_ = device.template makeBuffer<PodDataT>(BufferUsage::kDeviceOnly);
+      pod_buffer_ = device.template makeBuffer<PodCacheT>(BufferUsage::kDeviceOnly);
       zisc::cast<BuffType*>(pod_buffer_.get())->setDescriptorType(desc_uniform);
       pod_buffer_->setSize(1);
     }
     {
-      pod_cache_ = device.template makeBuffer<PodDataT>(BufferUsage::kHostOnly);
+      pod_cache_ = device.template makeBuffer<PodCacheT>(BufferUsage::kHostOnly);
       zisc::cast<BuffType*>(pod_cache_.get())->setDescriptorType(desc_uniform);
       pod_cache_->setSize(1);
     }
+  }
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kIndex No description.
+  \tparam Type No description.
+  \tparam Types No description.
+  \param [out] cache No description.
+  \param [in] value No description.
+  \param [in] rest No description.
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+template <std::size_t kIndex, typename Type, typename ...Types> inline
+void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+initPodCache(PodCacheT* cache, Type&& value, Types&&... rest) noexcept
+{
+  using T = std::remove_cvref_t<Type>;
+  using ArgTypeInfo = KernelArgTypeInfo<T>;
+  if constexpr (ArgTypeInfo::kIsPod)
+    cache->template set<kIndex>(std::forward<Type>(value));
+  constexpr bool has_rest = 0 < sizeof...(Types);
+  if constexpr (has_rest) {
+    constexpr std::size_t next_index = ArgTypeInfo::kIsPod ? kIndex + 1 : kIndex;
+    initPodCache<next_index>(cache, std::forward<Types>(rest)...);
   }
 }
 
@@ -454,38 +481,12 @@ initPodBuffer()
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 auto VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-makePodData(Args... args) noexcept -> PodDataT
+makePodCache(Args... args) noexcept -> PodCacheT
 {
-  PodDataT data{};
-  if constexpr (0 < sizeof...(Args))
-    makePodDataImpl<0>(std::addressof(data), args...);
-  return data;
-}
-
-/*!
-  \details No detailed description
-
-  \tparam kIndex No description.
-  \tparam Type No description.
-  \tparam Types No description.
-  \param [out] data No description.
-  \param [in] value No description.
-  \param [in] rest No description.
-  */
-template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-template <std::size_t kIndex, typename Type, typename ...Types>
-inline
-void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-makePodDataImpl(PodDataT* data, Type&& value, Types&&... rest) noexcept
-{
-  using T = std::remove_cvref_t<Type>;
-  using ArgTypeInfo = KernelArgTypeInfo<T>;
-  if constexpr (ArgTypeInfo::kIsPod)
-    data->template set<kIndex>(value);
-  if constexpr (0 < sizeof...(Types)) {
-    constexpr std::size_t next_index = ArgTypeInfo::kIsPod ? kIndex + 1 : kIndex;
-    makePodDataImpl<next_index>(data, std::forward<Types>(rest)...);
-  }
+  PodCacheT cache{};
+  if constexpr (hasPodArg())
+    initPodCache<0>(std::addressof(cache), args...);
+  return cache;
 }
 
 /*!
@@ -656,7 +657,7 @@ updatePodBufferCmd()
   auto pod_cache = getBufferHandle(*pod_cache_);
   auto pod_buff = getBufferHandle(*pod_buffer_);
   {
-    const VkBufferCopy copy_region{0, 0, sizeof(PodDataT)};
+    const VkBufferCopy copy_region{0, 0, sizeof(PodCacheT)};
     VulkanBufferImpl impl{std::addressof(parentImpl())};
     impl.copyCmd(commandBuffer(), pod_cache, pod_buff, copy_region);
   }
@@ -679,7 +680,7 @@ updatePodCacheIfNeeded(Args... args) const noexcept
 {
   bool have_new_pod = false;
   if constexpr (hasPodArg()) {
-    const PodDataT data = makePodData(args...);
+    const PodCacheT data = makePodCache(args...);
     ZISC_ASSERT(pod_cache_->isHostVisible(), "The cache isn't host visible.");
     auto cache = pod_cache_->mapMemory();
     have_new_pod = cache[0] != data;

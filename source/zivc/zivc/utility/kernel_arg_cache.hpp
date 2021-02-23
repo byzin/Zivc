@@ -74,7 +74,7 @@ class KernelArgCache<Type, Types...>
   void set(CacheType<kIndex> value) noexcept;
 
  private:
-  PrecedenceCacheT precedence_;
+  [[no_unique_address]] PrecedenceCacheT precedence_;
   PlainType value_;
 };
 
@@ -158,7 +158,7 @@ class KernelArgCache<Buffer<Type>&, Types...>
   void set(CacheType<kIndex> value) noexcept;
 
  private:
-  PrecedenceCacheT precedence_;
+  [[no_unique_address]] PrecedenceCacheT precedence_;
   BufferP value_ = nullptr;
 };
 

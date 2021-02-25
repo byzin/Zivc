@@ -263,6 +263,81 @@ TEST(KernelTest, PodSizeAlignmentTest)
   using zivc::uint8b;
   using zivc::uint16b;
   using zivc::uint32b;
+
+  // Allocate buffers
+  auto buff_device1 = device->makeBuffer<int32b>(zivc::BufferUsage::kDeviceOnly);
+  buff_device1->setSize(15);
+  {
+    auto options = buff_device1->makeOptions();
+    [[maybe_unused]] auto result = buff_device1->fill(0, options);
+    device->waitForCompletion();
+  }
+
+  // Make a kernel
+  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test_pod, podSizeAlignmentKernel, 1);
+  auto kernel = device->makeKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(16, kernel->argSize()) << "Wrong kernel property.";
+
+  constexpr int16b i16 = 1;
+  constexpr int8b i8_1 = 2;
+  constexpr int8b i8_2 = 3;
+  constexpr uint32b u32 = 4;
+  constexpr uint8b u8_1 = 5;
+  constexpr uint8b u8_2 = 6;
+  constexpr uint8b u8_3 = 7;
+  constexpr uint8b u8_4 = 8;
+  constexpr uint32b u32_2 = 9;
+  constexpr int16b i16_2 = 10;
+  constexpr int8b i8_3 = 11;
+  constexpr int8b i8_4 = 12;
+  constexpr int8b i8_5 = 13;
+  constexpr int8b i8_6 = 14;
+  constexpr int16b i16_3 = 15;
+
+  // Launch the kernel
+  {
+    auto launch_options = kernel->makeOptions();
+    launch_options.setWorkSize({1});
+    launch_options.setExternalSyncMode(false);
+    launch_options.setLabel("PodSizeAlignmentKernel");
+    auto result = kernel->run(*buff_device1, i16, i8_1, i8_2,
+                              u32, u8_1, u8_2, u8_3, u8_4,
+                              u32_2, i16_2, i8_3, i8_4, i8_5, i8_6, i16_3,
+                              launch_options);
+    device->waitForCompletion();
+  }
+
+  // Check the outputs
+  {
+    auto buff_host = device->makeBuffer<int32b>(zivc::BufferUsage::kHostOnly);
+    buff_host->setSize(buff_device1->size());
+    auto options = buff_device1->makeOptions();
+    [[maybe_unused]] auto result = zivc::copy(*buff_device1, buff_host.get(), options);
+    device->waitForCompletion();
+    {
+      const auto mem = buff_host->mapMemory();
+      for (std::size_t i = 0; i < mem.size(); ++i) {
+        const int32b expected = zisc::cast<int32b>(i + 1);
+        ASSERT_EQ(expected, mem[i]) << "POD value isn't processed properly.";
+      }
+    }
+  }
+}
+
+TEST(KernelTest, PodSizeAlignment2Test)
+{
+  auto platform = ztest::makePlatform();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
+  [[maybe_unused]] const auto& info = device->deviceInfo();
+
+  using zivc::int8b;
+  using zivc::int16b;
+  using zivc::int32b;
+  using zivc::uint8b;
+  using zivc::uint16b;
+  using zivc::uint32b;
   using PodTest = zivc::cl::kernel_test_pod::inner::PodAlignmentTest;
 
   auto init_buffer = [](zivc::Device& d, auto& buffer, const auto value)
@@ -304,7 +379,7 @@ TEST(KernelTest, PodSizeAlignmentTest)
   init_buffer(*device, *buff_device7, PodTest{});
 
   // Make a kernel
-  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test_pod, podSizeAlignmentKernel, 1);
+  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test_pod, podSizeAlignment2Kernel, 1);
   auto kernel = device->makeKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(14, kernel->argSize()) << "Wrong kernel property.";
@@ -322,7 +397,7 @@ TEST(KernelTest, PodSizeAlignmentTest)
     auto launch_options = kernel->makeOptions();
     launch_options.setWorkSize({1});
     launch_options.setExternalSyncMode(false);
-    launch_options.setLabel("PodSizeAlignmentKernel");
+    launch_options.setLabel("PodSizeAlignment2Kernel");
     auto result = kernel->run(
         *buff_device1, *buff_device2, *buff_device3, *buff_device4,
         *buff_device5, *buff_device6, *buff_device7,
@@ -340,7 +415,7 @@ TEST(KernelTest, PodSizeAlignmentTest)
     {
       const auto mem = buff_host->mapMemory();
       ASSERT_EQ(u8, mem[0]) << "POD value isn't processed properly.";
-//      ASSERT_EQ(u8, mem[1]) << "POD structure isn't processed properly.";
+      ASSERT_EQ(u8, mem[1]) << "POD structure isn't processed properly.";
     }
   }
   {
@@ -352,7 +427,7 @@ TEST(KernelTest, PodSizeAlignmentTest)
     {
       const auto mem = buff_host->mapMemory();
       ASSERT_EQ(f32, mem[0]) << "POD value isn't processed properly.";
-//      ASSERT_EQ(f32, mem[1]) << "POD structure isn't processed properly.";
+      ASSERT_EQ(f32, mem[1]) << "POD structure isn't processed properly.";
     }
   }
   {
@@ -364,7 +439,7 @@ TEST(KernelTest, PodSizeAlignmentTest)
     {
       const auto mem = buff_host->mapMemory();
       ASSERT_EQ(i8, mem[0]) << "POD value isn't processed properly.";
-//      ASSERT_EQ(i8, mem[1]) << "POD structure isn't processed properly.";
+      ASSERT_EQ(i8, mem[1]) << "POD structure isn't processed properly.";
     }
   }
   {
@@ -376,7 +451,7 @@ TEST(KernelTest, PodSizeAlignmentTest)
     {
       const auto mem = buff_host->mapMemory();
       ASSERT_EQ(i16, mem[0]) << "POD value isn't processed properly.";
-//      ASSERT_EQ(i16, mem[1]) << "POD structure isn't processed properly.";
+      ASSERT_EQ(i16, mem[1]) << "POD structure isn't processed properly.";
     }
   }
   {
@@ -388,7 +463,7 @@ TEST(KernelTest, PodSizeAlignmentTest)
     {
       const auto mem = buff_host->mapMemory();
       ASSERT_EQ(u16, mem[0]) << "POD value isn't processed properly.";
-//      ASSERT_EQ(u16, mem[1]) << "POD structure isn't processed properly.";
+      ASSERT_EQ(u16, mem[1]) << "POD structure isn't processed properly.";
     }
   }
   {
@@ -400,7 +475,7 @@ TEST(KernelTest, PodSizeAlignmentTest)
     {
       const auto mem = buff_host->mapMemory();
       ASSERT_EQ(i32, mem[0]) << "POD value isn't processed properly.";
-//      ASSERT_EQ(i32, mem[1]) << "POD structure isn't processed properly.";
+      ASSERT_EQ(i32, mem[1]) << "POD structure isn't processed properly.";
     }
   }
   {
@@ -412,17 +487,17 @@ TEST(KernelTest, PodSizeAlignmentTest)
     {
       const auto mem = buff_host->mapMemory();
       ASSERT_EQ(u8, mem[0].u8_) << "POD value isn't processed properly.";
-//      ASSERT_EQ(u8, mem[1].u8_) << "POD structure isn't processed properly.";
+      ASSERT_EQ(u8, mem[1].u8_) << "POD structure isn't processed properly.";
       ASSERT_EQ(f32, mem[0].f_) << "POD value isn't processed properly.";
-//      ASSERT_EQ(f32, mem[1].f_) << "POD structure isn't processed properly.";
+      ASSERT_EQ(f32, mem[1].f_) << "POD structure isn't processed properly.";
       ASSERT_EQ(i8, mem[0].i8_) << "POD value isn't processed properly.";
-//      ASSERT_EQ(i8, mem[1].i8_) << "POD structure isn't processed properly.";
+      ASSERT_EQ(i8, mem[1].i8_) << "POD structure isn't processed properly.";
       ASSERT_EQ(i16, mem[0].i16_) << "POD value isn't processed properly.";
-//      ASSERT_EQ(i16, mem[1].i16_) << "POD structure isn't processed properly.";
+      ASSERT_EQ(i16, mem[1].i16_) << "POD structure isn't processed properly.";
       ASSERT_EQ(u16, mem[0].u16_) << "POD value isn't processed properly.";
-//      ASSERT_EQ(u16, mem[1].u16_) << "POD structure isn't processed properly.";
+      ASSERT_EQ(u16, mem[1].u16_) << "POD structure isn't processed properly.";
       ASSERT_EQ(i32, mem[0].i32_) << "POD value isn't processed properly.";
-//      ASSERT_EQ(i32, mem[1].i32_) << "POD structure isn't processed properly.";
+      ASSERT_EQ(i32, mem[1].i32_) << "POD structure isn't processed properly.";
     }
   }
 }
@@ -481,7 +556,7 @@ TEST(KernelTest, PodMultipleValuesTest)
   init_buffer(*device, *buff_device7, PodTest{});
 
   // Make a kernel
-  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test_pod, podSizeAlignmentKernel, 1);
+  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test_pod, podSizeAlignment2Kernel, 1);
   auto kernel = device->makeKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(14, kernel->argSize()) << "Wrong kernel property.";
@@ -501,7 +576,7 @@ TEST(KernelTest, PodMultipleValuesTest)
       auto launch_options = kernel->makeOptions();
       launch_options.setWorkSize({1});
       launch_options.setExternalSyncMode(false);
-      launch_options.setLabel("PodSizeAlignmentKernel");
+      launch_options.setLabel("PodSizeAlignment2Kernel");
       auto result = kernel->run(
           *buff_device1, *buff_device2, *buff_device3, *buff_device4,
           *buff_device5, *buff_device6, *buff_device7,

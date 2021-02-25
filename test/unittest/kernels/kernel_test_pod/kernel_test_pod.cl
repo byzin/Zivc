@@ -159,6 +159,57 @@ static_assert(alignof(PodAlignmentTest) == 4);
 /*!
   \details No detailed description
 
+  \param [out] output No description.
+  \param [in] i16 No description.
+  \param [in] i8_1 No description.
+  \param [in] i8_2 No description.
+  \param [in] u32 No description.
+  \param [in] u8_1 No description.
+  \param [in] u8_2 No description.
+  \param [in] u8_3 No description.
+  \param [in] u8_4 No description.
+  */
+__kernel void podSizeAlignmentKernel(zivc::GlobalPtr<int32b> output,
+                                     const int16b i16,
+                                     const int8b i8_1,
+                                     const int8b i8_2,
+                                     const uint32b u32,
+                                     const uint8b u8_1,
+                                     const uint8b u8_2,
+                                     const uint8b u8_3,
+                                     const uint8b u8_4,
+                                     const uint32b u32_2,
+                                     const int16b i16_2,
+                                     const int8b i8_3,
+                                     const int8b i8_4,
+                                     const int8b i8_5,
+                                     const int8b i8_6,
+                                     const int16b i16_3)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (index == 0) {
+    size_t i = 0;
+    output[i++] = static_cast<int32b>(i16);
+    output[i++] = static_cast<int32b>(i8_1);
+    output[i++] = static_cast<int32b>(i8_2);
+    output[i++] = static_cast<int32b>(u32);
+    output[i++] = static_cast<int32b>(u8_1);
+    output[i++] = static_cast<int32b>(u8_2);
+    output[i++] = static_cast<int32b>(u8_3);
+    output[i++] = static_cast<int32b>(u8_4);
+    output[i++] = static_cast<int32b>(u32_2);
+    output[i++] = static_cast<int32b>(i16_2);
+    output[i++] = static_cast<int32b>(i8_3);
+    output[i++] = static_cast<int32b>(i8_4);
+    output[i++] = static_cast<int32b>(i8_5);
+    output[i++] = static_cast<int32b>(i8_6);
+    output[i++] = static_cast<int32b>(i16_3);
+  }
+}
+
+/*!
+  \details No detailed description
+
   \param [out] output1 No description.
   \param [out] output2 No description.
   \param [out] output3 No description.
@@ -174,20 +225,20 @@ static_assert(alignof(PodAlignmentTest) == 4);
   \param [in] i32 No description.
   \param [in] test No description.
   */
-__kernel void podSizeAlignmentKernel(zivc::GlobalPtr<uint8b> output1,
-                                     zivc::GlobalPtr<float> output2,
-                                     zivc::GlobalPtr<int8b> output3,
-                                     zivc::GlobalPtr<int16b> output4,
-                                     zivc::GlobalPtr<uint16b> output5,
-                                     zivc::GlobalPtr<int32b> output6,
-                                     zivc::GlobalPtr<inner::PodAlignmentTest> output7,
-                                     const uint8b u8,
-                                     const float f,
-                                     const int8b i8,
-                                     const int16b i16,
-                                     const uint16b u16,
-                                     const int32b i32,
-                                     const inner::PodAlignmentTest test)
+__kernel void podSizeAlignment2Kernel(zivc::GlobalPtr<uint8b> output1,
+                                      zivc::GlobalPtr<float> output2,
+                                      zivc::GlobalPtr<int8b> output3,
+                                      zivc::GlobalPtr<int16b> output4,
+                                      zivc::GlobalPtr<uint16b> output5,
+                                      zivc::GlobalPtr<int32b> output6,
+                                      zivc::GlobalPtr<inner::PodAlignmentTest> output7,
+                                      const uint8b u8,
+                                      const float f,
+                                      const int8b i8,
+                                      const int16b i16,
+                                      const uint16b u16,
+                                      const int32b i32,
+                                      const inner::PodAlignmentTest test)
 {
   const size_t index = zivc::getGlobalLinearId();
   if (index == 0) {

@@ -17,6 +17,8 @@
 
 // Standard C++ library
 #include <cstddef>
+#include <ostream>
+#include <string_view>
 #include <type_traits>
 // Zivc
 #include "zivc/zivc_config.hpp"
@@ -97,6 +99,9 @@ class KernelArgCache<KernelArgCache<ArgTypes...>, Types...>
   //! Check if the cache type is valid
   static constexpr bool isValid() noexcept;
 
+  //! Print the cache tree
+  static void printTree(const std::size_t indent, std::ostream* output) noexcept;
+
   //! Return the number of args the cache has
   static constexpr std::size_t size() noexcept;
 
@@ -159,6 +164,9 @@ class KernelArgCache<KernelArgCache<ArgTypes...>>
   //! Check if the cache type is valid
   static constexpr bool isValid() noexcept;
 
+  //! Print the cache tree
+  static void printTree(const std::size_t indent, std::ostream* output) noexcept;
+
   //! Return the number of args the cache has
   static constexpr std::size_t size() noexcept;
 
@@ -216,6 +224,9 @@ class KernelArgCache<Type, Types...>
   //! Check if the cache type is valid
   static constexpr bool isValid() noexcept;
 
+  //! Print the cache tree
+  static void printTree(const std::size_t indent, std::ostream* output) noexcept;
+
   //! Return the number of args the cache has
   static constexpr std::size_t size() noexcept;
 
@@ -267,6 +278,9 @@ class KernelArgCache<Type>
 
   //! Check if the cache type is valid
   static constexpr bool isValid() noexcept;
+
+  //! Print the cache tree
+  static void printTree(const std::size_t indent, std::ostream* output) noexcept;
 
   //! Return the number of args the cache has
   static constexpr std::size_t size() noexcept;
@@ -324,6 +338,9 @@ class KernelArgCache<Buffer<Type>&, Types...>
   //! Check if the cache type is valid
   static constexpr bool isValid() noexcept;
 
+  //! Print the cache tree
+  static void printTree(const std::size_t indent, std::ostream* output) noexcept;
+
   //! Return the number of args the cache has
   static constexpr std::size_t size() noexcept;
 
@@ -377,6 +394,9 @@ class KernelArgCache<Buffer<Type>&>
   //! Check if the cache type is valid
   static constexpr bool isValid() noexcept;
 
+  //! Print the cache tree
+  static void printTree(const std::size_t indent, std::ostream* output) noexcept;
+
   //! Return the number of args the cache has
   static constexpr std::size_t size() noexcept;
 
@@ -412,6 +432,15 @@ class KernelArgCache<void>
   //! Check if the cache type is valid
   static constexpr bool isValid() noexcept;
 
+  //! Print indent spaces
+  static void printIndent(const std::size_t indent, std::ostream* output) noexcept;
+
+  //! Print indent spaces
+  template <typename Type>
+  static void printValue(const std::size_t indent,
+                         const std::string_view name,
+                         std::ostream* output) noexcept;
+
   //! Return the number of args the cache has
   static constexpr std::size_t size() noexcept;
 };
@@ -429,6 +458,10 @@ bool operator==(const KernelArgCache<Types...>& lhs,
 template <typename ...Types>
 bool operator!=(const KernelArgCache<Types...>& lhs,
                 const KernelArgCache<Types...>& rhs) noexcept;
+
+//! Concatenate caches
+template <typename Type, typename ...ArgTypes, typename ...Types>
+auto concatArgCache(const KernelArgCache<KernelArgCache<ArgTypes...>, Types...>& cache) noexcept;
 
 //! Concatenate caches
 template <typename Type1, typename Type2, typename ...Types>

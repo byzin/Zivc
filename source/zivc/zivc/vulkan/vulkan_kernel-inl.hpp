@@ -443,6 +443,13 @@ initPodBuffer()
       zisc::cast<BuffType*>(pod_cache_.get())->setDescriptorType(desc_uniform);
       pod_cache_->setSize(1);
     }
+
+    // Print POD cache tree
+//    KernelArgCache<void>::printValue<PodCacheT>(0,
+//                                                "ArgCache",
+//                                                std::addressof(std::cout));
+//    std::cout << std::endl;
+//    PodCacheT::printTree(1, std::addressof(std::cout));
   }
 }
 

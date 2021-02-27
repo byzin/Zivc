@@ -23,6 +23,7 @@
 #include <type_traits>
 // Zivc
 #include "zivc/zivc_config.hpp"
+#include "zivc/cppcl/vector.hpp"
 
 // #define ZIVC_PRINT_CACHE_TREE
 
@@ -52,6 +53,59 @@ class KernelArgCache
 
   //! Check if the cache type is valid
   static constexpr bool isValid() noexcept;
+};
+
+/*!
+  \brief No brief description
+
+  No detailed description.
+  */
+template <>
+class KernelArgCache<void>
+{
+ public:
+  //! Represent the required alignment to conform the extended alignment rule.
+  template <KernelArg T>
+  struct AlignmentInfo
+  {
+    static constexpr std::size_t kValue = std::is_class_v<T>
+        ? (std::max)(std::alignment_of_v<T>, static_cast<std::size_t>(16))
+        : std::alignment_of_v<T>;
+  };
+
+  //! Represent the required alignment to conform the extended alignment rule.
+  template <KernelArg T, std::size_t kSize>
+  struct AlignmentInfo<cl::Vector<T, kSize>>
+  {
+    static constexpr std::size_t kValue = std::alignment_of_v<cl::Vector<T, kSize>>;
+  };
+
+
+  //! The number of args the cache has
+  static constexpr std::size_t kSize = 0;
+
+
+  //! Return the type by the given index
+  template <std::size_t>
+  using CacheType = void;
+
+
+  //! Check if the cache type is valid
+  static constexpr bool isValid() noexcept;
+
+#if defined(ZIVC_PRINT_CACHE_TREE)
+  //! Print indent spaces
+  static void printIndent(const std::size_t indent, std::ostream* output) noexcept;
+
+  //! Print indent spaces
+  template <typename Type>
+  static void printValue(const std::size_t indent,
+                         const std::string_view name,
+                         std::ostream* output) noexcept;
+#endif // ZIVC_PRINT_CACHE_TREE
+
+  //! Return the number of args the cache has
+  static constexpr std::size_t size() noexcept;
 };
 
 /*!
@@ -264,15 +318,14 @@ class KernelArgCache<Type>
 {
   // Type aliases
   using PlainType = std::remove_cv_t<Type>;
+  using AlignmentInfo = KernelArgCache<void>::AlignmentInfo<PlainType>;
 
  public:
   //! The number of args the cache has
   static constexpr std::size_t kSize = 1;
 
   //! Represent the required alignment to conform the extended alignment rule. \todo Consider vector alignment
-  static constexpr std::size_t kAlignment = std::is_class_v<PlainType>
-      ? (std::max)(std::alignment_of_v<PlainType>, static_cast<std::size_t>(16))
-      : std::alignment_of_v<PlainType>;
+  static constexpr std::size_t kAlignment = AlignmentInfo::kValue;
 
 
   //! Return the type by the given index
@@ -430,42 +483,6 @@ class KernelArgCache<Buffer<Type>&>
 
  private:
   BufferP value_ = nullptr;
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-  */
-template <>
-class KernelArgCache<void>
-{
- public:
-  //! The number of args the cache has
-  static constexpr std::size_t kSize = 0;
-
-
-  //! Return the type by the given index
-  template <std::size_t>
-  using CacheType = void;
-
-
-  //! Check if the cache type is valid
-  static constexpr bool isValid() noexcept;
-
-#if defined(ZIVC_PRINT_CACHE_TREE)
-  //! Print indent spaces
-  static void printIndent(const std::size_t indent, std::ostream* output) noexcept;
-
-  //! Print indent spaces
-  template <typename Type>
-  static void printValue(const std::size_t indent,
-                         const std::string_view name,
-                         std::ostream* output) noexcept;
-#endif // ZIVC_PRINT_CACHE_TREE
-
-  //! Return the number of args the cache has
-  static constexpr std::size_t size() noexcept;
 };
 
 #if defined(Z_GCC) || defined(Z_CLANG)

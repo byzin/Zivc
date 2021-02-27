@@ -264,4 +264,140 @@ __kernel void podSizeAlignment2Kernel(zivc::GlobalPtr<uint8b> output1,
   }
 }
 
+namespace inner {
+
+/*!
+  \brief No brief description
+
+  No detailed description.
+  */
+struct PodVectorTest
+{
+  uchar2 u8v2_1_;
+  uchar2 u8v2_2_;
+  uchar4 u8v4_1_;
+  uchar4 u8v4_2_;
+  short2 i16v2_1_;
+  short2 i16v2_2_;
+  short2 padding1_;
+  short4 i16v4_1_;
+  short4 i16v4_2_;
+  int2 i32v2_1_;
+  int2 i32v2_2_;
+  int2 padding2_;
+  int4 i32v4_1_;
+  int4 i32v4_2_;
+  float2 f32v2_1_;
+  float2 f32v2_2_;
+  float4 f32v4_1_;
+  float4 f32v4_2_;
+};
+
+//! Check if two values are equal
+bool operator==(const PodVectorTest& lhs, const PodVectorTest& rhs) noexcept;
+
+//! Check if two values aren't equal
+bool operator!=(const PodVectorTest& lhs, const PodVectorTest& rhs) noexcept;
+
+inline
+bool operator==(const PodVectorTest& /* lhs */, const PodVectorTest& /* rhs */) noexcept
+{
+  const bool result = false;
+  return result;
+}
+
+inline
+bool operator!=(const PodVectorTest& lhs, const PodVectorTest& rhs) noexcept
+{
+  const bool result = !(lhs == rhs);
+  return result;
+}
+
+static_assert(sizeof(PodVectorTest) == 144);
+static_assert(alignof(PodVectorTest) == 16);
+
+} // namespace inner
+
+__kernel void podVectorKernel(zivc::GlobalPtr<uchar2> output1,
+                              zivc::GlobalPtr<uchar4> output2,
+                              zivc::GlobalPtr<short2> output3,
+                              zivc::GlobalPtr<short4> output4,
+                              zivc::GlobalPtr<int2> output5,
+                              zivc::GlobalPtr<int4> output6,
+                              zivc::GlobalPtr<float2> output7,
+                              zivc::GlobalPtr<float4> output8,
+                              zivc::GlobalPtr<inner::PodVectorTest> output9,
+                              const uchar2 u8v2_1,
+                              const uchar2 u8v2_2,
+                              const uchar4 u8v4_1,
+                              const uchar4 u8v4_2,
+                              const short2 i16v2_1,
+                              const short2 i16v2_2,
+                              const short4 i16v4_1,
+                              const short4 i16v4_2,
+                              const int2 i32v2_1,
+                              const int2 i32v2_2,
+                              const int4 i32v4_1,
+                              const int4 i32v4_2,
+                              const float2 f32v2_1,
+                              const float2 f32v2_2,
+                              const float4 f32v4_1,
+                              const float4 f32v4_2,
+                              const inner::PodVectorTest test)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (index == 0) {
+    output1[0] = u8v2_1;
+    output1[1] = u8v2_2;
+    output1[2] = test.u8v2_1_;
+    output1[3] = test.u8v2_2_;
+    output2[0] = u8v4_1;
+    output2[1] = u8v4_2;
+    output2[2] = test.u8v4_1_;
+    output2[3] = test.u8v4_2_;
+    output3[0] = i16v2_1;
+    output3[1] = i16v2_2;
+    output3[2] = test.i16v2_1_;
+    output3[3] = test.i16v2_2_;
+    output4[0] = i16v4_1;
+    output4[1] = i16v4_2;
+    output4[2] = test.i16v4_1_;
+    output4[3] = test.i16v4_2_;
+    output5[0] = i32v2_1;
+    output5[1] = i32v2_2;
+    output5[2] = test.i32v2_1_;
+    output5[3] = test.i32v2_2_;
+    output6[0] = i32v4_1;
+    output6[1] = i32v4_2;
+    output6[2] = test.i32v4_1_;
+    output6[3] = test.i32v4_2_;
+    output7[0] = f32v2_1;
+    output7[1] = f32v2_2;
+    output7[2] = test.f32v2_1_;
+    output7[3] = test.f32v2_2_;
+    output8[0] = f32v4_1;
+    output8[1] = f32v4_2;
+    output8[2] = test.f32v4_1_;
+    output8[3] = test.f32v4_2_;
+
+    output9[0].u8v2_1_ = u8v2_1;
+    output9[0].u8v2_2_ = u8v2_2;
+    output9[0].u8v4_1_ = u8v4_1;
+    output9[0].u8v4_2_ = u8v4_2;
+    output9[0].i16v2_1_ = i16v2_1;
+    output9[0].i16v2_2_ = i16v2_2;
+    output9[0].i16v4_1_ = i16v4_1;
+    output9[0].i16v4_2_ = i16v4_2;
+    output9[0].i32v2_1_ = i32v2_1;
+    output9[0].i32v2_2_ = i32v2_2;
+    output9[0].i32v4_1_ = i32v4_1;
+    output9[0].i32v4_2_ = i32v4_2;
+    output9[0].f32v2_1_ = f32v2_1;
+    output9[0].f32v2_2_ = f32v2_2;
+    output9[0].f32v4_1_ = f32v4_1;
+    output9[0].f32v4_2_ = f32v4_2;
+    output9[1] = test;
+  }
+}
+
 #endif // ZIVC_TEST_KERNEL_TEST_POD_CL

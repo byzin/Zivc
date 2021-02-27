@@ -35,6 +35,39 @@
 #include "test.hpp"
 #include "zivc/kernel_set/kernel_set-kernel_test_pod.hpp"
 
+namespace {
+
+//! Check the value of scalar buffer
+template <typename Type>
+testing::AssertionResult testVectorBuffer(zivc::Device& device,
+                                          const zivc::Buffer<Type>& buffer)
+{
+  auto buff_host = device.makeBuffer<Type>(zivc::BufferUsage::kHostOnly);
+  buff_host->setSize(buffer.size());
+  {
+    auto options = buffer.makeOptions();
+    options.setExternalSyncMode(true);
+    auto result = zivc::copy(buffer, buff_host.get(), options);
+    device.waitForCompletion(result.fence());
+  }
+  {
+    auto mem = buff_host->mapMemory();
+    auto ptr = std::addressof(mem[0][0]);
+    using ScalarT = std::remove_cvref_t<decltype(ptr[0])>;
+    auto expected = static_cast<ScalarT>(1);
+    const std::size_t n =  mem.size() * mem[0].size();
+    for (std::size_t i = 0; i < n; ++i, ++expected) {
+      if (i == n / 2)
+        expected = static_cast<ScalarT>(1);
+      if (expected != ptr[i])
+        return testing::AssertionFailure() << "mem[" << i << "] = " << ptr[i];
+    }
+    return testing::AssertionSuccess();
+  }
+}
+
+} // namespace 
+
 TEST(KernelTest, Pod1Test)
 {
   auto platform = ztest::makePlatform();
@@ -916,6 +949,170 @@ TEST(KernelTest, PodMultipleValuesTest)
         ASSERT_EQ(i32, mem[0].i32_) << "POD value isn't processed properly.";
         ASSERT_EQ(i32, mem[1].i32_) << "POD structure isn't processed properly.";
       }
+    }
+  }
+}
+
+TEST(KernelTest, PodVectorTypeTest)
+{
+  auto platform = ztest::makePlatform();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
+  [[maybe_unused]] const auto& info = device->deviceInfo();
+
+  using zivc::int8b;
+  using zivc::int16b;
+  using zivc::int32b;
+  using zivc::uint8b;
+  using zivc::uint16b;
+  using zivc::uint32b;
+  using zivc::cl::uchar2;
+  using zivc::cl::uchar4;
+  using zivc::cl::short2;
+  using zivc::cl::short4;
+  using zivc::cl::int2;
+  using zivc::cl::int4;
+  using zivc::cl::float2;
+  using zivc::cl::float4;
+  using PodTest = zivc::cl::kernel_test_pod::inner::PodVectorTest;
+
+  auto init_buffer = [](zivc::Device& d, auto& buffer, const auto value)
+  {
+    using Type = std::add_const_t<decltype(value)>;
+    auto buff_host = d.makeBuffer<Type>(zivc::BufferUsage::kHostOnly);
+    buff_host->setSize(buffer.size());
+    {
+      auto mem = buff_host->mapMemory();
+      std::fill(mem.begin(), mem.end(), value);
+    }
+    {
+      auto options = buff_host->makeOptions();
+      [[maybe_unused]] auto result = zivc::copy(*buff_host, std::addressof(buffer), options);
+      d.waitForCompletion();
+    }
+  };
+
+  // Allocate buffers
+  auto buff_device1 = device->makeBuffer<uchar2>(zivc::BufferUsage::kDeviceOnly);
+  buff_device1->setSize(4);
+  auto buff_device2 = device->makeBuffer<uchar4>(zivc::BufferUsage::kDeviceOnly);
+  buff_device2->setSize(4);
+  auto buff_device3 = device->makeBuffer<short2>(zivc::BufferUsage::kDeviceOnly);
+  buff_device3->setSize(4);
+  auto buff_device4 = device->makeBuffer<short4>(zivc::BufferUsage::kDeviceOnly);
+  buff_device4->setSize(4);
+  auto buff_device5 = device->makeBuffer<int2>(zivc::BufferUsage::kDeviceOnly);
+  buff_device5->setSize(4);
+  auto buff_device6 = device->makeBuffer<int4>(zivc::BufferUsage::kDeviceOnly);
+  buff_device6->setSize(4);
+  auto buff_device7 = device->makeBuffer<float2>(zivc::BufferUsage::kDeviceOnly);
+  buff_device7->setSize(4);
+  auto buff_device8 = device->makeBuffer<float4>(zivc::BufferUsage::kDeviceOnly);
+  buff_device8->setSize(4);
+  auto buff_device9 = device->makeBuffer<PodTest>(zivc::BufferUsage::kDeviceOnly);
+  buff_device9->setSize(2);
+
+  init_buffer(*device, *buff_device1, uchar2{0, 0});
+  init_buffer(*device, *buff_device2, uchar4{0, 0, 0, 0});
+  init_buffer(*device, *buff_device3, short2{0, 0});
+  init_buffer(*device, *buff_device4, short4{0, 0, 0, 0});
+  init_buffer(*device, *buff_device5, int2{0, 0});
+  init_buffer(*device, *buff_device6, int4{0, 0, 0, 0});
+  init_buffer(*device, *buff_device7, float2{0.0f, 0.0f});
+  init_buffer(*device, *buff_device8, float4{0.0f, 0.0f, 0.0f, 0.0f});
+
+  // Make a kernel
+  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test_pod, podVectorKernel, 1);
+  auto kernel = device->makeKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(26, kernel->argSize()) << "Wrong kernel property.";
+
+  const uchar2 u8v2_1{1, 2};
+  const uchar2 u8v2_2{3, 4};
+  const uchar4 u8v4_1{1, 2, 3, 4};
+  const uchar4 u8v4_2{5, 6, 7, 8};
+  const short2 i16v2_1{1, 2};
+  const short2 i16v2_2{3, 4};
+  const short4 i16v4_1{1, 2, 3, 4};
+  const short4 i16v4_2{5, 6, 7, 8};
+  const int2 i32v2_1{1, 2};
+  const int2 i32v2_2{3, 4};
+  const int4 i32v4_1{1, 2, 3, 4};
+  const int4 i32v4_2{5, 6, 7, 8};
+  const float2 f32v2_1{1.0f, 2.0f};
+  const float2 f32v2_2{3.0f, 4.0f};
+  const float4 f32v4_1{1.0f, 2.0f, 3.0f, 4.0f};
+  const float4 f32v4_2{5.0f, 6.0f, 7.0f, 8.0f};
+  const PodTest podtest{u8v2_1, u8v2_2, u8v4_1, u8v4_2,
+                        i16v2_1, i16v2_2, i16v2_1, i16v4_1, i16v4_2,
+                        i32v2_1, i32v2_2, i32v2_1, i32v4_1, i32v4_2,
+                        f32v2_1, f32v2_2, f32v4_1, f32v4_2};
+
+  // Launch the kernel
+  {
+    auto launch_options = kernel->makeOptions();
+    launch_options.setWorkSize({1});
+    launch_options.setExternalSyncMode(false);
+    launch_options.setLabel("PodVectorKernel");
+    auto result = kernel->run(
+        *buff_device1, *buff_device2, *buff_device3, *buff_device4,
+        *buff_device5, *buff_device6, *buff_device7, *buff_device8, *buff_device9,
+        u8v2_1, u8v2_2, u8v4_1, u8v4_2,
+        i16v2_1, i16v2_2, i16v4_1, i16v4_2,
+        i32v2_1, i32v2_2, i32v4_1, i32v4_2,
+        f32v2_1, f32v2_2, f32v4_1, f32v4_2,
+        podtest, launch_options);
+    device->waitForCompletion();
+  }
+
+  // Check the outputs
+  ASSERT_TRUE(::testVectorBuffer(*device, *buff_device1));
+  ASSERT_TRUE(::testVectorBuffer(*device, *buff_device2));
+  ASSERT_TRUE(::testVectorBuffer(*device, *buff_device3));
+  ASSERT_TRUE(::testVectorBuffer(*device, *buff_device4));
+  ASSERT_TRUE(::testVectorBuffer(*device, *buff_device5));
+  ASSERT_TRUE(::testVectorBuffer(*device, *buff_device6));
+  ASSERT_TRUE(::testVectorBuffer(*device, *buff_device7));
+  ASSERT_TRUE(::testVectorBuffer(*device, *buff_device8));
+  {
+    auto buff_host = device->makeBuffer<PodTest>(zivc::BufferUsage::kHostOnly);
+    buff_host->setSize(buff_device9->size());
+    {
+      auto options = buff_device9->makeOptions();
+      options.setExternalSyncMode(true);
+      auto result = zivc::copy(*buff_device9, buff_host.get(), options);
+      device->waitForCompletion(result.fence());
+    }
+    {
+      auto mem = buff_host->mapMemory();
+
+      auto test_vec = [](const auto ptr, const std::size_t n) noexcept
+      {
+        using ScalarT = std::remove_cvref_t<decltype(ptr[0])>;
+        ScalarT expected = static_cast<ScalarT>(1);
+        for (std::size_t i = 0; i < n; ++i, ++expected) {
+          if (expected != ptr[i])
+            return testing::AssertionFailure() << "mem[" << i << "] = " << ptr[i];
+        }
+        return testing::AssertionSuccess();
+      };
+      ASSERT_TRUE(test_vec(std::addressof(mem[0].u8v2_1_[0]), 4));
+      ASSERT_TRUE(test_vec(std::addressof(mem[0].u8v4_1_[0]), 8));
+      ASSERT_TRUE(test_vec(std::addressof(mem[0].i16v2_1_[0]), 4));
+      ASSERT_TRUE(test_vec(std::addressof(mem[0].i16v4_1_[0]), 8));
+      ASSERT_TRUE(test_vec(std::addressof(mem[0].i32v2_1_[0]), 4));
+      ASSERT_TRUE(test_vec(std::addressof(mem[0].i32v4_1_[0]), 8));
+      ASSERT_TRUE(test_vec(std::addressof(mem[0].f32v2_1_[0]), 4));
+      ASSERT_TRUE(test_vec(std::addressof(mem[0].f32v4_1_[0]), 8));
+
+      ASSERT_TRUE(test_vec(std::addressof(mem[1].u8v2_1_[0]), 4));
+      ASSERT_TRUE(test_vec(std::addressof(mem[1].u8v4_1_[0]), 8));
+      ASSERT_TRUE(test_vec(std::addressof(mem[1].i16v2_1_[0]), 4));
+      ASSERT_TRUE(test_vec(std::addressof(mem[1].i16v4_1_[0]), 8));
+      ASSERT_TRUE(test_vec(std::addressof(mem[1].i32v2_1_[0]), 4));
+      ASSERT_TRUE(test_vec(std::addressof(mem[1].i32v4_1_[0]), 8));
+      ASSERT_TRUE(test_vec(std::addressof(mem[1].f32v2_1_[0]), 4));
+      ASSERT_TRUE(test_vec(std::addressof(mem[1].f32v4_1_[0]), 8));
     }
   }
 }

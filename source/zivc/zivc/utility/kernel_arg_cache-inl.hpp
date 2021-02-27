@@ -99,6 +99,7 @@ constexpr bool KernelArgCache<KernelArgCache<ArgTypes...>, Types...>::isValid() 
   return CacheT::isValid() && PrecedenceCacheT::isValid();
 }
 
+#if defined(ZIVC_PRINT_CACHE_TREE)
 /*!
   \details No detailed description
 
@@ -121,6 +122,7 @@ void KernelArgCache<KernelArgCache<ArgTypes...>, Types...>::printTree(
   VoidCache::printIndent(indent, output);
   (*output) << "}" << std::endl;
 }
+#endif // ZIVC_PRINT_CACHE_TREE
 
 /*!
   \details No detailed description
@@ -223,6 +225,7 @@ constexpr bool KernelArgCache<KernelArgCache<ArgTypes...>>::isValid() noexcept
   return CacheT::isValid();
 }
 
+#if defined(ZIVC_PRINT_CACHE_TREE)
 /*!
   \details No detailed description
 
@@ -243,6 +246,7 @@ void KernelArgCache<KernelArgCache<ArgTypes...>>::printTree(
   VoidCache::printIndent(indent, output);
   (*output) << "}" << std::endl;
 }
+#endif // ZIVC_PRINT_CACHE_TREE
 
 /*!
   \details No detailed description
@@ -336,6 +340,7 @@ constexpr bool KernelArgCache<Type, Types...>::isValid() noexcept
   return PrecedenceCacheT::isValid(); 
 }
 
+#if defined(ZIVC_PRINT_CACHE_TREE)
 /*!
   \details No detailed description
 
@@ -349,9 +354,10 @@ void KernelArgCache<Type, Types...>::printTree(
 {
   using VoidCache = KernelArgCache<void>;
   PrecedenceCacheT::printTree(indent, output);
-  VoidCache::printValue<PlainType>(indent, "value", output);
+  VoidCache::printValue<PlainCache>(indent, "value", output);
   (*output) << std::endl;
 }
+#endif // ZIVC_PRINT_CACHE_TREE
 
 /*!
   \details No detailed description
@@ -387,10 +393,10 @@ void KernelArgCache<Type, Types...>::set(CacheType<kIndex> value) noexcept
 template <KernelArg Type, typename ...Types> inline
 constexpr std::size_t KernelArgCache<Type, Types...>::tailPaddingSize() noexcept
 {
-  const bool has_tail_padding = (std::alignment_of_v<PlainType> <
+  const bool has_tail_padding = (PlainCache::kAlignment <
                                  std::alignment_of_v<PrecedenceCacheT>);
   const std::size_t s = has_tail_padding
-      ? sizeof(KernelArgCache) - (sizeof(PrecedenceCacheT) + sizeof(PlainType))
+      ? sizeof(KernelArgCache) - (sizeof(PrecedenceCacheT) + sizeof(PlainCache))
       : 0;
   return s;
 }
@@ -449,6 +455,7 @@ constexpr bool KernelArgCache<Type>::isValid() noexcept
   return true;
 }
 
+#if defined(ZIVC_PRINT_CACHE_TREE)
 /*!
   \details No detailed description
 
@@ -461,9 +468,10 @@ void KernelArgCache<Type>::printTree(
     std::ostream* output) noexcept
 {
   using VoidCache = KernelArgCache<void>;
-  VoidCache::printValue<PlainType>(indent, "value", output);
+  VoidCache::printValue<KernelArgCache>(indent, "value", output);
   (*output) << std::endl;
 }
+#endif // ZIVC_PRINT_CACHE_TREE
 
 /*!
   \details No detailed description
@@ -557,6 +565,7 @@ constexpr bool KernelArgCache<Buffer<Type>&, Types...>::isValid() noexcept
   return PrecedenceCacheT::isValid();
 }
 
+#if defined(ZIVC_PRINT_CACHE_TREE)
 /*!
   \details No detailed description
 
@@ -573,6 +582,7 @@ void KernelArgCache<Buffer<Type>&, Types...>::printTree(
   VoidCache::printValue<BufferP>(indent, "buffer", output);
   (*output) << std::endl;
 }
+#endif // ZIVC_PRINT_CACHE_TREE
 
 /*!
   \details No detailed description
@@ -670,6 +680,7 @@ constexpr bool KernelArgCache<Buffer<Type>&>::isValid() noexcept
   return true;
 }
 
+#if defined(ZIVC_PRINT_CACHE_TREE)
 /*!
   \details No detailed description
 
@@ -685,6 +696,7 @@ void KernelArgCache<Buffer<Type>&>::printTree(
   VoidCache::printValue<BufferP>(indent, "buffer", output);
   (*output) << std::endl;
 }
+#endif // ZIVC_PRINT_CACHE_TREE
 
 /*!
   \details No detailed description
@@ -734,6 +746,7 @@ constexpr bool KernelArgCache<void>::isValid() noexcept
   return true;
 }
 
+#if defined(ZIVC_PRINT_CACHE_TREE)
 /*!
   \details No detailed description
 
@@ -765,6 +778,7 @@ void KernelArgCache<void>::printValue(const std::size_t indent,
   printIndent(indent, output);
   (*output) << name << " (size=" << size << ", alignment=" << alignment << ")";
 }
+#endif // ZIVC_PRINT_CACHE_TREE
 
 /*!
   \details No detailed description
@@ -828,8 +842,9 @@ auto concatArgCache([[maybe_unused]] const KernelArgCache<KernelArgCache<ArgType
   static_assert(PrecedenceCacheT::isValid());
   static_assert(0 < PrecedenceCacheT::size());
 
-  constexpr std::size_t t_size = sizeof(Type);
-  constexpr std::size_t t_alignment = std::alignment_of_v<Type>;
+  using TypeCacheT = KernelArgCache<Type>;
+  constexpr std::size_t t_size = sizeof(TypeCacheT);
+  constexpr std::size_t t_alignment = std::alignment_of_v<TypeCacheT>;
 
   constexpr std::size_t cache_padding_size = CacheT::tailPaddingSize();
   constexpr bool is_cache_padding_resuable = (t_size <= cache_padding_size) &&
@@ -871,9 +886,13 @@ auto concatArgCache([[maybe_unused]] const KernelArgCache<Type2, Types...>& cach
   static_assert(PrecedenceCacheT::isValid());
 
   if constexpr (0 < PrecedenceCacheT::size()) {
+    using TypeCacheT = KernelArgCache<Type1>;
+    constexpr std::size_t t_size = sizeof(TypeCacheT);
+    constexpr std::size_t t_alignment = std::alignment_of_v<TypeCacheT>;
+
     constexpr std::size_t padding_size = PrecedenceCacheT::tailPaddingSize();
-    constexpr bool is_padding_resuable = (sizeof(Type1) <= padding_size) &&
-                                         (std::alignment_of_v<Type1> <= padding_size);
+    constexpr bool is_padding_resuable = (t_size <= padding_size) &&
+                                         (t_alignment <= padding_size);
     if constexpr (is_padding_resuable) {
       using NewArgCacheT = KernelArgCache<KernelArgCache<Type1, Type2>, Types...>;
       return NewArgCacheT{};

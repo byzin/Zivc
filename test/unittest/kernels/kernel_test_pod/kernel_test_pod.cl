@@ -124,7 +124,6 @@ struct PodAlignmentTest
   uint16b padding3_ = 0;
 
   int32b i32_ = 0;
-
   int32b padding4_1_ = 0;
   int32b padding4_2_ = 0;
   int32b padding4_3_ = 0;
@@ -152,6 +151,7 @@ bool operator!=(const PodAlignmentTest& lhs, const PodAlignmentTest& rhs) noexce
   return result;
 }
 
+static_assert(sizeof(PodAlignmentTest) == 32);
 static_assert(alignof(PodAlignmentTest) == 4);
 
 } // namespace inner

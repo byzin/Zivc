@@ -16,12 +16,15 @@
 #define ZIVC_KERNEL_ARG_CACHE_HPP
 
 // Standard C++ library
+#include <algorithm>
 #include <cstddef>
 #include <ostream>
 #include <string_view>
 #include <type_traits>
 // Zivc
 #include "zivc/zivc_config.hpp"
+
+// #define ZIVC_PRINT_CACHE_TREE
 
 namespace zivc {
 
@@ -99,8 +102,10 @@ class KernelArgCache<KernelArgCache<ArgTypes...>, Types...>
   //! Check if the cache type is valid
   static constexpr bool isValid() noexcept;
 
+#if defined(ZIVC_PRINT_CACHE_TREE)
   //! Print the cache tree
   static void printTree(const std::size_t indent, std::ostream* output) noexcept;
+#endif // ZIVC_PRINT_CACHE_TREE
 
   //! Return the number of args the cache has
   static constexpr std::size_t size() noexcept;
@@ -164,8 +169,10 @@ class KernelArgCache<KernelArgCache<ArgTypes...>>
   //! Check if the cache type is valid
   static constexpr bool isValid() noexcept;
 
+#if defined(ZIVC_PRINT_CACHE_TREE)
   //! Print the cache tree
   static void printTree(const std::size_t indent, std::ostream* output) noexcept;
+#endif // ZIVC_PRINT_CACHE_TREE
 
   //! Return the number of args the cache has
   static constexpr std::size_t size() noexcept;
@@ -196,6 +203,7 @@ class KernelArgCache<Type, Types...>
 {
   // Type aliases
   using PlainType = std::remove_cv_t<Type>;
+  using PlainCache = KernelArgCache<Type>;
   using PrecedenceCacheT = KernelArgCache<Types...>;
 
  public:
@@ -224,8 +232,10 @@ class KernelArgCache<Type, Types...>
   //! Check if the cache type is valid
   static constexpr bool isValid() noexcept;
 
+#if defined(ZIVC_PRINT_CACHE_TREE)
   //! Print the cache tree
   static void printTree(const std::size_t indent, std::ostream* output) noexcept;
+#endif // ZIVC_PRINT_CACHE_TREE
 
   //! Return the number of args the cache has
   static constexpr std::size_t size() noexcept;
@@ -239,7 +249,7 @@ class KernelArgCache<Type, Types...>
 
  private:
   PrecedenceCacheT precedence_;
-  PlainType value_;
+  alignas(PlainCache::kAlignment) PlainType value_;
 };
 
 /*!
@@ -258,6 +268,11 @@ class KernelArgCache<Type>
  public:
   //! The number of args the cache has
   static constexpr std::size_t kSize = 1;
+
+  //! Represent the required alignment to conform the extended alignment rule. \todo Consider vector alignment
+  static constexpr std::size_t kAlignment = std::is_class_v<PlainType>
+      ? (std::max)(std::alignment_of_v<PlainType>, static_cast<std::size_t>(16))
+      : std::alignment_of_v<PlainType>;
 
 
   //! Return the type by the given index
@@ -279,8 +294,10 @@ class KernelArgCache<Type>
   //! Check if the cache type is valid
   static constexpr bool isValid() noexcept;
 
+#if defined(ZIVC_PRINT_CACHE_TREE)
   //! Print the cache tree
   static void printTree(const std::size_t indent, std::ostream* output) noexcept;
+#endif // ZIVC_PRINT_CACHE_TREE
 
   //! Return the number of args the cache has
   static constexpr std::size_t size() noexcept;
@@ -293,7 +310,7 @@ class KernelArgCache<Type>
   static constexpr std::size_t tailPaddingSize() noexcept;
 
  private:
-  PlainType value_;
+  alignas(kAlignment) PlainType value_;
 };
 
 /*!
@@ -338,8 +355,10 @@ class KernelArgCache<Buffer<Type>&, Types...>
   //! Check if the cache type is valid
   static constexpr bool isValid() noexcept;
 
+#if defined(ZIVC_PRINT_CACHE_TREE)
   //! Print the cache tree
   static void printTree(const std::size_t indent, std::ostream* output) noexcept;
+#endif // ZIVC_PRINT_CACHE_TREE
 
   //! Return the number of args the cache has
   static constexpr std::size_t size() noexcept;
@@ -394,8 +413,10 @@ class KernelArgCache<Buffer<Type>&>
   //! Check if the cache type is valid
   static constexpr bool isValid() noexcept;
 
+#if defined(ZIVC_PRINT_CACHE_TREE)
   //! Print the cache tree
   static void printTree(const std::size_t indent, std::ostream* output) noexcept;
+#endif // ZIVC_PRINT_CACHE_TREE
 
   //! Return the number of args the cache has
   static constexpr std::size_t size() noexcept;
@@ -432,6 +453,7 @@ class KernelArgCache<void>
   //! Check if the cache type is valid
   static constexpr bool isValid() noexcept;
 
+#if defined(ZIVC_PRINT_CACHE_TREE)
   //! Print indent spaces
   static void printIndent(const std::size_t indent, std::ostream* output) noexcept;
 
@@ -440,6 +462,7 @@ class KernelArgCache<void>
   static void printValue(const std::size_t indent,
                          const std::string_view name,
                          std::ostream* output) noexcept;
+#endif // ZIVC_PRINT_CACHE_TREE
 
   //! Return the number of args the cache has
   static constexpr std::size_t size() noexcept;

@@ -146,18 +146,20 @@ Zivc_initZivcOptions()
 add_subdirectory(${zisc_path} ${PROJECT_BINARY_DIR}/Zisc)
 add_subdirectory(${cpu_features_path} ${PROJECT_BINARY_DIR}/CpuFeatures)
 
+set(zivc_core_dir ${PROJECT_SOURCE_DIR}/core)
+
 # Make zivc configuration header file
 set(zivc_config_dir ${PROJECT_BINARY_DIR}/include/zivc)
 file(MAKE_DIRECTORY ${zivc_config_dir})
-configure_file(${PROJECT_SOURCE_DIR}/zivc/zivc_config-inl.hpp.in
+configure_file(${zivc_core_dir}/zivc/zivc_config-inl.hpp.in
                ${zivc_config_dir}/zivc_config-inl.hpp
                @ONLY)
 
 # Create Zivc library
-file(GLOB_RECURSE zivc_source_files ${PROJECT_SOURCE_DIR}/zivc/*[.hpp|.cpp])
+file(GLOB_RECURSE zivc_source_files ${zivc_core_dir}/zivc/*[.hpp|.cpp])
 if(NOT ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
   foreach(source_file IN LISTS zivc_source_files)
-    if(source_file MATCHES "${PROJECT_SOURCE_DIR}/zivc/vulkan/.*")
+    if(source_file MATCHES "${zivc_core_dir}/zivc/vulkan/.*")
       list(REMOVE_ITEM zivc_source_files ${source_file})
     endif()
   endforeach(source_file)
@@ -180,7 +182,7 @@ target_compile_options(${PROJECT_NAME} PUBLIC ${zivc_compile_flags}
 target_link_libraries(${PROJECT_NAME} PUBLIC Zisc cpu_features)
 target_link_options(${PROJECT_NAME} PUBLIC ${zivc_linker_flags})
 target_compile_definitions(${PROJECT_NAME} PUBLIC ${zivc_definitions})
-target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}
+target_include_directories(${PROJECT_NAME} PUBLIC ${zivc_core_dir}
                                                   ${PROJECT_BINARY_DIR}/include)
 
 if(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)

@@ -1378,9 +1378,8 @@ TEST(KernelTest, WorkItemOffset3dTest)
     {
       constexpr uint32b init_v = 0;
       const GlobalId id{init_v, init_v, init_v};
-      auto options = buff_host->makeOptions();
-      auto result = buff_host->fill(id, options);
-      ASSERT_FALSE(result.isAsync());
+      auto mem = buff_host->mapMemory();
+      std::fill(mem.begin(), mem.end(), id);
     }
 
     auto options = buff_device2->makeOptions();

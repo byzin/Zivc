@@ -762,8 +762,14 @@ TEST(BufferTest, CopyHostBufferTest)
     options.setLabel("HostToHostCopy");
     options.setExternalSyncMode(true);
     auto result = zivc::copy(*buffer_host, buffer_host2.get(), options);
-    ASSERT_FALSE(result.isAsync());
-    ASSERT_FALSE(result.fence());
+    if (buffer_host2->isDeviceLocal()) {
+      ASSERT_TRUE(result.isAsync());
+      device->waitForCompletion(result.fence());
+    }
+    else {
+      ASSERT_FALSE(result.isAsync());
+      ASSERT_FALSE(result.fence());
+    }
   }
   {
     auto mapped_mem = buffer_host->mapMemory();
@@ -775,8 +781,14 @@ TEST(BufferTest, CopyHostBufferTest)
     options.setLabel("HostToHostCopy");
     options.setExternalSyncMode(true);
     auto result = zivc::copy(*buffer_host2, buffer_host.get(), options);
-    ASSERT_FALSE(result.isAsync());
-    ASSERT_FALSE(result.fence());
+    if (buffer_host->isDeviceLocal()) {
+      ASSERT_TRUE(result.isAsync());
+      device->waitForCompletion(result.fence());
+    }
+    else {
+      ASSERT_FALSE(result.isAsync());
+      ASSERT_FALSE(result.fence());
+    }
   }
   {
     auto mapped_mem = buffer_host->mapMemory();
@@ -822,8 +834,14 @@ TEST(BufferTest, CopyHostBufferRangeTest)
     options.setDestOffset(offset);
     options.setSize(buffer_host2->size() - 2 * offset);
     auto result = zivc::copy(*buffer_host, buffer_host2.get(), options);
-    ASSERT_FALSE(result.isAsync());
-    ASSERT_FALSE(result.fence());
+    if (buffer_host2->isDeviceLocal()) {
+      ASSERT_TRUE(result.isAsync());
+      device->waitForCompletion(result.fence());
+    }
+    else {
+      ASSERT_FALSE(result.isAsync());
+      ASSERT_FALSE(result.fence());
+    }
   }
   {
     auto mapped_mem = buffer_host->mapMemory();
@@ -838,8 +856,14 @@ TEST(BufferTest, CopyHostBufferRangeTest)
     options.setDestOffset(offset);
     options.setSize(buffer_host2->size() - 2 * offset);
     auto result = zivc::copy(*buffer_host2, buffer_host.get(), options);
-    ASSERT_FALSE(result.isAsync());
-    ASSERT_FALSE(result.fence());
+    if (buffer_host->isDeviceLocal()) {
+      ASSERT_TRUE(result.isAsync());
+      device->waitForCompletion(result.fence());
+    }
+    else {
+      ASSERT_FALSE(result.isAsync());
+      ASSERT_FALSE(result.fence());
+    }
   }
   {
     auto mapped_mem = buffer_host->mapMemory();
@@ -891,8 +915,14 @@ TEST(BufferTest, CopyHostBufferRangeTest2)
     options.setDestOffset(offset);
     options.setSize(buffer_host2->size() - offset);
     auto result = zivc::copy(*buffer_host, buffer_host2.get(), options);
-    ASSERT_FALSE(result.isAsync());
-    ASSERT_FALSE(result.fence());
+    if (buffer_host2->isDeviceLocal()) {
+      ASSERT_TRUE(result.isAsync());
+      device->waitForCompletion(result.fence());
+    }
+    else {
+      ASSERT_FALSE(result.isAsync());
+      ASSERT_FALSE(result.fence());
+    }
   }
   {
     auto mapped_mem = buffer_host->mapMemory();
@@ -907,8 +937,14 @@ TEST(BufferTest, CopyHostBufferRangeTest2)
     options.setDestOffset(offset);
     options.setSize(buffer_host2->size() - offset);
     auto result = zivc::copy(*buffer_host2, buffer_host.get(), options);
-    ASSERT_FALSE(result.isAsync());
-    ASSERT_FALSE(result.fence());
+    if (buffer_host->isDeviceLocal()) {
+      ASSERT_TRUE(result.isAsync());
+      device->waitForCompletion(result.fence());
+    }
+    else {
+      ASSERT_FALSE(result.isAsync());
+      ASSERT_FALSE(result.fence());
+    }
   }
   {
     auto mapped_mem = buffer_host->mapMemory();
@@ -1164,7 +1200,13 @@ TEST(BufferTest, FillHostBufferTest)
     options.setLabel("FillBuffer");
     options.setExternalSyncMode(true);
     auto result = buffer_host->fill(v, options);
-    ASSERT_FALSE(result.isAsync());
+    if (buffer_host->isDeviceLocal()) {
+      ASSERT_TRUE(result.isAsync());
+      device->waitForCompletion(result.fence());
+    }
+    else {
+      ASSERT_FALSE(result.isAsync());
+    }
   }
   {
     auto mapped_mem = buffer_host->mapMemory();
@@ -1199,13 +1241,25 @@ TEST(BufferTest, FillHostBufferRangeTest)
     options.setExternalSyncMode(true);
     {
       auto result = buffer_host->fill(0, options);
-      ASSERT_FALSE(result.isAsync());
+      if (buffer_host->isDeviceLocal()) {
+        ASSERT_TRUE(result.isAsync());
+        device->waitForCompletion(result.fence());
+      }
+      else {
+        ASSERT_FALSE(result.isAsync());
+      }
     }
     options.setDestOffset(offset);
     options.setSize(buffer_host->size() - 2 * offset);
     {
       auto result = buffer_host->fill(v, options);
-      ASSERT_FALSE(result.isAsync());
+      if (buffer_host->isDeviceLocal()) {
+        ASSERT_TRUE(result.isAsync());
+        device->waitForCompletion(result.fence());
+      }
+      else {
+        ASSERT_FALSE(result.isAsync());
+      }
     }
   }
   {
@@ -1447,8 +1501,14 @@ TEST(BufferTest, CopyHostBufferReinterpTest)
     options.setDestOffset(k * offset);
     options.setSize(buffer_host3.size() - 2 * k * offset);
     auto result = zivc::copy(buffer_host3, &buffer_host4, options);
-    ASSERT_FALSE(result.isAsync());
-    ASSERT_FALSE(result.fence());
+    if (buffer_host4.isDeviceLocal()) {
+      ASSERT_TRUE(result.isAsync());
+      device->waitForCompletion(result.fence());
+    }
+    else {
+      ASSERT_FALSE(result.isAsync());
+      ASSERT_FALSE(result.fence());
+    }
   }
   {
     auto mapped_mem = buffer_host3.mapMemory();
@@ -1463,8 +1523,14 @@ TEST(BufferTest, CopyHostBufferReinterpTest)
     options.setDestOffset(k * offset);
     options.setSize(buffer_host3.size() - 2 * k * offset);
     auto result = zivc::copy(buffer_host4, &buffer_host3, options);
-    ASSERT_FALSE(result.isAsync());
-    ASSERT_FALSE(result.fence());
+    if (buffer_host3.isDeviceLocal()) {
+      ASSERT_TRUE(result.isAsync());
+      device->waitForCompletion(result.fence());
+    }
+    else {
+      ASSERT_FALSE(result.isAsync());
+      ASSERT_FALSE(result.fence());
+    }
   }
   {
     auto mapped_mem = buffer_host->mapMemory();

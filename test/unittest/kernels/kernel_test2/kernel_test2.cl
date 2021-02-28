@@ -202,4 +202,61 @@ __kernel void largeNumOfParametersKernel(
   static_cast<void>(s8);
 }
 
+/*!
+  \details No detailed description
+
+  \param [in,out] values No description.
+  \param [in] resolution No description.
+  */
+__kernel void invocation1Kernel(zivc::GlobalPtr<uint32b> values,
+                                const uint32b resolution)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (resolution <= index)
+    return;
+
+  volatile uint32b v = values[index];
+  for (size_t i = 0; i < 1024; ++i) {
+    v = v + 10;
+  }
+  values[index] = v;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in,out] values No description.
+  \param [in] resolution No description.
+  */
+__kernel void invocation2Kernel(zivc::GlobalPtr<uint32b> values,
+                                const uint32b resolution)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (resolution <= index)
+    return;
+
+  values[index] *= 5;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in,out] values No description.
+  \param [in] resolution No description.
+  */
+__kernel void invocation3Kernel(zivc::GlobalPtr<uint32b> values,
+                                const uint32b resolution)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (resolution <= index)
+    return;
+
+  volatile uint32b v = values[index];
+  v = v / 2;
+  for (size_t i = 0; i < 1024; ++i) {
+    v = v + 3;
+  }
+  values[index] = v;
+}
+
 #endif // ZIVC_TEST_KERNEL_TEST2_CL

@@ -208,6 +208,13 @@ if(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
   file(MAKE_DIRECTORY ${vma_include_dir})
   file(COPY ${vma_path}/src/vk_mem_alloc.h DESTINATION ${vma_include_dir})
   target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${vma_include_dir})
+  # Buffer fill kernel sets 
+  set(kernel_set_dir ${PROJECT_SOURCE_DIR}/kernel)
+  file(GLOB_RECURSE kernel_sources ${kernel_set_dir}/*.cl)
+  Zivc_addKernelSet(zivc_kernel ${PROJECT_VERSION}
+      SOURCE_FILES ${kernel_sources}
+      INCLUDE_DIRS ${kernel_set_dir})
+  target_link_libraries(${PROJECT_NAME} PRIVATE KernelSet_zivc_kernel)
 endif()
 
 Zisc_enableIpo(${PROJECT_NAME})

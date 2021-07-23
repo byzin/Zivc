@@ -23,6 +23,7 @@
 #include "zisc/utility.hpp"
 #include "zisc/memory/memory.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
+#include "zisc/thread/future.hpp"
 #include "zisc/thread/thread_manager.hpp"
 // Zivc
 #include "cpu_device_info.hpp"
@@ -36,7 +37,7 @@
 
 namespace {
 
-using CpuFence = zisc::ThreadManager::SharedResult<void>;
+using CpuFence = zisc::Future<void>;
 
 }
 
@@ -165,7 +166,7 @@ void CpuDevice::submit(const Command& command,
   auto& manager = threadManager();
   constexpr int64b start = 0;
   const int64b end = manager.numOfThreads();
-  constexpr auto parent_id = zisc::ThreadManager::kAllParentId;
+  constexpr auto parent_id = zisc::ThreadManager::kAllPrecedences;
   auto result = manager.enqueueLoop(task, start, end, parent_id);
   if (fence->isActive()) {
     auto fen = zisc::reinterp<CpuFence*>(std::addressof(fence->data()));
@@ -213,8 +214,7 @@ void CpuDevice::waitForCompletion(const Fence& fence) const
   if (fence) {
     const auto memory = std::addressof(fence.data());
     const auto& f = *zisc::reinterp<const ::CpuFence*>(memory);
-    if (f)
-      f->wait();
+    f.wait();
   }
 }
 

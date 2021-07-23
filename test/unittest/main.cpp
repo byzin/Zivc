@@ -36,7 +36,7 @@ std::unique_ptr<CLI::App> makeCommandLineParser(ztest::CliOption* options) noexc
   {
     const char* desc = "Specify the device which is used in the unit test.\n"
                        "possible values: 'cpu', 'vulkan', 'vulkan0' ... 'vulkan15'.";
-    auto option = parser->add_option("--device", options->device_name_, desc, true);
+    auto option = parser->add_option("--device", options->device_name_, desc);
     auto validator = [](const std::string& device_name) noexcept
     {
       const auto id = ztest::getDeviceId(device_name);

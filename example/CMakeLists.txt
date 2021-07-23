@@ -19,7 +19,6 @@ function(getExampleWarningFlags example_warning_flags)
   if(ZIVC_SUPPRESS_EXCESSIVE_WARNING)
     if(Z_CLANG)
       list(APPEND warning_flags -Wno-covered-switch-default
-                                -Wno-float-equal
                                 # -Wno-padded
                                 -Wno-sign-conversion
                                 )
@@ -34,7 +33,7 @@ endfunction(getExampleWarningFlags)
 
 
 # Add an example
-function(addExample target save_prerequisites)
+function(addExample target save_dependency_list)
   set(example_source_files ${ARGN})
   add_executable(${target} ${example_source_files})
   source_group(${PROJECT_NAME} FILES ${example_source_files})
@@ -55,10 +54,13 @@ function(addExample target save_prerequisites)
   Zisc_setStaticAnalyzer(${target})
   Zisc_createLinkToTarget(${target} ${PROJECT_BINARY_DIR})
 
+  # Installation settings
   # Save the dependency list
-  if(save_prerequisites)
-    Zisc_savePrerequisites(${target} ${PROJECT_BINARY_DIR} "" "" "")
+  if(save_dependency_list)
+    Zisc_getSaveDependencyCode(${target} ${PROJECT_BINARY_DIR} "" "" "" dependency_code)
+    install(CODE ${dependency_code} COMPONENT test)
   endif()
+  install(TARGETS ${target} DESTINATION bin COMPONENT example)
 endfunction(addExample)
 
 

@@ -31,7 +31,6 @@ function(getTestWarningFlags test_warning_flags)
   if(ZIVC_SUPPRESS_EXCESSIVE_WARNING)
     if(Z_CLANG)
       list(APPEND warning_flags -Wno-covered-switch-default
-                                -Wno-float-equal
                                 -Wno-global-constructors
                                 -Wno-sign-conversion
                                 -Wno-suggest-override
@@ -98,7 +97,10 @@ Zisc_setStaticAnalyzer(${PROJECT_NAME})
 Zisc_createLinkToTarget(${PROJECT_NAME} ${PROJECT_BINARY_DIR})
 
 # Save the dependency list
-Zisc_savePrerequisites(${PROJECT_NAME} "" "" "")
+Zisc_getSaveDependencyCode(${PROJECT_NAME} ${PROJECT_BINARY_DIR} "" "" "" dependency_code)
+install(CODE ${dependency_code} COMPONENT test)
+# Install actual binary
+install(TARGETS ${PROJECT_NAME} DESTINATION bin COMPONENT test)
 
 # Add kernel sets
 include(${CMAKE_SOURCE_DIR}/source/zivc/cmake/kernel.cmake)

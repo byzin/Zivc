@@ -120,7 +120,7 @@ function(Zivc_addZstd zstd_path)
   endif()
   # Headers
   file(MAKE_DIRECTORY ${zstd_dest_path}/include)
-  file(COPY ${zstd_path}/lib/zstd.h ${zstd_path}/lib/common/zstd_errors.h
+  file(COPY ${zstd_path}/lib/zstd.h ${zstd_path}/lib/zstd_errors.h
        DESTINATION ${zstd_dest_path}/include)
   target_include_directories(libzstd_static SYSTEM INTERFACE $<BUILD_INTERFACE:${zstd_dest_path}/include>)
 endfunction(Zivc_addZstd)

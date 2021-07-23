@@ -288,8 +288,11 @@ int main(int /* argc */, char** argv)
   params.kernel_set_name_ = argv[3];
   ::printDebugMessage("        Kernel set name: '", params.kernel_set_name_.data(), "'");
   params.compression_level_ = std::atoi(argv[4]);
-  params.compression_level_ = std::clamp(params.compression_level_, 1, ZSTD_maxCLevel());
-  ::printDebugMessage("        Zstd compression level: ", params.compression_level_);
+  const int min_level = 1; // ZSTD_minCLevel();
+  const int max_level = ZSTD_maxCLevel();
+  params.compression_level_ = std::clamp(params.compression_level_, min_level, max_level);
+  ::printDebugMessage("        Zstd compression level: ", params.compression_level_,
+                      " (min=", min_level, ", max=", max_level, ")");
 
   ::printDebugMessage("    Encode SPIR-V");
   const auto spv_data = ::loadSpirVFile(spv_file_path, params);

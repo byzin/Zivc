@@ -19,7 +19,7 @@
 // Zivc
 #include "zivc/zivc_config.hpp"
 
-static_assert(VK_NULL_HANDLE == 0, "'ZIVC_VK_NULL_HANDLE' isn't 0.");
+static_assert(VK_NULL_HANDLE == nullptr, "'ZIVC_VK_NULL_HANDLE' isn't null.");
 
 namespace zivc {
 

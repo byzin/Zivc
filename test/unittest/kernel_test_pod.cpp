@@ -358,600 +358,600 @@ TEST(KernelTest, PodSizeAlignmentTest)
   }
 }
 
-TEST(KernelTest, PodSizeAlignment2Test)
-{
-  auto platform = ztest::makePlatform();
-  const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
-  [[maybe_unused]] const auto& info = device->deviceInfo();
+//TEST(KernelTest, PodSizeAlignment2Test)
+//{
+//  auto platform = ztest::makePlatform();
+//  const ztest::Config& config = ztest::Config::globalConfig();
+//  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
+//  [[maybe_unused]] const auto& info = device->deviceInfo();
+//
+//  using zivc::int8b;
+//  using zivc::int16b;
+//  using zivc::int32b;
+//  using zivc::uint8b;
+//  using zivc::uint16b;
+//  using zivc::uint32b;
+//  using PodTest = zivc::cl::kernel_test_pod::inner::PodAlignmentTest;
+//
+//  auto init_buffer = [](zivc::Device& d, auto& buffer, const auto value)
+//  {
+//    using Type = std::add_const_t<decltype(value)>;
+//    auto buff_host = d.makeBuffer<Type>(zivc::BufferUsage::kHostOnly);
+//    buff_host->setSize(buffer.size());
+//    {
+//      auto mem = buff_host->mapMemory();
+//      std::fill(mem.begin(), mem.end(), value);
+//    }
+//    auto options = buff_host->makeOptions();
+//    [[maybe_unused]] auto result = zivc::copy(*buff_host, std::addressof(buffer), options);
+//    d.waitForCompletion();
+//  };
+//
+//  // Allocate buffers
+//  auto buff_device1 = device->makeBuffer<uint8b>(zivc::BufferUsage::kDeviceOnly);
+//  buff_device1->setSize(2);
+//  auto buff_device2 = device->makeBuffer<float>(zivc::BufferUsage::kDeviceOnly);
+//  buff_device2->setSize(2);
+//  auto buff_device3 = device->makeBuffer<int8b>(zivc::BufferUsage::kDeviceOnly);
+//  buff_device3->setSize(2);
+//  auto buff_device4 = device->makeBuffer<int16b>(zivc::BufferUsage::kDeviceOnly);
+//  buff_device4->setSize(2);
+//  auto buff_device5 = device->makeBuffer<uint16b>(zivc::BufferUsage::kDeviceOnly);
+//  buff_device5->setSize(2);
+//  auto buff_device6 = device->makeBuffer<int32b>(zivc::BufferUsage::kDeviceOnly);
+//  buff_device6->setSize(2);
+//  auto buff_device7 = device->makeBuffer<PodTest>(zivc::BufferUsage::kDeviceOnly);
+//  buff_device7->setSize(2);
+//
+//  init_buffer(*device, *buff_device1, zisc::cast<uint8b>(0));
+//  init_buffer(*device, *buff_device2, zisc::cast<float>(0));
+//  init_buffer(*device, *buff_device3, zisc::cast<int8b>(0));
+//  init_buffer(*device, *buff_device4, zisc::cast<int16b>(0));
+//  init_buffer(*device, *buff_device5, zisc::cast<uint16b>(0));
+//  init_buffer(*device, *buff_device6, zisc::cast<int32b>(0));
+//  init_buffer(*device, *buff_device7, PodTest{});
+//
+//  // Make a kernel
+//  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test_pod, podSizeAlignment2Kernel, 1);
+//  auto kernel = device->makeKernel(kernel_params);
+//  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+//  ASSERT_EQ(14, kernel->argSize()) << "Wrong kernel property.";
+//
+//  constexpr uint8b u8 = 0b10101010u;
+//  constexpr float f32 = std::numbers::pi_v<float>;
+//  constexpr int8b i8 = 0b01010101;
+//  constexpr int16b i16 = 0b01010101'10101010;
+//  constexpr uint16b u16 = 0b10101010'01010101u;
+//  constexpr int32b i32 = 0b01010101'10101010'11110000'00001111;
+//  constexpr PodTest test{u8, 0, 0, 0, f32, i8, 0, i16, u16, 0, i32, 0, 0, 0};
+//
+//  // Launch the kernel
+//  {
+//    auto launch_options = kernel->makeOptions();
+//    launch_options.setWorkSize({1});
+//    launch_options.setExternalSyncMode(false);
+//    launch_options.setLabel("PodSizeAlignment2Kernel");
+//    auto result = kernel->run(
+//        *buff_device1, *buff_device2, *buff_device3, *buff_device4,
+//        *buff_device5, *buff_device6, *buff_device7,
+//        u8, f32, i8, i16, u16, i32, test, launch_options);
+//    device->waitForCompletion();
+//  }
+//
+//  // Check the outputs
+//  {
+//    auto buff_host = device->makeBuffer<uint8b>(zivc::BufferUsage::kHostOnly);
+//    buff_host->setSize(buff_device1->size());
+//    auto options = buff_device1->makeOptions();
+//    [[maybe_unused]] auto result = zivc::copy(*buff_device1, buff_host.get(), options);
+//    device->waitForCompletion();
+//    {
+//      const auto mem = buff_host->mapMemory();
+//      ASSERT_EQ(u8, mem[0]) << "POD value isn't processed properly.";
+//      ASSERT_EQ(u8, mem[1]) << "POD structure isn't processed properly.";
+//    }
+//  }
+//  {
+//    auto buff_host = device->makeBuffer<float>(zivc::BufferUsage::kHostOnly);
+//    buff_host->setSize(buff_device2->size());
+//    auto options = buff_device2->makeOptions();
+//    [[maybe_unused]] auto result = zivc::copy(*buff_device2, buff_host.get(), options);
+//    device->waitForCompletion();
+//    {
+//      const auto mem = buff_host->mapMemory();
+//      ASSERT_EQ(f32, mem[0]) << "POD value isn't processed properly.";
+//      ASSERT_EQ(f32, mem[1]) << "POD structure isn't processed properly.";
+//    }
+//  }
+//  {
+//    auto buff_host = device->makeBuffer<int8b>(zivc::BufferUsage::kHostOnly);
+//    buff_host->setSize(buff_device3->size());
+//    auto options = buff_device3->makeOptions();
+//    [[maybe_unused]] auto result = zivc::copy(*buff_device3, buff_host.get(), options);
+//    device->waitForCompletion();
+//    {
+//      const auto mem = buff_host->mapMemory();
+//      ASSERT_EQ(i8, mem[0]) << "POD value isn't processed properly.";
+//      ASSERT_EQ(i8, mem[1]) << "POD structure isn't processed properly.";
+//    }
+//  }
+//  {
+//    auto buff_host = device->makeBuffer<int16b>(zivc::BufferUsage::kHostOnly);
+//    buff_host->setSize(buff_device4->size());
+//    auto options = buff_device4->makeOptions();
+//    [[maybe_unused]] auto result = zivc::copy(*buff_device4, buff_host.get(), options);
+//    device->waitForCompletion();
+//    {
+//      const auto mem = buff_host->mapMemory();
+//      ASSERT_EQ(i16, mem[0]) << "POD value isn't processed properly.";
+//      ASSERT_EQ(i16, mem[1]) << "POD structure isn't processed properly.";
+//    }
+//  }
+//  {
+//    auto buff_host = device->makeBuffer<uint16b>(zivc::BufferUsage::kHostOnly);
+//    buff_host->setSize(buff_device5->size());
+//    auto options = buff_device5->makeOptions();
+//    [[maybe_unused]] auto result = zivc::copy(*buff_device5, buff_host.get(), options);
+//    device->waitForCompletion();
+//    {
+//      const auto mem = buff_host->mapMemory();
+//      ASSERT_EQ(u16, mem[0]) << "POD value isn't processed properly.";
+//      ASSERT_EQ(u16, mem[1]) << "POD structure isn't processed properly.";
+//    }
+//  }
+//  {
+//    auto buff_host = device->makeBuffer<int32b>(zivc::BufferUsage::kHostOnly);
+//    buff_host->setSize(buff_device6->size());
+//    auto options = buff_device6->makeOptions();
+//    [[maybe_unused]] auto result = zivc::copy(*buff_device6, buff_host.get(), options);
+//    device->waitForCompletion();
+//    {
+//      const auto mem = buff_host->mapMemory();
+//      ASSERT_EQ(i32, mem[0]) << "POD value isn't processed properly.";
+//      ASSERT_EQ(i32, mem[1]) << "POD structure isn't processed properly.";
+//    }
+//  }
+//  {
+//    auto buff_host = device->makeBuffer<PodTest>(zivc::BufferUsage::kHostOnly);
+//    buff_host->setSize(buff_device7->size());
+//    auto options = buff_device7->makeOptions();
+//    [[maybe_unused]] auto result = zivc::copy(*buff_device7, buff_host.get(), options);
+//    device->waitForCompletion();
+//    {
+//      const auto mem = buff_host->mapMemory();
+//      ASSERT_EQ(u8, mem[0].u8_) << "POD value isn't processed properly.";
+//      ASSERT_EQ(u8, mem[1].u8_) << "POD structure isn't processed properly.";
+//      ASSERT_EQ(f32, mem[0].f_) << "POD value isn't processed properly.";
+//      ASSERT_EQ(f32, mem[1].f_) << "POD structure isn't processed properly.";
+//      ASSERT_EQ(i8, mem[0].i8_) << "POD value isn't processed properly.";
+//      ASSERT_EQ(i8, mem[1].i8_) << "POD structure isn't processed properly.";
+//      ASSERT_EQ(i16, mem[0].i16_) << "POD value isn't processed properly.";
+//      ASSERT_EQ(i16, mem[1].i16_) << "POD structure isn't processed properly.";
+//      ASSERT_EQ(u16, mem[0].u16_) << "POD value isn't processed properly.";
+//      ASSERT_EQ(u16, mem[1].u16_) << "POD structure isn't processed properly.";
+//      ASSERT_EQ(i32, mem[0].i32_) << "POD value isn't processed properly.";
+//      ASSERT_EQ(i32, mem[1].i32_) << "POD structure isn't processed properly.";
+//    }
+//  }
+//}
 
-  using zivc::int8b;
-  using zivc::int16b;
-  using zivc::int32b;
-  using zivc::uint8b;
-  using zivc::uint16b;
-  using zivc::uint32b;
-  using PodTest = zivc::cl::kernel_test_pod::inner::PodAlignmentTest;
-
-  auto init_buffer = [](zivc::Device& d, auto& buffer, const auto value)
-  {
-    using Type = std::add_const_t<decltype(value)>;
-    auto buff_host = d.makeBuffer<Type>(zivc::BufferUsage::kHostOnly);
-    buff_host->setSize(buffer.size());
-    {
-      auto mem = buff_host->mapMemory();
-      std::fill(mem.begin(), mem.end(), value);
-    }
-    auto options = buff_host->makeOptions();
-    [[maybe_unused]] auto result = zivc::copy(*buff_host, std::addressof(buffer), options);
-    d.waitForCompletion();
-  };
-
-  // Allocate buffers
-  auto buff_device1 = device->makeBuffer<uint8b>(zivc::BufferUsage::kDeviceOnly);
-  buff_device1->setSize(2);
-  auto buff_device2 = device->makeBuffer<float>(zivc::BufferUsage::kDeviceOnly);
-  buff_device2->setSize(2);
-  auto buff_device3 = device->makeBuffer<int8b>(zivc::BufferUsage::kDeviceOnly);
-  buff_device3->setSize(2);
-  auto buff_device4 = device->makeBuffer<int16b>(zivc::BufferUsage::kDeviceOnly);
-  buff_device4->setSize(2);
-  auto buff_device5 = device->makeBuffer<uint16b>(zivc::BufferUsage::kDeviceOnly);
-  buff_device5->setSize(2);
-  auto buff_device6 = device->makeBuffer<int32b>(zivc::BufferUsage::kDeviceOnly);
-  buff_device6->setSize(2);
-  auto buff_device7 = device->makeBuffer<PodTest>(zivc::BufferUsage::kDeviceOnly);
-  buff_device7->setSize(2);
-
-  init_buffer(*device, *buff_device1, zisc::cast<uint8b>(0));
-  init_buffer(*device, *buff_device2, zisc::cast<float>(0));
-  init_buffer(*device, *buff_device3, zisc::cast<int8b>(0));
-  init_buffer(*device, *buff_device4, zisc::cast<int16b>(0));
-  init_buffer(*device, *buff_device5, zisc::cast<uint16b>(0));
-  init_buffer(*device, *buff_device6, zisc::cast<int32b>(0));
-  init_buffer(*device, *buff_device7, PodTest{});
-
-  // Make a kernel
-  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test_pod, podSizeAlignment2Kernel, 1);
-  auto kernel = device->makeKernel(kernel_params);
-  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
-  ASSERT_EQ(14, kernel->argSize()) << "Wrong kernel property.";
-
-  constexpr uint8b u8 = 0b10101010u;
-  constexpr float f32 = std::numbers::pi_v<float>;
-  constexpr int8b i8 = 0b01010101;
-  constexpr int16b i16 = 0b01010101'10101010;
-  constexpr uint16b u16 = 0b10101010'01010101u;
-  constexpr int32b i32 = 0b01010101'10101010'11110000'00001111;
-  constexpr PodTest test{u8, 0, 0, 0, f32, i8, 0, i16, u16, 0, i32, 0, 0, 0};
-
-  // Launch the kernel
-  {
-    auto launch_options = kernel->makeOptions();
-    launch_options.setWorkSize({1});
-    launch_options.setExternalSyncMode(false);
-    launch_options.setLabel("PodSizeAlignment2Kernel");
-    auto result = kernel->run(
-        *buff_device1, *buff_device2, *buff_device3, *buff_device4,
-        *buff_device5, *buff_device6, *buff_device7,
-        u8, f32, i8, i16, u16, i32, test, launch_options);
-    device->waitForCompletion();
-  }
-
-  // Check the outputs
-  {
-    auto buff_host = device->makeBuffer<uint8b>(zivc::BufferUsage::kHostOnly);
-    buff_host->setSize(buff_device1->size());
-    auto options = buff_device1->makeOptions();
-    [[maybe_unused]] auto result = zivc::copy(*buff_device1, buff_host.get(), options);
-    device->waitForCompletion();
-    {
-      const auto mem = buff_host->mapMemory();
-      ASSERT_EQ(u8, mem[0]) << "POD value isn't processed properly.";
-      ASSERT_EQ(u8, mem[1]) << "POD structure isn't processed properly.";
-    }
-  }
-  {
-    auto buff_host = device->makeBuffer<float>(zivc::BufferUsage::kHostOnly);
-    buff_host->setSize(buff_device2->size());
-    auto options = buff_device2->makeOptions();
-    [[maybe_unused]] auto result = zivc::copy(*buff_device2, buff_host.get(), options);
-    device->waitForCompletion();
-    {
-      const auto mem = buff_host->mapMemory();
-      ASSERT_EQ(f32, mem[0]) << "POD value isn't processed properly.";
-      ASSERT_EQ(f32, mem[1]) << "POD structure isn't processed properly.";
-    }
-  }
-  {
-    auto buff_host = device->makeBuffer<int8b>(zivc::BufferUsage::kHostOnly);
-    buff_host->setSize(buff_device3->size());
-    auto options = buff_device3->makeOptions();
-    [[maybe_unused]] auto result = zivc::copy(*buff_device3, buff_host.get(), options);
-    device->waitForCompletion();
-    {
-      const auto mem = buff_host->mapMemory();
-      ASSERT_EQ(i8, mem[0]) << "POD value isn't processed properly.";
-      ASSERT_EQ(i8, mem[1]) << "POD structure isn't processed properly.";
-    }
-  }
-  {
-    auto buff_host = device->makeBuffer<int16b>(zivc::BufferUsage::kHostOnly);
-    buff_host->setSize(buff_device4->size());
-    auto options = buff_device4->makeOptions();
-    [[maybe_unused]] auto result = zivc::copy(*buff_device4, buff_host.get(), options);
-    device->waitForCompletion();
-    {
-      const auto mem = buff_host->mapMemory();
-      ASSERT_EQ(i16, mem[0]) << "POD value isn't processed properly.";
-      ASSERT_EQ(i16, mem[1]) << "POD structure isn't processed properly.";
-    }
-  }
-  {
-    auto buff_host = device->makeBuffer<uint16b>(zivc::BufferUsage::kHostOnly);
-    buff_host->setSize(buff_device5->size());
-    auto options = buff_device5->makeOptions();
-    [[maybe_unused]] auto result = zivc::copy(*buff_device5, buff_host.get(), options);
-    device->waitForCompletion();
-    {
-      const auto mem = buff_host->mapMemory();
-      ASSERT_EQ(u16, mem[0]) << "POD value isn't processed properly.";
-      ASSERT_EQ(u16, mem[1]) << "POD structure isn't processed properly.";
-    }
-  }
-  {
-    auto buff_host = device->makeBuffer<int32b>(zivc::BufferUsage::kHostOnly);
-    buff_host->setSize(buff_device6->size());
-    auto options = buff_device6->makeOptions();
-    [[maybe_unused]] auto result = zivc::copy(*buff_device6, buff_host.get(), options);
-    device->waitForCompletion();
-    {
-      const auto mem = buff_host->mapMemory();
-      ASSERT_EQ(i32, mem[0]) << "POD value isn't processed properly.";
-      ASSERT_EQ(i32, mem[1]) << "POD structure isn't processed properly.";
-    }
-  }
-  {
-    auto buff_host = device->makeBuffer<PodTest>(zivc::BufferUsage::kHostOnly);
-    buff_host->setSize(buff_device7->size());
-    auto options = buff_device7->makeOptions();
-    [[maybe_unused]] auto result = zivc::copy(*buff_device7, buff_host.get(), options);
-    device->waitForCompletion();
-    {
-      const auto mem = buff_host->mapMemory();
-      ASSERT_EQ(u8, mem[0].u8_) << "POD value isn't processed properly.";
-      ASSERT_EQ(u8, mem[1].u8_) << "POD structure isn't processed properly.";
-      ASSERT_EQ(f32, mem[0].f_) << "POD value isn't processed properly.";
-      ASSERT_EQ(f32, mem[1].f_) << "POD structure isn't processed properly.";
-      ASSERT_EQ(i8, mem[0].i8_) << "POD value isn't processed properly.";
-      ASSERT_EQ(i8, mem[1].i8_) << "POD structure isn't processed properly.";
-      ASSERT_EQ(i16, mem[0].i16_) << "POD value isn't processed properly.";
-      ASSERT_EQ(i16, mem[1].i16_) << "POD structure isn't processed properly.";
-      ASSERT_EQ(u16, mem[0].u16_) << "POD value isn't processed properly.";
-      ASSERT_EQ(u16, mem[1].u16_) << "POD structure isn't processed properly.";
-      ASSERT_EQ(i32, mem[0].i32_) << "POD value isn't processed properly.";
-      ASSERT_EQ(i32, mem[1].i32_) << "POD structure isn't processed properly.";
-    }
-  }
-}
-
-TEST(KernelTest, PodMultipleValuesTest)
-{
-  auto platform = ztest::makePlatform();
-  const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
-  [[maybe_unused]] const auto& info = device->deviceInfo();
-
-  using zivc::int8b;
-  using zivc::int16b;
-  using zivc::int32b;
-  using zivc::uint8b;
-  using zivc::uint16b;
-  using zivc::uint32b;
-  using PodTest = zivc::cl::kernel_test_pod::inner::PodAlignmentTest;
-
-  auto init_buffer = [](zivc::Device& d, auto& buffer, const auto value)
-  {
-    using Type = std::add_const_t<decltype(value)>;
-    auto buff_host = d.makeBuffer<Type>(zivc::BufferUsage::kHostOnly);
-    buff_host->setSize(buffer.size());
-    {
-      auto mem = buff_host->mapMemory();
-      std::fill(mem.begin(), mem.end(), value);
-    }
-    auto options = buff_host->makeOptions();
-    [[maybe_unused]] auto result = zivc::copy(*buff_host, std::addressof(buffer), options);
-    d.waitForCompletion();
-  };
-
-  // Allocate buffers
-  auto buff_device1 = device->makeBuffer<uint8b>(zivc::BufferUsage::kDeviceOnly);
-  buff_device1->setSize(2);
-  auto buff_device2 = device->makeBuffer<float>(zivc::BufferUsage::kDeviceOnly);
-  buff_device2->setSize(2);
-  auto buff_device3 = device->makeBuffer<int8b>(zivc::BufferUsage::kDeviceOnly);
-  buff_device3->setSize(2);
-  auto buff_device4 = device->makeBuffer<int16b>(zivc::BufferUsage::kDeviceOnly);
-  buff_device4->setSize(2);
-  auto buff_device5 = device->makeBuffer<uint16b>(zivc::BufferUsage::kDeviceOnly);
-  buff_device5->setSize(2);
-  auto buff_device6 = device->makeBuffer<int32b>(zivc::BufferUsage::kDeviceOnly);
-  buff_device6->setSize(2);
-  auto buff_device7 = device->makeBuffer<PodTest>(zivc::BufferUsage::kDeviceOnly);
-  buff_device7->setSize(2);
-
-  init_buffer(*device, *buff_device1, zisc::cast<uint8b>(0));
-  init_buffer(*device, *buff_device2, zisc::cast<float>(0));
-  init_buffer(*device, *buff_device3, zisc::cast<int8b>(0));
-  init_buffer(*device, *buff_device4, zisc::cast<int16b>(0));
-  init_buffer(*device, *buff_device5, zisc::cast<uint16b>(0));
-  init_buffer(*device, *buff_device6, zisc::cast<int32b>(0));
-  init_buffer(*device, *buff_device7, PodTest{});
-
-  // Make a kernel
-  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test_pod, podSizeAlignment2Kernel, 1);
-  auto kernel = device->makeKernel(kernel_params);
-  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
-  ASSERT_EQ(14, kernel->argSize()) << "Wrong kernel property.";
-
-  // Try1
-  {
-    constexpr uint8b u8 = 0b10101010u;
-    constexpr float f32 = std::numbers::pi_v<float>;
-    constexpr int8b i8 = 0b01010101;
-    constexpr int16b i16 = 0b01010101'10101010;
-    constexpr uint16b u16 = 0b10101010'01010101u;
-    constexpr int32b i32 = 0b01010101'10101010'11110000'00001111;
-    constexpr PodTest test{u8, 0, 0, 0, f32, i8, 0, i16, u16, 0, i32, 0, 0, 0};
-
-    // Launch the kernel
-    {
-      auto launch_options = kernel->makeOptions();
-      launch_options.setWorkSize({1});
-      launch_options.setExternalSyncMode(false);
-      launch_options.setLabel("PodSizeAlignment2Kernel");
-      auto result = kernel->run(
-          *buff_device1, *buff_device2, *buff_device3, *buff_device4,
-          *buff_device5, *buff_device6, *buff_device7,
-          u8, f32, i8, i16, u16, i32, test, launch_options);
-      device->waitForCompletion();
-    }
-
-    // Check the outputs
-    {
-      auto buff_host = device->makeBuffer<uint8b>(zivc::BufferUsage::kHostOnly);
-      buff_host->setSize(buff_device1->size());
-      auto options = buff_device1->makeOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device1, buff_host.get(), options);
-      device->waitForCompletion();
-      {
-        const auto mem = buff_host->mapMemory();
-        ASSERT_EQ(u8, mem[0]) << "POD value isn't processed properly.";
-        ASSERT_EQ(u8, mem[1]) << "POD structure isn't processed properly.";
-      }
-    }
-    {
-      auto buff_host = device->makeBuffer<float>(zivc::BufferUsage::kHostOnly);
-      buff_host->setSize(buff_device2->size());
-      auto options = buff_device2->makeOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device2, buff_host.get(), options);
-      device->waitForCompletion();
-      {
-        const auto mem = buff_host->mapMemory();
-        ASSERT_EQ(f32, mem[0]) << "POD value isn't processed properly.";
-        ASSERT_EQ(f32, mem[1]) << "POD structure isn't processed properly.";
-      }
-    }
-    {
-      auto buff_host = device->makeBuffer<int8b>(zivc::BufferUsage::kHostOnly);
-      buff_host->setSize(buff_device3->size());
-      auto options = buff_device3->makeOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device3, buff_host.get(), options);
-      device->waitForCompletion();
-      {
-        const auto mem = buff_host->mapMemory();
-        ASSERT_EQ(i8, mem[0]) << "POD value isn't processed properly.";
-        ASSERT_EQ(i8, mem[1]) << "POD structure isn't processed properly.";
-      }
-    }
-    {
-      auto buff_host = device->makeBuffer<int16b>(zivc::BufferUsage::kHostOnly);
-      buff_host->setSize(buff_device4->size());
-      auto options = buff_device4->makeOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device4, buff_host.get(), options);
-      device->waitForCompletion();
-      {
-        const auto mem = buff_host->mapMemory();
-        ASSERT_EQ(i16, mem[0]) << "POD value isn't processed properly.";
-        ASSERT_EQ(i16, mem[1]) << "POD structure isn't processed properly.";
-      }
-    }
-    {
-      auto buff_host = device->makeBuffer<uint16b>(zivc::BufferUsage::kHostOnly);
-      buff_host->setSize(buff_device5->size());
-      auto options = buff_device5->makeOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device5, buff_host.get(), options);
-      device->waitForCompletion();
-      {
-        const auto mem = buff_host->mapMemory();
-        ASSERT_EQ(u16, mem[0]) << "POD value isn't processed properly.";
-        ASSERT_EQ(u16, mem[1]) << "POD structure isn't processed properly.";
-      }
-    }
-    {
-      auto buff_host = device->makeBuffer<int32b>(zivc::BufferUsage::kHostOnly);
-      buff_host->setSize(buff_device6->size());
-      auto options = buff_device6->makeOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device6, buff_host.get(), options);
-      device->waitForCompletion();
-      {
-        const auto mem = buff_host->mapMemory();
-        ASSERT_EQ(i32, mem[0]) << "POD value isn't processed properly.";
-        ASSERT_EQ(i32, mem[1]) << "POD structure isn't processed properly.";
-      }
-    }
-    {
-      auto buff_host = device->makeBuffer<PodTest>(zivc::BufferUsage::kHostOnly);
-      buff_host->setSize(buff_device7->size());
-      auto options = buff_device7->makeOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device7, buff_host.get(), options);
-      device->waitForCompletion();
-      {
-        const auto mem = buff_host->mapMemory();
-        ASSERT_EQ(u8, mem[0].u8_) << "POD value isn't processed properly.";
-        ASSERT_EQ(u8, mem[1].u8_) << "POD structure isn't processed properly.";
-        ASSERT_EQ(f32, mem[0].f_) << "POD value isn't processed properly.";
-        ASSERT_EQ(f32, mem[1].f_) << "POD structure isn't processed properly.";
-        ASSERT_EQ(i8, mem[0].i8_) << "POD value isn't processed properly.";
-        ASSERT_EQ(i8, mem[1].i8_) << "POD structure isn't processed properly.";
-        ASSERT_EQ(i16, mem[0].i16_) << "POD value isn't processed properly.";
-        ASSERT_EQ(i16, mem[1].i16_) << "POD structure isn't processed properly.";
-        ASSERT_EQ(u16, mem[0].u16_) << "POD value isn't processed properly.";
-        ASSERT_EQ(u16, mem[1].u16_) << "POD structure isn't processed properly.";
-        ASSERT_EQ(i32, mem[0].i32_) << "POD value isn't processed properly.";
-        ASSERT_EQ(i32, mem[1].i32_) << "POD structure isn't processed properly.";
-      }
-    }
-  }
-  // Try2
-  {
-    constexpr uint8b u8 = 1;
-    constexpr float f32 = 1.0f;
-    constexpr int8b i8 = 1;
-    constexpr int16b i16 = 1;
-    constexpr uint16b u16 = 1;
-    constexpr int32b i32 = 1;
-    constexpr PodTest test{u8, 0, 0, 0, f32, i8, 0, i16, u16, 0, i32, 0, 0, 0};
-
-    // Launch the kernel
-    {
-      auto launch_options = kernel->makeOptions();
-      launch_options.setWorkSize({1});
-      launch_options.setExternalSyncMode(false);
-      launch_options.setLabel("PodSizeAlignmentKernel");
-      auto result = kernel->run(
-          *buff_device1, *buff_device2, *buff_device3, *buff_device4,
-          *buff_device5, *buff_device6, *buff_device7,
-          u8, f32, i8, i16, u16, i32, test, launch_options);
-      device->waitForCompletion();
-    }
-
-    // Check the outputs
-    {
-      auto buff_host = device->makeBuffer<uint8b>(zivc::BufferUsage::kHostOnly);
-      buff_host->setSize(buff_device1->size());
-      auto options = buff_device1->makeOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device1, buff_host.get(), options);
-      device->waitForCompletion();
-      {
-        const auto mem = buff_host->mapMemory();
-        ASSERT_EQ(u8, mem[0]) << "POD value isn't processed properly.";
-        ASSERT_EQ(u8, mem[1]) << "POD structure isn't processed properly.";
-      }
-    }
-    {
-      auto buff_host = device->makeBuffer<float>(zivc::BufferUsage::kHostOnly);
-      buff_host->setSize(buff_device2->size());
-      auto options = buff_device2->makeOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device2, buff_host.get(), options);
-      device->waitForCompletion();
-      {
-        const auto mem = buff_host->mapMemory();
-        ASSERT_EQ(f32, mem[0]) << "POD value isn't processed properly.";
-        ASSERT_EQ(f32, mem[1]) << "POD structure isn't processed properly.";
-      }
-    }
-    {
-      auto buff_host = device->makeBuffer<int8b>(zivc::BufferUsage::kHostOnly);
-      buff_host->setSize(buff_device3->size());
-      auto options = buff_device3->makeOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device3, buff_host.get(), options);
-      device->waitForCompletion();
-      {
-        const auto mem = buff_host->mapMemory();
-        ASSERT_EQ(i8, mem[0]) << "POD value isn't processed properly.";
-        ASSERT_EQ(i8, mem[1]) << "POD structure isn't processed properly.";
-      }
-    }
-    {
-      auto buff_host = device->makeBuffer<int16b>(zivc::BufferUsage::kHostOnly);
-      buff_host->setSize(buff_device4->size());
-      auto options = buff_device4->makeOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device4, buff_host.get(), options);
-      device->waitForCompletion();
-      {
-        const auto mem = buff_host->mapMemory();
-        ASSERT_EQ(i16, mem[0]) << "POD value isn't processed properly.";
-        ASSERT_EQ(i16, mem[1]) << "POD structure isn't processed properly.";
-      }
-    }
-    {
-      auto buff_host = device->makeBuffer<uint16b>(zivc::BufferUsage::kHostOnly);
-      buff_host->setSize(buff_device5->size());
-      auto options = buff_device5->makeOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device5, buff_host.get(), options);
-      device->waitForCompletion();
-      {
-        const auto mem = buff_host->mapMemory();
-        ASSERT_EQ(u16, mem[0]) << "POD value isn't processed properly.";
-        ASSERT_EQ(u16, mem[1]) << "POD structure isn't processed properly.";
-      }
-    }
-    {
-      auto buff_host = device->makeBuffer<int32b>(zivc::BufferUsage::kHostOnly);
-      buff_host->setSize(buff_device6->size());
-      auto options = buff_device6->makeOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device6, buff_host.get(), options);
-      device->waitForCompletion();
-      {
-        const auto mem = buff_host->mapMemory();
-        ASSERT_EQ(i32, mem[0]) << "POD value isn't processed properly.";
-        ASSERT_EQ(i32, mem[1]) << "POD structure isn't processed properly.";
-      }
-    }
-    {
-      auto buff_host = device->makeBuffer<PodTest>(zivc::BufferUsage::kHostOnly);
-      buff_host->setSize(buff_device7->size());
-      auto options = buff_device7->makeOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device7, buff_host.get(), options);
-      device->waitForCompletion();
-      {
-        const auto mem = buff_host->mapMemory();
-        ASSERT_EQ(u8, mem[0].u8_) << "POD value isn't processed properly.";
-        ASSERT_EQ(u8, mem[1].u8_) << "POD structure isn't processed properly.";
-        ASSERT_EQ(f32, mem[0].f_) << "POD value isn't processed properly.";
-        ASSERT_EQ(f32, mem[1].f_) << "POD structure isn't processed properly.";
-        ASSERT_EQ(i8, mem[0].i8_) << "POD value isn't processed properly.";
-        ASSERT_EQ(i8, mem[1].i8_) << "POD structure isn't processed properly.";
-        ASSERT_EQ(i16, mem[0].i16_) << "POD value isn't processed properly.";
-        ASSERT_EQ(i16, mem[1].i16_) << "POD structure isn't processed properly.";
-        ASSERT_EQ(u16, mem[0].u16_) << "POD value isn't processed properly.";
-        ASSERT_EQ(u16, mem[1].u16_) << "POD structure isn't processed properly.";
-        ASSERT_EQ(i32, mem[0].i32_) << "POD value isn't processed properly.";
-        ASSERT_EQ(i32, mem[1].i32_) << "POD structure isn't processed properly.";
-      }
-    }
-  }
-  // Try3
-  {
-    constexpr uint8b u8 = 10;
-    constexpr float f32 = 10.0f;
-    constexpr int8b i8 = 10;
-    constexpr int16b i16 = 10;
-    constexpr uint16b u16 = 10;
-    constexpr int32b i32 = 10;
-    constexpr PodTest test{u8, 0, 0, 0, f32, i8, 0, i16, u16, 0, i32, 0, 0, 0};
-
-    // Launch the kernel
-    {
-      auto launch_options = kernel->makeOptions();
-      launch_options.setWorkSize({1});
-      launch_options.setExternalSyncMode(false);
-      launch_options.setLabel("PodSizeAlignmentKernel");
-      auto result = kernel->run(
-          *buff_device1, *buff_device2, *buff_device3, *buff_device4,
-          *buff_device5, *buff_device6, *buff_device7,
-          u8, f32, i8, i16, u16, i32, test, launch_options);
-      device->waitForCompletion();
-    }
-
-    // Check the outputs
-    {
-      auto buff_host = device->makeBuffer<uint8b>(zivc::BufferUsage::kHostOnly);
-      buff_host->setSize(buff_device1->size());
-      auto options = buff_device1->makeOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device1, buff_host.get(), options);
-      device->waitForCompletion();
-      {
-        const auto mem = buff_host->mapMemory();
-        ASSERT_EQ(u8, mem[0]) << "POD value isn't processed properly.";
-        ASSERT_EQ(u8, mem[1]) << "POD structure isn't processed properly.";
-      }
-    }
-    {
-      auto buff_host = device->makeBuffer<float>(zivc::BufferUsage::kHostOnly);
-      buff_host->setSize(buff_device2->size());
-      auto options = buff_device2->makeOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device2, buff_host.get(), options);
-      device->waitForCompletion();
-      {
-        const auto mem = buff_host->mapMemory();
-        ASSERT_EQ(f32, mem[0]) << "POD value isn't processed properly.";
-        ASSERT_EQ(f32, mem[1]) << "POD structure isn't processed properly.";
-      }
-    }
-    {
-      auto buff_host = device->makeBuffer<int8b>(zivc::BufferUsage::kHostOnly);
-      buff_host->setSize(buff_device3->size());
-      auto options = buff_device3->makeOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device3, buff_host.get(), options);
-      device->waitForCompletion();
-      {
-        const auto mem = buff_host->mapMemory();
-        ASSERT_EQ(i8, mem[0]) << "POD value isn't processed properly.";
-        ASSERT_EQ(i8, mem[1]) << "POD structure isn't processed properly.";
-      }
-    }
-    {
-      auto buff_host = device->makeBuffer<int16b>(zivc::BufferUsage::kHostOnly);
-      buff_host->setSize(buff_device4->size());
-      auto options = buff_device4->makeOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device4, buff_host.get(), options);
-      device->waitForCompletion();
-      {
-        const auto mem = buff_host->mapMemory();
-        ASSERT_EQ(i16, mem[0]) << "POD value isn't processed properly.";
-        ASSERT_EQ(i16, mem[1]) << "POD structure isn't processed properly.";
-      }
-    }
-    {
-      auto buff_host = device->makeBuffer<uint16b>(zivc::BufferUsage::kHostOnly);
-      buff_host->setSize(buff_device5->size());
-      auto options = buff_device5->makeOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device5, buff_host.get(), options);
-      device->waitForCompletion();
-      {
-        const auto mem = buff_host->mapMemory();
-        ASSERT_EQ(u16, mem[0]) << "POD value isn't processed properly.";
-        ASSERT_EQ(u16, mem[1]) << "POD structure isn't processed properly.";
-      }
-    }
-    {
-      auto buff_host = device->makeBuffer<int32b>(zivc::BufferUsage::kHostOnly);
-      buff_host->setSize(buff_device6->size());
-      auto options = buff_device6->makeOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device6, buff_host.get(), options);
-      device->waitForCompletion();
-      {
-        const auto mem = buff_host->mapMemory();
-        ASSERT_EQ(i32, mem[0]) << "POD value isn't processed properly.";
-        ASSERT_EQ(i32, mem[1]) << "POD structure isn't processed properly.";
-      }
-    }
-    {
-      auto buff_host = device->makeBuffer<PodTest>(zivc::BufferUsage::kHostOnly);
-      buff_host->setSize(buff_device7->size());
-      auto options = buff_device7->makeOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device7, buff_host.get(), options);
-      device->waitForCompletion();
-      {
-        const auto mem = buff_host->mapMemory();
-        ASSERT_EQ(u8, mem[0].u8_) << "POD value isn't processed properly.";
-        ASSERT_EQ(u8, mem[1].u8_) << "POD structure isn't processed properly.";
-        ASSERT_EQ(f32, mem[0].f_) << "POD value isn't processed properly.";
-        ASSERT_EQ(f32, mem[1].f_) << "POD structure isn't processed properly.";
-        ASSERT_EQ(i8, mem[0].i8_) << "POD value isn't processed properly.";
-        ASSERT_EQ(i8, mem[1].i8_) << "POD structure isn't processed properly.";
-        ASSERT_EQ(i16, mem[0].i16_) << "POD value isn't processed properly.";
-        ASSERT_EQ(i16, mem[1].i16_) << "POD structure isn't processed properly.";
-        ASSERT_EQ(u16, mem[0].u16_) << "POD value isn't processed properly.";
-        ASSERT_EQ(u16, mem[1].u16_) << "POD structure isn't processed properly.";
-        ASSERT_EQ(i32, mem[0].i32_) << "POD value isn't processed properly.";
-        ASSERT_EQ(i32, mem[1].i32_) << "POD structure isn't processed properly.";
-      }
-    }
-  }
-}
+//TEST(KernelTest, PodMultipleValuesTest)
+//{
+//  auto platform = ztest::makePlatform();
+//  const ztest::Config& config = ztest::Config::globalConfig();
+//  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
+//  [[maybe_unused]] const auto& info = device->deviceInfo();
+//
+//  using zivc::int8b;
+//  using zivc::int16b;
+//  using zivc::int32b;
+//  using zivc::uint8b;
+//  using zivc::uint16b;
+//  using zivc::uint32b;
+//  using PodTest = zivc::cl::kernel_test_pod::inner::PodAlignmentTest;
+//
+//  auto init_buffer = [](zivc::Device& d, auto& buffer, const auto value)
+//  {
+//    using Type = std::add_const_t<decltype(value)>;
+//    auto buff_host = d.makeBuffer<Type>(zivc::BufferUsage::kHostOnly);
+//    buff_host->setSize(buffer.size());
+//    {
+//      auto mem = buff_host->mapMemory();
+//      std::fill(mem.begin(), mem.end(), value);
+//    }
+//    auto options = buff_host->makeOptions();
+//    [[maybe_unused]] auto result = zivc::copy(*buff_host, std::addressof(buffer), options);
+//    d.waitForCompletion();
+//  };
+//
+//  // Allocate buffers
+//  auto buff_device1 = device->makeBuffer<uint8b>(zivc::BufferUsage::kDeviceOnly);
+//  buff_device1->setSize(2);
+//  auto buff_device2 = device->makeBuffer<float>(zivc::BufferUsage::kDeviceOnly);
+//  buff_device2->setSize(2);
+//  auto buff_device3 = device->makeBuffer<int8b>(zivc::BufferUsage::kDeviceOnly);
+//  buff_device3->setSize(2);
+//  auto buff_device4 = device->makeBuffer<int16b>(zivc::BufferUsage::kDeviceOnly);
+//  buff_device4->setSize(2);
+//  auto buff_device5 = device->makeBuffer<uint16b>(zivc::BufferUsage::kDeviceOnly);
+//  buff_device5->setSize(2);
+//  auto buff_device6 = device->makeBuffer<int32b>(zivc::BufferUsage::kDeviceOnly);
+//  buff_device6->setSize(2);
+//  auto buff_device7 = device->makeBuffer<PodTest>(zivc::BufferUsage::kDeviceOnly);
+//  buff_device7->setSize(2);
+//
+//  init_buffer(*device, *buff_device1, zisc::cast<uint8b>(0));
+//  init_buffer(*device, *buff_device2, zisc::cast<float>(0));
+//  init_buffer(*device, *buff_device3, zisc::cast<int8b>(0));
+//  init_buffer(*device, *buff_device4, zisc::cast<int16b>(0));
+//  init_buffer(*device, *buff_device5, zisc::cast<uint16b>(0));
+//  init_buffer(*device, *buff_device6, zisc::cast<int32b>(0));
+//  init_buffer(*device, *buff_device7, PodTest{});
+//
+//  // Make a kernel
+//  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test_pod, podSizeAlignment2Kernel, 1);
+//  auto kernel = device->makeKernel(kernel_params);
+//  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+//  ASSERT_EQ(14, kernel->argSize()) << "Wrong kernel property.";
+//
+//  // Try1
+//  {
+//    constexpr uint8b u8 = 0b10101010u;
+//    constexpr float f32 = std::numbers::pi_v<float>;
+//    constexpr int8b i8 = 0b01010101;
+//    constexpr int16b i16 = 0b01010101'10101010;
+//    constexpr uint16b u16 = 0b10101010'01010101u;
+//    constexpr int32b i32 = 0b01010101'10101010'11110000'00001111;
+//    constexpr PodTest test{u8, 0, 0, 0, f32, i8, 0, i16, u16, 0, i32, 0, 0, 0};
+//
+//    // Launch the kernel
+//    {
+//      auto launch_options = kernel->makeOptions();
+//      launch_options.setWorkSize({1});
+//      launch_options.setExternalSyncMode(false);
+//      launch_options.setLabel("PodSizeAlignment2Kernel");
+//      auto result = kernel->run(
+//          *buff_device1, *buff_device2, *buff_device3, *buff_device4,
+//          *buff_device5, *buff_device6, *buff_device7,
+//          u8, f32, i8, i16, u16, i32, test, launch_options);
+//      device->waitForCompletion();
+//    }
+//
+//    // Check the outputs
+//    {
+//      auto buff_host = device->makeBuffer<uint8b>(zivc::BufferUsage::kHostOnly);
+//      buff_host->setSize(buff_device1->size());
+//      auto options = buff_device1->makeOptions();
+//      [[maybe_unused]] auto result = zivc::copy(*buff_device1, buff_host.get(), options);
+//      device->waitForCompletion();
+//      {
+//        const auto mem = buff_host->mapMemory();
+//        ASSERT_EQ(u8, mem[0]) << "POD value isn't processed properly.";
+//        ASSERT_EQ(u8, mem[1]) << "POD structure isn't processed properly.";
+//      }
+//    }
+//    {
+//      auto buff_host = device->makeBuffer<float>(zivc::BufferUsage::kHostOnly);
+//      buff_host->setSize(buff_device2->size());
+//      auto options = buff_device2->makeOptions();
+//      [[maybe_unused]] auto result = zivc::copy(*buff_device2, buff_host.get(), options);
+//      device->waitForCompletion();
+//      {
+//        const auto mem = buff_host->mapMemory();
+//        ASSERT_EQ(f32, mem[0]) << "POD value isn't processed properly.";
+//        ASSERT_EQ(f32, mem[1]) << "POD structure isn't processed properly.";
+//      }
+//    }
+//    {
+//      auto buff_host = device->makeBuffer<int8b>(zivc::BufferUsage::kHostOnly);
+//      buff_host->setSize(buff_device3->size());
+//      auto options = buff_device3->makeOptions();
+//      [[maybe_unused]] auto result = zivc::copy(*buff_device3, buff_host.get(), options);
+//      device->waitForCompletion();
+//      {
+//        const auto mem = buff_host->mapMemory();
+//        ASSERT_EQ(i8, mem[0]) << "POD value isn't processed properly.";
+//        ASSERT_EQ(i8, mem[1]) << "POD structure isn't processed properly.";
+//      }
+//    }
+//    {
+//      auto buff_host = device->makeBuffer<int16b>(zivc::BufferUsage::kHostOnly);
+//      buff_host->setSize(buff_device4->size());
+//      auto options = buff_device4->makeOptions();
+//      [[maybe_unused]] auto result = zivc::copy(*buff_device4, buff_host.get(), options);
+//      device->waitForCompletion();
+//      {
+//        const auto mem = buff_host->mapMemory();
+//        ASSERT_EQ(i16, mem[0]) << "POD value isn't processed properly.";
+//        ASSERT_EQ(i16, mem[1]) << "POD structure isn't processed properly.";
+//      }
+//    }
+//    {
+//      auto buff_host = device->makeBuffer<uint16b>(zivc::BufferUsage::kHostOnly);
+//      buff_host->setSize(buff_device5->size());
+//      auto options = buff_device5->makeOptions();
+//      [[maybe_unused]] auto result = zivc::copy(*buff_device5, buff_host.get(), options);
+//      device->waitForCompletion();
+//      {
+//        const auto mem = buff_host->mapMemory();
+//        ASSERT_EQ(u16, mem[0]) << "POD value isn't processed properly.";
+//        ASSERT_EQ(u16, mem[1]) << "POD structure isn't processed properly.";
+//      }
+//    }
+//    {
+//      auto buff_host = device->makeBuffer<int32b>(zivc::BufferUsage::kHostOnly);
+//      buff_host->setSize(buff_device6->size());
+//      auto options = buff_device6->makeOptions();
+//      [[maybe_unused]] auto result = zivc::copy(*buff_device6, buff_host.get(), options);
+//      device->waitForCompletion();
+//      {
+//        const auto mem = buff_host->mapMemory();
+//        ASSERT_EQ(i32, mem[0]) << "POD value isn't processed properly.";
+//        ASSERT_EQ(i32, mem[1]) << "POD structure isn't processed properly.";
+//      }
+//    }
+//    {
+//      auto buff_host = device->makeBuffer<PodTest>(zivc::BufferUsage::kHostOnly);
+//      buff_host->setSize(buff_device7->size());
+//      auto options = buff_device7->makeOptions();
+//      [[maybe_unused]] auto result = zivc::copy(*buff_device7, buff_host.get(), options);
+//      device->waitForCompletion();
+//      {
+//        const auto mem = buff_host->mapMemory();
+//        ASSERT_EQ(u8, mem[0].u8_) << "POD value isn't processed properly.";
+//        ASSERT_EQ(u8, mem[1].u8_) << "POD structure isn't processed properly.";
+//        ASSERT_EQ(f32, mem[0].f_) << "POD value isn't processed properly.";
+//        ASSERT_EQ(f32, mem[1].f_) << "POD structure isn't processed properly.";
+//        ASSERT_EQ(i8, mem[0].i8_) << "POD value isn't processed properly.";
+//        ASSERT_EQ(i8, mem[1].i8_) << "POD structure isn't processed properly.";
+//        ASSERT_EQ(i16, mem[0].i16_) << "POD value isn't processed properly.";
+//        ASSERT_EQ(i16, mem[1].i16_) << "POD structure isn't processed properly.";
+//        ASSERT_EQ(u16, mem[0].u16_) << "POD value isn't processed properly.";
+//        ASSERT_EQ(u16, mem[1].u16_) << "POD structure isn't processed properly.";
+//        ASSERT_EQ(i32, mem[0].i32_) << "POD value isn't processed properly.";
+//        ASSERT_EQ(i32, mem[1].i32_) << "POD structure isn't processed properly.";
+//      }
+//    }
+//  }
+//  // Try2
+//  {
+//    constexpr uint8b u8 = 1;
+//    constexpr float f32 = 1.0f;
+//    constexpr int8b i8 = 1;
+//    constexpr int16b i16 = 1;
+//    constexpr uint16b u16 = 1;
+//    constexpr int32b i32 = 1;
+//    constexpr PodTest test{u8, 0, 0, 0, f32, i8, 0, i16, u16, 0, i32, 0, 0, 0};
+//
+//    // Launch the kernel
+//    {
+//      auto launch_options = kernel->makeOptions();
+//      launch_options.setWorkSize({1});
+//      launch_options.setExternalSyncMode(false);
+//      launch_options.setLabel("PodSizeAlignmentKernel");
+//      auto result = kernel->run(
+//          *buff_device1, *buff_device2, *buff_device3, *buff_device4,
+//          *buff_device5, *buff_device6, *buff_device7,
+//          u8, f32, i8, i16, u16, i32, test, launch_options);
+//      device->waitForCompletion();
+//    }
+//
+//    // Check the outputs
+//    {
+//      auto buff_host = device->makeBuffer<uint8b>(zivc::BufferUsage::kHostOnly);
+//      buff_host->setSize(buff_device1->size());
+//      auto options = buff_device1->makeOptions();
+//      [[maybe_unused]] auto result = zivc::copy(*buff_device1, buff_host.get(), options);
+//      device->waitForCompletion();
+//      {
+//        const auto mem = buff_host->mapMemory();
+//        ASSERT_EQ(u8, mem[0]) << "POD value isn't processed properly.";
+//        ASSERT_EQ(u8, mem[1]) << "POD structure isn't processed properly.";
+//      }
+//    }
+//    {
+//      auto buff_host = device->makeBuffer<float>(zivc::BufferUsage::kHostOnly);
+//      buff_host->setSize(buff_device2->size());
+//      auto options = buff_device2->makeOptions();
+//      [[maybe_unused]] auto result = zivc::copy(*buff_device2, buff_host.get(), options);
+//      device->waitForCompletion();
+//      {
+//        const auto mem = buff_host->mapMemory();
+//        ASSERT_EQ(f32, mem[0]) << "POD value isn't processed properly.";
+//        ASSERT_EQ(f32, mem[1]) << "POD structure isn't processed properly.";
+//      }
+//    }
+//    {
+//      auto buff_host = device->makeBuffer<int8b>(zivc::BufferUsage::kHostOnly);
+//      buff_host->setSize(buff_device3->size());
+//      auto options = buff_device3->makeOptions();
+//      [[maybe_unused]] auto result = zivc::copy(*buff_device3, buff_host.get(), options);
+//      device->waitForCompletion();
+//      {
+//        const auto mem = buff_host->mapMemory();
+//        ASSERT_EQ(i8, mem[0]) << "POD value isn't processed properly.";
+//        ASSERT_EQ(i8, mem[1]) << "POD structure isn't processed properly.";
+//      }
+//    }
+//    {
+//      auto buff_host = device->makeBuffer<int16b>(zivc::BufferUsage::kHostOnly);
+//      buff_host->setSize(buff_device4->size());
+//      auto options = buff_device4->makeOptions();
+//      [[maybe_unused]] auto result = zivc::copy(*buff_device4, buff_host.get(), options);
+//      device->waitForCompletion();
+//      {
+//        const auto mem = buff_host->mapMemory();
+//        ASSERT_EQ(i16, mem[0]) << "POD value isn't processed properly.";
+//        ASSERT_EQ(i16, mem[1]) << "POD structure isn't processed properly.";
+//      }
+//    }
+//    {
+//      auto buff_host = device->makeBuffer<uint16b>(zivc::BufferUsage::kHostOnly);
+//      buff_host->setSize(buff_device5->size());
+//      auto options = buff_device5->makeOptions();
+//      [[maybe_unused]] auto result = zivc::copy(*buff_device5, buff_host.get(), options);
+//      device->waitForCompletion();
+//      {
+//        const auto mem = buff_host->mapMemory();
+//        ASSERT_EQ(u16, mem[0]) << "POD value isn't processed properly.";
+//        ASSERT_EQ(u16, mem[1]) << "POD structure isn't processed properly.";
+//      }
+//    }
+//    {
+//      auto buff_host = device->makeBuffer<int32b>(zivc::BufferUsage::kHostOnly);
+//      buff_host->setSize(buff_device6->size());
+//      auto options = buff_device6->makeOptions();
+//      [[maybe_unused]] auto result = zivc::copy(*buff_device6, buff_host.get(), options);
+//      device->waitForCompletion();
+//      {
+//        const auto mem = buff_host->mapMemory();
+//        ASSERT_EQ(i32, mem[0]) << "POD value isn't processed properly.";
+//        ASSERT_EQ(i32, mem[1]) << "POD structure isn't processed properly.";
+//      }
+//    }
+//    {
+//      auto buff_host = device->makeBuffer<PodTest>(zivc::BufferUsage::kHostOnly);
+//      buff_host->setSize(buff_device7->size());
+//      auto options = buff_device7->makeOptions();
+//      [[maybe_unused]] auto result = zivc::copy(*buff_device7, buff_host.get(), options);
+//      device->waitForCompletion();
+//      {
+//        const auto mem = buff_host->mapMemory();
+//        ASSERT_EQ(u8, mem[0].u8_) << "POD value isn't processed properly.";
+//        ASSERT_EQ(u8, mem[1].u8_) << "POD structure isn't processed properly.";
+//        ASSERT_EQ(f32, mem[0].f_) << "POD value isn't processed properly.";
+//        ASSERT_EQ(f32, mem[1].f_) << "POD structure isn't processed properly.";
+//        ASSERT_EQ(i8, mem[0].i8_) << "POD value isn't processed properly.";
+//        ASSERT_EQ(i8, mem[1].i8_) << "POD structure isn't processed properly.";
+//        ASSERT_EQ(i16, mem[0].i16_) << "POD value isn't processed properly.";
+//        ASSERT_EQ(i16, mem[1].i16_) << "POD structure isn't processed properly.";
+//        ASSERT_EQ(u16, mem[0].u16_) << "POD value isn't processed properly.";
+//        ASSERT_EQ(u16, mem[1].u16_) << "POD structure isn't processed properly.";
+//        ASSERT_EQ(i32, mem[0].i32_) << "POD value isn't processed properly.";
+//        ASSERT_EQ(i32, mem[1].i32_) << "POD structure isn't processed properly.";
+//      }
+//    }
+//  }
+//  // Try3
+//  {
+//    constexpr uint8b u8 = 10;
+//    constexpr float f32 = 10.0f;
+//    constexpr int8b i8 = 10;
+//    constexpr int16b i16 = 10;
+//    constexpr uint16b u16 = 10;
+//    constexpr int32b i32 = 10;
+//    constexpr PodTest test{u8, 0, 0, 0, f32, i8, 0, i16, u16, 0, i32, 0, 0, 0};
+//
+//    // Launch the kernel
+//    {
+//      auto launch_options = kernel->makeOptions();
+//      launch_options.setWorkSize({1});
+//      launch_options.setExternalSyncMode(false);
+//      launch_options.setLabel("PodSizeAlignmentKernel");
+//      auto result = kernel->run(
+//          *buff_device1, *buff_device2, *buff_device3, *buff_device4,
+//          *buff_device5, *buff_device6, *buff_device7,
+//          u8, f32, i8, i16, u16, i32, test, launch_options);
+//      device->waitForCompletion();
+//    }
+//
+//    // Check the outputs
+//    {
+//      auto buff_host = device->makeBuffer<uint8b>(zivc::BufferUsage::kHostOnly);
+//      buff_host->setSize(buff_device1->size());
+//      auto options = buff_device1->makeOptions();
+//      [[maybe_unused]] auto result = zivc::copy(*buff_device1, buff_host.get(), options);
+//      device->waitForCompletion();
+//      {
+//        const auto mem = buff_host->mapMemory();
+//        ASSERT_EQ(u8, mem[0]) << "POD value isn't processed properly.";
+//        ASSERT_EQ(u8, mem[1]) << "POD structure isn't processed properly.";
+//      }
+//    }
+//    {
+//      auto buff_host = device->makeBuffer<float>(zivc::BufferUsage::kHostOnly);
+//      buff_host->setSize(buff_device2->size());
+//      auto options = buff_device2->makeOptions();
+//      [[maybe_unused]] auto result = zivc::copy(*buff_device2, buff_host.get(), options);
+//      device->waitForCompletion();
+//      {
+//        const auto mem = buff_host->mapMemory();
+//        ASSERT_EQ(f32, mem[0]) << "POD value isn't processed properly.";
+//        ASSERT_EQ(f32, mem[1]) << "POD structure isn't processed properly.";
+//      }
+//    }
+//    {
+//      auto buff_host = device->makeBuffer<int8b>(zivc::BufferUsage::kHostOnly);
+//      buff_host->setSize(buff_device3->size());
+//      auto options = buff_device3->makeOptions();
+//      [[maybe_unused]] auto result = zivc::copy(*buff_device3, buff_host.get(), options);
+//      device->waitForCompletion();
+//      {
+//        const auto mem = buff_host->mapMemory();
+//        ASSERT_EQ(i8, mem[0]) << "POD value isn't processed properly.";
+//        ASSERT_EQ(i8, mem[1]) << "POD structure isn't processed properly.";
+//      }
+//    }
+//    {
+//      auto buff_host = device->makeBuffer<int16b>(zivc::BufferUsage::kHostOnly);
+//      buff_host->setSize(buff_device4->size());
+//      auto options = buff_device4->makeOptions();
+//      [[maybe_unused]] auto result = zivc::copy(*buff_device4, buff_host.get(), options);
+//      device->waitForCompletion();
+//      {
+//        const auto mem = buff_host->mapMemory();
+//        ASSERT_EQ(i16, mem[0]) << "POD value isn't processed properly.";
+//        ASSERT_EQ(i16, mem[1]) << "POD structure isn't processed properly.";
+//      }
+//    }
+//    {
+//      auto buff_host = device->makeBuffer<uint16b>(zivc::BufferUsage::kHostOnly);
+//      buff_host->setSize(buff_device5->size());
+//      auto options = buff_device5->makeOptions();
+//      [[maybe_unused]] auto result = zivc::copy(*buff_device5, buff_host.get(), options);
+//      device->waitForCompletion();
+//      {
+//        const auto mem = buff_host->mapMemory();
+//        ASSERT_EQ(u16, mem[0]) << "POD value isn't processed properly.";
+//        ASSERT_EQ(u16, mem[1]) << "POD structure isn't processed properly.";
+//      }
+//    }
+//    {
+//      auto buff_host = device->makeBuffer<int32b>(zivc::BufferUsage::kHostOnly);
+//      buff_host->setSize(buff_device6->size());
+//      auto options = buff_device6->makeOptions();
+//      [[maybe_unused]] auto result = zivc::copy(*buff_device6, buff_host.get(), options);
+//      device->waitForCompletion();
+//      {
+//        const auto mem = buff_host->mapMemory();
+//        ASSERT_EQ(i32, mem[0]) << "POD value isn't processed properly.";
+//        ASSERT_EQ(i32, mem[1]) << "POD structure isn't processed properly.";
+//      }
+//    }
+//    {
+//      auto buff_host = device->makeBuffer<PodTest>(zivc::BufferUsage::kHostOnly);
+//      buff_host->setSize(buff_device7->size());
+//      auto options = buff_device7->makeOptions();
+//      [[maybe_unused]] auto result = zivc::copy(*buff_device7, buff_host.get(), options);
+//      device->waitForCompletion();
+//      {
+//        const auto mem = buff_host->mapMemory();
+//        ASSERT_EQ(u8, mem[0].u8_) << "POD value isn't processed properly.";
+//        ASSERT_EQ(u8, mem[1].u8_) << "POD structure isn't processed properly.";
+//        ASSERT_EQ(f32, mem[0].f_) << "POD value isn't processed properly.";
+//        ASSERT_EQ(f32, mem[1].f_) << "POD structure isn't processed properly.";
+//        ASSERT_EQ(i8, mem[0].i8_) << "POD value isn't processed properly.";
+//        ASSERT_EQ(i8, mem[1].i8_) << "POD structure isn't processed properly.";
+//        ASSERT_EQ(i16, mem[0].i16_) << "POD value isn't processed properly.";
+//        ASSERT_EQ(i16, mem[1].i16_) << "POD structure isn't processed properly.";
+//        ASSERT_EQ(u16, mem[0].u16_) << "POD value isn't processed properly.";
+//        ASSERT_EQ(u16, mem[1].u16_) << "POD structure isn't processed properly.";
+//        ASSERT_EQ(i32, mem[0].i32_) << "POD value isn't processed properly.";
+//        ASSERT_EQ(i32, mem[1].i32_) << "POD structure isn't processed properly.";
+//      }
+//    }
+//  }
+//}
 
 TEST(KernelTest, PodVectorTypeTest)
 {

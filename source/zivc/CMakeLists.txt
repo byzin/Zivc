@@ -71,7 +71,6 @@ function(Zivc_getZivcWarningFlags zivc_warning_flags)
   # Suppress warnings
   if(Z_CLANG)
     list(APPEND warning_flags -Wno-covered-switch-default
-                              -Wno-float-equal
                               # -Wno-padded
                               -Wno-sign-conversion
                               )
@@ -199,7 +198,7 @@ if(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
     add_subdirectory(${PROJECT_SOURCE_DIR}/kernel_baker ${PROJECT_BINARY_DIR}/KernelBaker)
   endif()
   # Vulkan
-  find_package(Vulkan 1.2.162.0 REQUIRED)
+  find_package(Vulkan 1.2.182.0 REQUIRED)
   target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Vulkan)
   # Vulkan Memory Allocator
   set(vma_path ${dependencies_dir}/VulkanMemoryAllocator)
@@ -211,10 +210,10 @@ if(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
   # Buffer fill kernel sets 
   set(kernel_set_dir ${PROJECT_SOURCE_DIR}/kernel)
   file(GLOB_RECURSE kernel_sources ${kernel_set_dir}/*.cl)
-  Zivc_addKernelSet(zivc_kernel ${PROJECT_VERSION}
-      SOURCE_FILES ${kernel_sources}
-      INCLUDE_DIRS ${kernel_set_dir})
-  target_link_libraries(${PROJECT_NAME} PRIVATE KernelSet_zivc_kernel)
+  #  Zivc_addKernelSet(zivc_kernel ${PROJECT_VERSION}
+  #      SOURCE_FILES ${kernel_sources}
+  #      INCLUDE_DIRS ${kernel_set_dir})
+  #  target_link_libraries(${PROJECT_NAME} PRIVATE KernelSet_zivc_kernel)
 endif()
 
 Zisc_enableIpo(${PROJECT_NAME})

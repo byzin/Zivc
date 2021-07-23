@@ -225,44 +225,44 @@ __kernel void podSizeAlignmentKernel(zivc::GlobalPtr<int32b> output,
   \param [in] i32 No description.
   \param [in] test No description.
   */
-__kernel void podSizeAlignment2Kernel(zivc::GlobalPtr<uint8b> output1,
-                                      zivc::GlobalPtr<float> output2,
-                                      zivc::GlobalPtr<int8b> output3,
-                                      zivc::GlobalPtr<int16b> output4,
-                                      zivc::GlobalPtr<uint16b> output5,
-                                      zivc::GlobalPtr<int32b> output6,
-                                      zivc::GlobalPtr<inner::PodAlignmentTest> output7,
-                                      const uint8b u8,
-                                      const float f,
-                                      const int8b i8,
-                                      const int16b i16,
-                                      const uint16b u16,
-                                      const int32b i32,
-                                      const inner::PodAlignmentTest test)
-{
-  const size_t index = zivc::getGlobalLinearId();
-  if (index == 0) {
-    output1[0] = u8;
-    output1[1] = test.u8_;
-    output2[0] = f;
-    output2[1] = test.f_;
-    output3[0] = i8;
-    output3[1] = test.i8_;
-    output4[0] = i16;
-    output4[1] = test.i16_;
-    output5[0] = u16;
-    output5[1] = test.u16_;
-    output6[0] = i32;
-    output6[1] = test.i32_;
-    output7[0].u8_ = u8;
-    output7[0].f_ = f;
-    output7[0].i8_ = i8;
-    output7[0].i16_ = i16;
-    output7[0].u16_ = u16;
-    output7[0].i32_ = i32;
-    output7[1] = test;
-  }
-}
+//__kernel void podSizeAlignment2Kernel(zivc::GlobalPtr<uint8b> output1,
+//                                      zivc::GlobalPtr<float> output2,
+//                                      zivc::GlobalPtr<int8b> output3,
+//                                      zivc::GlobalPtr<int16b> output4,
+//                                      zivc::GlobalPtr<uint16b> output5,
+//                                      zivc::GlobalPtr<int32b> output6,
+//                                      zivc::GlobalPtr<inner::PodAlignmentTest> output7,
+//                                      const uint8b u8,
+//                                      const float f,
+//                                      const int8b i8,
+//                                      const int16b i16,
+//                                      const uint16b u16,
+//                                      const int32b i32,
+//                                      const inner::PodAlignmentTest test)
+//{
+//  const size_t index = zivc::getGlobalLinearId();
+//  if (index == 0) {
+//    output1[0] = u8;
+//    output1[1] = test.u8_;
+//    output2[0] = f;
+//    output2[1] = test.f_;
+//    output3[0] = i8;
+//    output3[1] = test.i8_;
+//    output4[0] = i16;
+//    output4[1] = test.i16_;
+//    output5[0] = u16;
+//    output5[1] = test.u16_;
+//    output6[0] = i32;
+//    output6[1] = test.i32_;
+//    output7[0].u8_ = u8;
+//    output7[0].f_ = f;
+//    output7[0].i8_ = i8;
+//    output7[0].i16_ = i16;
+//    output7[0].u16_ = u16;
+//    output7[0].i32_ = i32;
+//    output7[1] = test;
+//  }
+//}
 
 namespace inner {
 

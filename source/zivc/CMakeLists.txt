@@ -203,9 +203,7 @@ if(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
   # Vulkan Memory Allocator
   set(vma_path ${dependencies_dir}/VulkanMemoryAllocator)
   Zisc_checkSubmodule(${vma_path})
-  set(vma_include_dir ${PROJECT_BINARY_DIR}/VulkanMemoryAllocator)
-  file(MAKE_DIRECTORY ${vma_include_dir})
-  file(COPY ${vma_path}/src/vk_mem_alloc.h DESTINATION ${vma_include_dir})
+  set(vma_include_dir ${vma_path}/include)
   target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${vma_include_dir})
   # Buffer fill kernel sets 
   set(kernel_set_dir ${PROJECT_SOURCE_DIR}/kernel)

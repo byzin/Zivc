@@ -65,7 +65,7 @@ void processCommandLineArgs(const ztest::CliOption& options) noexcept
 
 bool checkIfDeviceIsAvailable()
 {
-  zivc::UniquePlatform platform = ztest::makePlatform();
+  zivc::SharedPlatform platform = ztest::makePlatform();
   if (!platform) {
     std::cerr << "[Error] Platform isn't available." << std::endl;
     return false;

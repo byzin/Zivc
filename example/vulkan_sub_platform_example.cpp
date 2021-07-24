@@ -64,7 +64,7 @@ int main(int /* argc */, char** /* argv */)
 
   // Platform
   std::cout << "Create a platform." << std::endl;
-  auto platform = zivc::makePlatform(&mem_resource, platform_options);
+  auto platform = zivc::makePlatform(platform_options);
 
   const std::string indent1 = "    ";
   // Vulkan sub-platform

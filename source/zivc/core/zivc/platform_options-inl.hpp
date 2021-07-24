@@ -19,12 +19,22 @@
 // Standard C++ library
 #include <cstring>
 #include <string_view>
+#include <utility>
 // Zisc
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "zivc_config.hpp"
 
 namespace zivc {
+
+/*!
+  \details No detailed description
+  */
+inline
+PlatformOptions::PlatformOptions()
+    noexcept : PlatformOptions(nullptr)
+{
+}
 
 /*!
   \details No detailed description
@@ -46,6 +56,7 @@ PlatformOptions::PlatformOptions(zisc::pmr::memory_resource* mem_resource)
         vulkan_get_proc_addr_ptr_{nullptr}
 {
   initialize();
+  setMemoryResource(mem_resource);
 }
 
 /*!
@@ -57,7 +68,7 @@ inline
 PlatformOptions::PlatformOptions(PlatformOptions&& other) noexcept :
     platform_name_{std::move(other.platform_name_)},
     vulkan_library_name_{std::move(other.vulkan_library_name_)},
-    mem_resource_{other.mem_resource_},
+    mem_resource_{std::move(other.mem_resource_)},
     platform_version_major_{other.platform_version_major_},
     platform_version_minor_{other.platform_version_minor_},
     platform_version_patch_{other.platform_version_patch_},
@@ -81,7 +92,7 @@ PlatformOptions& PlatformOptions::operator=(PlatformOptions&& other) noexcept
 {
   platform_name_ = std::move(other.platform_name_);
   vulkan_library_name_ = std::move(other.vulkan_library_name_);
-  mem_resource_ = other.mem_resource_;
+  mem_resource_ = std::move(other.mem_resource_);
   platform_version_major_ = other.platform_version_major_;
   platform_version_minor_ = other.platform_version_minor_;
   platform_version_patch_ = other.platform_version_patch_;
@@ -242,6 +253,17 @@ inline
 void PlatformOptions::setCpuTaskBatchSize(const uint32b task_batch_size) noexcept
 {
   cpu_task_batch_size_ = task_batch_size;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in,out] mem_resource No description.
+  */
+inline
+void PlatformOptions::setMemoryResource(zisc::pmr::memory_resource* mem_resource) noexcept
+{
+  mem_resource_ = mem_resource;
 }
 
 /*!

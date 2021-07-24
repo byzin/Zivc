@@ -24,7 +24,7 @@
 namespace ztest {
 
 //! Make a platform for unit test
-zivc::UniquePlatform makePlatform();
+zivc::SharedPlatform makePlatform();
 
 } // namespace ztest
 

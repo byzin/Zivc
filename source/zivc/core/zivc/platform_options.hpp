@@ -23,6 +23,7 @@
 // Zivc
 #include "zivc_config.hpp"
 #include "utility/id_data.hpp"
+#include "zivc/zivc_config.hpp"
 
 namespace zivc {
 
@@ -35,6 +36,9 @@ class PlatformOptions : private zisc::NonCopyable<PlatformOptions>
 {
  public:
   //! Create a platform options
+  PlatformOptions() noexcept;
+
+  //! Create a platform options with the given memory resource
   PlatformOptions(zisc::pmr::memory_resource* mem_resource) noexcept;
 
   //! Move option data
@@ -84,6 +88,9 @@ class PlatformOptions : private zisc::NonCopyable<PlatformOptions>
   //! Set the task batch size per thread
   void setCpuTaskBatchSize(const uint32b task_batch_size) noexcept;
 
+  //! Set memory resource for Zivc
+  void setMemoryResource(zisc::pmr::memory_resource* mem_resource) noexcept;
+
   //! Set the platform name
   void setPlatformName(std::string_view name) noexcept;
 
@@ -132,7 +139,7 @@ class PlatformOptions : private zisc::NonCopyable<PlatformOptions>
   uint32b cpu_num_of_threads_ = 0;
   uint32b cpu_task_batch_size_ = 32;
   int32b vulkan_sub_platform_enabled_;
-  [[maybe_unused]] int32b padding_ = 0;
+  [[maybe_unused]] Padding<4> pad_;
   void* vulkan_instance_ptr_ = nullptr;
   void* vulkan_get_proc_addr_ptr_ = nullptr;
 };

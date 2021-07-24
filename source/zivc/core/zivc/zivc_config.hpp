@@ -16,6 +16,7 @@
 #define ZIVC_CONFIG_HPP
 
 // Standard C++ library
+#include <cstddef>
 #include <limits>
 #include <string_view>
 #include <type_traits>
@@ -37,6 +38,10 @@ using uint8b = zisc::uint8b;
 using uint16b = zisc::uint16b;
 using uint32b = zisc::uint32b;
 using uint64b = zisc::uint64b;
+
+//! Represent a padding for structure
+template <std::size_t kSize>
+using Padding = zisc::Padding<kSize>;
 
 // Device
 

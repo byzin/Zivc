@@ -28,7 +28,7 @@ namespace ztest {
 
   \return No description
   */
-zivc::UniquePlatform makePlatform()
+zivc::SharedPlatform makePlatform()
 {
   auto& config = Config::globalConfig();
   zisc::pmr::memory_resource* mem_resource = config.memoryResource();
@@ -41,7 +41,7 @@ zivc::UniquePlatform makePlatform()
   options.enableVulkanSubPlatform(0 < config.deviceId());
   options.enableDebugMode(config.isDebugMode());
 
-  zivc::UniquePlatform platform = zivc::makePlatform(mem_resource, options);
+  zivc::SharedPlatform platform = zivc::makePlatform(options);
   return platform;
 }
 

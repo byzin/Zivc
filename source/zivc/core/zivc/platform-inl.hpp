@@ -81,7 +81,7 @@ bool Platform::isDebugMode() const noexcept
 inline
 IdData Platform::issueId() noexcept
 {
-  const int64b id = id_count_++;
+  const int64b id = id_count_.fetch_add(1, std::memory_order::acq_rel);
   constexpr int64b threshold = 0;
   IdData id_data{(zisc::max)(id, threshold)};
   return id_data;
@@ -95,7 +95,10 @@ IdData Platform::issueId() noexcept
 inline
 zisc::pmr::memory_resource* Platform::memoryResource() noexcept
 {
-  return mem_resource_;
+  auto mem_resource = (custom_mem_resource_ != nullptr)
+      ? custom_mem_resource_
+      : default_mem_resource_.get();
+  return mem_resource;
 }
 
 /*!
@@ -106,7 +109,10 @@ zisc::pmr::memory_resource* Platform::memoryResource() noexcept
 inline
 const zisc::pmr::memory_resource* Platform::memoryResource() const noexcept
 {
-  return mem_resource_;
+  auto mem_resource = (custom_mem_resource_ != nullptr)
+      ? custom_mem_resource_
+      : default_mem_resource_.get();
+  return mem_resource;
 }
 
 /*!

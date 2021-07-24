@@ -98,8 +98,14 @@ class Platform : private zisc::NonCopyable<Platform>
   template <typename SubPlatformType>
   void initSubPlatform(PlatformOptions& options);
 
+  //! Move memory resource data
+  void moveMemoryResource(Platform& other) noexcept;
+
   //! Set debug mode
   void setDebugMode(const bool is_debug_mode) noexcept;
+
+  //! Set memory resource for Zivc
+  void setMemoryResource(zisc::pmr::memory_resource* mem_resource) noexcept;
 
   //! Set a sub-platform of the given type
   void setSubPlatform(SharedSubPlatform&& sub_platform) noexcept;
@@ -111,21 +117,21 @@ class Platform : private zisc::NonCopyable<Platform>
   static constexpr std::size_t kNumOfSubPlatforms = 2;
 
 
-  zisc::pmr::memory_resource* mem_resource_ = nullptr;
+  std::unique_ptr<zisc::pmr::memory_resource> default_mem_resource_;
+  zisc::pmr::memory_resource* custom_mem_resource_ = nullptr;
   std::array<SharedSubPlatform, kNumOfSubPlatforms> sub_platform_list_;
   zisc::pmr::unique_ptr<zisc::pmr::vector<const DeviceInfo*>> device_info_list_;
   std::atomic<int64b> id_count_ = 0;
   int32b is_debug_mode_;
-  [[maybe_unused]] int32b padding_ = 0;
+  [[maybe_unused]] Padding<4> pad_;
 };
 
 // Type aliases
-using UniquePlatform = zisc::pmr::unique_ptr<Platform>;
+using SharedPlatform = std::shared_ptr<Platform>;
 
 //! Make a unique platform
 [[nodiscard]]
-UniquePlatform makePlatform(zisc::pmr::memory_resource* mem_resource,
-                            PlatformOptions& options);
+SharedPlatform makePlatform(PlatformOptions& options);
 
 } // namespace zivc
 

@@ -23,6 +23,7 @@
 // Zisc
 #include "zisc/error.hpp"
 #include "zisc/utility.hpp"
+#include "zisc/memory/simple_memory_resource.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "device.hpp"
@@ -51,11 +52,12 @@ Platform::Platform() noexcept
   \param [in] other No description.
   */
 Platform::Platform(Platform&& other) noexcept :
+    default_mem_resource_{std::move(other.default_mem_resource_)},
+    custom_mem_resource_{other.custom_mem_resource_},
     device_info_list_{std::move(other.device_info_list_)},
-    id_count_{other.id_count_.load()},
+    id_count_{other.id_count_.load(std::memory_order::acquire)},
     is_debug_mode_{other.is_debug_mode_}
 {
-  std::swap(mem_resource_, other.mem_resource_);
   std::move(other.sub_platform_list_.begin(),
             other.sub_platform_list_.end(),
             sub_platform_list_.begin());
@@ -77,10 +79,11 @@ Platform::~Platform() noexcept
   */
 Platform& Platform::operator=(Platform&& other) noexcept
 {
+  default_mem_resource_ = std::move(other.default_mem_resource_);
+  custom_mem_resource_ = other.custom_mem_resource_;
   device_info_list_ = std::move(other.device_info_list_);
-  id_count_ = other.id_count_.load();
+  id_count_ = other.id_count_.load(std::memory_order::acquire);
   is_debug_mode_ = other.is_debug_mode_;
-  std::swap(mem_resource_, other.mem_resource_);
   std::move(other.sub_platform_list_.begin(),
             other.sub_platform_list_.end(),
             sub_platform_list_.begin());
@@ -95,7 +98,8 @@ void Platform::destroy() noexcept
   device_info_list_.reset();
   for (auto& sub_platform : sub_platform_list_)
     sub_platform.reset();
-  mem_resource_ = nullptr;
+  default_mem_resource_.reset();
+  custom_mem_resource_ = nullptr;
 }
 
 /*!
@@ -128,9 +132,9 @@ void Platform::initialize(PlatformOptions& options)
   // Clear the previous platform data first 
   destroy();
 
-  mem_resource_ = options.memoryResource();
+  setMemoryResource(options.memoryResource());
   setDebugMode(options.debugModeEnabled());
-  id_count_.store(0);
+  id_count_.store(0, std::memory_order::release);
 
   // Initialize sub-platforms
   initSubPlatform<CpuSubPlatform>(options);
@@ -141,9 +145,9 @@ void Platform::initialize(PlatformOptions& options)
 
   // Get device info list
   using DeviceInfoList = zisc::pmr::vector<const DeviceInfo*>;
-  DeviceInfoList new_info_list{DeviceInfoList::allocator_type{mem_resource_}};
+  DeviceInfoList new_info_list{DeviceInfoList::allocator_type{memoryResource()}};
   device_info_list_ = zisc::pmr::allocateUnique<DeviceInfoList>(
-      mem_resource_,
+      memoryResource(),
       std::move(new_info_list));
   updateDeviceInfoList();
 }
@@ -177,6 +181,20 @@ void Platform::setDebugMode(const bool is_debug_mode) noexcept
 
 /*!
   \details No detailed description
+
+  \param [in,out] mem_resource No description.
+  */
+void Platform::setMemoryResource(zisc::pmr::memory_resource* mem_resource) noexcept
+{
+  custom_mem_resource_ = mem_resource;
+  if (mem_resource)
+    default_mem_resource_.reset();
+  else
+    default_mem_resource_ = std::make_unique<zisc::SimpleMemoryResource>();
+}
+
+/*!
+  \details No detailed description
   */
 void Platform::updateDeviceInfoList()
 {
@@ -200,14 +218,20 @@ void Platform::updateDeviceInfoList()
 /*!
   \details No detailed description
 
-  \param [in,out] mem_resource No description.
   \param [in,out] options No description.
   \return No description
   */
-UniquePlatform makePlatform(zisc::pmr::memory_resource* mem_resource,
-                            PlatformOptions& options)
+SharedPlatform makePlatform(PlatformOptions& options)
 {
-  auto platform = zisc::pmr::allocateUnique<Platform>(mem_resource);
+  SharedPlatform platform;
+  auto mem_resource = options.memoryResource();
+  if (mem_resource) {
+    zisc::pmr::polymorphic_allocator<Platform> alloc{mem_resource};
+    platform = std::allocate_shared<Platform>(alloc);
+  }
+  else {
+    platform = std::make_shared<Platform>();
+  }
   platform->initialize(options);
   return platform;
 }

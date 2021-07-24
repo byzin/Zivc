@@ -66,7 +66,7 @@ testing::AssertionResult testScalarBuffer(zivc::Device& device,
   }
   {
     auto mem = buff_host->mapMemory();
-    auto result = (mem[0] == zisc::cast<Scalar>(1))
+    auto result = zisc::equal(mem[0], zisc::cast<Scalar>(1))
         ? testing::AssertionSuccess()
         : testing::AssertionFailure();
     return result;

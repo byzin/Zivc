@@ -809,6 +809,20 @@ Type cast(T value) noexcept
   return result;
 }
 
+template <typename Type1, typename Type2> inline
+bool equal(const Type1& lhs, const Type2& rhs) noexcept
+{
+#if defined(Z_GCC) || defined(Z_CLANG)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfloat-equal"
+#endif // Z_GCC || Z_CLANG
+  const bool result = lhs == rhs;
+#if defined(Z_GCC) || defined(Z_CLANG)
+#pragma GCC diagnostic pop
+#endif // Z_GCC || Z_CLANG
+  return result;
+}
+
 /*!
   */
 template <typename Type, typename T> inline

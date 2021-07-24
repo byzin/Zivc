@@ -852,7 +852,7 @@ Vector<Config::ComparisonResultType<Type>, kN> operator==(
 {
   Vector<Config::ComparisonResultType<Type>, kN> result;
   for (size_t index = 0; index < kN; ++index)
-    result[index] = (lhs[index] == rhs[index])
+    result[index] = zisc::equal(lhs[index], rhs[index])
         ? Config::vecResultTrue<Type>() 
         : Config::vecResultFalse<Type>();
   return result;
@@ -867,7 +867,7 @@ Vector<Config::ComparisonResultType<Type>, kN> operator==(
 {
   Vector<Config::ComparisonResultType<Type>, kN> result;
   for (size_t index = 0; index < kN; ++index)
-    result[index] = (lhs == rhs[index])
+    result[index] = zisc::equal(lhs, rhs[index])
         ? Config::vecResultTrue<Type>() 
         : Config::vecResultFalse<Type>();
   return result;

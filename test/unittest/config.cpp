@@ -131,7 +131,16 @@ void Config::initialize() noexcept
   mem_resource_ = std::make_unique<zisc::SimpleMemoryResource>();
 }
 
+#if defined(Z_GCC) || defined(Z_CLANG)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wexit-time-destructors"
+#endif // Z_GCC || Z_CLANG
+
 // Declaration of static member
 std::unique_ptr<Config> Config::global_config_;
+
+#if defined(Z_GCC) || defined(Z_CLANG)
+#pragma GCC diagnostic pop
+#endif // Z_GCC || Z_CLANG
 
 } // namespace ztest

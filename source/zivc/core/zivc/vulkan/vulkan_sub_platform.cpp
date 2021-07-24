@@ -348,6 +348,8 @@ auto VulkanSubPlatform::Callbacks::printDebugMessage(
     const VkDebugUtilsMessengerCallbackDataEXT* callback_data,
     void* user_data) -> DebugMessengerReturnType
 {
+  using zisc::cast;
+
   if (getEnvNumber("ZIVC_SUPPRESS_TRIVIAL_WARNINGS")) {
     // UNASSIGNED-BestPractices-vkCreateInstance-specialuse-extension
     if (callback_data->messageIdNumber == 767975156) {
@@ -362,15 +364,18 @@ auto VulkanSubPlatform::Callbacks::printDebugMessage(
 
   if (user_data) {
     char* msg = tmp.data();
-    const IdData* data = zisc::cast<const IdData*>(user_data);
-    std::sprintf(msg, "ID[%ld] -", data->id());
+    const IdData* data = cast<const IdData*>(user_data);
+    std::sprintf(msg, "ID[%lld] -", cast<long long>(data->id()));
     if (data->hasName()) {
       std::sprintf(msg, "%s Name '%s'", msg, data->name().data());
     }
     if (data->hasFileInfo()) {
       const std::string_view file_name = data->fileName();
       const int64b line = data->lineNumber();
-      std::sprintf(msg, "%s at line %ld in '%s'", msg, line, file_name.data());
+      std::sprintf(msg, "%s at line %lld in '%s'",
+                   msg,
+                   cast<long long>(line),
+                   file_name.data());
     }
     std::strcat(msg, "\n");
     std::strcat(message.data(), msg);
@@ -416,18 +421,18 @@ auto VulkanSubPlatform::Callbacks::printDebugMessage(
     char* msg = tmp.data();
     std::sprintf(msg, "\n%sQueue Labels - %d\n",
         indent,
-        zisc::cast<int>(callback_data->queueLabelCount));
+        cast<int>(callback_data->queueLabelCount));
     for (std::size_t id = 0; id < callback_data->queueLabelCount; ++id) {
       const auto& label = callback_data->pQueueLabels[id];
       std::sprintf(msg, "%s%s  * Label[%d] - %s {%lf, %lf, %lf, %lf}\n",
           msg,
           indent,
-          zisc::cast<int>(id),
+          cast<int>(id),
           label.pLabelName,
-          zisc::cast<double>(label.color[0]),
-          zisc::cast<double>(label.color[1]),
-          zisc::cast<double>(label.color[2]),
-          zisc::cast<double>(label.color[3]));
+          cast<double>(label.color[0]),
+          cast<double>(label.color[1]),
+          cast<double>(label.color[2]),
+          cast<double>(label.color[3]));
     }
     std::strcat(message.data(), msg);
   }
@@ -442,12 +447,12 @@ auto VulkanSubPlatform::Callbacks::printDebugMessage(
       std::sprintf(msg, "%s%s  * Label[%d] - %s {%lf, %lf, %lf, %lf}\n",
           msg,
           indent,
-          zisc::cast<int>(id),
+          cast<int>(id),
           label.pLabelName,
-          zisc::cast<double>(label.color[0]),
-          zisc::cast<double>(label.color[1]),
-          zisc::cast<double>(label.color[2]),
-          zisc::cast<double>(label.color[3]));
+          cast<double>(label.color[0]),
+          cast<double>(label.color[1]),
+          cast<double>(label.color[2]),
+          cast<double>(label.color[3]));
     }
     std::strcat(message.data(), msg);
   }
@@ -456,17 +461,17 @@ auto VulkanSubPlatform::Callbacks::printDebugMessage(
     char* msg = tmp.data();
     std::sprintf(msg, "\n%sObjects - %d\n",
         indent,
-        zisc::cast<int>(callback_data->objectCount));
+        cast<int>(callback_data->objectCount));
     for (std::size_t id = 0; id < callback_data->objectCount; ++id) {
       const auto& object = callback_data->pObjects[id];
       const auto obj_type_name = zivcvk::to_string(
-          zisc::cast<zivcvk::ObjectType>(object.objectType));
-      std::sprintf(msg, "%s%s  * Object[%d] - Type '%s', Value %lu, Name '%s'\n",
+          cast<zivcvk::ObjectType>(object.objectType));
+      std::sprintf(msg, "%s%s  * Object[%d] - Type '%s', Value %llu, Name '%s'\n",
           msg,
           indent,
-          zisc::cast<int>(id),
+          cast<int>(id),
           obj_type_name.c_str(),
-          object.objectHandle,
+          cast<unsigned long long>(object.objectHandle),
           object.pObjectName);
     }
     std::strcat(message.data(), msg);

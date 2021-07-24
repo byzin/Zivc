@@ -27,7 +27,7 @@
 
 @kernel_inclusion_lines@
 
-__kernel void __zivcClspvInitKernel(__global uint* outputs)
+__kernel void zivcClspvInitKernel(__global uint* outputs)
 {
   size_t i = 0;
   outputs[i++] = get_work_dim();

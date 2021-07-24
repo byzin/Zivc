@@ -361,8 +361,8 @@ template <typename Float> inline
 int32b Relation::isequalImpl(const Float lhs, const Float rhs) noexcept
 {
   static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-  const auto result = (lhs == rhs) ? Config::scalarResultTrue()
-                                   : Config::scalarResultFalse();
+  const auto result = zisc::equal(lhs, rhs) ? Config::scalarResultTrue()
+                                            : Config::scalarResultFalse();
   return result;
 }
 
@@ -370,8 +370,8 @@ template <typename Float> inline
 int32b Relation::isnotequalImpl(const Float lhs, const Float rhs) noexcept
 {
   static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-  const auto result = (lhs != rhs) ? Config::scalarResultTrue()
-                                   : Config::scalarResultFalse();
+  const auto result = !zisc::equal(lhs, rhs) ? Config::scalarResultTrue()
+                                             : Config::scalarResultFalse();
   return result;
 }
 

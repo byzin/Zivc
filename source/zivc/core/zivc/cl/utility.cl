@@ -333,6 +333,10 @@ double4 makeDouble4(const double x, const double y,
 template <typename Type, typename T>
 Type cast(T value) noexcept;
 
+//! Check if the given two values are equal
+template <typename Type1, typename Type2>
+bool equal(const Type1& lhs, const Type2& rhs) noexcept;
+
 //! Treat T* as Type*
 template <typename Type, typename T>
 Type treatAs(T object) noexcept;

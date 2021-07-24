@@ -138,9 +138,9 @@ bool operator!=(const PodAlignmentTest& lhs, const PodAlignmentTest& rhs) noexce
 inline
 bool operator==(const PodAlignmentTest& lhs, const PodAlignmentTest& rhs) noexcept
 {
-  const bool result = (lhs.u8_ == rhs.u8_) && (lhs.f_ == rhs.f_) &&
-                      (lhs.i8_ == rhs.i8_) && (lhs.i16_ == rhs.i16_) &&
-                      (lhs.u16_ == rhs.u16_) && (lhs.i32_ == rhs.i32_);
+  const bool result = zivc::equal(lhs.u8_, rhs.u8_) && zivc::equal(lhs.f_, rhs.f_) &&
+                      zivc::equal(lhs.i8_, rhs.i8_) && zivc::equal(lhs.i16_, rhs.i16_) &&
+                      zivc::equal(lhs.u16_, rhs.u16_) && zivc::equal(lhs.i32_, rhs.i32_);
   return result;
 }
 

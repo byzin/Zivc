@@ -15,6 +15,7 @@
 #include "vulkan_sub_platform.hpp"
 // Standard C++ library
 #include <array>
+#include <cmath>
 #include <cstddef>
 #include <cstring>
 #include <iostream>
@@ -26,6 +27,7 @@
 #include <utility>
 #include <vector>
 // Zisc
+#include "zisc/bit.hpp"
 #include "zisc/error.hpp"
 #include "zisc/utility.hpp"
 #include "zisc/math/unit_multiple.hpp"
@@ -202,7 +204,6 @@ void VulkanSubPlatform::initData(PlatformOptions& options)
   initDispatcher(options);
   initAllocator();
   initInstance(options);
-  dispatcher_->set(instance());
   initDeviceList();
   initDeviceInfoList();
 }
@@ -218,16 +219,14 @@ void VulkanSubPlatform::updateDebugInfoImpl()
   \details No detailed description
 
   \param [in,out] mem_resource No description.
-  \param [in] mem_map No description.
   */
 VulkanSubPlatform::AllocatorData::AllocatorData(
-    zisc::pmr::memory_resource* mem_resource,
-    std::mutex* mem_mutex,
-    MemoryMap&& mem_map) noexcept :
+    zisc::pmr::memory_resource* mem_resource) noexcept :
         mem_resource_{mem_resource},
-        mem_mutex_{mem_mutex},
-        mem_map_{std::move(mem_map)}
+        mem_map_{mem_resource},
+        mem_list_{decltype(mem_list_)::allocator_type{mem_resource}}
 {
+  initialize();
 }
 
 /*!
@@ -235,14 +234,28 @@ VulkanSubPlatform::AllocatorData::AllocatorData(
   */
 VulkanSubPlatform::AllocatorData::~AllocatorData() noexcept
 {
-  if (0 < mem_map_.size()) {
-    zisc::MebiUnit total{0};
-    for (const auto& mem_data : mem_map_)
-      total = total + zisc::ByteUnit{zisc::cast<int64b>(mem_data.second.size_)};
-    std::cerr << "[Warning] There are memories which aren't deallocated in Vulkan: "
-              << zisc::cast<double>(total.value())
-              << " MB." << std::endl;
+  //! \todo check memory leak
+  auto& mem_map = memoryMap();
+  if (0 < mem_map.size()) {
+//    zisc::MebiUnit total{0};
+//    for (const auto& mem_data : mem_map_)
+//      total = total + zisc::ByteUnit{zisc::cast<int64b>(mem_data.second.size_)};
+//    std::cerr << "[Warning] There are memories which aren't deallocated in Vulkan: "
+//              << zisc::cast<double>(total.value())
+//              << " MB." << std::endl;
+    std::cerr << "[Warning] Memory leak found." << std::endl;
   }
+}
+
+/*!
+  \details No detailed description
+  */
+void VulkanSubPlatform::AllocatorData::initialize()
+{
+  auto& mem_map = memoryMap();
+  mem_map.setCapacity(mapCapacity());
+  mem_map.clear();
+  mem_list_.resize(mapCapacity());
 }
 
 /*!
@@ -262,15 +275,21 @@ auto VulkanSubPlatform::Callbacks::allocateMemory(
 {
   ZISC_ASSERT(user_data != nullptr, "The user data is null.");
   auto alloc_data = zisc::cast<AllocatorData*>(user_data);
-  void* memory = alloc_data->mem_resource_->allocate(size, alignment);
-  //
-  const std::size_t address = zisc::reinterp<std::size_t>(memory);
-  const auto mem_data = MemoryData{size, alignment};
-  //! \todo we can use atomic map?
+  void* memory = alloc_data->memoryResource()->allocate(size, alignment);
+
+  // Store the allocation info
+  static_assert(sizeof(void*) == sizeof(double));
+  const double address = zisc::bit_cast<double>(memory);
+  ZISC_ASSERT(std::isfinite(address), "The address float isn't finite.");
+  auto& mem_map = alloc_data->memoryMap();
   {
-    std::unique_lock<std::mutex> lock{*alloc_data->mem_mutex_};
-    alloc_data->mem_map_.emplace(std::make_pair(address, mem_data));
+    const auto [result, index] = mem_map.add(address);
+    ZISC_ASSERT(result, "Adding the address into the map failed.");
+    auto& mem_list = alloc_data->memoryList();
+    const MemoryData data{size, alignment};
+    mem_list[index] = data;
   }
+
   return memory;
 }
 
@@ -287,17 +306,23 @@ void VulkanSubPlatform::Callbacks::deallocateMemory(
   ZISC_ASSERT(user_data != nullptr, "The user data is null.");
   if (memory) {
     auto alloc_data = zisc::cast<AllocatorData*>(user_data);
-    const std::size_t address = zisc::reinterp<std::size_t>(memory);
+
+    static_assert(sizeof(void*) == sizeof(double));
+    const double address = zisc::bit_cast<double>(memory);
+    ZISC_ASSERT(std::isfinite(address), "The address float isn't finite.");
+    auto& mem_map = alloc_data->memoryMap();
     MemoryData data;
-    //! \todo we can use atomic map?
     {
-      std::unique_lock<std::mutex> lock{*alloc_data->mem_mutex_};
-      const auto mem = alloc_data->mem_map_.find(address);
-      ZISC_ASSERT(mem != alloc_data->mem_map_.end(), "The mem is null.");
-      data = mem->second;
-      alloc_data->mem_map_.erase(mem);
+      const auto [result, index] = mem_map.contain(address);
+      ZISC_ASSERT(result, "The address isn't in the map.");
+      const auto& mem_list = alloc_data->memoryList();
+      data = mem_list[index];
     }
-    alloc_data->mem_resource_->deallocate(memory, data.size_, data.alignment_);
+    {
+      const auto [result, index] = mem_map.remove(address);
+      ZISC_ASSERT(result, "The address isn't in the map.");
+    }
+    alloc_data->memoryResource()->deallocate(memory, data.size_, data.alignment_);
   }
 }
 
@@ -508,16 +533,20 @@ auto VulkanSubPlatform::Callbacks::reallocateMemory(
   // Copy data
   if (original_memory && memory) {
     auto alloc_data = zisc::cast<AllocatorData*>(user_data);
-    const std::size_t address = zisc::reinterp<std::size_t>(original_memory);
+
+    static_assert(sizeof(void*) == sizeof(double));
+    const double address = zisc::bit_cast<double>(original_memory);
+    ZISC_ASSERT(std::isfinite(address), "The address float isn't finite.");
+    auto& mem_map = alloc_data->memoryMap();
     MemoryData data;
-    //! \todo we can use atomic map?
     {
-      std::unique_lock<std::mutex> lock{*alloc_data->mem_mutex_};
-      const auto mem = alloc_data->mem_map_.find(address);
-      ZISC_ASSERT(mem != alloc_data->mem_map_.end(), "The mem is null.");
-      data = mem->second;
+      const auto [result, index] = mem_map.contain(address);
+      ZISC_ASSERT(result, "The address isn't in the map.");
+      const auto& mem_list = alloc_data->memoryList();
+      data = mem_list[index];
     }
-    std::memcpy(memory, original_memory, data.size_);
+    const std::size_t data_size = (std::min)(size, data.size_);
+    std::memcpy(memory, original_memory, data_size);
   }
   // Deallocate the original memory
   if (original_memory)
@@ -563,11 +592,7 @@ void VulkanSubPlatform::initAllocator() noexcept
 {
   auto mem_resource = memoryResource();
   zisc::pmr::polymorphic_allocator<AllocatorData> alloc{mem_resource};
-  allocator_data_ = zisc::pmr::allocateUnique<AllocatorData>(
-      alloc,
-      mem_resource,
-      std::addressof(memory_mutex_),
-      MemoryMap{MemoryMap::allocator_type{mem_resource}});
+  allocator_data_ = zisc::pmr::allocateUnique<AllocatorData>(alloc, mem_resource);
 }
 
 /*!
@@ -583,6 +608,7 @@ void VulkanSubPlatform::initInstance(PlatformOptions& options)
     // Use the given instance instead of allocating new instance
     instance_ = ZIVC_VK_NULL_HANDLE;
     instance_ref_ = ptr;
+    dispatcher_->set(instance());
     return;
   }
 
@@ -644,6 +670,7 @@ void VulkanSubPlatform::initInstance(PlatformOptions& options)
   zivcvk::Instance ins = zivcvk::createInstance(create_info, alloc, *loader);
   instance_ = zisc::cast<VkInstance>(ins);
   instance_ref_ = std::addressof(instance_);
+  dispatcher_->set(instance());
 }
 
 /*!

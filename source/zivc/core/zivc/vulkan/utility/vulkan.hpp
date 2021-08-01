@@ -19,6 +19,8 @@
   #define VK_NO_PROTOTYPES 1
 #endif // ZIVC_DYNAMIC_VULKAN_LOADING
 
+#define VK_ENABLE_BETA_EXTENSIONS
+
 // Vulkan
 #include <vulkan/vulkan.h>
 // Zivc

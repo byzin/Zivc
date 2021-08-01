@@ -226,10 +226,10 @@ int main(int /* argc */, char** /* argv */)
         for (std::size_t index = 0; index < props.size(); ++index) {
           const auto& prop = props[index];
           std::cout << indent3 << "QueueFamily[" << index << "]: "
-                    << "counts: " << prop.queueCount
+                    << "counts: " << prop.properties1_.queueCount
                     << ", " << std::endl
                     << indent4 << "capabilities: "
-                    << zivcvk::to_string(zisc::cast<zivcvk::QueueFlags>(prop.queueFlags))
+                    << zivcvk::to_string(zisc::cast<zivcvk::QueueFlags>(prop.properties1_.queueFlags))
                     << std::endl;
         }
       }

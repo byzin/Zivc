@@ -68,10 +68,12 @@ auto getDefaultFeatures(const zivc::VulkanDeviceInfo& info,
     zivcvk::PhysicalDevice16BitStorageFeatures b16bit_storage_;
     zivcvk::PhysicalDevice8BitStorageFeatures b8bit_storage_;
     zivcvk::PhysicalDeviceAccelerationStructureFeaturesKHR acceleration_structure_;
+    zivcvk::PhysicalDevicePortabilitySubsetFeaturesKHR portability_subset_;
     zivcvk::PhysicalDeviceRayQueryFeaturesKHR ray_query_;
     zivcvk::PhysicalDeviceRayTracingPipelineFeaturesKHR ray_tracing_pipeline_;
     zivcvk::PhysicalDeviceShaderAtomicFloatFeaturesEXT shader_atomic_float_;
     zivcvk::PhysicalDeviceShaderAtomicInt64Features shader_atomic_int64_;
+    zivcvk::PhysicalDeviceShaderClockFeaturesKHR shader_clock_;
     zivcvk::PhysicalDeviceShaderFloat16Int8Features shader_float16_int8_;
     zivcvk::PhysicalDeviceVariablePointersFeatures variable_pointers_;
     zivcvk::PhysicalDeviceVulkanMemoryModelFeatures vulkan_memory_model_;
@@ -92,10 +94,12 @@ auto getDefaultFeatures(const zivc::VulkanDeviceInfo& info,
   f->b16bit_storage_ = inputs.b16bit_storage_;
   f->b8bit_storage_ = inputs.b8bit_storage_;
   f->acceleration_structure_ = inputs.acceleration_structure_;
+  f->portability_subset_ = inputs.portability_subset_;
   f->ray_query_ = inputs.ray_query_;
   f->ray_tracing_pipeline_ = inputs.ray_tracing_pipeline_features_;
   f->shader_atomic_float_ = inputs.shader_atomic_float_;
   f->shader_atomic_int64_ = inputs.shader_atomic_int64_;
+  f->shader_clock_ = inputs.shader_clock_;
   f->shader_float16_int8_ = inputs.shader_float16_int8_;
   f->variable_pointers_ = inputs.variable_pointers_;
   f->vulkan_memory_model_ = inputs.vulkan_memory_model_;
@@ -104,10 +108,12 @@ auto getDefaultFeatures(const zivc::VulkanDeviceInfo& info,
                                f->b16bit_storage_,
                                f->b8bit_storage_,
                                f->acceleration_structure_,
+                               f->portability_subset_,
                                f->ray_query_,
                                f->ray_tracing_pipeline_,
                                f->shader_atomic_float_,
                                f->shader_atomic_int64_,
+                               f->shader_clock_,
                                f->shader_float16_int8_,
                                f->variable_pointers_,
                                f->vulkan_memory_model_);
@@ -451,7 +457,7 @@ std::size_t VulkanDevice::numOfQueues() const noexcept
   const uint32b index = queueFamilyIndex();
   const auto& queue_family_list = info.queueFamilyPropertiesList();
 
-  const std::size_t n = queue_family_list[index].queueCount;
+  const std::size_t n = queue_family_list[index].properties1_.queueCount;
   return n;
 }
 
@@ -987,10 +993,10 @@ uint32b VulkanDevice::findQueueFamily() const noexcept
     const auto& queue_family_list = info.queueFamilyPropertiesList();
     for (std::size_t i = 0; i < queue_family_list.size(); ++i) {
       const auto& p = queue_family_list[i];
-      if ((*num_of_queues <= p.queueCount) &&
-          has_flags(p, graphics_excluded, sparse_excluded)) {
+      if ((*num_of_queues <= p.properties1_.queueCount) &&
+          has_flags(p.properties1_, graphics_excluded, sparse_excluded)) {
         *index = zisc::cast<uint32b>(i);
-        *num_of_queues = p.queueCount;
+        *num_of_queues = p.properties1_.queueCount;
       }
     }
   };
@@ -1084,14 +1090,14 @@ void VulkanDevice::initDevice()
   zisc::pmr::vector<const char*> layers{layer_alloc};
   zisc::pmr::vector<const char*> extensions{layer_alloc};
 
-  extensions = {//VK_EXT_EXTERNAL_MEMORY_HOST_EXTENSION_NAME,
+  extensions = {VK_EXT_MEMORY_BUDGET_EXTENSION_NAME,
+                //VK_EXT_EXTERNAL_MEMORY_HOST_EXTENSION_NAME,
 #if defined(Z_MAC)
                 VK_KHR_BIND_MEMORY_2_EXTENSION_NAME,
                 VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
                 VK_KHR_SHADER_FLOAT16_INT8_EXTENSION_NAME,
-                "VK_KHR_portability_subset",
 #endif // Z_MAC
-                VK_EXT_MEMORY_BUDGET_EXTENSION_NAME};
+                VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME};
   if (sub_platform.isDebugMode()) {
     layers.emplace_back("VK_LAYER_KHRONOS_validation");
   }
@@ -1108,7 +1114,7 @@ void VulkanDevice::initDevice()
     queue_create_info.setQueueFamilyIndex(index);
     // Queue counts
     const auto& queue_family_list = info.queueFamilyPropertiesList();
-    const uint32b num_of_queues = queue_family_list[index].queueCount;
+    const uint32b num_of_queues = queue_family_list[index].properties1_.queueCount;
     queue_create_info.setQueueCount(num_of_queues);
     // Priorities
     priority_list.resize(num_of_queues, 1.0f);

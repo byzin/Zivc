@@ -24,6 +24,8 @@
 #include <type_traits>
 #include <vector>
 // Zisc
+#include "zisc/data_structure/bounded_bst.hpp"
+#include "zisc/data_structure/mutex_bst.hpp"
 #include "zisc/non_copyable.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
@@ -127,8 +129,6 @@ class VulkanSubPlatform : public SubPlatform
     size_t alignment_ = 0;
   };
 
-  using MemoryMap = zisc::pmr::map<std::size_t, MemoryData>;
-
   /*!
     \brief No brief description
 
@@ -137,17 +137,40 @@ class VulkanSubPlatform : public SubPlatform
   class AllocatorData : private zisc::NonCopyable<AllocatorData>
   {
    public:
+    using MemoryMapImpl = zisc::MutexBst;
+    using MemoryMap = zisc::BoundedBst<MemoryMapImpl>;
+
+
     //! Initialize the allocator data
-    AllocatorData(zisc::pmr::memory_resource* mem_resource,
-                  std::mutex* mem_mutex,
-                  MemoryMap&& memory_map) noexcept;
+    AllocatorData(zisc::pmr::memory_resource* mem_resource) noexcept;
 
     //! Finalize the allocator data
     ~AllocatorData() noexcept;
 
+
+    //! Return the underlying memory list
+    zisc::pmr::vector<MemoryData>& memoryList() noexcept;
+
+    //! Return the underlying memory list
+    const zisc::pmr::vector<MemoryData>& memoryList() const noexcept;
+
+    //! Return the underlying memory map
+    MemoryMap& memoryMap() noexcept;
+
+    //! Return the underlying memory resource
+    zisc::pmr::memory_resource* memoryResource() noexcept;
+
+   private:
+    //! Initialize the data
+    void initialize();
+
+    //! Return the maximum possible capacity of the memory map
+    static constexpr std::size_t mapCapacity() noexcept;
+
+
     zisc::pmr::memory_resource* mem_resource_ = nullptr;
-    std::mutex* mem_mutex_ = nullptr;
-    MemoryMap mem_map_; //!< \todo Make this thread safe
+    MemoryMapImpl mem_map_;
+    zisc::pmr::vector<MemoryData> mem_list_;
   };
 
   /*!
@@ -245,7 +268,6 @@ class VulkanSubPlatform : public SubPlatform
   void initDispatcher(PlatformOptions& options);
 
 
-  std::mutex memory_mutex_;
   VkInstance instance_ = ZIVC_VK_NULL_HANDLE;
   std::add_pointer_t<VkInstance> instance_ref_ = nullptr;
   zisc::pmr::unique_ptr<VulkanDispatchLoader> dispatcher_;

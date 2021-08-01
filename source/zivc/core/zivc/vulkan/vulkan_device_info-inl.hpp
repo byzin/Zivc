@@ -252,7 +252,7 @@ auto VulkanDeviceInfo::toolPropertiesList() const noexcept
   */
 inline
 auto VulkanDeviceInfo::queueFamilyPropertiesList() noexcept
-    -> zisc::pmr::vector<VkQueueFamilyProperties>&
+    -> zisc::pmr::vector<QueueFamilyProperties>&
 {
   return queue_family_properties_list_;
 }
@@ -264,7 +264,7 @@ auto VulkanDeviceInfo::queueFamilyPropertiesList() noexcept
   */
 inline
 auto VulkanDeviceInfo::queueFamilyPropertiesList() const noexcept
-    -> const zisc::pmr::vector<VkQueueFamilyProperties>&
+    -> const zisc::pmr::vector<QueueFamilyProperties>&
 {
   return queue_family_properties_list_;
 }
@@ -278,6 +278,17 @@ inline
 auto VulkanDeviceInfo::vendorId() const noexcept -> VendorId
 {
   return vendor_id_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+constexpr std::size_t VulkanDeviceInfo::maxQueueFamilyCount() noexcept
+{
+  return 16;
 }
 
 } // namespace zivc

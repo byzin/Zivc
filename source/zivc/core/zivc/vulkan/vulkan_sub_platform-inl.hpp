@@ -18,9 +18,11 @@
 #include "vulkan_sub_platform.hpp"
 // Standard C++ library
 #include <cstddef>
+#include <limits>
 #include <string_view>
 #include <vector>
 // Zisc
+#include "zisc/data_structure/bounded_bst.hpp"
 #include "zisc/memory/memory.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
@@ -97,6 +99,64 @@ inline
 const VkInstance& VulkanSubPlatform::instance() const noexcept
 {
   return *instance_ref_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+auto VulkanSubPlatform::AllocatorData::memoryList() noexcept
+    -> zisc::pmr::vector<MemoryData>&
+{
+  return mem_list_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+auto VulkanSubPlatform::AllocatorData::memoryList() const noexcept
+    -> const zisc::pmr::vector<MemoryData>&
+{
+  return mem_list_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+auto VulkanSubPlatform::AllocatorData::memoryMap() noexcept -> MemoryMap&
+{
+  return mem_map_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+zisc::pmr::memory_resource* VulkanSubPlatform::AllocatorData::memoryResource() noexcept
+{
+  return mem_resource_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+constexpr std::size_t VulkanSubPlatform::AllocatorData::mapCapacity() noexcept
+{
+  const std::size_t c = (std::numeric_limits<uint16b>::max)(); //!< Is it enough?
+  return c;
 }
 
 /*!

@@ -22,6 +22,7 @@
 #include <string_view>
 #include <vector>
 // Zisc
+#include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "utility/vulkan.hpp"
@@ -60,27 +61,30 @@ class VulkanDeviceInfo : public DeviceInfo
     VkPhysicalDeviceProperties properties1_;
     VkPhysicalDeviceAccelerationStructurePropertiesKHR acceleration_structure_;
     VkPhysicalDeviceBlendOperationAdvancedPropertiesEXT blend_operation_advanced_;
-    VkPhysicalDeviceCustomBorderColorPropertiesEXT custom_border_color_;
     VkPhysicalDeviceConservativeRasterizationPropertiesEXT conservative_rasterization_;
+    VkPhysicalDeviceCustomBorderColorPropertiesEXT custom_border_color_;
     VkPhysicalDeviceDepthStencilResolveProperties depth_stencil_resolve_;
     VkPhysicalDeviceDescriptorIndexingProperties descriptor_indexing_;
     VkPhysicalDeviceDiscardRectanglePropertiesEXT discard_rectangle_;
     VkPhysicalDeviceDriverProperties driver_;
+    VkPhysicalDeviceDrmPropertiesEXT drm_;
     VkPhysicalDeviceExternalMemoryHostPropertiesEXT external_memory_host_;
     VkPhysicalDeviceFloatControlsProperties float_controls_;
     VkPhysicalDeviceFragmentDensityMapPropertiesEXT fragment_density_map_;
     VkPhysicalDeviceFragmentDensityMap2PropertiesEXT fragment_density_map2_;
     VkPhysicalDeviceFragmentShadingRatePropertiesKHR fragment_shading_rate_;
-    VkPhysicalDeviceIDProperties id_properties_;
+    VkPhysicalDeviceIDProperties id_;
     VkPhysicalDeviceInlineUniformBlockPropertiesEXT inline_uniform_block_;
     VkPhysicalDeviceLineRasterizationPropertiesEXT line_rasterization_;
     VkPhysicalDeviceMaintenance3Properties maintenance3_;
+    VkPhysicalDeviceMultiDrawPropertiesEXT multi_draw_;
     VkPhysicalDeviceMultiviewProperties multiview_;
     VkPhysicalDevicePCIBusInfoPropertiesEXT pci_bus_info_;
     VkPhysicalDevicePerformanceQueryPropertiesKHR performance_query_;
     VkPhysicalDevicePointClippingProperties point_clipping_;
-//    VkPhysicalDevicePortabilitySubsetPropertiesKHR portability_subset_;
+    VkPhysicalDevicePortabilitySubsetPropertiesKHR portability_subset_;
     VkPhysicalDeviceProtectedMemoryProperties protected_memory_;
+    VkPhysicalDeviceProvokingVertexPropertiesEXT provoking_vertex_;
     VkPhysicalDevicePushDescriptorPropertiesKHR push_descriptor_;
     VkPhysicalDeviceRayTracingPipelinePropertiesKHR ray_tracing_pipeline_;
     VkPhysicalDeviceRobustness2PropertiesEXT robustness2_;
@@ -100,7 +104,7 @@ class VulkanDeviceInfo : public DeviceInfo
   struct Features
   {
     VkPhysicalDeviceFeatures features1_;
-    [[maybe_unused]] uint32b padding_;
+    [[maybe_unused]] Padding<4> pad_;
     VkPhysicalDevice16BitStorageFeatures b16bit_storage_;
     VkPhysicalDevice4444FormatsFeaturesEXT argb_4444_formats_;
     VkPhysicalDevice8BitStorageFeatures b8bit_storage_;
@@ -108,16 +112,19 @@ class VulkanDeviceInfo : public DeviceInfo
     VkPhysicalDeviceAccelerationStructureFeaturesKHR acceleration_structure_;
     VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT blend_operation_advanced_;
     VkPhysicalDeviceBufferDeviceAddressFeatures buffer_device_address_;
+    VkPhysicalDeviceColorWriteEnableFeaturesEXT color_write_enable_;
     VkPhysicalDeviceConditionalRenderingFeaturesEXT conditional_rendering_;
     VkPhysicalDeviceCustomBorderColorFeaturesEXT custom_border_color_;
     VkPhysicalDeviceDepthClipEnableFeaturesEXT depth_clip_enabled_;
     VkPhysicalDeviceDescriptorIndexingFeatures descriptor_indexing_;
     VkPhysicalDeviceDeviceMemoryReportFeaturesEXT device_memory_report_;
     VkPhysicalDeviceExtendedDynamicStateFeaturesEXT extended_dynamic_state_;
+    VkPhysicalDeviceExtendedDynamicState2FeaturesEXT extended_dynamic_state2_;
     VkPhysicalDeviceFragmentDensityMapFeaturesEXT fragment_density_map_;
     VkPhysicalDeviceFragmentDensityMap2FeaturesEXT fragment_density_map2_;
     VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT fragment_shader_inter_lock_;
     VkPhysicalDeviceFragmentShadingRateFeaturesKHR fragment_shading_rate_;
+    VkPhysicalDeviceGlobalPriorityQueryFeaturesEXT global_priority_query_;
     VkPhysicalDeviceHostQueryResetFeatures host_query_reset_;
     VkPhysicalDeviceImageRobustnessFeaturesEXT image_robustness_;
     VkPhysicalDeviceImagelessFramebufferFeatures imageless_framebuffer_;
@@ -125,13 +132,15 @@ class VulkanDeviceInfo : public DeviceInfo
     VkPhysicalDeviceInlineUniformBlockFeaturesEXT inline_uniform_block_;
     VkPhysicalDeviceLineRasterizationFeaturesEXT line_rasterization_;
     VkPhysicalDeviceMemoryPriorityFeaturesEXT memory_priority_features_;
+    VkPhysicalDeviceMultiDrawFeaturesEXT multi_draw_;
     VkPhysicalDeviceMultiviewFeatures multiview_;
     VkPhysicalDevicePerformanceQueryFeaturesKHR performance_query_;
     VkPhysicalDevicePipelineCreationCacheControlFeaturesEXT pipeline_creation_cache_control_;
     VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR pipeline_executable_properties_;
-//    VkPhysicalDevicePortabilitySubsetFeaturesKHR portability_subset_;
+    VkPhysicalDevicePortabilitySubsetFeaturesKHR portability_subset_;
     VkPhysicalDevicePrivateDataFeaturesEXT private_data_features_;
     VkPhysicalDeviceProtectedMemoryFeatures protected_memory_;
+    VkPhysicalDeviceProvokingVertexFeaturesEXT provoking_vertex_;
     VkPhysicalDeviceRayQueryFeaturesKHR ray_query_;
     VkPhysicalDeviceRayTracingPipelineFeaturesKHR ray_tracing_pipeline_features_;
     VkPhysicalDeviceRobustness2FeaturesEXT robustness2_;
@@ -146,8 +155,10 @@ class VulkanDeviceInfo : public DeviceInfo
     VkPhysicalDeviceShaderFloat16Int8FeaturesKHR shader_float16_int8_;
     VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT shader_image_atomic_int64_;
     VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures shader_subgroup_extended_types_;
+    VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR shader_subgroup_uniform_control_flow_;
     VkPhysicalDeviceShaderTerminateInvocationFeaturesKHR shader_terminate_invocation_;
     VkPhysicalDeviceSubgroupSizeControlFeaturesEXT subgroup_size_control_;
+    VkPhysicalDeviceSynchronization2FeaturesKHR synchronization2_;
     VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT texel_buffer_alignment_;
     VkPhysicalDeviceTextureCompressionASTCHDRFeaturesEXT texture_compression_astchdr_;
     VkPhysicalDeviceTimelineSemaphoreFeatures timeline_semaphore_;
@@ -155,10 +166,14 @@ class VulkanDeviceInfo : public DeviceInfo
     VkPhysicalDeviceUniformBufferStandardLayoutFeatures uniform_buffer_standard_layout_;
     VkPhysicalDeviceVariablePointersFeatures variable_pointers_;
     VkPhysicalDeviceVertexAttributeDivisorFeaturesEXT vertex_attribute_divisor_;
+    VkPhysicalDeviceVertexInputDynamicStateFeaturesEXT vertex_input_dynamic_state_;
     VkPhysicalDeviceVulkan11Features vulkan11_;
     VkPhysicalDeviceVulkan12Features vulkan12_;
     VkPhysicalDeviceVulkanMemoryModelFeatures vulkan_memory_model_;
+    VkPhysicalDeviceWorkgroupMemoryExplicitLayoutFeaturesKHR workgroup_memory_explicit_layout_;
+    VkPhysicalDeviceYcbcr2Plane444FormatsFeaturesEXT ycbcr_2plane_444_formats_;
     VkPhysicalDeviceYcbcrImageArraysFeaturesEXT ycbcr_image_arrays_;
+    VkPhysicalDeviceZeroInitializeWorkgroupMemoryFeaturesKHR zero_initialize_workgroup_memory_;
   };
 
   //! Memory properties of a device
@@ -167,6 +182,14 @@ class VulkanDeviceInfo : public DeviceInfo
     VkPhysicalDeviceMemoryProperties properties1_;
     VkPhysicalDeviceMemoryBudgetPropertiesEXT budget_;
   };
+
+  //! Queue family properties of a device
+  struct QueueFamilyProperties
+  {
+    VkQueueFamilyProperties properties1_;
+    VkQueueFamilyGlobalPriorityPropertiesEXT global_priority_;
+  };
+
 
   //! Initialize the device info
   VulkanDeviceInfo(zisc::pmr::memory_resource* mem_resource) noexcept;
@@ -254,10 +277,10 @@ class VulkanDeviceInfo : public DeviceInfo
   SubPlatformType type() const noexcept override;
 
   //! Return queue family properties list of the device
-  zisc::pmr::vector<VkQueueFamilyProperties>& queueFamilyPropertiesList() noexcept;
+  zisc::pmr::vector<QueueFamilyProperties>& queueFamilyPropertiesList() noexcept;
 
   //! Return queue family properties list of the device
-  const zisc::pmr::vector<VkQueueFamilyProperties>& queueFamilyPropertiesList() const noexcept;
+  const zisc::pmr::vector<QueueFamilyProperties>& queueFamilyPropertiesList() const noexcept;
 
   //! Return the vendor ID
   VendorId vendorId() const noexcept;
@@ -299,10 +322,13 @@ class VulkanDeviceInfo : public DeviceInfo
   //! Initialize the vendor info
   void initVendorInfo() noexcept;
 
+  //! Return the maximum possible the number of queue families
+  static constexpr std::size_t maxQueueFamilyCount() noexcept;
+
 
   zisc::pmr::vector<VkExtensionProperties> extension_properties_list_;
   zisc::pmr::vector<VkLayerProperties> layer_properties_list_;
-  zisc::pmr::vector<VkQueueFamilyProperties> queue_family_properties_list_;
+  zisc::pmr::vector<QueueFamilyProperties> queue_family_properties_list_;
   zisc::pmr::vector<VkPhysicalDeviceToolPropertiesEXT> tool_properties_list_;
   // VkDisplayPlaneProperties2KHR;
   // VkDisplayProperties2KHR;

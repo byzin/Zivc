@@ -127,6 +127,15 @@ class CpuDevice : public Device
   void updateDebugInfoImpl() override;
 
  private:
+  //! Execute a command on a number of the given batch size
+  static void execBatchCommand(const Command& command,
+                               const uint32b block_id,
+                               const uint32b group_id_max,
+                               const uint32b batch_size) noexcept;
+
+  //! Issue new block ID
+  static uint32b issue(std::atomic<uint32b>* counter) noexcept;
+
   //! Return the sub-platform
   CpuSubPlatform& parentImpl() noexcept;
 

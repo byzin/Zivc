@@ -24,17 +24,18 @@
 #include <memory>
 #include <mutex>
 #include <numeric>
+#include <shared_mutex>
 #include <string_view>
 #include <tuple>
 #include <utility>
 #include <vector>
 // Zisc
+#include "zisc/bit.hpp"
 #include "zisc/error.hpp"
 #include "zisc/utility.hpp"
 #include "zisc/hash/fnv_1a_hash_engine.hpp"
 #include "zisc/memory/memory.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
-#include "zisc/thread/bitset.hpp"
 #include "zisc/utility.hpp"
 // Zivc
 #include "vulkan_device_info.hpp"
@@ -309,7 +310,7 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
     kernel_data->pipeline_layout_ = zisc::cast<VkPipelineLayout>(pline_layout);
     kernel_data->pipeline_ = zisc::cast<VkPipeline>(pline);
 
-    std::unique_lock<std::mutex> lock{shader_mutex_};
+    std::unique_lock<std::shared_mutex> lock{shader_mutex_};
     kernel_data_list_->emplace(id, std::move(kernel_data));
   }
   updateKernelDataDebugInfo(*data);
@@ -469,13 +470,21 @@ std::size_t VulkanDevice::numOfQueues() const noexcept
 void VulkanDevice::returnFence(Fence* fence) noexcept
 {
   auto dest = zisc::reinterp<zivcvk::Fence*>(std::addressof(fence->data()));
-  auto& fence_list = *fence_list_;
-  for (std::size_t i = 0; i < fence_list.size(); ++i) {
-    if (zisc::cast<zivcvk::Fence>(fence_list[i]) == *dest) {
-      fence_manager_->testAndSet(i, true);
-      *dest = zivcvk::Fence{};
-      break;
-    }
+
+  constexpr std::size_t invalid = (std::numeric_limits<std::size_t>::max)();
+  std::size_t fence_index = invalid;
+  {
+    const VkFence value = zisc::cast<VkFence>(*dest);
+    const auto ite = std::lower_bound(fence_list_->begin(), fence_list_->end(), value);
+    if ((ite != fence_list_->end()) && (*ite == value))
+      fence_index = zisc::cast<std::size_t>(std::distance(fence_list_->begin(), ite));
+  }
+
+  if (fence_index != invalid) {
+    IndexQueue& index_queue = fenceIndexQueue();
+    [[maybe_unused]] const bool result = index_queue.enqueue(fence_index);
+    ZISC_ASSERT(result, "Queueing fence index failed.");
+    *dest = zivcvk::Fence{};
   }
 }
 
@@ -494,9 +503,9 @@ void VulkanDevice::submit(const VkCommandBuffer& command_buffer,
 
   const zivcvk::CommandBuffer command{command_buffer};
   const zivcvk::Queue que{q};
-  zivcvk::Fence fen{};
-  if (fence.isActive())
-    fen = *zisc::reinterp<const zivcvk::Fence*>(std::addressof(fence.data()));
+  zivcvk::Fence fen = fence.isActive()
+      ? *zisc::reinterp<const zivcvk::Fence*>(std::addressof(fence.data()))
+      : zivcvk::Fence{};
   zivcvk::SubmitInfo info{};
   info.setCommandBufferCount(1);
   info.setPCommandBuffers(std::addressof(command));
@@ -550,22 +559,32 @@ void VulkanDevice::setFenceSize(const std::size_t s)
   const auto loader = dispatcher().loaderImpl();
   zivcvk::AllocationCallbacks alloc{makeAllocator()};
 
+  fence_index_queue_->setCapacity(s);
+  fence_index_queue_->clear();
+  const std::size_t fence_size = (0 < s) ? fence_index_queue_->capacity() : 0;
+  for (std::size_t index = 0; index < fence_size; ++index) {
+    [[maybe_unused]] const bool result = fence_index_queue_->enqueue(index);
+    ZISC_ASSERT(result, "Enqueing fence index failed: ", index);
+  }
+
   auto& fence_list = *fence_list_;
-  fence_manager_->setSize(s);
   // Add new fences
-  for (std::size_t i = fence_list.size(); i < s; ++i) {
+  for (std::size_t index = fence_list.size(); index < fence_size; ++index) {
     const zivcvk::FenceCreateInfo info{};
     zivcvk::Fence fence = d.createFence(info, alloc, *loader);
-    d.resetFences(fence, *loader);
-    fence_manager_->testAndSet(fence_list.size(), true);
     fence_list.emplace_back(zisc::cast<VkFence>(fence));
-    updateFenceDebugInfo(i);
+    updateFenceDebugInfo(index);
   }
   // Remove fences
-  for (std::size_t i = fence_list.size(); s < i; --i) {
+  for (std::size_t i = fence_list.size(); fence_size < i; --i) {
     zivcvk::Fence fence = zisc::cast<zivcvk::Fence>(fence_list.back());
     d.destroyFence(fence, alloc, *loader);
     fence_list.pop_back();
+  }
+  // Reset fences
+  for (VkFence& fence : fence_list) {
+    zivcvk::Fence f = zisc::cast<zivcvk::Fence>(fence);
+    d.resetFences(f, *loader);
   }
 }
 
@@ -579,23 +598,20 @@ void VulkanDevice::takeFence(Fence* fence)
   zivcvk::Device d{device()};
   const auto loader = dispatcher().loaderImpl();
 
-  auto memory = std::addressof(fence->data());
-  auto dest = ::new (zisc::cast<void*>(memory)) zivcvk::Fence{};
-
-  auto& fence_list = *fence_list_;
-  for (std::size_t i = 0; i < fence_list.size(); ++i) {
-    if (fence_manager_->testAndSet(i, false)) {
-      zivcvk::Fence f = zisc::cast<zivcvk::Fence>(fence_list[i]);
-      d.resetFences(f, *loader);
-      *dest = f;
-      break;
-    }
-  }
-
-  if (!(*dest)) {
+  IndexQueue& index_queue = fenceIndexQueue();
+  const auto [result, fence_index] = index_queue.dequeue();
+  if (!result) {
     //! \todo Available fence isn't found. Raise an exception?
     const char* message = "Available fence not found.";
     throw SystemError{ErrorCode::kAvailableFenceNotFound, message};
+  }
+
+  auto memory = std::addressof(fence->data());
+  auto dest = ::new (zisc::cast<void*>(memory)) zivcvk::Fence{};
+  {
+    zivcvk::Fence f = zisc::cast<zivcvk::Fence>((*fence_list_)[fence_index]);
+    d.resetFences(f, *loader);
+    *dest = f;
   }
 }
 
@@ -687,7 +703,7 @@ void VulkanDevice::destroyData() noexcept
   heap_usage_list_.reset();
   queue_list_.reset();
   fence_list_.reset();
-  fence_manager_.reset();
+  fence_index_queue_.reset();
 }
 
 /*!
@@ -697,10 +713,8 @@ void VulkanDevice::initData()
 {
   auto mem_resource = memoryResource();
   {
-    using FenceManager = decltype(fence_manager_)::element_type;
-    FenceManager manager{mem_resource};
-    zisc::pmr::polymorphic_allocator<FenceManager> alloc{mem_resource};
-    fence_manager_ = zisc::pmr::allocateUnique(alloc, std::move(manager));
+    zisc::pmr::polymorphic_allocator<IndexQueueImpl> alloc{mem_resource};
+    fence_index_queue_ = zisc::pmr::allocateUnique(alloc, mem_resource);
   }
   {
     using FenceList = decltype(fence_list_)::element_type;
@@ -903,7 +917,7 @@ auto VulkanDevice::addShaderModule(const uint32b id,
     module_data->name_ = module_name;
     module_data->module_ = zisc::cast<VkShaderModule>(module);
 
-    std::unique_lock<std::mutex> lock{shader_mutex_};
+    std::unique_lock<std::shared_mutex> lock{shader_mutex_};
     module_data_list_->emplace(id, std::move(module_data));
   }
   updateShaderModuleDebugInfo(*data);
@@ -1090,14 +1104,16 @@ void VulkanDevice::initDevice()
   zisc::pmr::vector<const char*> layers{layer_alloc};
   zisc::pmr::vector<const char*> extensions{layer_alloc};
 
-  extensions = {VK_EXT_MEMORY_BUDGET_EXTENSION_NAME,
-                //VK_EXT_EXTERNAL_MEMORY_HOST_EXTENSION_NAME,
+  extensions = {
 #if defined(Z_MAC)
                 VK_KHR_BIND_MEMORY_2_EXTENSION_NAME,
                 VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
                 VK_KHR_SHADER_FLOAT16_INT8_EXTENSION_NAME,
+                VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME,
 #endif // Z_MAC
-                VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME};
+                VK_EXT_MEMORY_BUDGET_EXTENSION_NAME
+                //VK_EXT_EXTERNAL_MEMORY_HOST_EXTENSION_NAME,
+  };
   if (sub_platform.isDebugMode()) {
     layers.emplace_back("VK_LAYER_KHRONOS_validation");
   }
@@ -1222,6 +1238,7 @@ void VulkanDevice::initMemoryAllocator()
   create_info.pRecordSettings = nullptr;
   create_info.instance = sub_platform.instance();
   create_info.vulkanApiVersion = vkGetVulkanApiVersion();
+  create_info.pTypeExternalMemoryHandleTypes = nullptr;
   VkResult result = vmaCreateAllocator(std::addressof(create_info),
                                        std::addressof(vm_allocator_));
   if (result != VK_SUCCESS) {

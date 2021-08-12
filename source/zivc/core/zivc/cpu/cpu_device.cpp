@@ -152,15 +152,8 @@ void CpuDevice::submit(const Command& command,
     cl::inner::WorkItem::setNumOfGroups(work_size);
     const uint32b num_of_works = work_size[0] * work_size[1] * work_size[2];
     const uint32b n = (num_of_works + (batch_size - 1)) / batch_size;
-    for (uint32b block_id = (*id)++; block_id < n; block_id = (*id)++) {
-      for (uint32b i = 0; i < batch_size; ++i) {
-        const uint32b group_id = block_id * batch_size + i;
-        if (group_id < num_of_works) {
-          cl::inner::WorkItem::setWorkGroupId(group_id);
-          command();
-        }
-      }
-    }
+    for (uint32b block_id = issue(id); block_id < n; block_id = issue(id))
+      execBatchCommand(command, block_id, num_of_works, batch_size);
   };
 
   auto& manager = threadManager();
@@ -247,6 +240,40 @@ void CpuDevice::initData()
   */
 void CpuDevice::updateDebugInfoImpl()
 {
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] command No description.
+  \param [in] block_id No description.
+  \param [in] group_id_max No description.
+  \param [in] batch_size No description.
+  */
+void CpuDevice::execBatchCommand(const Command& command,
+                                 const uint32b block_id,
+                                 const uint32b group_id_max,
+                                 const uint32b batch_size) noexcept
+{
+  for (uint32b i = 0; i < batch_size; ++i) {
+    const uint32b group_id = block_id * batch_size + i;
+    if (group_id < group_id_max) {
+      cl::inner::WorkItem::setWorkGroupId(group_id);
+      command();
+    }
+  }
+}
+
+/*!
+  \details No detailed description
+
+  \param [in,out] counter No description.
+  \return No description
+  */
+uint32b CpuDevice::issue(std::atomic<uint32b>* counter) noexcept
+{
+  const uint32b id = counter->fetch_add(1, std::memory_order::acq_rel);
+  return id;
 }
 
 } // namespace zivc

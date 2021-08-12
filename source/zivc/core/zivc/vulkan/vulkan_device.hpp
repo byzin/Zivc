@@ -20,13 +20,14 @@
 #include <cstddef>
 #include <map>
 #include <memory>
-#include <mutex>
+#include <shared_mutex>
 #include <string_view>
 // Zisc
 #include "zisc/concepts.hpp"
+#include "zisc/data_structure/bounded_queue.hpp"
+#include "zisc/data_structure/scalable_circular_queue.hpp"
 #include "zisc/memory/memory.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
-#include "zisc/thread/bitset.hpp"
 // Zivc
 #include "utility/cmd_debug_label_region.hpp"
 #include "utility/cmd_record_region.hpp"
@@ -278,6 +279,8 @@ class VulkanDevice : public Device
         void* user_data);
   };
 
+  using IndexQueueImpl = zisc::ScalableCircularQueue<std::size_t>;
+  using IndexQueue = zisc::BoundedQueue<IndexQueueImpl, std::size_t>;
   using UniqueModuleData = zisc::pmr::unique_ptr<ModuleData>;
   using UniqueKernelData = zisc::pmr::unique_ptr<KernelData>;
 
@@ -291,6 +294,12 @@ class VulkanDevice : public Device
 
   //! Destroy shader module data
   void destroyShaderModule(ModuleData* module) noexcept;
+
+  //! Return the underlying fence index queue
+  IndexQueue& fenceIndexQueue() noexcept;
+
+  //! Return the underlying fence index queue
+  const IndexQueue& fenceIndexQueue() const noexcept;
 
   //! Find the index of the optimal queue familty
   uint32b findQueueFamily() const noexcept;
@@ -335,11 +344,11 @@ class VulkanDevice : public Device
   void updateShaderModuleDebugInfo(const ModuleData& module);
 
 
-  std::mutex shader_mutex_;
+  mutable std::shared_mutex shader_mutex_;
   VkDevice device_ = ZIVC_VK_NULL_HANDLE;
   VmaAllocator vm_allocator_ = ZIVC_VK_NULL_HANDLE;
   VkCommandPool command_pool_ = ZIVC_VK_NULL_HANDLE;
-  zisc::pmr::unique_ptr<zisc::Bitset> fence_manager_;
+  zisc::pmr::unique_ptr<IndexQueueImpl> fence_index_queue_;
   zisc::pmr::unique_ptr<zisc::pmr::vector<VkFence>> fence_list_;
   zisc::pmr::unique_ptr<zisc::pmr::vector<VkQueue>> queue_list_;
   zisc::pmr::unique_ptr<zisc::pmr::vector<zisc::Memory::Usage>> heap_usage_list_;

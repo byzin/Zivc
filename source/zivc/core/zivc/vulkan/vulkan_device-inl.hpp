@@ -21,12 +21,14 @@
 #include <limits>
 #include <memory>
 #include <mutex>
+#include <shared_mutex>
 #include <string_view>
 #include <type_traits>
 #include <vector>
 // Zisc
 #include "zisc/error.hpp"
 #include "zisc/utility.hpp"
+#include "zisc/data_structure/bounded_queue.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "vulkan_device_info.hpp"
@@ -170,7 +172,7 @@ auto VulkanDevice::getShaderKernel(const uint32b id) const noexcept
   ZISC_ASSERT(hasShaderKernel(id), "Kernel data not found. id = ", id);
   const KernelData* data = nullptr;
   {
-    //! \todo lock
+    std::shared_lock<std::shared_mutex> lock{shader_mutex_};
     auto kernel = kernel_data_list_->find(id);
     data = kernel->second.get();
   }
@@ -190,7 +192,7 @@ auto VulkanDevice::getShaderModule(const uint32b id) const noexcept
   ZISC_ASSERT(hasShaderModule(id), "Shader module not found. id = ", id);
   const ModuleData* data = nullptr;
   {
-    //! \todo lock
+    std::shared_lock<std::shared_mutex> lock{shader_mutex_};
     auto module = module_data_list_->find(id);
     data = module->second.get();
   }
@@ -208,7 +210,7 @@ bool VulkanDevice::hasShaderKernel(const uint32b id) const noexcept
 {
   bool result = false;
   {
-    //! \todo lock
+    std::shared_lock<std::shared_mutex> lock{shader_mutex_};
     auto kernel = kernel_data_list_->find(id);
     result = kernel != kernel_data_list_->end();
   }
@@ -226,7 +228,7 @@ bool VulkanDevice::hasShaderModule(const uint32b id) const noexcept
 {
   bool result = false;
   {
-    //! \todo lock
+    std::shared_lock<std::shared_mutex> lock{shader_mutex_};
     auto module = module_data_list_->find(id);
     result = module != module_data_list_->end();
   }
@@ -329,6 +331,27 @@ const std::array<uint32b, 3>& VulkanDevice::workGroupSizeDim(const std::size_t d
   return work_group_size_list_[dim - 1];
 }
 
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+auto VulkanDevice::fenceIndexQueue() noexcept -> IndexQueue&
+{
+  return *fence_index_queue_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+auto VulkanDevice::fenceIndexQueue() const noexcept -> const IndexQueue&
+{
+  return *fence_index_queue_;
+}
 
 /*!
   \details No detailed description

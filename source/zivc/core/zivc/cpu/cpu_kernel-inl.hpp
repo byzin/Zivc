@@ -261,7 +261,8 @@ runImpl(Types&&... cl_args) noexcept
     if constexpr (ArgTypeInfo::kIsLocal) { // Process a local argument
       using ElementType = typename ArgTypeInfo::ElementType;
       ElementType storage{};
-      cl::AddressSpacePointer<cl::AddressSpaceType::kLocal, ElementType> cl_arg{std::addressof(storage)};
+      auto data = std::addressof(storage);
+      cl::AddressSpacePointer<cl::AddressSpaceType::kLocal, ElementType> cl_arg{data};
       runImpl<kIndex + 1, kCacheIndex>(std::forward<Types>(cl_args)..., cl_arg);
     }
     else if constexpr (ArgTypeInfo::kIsPod) { // Process a pod argument

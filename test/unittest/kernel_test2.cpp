@@ -574,8 +574,8 @@ TEST(KernelTest, KernelMultipleInvocationsTest)
     launch_options.setExternalSyncMode(false);
     launch_options.setLabel("invocation3Kernel");
     auto result = kernel7->run(*buff_device, n, launch_options);
-    device->waitForCompletion();
   }
+  device->waitForCompletion();
 
   // Check the outputs
   {

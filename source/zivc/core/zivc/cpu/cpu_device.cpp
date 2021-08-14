@@ -160,7 +160,7 @@ void CpuDevice::submit(const Command& command,
   constexpr int64b start = 0;
   const int64b end = manager.numOfThreads();
   constexpr auto parent_id = zisc::ThreadManager::kAllPrecedences;
-  auto result = manager.enqueueLoop(task, start, end, parent_id);
+  auto result = manager.enqueueLoop(std::move(task), start, end, parent_id);
   if (fence->isActive()) {
     auto fen = zisc::reinterp<CpuFence*>(std::addressof(fence->data()));
     *fen = std::move(result);
@@ -250,6 +250,7 @@ void CpuDevice::updateDebugInfoImpl()
   \param [in] group_id_max No description.
   \param [in] batch_size No description.
   */
+inline
 void CpuDevice::execBatchCommand(const Command& command,
                                  const uint32b block_id,
                                  const uint32b group_id_max,
@@ -270,6 +271,7 @@ void CpuDevice::execBatchCommand(const Command& command,
   \param [in,out] counter No description.
   \return No description
   */
+inline
 uint32b CpuDevice::issue(std::atomic<uint32b>* counter) noexcept
 {
   const uint32b id = counter->fetch_add(1, std::memory_order::acq_rel);

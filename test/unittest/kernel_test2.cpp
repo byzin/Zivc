@@ -125,6 +125,7 @@ TEST(KernelTest, LargeNumOfParametersTest)
   auto buff_device16 = device->makeBuffer<ParamTest>(zivc::BufferUsage::kDeviceOnly);
   buff_device16->setSize(1);
 
+#if !defined(ZIVC_MSL_BUFFER_OUT_OF_BOUNDS)
   auto buff_device17 = device->makeBuffer<int8b>(zivc::BufferUsage::kDeviceOnly);
   buff_device17->setSize(1);
   auto buff_device18 = device->makeBuffer<int16b>(zivc::BufferUsage::kDeviceOnly);
@@ -141,6 +142,7 @@ TEST(KernelTest, LargeNumOfParametersTest)
   buff_device23->setSize(1);
   auto buff_device24 = device->makeBuffer<ParamTest>(zivc::BufferUsage::kDeviceOnly);
   buff_device24->setSize(1);
+#endif // ZIVC_MSL_BUFFER_OUT_OF_BOUNDS
 
 #if !defined(Z_MAC)
   auto buff_device25 = device->makeBuffer<int8b>(zivc::BufferUsage::kDeviceOnly);
@@ -260,6 +262,7 @@ TEST(KernelTest, LargeNumOfParametersTest)
   ::initScalarBuffer(*device, *buff_device14);
   ::initScalarBuffer(*device, *buff_device15);
   init_test_buffer(*device, *buff_device16);
+#if !defined(ZIVC_MSL_BUFFER_OUT_OF_BOUNDS)
   ::initScalarBuffer(*device, *buff_device17);
   ::initScalarBuffer(*device, *buff_device18);
   ::initScalarBuffer(*device, *buff_device19);
@@ -268,6 +271,7 @@ TEST(KernelTest, LargeNumOfParametersTest)
   ::initScalarBuffer(*device, *buff_device22);
   ::initScalarBuffer(*device, *buff_device23);
   init_test_buffer(*device, *buff_device24);
+#endif // ZIVC_MSL_BUFFER_OUT_OF_BOUNDS
 #if !defined(Z_MAC)
   ::initScalarBuffer(*device, *buff_device25);
   ::initScalarBuffer(*device, *buff_device26);
@@ -318,6 +322,8 @@ TEST(KernelTest, LargeNumOfParametersTest)
   constexpr std::size_t num_of_args =
 #if !defined(Z_MAC)
       72;
+#elif defined(ZIVC_MSL_BUFFER_OUT_OF_BOUNDS)
+      20;
 #else // Z_MAC
       28;
 #endif // Z_MAC
@@ -335,9 +341,12 @@ TEST(KernelTest, LargeNumOfParametersTest)
                               *buff_device9, *buff_device10, *buff_device11,
                               *buff_device12, *buff_device13, *buff_device14,
                               *buff_device15, *buff_device16, 1,
+#if !defined(ZIVC_MSL_BUFFER_OUT_OF_BOUNDS)
                               *buff_device17, *buff_device18, *buff_device19,
                               *buff_device20, *buff_device21, *buff_device22,
-                              *buff_device23, *buff_device24, 2.0f,
+                              *buff_device23, *buff_device24,
+#endif // ZIVC_MSL_BUFFER_OUT_OF_BOUNDS
+                              2.0f,
 #if !defined(Z_MAC)
                               *buff_device25, *buff_device26, *buff_device27,
                               *buff_device28, *buff_device29, *buff_device30,
@@ -396,6 +405,7 @@ TEST(KernelTest, LargeNumOfParametersTest)
   ASSERT_TRUE(::testScalarBuffer(*device, *buff_device14));
   ASSERT_TRUE(::testScalarBuffer(*device, *buff_device15));
   ASSERT_TRUE(test_test_buffer(*device, *buff_device16));
+#if !defined(ZIVC_MSL_BUFFER_OUT_OF_BOUNDS)
   ASSERT_TRUE(::testScalarBuffer(*device, *buff_device17));
   ASSERT_TRUE(::testScalarBuffer(*device, *buff_device18));
   ASSERT_TRUE(::testScalarBuffer(*device, *buff_device19));
@@ -404,6 +414,7 @@ TEST(KernelTest, LargeNumOfParametersTest)
   ASSERT_TRUE(::testScalarBuffer(*device, *buff_device22));
   ASSERT_TRUE(::testScalarBuffer(*device, *buff_device23));
   ASSERT_TRUE(test_test_buffer(*device, *buff_device24));
+#endif // ZIVC_MSL_BUFFER_OUT_OF_BOUNDS
 #if !defined(Z_MAC)
   ASSERT_TRUE(::testScalarBuffer(*device, *buff_device25));
   ASSERT_TRUE(::testScalarBuffer(*device, *buff_device26));

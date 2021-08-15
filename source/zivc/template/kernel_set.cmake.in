@@ -96,7 +96,7 @@ function(Zivc_initCpuBackend target)
                                    PRIVATE ${cxx_compile_warning_flags}
                                            ${zivc_warning_flags})
   target_compile_definitions(${target} PUBLIC ${zivc_definitions}
-                                       PRIVATE @kernel_set_definitions@)
+                                              @kernel_set_definitions@) # TODO Should not populate the definitions with public?
   target_link_libraries(${target} PRIVATE Zisc)
   if(ZIVC_BAKE_KERNELS)
     target_link_libraries(${target} PRIVATE libzstd_static)

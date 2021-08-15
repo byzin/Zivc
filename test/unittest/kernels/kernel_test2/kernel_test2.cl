@@ -58,6 +58,7 @@ __kernel void largeNumOfParametersKernel(
     zivc::GlobalPtr<float> o15,
     zivc::GlobalPtr<ParamTest> o16,
     const uint32b s2,
+#if !defined(ZIVC_MSL_BUFFER_OUT_OF_BOUNDS)
     zivc::GlobalPtr<int8b> o17,
     zivc::GlobalPtr<int16b> o18,
     zivc::GlobalPtr<int32b> o19,
@@ -66,6 +67,7 @@ __kernel void largeNumOfParametersKernel(
     zivc::GlobalPtr<uint32b> o22,
     zivc::GlobalPtr<float> o23,
     zivc::GlobalPtr<ParamTest> o24,
+#endif // ZIVC_MSL_BUFFER_OUT_OF_BOUNDS
     const float s3,
 #if !defined(Z_MAC)
     zivc::GlobalPtr<int8b> o25,
@@ -139,6 +141,7 @@ __kernel void largeNumOfParametersKernel(
   o16[0] = ParamTest{1, 1, 1.0f};
   static_cast<void>(s2);
 
+#if !defined(ZIVC_MSL_BUFFER_OUT_OF_BOUNDS)
   o17[0] = 1;
   o18[0] = 1;
   o19[0] = 1;
@@ -147,6 +150,7 @@ __kernel void largeNumOfParametersKernel(
   o22[0] = 1;
   o23[0] = 1.0f;
   o24[0] = ParamTest{1, 1, 1.0f};
+#endif // ZIVC_MSL_BUFFER_OUT_OF_BOUNDS
   static_cast<void>(s3);
 
 #if !defined(Z_MAC)

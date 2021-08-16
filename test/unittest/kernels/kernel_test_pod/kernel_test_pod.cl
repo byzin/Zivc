@@ -109,25 +109,51 @@ namespace inner {
   */
 struct PodAlignmentTest
 {
-  uint8b u8_ = 0;
-  uint8b padding1_1_ = 0;
-  uint8b padding1_2_ = 0;
-  uint8b padding1_3_ = 0;
+  float getF() const noexcept;
 
-  float f_ = 0.0f;
+  void setF(const float value) noexcept;
 
-  int8b i8_ = 0;
-  int8b padding2_ = 0;
-  int16b i16_ = 0;
+  int8b getI8() const noexcept
+  {
+    return i8_;
+  }
 
-  uint16b u16_ = 0;
-  uint16b padding3_ = 0;
+  void setI8(const int8b value) noexcept
+  {
+    i8_ = value;
+  }
 
-  int32b i32_ = 0;
-  int32b padding4_1_ = 0;
-  int32b padding4_2_ = 0;
-  int32b padding4_3_ = 0;
+  uint8b u8_;
+  uint8b padding1_1_;
+  uint8b padding1_2_;
+  uint8b padding1_3_;
+
+  float f_;
+
+  int8b i8_;
+  int8b padding2_;
+  int16b i16_;
+
+  uint16b u16_;
+  uint16b padding3_;
+
+  int32b i32_;
+  int32b padding4_1_;
+  int32b padding4_2_;
+  int32b padding4_3_;
 };
+
+inline
+float PodAlignmentTest::getF() const noexcept
+{
+  return f_;
+}
+
+inline
+void PodAlignmentTest::setF(const float value) noexcept
+{
+  f_ = value;
+}
 
 //! Check if two values are equal
 bool operator==(const PodAlignmentTest& lhs, const PodAlignmentTest& rhs) noexcept;
@@ -225,44 +251,44 @@ __kernel void podSizeAlignmentKernel(zivc::GlobalPtr<int32b> output,
   \param [in] i32 No description.
   \param [in] test No description.
   */
-//__kernel void podSizeAlignment2Kernel(zivc::GlobalPtr<uint8b> output1,
-//                                      zivc::GlobalPtr<float> output2,
-//                                      zivc::GlobalPtr<int8b> output3,
-//                                      zivc::GlobalPtr<int16b> output4,
-//                                      zivc::GlobalPtr<uint16b> output5,
-//                                      zivc::GlobalPtr<int32b> output6,
-//                                      zivc::GlobalPtr<inner::PodAlignmentTest> output7,
-//                                      const uint8b u8,
-//                                      const float f,
-//                                      const int8b i8,
-//                                      const int16b i16,
-//                                      const uint16b u16,
-//                                      const int32b i32,
-//                                      const inner::PodAlignmentTest test)
-//{
-//  const size_t index = zivc::getGlobalLinearId();
-//  if (index == 0) {
-//    output1[0] = u8;
-//    output1[1] = test.u8_;
-//    output2[0] = f;
-//    output2[1] = test.f_;
-//    output3[0] = i8;
-//    output3[1] = test.i8_;
-//    output4[0] = i16;
-//    output4[1] = test.i16_;
-//    output5[0] = u16;
-//    output5[1] = test.u16_;
-//    output6[0] = i32;
-//    output6[1] = test.i32_;
-//    output7[0].u8_ = u8;
-//    output7[0].f_ = f;
-//    output7[0].i8_ = i8;
-//    output7[0].i16_ = i16;
-//    output7[0].u16_ = u16;
-//    output7[0].i32_ = i32;
-//    output7[1] = test;
-//  }
-//}
+__kernel void podSizeAlignment2Kernel(zivc::GlobalPtr<uint8b> output1,
+                                      zivc::GlobalPtr<float> output2,
+                                      zivc::GlobalPtr<int8b> output3,
+                                      zivc::GlobalPtr<int16b> output4,
+                                      zivc::GlobalPtr<uint16b> output5,
+                                      zivc::GlobalPtr<int32b> output6,
+                                      zivc::GlobalPtr<inner::PodAlignmentTest> output7,
+                                      const uint8b u8,
+                                      const float f,
+                                      const int8b i8,
+                                      const int16b i16,
+                                      const uint16b u16,
+                                      const int32b i32,
+                                      const inner::PodAlignmentTest test)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (index == 0) {
+    output1[0] = u8;
+    output1[1] = test.u8_;
+    output2[0] = f;
+    output2[1] = test.getF();
+    output3[0] = i8;
+    output3[1] = test.getI8();
+    output4[0] = i16;
+    output4[1] = test.i16_;
+    output5[0] = u16;
+    output5[1] = test.u16_;
+    output6[0] = i32;
+    output6[1] = test.i32_;
+    output7[0].u8_ = u8;
+    output7[0].setF(f);
+    output7[0].setI8(i8);
+    output7[0].i16_ = i16;
+    output7[0].u16_ = u16;
+    output7[0].i32_ = i32;
+    output7[1] = test;
+  }
+}
 
 namespace inner {
 

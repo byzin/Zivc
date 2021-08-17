@@ -30,7 +30,7 @@ class Device;
 class Fence : private zisc::NonCopyable<Fence>
 {
  public:
-  using Data = std::aligned_storage_t<24, 8>;
+  using Data = std::aligned_storage_t<28, 8>;
 
 
   //! Create a deactive fence

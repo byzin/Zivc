@@ -16,6 +16,7 @@
 // Standard C++ library
 #include <cstddef>
 #include <memory>
+#include <type_traits>
 #include <utility>
 // Zisc
 #include "zisc/error.hpp"
@@ -26,8 +27,31 @@
 #include "utility/vulkan_dispatch_loader.hpp"
 #include "utility/vulkan_hpp.hpp"
 #include "utility/vulkan_memory_allocator.hpp"
+#include "zivc/zivc.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/kernel_set/kernel_set-zivc_kernel.hpp"
 #include "zivc/utility/error.hpp"
+#include "zivc/utility/launch_result.hpp"
+#include "zivc/utility/launch_options.hpp"
+
+namespace {
+
+/*!
+  \details No detailed description
+
+  \param [in] device No description.
+  \param [in] command_buffer No description.
+  \return No description
+  */
+auto makeFillKernelImpl(zivc::VulkanDevice* device, const VkCommandBuffer& command_buffer)
+{
+  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(zivc_kernel, Zivc_fillKernel, 1);
+  kernel_params.setVulkanCommandBufferPtr(std::addressof(command_buffer));
+  auto kernel = device->makeKernel(kernel_params);
+  return kernel;
+}
+
+} // namespace
 
 namespace zivc {
 
@@ -130,6 +154,47 @@ void VulkanBufferImpl::deallocateMemory(
 /*!
   \details No detailed description
 
+  \param [in] fill_kernel No description.
+  \param [in] data No description.
+  \param [in] data_size No description.
+  \param [in,out] buffer No description.
+  \param [in] launch_options No description.
+  \param [in] offset No description.
+  \param [in] size No description.
+  \return No description
+  */
+LaunchResult VulkanBufferImpl::fill(KernelCommon* fill_kernel,
+                                    const uint8b* data,
+                                    const std::size_t data_size,
+                                    Buffer<uint8b>* buffer,
+                                    const LaunchOptions& launch_options,
+                                    const std::size_t offset,
+                                    const std::size_t size) const noexcept
+{
+  using FillKernelT = std::remove_cvref_t<decltype(*::makeFillKernelImpl(nullptr, nullptr))>;
+  using FillKernelP = std::add_pointer_t<FillKernelT>;
+  auto kernel = zisc::cast<FillKernelP>(fill_kernel);
+
+  auto kernel_launch_options = kernel->makeOptions();
+  kernel_launch_options.setWorkSize({zisc::cast<uint32b>(size)});
+  kernel_launch_options.setQueueIndex(launch_options.queueIndex());
+  kernel_launch_options.setExternalSyncMode(launch_options.isExternalSyncMode());
+  kernel_launch_options.setLabel(launch_options.label());
+  kernel_launch_options.setLabelColor(launch_options.labelColor());
+
+  using FillDataT = zivc::cl::zivc_kernel::zivc::FillData;
+  FillDataT fill_data{};
+  fill_data.setOffset(offset);
+  fill_data.setSize(size);
+  fill_data.setValue(data, data_size);
+
+  auto result = kernel->run(*buffer, fill_data, kernel_launch_options);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
   \param [in] command_buffer No description.
   \param [in] buffer No description.
   \param [in] dest_offset No description.
@@ -179,6 +244,19 @@ void VulkanBufferImpl::initAllocationInfo(const BufferUsage buffer_usage,
     const char* message = "Device memory allocation failed.";
     throwResultException(result, message);
   }
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] command_buffer No description.
+  \return No description
+  */
+std::shared_ptr<KernelCommon> VulkanBufferImpl::makeFillKernel(
+    const VkCommandBuffer& command_buffer)
+{
+  auto kernel = ::makeFillKernelImpl(std::addressof(device()), command_buffer);
+  return std::move(kernel);
 }
 
 /*!

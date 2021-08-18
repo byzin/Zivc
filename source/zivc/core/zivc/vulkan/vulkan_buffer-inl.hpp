@@ -344,8 +344,9 @@ void VulkanBuffer<T>::setSize(const std::size_t s)
                         std::addressof(buffer()),
                         std::addressof(allocation()),
                         std::addressof(rawBuffer().vm_alloc_info_));
-    ZivcObject::updateDebugInfo();
     initCommandBuffer();
+    initFillKernel();
+    ZivcObject::updateDebugInfo();
   }
   size_ = s;
 }
@@ -378,6 +379,9 @@ void VulkanBuffer<T>::unmapMemoryData() const noexcept
 template <KernelArg T> inline
 void VulkanBuffer<T>::destroyData() noexcept
 {
+  if (rawBuffer().fill_kernel_) {
+    rawBuffer().fill_kernel_.reset();
+  }
   if (buffer() != ZIVC_VK_NULL_HANDLE) {
     const VulkanBufferImpl impl{std::addressof(parentImpl())};
     impl.deallocateMemory(std::addressof(buffer()),
@@ -423,6 +427,13 @@ void VulkanBuffer<T>::updateDebugInfoImpl() noexcept
     std::strncat(obj_name.data(), suffix.data(), suffix.size());
     const std::string name = obj_name.data();
     device.setDebugInfo(VK_OBJECT_TYPE_COMMAND_BUFFER, rawBuffer().command_buffer_, name, this);
+  }
+  if (rawBuffer().fill_kernel_) {
+    IdData::NameType obj_name{""};
+    const std::string_view suffix{"_fillkernel"};
+    std::strncpy(obj_name.data(), buffer_name.data(), buffer_name.size() + 1);
+    std::strncat(obj_name.data(), suffix.data(), suffix.size());
+    rawBuffer().fill_kernel_->setName(obj_name.data());
   }
 }
 
@@ -612,13 +623,13 @@ LaunchResult VulkanBuffer<T>::fillOnDevice(
     BufferCommon* dest,
     const BufferLaunchOptions<D>& launch_options)
 {
-  static_cast<void>(value);
-  static_cast<void>(dest);
-  static_cast<void>(launch_options);
-  ZISC_ASSERT(false, "'fillDevice' isn't implemented yet.");
-  //! \todo Make a fill array and copy to the device?
-  LaunchResult result{};
-  result.setAsync(true);
+  VulkanBuffer<T>* dest_buffer = zisc::cast<VulkanBuffer<T>*>(dest);
+  VulkanDevice& device = *zisc::cast<VulkanDevice*>(dest->getParent());
+  const VulkanBufferImpl impl{std::addressof(device)};
+  LaunchResult result = impl.fill<T, D>(dest_buffer->rawBuffer().fill_kernel_.get(),
+                                        value,
+                                        dest_buffer,
+                                        launch_options);
   return result;
 }
 
@@ -668,7 +679,19 @@ void VulkanBuffer<T>::initCommandBuffer()
   if ((commandBuffer() == ZIVC_VK_NULL_HANDLE) && isDeviceLocal()) {
     auto& device = parentImpl();
     rawBuffer().command_buffer_ = device.makeCommandBuffer();
-    updateDebugInfoImpl();
+  }
+}
+
+/*!
+  \details No detailed description
+  */
+template <KernelArg T> inline
+void VulkanBuffer<T>::initFillKernel()
+{
+  if (!rawBuffer().fill_kernel_ && isDeviceLocal()) {
+    ZISC_ASSERT(commandBuffer() != ZIVC_VK_NULL_HANDLE, "Command buffer is null.");
+    VulkanBufferImpl impl{std::addressof(parentImpl())};
+    rawBuffer().fill_kernel_ = impl.makeFillKernel(commandBuffer());
   }
 }
 

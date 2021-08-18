@@ -26,6 +26,7 @@
 #include "zisc/zisc_config.hpp"
 // Zivc
 #include "id_data.hpp"
+#include "launch_options.hpp"
 #include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
 
@@ -46,7 +47,8 @@ template <typename, typename...> class KernelLaunchOptions;
   \tparam Args No description.
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-class KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>
+class KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
+    public LaunchOptions
 {
   static_assert(zisc::Algorithm::isInBounds(kDim, 1u, 4u),
                 "The kDim must be 1, 2 or 3.");
@@ -69,38 +71,14 @@ class KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>
   //! Return the 3d global offset used in global id calculations
   const std::array<uint32b, kDim>& globalIdOffset() const noexcept;
 
-  //! Check whether external sync mode is required
-  bool isExternalSyncMode() const noexcept;
-
-  //! Return the label of the launching
-  std::string_view label() const noexcept;
-
-  //! Return the color of the label
-  const std::array<float, 4>& labelColor() const noexcept;
-
   //! Return the number of kernel arguments
   static constexpr std::size_t numOfArgs() noexcept;
-
-  //! Return the queue index
-  uint32b queueIndex() const noexcept;
-
-  //! Set external sync mode
-  void setExternalSyncMode(const bool is_active) noexcept;
 
   //! Set the 3d global offset used in global id calculations
   void setGlobalIdOffset(const uint32b offset, const std::size_t dim) noexcept;
 
   //! Set the 3d global offset used in global id calculations
   void setGlobalIdOffset(const std::array<uint32b, kDim>& offset) noexcept;
-
-  //! Set the label of the launching
-  void setLabel(const std::string_view launch_label) noexcept;
-
-  //! Set the color of the label
-  void setLabelColor(const std::array<float, 4>& label_color) noexcept;
-
-  //! Set the queue index which is used for a kernel execution
-  void setQueueIndex(const uint32b queue_index) noexcept;
 
   //! Set the work item size at the give dimension
   void setWorkSize(const uint32b work_size, const std::size_t dim) noexcept;
@@ -116,13 +94,8 @@ class KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>
   void initialize() noexcept;
 
 
-  IdData::NameType label_;
-  std::array<float, 4> label_color_ = {1.0f, 1.0f, 1.0f, 1.0f};
   std::array<uint32b, kDim> work_size_;
   std::array<uint32b, kDim> global_id_offset_;
-  uint32b queue_index_ = 0;
-  int8b is_external_sync_mode_ = zisc::kFalse;
-  [[maybe_unused]] std::array<uint8b, 7> padding_;
 };
 
 } // namespace zivc

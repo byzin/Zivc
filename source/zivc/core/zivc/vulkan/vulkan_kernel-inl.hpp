@@ -84,23 +84,6 @@ VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-VkCommandBuffer&
-VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-commandBuffer() noexcept
-{
-  VkCommandBuffer& command = command_buffer_ref_
-      ? *command_buffer_ref_
-      : command_buffer_;
-  return command;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-inline
 const VkCommandBuffer& VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 commandBuffer() const noexcept
 {
@@ -164,7 +147,7 @@ run(Args... args, const LaunchOptions& launch_options)
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-setCommandBufferRef(VkCommandBuffer* command_ref) noexcept
+setCommandBufferRef(const VkCommandBuffer* command_ref) noexcept
 {
   command_buffer_ref_ = command_ref;
 }
@@ -258,6 +241,10 @@ initData(const Params& params)
   validateData();
   VulkanDevice& device = parentImpl();
 
+  // Command buffer reference
+  const VkCommandBuffer* command_buffer_ref =
+      zisc::cast<const VkCommandBuffer*>(params.vulkanCommandBufferPtr());
+  setCommandBufferRef(command_buffer_ref);
   // Add a shader module
   const auto& module_data = device.addShaderModule(KSet{});
   // Add a kernel data

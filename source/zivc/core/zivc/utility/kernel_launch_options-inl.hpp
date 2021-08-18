@@ -24,6 +24,7 @@
 #include <type_traits>
 // Zivc
 #include "id_data.hpp"
+#include "launch_options.hpp"
 #include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
 
@@ -65,8 +66,8 @@ inline
 KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 KernelLaunchOptions(const std::array<uint32b, kDim>& work_size,
                     const uint32b queue_index) noexcept :
-    work_size_{work_size},
-    queue_index_{queue_index}
+    LaunchOptions(queue_index),
+    work_size_{work_size}
 {
   initialize();
 }
@@ -105,78 +106,11 @@ globalIdOffset() const noexcept -> const std::array<uint32b, kDim>&
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-bool KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-isExternalSyncMode() const noexcept
-{
-  const bool result = is_external_sync_mode_;
-  return result;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-inline
-std::string_view KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-label() const noexcept
-{
-  std::string_view l{label_.data()};
-  return l;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-inline
-const std::array<float, 4>& KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-labelColor() const noexcept
-{
-  return label_color_;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-inline
 constexpr std::size_t KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 numOfArgs() noexcept
 {
   const std::size_t s = sizeof...(Args);
   return s;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-inline
-uint32b KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-queueIndex() const noexcept
-{
-  return queue_index_;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] is_active No description.
-  */
-template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-inline
-void KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-setExternalSyncMode(const bool is_active) noexcept
-{
-  is_external_sync_mode_ = is_active ? zisc::kTrue : zisc::kFalse;
 }
 
 /*!
@@ -204,45 +138,6 @@ void KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 setGlobalIdOffset(const std::array<uint32b, kDim>& offset) noexcept
 {
   global_id_offset_ = offset;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] launch_label No description.
-  */
-template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-inline
-void KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-setLabel(const std::string_view launch_label) noexcept
-{
-  std::strncpy(label_.data(), launch_label.data(), launch_label.size() + 1);
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] label_color No description.
-  */
-template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-inline
-void KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-setLabelColor(const std::array<float, 4>& label_color) noexcept
-{
-  label_color_ = label_color;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] queue_index No description.
-  */
-template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-inline
-void KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-setQueueIndex(const uint32b queue_index) noexcept
-{
-  queue_index_ = queue_index;
 }
 
 /*!

@@ -77,33 +77,6 @@ constexpr bool Config::isVulkanSubPlatformEnabled() noexcept
 /*!
   \details No detailed description
 
-  \tparam Type No description.
-  \return No description
-  */
-template <typename Type> inline
-constexpr auto Config::vecResultFalse() noexcept -> ComparisonResultType<Type>
-{
-  const ComparisonResultType<Type> result = 0b0;
-  return result;
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \return No description
-  */
-template <typename Type> inline
-constexpr auto Config::vecResultTrue() noexcept -> ComparisonResultType<Type>
-{
-  const auto zero = Config::vecResultFalse<Type>();
-  const ComparisonResultType<Type> result = ~zero;
-  return result;
-}
-
-/*!
-  \details No detailed description
-
   \return No description
   */
 inline

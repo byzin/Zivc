@@ -29,6 +29,9 @@
 !/source/zivc/
 !/source/zivc/CMakeLists.txt
 !/source/zivc/*.dox
+!/source/zivc/kernel/
+!/source/zivc/kernel/zivc/
+!/source/zivc/kernel/zivc/*.cl
 !/source/zivc/kernel_baker/
 !/source/zivc/kernel_baker/CMakeLists.txt
 !/source/zivc/kernel_baker/kernel_baker.cpp

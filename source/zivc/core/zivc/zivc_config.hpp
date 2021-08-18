@@ -114,11 +114,20 @@ class Config
 
   //! Represent 'false' value of scalar value comparison
   template <typename Type>
-  static constexpr ComparisonResultType<Type> vecResultFalse() noexcept;
+  static constexpr ComparisonResultType<Type> vecResultFalse() noexcept
+  {
+    const ComparisonResultType<Type> result = 0b0;
+    return result;
+  }
 
   //! Represent 'true' value of scalar value comparison
   template <typename Type>
-  static constexpr ComparisonResultType<Type> vecResultTrue() noexcept;
+  static constexpr ComparisonResultType<Type> vecResultTrue() noexcept
+  {
+    const auto zero = Config::vecResultFalse<Type>();
+    const ComparisonResultType<Type> result = ~zero;
+    return result;
+  }
 
   //! Return the value of the major component of the Zivc version number
   static constexpr int versionMajor() noexcept;

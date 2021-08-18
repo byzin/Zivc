@@ -25,6 +25,7 @@
 #include "utility/vulkan.hpp"
 #include "utility/vulkan_memory_allocator.hpp"
 #include "zivc/buffer.hpp"
+#include "zivc/kernel_common.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/buffer_launch_options.hpp"
 #include "zivc/utility/id_data.hpp"
@@ -72,6 +73,7 @@ class VulkanBuffer : public Buffer<T>
     VmaAllocation vm_allocation_ = ZIVC_VK_NULL_HANDLE;
     VmaAllocationInfo vm_alloc_info_;
     VkCommandBuffer command_buffer_ = ZIVC_VK_NULL_HANDLE;
+    std::shared_ptr<KernelCommon> fill_kernel_;
     DescriptorType desc_type_ = DescriptorType::kStorage;
     [[maybe_unused]] uint32b padding_ = 0;
   };
@@ -223,6 +225,9 @@ class VulkanBuffer : public Buffer<T>
 
   //! Initialize the command buffer
   void initCommandBuffer();
+
+  //! Initialize the fill kernel
+  void initFillKernel();
 
   //! Make a data for fast fill on device
   static uint32b makeDataForFillFast(ConstReference value) noexcept;

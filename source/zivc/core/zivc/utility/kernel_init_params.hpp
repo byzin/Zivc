@@ -65,6 +65,12 @@ class KernelInitParams
   //! Set a kernel name
   void setKernelName(std::string_view kernel_name) noexcept;
 
+  //! Set a ptr to a VkCommandBuffer object
+  void setVulkanCommandBufferPtr(const void* command_buffer_ptr) noexcept;
+
+  //! Return a ptr to a VkCommandBuffer object
+  const void* vulkanCommandBufferPtr() const noexcept;
+
  private:
   //! Initialize parameters
   void initialize(std::string_view kernel_name) noexcept;
@@ -72,6 +78,7 @@ class KernelInitParams
 
   Function function_;
   IdData::NameType kernel_name_;
+  const void* command_buffer_ptr_ = nullptr;
 };
 
 } // namespace zivc

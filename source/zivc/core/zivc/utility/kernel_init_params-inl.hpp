@@ -117,6 +117,30 @@ void KernelInitParams<kDim, KSet, Args...>::setKernelName(
 
 /*!
   \details No detailed description
+
+  \param [in] command_buffer_ptr No description.
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...Args> inline
+void KernelInitParams<kDim, KSet, Args...>::setVulkanCommandBufferPtr(
+    const void* command_buffer_ptr) noexcept
+{
+  command_buffer_ptr_ = command_buffer_ptr;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...Args> inline
+const void* KernelInitParams<kDim, KSet, Args...>::vulkanCommandBufferPtr()
+    const noexcept
+{
+  return command_buffer_ptr_;
+}
+
+/*!
+  \details No detailed description
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...Args> inline
 void KernelInitParams<kDim, KSet, Args...>::initialize(

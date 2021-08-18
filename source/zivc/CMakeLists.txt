@@ -126,6 +126,19 @@ function(Zivc_addZstd zstd_path)
 endfunction(Zivc_addZstd)
 
 
+function(Zivc_addZivcKernels target version)
+  set(kernel_project_dir ${CMAKE_CURRENT_FUNCTION_LIST_DIR})
+  include(${kernel_project_dir}/cmake/kernel.cmake)
+
+  set(kernel_set_dir ${kernel_project_dir}/kernel)
+  file(GLOB_RECURSE kernel_sources ${kernel_set_dir}/*.cl)
+  Zivc_addKernelSet(zivc_kernel ${version}
+      SOURCE_FILES ${kernel_sources}
+      INCLUDE_DIRS ${kernel_set_dir})
+  target_link_libraries(${target} PRIVATE KernelSet_zivc_kernel)
+endfunction(Zivc_addZivcKernels)
+
+
 #
 set(project_description "Zivc.")
 project(Zivc VERSION 0.0.1 DESCRIPTION "${project_description}" LANGUAGES CXX)
@@ -205,13 +218,7 @@ if(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
   Zisc_checkSubmodule(${vma_path})
   set(vma_include_dir ${vma_path}/include)
   target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${vma_include_dir})
-  # Buffer fill kernel sets 
-  set(kernel_set_dir ${PROJECT_SOURCE_DIR}/kernel)
-  file(GLOB_RECURSE kernel_sources ${kernel_set_dir}/*.cl)
-  #  Zivc_addKernelSet(zivc_kernel ${PROJECT_VERSION}
-  #      SOURCE_FILES ${kernel_sources}
-  #      INCLUDE_DIRS ${kernel_set_dir})
-  #  target_link_libraries(${PROJECT_NAME} PRIVATE KernelSet_zivc_kernel)
+  Zivc_addZivcKernels(${PROJECT_NAME} ${PROJECT_VERSION})
 endif()
 
 Zisc_enableIpo(${PROJECT_NAME})

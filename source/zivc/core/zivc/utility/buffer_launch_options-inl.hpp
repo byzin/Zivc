@@ -62,8 +62,8 @@ BufferLaunchOptions<T>::BufferLaunchOptions(const std::size_t s) noexcept :
 template <KernelArg T> inline
 BufferLaunchOptions<T>::BufferLaunchOptions(const std::size_t s,
                                             const uint32b queue_index) noexcept :
-    size_{s},
-    queue_index_{queue_index}
+    LaunchOptions(queue_index),
+    size_{s}
 {
   initialize();
 }
@@ -94,101 +94,12 @@ std::size_t BufferLaunchOptions<T>::destOffsetInBytes() const noexcept
 /*!
   \details No detailed description
 
-  \return No description
-  */
-template <KernelArg T> inline
-bool BufferLaunchOptions<T>::isExternalSyncMode() const noexcept
-{
-  return is_external_sync_mode_;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <KernelArg T> inline
-std::string_view BufferLaunchOptions<T>::label() const noexcept
-{
-  std::string_view l{label_.data()};
-  return l;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <KernelArg T> inline
-const std::array<float, 4>& BufferLaunchOptions<T>::labelColor() const noexcept
-{
-  return label_color_;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <KernelArg T> inline
-uint32b BufferLaunchOptions<T>::queueIndex() const noexcept
-{
-  return queue_index_;
-}
-
-/*!
-  \details No detailed description
-
   \param [in] offset No description.
   */
 template <KernelArg T> inline
 void BufferLaunchOptions<T>::setDestOffset(const std::size_t offset) noexcept
 {
   dest_offset_ = offset;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] is_active No description.
-  */
-template <KernelArg T> inline
-void BufferLaunchOptions<T>::setExternalSyncMode(const bool is_active) noexcept
-{
-  is_external_sync_mode_ = is_active ? zisc::kTrue : zisc::kFalse;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] launch_label No description.
-  */
-template <KernelArg T> inline
-void BufferLaunchOptions<T>::setLabel(const std::string_view launch_label) noexcept
-{
-  std::strncpy(label_.data(), launch_label.data(), launch_label.size() + 1);
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] label_color No description.
-  */
-template <KernelArg T> inline
-void BufferLaunchOptions<T>::setLabelColor(const std::array<float, 4>& label_color) noexcept
-{
-  label_color_ = label_color;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] queue_index No description.
-  */
-template <KernelArg T> inline
-void BufferLaunchOptions<T>::setQueueIndex(const uint32b queue_index) noexcept
-{
-  queue_index_ = queue_index;
 }
 
 /*!

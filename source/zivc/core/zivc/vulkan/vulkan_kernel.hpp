@@ -67,9 +67,6 @@ class VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
 
 
   //! Return the command buffer
-  VkCommandBuffer& commandBuffer() noexcept;
-
-  //! Return the command buffer
   const VkCommandBuffer& commandBuffer() const noexcept;
 
   //! Check if the kernel has global arg
@@ -86,7 +83,7 @@ class VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   LaunchResult run(Args... args, const LaunchOptions& launch_options) override;
 
   //! Set a command buffer reference
-  void setCommandBufferRef(VkCommandBuffer* command_ref) noexcept;
+  void setCommandBufferRef(const VkCommandBuffer* command_ref) noexcept;
 
  protected:
   //! Clear the contents of the kernel
@@ -172,7 +169,7 @@ class VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   const void* kernel_data_ = nullptr;
   VkDescriptorPool desc_pool_ = ZIVC_VK_NULL_HANDLE;
   VkDescriptorSet desc_set_ = ZIVC_VK_NULL_HANDLE;
-  VkCommandBuffer* command_buffer_ref_ = nullptr;
+  const VkCommandBuffer* command_buffer_ref_ = nullptr;
   VkCommandBuffer command_buffer_ = ZIVC_VK_NULL_HANDLE;
   SharedBuffer<PodCacheT> pod_buffer_;
   SharedBuffer<PodCacheT> pod_cache_;

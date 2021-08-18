@@ -17,12 +17,18 @@
 
 // Standard C++ library
 #include <cstddef>
+#include <memory>
 // Zisc
 #include "zisc/non_copyable.hpp"
 // Zivc
 #include "utility/vulkan.hpp"
 #include "utility/vulkan_memory_allocator.hpp"
+#include "zivc/buffer.hpp"
+#include "zivc/kernel_common.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/utility/buffer_launch_options.hpp"
+#include "zivc/utility/launch_result.hpp"
+#include "zivc/utility/launch_options.hpp"
 
 namespace zivc {
 
@@ -64,6 +70,12 @@ class VulkanBufferImpl : private zisc::NonCopyable<VulkanBufferImpl>
                         VmaAllocation* vm_allocation,
                         VmaAllocationInfo* alloc_info) const noexcept;
 
+  template <KernelArg T, KernelArg D>
+  LaunchResult fill(KernelCommon* fill_kernel,
+                    typename Buffer<D>::ConstReference value,
+                    Buffer<T>* buffer,
+                    const BufferLaunchOptions<D>& launch_options) const noexcept;
+
   //! Fill the given buffer with the specified value
   void fillFastCmd(const VkCommandBuffer& command_buffer,
                    const VkBuffer& buffer,
@@ -76,6 +88,10 @@ class VulkanBufferImpl : private zisc::NonCopyable<VulkanBufferImpl>
                           const VkBufferUsageFlagBits desc_type,
                           VmaAllocationInfo* alloc_info) const;
 
+  //! Initialize fill kernel
+  [[nodiscard]]
+  std::shared_ptr<KernelCommon> makeFillKernel(const VkCommandBuffer& command_buffer);
+
   //!
   [[noreturn]] static void throwResultException(const VkResult result,
                                                 const char* message);
@@ -86,6 +102,15 @@ class VulkanBufferImpl : private zisc::NonCopyable<VulkanBufferImpl>
 
   //! Return the underlying device object
   const VulkanDevice& device() const noexcept;
+
+  //! Fill the given buffer with the specified value
+  LaunchResult fill(KernelCommon* fill_kernel,
+                    const uint8b* data,
+                    const std::size_t data_size,
+                    Buffer<uint8b>* buffer,
+                    const LaunchOptions& launch_options,
+                    const std::size_t offset,
+                    const std::size_t size) const noexcept;
 
   //! Create a allocation create info
   VmaAllocationCreateInfo makeAllocCreateInfo(
@@ -105,5 +130,7 @@ class VulkanBufferImpl : private zisc::NonCopyable<VulkanBufferImpl>
 };
 
 } // namespace zivc
+
+#include "vulkan_buffer_impl-inl.hpp"
 
 #endif // ZIVC_VULKAN_BUFFER_IMPL_HPP

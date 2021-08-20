@@ -45,7 +45,7 @@ namespace {
   */
 auto makeFillKernelImpl(zivc::VulkanDevice* device, const VkCommandBuffer& command_buffer)
 {
-  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(zivc_internal_kernel, Zivc_fillKernel, 1);
+  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(zivc_internal_kernel, Zivc_fillU8Kernel, 1);
   kernel_params.setVulkanCommandBufferPtr(std::addressof(command_buffer));
   auto kernel = device->makeKernel(kernel_params);
   return kernel;
@@ -171,25 +171,26 @@ LaunchResult VulkanBufferImpl::fill(KernelCommon* fill_kernel,
                                     const std::size_t offset,
                                     const std::size_t size) const noexcept
 {
-  using FillKernelT = std::remove_cvref_t<decltype(*::makeFillKernelImpl(nullptr, nullptr))>;
-  using FillKernelP = std::add_pointer_t<FillKernelT>;
-  auto kernel = zisc::cast<FillKernelP>(fill_kernel);
-
-  auto kernel_launch_options = kernel->makeOptions();
-  kernel_launch_options.setWorkSize({zisc::cast<uint32b>(size)});
-  kernel_launch_options.setQueueIndex(launch_options.queueIndex());
-  kernel_launch_options.setExternalSyncMode(launch_options.isExternalSyncMode());
-  kernel_launch_options.setLabel(launch_options.label());
-  kernel_launch_options.setLabelColor(launch_options.labelColor());
-
-  using FillDataT = zivc::cl::zivc_internal_kernel::zivc::FillData;
-  FillDataT fill_data{};
-  fill_data.setOffset(offset);
-  fill_data.setSize(size);
-  fill_data.setValue(data, data_size);
-
-  auto result = kernel->run(*buffer, fill_data, kernel_launch_options);
-  return result;
+//  using FillKernelT = std::remove_cvref_t<decltype(*::makeFillKernelImpl(nullptr, nullptr))>;
+//  using FillKernelP = std::add_pointer_t<FillKernelT>;
+//  auto kernel = zisc::cast<FillKernelP>(fill_kernel);
+//
+//  auto kernel_launch_options = kernel->makeOptions();
+//  kernel_launch_options.setWorkSize({zisc::cast<uint32b>(size)});
+//  kernel_launch_options.setQueueIndex(launch_options.queueIndex());
+//  kernel_launch_options.setExternalSyncMode(launch_options.isExternalSyncMode());
+//  kernel_launch_options.setLabel(launch_options.label());
+//  kernel_launch_options.setLabelColor(launch_options.labelColor());
+//
+//  using FillDataT = zivc::cl::zivc_internal_kernel::zivc::FillData;
+//  FillDataT fill_data{};
+//  fill_data.setOffset(offset);
+//  fill_data.setSize(size);
+//  fill_data.setValue(data, data_size);
+//
+//  auto result = kernel->run(*buffer, fill_data, kernel_launch_options);
+//  return result;
+  return LaunchResult{};
 }
 
 /*!

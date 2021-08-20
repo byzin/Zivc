@@ -130,8 +130,8 @@ function(Zivc_addZivcKernels target version)
   set(kernel_project_dir ${CMAKE_CURRENT_FUNCTION_LIST_DIR})
   include(${kernel_project_dir}/cmake/kernel.cmake)
 
-  set(kernel_set_dir ${kernel_project_dir}/kernel)
-  file(GLOB_RECURSE kernel_sources ${kernel_set_dir}/*.cl)
+  set(kernel_set_dir ${kernel_project_dir}/internal_kernel/zivc)
+  file(GLOB_RECURSE kernel_sources ${kernel_set_dir}/kernel/*.cl)
   set(kernel_set_name "zivc_internal_kernel")
   Zivc_addKernelSet(${kernel_set_name} ${version}
       SOURCE_FILES ${kernel_sources}

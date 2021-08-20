@@ -29,9 +29,12 @@
 !/source/zivc/
 !/source/zivc/CMakeLists.txt
 !/source/zivc/*.dox
-!/source/zivc/kernel/
-!/source/zivc/kernel/zivc/
-!/source/zivc/kernel/zivc/*.cl
+!/source/zivc/internal_kernel/
+!/source/zivc/internal_kernel/zivc/
+!/source/zivc/internal_kernel/zivc/kernel/
+!/source/zivc/internal_kernel/zivc/kernel/*.cl
+!/source/zivc/internal_kernel/zivc/utility/
+!/source/zivc/internal_kernel/zivc/utility/*.cl
 !/source/zivc/kernel_baker/
 !/source/zivc/kernel_baker/CMakeLists.txt
 !/source/zivc/kernel_baker/kernel_baker.cpp

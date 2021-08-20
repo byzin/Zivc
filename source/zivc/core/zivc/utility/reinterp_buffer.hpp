@@ -22,6 +22,7 @@
 #include "zisc/concepts.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
+#include "buffer_init_params.hpp"
 #include "zivc/buffer.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/id_data.hpp"
@@ -131,7 +132,7 @@ class ReinterpBuffer : public Buffer<T>
   void destroyData() noexcept override;
 
   //! Initialize the buffer
-  void initData() override;
+  void initData(const BufferInitParams& params) override;
 
   //! Update debug info
   void updateDebugInfoImpl() noexcept override;

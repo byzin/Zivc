@@ -39,7 +39,7 @@ class KernelSet
 {
  public:
   //! Return the ID number of the kernel set
-  static constexpr uint32b id() noexcept;
+  static constexpr uint64b id() noexcept;
 
   //! Load the SPIR-V code
   static void loadSpirVCode(zisc::pmr::vector<uint32b>* spirv_code_out) noexcept;

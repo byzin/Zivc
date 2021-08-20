@@ -30,6 +30,7 @@
 // Zivc
 #include "buffer_common.hpp"
 #include "zivc_config.hpp"
+#include "utility/buffer_init_params.hpp"
 #include "utility/buffer_launch_options.hpp"
 #include "utility/id_data.hpp"
 #include "utility/launch_result.hpp"
@@ -121,20 +122,20 @@ LaunchResult Buffer<T>::fill(ConstReference value,
 
   \param [in] parent No description.
   \param [in] own No description.
-  \param [in] buffer_usage No description.
+  \param [in] params No description.
   */
 template <KernelArg T> inline
 void Buffer<T>::initialize(ZivcObject::SharedPtr&& parent,
                            WeakPtr&& own,
-                           const BufferUsage buffer_usage)
+                           const BufferInitParams& params)
 {
   //! Clear the previous device data first
   destroy();
 
   initObject(std::move(parent), std::move(own));
-  setUsage(buffer_usage);
+  setUsage(params.bufferUsage());
   setTypeSize(sizeof(Type));
-  initData();
+  initData(params);
 
   ZivcObject::setNameIfEmpty("Buffer");
 }

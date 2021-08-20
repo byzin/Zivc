@@ -20,6 +20,7 @@
 #include <memory>
 // Zisc
 #include "zisc/concepts.hpp"
+#include "zisc/zisc_config.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "utility/vulkan.hpp"
@@ -27,6 +28,7 @@
 #include "zivc/buffer.hpp"
 #include "zivc/kernel_common.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/utility/buffer_init_params.hpp"
 #include "zivc/utility/buffer_launch_options.hpp"
 #include "zivc/utility/id_data.hpp"
 #include "zivc/utility/launch_result.hpp"
@@ -48,18 +50,7 @@ class VulkanBuffer : public Buffer<T>
   using Pointer = typename Buffer<T>::Pointer;
   using ConstPointer = typename Buffer<T>::ConstPointer;
   using LaunchOptions = typename Buffer<T>::LaunchOptions;
-
-
-  /*!
-    \brief No brief description
-
-    No detailed description.
-    */
-  enum class DescriptorType : uint32b
-  {
-    kUniform,
-    kStorage
-  };
+  using DescriptorType = BufferInitParams::DescriptorType;
 
 
   /*!
@@ -75,7 +66,7 @@ class VulkanBuffer : public Buffer<T>
     VkCommandBuffer command_buffer_ = ZIVC_VK_NULL_HANDLE;
     std::shared_ptr<KernelCommon> fill_kernel_;
     DescriptorType desc_type_ = DescriptorType::kStorage;
-    [[maybe_unused]] uint32b padding_ = 0;
+    [[maybe_unused]] Padding<4> pad_;
   };
 
 
@@ -164,7 +155,7 @@ class VulkanBuffer : public Buffer<T>
   void destroyData() noexcept override;
 
   //! Initialize the buffer
-  void initData() override;
+  void initData(const BufferInitParams& params) override;
 
   //! Update the debug info
   void updateDebugInfoImpl() noexcept override;
@@ -229,6 +220,9 @@ class VulkanBuffer : public Buffer<T>
   //! Initialize the fill kernel
   void initFillKernel();
 
+  //! Check if the buffer is internal
+  bool isInternal() const noexcept;
+
   //! Make a data for fast fill on device
   static uint32b makeDataForFillFast(ConstReference value) noexcept;
 
@@ -244,6 +238,8 @@ class VulkanBuffer : public Buffer<T>
 
   BufferData buffer_data_;
   std::size_t size_ = 0;
+  uint8b is_internal_ = zisc::kFalse;
+  [[maybe_unused]] Padding<7> pad_;
 };
 
 } // namespace zivc

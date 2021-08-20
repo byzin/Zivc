@@ -53,7 +53,7 @@ template <typename SetType> inline
 auto VulkanDevice::addShaderModule(const KernelSet<SetType>& kernel_set)
     -> const ModuleData&
 {
-  const uint32b id = kernel_set.id();
+  const uint64b id = kernel_set.id();
   if (hasShaderModule(id))
     return getShaderModule(id);
 
@@ -166,7 +166,7 @@ const VkQueue& VulkanDevice::getQueue(const std::size_t index) const noexcept
   \return No description
   */
 inline
-auto VulkanDevice::getShaderKernel(const uint32b id) const noexcept
+auto VulkanDevice::getShaderKernel(const uint64b id) const noexcept
     -> const KernelData&
 {
   ZISC_ASSERT(hasShaderKernel(id), "Kernel data not found. id = ", id);
@@ -186,7 +186,7 @@ auto VulkanDevice::getShaderKernel(const uint32b id) const noexcept
   \return No description
   */
 inline
-auto VulkanDevice::getShaderModule(const uint32b id) const noexcept
+auto VulkanDevice::getShaderModule(const uint64b id) const noexcept
     -> const ModuleData&
 {
   ZISC_ASSERT(hasShaderModule(id), "Shader module not found. id = ", id);
@@ -206,7 +206,7 @@ auto VulkanDevice::getShaderModule(const uint32b id) const noexcept
   \return No description
   */
 inline
-bool VulkanDevice::hasShaderKernel(const uint32b id) const noexcept
+bool VulkanDevice::hasShaderKernel(const uint64b id) const noexcept
 {
   bool result = false;
   {
@@ -224,7 +224,7 @@ bool VulkanDevice::hasShaderKernel(const uint32b id) const noexcept
   \return No description
   */
 inline
-bool VulkanDevice::hasShaderModule(const uint32b id) const noexcept
+bool VulkanDevice::hasShaderModule(const uint64b id) const noexcept
 {
   bool result = false;
   {

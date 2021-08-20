@@ -33,9 +33,9 @@ namespace zivc {
   \return No description
   */
 template <typename SetType> inline
-constexpr uint32b KernelSet<SetType>::id() noexcept
+constexpr uint64b KernelSet<SetType>::id() noexcept
 {
-  constexpr uint32b i = SetType::id();
+  constexpr uint64b i = SetType::id();
   return i;
 }
 

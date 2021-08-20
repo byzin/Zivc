@@ -27,6 +27,7 @@
 // Zivc
 #include "buffer_common.hpp"
 #include "zivc_config.hpp"
+#include "utility/buffer_init_params.hpp"
 #include "utility/buffer_launch_options.hpp"
 #include "utility/id_data.hpp"
 #include "utility/launch_result.hpp"
@@ -93,7 +94,7 @@ class Buffer : public BufferCommon
   //! Initialize the buffer
   void initialize(ZivcObject::SharedPtr&& parent,
                   WeakPtr&& own,
-                  const BufferUsage buffer_usage);
+                  const BufferInitParams& params);
 
   //! Map a buffer memory to a host
   [[nodiscard]]
@@ -146,7 +147,7 @@ class Buffer : public BufferCommon
                            const LaunchOptions& launch_options);
 
   //! Initialize the buffer
-  virtual void initData() = 0;
+  virtual void initData(const BufferInitParams& params) = 0;
 };
 
 

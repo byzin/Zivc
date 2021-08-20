@@ -13,7 +13,7 @@
   */
 
 #ifndef ZIVC_KERNEL_SET_@kernel_set_name@_CL
-#define ZIVC_KERNEL_SET_@kernel_set_name@_CL @kernel_set_number@
+#define ZIVC_KERNEL_SET_@kernel_set_name@_CL 0x@kernel_set_number@u
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wc++98-compat"
@@ -65,7 +65,7 @@ __kernel void zivcClspvInitKernel(__global uint* outputs)
   outputs[i++] = get_sub_group_local_id();
 }
 
-static_assert(ZIVC_KERNEL_SET_@kernel_set_name@_CL == @kernel_set_number@,
+static_assert(ZIVC_KERNEL_SET_@kernel_set_name@_CL == 0x@kernel_set_number@u,
               "The ID number of the kernel set isn't valid.");
 
 #if !defined(ZIVC_GLOBAL_NAMESPACE)

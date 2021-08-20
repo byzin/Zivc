@@ -165,7 +165,7 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
                                    const std::size_t num_of_local_args)
     -> const KernelData&
 {
-  const uint32b id = getKernelId(module.name_, kernel_name);
+  const uint64b id = getKernelId(module.name_, kernel_name);
   if (hasShaderKernel(id))
     return getShaderKernel(id);
 
@@ -324,13 +324,13 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
   \param [in] kernel_name No description.
   \return No description
   */
-uint32b VulkanDevice::getKernelId(const std::string_view module_name,
+uint64b VulkanDevice::getKernelId(const std::string_view module_name,
                                   const std::string_view kernel_name) noexcept
 {
   IdData::NameType kernel_id_name{""};
   std::strncpy(kernel_id_name.data(), module_name.data(), module_name.size() + 1);
   std::strncat(kernel_id_name.data(), kernel_name.data(), kernel_name.size() + 1);
-  const uint32b kernel_id = zisc::Fnv1aHash32::hash(kernel_id_name.data());
+  const uint64b kernel_id = zisc::Fnv1aHash64::hash(kernel_id_name.data());
   return kernel_id;
 }
 
@@ -893,7 +893,7 @@ void VulkanDevice::Callbacks::notifyOfDeviceMemoryDeallocation(
   \param [in] id No description.
   \param [in] spirv_code No description.
   */
-auto VulkanDevice::addShaderModule(const uint32b id,
+auto VulkanDevice::addShaderModule(const uint64b id,
                                    const zisc::pmr::vector<uint32b>& spirv_code,
                                    const std::string_view module_name)
     -> const ModuleData&

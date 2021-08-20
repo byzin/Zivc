@@ -32,6 +32,7 @@
 #include "cpu/cpu_buffer.hpp"
 #include "cpu/cpu_device.hpp"
 #include "cpu/cpu_kernel.hpp"
+#include "utility/buffer_init_params.hpp"
 #include "utility/buffer_launch_options.hpp"
 #include "utility/kernel_arg_parser.hpp"
 #include "utility/kernel_init_params.hpp"
@@ -123,21 +124,21 @@ LaunchResult fill(typename Buffer<Type>::ConstReference value,
 
   \tparam Type No description.
   \param [in,out] device No description.
-  \param [in] flag No description.
+  \param [in] params No description.
   \return No description
   */
 template <KernelArg Type> inline
-SharedBuffer<Type> makeBuffer(Device* device, const BufferUsage flag)
+SharedBuffer<Type> makeBuffer(Device* device, const BufferInitParams& params)
 {
   SharedBuffer<Type> buffer;
   switch (device->type()) {
    case SubPlatformType::kCpu: {
-    buffer = device->makeDerivedBuffer<CpuBuffer, Type>(flag);
+    buffer = device->makeDerivedBuffer<CpuBuffer, Type>(params);
     break;
    }
    case SubPlatformType::kVulkan: {
 #if defined(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
-    buffer = device->makeDerivedBuffer<VulkanBuffer, Type>(flag);
+    buffer = device->makeDerivedBuffer<VulkanBuffer, Type>(params);
     break;
 #else // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
     [[fallthrough]];

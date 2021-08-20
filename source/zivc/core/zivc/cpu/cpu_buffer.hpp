@@ -25,6 +25,7 @@
 // Zivc
 #include "zivc/buffer.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/utility/buffer_init_params.hpp"
 #include "zivc/utility/buffer_launch_options.hpp"
 #include "zivc/utility/id_data.hpp"
 #include "zivc/utility/launch_result.hpp"
@@ -116,7 +117,7 @@ class CpuBuffer : public Buffer<T>
   void destroyData() noexcept override;
 
   //! Initialize the buffer
-  void initData() override;
+  void initData(const BufferInitParams& params) override;
 
   //! Update debug info
   void updateDebugInfoImpl() noexcept override;

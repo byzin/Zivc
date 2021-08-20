@@ -110,12 +110,9 @@ function(Zivc_getZivcKernelFlags zivc_compile_flags zivc_definitions)
 endfunction(Zivc_getZivcKernelFlags)
 
 
-set(__zivc_num_of_sets__ 0 CACHE INTERNAL "")
-
-function(Zivc_issueKernelSetNumber number)
-  set(kernel_set_number ${__zivc_num_of_sets__})
-  math(EXPR num_of_sets "${__zivc_num_of_sets__} + 1")
-  set(__zivc_num_of_sets__ ${num_of_sets} CACHE INTERNAL "")
+function(Zivc_issueKernelSetNumber kernel_set_name number)
+  string(SHA3_256 kernel_set_number "${kernel_set_name}")
+  string(SUBSTRING "${kernel_set_number}" 0 16 kernel_set_number)
 
   # Output
   set(${number} ${kernel_set_number} PARENT_SCOPE)
@@ -135,7 +132,7 @@ function(Zivc_addKernelSet kernel_set_name kernel_set_version)
   endif()
 
   # Set kernel properties
-  Zivc_issueKernelSetNumber(kernel_set_number)
+  Zivc_issueKernelSetNumber("${kernel_set_name}" kernel_set_number)
   set(zivc_path ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/..)
   set(zivc_core_dir ${zivc_path}/core)
   get_filename_component(zivc_path "${zivc_path}" REALPATH)

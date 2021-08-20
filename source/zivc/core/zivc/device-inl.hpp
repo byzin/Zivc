@@ -26,6 +26,7 @@
 #include "buffer.hpp"
 #include "kernel_set.hpp"
 #include "zivc_config.hpp"
+#include "utility/buffer_init_params.hpp"
 #include "utility/kernel_arg_parser.hpp"
 
 namespace zivc {
@@ -34,13 +35,13 @@ namespace zivc {
   \details No detailed description
 
   \tparam T No description.
-  \param [in] flag No description.
+  \param [in] params No description.
   \return No description
   */
 template <KernelArg T> inline
-SharedBuffer<T> Device::makeBuffer(const BufferUsage flag)
+SharedBuffer<T> Device::makeBuffer(const BufferInitParams& params)
 {
-  auto buffer = ::zivc::makeBuffer<T>(this, flag);
+  auto buffer = ::zivc::makeBuffer<T>(this, params);
   return buffer;
 }
 
@@ -77,11 +78,11 @@ const DeviceInfo& Device::deviceInfo() const noexcept
 
   \tparam Derived No description.
   \tparam T No description.
-  \param [in] flag No description.
+  \param [in] params No description.
   \return No description
   */
 template <template<typename> typename Derived, KernelArg T> inline
-SharedBuffer<T> Device::makeDerivedBuffer(const BufferUsage flag)
+SharedBuffer<T> Device::makeDerivedBuffer(const BufferInitParams& params)
 {
   using BufferT = Derived<T>;
   zisc::pmr::polymorphic_allocator<BufferT> alloc{memoryResource()};
@@ -89,7 +90,7 @@ SharedBuffer<T> Device::makeDerivedBuffer(const BufferUsage flag)
 
   ZivcObject::SharedPtr parent{getOwnPtr()};
   WeakBuffer<T> own{buffer};
-  buffer->initialize(std::move(parent), std::move(own), flag);
+  buffer->initialize(std::move(parent), std::move(own), params);
 
   return buffer;
 }

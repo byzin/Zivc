@@ -132,10 +132,11 @@ function(Zivc_addZivcKernels target version)
 
   set(kernel_set_dir ${kernel_project_dir}/kernel)
   file(GLOB_RECURSE kernel_sources ${kernel_set_dir}/*.cl)
-  Zivc_addKernelSet(zivc_kernel ${version}
+  set(kernel_set_name "zivc_internal_kernel")
+  Zivc_addKernelSet(${kernel_set_name} ${version}
       SOURCE_FILES ${kernel_sources}
       INCLUDE_DIRS ${kernel_set_dir})
-  target_link_libraries(${target} PRIVATE KernelSet_zivc_kernel)
+  target_link_libraries(${target} PRIVATE KernelSet_${kernel_set_name})
 endfunction(Zivc_addZivcKernels)
 
 

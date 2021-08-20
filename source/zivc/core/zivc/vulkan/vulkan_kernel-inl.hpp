@@ -45,6 +45,7 @@
 #include "zivc/kernel.hpp"
 #include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/utility/buffer_init_params.hpp"
 #include "zivc/utility/error.hpp"
 #include "zivc/utility/id_data.hpp"
 #include "zivc/utility/kernel_arg_parser.hpp"
@@ -419,15 +420,18 @@ initPodBuffer()
   if constexpr (hasPodArg()) {
     auto& device = parentImpl();
     using BuffType = VulkanBuffer<PodCacheT>;
-    constexpr auto desc_uniform = BuffType::DescriptorType::kUniform;
     {
-      pod_buffer_ = device.template makeBuffer<PodCacheT>(BufferUsage::kDeviceOnly);
-      zisc::cast<BuffType*>(pod_buffer_.get())->setDescriptorType(desc_uniform);
+      BufferInitParams params{BufferUsage::kDeviceOnly};
+      params.setDescriptorType(BuffType::DescriptorType::kUniform);
+      params.setInternalBufferFlag(true);
+      pod_buffer_ = device.template makeBuffer<PodCacheT>(params);
       pod_buffer_->setSize(1);
     }
     {
-      pod_cache_ = device.template makeBuffer<PodCacheT>(BufferUsage::kHostOnly);
-      zisc::cast<BuffType*>(pod_cache_.get())->setDescriptorType(desc_uniform);
+      BufferInitParams params{BufferUsage::kHostOnly};
+      params.setDescriptorType(BuffType::DescriptorType::kUniform);
+      params.setInternalBufferFlag(true);
+      pod_cache_ = device.template makeBuffer<PodCacheT>(params);
       pod_cache_->setSize(1);
     }
 

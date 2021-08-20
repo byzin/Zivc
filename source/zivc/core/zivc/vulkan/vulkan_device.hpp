@@ -132,20 +132,20 @@ class VulkanDevice : public Device
   const VkQueue& getQueue(const std::size_t index) const noexcept;
 
   //! Return the kernel id of the given kernel name
-  static uint32b getKernelId(const std::string_view module_name,
+  static uint64b getKernelId(const std::string_view module_name,
                              const std::string_view kernel_name) noexcept;
 
   //! Return the shader module by the the given kernel set ID
-  const KernelData& getShaderKernel(const uint32b id) const noexcept;
+  const KernelData& getShaderKernel(const uint64b id) const noexcept;
 
   //! Return the shader module by the the given kernel set ID
-  const ModuleData& getShaderModule(const uint32b id) const noexcept;
+  const ModuleData& getShaderModule(const uint64b id) const noexcept;
 
   //! Check if the device has the kernel of the give kernel id
-  bool hasShaderKernel(const uint32b id) const noexcept;
+  bool hasShaderKernel(const uint64b id) const noexcept;
 
   //! Check if the device has the shader module of the given kernel set ID
-  bool hasShaderModule(const uint32b id) const noexcept;
+  bool hasShaderModule(const uint64b id) const noexcept;
 
   //! Return the invalid queue index in queue families
   static constexpr uint32b invalidQueueIndex() noexcept;
@@ -286,7 +286,7 @@ class VulkanDevice : public Device
 
 
   //! Add a shader module of the given kernel set
-  const ModuleData& addShaderModule(const uint32b id,
+  const ModuleData& addShaderModule(const uint64b id,
                                     const zisc::pmr::vector<uint32b>& spirv_code,
                                     const std::string_view module_name);
 
@@ -353,8 +353,8 @@ class VulkanDevice : public Device
   zisc::pmr::unique_ptr<zisc::pmr::vector<VkQueue>> queue_list_;
   zisc::pmr::unique_ptr<zisc::pmr::vector<zisc::Memory::Usage>> heap_usage_list_;
   zisc::pmr::unique_ptr<VulkanDispatchLoader> dispatcher_;
-  zisc::pmr::unique_ptr<zisc::pmr::map<uint32b, UniqueModuleData>> module_data_list_;
-  zisc::pmr::unique_ptr<zisc::pmr::map<uint32b, UniqueKernelData>> kernel_data_list_;
+  zisc::pmr::unique_ptr<zisc::pmr::map<uint64b, UniqueModuleData>> module_data_list_;
+  zisc::pmr::unique_ptr<zisc::pmr::map<uint64b, UniqueKernelData>> kernel_data_list_;
   uint32b queue_family_index_ = invalidQueueIndex();
   std::array<std::array<uint32b, 3>, 3> work_group_size_list_;
 };

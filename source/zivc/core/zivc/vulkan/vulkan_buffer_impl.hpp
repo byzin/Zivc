@@ -89,7 +89,7 @@ class VulkanBufferImpl : private zisc::NonCopyable<VulkanBufferImpl>
                           VmaAllocationInfo* alloc_info) const;
 
   //! Initialize fill kernel
-  [[nodiscard]]
+  [[nodiscard("The result will have a vulkan kernel.")]]
   std::shared_ptr<KernelCommon> makeFillKernel(const VkCommandBuffer& command_buffer);
 
   //!

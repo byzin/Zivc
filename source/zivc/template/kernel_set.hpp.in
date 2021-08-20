@@ -112,9 +112,9 @@ class KernelSet_@kernel_set_name@ : public KernelSet<KernelSet_@kernel_set_name@
 
  public:
   //! Return the ID number of the kernel set
-  static constexpr uint32b id() noexcept
+  static constexpr uint64b id() noexcept
   {
-    return @kernel_set_number@;
+    return 0x@kernel_set_number@u;
   }
 
   //! Load the SPIR-V code

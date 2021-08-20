@@ -29,7 +29,7 @@
 #include "utility/vulkan_memory_allocator.hpp"
 #include "zivc/zivc.hpp"
 #include "zivc/zivc_config.hpp"
-#include "zivc/kernel_set/kernel_set-zivc_kernel.hpp"
+#include "zivc/kernel_set/kernel_set-zivc_internal_kernel.hpp"
 #include "zivc/utility/error.hpp"
 #include "zivc/utility/launch_result.hpp"
 #include "zivc/utility/launch_options.hpp"
@@ -45,7 +45,7 @@ namespace {
   */
 auto makeFillKernelImpl(zivc::VulkanDevice* device, const VkCommandBuffer& command_buffer)
 {
-  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(zivc_kernel, Zivc_fillKernel, 1);
+  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(zivc_internal_kernel, Zivc_fillKernel, 1);
   kernel_params.setVulkanCommandBufferPtr(std::addressof(command_buffer));
   auto kernel = device->makeKernel(kernel_params);
   return kernel;
@@ -182,7 +182,7 @@ LaunchResult VulkanBufferImpl::fill(KernelCommon* fill_kernel,
   kernel_launch_options.setLabel(launch_options.label());
   kernel_launch_options.setLabelColor(launch_options.labelColor());
 
-  using FillDataT = zivc::cl::zivc_kernel::zivc::FillData;
+  using FillDataT = zivc::cl::zivc_internal_kernel::zivc::FillData;
   FillDataT fill_data{};
   fill_data.setOffset(offset);
   fill_data.setSize(size);

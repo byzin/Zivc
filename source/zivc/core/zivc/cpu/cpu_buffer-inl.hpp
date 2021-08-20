@@ -33,6 +33,7 @@
 #include "zivc/buffer.hpp"
 #include "zivc/sub_platform.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/utility/buffer_init_params.hpp"
 #include "zivc/utility/buffer_launch_options.hpp"
 #include "zivc/utility/id_data.hpp"
 #include "zivc/utility/launch_result.hpp"
@@ -264,9 +265,11 @@ void CpuBuffer<T>::destroyData() noexcept
 
 /*!
   \details No detailed description
+
+  \param [in] params No description.
   */
 template <KernelArg T> inline
-void CpuBuffer<T>::initData()
+void CpuBuffer<T>::initData([[maybe_unused]] const BufferInitParams& params)
 {
   prepareBuffer();
 }

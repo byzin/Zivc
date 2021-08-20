@@ -30,6 +30,7 @@
 #include "cpu/cpu_buffer.hpp"
 #include "cpu/cpu_device.hpp"
 #include "cpu/cpu_kernel.hpp"
+#include "utility/buffer_init_params.hpp"
 #include "utility/error.hpp"
 #include "utility/kernel_init_params.hpp"
 #if defined(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
@@ -44,7 +45,7 @@ namespace zivc {
 //! Make a buffer
 template <KernelArg Type>
 [[nodiscard]]
-SharedBuffer<Type> makeBuffer(Device* device, const BufferUsage flag);
+SharedBuffer<Type> makeBuffer(Device* device, const BufferInitParams& params);
 
 //! Make a kernel
 template <std::size_t kDim, DerivedKSet KSet, typename ...Args>

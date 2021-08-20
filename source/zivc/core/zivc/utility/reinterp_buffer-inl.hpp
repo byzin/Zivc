@@ -25,6 +25,7 @@
 #include "zisc/error.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
+#include "buffer_init_params.hpp"
 #include "zivc/buffer.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/id_data.hpp"
@@ -343,7 +344,7 @@ void ReinterpBuffer<Derived, T>::destroyData() noexcept
   \details No detailed description
   */
 template <DerivedBuffer Derived, KernelArg T> inline
-void ReinterpBuffer<Derived, T>::initData()
+void ReinterpBuffer<Derived, T>::initData([[maybe_unused]] const BufferInitParams& params)
 {
 }
 

@@ -27,6 +27,7 @@
 #include "buffer.hpp"
 #include "kernel_set.hpp"
 #include "zivc_config.hpp"
+#include "utility/buffer_init_params.hpp"
 #include "utility/kernel_arg_parser.hpp"
 #include "utility/id_data.hpp"
 #include "utility/zivc_object.hpp"
@@ -39,7 +40,7 @@ class Fence;
 class SubPlatform;
 template <std::size_t, DerivedKSet, typename...> class KernelInitParams;
 template <KernelArg T>
-SharedBuffer<T> makeBuffer(Device* device, const BufferUsage flag);
+SharedBuffer<T> makeBuffer(Device* device, const BufferInitParams& params);
 template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
 SharedKernel<kDim, KSet, Args...> makeKernel(
     Device* device,
@@ -79,7 +80,7 @@ class Device : public ZivcObject
   //! Make a buffer
   template <KernelArg T>
   [[nodiscard]]
-  SharedBuffer<T> makeBuffer(const BufferUsage flag);
+  SharedBuffer<T> makeBuffer(const BufferInitParams& params);
 
   //! Make a kernel from the given parameters
   template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
@@ -126,7 +127,7 @@ class Device : public ZivcObject
 
  private:
   template <KernelArg T>
-  friend SharedBuffer<T> makeBuffer(Device*, const BufferUsage);
+  friend SharedBuffer<T> makeBuffer(Device*, const BufferInitParams&);
   template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
   friend SharedKernel<kDim, KSet, Args...> makeKernel(Device*, const KernelInitParams<kDim, KSet, Args...>&);
 
@@ -134,7 +135,7 @@ class Device : public ZivcObject
   //! Make a buffer
   template <template<typename> typename Derived, KernelArg T>
   [[nodiscard]]
-  SharedBuffer<T> makeDerivedBuffer(const BufferUsage flag);
+  SharedBuffer<T> makeDerivedBuffer(const BufferInitParams& params);
 
   //! Make a kernel from the given parameters
   template <template<typename, typename...> typename Derived,

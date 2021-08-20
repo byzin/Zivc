@@ -28,6 +28,7 @@
 #include "zisc/concepts.hpp"
 #include "zisc/error.hpp"
 #include "zisc/utility.hpp"
+#include "zisc/zisc_config.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "vulkan_buffer_impl.hpp"
@@ -41,6 +42,7 @@
 #include "zivc/buffer.hpp"
 #include "zivc/sub_platform.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/utility/buffer_init_params.hpp"
 #include "zivc/utility/buffer_launch_options.hpp"
 #include "zivc/utility/id_data.hpp"
 #include "zivc/utility/error.hpp"
@@ -316,17 +318,6 @@ const void* VulkanBuffer<T>::rawBufferData() const noexcept
 /*!
   \details No detailed description
 
-  \param [in] type No description.
-  */
-template <KernelArg T> inline
-void VulkanBuffer<T>::setDescriptorType(const DescriptorType type) noexcept
-{
-  rawBuffer().desc_type_ = type;
-}
-
-/*!
-  \details No detailed description
-
   \param [in] s No description.
   */
 template <KernelArg T> inline
@@ -344,8 +335,10 @@ void VulkanBuffer<T>::setSize(const std::size_t s)
                         std::addressof(buffer()),
                         std::addressof(allocation()),
                         std::addressof(rawBuffer().vm_alloc_info_));
-    initCommandBuffer();
-    initFillKernel();
+    if (!isInternal()) {
+      initCommandBuffer();
+      initFillKernel();
+    }
     ZivcObject::updateDebugInfo();
   }
   size_ = s;
@@ -395,11 +388,17 @@ void VulkanBuffer<T>::destroyData() noexcept
 
 /*!
   \details No detailed description
+
+  \param [in] params No description.
   */
 template <KernelArg T> inline
-void VulkanBuffer<T>::initData()
+void VulkanBuffer<T>::initData(const BufferInitParams& params)
 {
   VulkanDevice& device = parentImpl();
+  {
+    rawBuffer().desc_type_ = params.descriptorType();
+    is_internal_ = params.internalBufferFlag() ? zisc::kTrue : zisc::kFalse;
+  }
   {
     const VulkanBufferImpl impl{std::addressof(device)};
     impl.initAllocationInfo(Buffer<T>::usage(),
@@ -623,10 +622,11 @@ LaunchResult VulkanBuffer<T>::fillOnDevice(
     BufferCommon* dest,
     const BufferLaunchOptions<D>& launch_options)
 {
-  VulkanBuffer<T>* dest_buffer = zisc::cast<VulkanBuffer<T>*>(dest);
+  Buffer<D>* dest_buffer = zisc::cast<Buffer<D>*>(dest);
+  BufferData* dest_data = zisc::cast<BufferData*>(dest->rawBufferData());
   VulkanDevice& device = *zisc::cast<VulkanDevice*>(dest->getParent());
   const VulkanBufferImpl impl{std::addressof(device)};
-  LaunchResult result = impl.fill<T, D>(dest_buffer->rawBuffer().fill_kernel_.get(),
+  LaunchResult result = impl.fill<T, D>(dest_data->fill_kernel_.get(),
                                         value,
                                         dest_buffer,
                                         launch_options);
@@ -693,6 +693,18 @@ void VulkanBuffer<T>::initFillKernel()
     VulkanBufferImpl impl{std::addressof(parentImpl())};
     rawBuffer().fill_kernel_ = impl.makeFillKernel(commandBuffer());
   }
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <KernelArg T> inline
+bool VulkanBuffer<T>::isInternal() const noexcept
+{
+  const bool result = is_internal_ == zisc::kTrue;
+  return result;
 }
 
 /*!

@@ -310,7 +310,7 @@ endfunction(Zivc_prepareSpirVAnalysis)
 function(Zivc_initVulkanBackend target)
   # Make the output dir for Vulkan backend
   set(output_dir ${PROJECT_BINARY_DIR}/spv)
-  set(spv_version 1.3)
+  set(spv_version @kernel_set_spirv_version@)
 
   # Get kernel inclusion code
   Zivc_makeKernelInclusionString(kernel_inclusion_lines ${kernel_set_source_files})
@@ -329,23 +329,37 @@ function(Zivc_initVulkanBackend target)
   Zivc_getClspvCompileFlags(clspv_options)
   set(spv_org_file_path ${output_dir}/${set_name}-org.spv)
   list(APPEND clspv_options -o=${spv_org_file_path})
-  set(build_commands COMMAND ${clspv_command} ${clspv_options} ${cl_file_path})
+  set(build_commands
+      COMMAND ${CMAKE_COMMAND} -E echo "-- clspv"
+      COMMAND ${clspv_command} ${clspv_options} ${cl_file_path})
   list(APPEND clspv_output_files ${spv_org_file_path})
   ## Clspv descriptor map
   Zivc_findClspvReflection(reflection_command)
   set(map_path ${output_dir}/${set_name}-org-descmap.csv)
   set(reflection_options --target-env spv${spv_version} -o ${map_path})
-  list(APPEND build_commands COMMAND ${reflection_command} ${reflection_options} ${spv_org_file_path})
+  list(APPEND build_commands
+      COMMAND ${CMAKE_COMMAND} -E echo "-- clspv-reflection"
+      COMMAND ${reflection_command} ${reflection_options} ${spv_org_file_path})
   list(APPEND clspv_output_files ${map_path})
   ## Strip reflection info and optimize SPIR-V
-  Zivc_findSpirvOpt(spirv_opt_command)
-  Zivc_getSpirvOptOptions(opt_options)
-  list(APPEND build_commands COMMAND ${spirv_opt_command} ${opt_options} ${spv_org_file_path} -o ${spv_file_path})
+  if(ZIVC_ENABLE_SPIRV_OPT)
+    Zivc_findSpirvOpt(spirv_opt_command)
+    Zivc_getSpirvOptOptions(opt_options)
+    list(APPEND build_commands
+        COMMAND ${CMAKE_COMMAND} -E echo "-- spirv-opt"
+        COMMAND ${spirv_opt_command} ${opt_options} ${spv_org_file_path} -o ${spv_file_path})
+  else()
+    # Just copy '${spv_org_file_path}' to '${spv_file_path}'
+    list(APPEND build_commands
+        COMMAND ${CMAKE_COMMAND} -E copy ${spv_org_file_path} ${spv_file_path})
+  endif()
   list(APPEND clspv_output_files ${spv_file_path})
   ## Bake SPIR-V kernel into an executable
   if(ZIVC_BAKE_KERNELS)
     Zivc_getKernelBakeCommand(bake_command ${spv_file_path} ${baked_spv_file_path})
-    list(APPEND build_commands COMMAND ${bake_command})
+    list(APPEND build_commands
+        COMMAND ${CMAKE_COMMAND} -E echo "-- kernel-baker"
+        COMMAND ${bake_command})
     list(APPEND clspv_output_files ${baked_spv_file_path})
   endif()
   ## Create a build command

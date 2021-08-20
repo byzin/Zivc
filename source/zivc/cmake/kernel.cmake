@@ -122,7 +122,7 @@ endfunction(Zivc_issueKernelSetNumber)
 function(Zivc_addKernelSet kernel_set_name kernel_set_version)
   # Parse arguments
   set(options "")
-  set(one_value_args "")
+  set(one_value_args SPIRV_VERSION)
   set(multi_value_args SOURCE_FILES INCLUDE_DIRS DEFINITIONS DEPENDS)
   cmake_parse_arguments(PARSE_ARGV 2 ZIVC "${options}" "${one_value_args}" "${multi_value_args}")
 
@@ -143,6 +143,17 @@ function(Zivc_addKernelSet kernel_set_name kernel_set_version)
   set(kernel_set_definitions ${ZIVC_DEFINITIONS})
   set(kernel_set_depends ${ZIVC_DEPENDS})
   set(zisc_path ${zivc_path}/../dependencies/Zisc/source/zisc)
+  # SPIR-V version
+  if(ZIVC_SPIRV_VERSION)
+    set(kernel_set_spirv_version ${ZIVC_SPIRV_VERSION})
+  else()
+    set(kernel_set_spirv_version ${ZIVC_DEFAULT_SPIRV_VERSION})
+  endif()
+  set(supported_spirv_versions 1.0 1.3 1.4 1.5)
+  if(NOT (kernel_set_spirv_version IN_LIST supported_spirv_versions))
+    message(WARNING "The specified SPIR-V version '${kernel_set_spirv_version}' isn't supported. Use '1.3' instead.")
+    set(kernel_set_spirv_version 1.3)
+  endif()
 
   # Make a CMakeLists.txt of the given kernel set
   set(kernel_set_dir ${PROJECT_BINARY_DIR}/KernelSet/${kernel_set_name})

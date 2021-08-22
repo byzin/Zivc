@@ -1,5 +1,5 @@
 /*!
-  \file fill_u8_kernel.cl
+  \file fill_u32_kernel.cl
   \author Sho Ikeda
   \brief No brief description
 
@@ -12,8 +12,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_FILL_U8_KERNEL_CL
-#define ZIVC_FILL_U8_KERNEL_CL
+#ifndef ZIVC_FILL_U32_KERNEL_CL
+#define ZIVC_FILL_U32_KERNEL_CL
 
 // Zivc
 #include "zivc/cl/types.cl"
@@ -21,7 +21,7 @@
 // Internal kernel
 #include "utility/fill_info.cl"
 
-using uint8b = zivc::uint8b;
+using uint32b = zivc::uint32b;
 
 /*!
   \details No detailed description
@@ -30,9 +30,9 @@ using uint8b = zivc::uint8b;
   \param [out] buffer No description.
   \param [in] info No description.
   */
-__kernel void Zivc_fillU8Kernel(zivc::ConstGlobalPtr<uint8b> data,
-                                zivc::GlobalPtr<uint8b> buffer,
-                                const zivc::FillInfo info)
+__kernel void Zivc_fillU32Kernel(zivc::ConstGlobalPtr<uint32b> data,
+                                 zivc::GlobalPtr<uint32b> buffer,
+                                 const zivc::FillInfo info)
 {
   const size_t id = zivc::getGlobalIdX();
   for (size_t ite = 0; ite < info.batchSize(); ++ite) {
@@ -40,12 +40,10 @@ __kernel void Zivc_fillU8Kernel(zivc::ConstGlobalPtr<uint8b> data,
     if (info.elementSize() <= element_index)
       break;
     const size_t buffer_index = info.dataSize() * element_index;
-    zivc::GlobalPtr<uint8b> ptr = buffer + buffer_index;
+    zivc::GlobalPtr<uint32b> ptr = buffer + buffer_index;
     for (size_t i = 0; i < info.dataSize(); ++i)
-      ptr[i] = 0;
-//      ptr[i] = data[i];
+      ptr[i] = data[i];
   }
-  static_cast<void>(data);
 }
 
-#endif // ZIVC_FILL_U8_KERNEL_CL
+#endif // ZIVC_FILL_U32_KERNEL_CL

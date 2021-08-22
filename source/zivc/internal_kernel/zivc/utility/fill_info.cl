@@ -37,8 +37,8 @@ bool operator!=(const FillInfo& lhs, const FillInfo& rhs) noexcept;
 class FillInfo
 {
  public:
-  //! Return the size of the buffer to be filled
-  size_t bufferSize() const noexcept;
+  //! Return the number of buffer elements filled in a work-item
+  static constexpr size_t batchSize() noexcept;
 
   //! Return the capacity of the data
   static constexpr size_t dataCapacityInBytes() noexcept;
@@ -46,20 +46,23 @@ class FillInfo
   //! Return the data size
   size_t dataSize() const noexcept;
 
+  //! Return the id offset
+  size_t elementOffset() const noexcept;
+
+  //! Return the size of the buffer to be filled
+  size_t elementSize() const noexcept;
+
   //! Return the underlying header
   uint4 header() const noexcept;
-
-  //! Return the id offset
-  size_t idOffset() const noexcept;
-
-  //! Set the size of the buffer to be filled
-  void setBufferSize(const size_t size) noexcept;
 
   //! Set the data size
   void setDataSize(const size_t size) noexcept;
 
   //! Set the id offset
-  void setIdOffset(const size_t offset) noexcept;
+  void setElementOffset(const size_t offset) noexcept;
+
+  //! Set the size of the buffer to be filled
+  void setElementSize(const size_t size) noexcept;
 
  private:
   using uint32b = zivc::uint32b;
@@ -69,8 +72,8 @@ class FillInfo
   static constexpr size_t kDataCapacityInBytes = 256 - kInfoSize;
 
 
-  uint32b buffer_size_;
-  uint32b id_offset_;
+  uint32b element_offset_;
+  uint32b element_size_;
   uint32b data_size_;
   uint32b pad_;
 };
@@ -85,8 +88,8 @@ class FillInfo
 inline
 bool operator==(const FillInfo& lhs, const FillInfo& rhs) noexcept
 {
-  const bool result = (lhs.bufferSize() == rhs.bufferSize()) &&
-                      (lhs.idOffset() == rhs.idOffset()) &&
+  const bool result = (lhs.elementOffset() == rhs.elementOffset()) &&
+                      (lhs.elementSize() == rhs.elementSize()) &&
                       (lhs.dataSize() == rhs.dataSize());
   return result;
 }

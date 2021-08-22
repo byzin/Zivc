@@ -24,6 +24,7 @@
 #include "utility/vulkan.hpp"
 #include "utility/vulkan_memory_allocator.hpp"
 #include "zivc/buffer.hpp"
+#include "zivc/cppcl/vector.hpp"
 #include "zivc/kernel_common.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/buffer_launch_options.hpp"
@@ -70,11 +71,13 @@ class VulkanBufferImpl : private zisc::NonCopyable<VulkanBufferImpl>
                         VmaAllocation* vm_allocation,
                         VmaAllocationInfo* alloc_info) const noexcept;
 
-  template <KernelArg T, KernelArg D>
+  //! Fill the given buffer with the specified value
+  template <KernelArg Type>
+  [[nodiscard("The result can have a fence when external sync mode is on.")]]
   LaunchResult fill(KernelCommon* fill_kernel,
-                    typename Buffer<D>::ConstReference value,
-                    Buffer<T>* buffer,
-                    const BufferLaunchOptions<D>& launch_options) const noexcept;
+                    Buffer<uint8b>* data_buffer,
+                    Buffer<Type>* buffer,
+                    const BufferLaunchOptions<Type>& launch_options) const;
 
   //! Fill the given buffer with the specified value
   void fillFastCmd(const VkCommandBuffer& command_buffer,
@@ -88,7 +91,8 @@ class VulkanBufferImpl : private zisc::NonCopyable<VulkanBufferImpl>
                           const VkBufferUsageFlagBits desc_type,
                           VmaAllocationInfo* alloc_info) const;
 
-  //! Initialize fill kernel
+  //! Make a fill8 kernel instance
+  template <KernelArg Type>
   [[nodiscard("The result will have a vulkan kernel.")]]
   std::shared_ptr<KernelCommon> makeFillKernel(const VkCommandBuffer& command_buffer);
 
@@ -97,20 +101,70 @@ class VulkanBufferImpl : private zisc::NonCopyable<VulkanBufferImpl>
                                                 const char* message);
 
  private:
+  //! Represent the unit size in fill kernel
+  enum class FillUnitSize : std::size_t
+  {
+    k8 = sizeof(uint8b),
+    k16 = sizeof(uint16b),
+    k32 = sizeof(uint32b),
+    k64 = sizeof(cl::uint2),
+    k128 = sizeof(cl::uint4),
+  };
+
+
   //! Return the underlying device object
   VulkanDevice& device() noexcept;
 
   //! Return the underlying device object
   const VulkanDevice& device() const noexcept;
 
-  //! Fill the given buffer with the specified value
-  LaunchResult fill(KernelCommon* fill_kernel,
-                    const uint8b* data,
-                    const std::size_t data_size,
-                    Buffer<uint8b>* buffer,
-                    const LaunchOptions& launch_options,
-                    const std::size_t offset,
-                    const std::size_t size) const noexcept;
+  //! Fill the given buffer with the specified value in u8 elements
+  [[nodiscard]]
+  LaunchResult fillU8(KernelCommon* fill_kernel,
+                      Buffer<uint8b>* data_buffer,
+                      Buffer<uint8b>* buffer,
+                      const LaunchOptions& launch_options,
+                      const std::size_t offset,
+                      const std::size_t size) const;
+
+  //! Fill the given buffer with the specified value in u16 elements
+  [[nodiscard]]
+  LaunchResult fillU16(KernelCommon* fill_kernel,
+                       Buffer<uint16b>* data_buffer,
+                       Buffer<uint16b>* buffer,
+                       const LaunchOptions& launch_options,
+                       const std::size_t offset,
+                       const std::size_t size) const;
+
+  //! Fill the given buffer with the specified value in u32 elements
+  [[nodiscard]]
+  LaunchResult fillU32(KernelCommon* fill_kernel,
+                       Buffer<uint32b>* data_buffer,
+                       Buffer<uint32b>* buffer,
+                       const LaunchOptions& launch_options,
+                       const std::size_t offset,
+                       const std::size_t size) const;
+
+  //! Fill the given buffer with the specified value in u64 elements
+  [[nodiscard]]
+  LaunchResult fillU64(KernelCommon* fill_kernel,
+                       Buffer<cl::uint2>* data_buffer,
+                       Buffer<cl::uint2>* buffer,
+                       const LaunchOptions& launch_options,
+                       const std::size_t offset,
+                       const std::size_t size) const;
+
+  //! Fill the given buffer with the specified value in u128 elements
+  [[nodiscard]]
+  LaunchResult fillU128(KernelCommon* fill_kernel,
+                        Buffer<cl::uint4>* data_buffer,
+                        Buffer<cl::uint4>* buffer,
+                        const LaunchOptions& launch_options,
+                        const std::size_t offset,
+                        const std::size_t size) const;
+
+  //! Return the unit size used in fill kernel
+  static constexpr FillUnitSize getFillUnitSize(const std::size_t size) noexcept;
 
   //! Create a allocation create info
   VmaAllocationCreateInfo makeAllocCreateInfo(
@@ -121,6 +175,26 @@ class VulkanBufferImpl : private zisc::NonCopyable<VulkanBufferImpl>
   VkBufferCreateInfo makeBufferCreateInfo(
       const std::size_t size,
       const VkBufferUsageFlagBits desc_type) const noexcept;
+
+  //! Make a fill8 kernel instance
+  [[nodiscard("The result will have a vulkan kernel.")]]
+  std::shared_ptr<KernelCommon> makeFillU8Kernel(const VkCommandBuffer& command_buffer);
+
+  //! Make a fill16 kernel instance
+  [[nodiscard("The result will have a vulkan kernel.")]]
+  std::shared_ptr<KernelCommon> makeFillU16Kernel(const VkCommandBuffer& command_buffer);
+
+  //! Make a fill32 kernel instance
+  [[nodiscard("The result will have a vulkan kernel.")]]
+  std::shared_ptr<KernelCommon> makeFillU32Kernel(const VkCommandBuffer& command_buffer);
+
+  //! Make a fill64 kernel instance
+  [[nodiscard("The result will have a vulkan kernel.")]]
+  std::shared_ptr<KernelCommon> makeFillU64Kernel(const VkCommandBuffer& command_buffer);
+
+  //! Make a fill128 kernel instance
+  [[nodiscard("The result will have a vulkan kernel.")]]
+  std::shared_ptr<KernelCommon> makeFillU128Kernel(const VkCommandBuffer& command_buffer);
 
   //! Convert to VMA usage flags
   static constexpr VmaMemoryUsage toVmaUsage(const BufferUsage usage) noexcept;

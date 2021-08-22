@@ -27,9 +27,32 @@ namespace zivc {
   \return No description
   */
 inline
-size_t FillInfo::bufferSize() const noexcept
+constexpr size_t FillInfo::batchSize() noexcept
 {
-  return static_cast<size_t>(buffer_size_);
+  const size_t batch_size = 16;
+  return batch_size;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+size_t FillInfo::elementOffset() const noexcept
+{
+  return static_cast<size_t>(element_offset_);
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+size_t FillInfo::elementSize() const noexcept
+{
+  return static_cast<size_t>(element_size_);
 }
 
 /*!
@@ -58,12 +81,12 @@ size_t FillInfo::dataSize() const noexcept
 /*!
   \details No detailed description
 
-  \return No description
+  \param [in] offset No description.
   */
 inline
-size_t FillInfo::idOffset() const noexcept
+void FillInfo::setElementOffset(const size_t offset) noexcept
 {
-  return static_cast<size_t>(id_offset_);
+  element_offset_ = static_cast<uint32b>(offset);
 }
 
 /*!
@@ -72,9 +95,9 @@ size_t FillInfo::idOffset() const noexcept
   \param [in] size No description.
   */
 inline
-void FillInfo::setBufferSize(const size_t size) noexcept
+void FillInfo::setElementSize(const size_t size) noexcept
 {
-  buffer_size_ = static_cast<uint32b>(size);
+  element_size_ = static_cast<uint32b>(size);
 }
 
 /*!
@@ -86,17 +109,6 @@ inline
 void FillInfo::setDataSize(const size_t size) noexcept
 {
   data_size_ = static_cast<uint32b>(size);
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] offset No description.
-  */
-inline
-void FillInfo::setIdOffset(const size_t offset) noexcept
-{
-  id_offset_ = static_cast<uint32b>(offset);
 }
 
 } // namespace zivc

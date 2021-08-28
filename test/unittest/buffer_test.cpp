@@ -20,10 +20,10 @@
 #include <utility>
 // Zisc
 #include "zisc/utility.hpp"
+#include "zisc/math/unit_multiple.hpp"
 // Zivc
 #include "zivc/zivc.hpp"
 #include "zivc/zivc_config.hpp"
-#include "zisc/math/unit_multiple.hpp"
 // Test
 #include "config.hpp"
 #include "googletest.hpp"

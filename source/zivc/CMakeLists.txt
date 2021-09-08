@@ -218,7 +218,7 @@ if(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
     add_subdirectory(${PROJECT_SOURCE_DIR}/kernel_baker ${PROJECT_BINARY_DIR}/KernelBaker)
   endif()
   # Vulkan
-  find_package(Vulkan 1.2.182.0 REQUIRED)
+  find_package(Vulkan 1.2.189.0 REQUIRED)
   target_link_libraries(${PROJECT_NAME} PUBLIC Vulkan::Vulkan)
   # Vulkan Memory Allocator
   set(vma_path ${dependencies_dir}/VulkanMemoryAllocator)

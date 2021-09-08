@@ -377,7 +377,7 @@ auto VulkanSubPlatform::Callbacks::printDebugMessage(
 
   if (getEnvNumber("ZIVC_SUPPRESS_TRIVIAL_WARNINGS")) {
     // UNASSIGNED-BestPractices-vkCreateInstance-specialuse-extension
-    if (callback_data->messageIdNumber == 767975156) {
+    if (callback_data->messageIdNumber == -2111305990) {
       return VK_FALSE;
     }
   }

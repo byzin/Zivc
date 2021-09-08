@@ -638,11 +638,21 @@ void VulkanSubPlatform::initInstance(PlatformOptions& options)
       callback};
 
   // Validation features
-  std::array<zivcvk::ValidationFeatureEnableEXT, 4> validation_features_list{{
-      zivcvk::ValidationFeatureEnableEXT::eGpuAssisted,
-      zivcvk::ValidationFeatureEnableEXT::eGpuAssistedReserveBindingSlot,
+  using FeatureEnableList = zisc::pmr::vector<zivcvk::ValidationFeatureEnableEXT>;
+  FeatureEnableList::allocator_type feature_alloc{memoryResource()};
+  FeatureEnableList validation_features_list{feature_alloc};
+  validation_features_list.reserve(4);
+  validation_features_list = {
       zivcvk::ValidationFeatureEnableEXT::eBestPractices,
-      zivcvk::ValidationFeatureEnableEXT::eSynchronizationValidation}};
+      zivcvk::ValidationFeatureEnableEXT::eSynchronizationValidation
+  };
+  //! \todo the gpu assisted flags cause shader compilation error on macOS
+#if !defined(Z_MAC)
+  validation_features_list.emplace_back(
+      zivcvk::ValidationFeatureEnableEXT::eGpuAssisted);
+  validation_features_list.emplace_back(
+      zivcvk::ValidationFeatureEnableEXT::eGpuAssistedReserveBindingSlot);
+#endif // Z_MAC
   zivcvk::ValidationFeaturesEXT validation_features{
       zisc::cast<uint32b>(validation_features_list.size()),
       validation_features_list.data(),

@@ -34,9 +34,10 @@ __kernel void Zivc_fillU128Kernel(zivc::ConstGlobalPtr<uint4> data,
 {
   const size_t id = zivc::getGlobalIdX();
   for (size_t ite = 0; ite < info.batchSize(); ++ite) {
-    const size_t element_index = info.elementOffset() + info.batchSize() * id + ite;
-    if (info.elementSize() <= element_index)
+    const size_t element_number = info.batchSize() * id + ite;
+    if (info.elementSize() <= element_number)
       break;
+    const size_t element_index = info.elementOffset() + element_number;
     const size_t buffer_index = info.dataSize() * element_index;
     zivc::GlobalPtr<uint4> ptr = buffer + buffer_index;
     for (size_t i = 0; i < info.dataSize(); ++i)

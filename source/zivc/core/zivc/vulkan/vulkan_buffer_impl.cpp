@@ -236,15 +236,16 @@ LaunchResult VulkanBufferImpl::fillU8(KernelCommon* fill_kernel,
 
   auto kernel_launch_options = kernel->makeOptions();
   const std::size_t work_size = (size + FillInfoT::batchSize() - 1) / FillInfoT::batchSize();
-  kernel_launch_options.setWorkSize({zisc::cast<uint32b>(work_size)});
+  const auto data_size = data_buffer->size();
+  kernel_launch_options.setWorkSize({zisc::cast<uint32b>(work_size * data_size)});
   kernel_launch_options.setQueueIndex(launch_options.queueIndex());
   kernel_launch_options.setExternalSyncMode(launch_options.isExternalSyncMode());
   kernel_launch_options.setLabel(launch_options.label());
   kernel_launch_options.setLabelColor(launch_options.labelColor());
 
   FillInfoT info{};
-  info.setElementOffset(offset);
-  info.setElementSize(size);
+  info.setElementOffset(offset * data_size);
+  info.setElementSize(size * data_size);
   info.setDataSize(data_buffer->size());
 
   auto result = kernel->run(*data_buffer, *buffer, info, kernel_launch_options);
@@ -276,15 +277,16 @@ LaunchResult VulkanBufferImpl::fillU16(KernelCommon* fill_kernel,
 
   auto kernel_launch_options = kernel->makeOptions();
   const std::size_t work_size = (size + FillInfoT::batchSize() - 1) / FillInfoT::batchSize();
-  kernel_launch_options.setWorkSize({zisc::cast<uint32b>(work_size)});
+  const auto data_size = data_buffer->size();
+  kernel_launch_options.setWorkSize({zisc::cast<uint32b>(work_size * data_size)});
   kernel_launch_options.setQueueIndex(launch_options.queueIndex());
   kernel_launch_options.setExternalSyncMode(launch_options.isExternalSyncMode());
   kernel_launch_options.setLabel(launch_options.label());
   kernel_launch_options.setLabelColor(launch_options.labelColor());
 
   FillInfoT info{};
-  info.setElementOffset(offset);
-  info.setElementSize(size);
+  info.setElementOffset(offset * data_size);
+  info.setElementSize(size * data_size);
   info.setDataSize(data_buffer->size());
 
   auto result = kernel->run(*data_buffer, *buffer, info, kernel_launch_options);

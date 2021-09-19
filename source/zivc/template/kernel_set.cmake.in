@@ -240,6 +240,14 @@ function(Zivc_getClspvCompileFlags clspv_compile_flags)
 endfunction(Zivc_getClspvCompileFlags)
 
 
+function(Zivc_getClspvReflectionFlags clspv_reflection_flags)
+  set(options --target-env spv${spv_version})
+
+  # Output
+  set(${clspv_reflection_flags} ${options} PARENT_SCOPE)
+endfunction(Zivc_getClspvReflectionFlags)
+
+
 function(Zivc_getSpirvOptOptions opt_options)
   # Strip reflection info
   set(options --strip-reflect --target-env=spv${spv_version})
@@ -335,24 +343,19 @@ function(Zivc_initVulkanBackend target)
   list(APPEND clspv_output_files ${spv_org_file_path})
   ## Clspv descriptor map
   Zivc_findClspvReflection(reflection_command)
+  Zivc_getClspvReflectionFlags(reflection_options)
   set(map_path ${output_dir}/${set_name}-org-descmap.csv)
-  set(reflection_options --target-env spv${spv_version} -o ${map_path})
+  list(APPEND reflection_options -o ${map_path})
   list(APPEND build_commands
       COMMAND ${CMAKE_COMMAND} -E echo "-- clspv-reflection"
       COMMAND ${reflection_command} ${reflection_options} ${spv_org_file_path})
   list(APPEND clspv_output_files ${map_path})
   ## Strip reflection info and optimize SPIR-V
-  if(ZIVC_ENABLE_SPIRV_OPT)
-    Zivc_findSpirvOpt(spirv_opt_command)
-    Zivc_getSpirvOptOptions(opt_options)
-    list(APPEND build_commands
-        COMMAND ${CMAKE_COMMAND} -E echo "-- spirv-opt"
-        COMMAND ${spirv_opt_command} ${opt_options} ${spv_org_file_path} -o ${spv_file_path})
-  else()
-    # Just copy '${spv_org_file_path}' to '${spv_file_path}'
-    list(APPEND build_commands
-        COMMAND ${CMAKE_COMMAND} -E copy ${spv_org_file_path} ${spv_file_path})
-  endif()
+  Zivc_findSpirvOpt(spirv_opt_command)
+  Zivc_getSpirvOptOptions(opt_options)
+  list(APPEND build_commands
+      COMMAND ${CMAKE_COMMAND} -E echo "-- spirv-opt"
+      COMMAND ${spirv_opt_command} ${opt_options} ${spv_org_file_path} -o ${spv_file_path})
   list(APPEND clspv_output_files ${spv_file_path})
   ## Bake SPIR-V kernel into an executable
   if(ZIVC_BAKE_KERNELS)

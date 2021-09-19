@@ -28,9 +28,6 @@ function(Zivc_initZivcOptions)
   set(option_description "Bake Vulkan SPIR-V kernels into the library.")
   Zisc_setBooleanOption(ZIVC_BAKE_KERNELS OFF ${option_description})
 
-  set(option_description "Enable SPIR-V optimization with spirv-opt.")
-  Zisc_setBooleanOption(ZIVC_ENABLE_SPIRV_OPT ON ${option_description})
-
   set(option_description "Enable SPIR-V analysis.")
   Zisc_setBooleanOption(ZIVC_ENABLE_SPIRV_ANALYSIS ON ${option_description})
 

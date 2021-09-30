@@ -39,13 +39,18 @@ namespace {
 /*!
   \details No detailed description
 
+  \tparam Params No description.
   \param [in] device No description.
   \param [in] command_buffer No description.
+  \param [in] params No description.
   \return No description
   */
-auto makeFillU8KernelImpl(zivc::VulkanDevice* device, const VkCommandBuffer& command_buffer)
+template <typename Params>
+[[nodiscard]]
+auto makeFillKernelImpl(zivc::VulkanDevice* device,
+                        const VkCommandBuffer& command_buffer,
+                        Params& params)
 {
-  auto params = ZIVC_MAKE_KERNEL_INIT_PARAMS(zivc_internal_kernel, Zivc_fillU8Kernel, 1);
   params.setVulkanCommandBufferPtr(std::addressof(command_buffer));
   auto kernel = device->makeKernel(params);
   return kernel;
@@ -58,11 +63,12 @@ auto makeFillU8KernelImpl(zivc::VulkanDevice* device, const VkCommandBuffer& com
   \param [in] command_buffer No description.
   \return No description
   */
-auto makeFillU16KernelImpl(zivc::VulkanDevice* device, const VkCommandBuffer& command_buffer)
+[[nodiscard]]
+auto makeFillU8KernelImpl(zivc::VulkanDevice* device,
+                          const VkCommandBuffer& command_buffer)
 {
-  auto params = ZIVC_MAKE_KERNEL_INIT_PARAMS(zivc_internal_kernel, Zivc_fillU16Kernel, 1);
-  params.setVulkanCommandBufferPtr(std::addressof(command_buffer));
-  auto kernel = device->makeKernel(params);
+  auto p = ZIVC_MAKE_KERNEL_INIT_PARAMS(zivc_internal_kernel, Zivc_fillU8Kernel, 1);
+  auto kernel = makeFillKernelImpl(device, command_buffer, p);
   return kernel;
 }
 
@@ -73,11 +79,12 @@ auto makeFillU16KernelImpl(zivc::VulkanDevice* device, const VkCommandBuffer& co
   \param [in] command_buffer No description.
   \return No description
   */
-auto makeFillU32KernelImpl(zivc::VulkanDevice* device, const VkCommandBuffer& command_buffer)
+[[nodiscard]]
+auto makeFillU16KernelImpl(zivc::VulkanDevice* device,
+                           const VkCommandBuffer& command_buffer)
 {
-  auto params = ZIVC_MAKE_KERNEL_INIT_PARAMS(zivc_internal_kernel, Zivc_fillU32Kernel, 1);
-  params.setVulkanCommandBufferPtr(std::addressof(command_buffer));
-  auto kernel = device->makeKernel(params);
+  auto p = ZIVC_MAKE_KERNEL_INIT_PARAMS(zivc_internal_kernel, Zivc_fillU16Kernel, 1);
+  auto kernel = makeFillKernelImpl(device, command_buffer, p);
   return kernel;
 }
 
@@ -88,11 +95,12 @@ auto makeFillU32KernelImpl(zivc::VulkanDevice* device, const VkCommandBuffer& co
   \param [in] command_buffer No description.
   \return No description
   */
-auto makeFillU64KernelImpl(zivc::VulkanDevice* device, const VkCommandBuffer& command_buffer)
+[[nodiscard]]
+auto makeFillU32KernelImpl(zivc::VulkanDevice* device,
+                           const VkCommandBuffer& command_buffer)
 {
-  auto params = ZIVC_MAKE_KERNEL_INIT_PARAMS(zivc_internal_kernel, Zivc_fillU64Kernel, 1);
-  params.setVulkanCommandBufferPtr(std::addressof(command_buffer));
-  auto kernel = device->makeKernel(params);
+  auto p = ZIVC_MAKE_KERNEL_INIT_PARAMS(zivc_internal_kernel, Zivc_fillU32Kernel, 1);
+  auto kernel = makeFillKernelImpl(device, command_buffer, p);
   return kernel;
 }
 
@@ -103,11 +111,28 @@ auto makeFillU64KernelImpl(zivc::VulkanDevice* device, const VkCommandBuffer& co
   \param [in] command_buffer No description.
   \return No description
   */
-auto makeFillU128KernelImpl(zivc::VulkanDevice* device, const VkCommandBuffer& command_buffer)
+[[nodiscard]]
+auto makeFillU64KernelImpl(zivc::VulkanDevice* device,
+                           const VkCommandBuffer& command_buffer)
 {
-  auto params = ZIVC_MAKE_KERNEL_INIT_PARAMS(zivc_internal_kernel, Zivc_fillU128Kernel, 1);
-  params.setVulkanCommandBufferPtr(std::addressof(command_buffer));
-  auto kernel = device->makeKernel(params);
+  auto p = ZIVC_MAKE_KERNEL_INIT_PARAMS(zivc_internal_kernel, Zivc_fillU64Kernel, 1);
+  auto kernel = makeFillKernelImpl(device, command_buffer, p);
+  return kernel;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] device No description.
+  \param [in] command_buffer No description.
+  \return No description
+  */
+[[nodiscard]]
+auto makeFillU128KernelImpl(zivc::VulkanDevice* device,
+                            const VkCommandBuffer& command_buffer)
+{
+  auto p = ZIVC_MAKE_KERNEL_INIT_PARAMS(zivc_internal_kernel, Zivc_fillU128Kernel, 1);
+  auto kernel = makeFillKernelImpl(device, command_buffer, p);
   return kernel;
 }
 
@@ -214,6 +239,53 @@ void VulkanBufferImpl::deallocateMemory(
 /*!
   \details No detailed description
 
+  \tparam Type No description.
+  \tparam KernelType No description.
+  \param [in] fill_kernel No description.
+  \param [in] data_buffer No description.
+  \param [out] buffer No description.
+  \param [in] launch_options No description.
+  \param [in] offset No description.
+  \param [in] size No description.
+  \return No description
+  */
+template <typename Type, typename KernelType>
+LaunchResult VulkanBufferImpl::fillImpl(KernelCommon* fill_kernel,
+                                        Buffer<Type>* data_buffer,
+                                        Buffer<Type>* buffer,
+                                        const LaunchOptions& launch_options,
+                                        const std::size_t offset,
+                                        const std::size_t size) const
+{
+  using FillKernelP = std::add_pointer_t<KernelType>;
+  using FillInfoT = zivc::cl::zivc_internal_kernel::zivc::FillInfo;
+  auto kernel = zisc::cast<FillKernelP>(fill_kernel);
+
+  auto kernel_launch_options = kernel->makeOptions();
+  const std::size_t work_size = (size + FillInfoT::batchSize() - 1) /
+                                FillInfoT::batchSize();
+
+  constexpr std::size_t type_size = sizeof(Type);
+  const std::size_t adjustment = (type_size <= 2) ? data_buffer->size() : 1;
+
+  kernel_launch_options.setWorkSize({zisc::cast<uint32b>(work_size * adjustment)});
+  kernel_launch_options.setQueueIndex(launch_options.queueIndex());
+  kernel_launch_options.setExternalSyncMode(launch_options.isExternalSyncMode());
+  kernel_launch_options.setLabel(launch_options.label());
+  kernel_launch_options.setLabelColor(launch_options.labelColor());
+
+  FillInfoT info{};
+  info.setElementOffset(offset * adjustment);
+  info.setElementSize(size * adjustment);
+  info.setDataSize(data_buffer->size());
+
+  auto result = kernel->run(*data_buffer, *buffer, info, kernel_launch_options);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
   \param [in] fill_kernel No description.
   \param [in] data_buffer No description.
   \param [out] buffer No description.
@@ -229,26 +301,10 @@ LaunchResult VulkanBufferImpl::fillU8(KernelCommon* fill_kernel,
                                       const std::size_t offset,
                                       const std::size_t size) const
 {
-  using FillKernelT = std::remove_cvref_t<decltype(*::makeFillU8KernelImpl(nullptr, nullptr))>;
-  using FillKernelP = std::add_pointer_t<FillKernelT>;
-  using FillInfoT = zivc::cl::zivc_internal_kernel::zivc::FillInfo;
-  auto kernel = zisc::cast<FillKernelP>(fill_kernel);
-
-  auto kernel_launch_options = kernel->makeOptions();
-  const std::size_t work_size = (size + FillInfoT::batchSize() - 1) / FillInfoT::batchSize();
-  const auto data_size = data_buffer->size();
-  kernel_launch_options.setWorkSize({zisc::cast<uint32b>(work_size * data_size)});
-  kernel_launch_options.setQueueIndex(launch_options.queueIndex());
-  kernel_launch_options.setExternalSyncMode(launch_options.isExternalSyncMode());
-  kernel_launch_options.setLabel(launch_options.label());
-  kernel_launch_options.setLabelColor(launch_options.labelColor());
-
-  FillInfoT info{};
-  info.setElementOffset(offset * data_size);
-  info.setElementSize(size * data_size);
-  info.setDataSize(data_buffer->size());
-
-  auto result = kernel->run(*data_buffer, *buffer, info, kernel_launch_options);
+  using FillKernelT =
+      std::remove_cvref_t<decltype(*::makeFillU8KernelImpl(nullptr, nullptr))>;
+  auto result = fillImpl<uint8b, FillKernelT>(fill_kernel, data_buffer, buffer,
+                                              launch_options, offset, size);
   return result;
 }
 
@@ -270,26 +326,10 @@ LaunchResult VulkanBufferImpl::fillU16(KernelCommon* fill_kernel,
                                        const std::size_t offset,
                                        const std::size_t size) const
 {
-  using FillKernelT = std::remove_cvref_t<decltype(*::makeFillU16KernelImpl(nullptr, nullptr))>;
-  using FillKernelP = std::add_pointer_t<FillKernelT>;
-  using FillInfoT = zivc::cl::zivc_internal_kernel::zivc::FillInfo;
-  auto kernel = zisc::cast<FillKernelP>(fill_kernel);
-
-  auto kernel_launch_options = kernel->makeOptions();
-  const std::size_t work_size = (size + FillInfoT::batchSize() - 1) / FillInfoT::batchSize();
-  const auto data_size = data_buffer->size();
-  kernel_launch_options.setWorkSize({zisc::cast<uint32b>(work_size * data_size)});
-  kernel_launch_options.setQueueIndex(launch_options.queueIndex());
-  kernel_launch_options.setExternalSyncMode(launch_options.isExternalSyncMode());
-  kernel_launch_options.setLabel(launch_options.label());
-  kernel_launch_options.setLabelColor(launch_options.labelColor());
-
-  FillInfoT info{};
-  info.setElementOffset(offset * data_size);
-  info.setElementSize(size * data_size);
-  info.setDataSize(data_buffer->size());
-
-  auto result = kernel->run(*data_buffer, *buffer, info, kernel_launch_options);
+  using FillKernelT =
+      std::remove_cvref_t<decltype(*::makeFillU16KernelImpl(nullptr, nullptr))>;
+  auto result = fillImpl<uint16b, FillKernelT>(fill_kernel, data_buffer, buffer,
+                                               launch_options, offset, size);
   return result;
 }
 
@@ -311,25 +351,10 @@ LaunchResult VulkanBufferImpl::fillU32(KernelCommon* fill_kernel,
                                        const std::size_t offset,
                                        const std::size_t size) const
 {
-  using FillKernelT = std::remove_cvref_t<decltype(*::makeFillU32KernelImpl(nullptr, nullptr))>;
-  using FillKernelP = std::add_pointer_t<FillKernelT>;
-  using FillInfoT = zivc::cl::zivc_internal_kernel::zivc::FillInfo;
-  auto kernel = zisc::cast<FillKernelP>(fill_kernel);
-
-  auto kernel_launch_options = kernel->makeOptions();
-  const std::size_t work_size = (size + FillInfoT::batchSize() - 1) / FillInfoT::batchSize();
-  kernel_launch_options.setWorkSize({zisc::cast<uint32b>(work_size)});
-  kernel_launch_options.setQueueIndex(launch_options.queueIndex());
-  kernel_launch_options.setExternalSyncMode(launch_options.isExternalSyncMode());
-  kernel_launch_options.setLabel(launch_options.label());
-  kernel_launch_options.setLabelColor(launch_options.labelColor());
-
-  FillInfoT info{};
-  info.setElementOffset(offset);
-  info.setElementSize(size);
-  info.setDataSize(data_buffer->size());
-
-  auto result = kernel->run(*data_buffer, *buffer, info, kernel_launch_options);
+  using FillKernelT =
+      std::remove_cvref_t<decltype(*::makeFillU32KernelImpl(nullptr, nullptr))>;
+  auto result = fillImpl<uint32b, FillKernelT>(fill_kernel, data_buffer, buffer,
+                                               launch_options, offset, size);
   return result;
 }
 
@@ -351,25 +376,10 @@ LaunchResult VulkanBufferImpl::fillU64(KernelCommon* fill_kernel,
                                        const std::size_t offset,
                                        const std::size_t size) const
 {
-  using FillKernelT = std::remove_cvref_t<decltype(*::makeFillU64KernelImpl(nullptr, nullptr))>;
-  using FillKernelP = std::add_pointer_t<FillKernelT>;
-  using FillInfoT = zivc::cl::zivc_internal_kernel::zivc::FillInfo;
-  auto kernel = zisc::cast<FillKernelP>(fill_kernel);
-
-  auto kernel_launch_options = kernel->makeOptions();
-  const std::size_t work_size = (size + FillInfoT::batchSize() - 1) / FillInfoT::batchSize();
-  kernel_launch_options.setWorkSize({zisc::cast<uint32b>(work_size)});
-  kernel_launch_options.setQueueIndex(launch_options.queueIndex());
-  kernel_launch_options.setExternalSyncMode(launch_options.isExternalSyncMode());
-  kernel_launch_options.setLabel(launch_options.label());
-  kernel_launch_options.setLabelColor(launch_options.labelColor());
-
-  FillInfoT info{};
-  info.setElementOffset(offset);
-  info.setElementSize(size);
-  info.setDataSize(data_buffer->size());
-
-  auto result = kernel->run(*data_buffer, *buffer, info, kernel_launch_options);
+  using FillKernelT =
+      std::remove_cvref_t<decltype(*::makeFillU64KernelImpl(nullptr, nullptr))>;
+  auto result = fillImpl<cl::uint2, FillKernelT>(fill_kernel, data_buffer, buffer,
+                                                 launch_options, offset, size);
   return result;
 }
 
@@ -391,25 +401,10 @@ LaunchResult VulkanBufferImpl::fillU128(KernelCommon* fill_kernel,
                                        const std::size_t offset,
                                        const std::size_t size) const
 {
-  using FillKernelT = std::remove_cvref_t<decltype(*::makeFillU128KernelImpl(nullptr, nullptr))>;
-  using FillKernelP = std::add_pointer_t<FillKernelT>;
-  using FillInfoT = zivc::cl::zivc_internal_kernel::zivc::FillInfo;
-  auto kernel = zisc::cast<FillKernelP>(fill_kernel);
-
-  auto kernel_launch_options = kernel->makeOptions();
-  const std::size_t work_size = (size + FillInfoT::batchSize() - 1) / FillInfoT::batchSize();
-  kernel_launch_options.setWorkSize({zisc::cast<uint32b>(work_size)});
-  kernel_launch_options.setQueueIndex(launch_options.queueIndex());
-  kernel_launch_options.setExternalSyncMode(launch_options.isExternalSyncMode());
-  kernel_launch_options.setLabel(launch_options.label());
-  kernel_launch_options.setLabelColor(launch_options.labelColor());
-
-  FillInfoT info{};
-  info.setElementOffset(offset);
-  info.setElementSize(size);
-  info.setDataSize(data_buffer->size());
-
-  auto result = kernel->run(*data_buffer, *buffer, info, kernel_launch_options);
+  using FillKernelT =
+      std::remove_cvref_t<decltype(*::makeFillU128KernelImpl(nullptr, nullptr))>;
+  auto result = fillImpl<cl::uint4, FillKernelT>(fill_kernel, data_buffer, buffer,
+                                                 launch_options, offset, size);
   return result;
 }
 
@@ -515,13 +510,14 @@ VmaAllocationCreateInfo VulkanBufferImpl::makeAllocCreateInfo(
 {
   // VMA allocation create info
   VmaAllocationCreateInfo alloc_create_info;
-  alloc_create_info.flags = 0;
+  alloc_create_info.flags = VMA_ALLOCATION_CREATE_STRATEGY_MIN_FRAGMENTATION_BIT;
   alloc_create_info.usage = toVmaUsage(buffer_usage);
   alloc_create_info.requiredFlags = 0;
   alloc_create_info.preferredFlags = 0;
   alloc_create_info.memoryTypeBits = 0;
   alloc_create_info.pool = ZIVC_VK_NULL_HANDLE;
   alloc_create_info.pUserData = user_data;
+  alloc_create_info.priority = 0.0f;
 
   return alloc_create_info;
 }

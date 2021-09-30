@@ -1226,7 +1226,7 @@ void VulkanDevice::initMemoryAllocator()
   VmaVulkanFunctions functions = getVmaVulkanFunctions();
 
   VmaAllocatorCreateInfo create_info;
-  create_info.flags = VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT;
+  create_info.flags = 0;
   create_info.physicalDevice = info.device();
   create_info.device = device();
   create_info.preferredLargeHeapBlockSize = 0;

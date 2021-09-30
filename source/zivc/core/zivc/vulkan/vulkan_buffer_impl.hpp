@@ -119,6 +119,16 @@ class VulkanBufferImpl : private zisc::NonCopyable<VulkanBufferImpl>
   const VulkanDevice& device() const noexcept;
 
   //! Fill the given buffer with the specified value in u8 elements
+  template <typename Type, typename KernelType>
+  [[nodiscard]]
+  LaunchResult fillImpl(KernelCommon* fill_kernel,
+                        Buffer<Type>* data_buffer,
+                        Buffer<Type>* buffer,
+                        const LaunchOptions& launch_options,
+                        const std::size_t offset,
+                        const std::size_t size) const;
+
+  //! Fill the given buffer with the specified value in u8 elements
   [[nodiscard]]
   LaunchResult fillU8(KernelCommon* fill_kernel,
                       Buffer<uint8b>* data_buffer,

@@ -376,9 +376,12 @@ auto VulkanSubPlatform::Callbacks::printDebugMessage(
   using zisc::cast;
 
   if (getEnvNumber("ZIVC_SUPPRESS_TRIVIAL_WARNINGS")) {
-    // UNASSIGNED-BestPractices-vkCreateInstance-specialuse-extension
-    if (callback_data->messageIdNumber == -2111305990) {
+    switch (callback_data->messageIdNumber) {
+     // UNASSIGNED-BestPractices-vkCreateInstance-specialuse-extension
+     case -2111305990:
       return VK_FALSE;
+     default:
+      break;
     }
   }
 

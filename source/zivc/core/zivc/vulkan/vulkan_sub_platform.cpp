@@ -377,6 +377,8 @@ auto VulkanSubPlatform::Callbacks::printDebugMessage(
 
   if (getEnvNumber("ZIVC_SUPPRESS_TRIVIAL_WARNINGS")) {
     switch (callback_data->messageIdNumber) {
+     // VkLayer_api_dump.json invalid layer manifest file version 1.2.0. May cause errors.
+     case 0:
      // UNASSIGNED-BestPractices-vkCreateInstance-specialuse-extension
      case -2111305990:
       return VK_FALSE;

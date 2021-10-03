@@ -37,7 +37,8 @@ int64b getEnvNumber(const std::string_view env_variable) noexcept
 {
   std::string_view str = getEnvString(env_variable);
   int64b number = 0;
-  std::from_chars(&str[0], &str[0] + str.size(), number);
+  if (0 < str.size())
+    std::from_chars(&str[0], &str[0] + str.size(), number);
   return number;
 }
 

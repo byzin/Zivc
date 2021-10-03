@@ -69,7 +69,6 @@ auto getDefaultFeatures(const zivc::VulkanDeviceInfo& info,
     zivcvk::PhysicalDevice16BitStorageFeatures b16bit_storage_;
     zivcvk::PhysicalDevice8BitStorageFeatures b8bit_storage_;
     zivcvk::PhysicalDeviceAccelerationStructureFeaturesKHR acceleration_structure_;
-    zivcvk::PhysicalDevicePortabilitySubsetFeaturesKHR portability_subset_;
     zivcvk::PhysicalDeviceRayQueryFeaturesKHR ray_query_;
     zivcvk::PhysicalDeviceRayTracingPipelineFeaturesKHR ray_tracing_pipeline_;
     zivcvk::PhysicalDeviceShaderAtomicFloatFeaturesEXT shader_atomic_float_;
@@ -95,7 +94,6 @@ auto getDefaultFeatures(const zivc::VulkanDeviceInfo& info,
   f->b16bit_storage_ = inputs.b16bit_storage_;
   f->b8bit_storage_ = inputs.b8bit_storage_;
   f->acceleration_structure_ = inputs.acceleration_structure_;
-  f->portability_subset_ = inputs.portability_subset_;
   f->ray_query_ = inputs.ray_query_;
   f->ray_tracing_pipeline_ = inputs.ray_tracing_pipeline_features_;
   f->shader_atomic_float_ = inputs.shader_atomic_float_;
@@ -108,10 +106,9 @@ auto getDefaultFeatures(const zivc::VulkanDeviceInfo& info,
   zivc::VulkanDeviceInfo::link(features,
                                f->b16bit_storage_,
                                f->b8bit_storage_,
-                               f->acceleration_structure_,
-                               f->portability_subset_,
-                               f->ray_query_,
-                               f->ray_tracing_pipeline_,
+//                               f->acceleration_structure_,
+//                               f->ray_query_,
+//                               f->ray_tracing_pipeline_,
                                f->shader_atomic_float_,
                                f->shader_atomic_int64_,
                                f->shader_clock_,

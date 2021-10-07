@@ -68,7 +68,7 @@ void CpuSubPlatform::getDeviceInfoList(
   */
 SharedDevice CpuSubPlatform::makeDevice(const DeviceInfo& device_info)
 {
-  auto info = zisc::cast<const CpuDeviceInfo*>(std::addressof(device_info));
+  auto* info = zisc::cast<const CpuDeviceInfo*>(std::addressof(device_info));
   if (device_info_.get() != info) {
     const char* message = "Invalid cpu device info is passed.";
     throw SystemError{ErrorCode::kInitializationFailed, message};
@@ -141,13 +141,13 @@ void CpuSubPlatform::destroyData() noexcept
   */
 void CpuSubPlatform::initData(PlatformOptions& options)
 {
-  auto mem_resource = memoryResource();
+  auto* mem_resource = memoryResource();
   zisc::pmr::polymorphic_allocator<CpuDeviceInfo> alloc{mem_resource};
   device_info_ = zisc::pmr::allocateUnique<CpuDeviceInfo>(alloc, mem_resource);
   num_of_threads_ = options.cpuNumOfThreads();
   constexpr uint32b max_batch_size = maxTaskBatchSize();
   task_batch_size_ = options.cpuTaskBatchSize();
-  task_batch_size_ = zisc::clamp(task_batch_size_, 1u, max_batch_size);
+  task_batch_size_ = zisc::clamp(task_batch_size_, 1U, max_batch_size);
 }
 
 /*!

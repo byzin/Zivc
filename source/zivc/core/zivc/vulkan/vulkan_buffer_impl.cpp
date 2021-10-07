@@ -202,7 +202,7 @@ void VulkanBufferImpl::copyCmd(const VkCommandBuffer& command_buffer,
                                const VkBuffer& dest_buffer,
                                const VkBufferCopy& region) const
 {
-  const auto loader = device().dispatcher().loaderImpl();
+  const auto* loader = device().dispatcher().loaderImpl();
 
   const zivcvk::CommandBuffer command{command_buffer};
   ZISC_ASSERT(command, "The given command buffer is null.");
@@ -259,7 +259,7 @@ LaunchResult VulkanBufferImpl::fillImpl(KernelCommon* fill_kernel,
 {
   using FillKernelP = std::add_pointer_t<KernelType>;
   using FillInfoT = zivc::cl::zivc_internal_kernel::zivc::FillInfo;
-  auto kernel = zisc::cast<FillKernelP>(fill_kernel);
+  auto* kernel = zisc::cast<FillKernelP>(fill_kernel);
 
   auto kernel_launch_options = kernel->makeOptions();
   const std::size_t work_size = (size + FillInfoT::batchSize() - 1) /
@@ -423,7 +423,7 @@ void VulkanBufferImpl::fillFastCmd(const VkCommandBuffer& command_buffer,
                                    const std::size_t size,
                                    const uint32b data) const noexcept
 {
-  const auto loader = device().dispatcher().loaderImpl();
+  const auto* loader = device().dispatcher().loaderImpl();
 
   const zivcvk::CommandBuffer command{command_buffer};
   ZISC_ASSERT(command, "The given command buffer is null.");
@@ -506,7 +506,7 @@ const VulkanDevice& VulkanBufferImpl::device() const noexcept
   */
 VmaAllocationCreateInfo VulkanBufferImpl::makeAllocCreateInfo(
     const BufferUsage buffer_usage,
-    void* user_data) const noexcept
+    void* user_data) noexcept
 {
   // VMA allocation create info
   VmaAllocationCreateInfo alloc_create_info;

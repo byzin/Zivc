@@ -187,7 +187,7 @@ void Platform::setDebugMode(const bool is_debug_mode) noexcept
 void Platform::setMemoryResource(zisc::pmr::memory_resource* mem_resource) noexcept
 {
   custom_mem_resource_ = mem_resource;
-  if (mem_resource)
+  if (mem_resource != nullptr)
     default_mem_resource_.reset();
   else
     default_mem_resource_ = std::make_unique<zisc::SimpleMemoryResource>();
@@ -224,8 +224,8 @@ void Platform::updateDeviceInfoList()
 SharedPlatform makePlatform(PlatformOptions& options)
 {
   SharedPlatform platform;
-  auto mem_resource = options.memoryResource();
-  if (mem_resource) {
+  auto* mem_resource = options.memoryResource();
+  if (mem_resource != nullptr) {
     zisc::pmr::polymorphic_allocator<Platform> alloc{mem_resource};
     platform = std::allocate_shared<Platform>(alloc);
   }

@@ -116,7 +116,7 @@ void LaunchOptions::setExternalSyncMode(const bool is_active) noexcept
 inline
 void LaunchOptions::setLabel(const std::string_view launch_label) noexcept
 {
-  std::strncpy(label_.data(), launch_label.data(), launch_label.size() + 1);
+  copyStr(launch_label, label_.data());
 }
 
 /*!

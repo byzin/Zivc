@@ -24,6 +24,7 @@
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "zivc_config.hpp"
+#include "utility/id_data.hpp"
 
 namespace zivc {
 
@@ -274,7 +275,7 @@ void PlatformOptions::setMemoryResource(zisc::pmr::memory_resource* mem_resource
 inline
 void PlatformOptions::setPlatformName(std::string_view name) noexcept
 {
-  std::strncpy(platform_name_.data(), name.data(), name.size() + 1);
+  copyStr(name, platform_name_.data());
 }
 
 /*!
@@ -329,7 +330,7 @@ void PlatformOptions::setVulkanInstancePtr(void* instance_ptr) noexcept
 inline
 void PlatformOptions::setVulkanLibraryName(std::string_view name) noexcept
 {
-  std::strncpy(vulkan_library_name_.data(), name.data(), name.size() + 1);
+  copyStr(name, vulkan_library_name_.data());
 }
 
 /*!

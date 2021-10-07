@@ -265,7 +265,7 @@ inline
 void IdData::setFileInfo(std::string_view file_name,
                          const int64b line_number) noexcept
 {
-  std::strncpy(file_name_.data(), file_name.data(), file_name.size() + 1);
+  copyStr(file_name, file_name_.data());
   line_number_ = line_number;
 }
 
@@ -277,7 +277,35 @@ void IdData::setFileInfo(std::string_view file_name,
 inline
 void IdData::setName(std::string_view data_name) noexcept
 {
-  std::strncpy(name_.data(), data_name.data(), data_name.size() + 1);
+  copyStr(data_name, name_.data());
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] source No description.
+  \param [in,out] dest description.
+  \return No description
+  */
+inline
+char* concatStr(const std::string_view source, char* dest) noexcept
+{
+  auto* d = std::strncat(dest, source.data(), source.size() + 1);
+  return d;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] source No description.
+  \param [out] dest No description.
+  \return No description
+  */
+inline
+char* copyStr(const std::string_view source, char* dest) noexcept
+{
+  auto* d = std::strncpy(dest, source.data(), source.size() + 1);
+  return d;
 }
 
 } // namespace zivc

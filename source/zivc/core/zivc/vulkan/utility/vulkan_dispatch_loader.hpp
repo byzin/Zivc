@@ -112,6 +112,14 @@ class VulkanDispatchLoader
   std::shared_ptr<LoaderImpl> loader_impl_ = nullptr;
 };
 
+//! Check if the given two loaders are same
+bool operator==(const VulkanDispatchLoader& lhs,
+                const VulkanDispatchLoader& rhs) noexcept;
+
+//! Check if the given two loaders arenot same
+bool operator!=(const VulkanDispatchLoader& lhs,
+                const VulkanDispatchLoader& rhs) noexcept;
+
 } // namespace zivc
 
 #include "vulkan_dispatch_loader-inl.hpp"

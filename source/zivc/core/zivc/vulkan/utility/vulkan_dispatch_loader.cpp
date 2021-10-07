@@ -91,7 +91,8 @@ VulkanDispatchLoader::~VulkanDispatchLoader() noexcept
 VulkanDispatchLoader& VulkanDispatchLoader::operator=(
     const VulkanDispatchLoader& other) noexcept
 {
-  copyFrom(other);
+  if (*this != other)
+    copyFrom(other);
   return *this;
 }
 
@@ -104,7 +105,8 @@ VulkanDispatchLoader& VulkanDispatchLoader::operator=(
 VulkanDispatchLoader& VulkanDispatchLoader::operator=(
     VulkanDispatchLoader&& other) noexcept
 {
-  moveFrom(other);
+  if (*this != other)
+    moveFrom(other);
   return *this;
 }
 
@@ -116,7 +118,7 @@ VulkanDispatchLoader& VulkanDispatchLoader::operator=(
 void VulkanDispatchLoader::set(const VkDevice& device)
 {
   LoaderImplPtr impl = loaderImpl();
-  if (impl)
+  if (impl != nullptr)
     impl->init(zivcvk::Device{device});
 }
 
@@ -128,7 +130,7 @@ void VulkanDispatchLoader::set(const VkDevice& device)
 void VulkanDispatchLoader::set(const VkInstance& instance)
 {
   LoaderImplPtr impl = loaderImpl();
-  if (impl)
+  if (impl != nullptr)
     impl->init(zivcvk::Instance{instance});
 }
 
@@ -139,9 +141,11 @@ void VulkanDispatchLoader::set(const VkInstance& instance)
   */
 void VulkanDispatchLoader::copyFrom(const VulkanDispatchLoader& other) noexcept
 {
-  destroy();
-  dynamic_loader_ = other.dynamic_loader_;
-  loader_impl_ = other.loader_impl_;
+  if (*this != other) {
+    destroy();
+    dynamic_loader_ = other.dynamic_loader_;
+    loader_impl_ = other.loader_impl_;
+  }
 }
 
 /*!
@@ -206,8 +210,10 @@ void VulkanDispatchLoader::initialize(zisc::pmr::memory_resource* mem_resource,
   */
 void VulkanDispatchLoader::moveFrom(VulkanDispatchLoader& other) noexcept
 {
-  dynamic_loader_ = std::move(other.dynamic_loader_);
-  loader_impl_ = std::move(other.loader_impl_);
+  if (*this != other) {
+    dynamic_loader_ = std::move(other.dynamic_loader_);
+    loader_impl_ = std::move(other.loader_impl_);
+  }
 }
 
 } // namespace zivc

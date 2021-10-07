@@ -285,8 +285,8 @@ updateDebugInfoImpl()
   {
     if (obj != ZIVC_VK_NULL_HANDLE) {
       IdData::NameType obj_name{""};
-      std::strncpy(obj_name.data(), kernel_name.data(), kernel_name.size() + 1);
-      std::strncat(obj_name.data(), suffix.data(), suffix.size());
+      copyStr(kernel_name, obj_name.data());
+      concatStr(suffix, obj_name.data());
       device.setDebugInfo(type, obj, obj_name.data(), this);
     }
   };
@@ -300,15 +300,15 @@ updateDebugInfoImpl()
   if (pod_buffer_) {
     IdData::NameType obj_name{""};
     const std::string_view suffix{"_podbuffer"};
-    std::strncpy(obj_name.data(), kernel_name.data(), kernel_name.size() + 1);
-    std::strncat(obj_name.data(), suffix.data(), suffix.size());
+    copyStr(kernel_name, obj_name.data());
+    concatStr(suffix, obj_name.data());
     pod_buffer_->setName(obj_name.data());
   }
   if (pod_cache_) {
     IdData::NameType obj_name{""};
     const std::string_view suffix{"_podcache"};
-    std::strncpy(obj_name.data(), kernel_name.data(), kernel_name.size() + 1);
-    std::strncat(obj_name.data(), suffix.data(), suffix.size());
+    copyStr(kernel_name, obj_name.data());
+    concatStr(suffix, obj_name.data());
     pod_cache_->setName(obj_name.data());
   }
   updateCommandBufferDebugInfo();
@@ -565,8 +565,8 @@ updateCommandBufferDebugInfo()
   {
     if (obj != ZIVC_VK_NULL_HANDLE) {
       IdData::NameType obj_name{""};
-      std::strncpy(obj_name.data(), kernel_name.data(), kernel_name.size() + 1);
-      std::strncat(obj_name.data(), suffix.data(), suffix.size());
+      copyStr(kernel_name, obj_name.data());
+      concatStr(suffix, obj_name.data());
       device.setDebugInfo(type, obj, obj_name.data(), this);
     }
   };

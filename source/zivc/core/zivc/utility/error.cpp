@@ -31,7 +31,7 @@
   \param [out] output No description.
   */
 #define ERROR_CODE_STRING_CASE(code, output) case ErrorCode::k ## code : { \
-                                               output = #code ## s; \
+                                               (output) = #code ## s; \
                                                break; \
                                              }
 
@@ -60,7 +60,7 @@ std::string getErrorCodeString(const ErrorCode code) noexcept
 /*!
   \details No detailed description
   */
-ErrorCategory::ErrorCategory() noexcept : std::error_category()
+ErrorCategory::ErrorCategory() noexcept
 {
 }
 
@@ -89,8 +89,8 @@ const char* ErrorCategory::name() const noexcept
   */
 std::string ErrorCategory::message(const int condition) const
 {
-  const ErrorCode code = zisc::cast<ErrorCode>(condition);
-  const std::string code_str = getErrorCodeString(code);
+  const auto code = zisc::cast<ErrorCode>(condition);
+  std::string code_str = getErrorCodeString(code);
   return code_str;
 }
 
@@ -119,8 +119,7 @@ SystemError::SystemError(const ErrorCode code, const std::string_view what_arg) 
 
   \param [in,out] other No description.
   */
-SystemError::SystemError(SystemError&& other) :
-    std::system_error(std::move(other))
+SystemError::SystemError(SystemError&& other) noexcept : std::system_error(other)
 {
 }
 
@@ -136,9 +135,9 @@ SystemError::~SystemError() noexcept
 
   \param [in,out] other No description.
   */
-SystemError& SystemError::operator=(SystemError&& other)
+SystemError& SystemError::operator=(SystemError&& other) noexcept
 {
-  std::system_error::operator=(std::move(other));
+  std::system_error::operator=(other);
   return *this;
 }
 

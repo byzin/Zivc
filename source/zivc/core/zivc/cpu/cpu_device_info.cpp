@@ -48,9 +48,9 @@ CpuDeviceInfo::CpuDeviceInfo(zisc::pmr::memory_resource* mem_resource) noexcept 
   */
 CpuDeviceInfo::CpuDeviceInfo(CpuDeviceInfo&& other) noexcept :
     DeviceInfo(std::move(other)),
-    name_{std::move(other.name_)},
-    vendor_name_{std::move(other.vendor_name_)},
-    memory_stats_{std::move(other.memory_stats_)}
+    name_{other.name_},
+    vendor_name_{other.vendor_name_},
+    memory_stats_{other.memory_stats_}
 {
 }
 
@@ -69,10 +69,10 @@ CpuDeviceInfo::~CpuDeviceInfo() noexcept
   */
 CpuDeviceInfo& CpuDeviceInfo::operator=(CpuDeviceInfo&& other) noexcept
 {
+  name_ = other.name_;
+  vendor_name_ = other.vendor_name_;
+  memory_stats_ = other.memory_stats_;
   DeviceInfo::operator=(std::move(other));
-  name_ = std::move(other.name_);
-  vendor_name_ = std::move(other.vendor_name_);
-  memory_stats_ = std::move(other.memory_stats_);
   return *this;
 }
 
@@ -92,7 +92,7 @@ void CpuDeviceInfo::fetch() noexcept
   */
 std::size_t CpuDeviceInfo::maxAllocationSize() const noexcept
 {
-  const std::size_t max_alloc = 8ull * 1024ull * 1024ull * 1024ull; // 8 GB
+  const std::size_t max_alloc = 8ULL * 1024ULL * 1024ULL * 1024ULL; // 8 GB
   return max_alloc;
 }
 

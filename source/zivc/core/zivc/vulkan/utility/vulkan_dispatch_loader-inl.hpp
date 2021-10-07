@@ -55,6 +55,36 @@ auto VulkanDispatchLoader::loaderImpl() const noexcept -> ConstLoaderImplPtr
   return loader_impl_.get();
 }
 
+/*!
+  \details No detailed description
+
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+inline
+bool operator==(const VulkanDispatchLoader& lhs,
+                const VulkanDispatchLoader& rhs) noexcept
+{
+  const bool result = lhs.loaderImpl() == rhs.loaderImpl();
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+inline
+bool operator!=(const VulkanDispatchLoader& lhs,
+                const VulkanDispatchLoader& rhs) noexcept
+{
+  const bool result = !(lhs == rhs);
+  return result;
+}
+
 } // namespace zivc
 
 #endif // ZIVC_VULKAN_DISPATCH_LOADER_INL_HPP

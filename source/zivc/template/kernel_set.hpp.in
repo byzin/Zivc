@@ -43,15 +43,13 @@
 
 namespace zivc {
 
-namespace cl {
-
 /*!
   \namespace @kernel_set_name@
   \brief No brief description
 
   No detailed description.
   */
-namespace @kernel_set_name@ {
+namespace cl::@kernel_set_name@ {
 
 #if defined(__kernel)
 static_assert(false, "The macro '__kernel' is already defined.");
@@ -89,9 +87,7 @@ static_assert(false, "The macro 'kernel' is already defined.");
 #undef kernel
 #undef __kernel
 
-} // namespace @kernel_set_name@
-
-} // namespace cl
+} // namespace cl::@kernel_set_name@
 
 /*!
   \namespace @kernel_set_name@

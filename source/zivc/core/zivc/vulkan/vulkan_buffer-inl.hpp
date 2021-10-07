@@ -423,23 +423,23 @@ void VulkanBuffer<T>::updateDebugInfoImpl() noexcept
   if (rawBuffer().command_buffer_ != ZIVC_VK_NULL_HANDLE) {
     IdData::NameType obj_name{""};
     const std::string_view suffix{"_commandbuffer"};
-    std::strncpy(obj_name.data(), buffer_name.data(), buffer_name.size() + 1);
-    std::strncat(obj_name.data(), suffix.data(), suffix.size());
+    copyStr(buffer_name, obj_name.data());
+    concatStr(suffix, obj_name.data());
     const std::string name = obj_name.data();
     device.setDebugInfo(VK_OBJECT_TYPE_COMMAND_BUFFER, rawBuffer().command_buffer_, name, this);
   }
   if (rawBuffer().fill_kernel_) {
     IdData::NameType obj_name{""};
     const std::string_view suffix{"_fillkernel"};
-    std::strncpy(obj_name.data(), buffer_name.data(), buffer_name.size() + 1);
-    std::strncat(obj_name.data(), suffix.data(), suffix.size());
+    copyStr(buffer_name, obj_name.data());
+    concatStr(suffix, obj_name.data());
     rawBuffer().fill_kernel_->setName(obj_name.data());
   }
   if (rawBuffer().fill_data_) {
     IdData::NameType obj_name{""};
     const std::string_view suffix{"_filldata"};
-    std::strncpy(obj_name.data(), buffer_name.data(), buffer_name.size() + 1);
-    std::strncat(obj_name.data(), suffix.data(), suffix.size());
+    copyStr(buffer_name, obj_name.data());
+    concatStr(suffix, obj_name.data());
     rawBuffer().fill_data_->setName(obj_name.data());
   }
 }

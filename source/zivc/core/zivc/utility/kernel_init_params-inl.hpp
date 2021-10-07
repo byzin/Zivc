@@ -108,10 +108,10 @@ void KernelInitParams<kDim, KSet, Args...>::setKernelName(
     std::string_view kernel_name) noexcept
 {
   const std::size_t s = kernel_name.size();
-  ZISC_ASSERT(s < maxKernelNameLength(),
+  ZISC_ASSERT(kernel_name.size() < maxKernelNameLength(),
               "The kernel '", kernel_name, "' exceed the limit of name length. ",
-              maxKernelNameLength(), " < n=", s, ".");
-  std::strncpy(kernel_name_.data(), kernel_name.data(), s);
+              maxKernelNameLength(), " < n=", kernel_name.size(), ".");
+  copyStr(kernel_name.data(), kernel_name_.data());
   kernel_name_[s] = '\0';
 }
 

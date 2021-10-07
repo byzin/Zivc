@@ -78,7 +78,8 @@ function(Zivc_getZivcWarningFlags zivc_warning_flags)
                               -Wno-sign-conversion
                               )
   elseif(Z_GCC)
-    list(APPEND warning_flags -Wno-sign-conversion
+    list(APPEND warning_flags -Wno-attributes
+                              -Wno-sign-conversion
                               )
   endif()
 
@@ -228,4 +229,9 @@ endif()
 Zisc_enableIpo(${PROJECT_NAME})
 
 #
-Zisc_setStaticAnalyzer(${PROJECT_NAME})
+set(clang_tidy_exclusion_checks bugprone-exception-escape
+                                misc-no-recursion
+                                readability-static-accessed-through-instance
+                                readability-uppercase-literal-suffix)
+Zisc_setStaticAnalyzer(${PROJECT_NAME}
+                       CLANG_TIDY_EXCLUSION_CHECKS ${clang_tidy_exclusion_checks})

@@ -59,11 +59,11 @@ void getCpuFeatures(char* cpu_name, char* vendor_name) noexcept
   IdData::NameType vendor_n;
   auto set_cpu_name = [&cpu_n](const std::string_view name)
   {
-    std::strncpy(cpu_n.data(), name.data(), name.size() + 1);
+    copyStr(name, cpu_n.data());
   };
   auto set_vendor_name = [&vendor_n](const std::string_view name)
   {
-    std::strncpy(vendor_n.data(), name.data(), name.size() + 1);
+    copyStr(name, vendor_n.data());
   };
 
   // Init data
@@ -74,9 +74,10 @@ void getCpuFeatures(char* cpu_name, char* vendor_name) noexcept
   namespace cpu = cpu_features;
 #if defined(CPU_FEATURES_ARCH_X86)
   {
-    char brand_string[49];
-    cpu::FillX86BrandString(brand_string);
-    set_cpu_name(brand_string);
+    constexpr std::size_t max_name_size = 49;
+    std::array<char, max_name_size> brand_string;
+    cpu::FillX86BrandString(brand_string.data());
+    set_cpu_name(brand_string.data());
   }
   {
     const cpu::X86Info info = cpu::GetX86Info();
@@ -106,8 +107,8 @@ void getCpuFeatures(char* cpu_name, char* vendor_name) noexcept
 #endif
 
   //
-  std::strcpy(cpu_name, cpu_n.data());
-  std::strcpy(vendor_name, vendor_n.data());
+  copyStr(cpu_n.data(), cpu_name);
+  copyStr(vendor_n.data(), vendor_name);
 }
 
 } // namespace zivc

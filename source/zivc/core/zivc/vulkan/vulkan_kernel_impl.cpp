@@ -58,7 +58,7 @@ void VulkanKernelImpl::addPodBarrierCmd(const VkCommandBuffer& command_buffer,
                                         const VkBuffer& buffer)
 {
   auto& zdevice = device();
-  const auto loader = zdevice.dispatcher().loaderImpl();
+  const auto* loader = zdevice.dispatcher().loaderImpl();
   const zivcvk::BufferMemoryBarrier buff_barrier{
       zivcvk::AccessFlagBits::eTransferWrite,
       zivcvk::AccessFlagBits::eUniformRead,
@@ -87,7 +87,7 @@ void VulkanKernelImpl::destroyDescriptorSet(VkDescriptorPool* descriptor_pool) n
   auto& zdevice = device();
   zivcvk::Device d{zdevice.device()};
   if (d) {
-    const auto loader = zdevice.dispatcher().loaderImpl();
+    const auto* loader = zdevice.dispatcher().loaderImpl();
     zivcvk::AllocationCallbacks alloc{zdevice.makeAllocator()};
     {
       zivcvk::DescriptorPool desc_pool{*descriptor_pool};
@@ -111,8 +111,8 @@ void VulkanKernelImpl::dispatchCmd(const VkCommandBuffer& command_buffer,
                                    const VkDescriptorSet& descriptor_set,
                                    const std::array<uint32b, 3>& dispatch_size)
 {
-  const auto kdata = zisc::cast<const VulkanDevice::KernelData*>(kernel_data);
-  const auto loader = device().dispatcher().loaderImpl();
+  const auto* kdata = zisc::cast<const VulkanDevice::KernelData*>(kernel_data);
+  const auto* loader = device().dispatcher().loaderImpl();
 
   const zivcvk::CommandBuffer command{command_buffer};
   ZISC_ASSERT(command, "The given command buffer is null.");
@@ -147,8 +147,8 @@ void VulkanKernelImpl::initDescriptorSet(
   auto& zdevice = device();
 
   zivcvk::Device d{zdevice.device()};
-  const auto loader = zdevice.dispatcher().loaderImpl();
-  auto mem_resource = zdevice.memoryResource();
+  const auto* loader = zdevice.dispatcher().loaderImpl();
+  auto* mem_resource = zdevice.memoryResource();
   zivcvk::AllocationCallbacks alloc{zdevice.makeAllocator()};
 
   // Initialize descriptor pool
@@ -179,7 +179,7 @@ void VulkanKernelImpl::initDescriptorSet(
 
   // Initialize descriptor set
   {
-    const auto kdata = zisc::cast<const VulkanDevice::KernelData*>(kernel_data);
+    const auto* kdata = zisc::cast<const VulkanDevice::KernelData*>(kernel_data);
     const zivcvk::DescriptorSetLayout desc_set_layout{kdata->desc_set_layout_};
     const zivcvk::DescriptorSetAllocateInfo alloc_info{desc_pool,
                                                        1,
@@ -231,13 +231,13 @@ void VulkanKernelImpl::pushConstantCmd(const VkCommandBuffer& command_buffer,
                                        const std::size_t size,
                                        const void* data)
 {
-  const auto kdata = zisc::cast<const VulkanDevice::KernelData*>(kernel_data);
-  const auto loader = device().dispatcher().loaderImpl();
+  const auto* kdata = zisc::cast<const VulkanDevice::KernelData*>(kernel_data);
+  const auto* loader = device().dispatcher().loaderImpl();
   const zivcvk::CommandBuffer command{command_buffer};
   const zivcvk::PipelineLayout pline_l{kdata->pipeline_layout_};
   constexpr auto stage_flag = zivcvk::ShaderStageFlagBits::eCompute;
-  const uint32b o = zisc::cast<uint32b>(offset);
-  const uint32b s = zisc::cast<uint32b>(size);
+  const auto o = zisc::cast<uint32b>(offset);
+  const auto s = zisc::cast<uint32b>(size);
   command.pushConstants(pline_l, stage_flag, o, s, data, *loader);
 }
 
@@ -259,12 +259,12 @@ void VulkanKernelImpl::updateDescriptorSet(const VkDescriptorSet& descriptor_set
                                            VkWriteDescriptorSet* write_desc_list)
 {
   for (std::size_t i = 0; i < n; ++i) {
-    auto desc_info = ::new (desc_info_list + i) zivcvk::DescriptorBufferInfo{};
+    auto* desc_info = ::new (desc_info_list + i) zivcvk::DescriptorBufferInfo{};
     desc_info->buffer= zisc::cast<const zivcvk::Buffer>(buffer_list[i]);
     desc_info->offset = 0;
     desc_info->range = VK_WHOLE_SIZE;
 
-    auto write_desc = ::new (write_desc_list + i) zivcvk::WriteDescriptorSet{};
+    auto* write_desc = ::new (write_desc_list + i) zivcvk::WriteDescriptorSet{};
     write_desc->dstSet = zisc::cast<const zivcvk::DescriptorSet>(descriptor_set);
     write_desc->dstBinding = zisc::cast<uint32b>(i);
     write_desc->dstArrayElement = 0;
@@ -275,8 +275,8 @@ void VulkanKernelImpl::updateDescriptorSet(const VkDescriptorSet& descriptor_set
   }
 
   zivcvk::Device d{device().device()};
-  const auto loader = device().dispatcher().loaderImpl();
-  auto descs = zisc::reinterp<const zivcvk::WriteDescriptorSet*>(write_desc_list);
+  const auto* loader = device().dispatcher().loaderImpl();
+  auto* descs = zisc::reinterp<const zivcvk::WriteDescriptorSet*>(write_desc_list);
   d.updateDescriptorSets(zisc::cast<uint32b>(n), descs, 0, nullptr, *loader);
 }
 

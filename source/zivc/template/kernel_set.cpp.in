@@ -92,9 +92,7 @@ void loadBakedSpirvCode(zisc::pmr::vector<zivc::uint32b>* spirv_code_out) noexce
 } // namespace
 #endif // ZIVC_BAKE_KERNELS
 
-namespace zivc {
-
-namespace kernel_set {
+namespace zivc::kernel_set {
 
 /*!
   \details No detailed description
@@ -117,6 +115,4 @@ void KernelSet_@kernel_set_name@::loadSpirVCode(
 #endif // ZIVC_BAKE_KERNELS
 }
 
-} // namespace kernel_set
-
-} // namespace zivc
+} // namespace zivc::kernel_set

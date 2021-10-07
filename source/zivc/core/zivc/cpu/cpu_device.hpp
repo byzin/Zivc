@@ -93,7 +93,7 @@ class CpuDevice : public Device
               const std::array<uint32b, 3>& work_size,
               const std::array<uint32b, 3>& global_id_offset,
               std::atomic<uint32b>* id,
-              Fence* fence) noexcept;
+              Fence* fence);
 
   //! Take a use of a fence from the device
   void takeFence(Fence* fence) override;

@@ -185,7 +185,7 @@ void VulkanSubPlatform::destroyData() noexcept
   zivcvk::Instance ins{instance_};
   if (ins) {
     zivcvk::AllocationCallbacks alloc{makeAllocator()};
-    const auto loader = dispatcher().loaderImpl();
+    const auto* loader = dispatcher().loaderImpl();
     ins.destroy(alloc, *loader);
     instance_ = ZIVC_VK_NULL_HANDLE;
   }
@@ -274,12 +274,12 @@ auto VulkanSubPlatform::Callbacks::allocateMemory(
     [[maybe_unused]] VkSystemAllocationScope scope) -> AllocationReturnType
 {
   ZISC_ASSERT(user_data != nullptr, "The user data is null.");
-  auto alloc_data = zisc::cast<AllocatorData*>(user_data);
+  auto* alloc_data = zisc::cast<AllocatorData*>(user_data);
   void* memory = alloc_data->memoryResource()->allocate(size, alignment);
 
   // Store the allocation info
   static_assert(sizeof(void*) == sizeof(double));
-  const double address = zisc::bit_cast<double>(memory);
+  const auto address = zisc::bit_cast<double>(memory);
   ZISC_ASSERT(std::isfinite(address), "The address float isn't finite.");
   auto& mem_map = alloc_data->memoryMap();
   {
@@ -304,11 +304,11 @@ void VulkanSubPlatform::Callbacks::deallocateMemory(
     void* memory)
 {
   ZISC_ASSERT(user_data != nullptr, "The user data is null.");
-  if (memory) {
-    auto alloc_data = zisc::cast<AllocatorData*>(user_data);
+  if (memory != nullptr) {
+    auto* alloc_data = zisc::cast<AllocatorData*>(user_data);
 
     static_assert(sizeof(void*) == sizeof(double));
-    const double address = zisc::bit_cast<double>(memory);
+    const auto address = zisc::bit_cast<double>(memory);
     ZISC_ASSERT(std::isfinite(address), "The address float isn't finite.");
     auto& mem_map = alloc_data->memoryMap();
     MemoryData data;
@@ -375,26 +375,29 @@ auto VulkanSubPlatform::Callbacks::printDebugMessage(
 {
   using zisc::cast;
 
-  if (getEnvNumber("ZIVC_SUPPRESS_TRIVIAL_WARNINGS")) {
+  if (getEnvNumber("ZIVC_SUPPRESS_TRIVIAL_WARNINGS") != 0) {
+    // VkLayer_api_dump.json invalid layer manifest file version 1.2.0. may cause errors.
+    constexpr int32b invalid_layer_manifest_id = 0;
+    // UNASSIGNED-BestPractices-vkCreateInstance-specialuse-extension
+    constexpr int32b best_practices_specialuse_id = -2111305990;
     switch (callback_data->messageIdNumber) {
-     // VkLayer_api_dump.json invalid layer manifest file version 1.2.0. May cause errors.
-     case 0:
-     // UNASSIGNED-BestPractices-vkCreateInstance-specialuse-extension
-     case -2111305990:
+     case invalid_layer_manifest_id:
+     case best_practices_specialuse_id:
       return VK_FALSE;
      default:
       break;
     }
   }
 
-  using MessageType = std::array<char, 1024>;
+  constexpr std::size_t max_message_size = 1024;
+  using MessageType = std::array<char, max_message_size>;
   MessageType message{""};
   MessageType tmp{""};
   bool is_error = false;
 
-  if (user_data) {
+  if (user_data != nullptr) {
     char* msg = tmp.data();
-    const IdData* data = cast<const IdData*>(user_data);
+    const auto* data = cast<const IdData*>(user_data);
     std::sprintf(msg, "ID[%lld] -", cast<long long>(data->id()));
     if (data->hasName()) {
       std::sprintf(msg, "%s Name '%s'", msg, data->name().data());
@@ -407,35 +410,35 @@ auto VulkanSubPlatform::Callbacks::printDebugMessage(
                    cast<long long>(line),
                    file_name.data());
     }
-    std::strcat(msg, "\n");
-    std::strcat(message.data(), msg);
+    concatStr("\n", msg);
+    concatStr(msg, message.data());
   }
 
-  constexpr char indent[] = "          ";
+  constexpr std::string_view indent{"          "};
   {
     char* prefix = tmp.data();
-    if (severity_flags & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) {
-      std::strcpy(prefix, "VERBOSE : ");
+    if ((severity_flags & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) != 0) {
+      copyStr("VERBOSE : ", prefix);
     }
-    else if (severity_flags & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) {
-      std::strcpy(prefix, "INFO    : ");
+    else if ((severity_flags & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) != 0) {
+      copyStr("INFO    : ", prefix);
     }
-    else if (severity_flags & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
-      std::strcpy(prefix, "WARNING : ");
+    else if ((severity_flags & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) != 0) {
+      copyStr("WARNING : ", prefix);
     }
-    else if (severity_flags & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
-      std::strcpy(prefix, "ERROR   : ");
+    else if ((severity_flags & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) != 0) {
+      copyStr("ERROR   : ", prefix);
       is_error = true;
     }
 
-    if (message_types & VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT) {
-      std::strcat(prefix, "GENERAL");
+    if ((message_types & VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT) != 0) {
+      concatStr("GENERAL", prefix);
     }
-    else if (message_types & VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT) {
-      std::strcat(prefix, "VALIDATION");
+    else if ((message_types & VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT) != 0) {
+      concatStr("VALIDATION", prefix);
     }
-    else if (message_types & VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT) {
-      std::strcat(prefix, "PERF");
+    else if ((message_types & VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT) != 0) {
+      concatStr("PERF", prefix);
     }
 
     char* msg = tmp.data();
@@ -444,19 +447,19 @@ auto VulkanSubPlatform::Callbacks::printDebugMessage(
         callback_data->messageIdNumber,
         callback_data->pMessageIdName,
         callback_data->pMessage);
-    std::strcat(message.data(), msg);
+    concatStr(msg, message.data());
   }
 
   if (0 < callback_data->queueLabelCount) {
     char* msg = tmp.data();
     std::sprintf(msg, "\n%sQueue Labels - %d\n",
-        indent,
+        indent.data(),
         cast<int>(callback_data->queueLabelCount));
     for (std::size_t id = 0; id < callback_data->queueLabelCount; ++id) {
       const auto& label = callback_data->pQueueLabels[id];
       std::sprintf(msg, "%s%s  * Label[%d] - %s {%lf, %lf, %lf, %lf}\n",
           msg,
-          indent,
+          indent.data(),
           cast<int>(id),
           label.pLabelName,
           cast<double>(label.color[0]),
@@ -464,19 +467,19 @@ auto VulkanSubPlatform::Callbacks::printDebugMessage(
           cast<double>(label.color[2]),
           cast<double>(label.color[3]));
     }
-    std::strcat(message.data(), msg);
+    concatStr(msg, message.data());
   }
 
   if (0 < callback_data->cmdBufLabelCount) {
     char* msg = tmp.data();
     std::sprintf(msg, "\n%sCommand Buffer Labels - %d\n",
-        indent,
+        indent.data(),
         zisc::cast<int>(callback_data->cmdBufLabelCount));
     for (std::size_t id = 0; id < callback_data->cmdBufLabelCount; ++id) {
       const auto& label = callback_data->pCmdBufLabels[id];
       std::sprintf(msg, "%s%s  * Label[%d] - %s {%lf, %lf, %lf, %lf}\n",
           msg,
-          indent,
+          indent.data(),
           cast<int>(id),
           label.pLabelName,
           cast<double>(label.color[0]),
@@ -484,13 +487,13 @@ auto VulkanSubPlatform::Callbacks::printDebugMessage(
           cast<double>(label.color[2]),
           cast<double>(label.color[3]));
     }
-    std::strcat(message.data(), msg);
+    concatStr(msg, message.data());
   }
 
   if (0 < callback_data->objectCount) {
     char* msg = tmp.data();
     std::sprintf(msg, "\n%sObjects - %d\n",
-        indent,
+        indent.data(),
         cast<int>(callback_data->objectCount));
     for (std::size_t id = 0; id < callback_data->objectCount; ++id) {
       const auto& object = callback_data->pObjects[id];
@@ -498,13 +501,13 @@ auto VulkanSubPlatform::Callbacks::printDebugMessage(
           cast<zivcvk::ObjectType>(object.objectType));
       std::sprintf(msg, "%s%s  * Object[%d] - Type '%s', Value %llu, Name '%s'\n",
           msg,
-          indent,
+          indent.data(),
           cast<int>(id),
           obj_type_name.c_str(),
           cast<unsigned long long>(object.objectHandle),
           object.pObjectName);
     }
-    std::strcat(message.data(), msg);
+    concatStr(msg, message.data());
   }
 
   std::ostream* output = (is_error) ? &std::cerr : &std::cout;
@@ -536,11 +539,11 @@ auto VulkanSubPlatform::Callbacks::reallocateMemory(
   if (0 < size)
     memory = allocateMemory(user_data, size, alignment, scope);
   // Copy data
-  if (original_memory && memory) {
-    auto alloc_data = zisc::cast<AllocatorData*>(user_data);
+  if ((original_memory != nullptr) && (memory != nullptr)) {
+    auto* alloc_data = zisc::cast<AllocatorData*>(user_data);
 
     static_assert(sizeof(void*) == sizeof(double));
-    const double address = zisc::bit_cast<double>(original_memory);
+    const auto address = zisc::bit_cast<double>(original_memory);
     ZISC_ASSERT(std::isfinite(address), "The address float isn't finite.");
     auto& mem_map = alloc_data->memoryMap();
     MemoryData data;
@@ -554,7 +557,7 @@ auto VulkanSubPlatform::Callbacks::reallocateMemory(
     std::memcpy(memory, original_memory, data_size);
   }
   // Deallocate the original memory
-  if (original_memory)
+  if (original_memory != nullptr)
     deallocateMemory(user_data, original_memory);
   return memory;
 }
@@ -595,7 +598,7 @@ VkApplicationInfo VulkanSubPlatform::makeApplicationInfo(
   */
 void VulkanSubPlatform::initAllocator() noexcept
 {
-  auto mem_resource = memoryResource();
+  auto* mem_resource = memoryResource();
   zisc::pmr::polymorphic_allocator<AllocatorData> alloc{mem_resource};
   allocator_data_ = zisc::pmr::allocateUnique<AllocatorData>(alloc, mem_resource);
 }
@@ -608,8 +611,8 @@ void VulkanSubPlatform::initAllocator() noexcept
 void VulkanSubPlatform::initInstance(PlatformOptions& options)
 {
   using InstancePtr = std::add_pointer_t<VkInstance>;
-  auto ptr = zisc::cast<InstancePtr>(options.vulkanInstancePtr());
-  if (ptr) {
+  auto* ptr = zisc::cast<InstancePtr>(options.vulkanInstancePtr());
+  if (ptr != nullptr) {
     // Use the given instance instead of allocating new instance
     instance_ = ZIVC_VK_NULL_HANDLE;
     instance_ref_ = ptr;
@@ -681,7 +684,7 @@ void VulkanSubPlatform::initInstance(PlatformOptions& options)
   }
 
   zivcvk::AllocationCallbacks alloc{makeAllocator()};
-  const auto loader = dispatcher().loaderImpl();
+  const auto* loader = dispatcher().loaderImpl();
   zivcvk::Instance ins = zivcvk::createInstance(create_info, alloc, *loader);
   instance_ = zisc::cast<VkInstance>(ins);
   instance_ref_ = std::addressof(instance_);
@@ -697,11 +700,11 @@ void VulkanSubPlatform::initDeviceList()
 
   using DeviceList = zisc::pmr::vector<zivcvk::PhysicalDevice>;
   DeviceList::allocator_type alloc{memoryResource()};
-  const auto loader = dispatcher().loaderImpl();
+  const auto* loader = dispatcher().loaderImpl();
   auto device_list = ins.enumeratePhysicalDevices(alloc, *loader);
 
   using DstDeviceList = decltype(device_list_)::element_type;
-  auto list_ptr = zisc::reinterp<DstDeviceList*>(std::addressof(device_list));
+  auto* list_ptr = zisc::reinterp<DstDeviceList*>(std::addressof(device_list));
   device_list_ = zisc::pmr::allocateUnique<DstDeviceList>(
       memoryResource(),
       std::move(*list_ptr));
@@ -712,7 +715,7 @@ void VulkanSubPlatform::initDeviceList()
   */
 void VulkanSubPlatform::initDeviceInfoList() noexcept
 {
-  auto mem_resource = memoryResource();
+  auto* mem_resource = memoryResource();
   using DeviceInfoList = decltype(device_info_list_)::element_type;
   DeviceInfoList info_list{DeviceInfoList::allocator_type{mem_resource}};
   zisc::pmr::polymorphic_allocator<DeviceInfoList> alloc{mem_resource};
@@ -728,13 +731,13 @@ void VulkanSubPlatform::initDeviceInfoList() noexcept
   */
 void VulkanSubPlatform::initDispatcher(PlatformOptions& options)
 {
-  auto mem_resource = memoryResource();
+  auto* mem_resource = memoryResource();
   zisc::pmr::polymorphic_allocator<VulkanDispatchLoader> alloc{mem_resource};
 
   using FuncPtr = std::add_pointer_t<PFN_vkGetInstanceProcAddr>;
-  auto ptr = zisc::cast<FuncPtr>(options.vulkanGetProcAddrPtr());
+  auto* ptr = zisc::cast<FuncPtr>(options.vulkanGetProcAddrPtr());
   std::string_view lib = options.vulkanLibraryName();
-  dispatcher_ = (ptr) // Use the given loader instead of allocating new one
+  dispatcher_ = (ptr != nullptr) // Use the given loader instead of allocating new one
       ? zisc::pmr::allocateUnique<VulkanDispatchLoader>(alloc, mem_resource, *ptr)
       : zisc::pmr::allocateUnique<VulkanDispatchLoader>(alloc, mem_resource, lib);
 }

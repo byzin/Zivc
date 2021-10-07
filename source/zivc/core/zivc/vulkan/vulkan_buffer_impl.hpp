@@ -177,9 +177,9 @@ class VulkanBufferImpl : private zisc::NonCopyable<VulkanBufferImpl>
   static constexpr FillUnitSize getFillUnitSize(const std::size_t size) noexcept;
 
   //! Create a allocation create info
-  VmaAllocationCreateInfo makeAllocCreateInfo(
+  static VmaAllocationCreateInfo makeAllocCreateInfo(
       const BufferUsage buffer_usage,
-      void* user_data) const noexcept;
+      void* user_data) noexcept;
 
   //! Create a buffer create info
   VkBufferCreateInfo makeBufferCreateInfo(

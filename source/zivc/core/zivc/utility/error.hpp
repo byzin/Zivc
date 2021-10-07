@@ -79,14 +79,14 @@ class SystemError : public std::system_error
   SystemError(const ErrorCode code, const std::string_view what_arg);
 
   //! Move data
-  SystemError(SystemError&& other);
+  SystemError(SystemError&& other) noexcept;
 
   //! Finalize the system error
   ~SystemError() noexcept override;
 
 
   //! Move data
-  SystemError& operator=(SystemError&& other);
+  SystemError& operator=(SystemError&& other) noexcept;
 };
 
 } // namespace zivc

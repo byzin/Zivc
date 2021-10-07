@@ -110,6 +110,12 @@ class IdData : private zisc::NonCopyable<IdData>
   NameType file_name_;
 };
 
+//! Concatenate two strings
+char* concatStr(const std::string_view source, char* dest) noexcept;
+
+//! Copy one string to another
+char* copyStr(const std::string_view source, char* dest) noexcept;
+
 } // namespace zivc
 
 #include "id_data-inl.hpp"

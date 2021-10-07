@@ -50,8 +50,8 @@ class VulkanSubPlatform;
 
 template <typename Type>
 concept LabelOptions = requires (const Type& o) {
-  {o.label()} -> zisc::template SameAs<std::string_view>;
-  {o.labelColor()} -> zisc::template SameAs<const std::template array<float, 4>&>;
+  {o.label()} -> zisc::SameAs<std::string_view>;
+  {o.labelColor()} -> zisc::SameAs<const std::template array<float, 4>&>;
 };
 
 /*!
@@ -222,7 +222,7 @@ class VulkanDevice : public Device
   //! Submit the given command
   void submit(const VkCommandBuffer& command_buffer,
               const VkQueue& q,
-              const Fence& fence);
+              const Fence& fence) const;
 
   //! Take a use of a fence from the device
   void takeFence(Fence* fence) override;
@@ -305,7 +305,7 @@ class VulkanDevice : public Device
   uint32b findQueueFamily() const noexcept;
 
   //! Get Vulkan function pointers used in VMA
-  VmaVulkanFunctions getVmaVulkanFunctions() noexcept;
+  VmaVulkanFunctions getVmaVulkanFunctions() const noexcept;
 
   //! Initialize a command pool
   void initCommandPool();

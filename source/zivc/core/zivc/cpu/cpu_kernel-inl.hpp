@@ -253,8 +253,8 @@ void
 CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 runImpl(Types&&... cl_args) noexcept
 {
-  using ArgParser = typename BaseKernel::ArgParser;
-  if constexpr (kIndex < ArgParser::kNumOfArgs) {
+  using ArgParserT = typename BaseKernel::ArgParser;
+  if constexpr (kIndex < ArgParserT::kNumOfArgs) {
     using CacheType = typename ArgCache::template CacheType<kIndex>;
     using ArgType = std::remove_cv_t<std::remove_pointer_t<CacheType>>;
     using ArgTypeInfo = KernelArgTypeInfo<ArgType>;

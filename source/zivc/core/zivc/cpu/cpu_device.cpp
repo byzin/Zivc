@@ -43,7 +43,8 @@ using CpuFence = zisc::Future<void>;
 
 namespace zivc {
 
-static_assert(!(std::alignment_of_v<Fence::Data> % std::alignment_of_v<::CpuFence>));
+static_assert(std::alignment_of_v<Fence::Data> %
+              std::alignment_of_v<::CpuFence> == 0);
 static_assert(sizeof(::CpuFence) <= sizeof(Fence::Data));
 
 /*!
@@ -113,7 +114,7 @@ std::size_t CpuDevice::numOfQueues() const noexcept
   */
 void CpuDevice::returnFence(Fence* fence) noexcept
 {
-  auto f = zisc::reinterp<::CpuFence*>(std::addressof(fence->data()));
+  auto* f = zisc::reinterp<::CpuFence*>(std::addressof(fence->data()));
   std::destroy_at(f);
 }
 
@@ -141,9 +142,9 @@ void CpuDevice::submit(const Command& command,
                        const std::array<uint32b, 3>& work_size,
                        const std::array<uint32b, 3>& global_id_offset,
                        std::atomic<uint32b>* id,
-                       Fence* fence) noexcept
+                       Fence* fence)
 {
-  const uint32b batch_size = zisc::cast<uint32b>(taskBatchSize());
+  const auto batch_size = zisc::cast<uint32b>(taskBatchSize());
   auto task = [command, id, dimension, work_size, global_id_offset, batch_size]
   (const int64b, const int64b) noexcept
   {
@@ -162,7 +163,7 @@ void CpuDevice::submit(const Command& command,
   constexpr auto parent_id = zisc::ThreadManager::kAllPrecedences;
   auto result = manager.enqueueLoop(std::move(task), start, end, parent_id);
   if (fence->isActive()) {
-    auto fen = zisc::reinterp<CpuFence*>(std::addressof(fence->data()));
+    auto* fen = zisc::reinterp<CpuFence*>(std::addressof(fence->data()));
     *fen = std::move(result);
   }
 }
@@ -174,8 +175,8 @@ void CpuDevice::submit(const Command& command,
   */
 void CpuDevice::takeFence(Fence* fence)
 {
-  auto memory = std::addressof(fence->data());
-  [[maybe_unused]] auto f = ::new (zisc::cast<void*>(memory)) ::CpuFence{};
+  auto* memory = std::addressof(fence->data());
+  [[maybe_unused]] auto* f = ::new (zisc::cast<void*>(memory)) ::CpuFence{};
 }
 
 /*!
@@ -205,7 +206,7 @@ void CpuDevice::waitForCompletion([[maybe_unused]] const uint32b queue_index) co
 void CpuDevice::waitForCompletion(const Fence& fence) const
 {
   if (fence) {
-    const auto memory = std::addressof(fence.data());
+    const auto* memory = std::addressof(fence.data());
     const auto& f = *zisc::reinterp<const ::CpuFence*>(memory);
     f.wait();
   }
@@ -228,7 +229,7 @@ void CpuDevice::initData()
 
   heap_usage_.setPeak(0);
   heap_usage_.setTotal(0);
-  auto mem_resource = memoryResource();
+  auto* mem_resource = memoryResource();
   zisc::pmr::polymorphic_allocator<zisc::ThreadManager> alloc{mem_resource};
   thread_manager_ = zisc::pmr::allocateUnique(alloc,
                                               platform.numOfThreads(),

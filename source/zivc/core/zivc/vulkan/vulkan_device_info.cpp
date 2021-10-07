@@ -50,8 +50,7 @@ VulkanDeviceInfo::VulkanDeviceInfo(zisc::pmr::memory_resource* mem_resource)
           decltype(queue_family_properties_list_)::allocator_type{mem_resource}},
         tool_properties_list_{
           decltype(tool_properties_list_)::allocator_type{mem_resource}},
-        vendor_id_{VendorId::kUnknown},
-        subgroup_size_{0}
+        vendor_id_{VendorId::kUnknown}
 {
 }
 
@@ -68,12 +67,12 @@ VulkanDeviceInfo::VulkanDeviceInfo(VulkanDeviceInfo&& other) noexcept :
     tool_properties_list_{std::move(other.tool_properties_list_)},
     device_{other.device_},
     device_index_{other.device_index_},
-    vendor_name_{std::move(other.vendor_name_)},
+    vendor_name_{other.vendor_name_},
     vendor_id_{other.vendor_id_},
     subgroup_size_{other.subgroup_size_},
-    properties_{std::move(other.properties_)},
-    features_{std::move(other.features_)},
-    memory_properties_{std::move(other.memory_properties_)}
+    properties_{other.properties_},
+    features_{other.features_},
+    memory_properties_{other.memory_properties_}
 {
 }
 
@@ -85,19 +84,19 @@ VulkanDeviceInfo::VulkanDeviceInfo(VulkanDeviceInfo&& other) noexcept :
   */
 VulkanDeviceInfo& VulkanDeviceInfo::operator=(VulkanDeviceInfo&& other) noexcept
 {
-  DeviceInfo::operator=(std::move(other));
   extension_properties_list_ = std::move(other.extension_properties_list_);
   layer_properties_list_ = std::move(other.layer_properties_list_);
   queue_family_properties_list_ = std::move(other.queue_family_properties_list_);
   tool_properties_list_ = std::move(other.tool_properties_list_);
   device_ = other.device_;
   device_index_ = other.device_index_;
-  vendor_name_ = std::move(other.vendor_name_);
+  vendor_name_ = other.vendor_name_;
   vendor_id_ = other.vendor_id_;
   subgroup_size_ = other.subgroup_size_;
-  properties_ = std::move(other.properties_);
-  features_ = std::move(other.features_);
-  memory_properties_ = std::move(other.memory_properties_);
+  properties_ = other.properties_;
+  features_ = other.features_;
+  memory_properties_ = other.memory_properties_;
+  DeviceInfo::operator=(std::move(other));
   return *this;
 }
 
@@ -227,7 +226,7 @@ void VulkanDeviceInfo::fetchExtensionProperties(
   static_assert(sizeof(VkExtensionProperties) == sizeof(Props));
 
   const zivcvk::PhysicalDevice d{device()};
-  const auto loader = dispatcher.loaderImpl();
+  const auto* loader = dispatcher.loaderImpl();
 
   uint32b size = 0;
   {
@@ -240,7 +239,7 @@ void VulkanDeviceInfo::fetchExtensionProperties(
     extension_properties_list_.resize(zisc::cast<std::size_t>(size));
   }
   {
-    auto data = zisc::reinterp<Props*>(extension_properties_list_.data());
+    auto* data = zisc::reinterp<Props*>(extension_properties_list_.data());
     auto result = d.enumerateDeviceExtensionProperties(nullptr, &size,
                                                        data, *loader);
     if (result != zivcvk::Result::eSuccess) {
@@ -259,7 +258,7 @@ void VulkanDeviceInfo::fetchFeatures(
     const VulkanDispatchLoader& dispatcher)
 {
   const zivcvk::PhysicalDevice d{device()};
-  const auto loader = dispatcher.loaderImpl();
+  const auto* loader = dispatcher.loaderImpl();
 
   zivcvk::PhysicalDeviceFeatures2 p;
   auto& props = features_;
@@ -425,7 +424,7 @@ void VulkanDeviceInfo::fetchLayerProperties(
   static_assert(sizeof(VkLayerProperties) == sizeof(Props));
 
   const zivcvk::PhysicalDevice d{device()};
-  const auto loader = dispatcher.loaderImpl();
+  const auto* loader = dispatcher.loaderImpl();
 
   uint32b size = 0;
   {
@@ -437,7 +436,7 @@ void VulkanDeviceInfo::fetchLayerProperties(
     layer_properties_list_.resize(zisc::cast<std::size_t>(size));
   }
   {
-    auto data = zisc::reinterp<Props*>(layer_properties_list_.data());
+    auto* data = zisc::reinterp<Props*>(layer_properties_list_.data());
     auto result = d.enumerateDeviceLayerProperties(&size, data, *loader);
     if (result != zivcvk::Result::eSuccess) {
       const char* message = "Fetching device layer props failed.";
@@ -455,7 +454,7 @@ void VulkanDeviceInfo::fetchMemoryProperties(
     const VulkanDispatchLoader& dispatcher)
 {
   const zivcvk::PhysicalDevice d{device()};
-  const auto loader = dispatcher.loaderImpl();
+  const auto* loader = dispatcher.loaderImpl();
 
   zivcvk::PhysicalDeviceMemoryProperties2 p;
   auto& props = memory_properties_;
@@ -477,7 +476,7 @@ void VulkanDeviceInfo::fetchProperties(
     const VulkanDispatchLoader& dispatcher)
 {
   const zivcvk::PhysicalDevice d{device()};
-  const auto loader = dispatcher.loaderImpl();
+  const auto* loader = dispatcher.loaderImpl();
 
   zivcvk::PhysicalDeviceProperties2 p;
   auto& props = properties_;
@@ -577,7 +576,7 @@ void VulkanDeviceInfo::fetchToolProperties(
   static_assert(sizeof(VkPhysicalDeviceToolPropertiesEXT) == sizeof(Props));
 
   const zivcvk::PhysicalDevice d{device()};
-  const auto loader = dispatcher.loaderImpl();
+  const auto* loader = dispatcher.loaderImpl();
 
   uint32b size = 0;
   {
@@ -589,7 +588,7 @@ void VulkanDeviceInfo::fetchToolProperties(
     tool_properties_list_.resize(zisc::cast<std::size_t>(size));
   }
   {
-    auto data = zisc::reinterp<Props*>(tool_properties_list_.data());
+    auto* data = zisc::reinterp<Props*>(tool_properties_list_.data());
     auto result = d.getToolPropertiesEXT(&size, data, *loader);
     if (result != zivcvk::Result::eSuccess) {
       const char* message = "Fetching device tool props failed.";
@@ -610,7 +609,7 @@ void VulkanDeviceInfo::fetchQueueFamilyProperties(
   static_assert(sizeof(VkQueueFamilyProperties2) == sizeof(Props));
 
   const zivcvk::PhysicalDevice d{device()};
-  const auto loader = dispatcher.loaderImpl();
+  const auto* loader = dispatcher.loaderImpl();
 
   constexpr std::size_t max_size = maxQueueFamilyCount();
   uint32b size = 0;
@@ -672,9 +671,10 @@ void VulkanDeviceInfo::initSubgroupSize() noexcept
   const Properties& props = properties();
   uint32b subgroup_size = props.subgroup_.subgroupSize;
   if (subgroup_size == 0) {
+    constexpr std::size_t default_subgroup_size = 32;
     switch (props.properties1_.vendorID) {
      default: {
-      subgroup_size = 32;
+      subgroup_size = default_subgroup_size;
      }
     }
   }
@@ -688,7 +688,7 @@ void VulkanDeviceInfo::initVendorInfo() noexcept
 {
   auto set_vendor_name = [this](std::string_view n)
   {
-    std::strncpy(vendor_name_.data(), n.data(), n.size() + 1);
+    copyStr(n, vendor_name_.data());
   };
 
   switch (properties().properties1_.vendorID) {

@@ -79,10 +79,10 @@ int main(int /* argc */, char** /* argv */)
           std::to_string(zivc::vkGetVersionPatch(version));
     };
 
-    auto sub_platform = zisc::cast<zivc::VulkanSubPlatform*>(
+    auto* sub_platform = zisc::cast<zivc::VulkanSubPlatform*>(
         platform->subPlatform(zivc::SubPlatformType::kVulkan));
 
-    const auto loader = sub_platform->dispatcher().loaderImpl();
+    const auto* loader = sub_platform->dispatcher().loaderImpl();
 
     const std::string indent2 = indent1 + indent1;
     const std::string indent3 = indent2 + indent1;
@@ -330,7 +330,7 @@ int main(int /* argc */, char** /* argv */)
         std::cout << indent2 << "Ray Tracing" << std::endl;
         std::cout << indent3 << "acceleration structure: "
                   << acc_structure.accelerationStructure << std::endl;
-        if (acc_structure.accelerationStructure) {
+        if (acc_structure.accelerationStructure != 0u) {
           std::cout << indent4 << "indirect build: "
                     << acc_structure.accelerationStructureIndirectBuild << std::endl;
           std::cout << indent4 << "host commands: "
@@ -350,7 +350,7 @@ int main(int /* argc */, char** /* argv */)
         const auto& ray_pipeline = features.ray_tracing_pipeline_features_;
         std::cout << indent3 << "ray tracing pipeline: "
                   << ray_pipeline.rayTracingPipeline << std::endl;
-        if (ray_pipeline.rayTracingPipeline) {
+        if (ray_pipeline.rayTracingPipeline != 0) {
           const auto& ray_pipeline_prop = props.ray_tracing_pipeline_;
           std::cout << indent4 << "indirect trace ray: "
                     << ray_pipeline.rayTracingPipelineTraceRaysIndirect << std::endl;

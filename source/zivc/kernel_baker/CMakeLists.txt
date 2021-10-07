@@ -31,11 +31,19 @@ include(${zisc_path}/cmake/compiler.cmake)
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20
                                       CXX_STANDARD_REQUIRED ON)
 Zisc_getCxxWarningFlags(cxx_compile_warning_flags)
+Zivc_getZivcFlags(zivc_compile_flags zivc_linker_flags zivc_definitions)
 Zivc_getZivcWarningFlags(zivc_warning_flags)
 target_compile_options(${PROJECT_NAME} PRIVATE ${cxx_compile_warning_flags}
+                                               ${zivc_compile_flags}
                                                ${zivc_warning_flags})
-target_link_libraries(${PROJECT_NAME} PRIVATE Zisc Zivc libzstd_static)
+target_include_directories(${PROJECT_NAME} PRIVATE ${zivc_core_dir})
+target_link_libraries(${PROJECT_NAME} PRIVATE Zisc libzstd_static)
+target_link_options(${PROJECT_NAME} PRIVATE ${zivc_linker_flags})
+target_compile_definitions(${PROJECT_NAME} PRIVATE ${zivc_definitions})
 Zisc_enableIpo(${PROJECT_NAME})
 
 #
-Zisc_setStaticAnalyzer(${PROJECT_NAME})
+set(clang_tidy_exclusion_checks bugprone-exception-escape
+                                )
+Zisc_setStaticAnalyzer(${PROJECT_NAME}
+                       CLANG_TIDY_EXCLUSION_CHECKS ${clang_tidy_exclusion_checks})

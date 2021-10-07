@@ -80,7 +80,7 @@ int main(int /* argc */, char** /* argv */)
   const auto& device_info_list = platform->deviceInfoList();
   for (std::size_t i = 0; i < device_info_list.size(); ++i) {
     std::cout << std::endl;
-    const auto info = device_info_list[i];
+    const auto* const info = device_info_list[i];
     std::cout << indent1 << "## Device[" << i << "]" << std::endl;
     std::cout << indent2 << "Type                : "
               << ::getSubPlatformTypeString(info->type()) << std::endl;

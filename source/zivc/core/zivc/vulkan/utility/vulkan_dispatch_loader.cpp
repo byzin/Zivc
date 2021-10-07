@@ -91,8 +91,10 @@ VulkanDispatchLoader::~VulkanDispatchLoader() noexcept
 VulkanDispatchLoader& VulkanDispatchLoader::operator=(
     const VulkanDispatchLoader& other) noexcept
 {
-  if (*this != other)
-    copyFrom(other);
+  if (this == &other)
+    return *this;
+
+  copyFrom(other);
   return *this;
 }
 
@@ -105,8 +107,10 @@ VulkanDispatchLoader& VulkanDispatchLoader::operator=(
 VulkanDispatchLoader& VulkanDispatchLoader::operator=(
     VulkanDispatchLoader&& other) noexcept
 {
-  if (*this != other)
-    moveFrom(other);
+  if (this == &other)
+    return *this;
+
+  moveFrom(other);
   return *this;
 }
 

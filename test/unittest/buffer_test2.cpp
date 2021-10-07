@@ -426,7 +426,7 @@ TEST(BufferTest, FillBufferInt64Test)
     auto mapped_mem = buffer_host->mapMemory();
     for (std::size_t i = 0; i < mapped_mem.size(); ++i) {
       const auto result = v == mapped_mem[i];
-      const bool flag = result.x && result.y;
+      const bool flag = (result.x != 0) && (result.y != 0);
       ASSERT_TRUE(flag) <<"Filling buffer failed.";
     }
   }

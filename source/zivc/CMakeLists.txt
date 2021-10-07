@@ -31,13 +31,13 @@ function(Zivc_initZivcOptions)
   set(option_description "Enable SPIR-V analysis.")
   Zisc_setBooleanOption(ZIVC_ENABLE_SPIRV_ANALYSIS ON ${option_description})
 
-  include(${PROJECT_SOURCE_DIR}/cmake/kernel.cmake)
+  include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/cmake/kernel.cmake)
   Zivc_initZivcKernelOptions()
 endfunction(Zivc_initZivcOptions)
 
 
 function(Zivc_getZivcFlags zivc_compile_flags zivc_linker_flags zivc_definitions)
-  include(${PROJECT_SOURCE_DIR}/cmake/kernel.cmake)
+  include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/cmake/kernel.cmake)
   Zivc_getZivcKernelFlags(compile_flags definitions)
 
   if(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
@@ -230,6 +230,7 @@ Zisc_enableIpo(${PROJECT_NAME})
 
 #
 set(clang_tidy_exclusion_checks bugprone-exception-escape
+                                misc-misplaced-const
                                 misc-no-recursion
                                 readability-static-accessed-through-instance
                                 readability-uppercase-literal-suffix)

@@ -47,7 +47,7 @@ TEST(PlatformTest, DeviceInfoTest)
 {
   const auto& config = ztest::Config::globalConfig();
   auto platform = ztest::makePlatform();
-  const auto info = platform->deviceInfoList()[config.deviceId()];
+  const auto* const info = platform->deviceInfoList()[config.deviceId()];
   // Device name
   {
     const std::string_view name = info->name();

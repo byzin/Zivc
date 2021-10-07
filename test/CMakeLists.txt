@@ -42,7 +42,9 @@ function(getTestWarningFlags test_warning_flags)
                                   )
       endif()
     elseif(Z_GCC)
-      list(APPEND warning_flags -Wno-sign-conversion
+      list(APPEND warning_flags -Wno-attributes
+                                -Wno-noexcept
+                                -Wno-sign-conversion
                                 -Wno-strict-overflow
                                 -Wno-unused-but-set-variable
                                 )
@@ -99,8 +101,10 @@ set(clang_tidy_exclusion_checks bugprone-exception-escape
                                 misc-non-private-member-variables-in-classes
                                 misc-redundant-expression
                                 modernize-avoid-c-arrays
+                                modernize-loop-convert
                                 modernize-use-auto
                                 readability-function-cognitive-complexity
+                                readability-implicit-bool-conversion
                                 readability-isolate-declaration
                                 readability-magic-numbers
                                 readability-named-parameter

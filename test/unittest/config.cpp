@@ -99,10 +99,8 @@ void Config::setDeviceId(const zivc::uint32b id) noexcept
   */
 Config& Config::globalConfig() noexcept
 {
-  if (!global_config_) {
-    global_config_.reset(new Config{});
-  }
-  return *global_config_;
+  static Config global_config;
+  return global_config;
 }
 
 /*!
@@ -110,7 +108,7 @@ Config& Config::globalConfig() noexcept
 
   \return No description
   */
-std::size_t Config::testKernelWorkSize1d() const noexcept
+std::size_t Config::testKernelWorkSize1d() noexcept
 {
   return 1920 * 1080;
 }
@@ -130,17 +128,5 @@ void Config::initialize() noexcept
 {
   mem_resource_ = std::make_unique<zisc::SimpleMemoryResource>();
 }
-
-#if defined(Z_GCC) || defined(Z_CLANG)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wexit-time-destructors"
-#endif // Z_GCC || Z_CLANG
-
-// Declaration of static member
-std::unique_ptr<Config> Config::global_config_;
-
-#if defined(Z_GCC) || defined(Z_CLANG)
-#pragma GCC diagnostic pop
-#endif // Z_GCC || Z_CLANG
 
 } // namespace ztest

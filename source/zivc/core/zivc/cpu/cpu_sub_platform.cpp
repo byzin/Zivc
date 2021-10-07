@@ -68,7 +68,7 @@ void CpuSubPlatform::getDeviceInfoList(
   */
 SharedDevice CpuSubPlatform::makeDevice(const DeviceInfo& device_info)
 {
-  auto* info = zisc::cast<const CpuDeviceInfo*>(std::addressof(device_info));
+  const auto* info = zisc::cast<const CpuDeviceInfo*>(std::addressof(device_info));
   if (device_info_.get() != info) {
     const char* message = "Invalid cpu device info is passed.";
     throw SystemError{ErrorCode::kInitializationFailed, message};

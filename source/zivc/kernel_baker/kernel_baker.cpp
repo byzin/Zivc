@@ -33,6 +33,7 @@
 #include "zisc/binary_serializer.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 #include "zisc/memory/simple_memory_resource.hpp"
+#include "zisc/zisc_config.hpp"
 // Zivc
 #include "zivc/utility/zstd.hpp"
 
@@ -47,8 +48,8 @@ struct Parameters
 {
   zisc::pmr::memory_resource* mem_resource_ = nullptr;
   std::string_view kernel_set_name_;
-  std::int32_t compression_level_ = 19;
-  std::int32_t padding_ = 0;
+  std::int32_t compression_level_ = 0; // 19: default compression level
+  zisc::Padding<4> pad_;
 };
 
 //! Output the given debug message
@@ -100,7 +101,7 @@ zisc::pmr::vector<std::byte> loadSpirVFile(std::string_view file_path,
 //! Allocate a memory
 void* allocateMemory(void* opaque, size_t size)
 {
-  auto mem_resource = static_cast<zisc::pmr::memory_resource*>(opaque);
+  auto* mem_resource = static_cast<zisc::pmr::memory_resource*>(opaque);
   void* address = mem_resource->allocate(size);
   return address;
 }
@@ -108,7 +109,7 @@ void* allocateMemory(void* opaque, size_t size)
 //! Deallocate a memory
 void deallocateMemory(void* opaque, void* address)
 {
-  auto mem_resource = static_cast<zisc::pmr::memory_resource*>(opaque);
+  auto* mem_resource = static_cast<zisc::pmr::memory_resource*>(opaque);
   const std::size_t size = 0; //! \todo Retrieve the actual size of the memory
   mem_resource->deallocate(address, size);
 }
@@ -135,12 +136,12 @@ zisc::pmr::vector<std::byte> encodeSpirVData(
                                                     data.size(),
                                                     params.compression_level_);
   {
-    const std::ptrdiff_t size = static_cast<std::ptrdiff_t>(encode_size);
+    const auto size = static_cast<std::ptrdiff_t>(encode_size);
     encoded_data.erase(encoded_data.begin() + size, encoded_data.end());
   }
 
   const std::size_t result = ZSTD_freeCCtx(context);
-  if (ZSTD_isError(result)) {
+  if (ZSTD_isError(result) != 0) {
     std::cerr << "[ERROR] " << ZSTD_getErrorName(result) << std::endl;
     std::abort();
   }
@@ -171,7 +172,7 @@ void writeEncodedData(const zisc::pmr::vector<std::byte>& encoded_data,
 void generateBakeCode(const zisc::pmr::vector<std::byte>& spv_data,
                       const zisc::pmr::vector<std::byte>& encoded_data,
                       Parameters& params,
-                      std::ostream* bake_code) noexcept
+                      std::ostream* bake_code)
 {
   auto add_line = [bake_code](const std::string_view line) noexcept
   {
@@ -265,8 +266,9 @@ void saveBakeCode(std::string_view file_path, std::istream& bake_code) noexcept
 
 double toMegaBytes(const std::size_t bytes) noexcept
 {
-  double size = static_cast<double>(bytes);
-  size = size / (1024.0 * 1024.0);
+  auto size = static_cast<double>(bytes);
+  constexpr double k = 1024.0;
+  size = size / (k * k);
   return size;
 }
 
@@ -310,7 +312,7 @@ int main(int /* argc */, char** argv)
   {
     zisc::pmr::string::allocator_type alloc{params.mem_resource_};
     zisc::pmr::string tmp{alloc};
-    zisc::pmr::stringstream bake_code{std::move(tmp)};
+    zisc::pmr::stringstream bake_code{tmp};
     ::generateBakeCode(spv_data, encoded_data, params, std::addressof(bake_code));
     zisc::BSerializer::backToBegin(std::addressof(bake_code));
     ::saveBakeCode(baked_spv_file_path, bake_code);

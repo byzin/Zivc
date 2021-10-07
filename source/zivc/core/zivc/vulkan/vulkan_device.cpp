@@ -646,7 +646,7 @@ void VulkanDevice::waitForCompletion(const Fence& fence) const
     const zivcvk::Device d{device()};
     const auto* loader = dispatcher().loaderImpl();
 
-    auto* f = zisc::reinterp<const zivcvk::Fence*>(std::addressof(fence.data()));
+    const auto* f = zisc::reinterp<const zivcvk::Fence*>(std::addressof(fence.data()));
     constexpr uint64b timeout = (std::numeric_limits<uint64b>::max)();
     [[maybe_unused]] const auto result = d.waitForFences(*f,
                                                          VK_TRUE,

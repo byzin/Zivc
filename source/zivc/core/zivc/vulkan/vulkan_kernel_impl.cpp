@@ -276,7 +276,7 @@ void VulkanKernelImpl::updateDescriptorSet(const VkDescriptorSet& descriptor_set
 
   zivcvk::Device d{device().device()};
   const auto* loader = device().dispatcher().loaderImpl();
-  auto* descs = zisc::reinterp<const zivcvk::WriteDescriptorSet*>(write_desc_list);
+  const auto* descs = zisc::reinterp<const zivcvk::WriteDescriptorSet*>(write_desc_list);
   d.updateDescriptorSets(zisc::cast<uint32b>(n), descs, 0, nullptr, *loader);
 }
 

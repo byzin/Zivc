@@ -68,7 +68,7 @@ class Config : private zisc::NonCopyable<Config>
   void setDeviceId(const zivc::uint32b id) noexcept;
 
   //! Return the work size of test kernel
-  std::size_t testKernelWorkSize1d() const noexcept;
+  static std::size_t testKernelWorkSize1d() noexcept;
 
  private:
   //! Initialize a config
@@ -77,9 +77,6 @@ class Config : private zisc::NonCopyable<Config>
 
   //! Initialize a confik
   void initialize() noexcept;
-
-
-  static std::unique_ptr<Config> global_config_;
 
 
   std::unique_ptr<zisc::pmr::memory_resource> mem_resource_;

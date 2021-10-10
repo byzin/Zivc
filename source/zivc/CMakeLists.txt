@@ -122,7 +122,7 @@ function(Zivc_addZstd zstd_path)
   set(zstd_warning_flags "")
   if(Z_VISUAL_STUDIO)
     list(APPEND zstd_warning_flags /w)
-  elseif(Z_CLANG)
+  elseif(Z_CLANG AND NOT Z_APPLE_CLANG)
     list(APPEND zstd_warning_flags -Wno-unused-command-line-argument
                                    -Wno-unused-but-set-variable
                                    )

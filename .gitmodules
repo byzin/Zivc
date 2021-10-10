@@ -19,3 +19,9 @@
 [submodule "test/dependencies/CLI11"]
 	path = test/dependencies/CLI11
 	url = https://github.com/CLIUtils/CLI11.git
+[submodule "source/dependencies/imgui"]
+	path = example/dependencies/imgui
+	url = https://github.com/ocornut/imgui
+[submodule "source/dependencies/glfw"]
+	path = example/dependencies/glfw
+	url = https://github.com/glfw/glfw

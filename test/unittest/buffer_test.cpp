@@ -406,7 +406,7 @@ TEST(BufferTest, HostBufferMemoryMappingTest)
   {
     auto mapped_mem = buffer->mapMemory();
     std::size_t n = 0;
-    for (auto* ite = mapped_mem.cbegin(); ite != mapped_mem.cend(); ++ite) {
+    for (const auto* ite = mapped_mem.cbegin(); ite != mapped_mem.cend(); ++ite) {
       ASSERT_EQ(test3_value, *ite) << "iterator of MappedMemory failed.";
       ++n;
     }
@@ -468,7 +468,7 @@ TEST(BufferTest, HostToDeviceBufferMemoryMappingTest)
   {
     auto mapped_mem = buffer->mapMemory();
     std::size_t n = 0;
-    for (auto* ite = mapped_mem.cbegin(); ite != mapped_mem.cend(); ++ite) {
+    for (const auto* ite = mapped_mem.cbegin(); ite != mapped_mem.cend(); ++ite) {
       ASSERT_EQ(test3_value, *ite) << "iterator of MappedMemory failed.";
       ++n;
     }

@@ -76,8 +76,21 @@
 !/source/dependencies/cpu_features
 !/source/dependencies/clspv
 !/source/dependencies/VulkanMemoryAllocator
-!/source/dependencies/Zisc
 !/source/dependencies/zstd
+!/source/dependencies/Zisc
+
+# Example
+!/example/
+!/example/CMakeLists.txt
+!/example/*.cpp
+!/example/dependencies/
+!/example/dependencies/glfw
+!/example/dependencies/imgui
+!/example/gui/
+!/example/gui/*.hpp
+!/example/gui/*.cpp
+!/example/kernels/
+!/example/kernels/*.cl
 
 # Test
 !/test/
@@ -95,13 +108,6 @@
 !/test/unittest/kernels/kernel_test2/*.cl
 !/test/unittest/kernels/kernel_test_pod/
 !/test/unittest/kernels/kernel_test_pod/*.cl
-
-# Example
-!/example/
-!/example/CMakeLists.txt
-!/example/*.cpp
-!/example/kernels/
-!/example/kernels/*.cl
 
 # Build directories
 !/build/

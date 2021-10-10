@@ -6,7 +6,7 @@
 # http://opensource.org/licenses/mit-license.php
 #
 
-cmake_minimum_required(VERSION 3.17)
+cmake_minimum_required(VERSION 3.21)
 
 
 project(ZivcProject VERSION 0.0.1 LANGUAGES CXX)
@@ -19,27 +19,25 @@ endif()
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(InstallRequiredSystemLibraries)
 
-set(zisc_path ${PROJECT_SOURCE_DIR}/source/dependencies/Zisc/source/zisc)
-include(${zisc_path}/cmake/general.cmake)
+include(${PROJECT_SOURCE_DIR}/source/zivc/cmake/general.cmake)
 message(STATUS "System information:")
-Zisc_printSystemInfo("  + ")
+Zivc_printSystemInfo("  + ")
 ## Project options
-include(${PROJECT_SOURCE_DIR}/cmake/project.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake/option.cmake)
 initProjectOptions()
-Zisc_restrictBuildDirectory(${PROJECT_SOURCE_DIR}/build)
+Zivc_restrictBuildDirectory(${PROJECT_SOURCE_DIR}/build)
 
 # Build Zivc
 set(zivc_path ${PROJECT_SOURCE_DIR}/source/zivc)
 add_subdirectory(${zivc_path} ${PROJECT_BINARY_DIR}/Zivc)
 
 # Build examples
-add_subdirectory(${PROJECT_SOURCE_DIR}/example ${PROJECT_BINARY_DIR}/Examples)
+if(ZIVC_BUILD_EXAMPLES)
+  add_subdirectory(${PROJECT_SOURCE_DIR}/example ${PROJECT_BINARY_DIR}/Examples)
+endif()
 
 # Build unit test
 if(ZIVC_BUILD_TESTS)
-  addZiscGoogleTest()
-  add_subdirectory(${PROJECT_SOURCE_DIR}/test/dependencies/CLI11 ${PROJECT_BINARY_DIR}/CLI11)
   enable_testing()
   add_subdirectory(${PROJECT_SOURCE_DIR}/test ${PROJECT_BINARY_DIR}/UnitTest)
 endif()

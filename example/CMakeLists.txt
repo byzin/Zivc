@@ -83,8 +83,10 @@ function(addGui gui_path)
   include(${__zivc_dir__}/cmake/compiler.cmake)
   Zivc_setRequiredCxxFlagsToTarget(gui)
   target_link_libraries(gui PRIVATE Zivc PUBLIC glfw imgui)
+  target_include_directories(gui INTERFACE ${gui_path})
   Zivc_enableIpo(gui)
   set(clang_tidy_exclusion_checks bugprone-exception-escape
+                                  misc-no-recursion
                                   readability-function-cognitive-complexity
                                   )
   Zivc_setStaticAnalyzer(gui

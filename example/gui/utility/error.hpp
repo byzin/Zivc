@@ -12,16 +12,16 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_ERROR_HPP
-#define ZIVC_ERROR_HPP
+#ifndef EXAMPLE_ERROR_HPP
+#define EXAMPLE_ERROR_HPP
 
-// Standard C+ library
+// Standard C++ library
 #include <exception>
 #include <string>
 #include <string_view>
 #include <system_error>
 
-namespace zivc {
+namespace example {
 
 /*!
   \brief No brief description
@@ -30,11 +30,8 @@ namespace zivc {
   */
 enum class ErrorCode : int
 {
-  kInitializationFailed,
-  kAvailableFenceNotFound,
-  kNumOfParametersLimitExceeded,
-  kVulkanInitializationFailed,
-  kVulkanLibraryNotFound,
+  kGlfwInitializationFailed,
+  kImGuiInitializationFailed,
 };
 
 //! Return the string of the given error code
@@ -62,7 +59,7 @@ class ErrorCategory : public std::error_category
   std::string message(const int condition) const override;
 
  private:
-  static constexpr char kName[] = "Zivc";
+  static constexpr char kName[] = "GuiExample";
 };
 
 /*!
@@ -73,10 +70,10 @@ class ErrorCategory : public std::error_category
 class SystemError : public std::system_error
 {
  public:
-  //! Initialize a system erro
+  //! Initialize a system error
   SystemError(const ErrorCode code);
 
-  //! Initialize a system erro
+  //! Initialize a system error
   SystemError(const ErrorCode code, const std::string_view what_arg);
 
   //! Move data
@@ -90,6 +87,6 @@ class SystemError : public std::system_error
   SystemError& operator=(SystemError&& other) noexcept;
 };
 
-} // namespace zivc
+} // namespace example
 
-#endif // ZIVC_ERROR_HPP
+#endif // EXAMPLE_ERROR_HPP

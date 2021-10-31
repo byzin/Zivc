@@ -85,10 +85,14 @@
 !/example/*.cpp
 !/example/dependencies/
 !/example/dependencies/glfw
+!/example/dependencies/glfw-patch
 !/example/dependencies/imgui
 !/example/gui/
 !/example/gui/*.hpp
 !/example/gui/*.cpp
+!/example/gui/utility/
+!/example/gui/utility/*.hpp
+!/example/gui/utility/*.cpp
 !/example/kernels/
 !/example/kernels/*.cl
 

@@ -22,7 +22,7 @@
 #include "zisc/utility.hpp"
 
 /*!
-  \def ERROR_CODE_STRING_CASE
+  \def ERROR_CODE_STRING_CASE 
   \brief No brief description
 
   No detailed description.
@@ -35,7 +35,7 @@
                                                break; \
                                              }
 
-namespace zivc {
+namespace example {
 
 /*!
   \details No detailed description
@@ -48,11 +48,8 @@ std::string getErrorCodeString(const ErrorCode code) noexcept
   using namespace std::string_literals;
   std::string code_str;
   switch (code) {
-    ERROR_CODE_STRING_CASE(InitializationFailed, code_str)
-    ERROR_CODE_STRING_CASE(AvailableFenceNotFound, code_str)
-    ERROR_CODE_STRING_CASE(NumOfParametersLimitExceeded, code_str)
-    ERROR_CODE_STRING_CASE(VulkanInitializationFailed, code_str)
-    ERROR_CODE_STRING_CASE(VulkanLibraryNotFound, code_str)
+    ERROR_CODE_STRING_CASE(GlfwInitializationFailed, code_str)
+    ERROR_CODE_STRING_CASE(ImGuiInitializationFailed, code_str)
   }
   return code_str;
 }
@@ -117,7 +114,7 @@ SystemError::SystemError(const ErrorCode code, const std::string_view what_arg) 
 /*!
   \details No detailed description
 
-  \param [in,out] other No description.
+  \param [in] other No description.
   */
 SystemError::SystemError(SystemError&& other) noexcept : std::system_error(other)
 {
@@ -142,4 +139,4 @@ SystemError& SystemError::operator=(SystemError&& other) noexcept
   return *this;
 }
 
-} // namespace zivc
+} // namespace example

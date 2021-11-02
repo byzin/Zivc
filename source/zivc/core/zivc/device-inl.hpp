@@ -18,6 +18,7 @@
 #include "device.hpp"
 // Standard C++ library
 #include <memory>
+#include <stdexcept>
 // Zisc
 #include "zisc/concepts.hpp"
 #include "zisc/error.hpp"
@@ -90,7 +91,14 @@ SharedBuffer<T> Device::makeDerivedBuffer(const BufferInitParams& params)
 
   ZivcObject::SharedPtr parent{getOwnPtr()};
   WeakBuffer<T> own{buffer};
-  buffer->initialize(std::move(parent), std::move(own), params);
+  try {
+    buffer->initialize(std::move(parent), std::move(own), params);
+  }
+  catch (const std::runtime_error& error) {
+    buffer->destroy();
+    buffer.reset();
+    throw error;
+  }
 
   return buffer;
 }
@@ -120,7 +128,14 @@ auto Device::makeDerivedKernel(const KernelInitParams<kDim, KSet, Args...>& para
 
   ZivcObject::SharedPtr parent{getOwnPtr()};
   WeakKernelT own{kernel};
-  kernel->initialize(std::move(parent), std::move(own), params);
+  try {
+    kernel->initialize(std::move(parent), std::move(own), params);
+  }
+  catch (const std::runtime_error& error) {
+    kernel->destroy();
+    kernel.reset();
+    throw error;
+  }
 
   return kernel;
 }

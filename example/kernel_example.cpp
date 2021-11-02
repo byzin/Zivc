@@ -13,8 +13,10 @@
   */
 
 // Standard C++ library
+#include <cstdlib>
 #include <iostream>
 #include <memory>
+#include <stdexcept>
 #include <string>
 // Zisc
 #include "zisc/utility.hpp"
@@ -46,24 +48,18 @@ double toMegaBytes(const std::size_t bytes) noexcept
   return mb;
 }
 
-} // namespace
-
-int main(int /* argc */, char** /* argv */)
+int doKernelExample(zivc::PlatformOptions& platform_options)
 {
-  zisc::SimpleMemoryResource mem_resource;
-
-  // Platform options
-  zivc::PlatformOptions platform_options{&mem_resource};
-  platform_options.setPlatformName("KernelExample");
-  platform_options.setPlatformVersionMajor(zivc::Config::versionMajor());
-  platform_options.setPlatformVersionMinor(zivc::Config::versionMinor());
-  platform_options.setPlatformVersionPatch(zivc::Config::versionPatch());
-  platform_options.enableVulkanSubPlatform(true);
-  platform_options.enableDebugMode(true);
-
   // Platform
   std::cout << "Create a platform." << std::endl;
-  auto platform = zivc::makePlatform(platform_options);
+  zivc::SharedPlatform platform;
+  try {
+    platform = zivc::makePlatform(platform_options);
+  }
+  catch (const std::runtime_error& error) {
+    std::cerr << error.what() << std::endl;
+    return EXIT_FAILURE;
+  }
 
   const std::string indent1 = "    ";
   const std::string indent2 = indent1 + indent1;
@@ -89,7 +85,14 @@ int main(int /* argc */, char** /* argv */)
     std::cout << indent2 << "Vendor name         : "
               << info->vendorName() << std::endl;
 
-    auto device = platform->makeDevice(i);
+    zivc::SharedDevice device;
+    try {
+      device = platform->makeDevice(i);
+    }
+    catch (const std::runtime_error& error) {
+      std::cerr << error.what() << std::endl;
+      return EXIT_FAILURE;
+    }
     std::cout << indent2 << "Num of queues       : "
               << device->numOfQueues() << std::endl;
 
@@ -157,7 +160,27 @@ int main(int /* argc */, char** /* argv */)
 //    device->waitForCompletion(result.fence());
     device->waitForCompletion(result2.fence());
   }
+  return EXIT_SUCCESS;
+}
 
+} // namespace
+
+int main(int /* argc */, char** /* argv */)
+{
+  zisc::SimpleMemoryResource mem_resource;
+
+  // Platform options
+  zivc::PlatformOptions platform_options{&mem_resource};
+  platform_options.setPlatformName("KernelExample");
+  platform_options.setPlatformVersionMajor(zivc::Config::versionMajor());
+  platform_options.setPlatformVersionMinor(zivc::Config::versionMinor());
+  platform_options.setPlatformVersionPatch(zivc::Config::versionPatch());
+  platform_options.enableVulkanSubPlatform(true);
+  platform_options.enableDebugMode(true);
+
+  const int result = ::doKernelExample(platform_options);
+
+  const std::string indent1 = "    ";
   std::cout << std::endl;
   std::cout << indent1 << "Host memory usage     : "
             << ::toMegaBytes(mem_resource.totalMemoryUsage()) << " MB."
@@ -166,5 +189,5 @@ int main(int /* argc */, char** /* argv */)
             << ::toMegaBytes(mem_resource.peakMemoryUsage()) << " MB."
             << std::endl;
 
-  return 0;
+  return result;
 }

@@ -18,6 +18,7 @@
 #include <array>
 #include <cstddef>
 #include <memory>
+#include <stdexcept>
 #include <utility>
 #include <vector>
 // Zisc
@@ -224,6 +225,8 @@ void Platform::updateDeviceInfoList()
 SharedPlatform makePlatform(PlatformOptions& options)
 {
   SharedPlatform platform;
+
+  // Create a platform
   auto* mem_resource = options.memoryResource();
   if (mem_resource != nullptr) {
     zisc::pmr::polymorphic_allocator<Platform> alloc{mem_resource};
@@ -232,7 +235,17 @@ SharedPlatform makePlatform(PlatformOptions& options)
   else {
     platform = std::make_shared<Platform>();
   }
-  platform->initialize(options);
+
+  // Initialize the platform
+  try {
+    platform->initialize(options);
+  }
+  catch (const std::runtime_error& error) {
+    platform->destroy();
+    platform.reset();
+    throw error;
+  }
+
   return platform;
 }
 

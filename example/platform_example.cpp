@@ -13,8 +13,10 @@
   */
 
 // Standard C++ library
+#include <cstdlib>
 #include <iostream>
 #include <memory>
+#include <stdexcept>
 #include <string>
 // Zisc
 #include "zisc/utility.hpp"
@@ -45,24 +47,18 @@ double toMegaBytes(const std::size_t bytes) noexcept
   return mb;
 }
 
-} // namespace
-
-int main(int /* argc */, char** /* argv */)
+int showPlatformInfo(zivc::PlatformOptions& platform_options)
 {
-  zisc::SimpleMemoryResource mem_resource;
-
-  // Set platform options
-  zivc::PlatformOptions platform_options{&mem_resource};
-  platform_options.setPlatformName("PlatformExample");
-  platform_options.setPlatformVersionMajor(zivc::Config::versionMajor());
-  platform_options.setPlatformVersionMinor(zivc::Config::versionMinor());
-  platform_options.setPlatformVersionPatch(zivc::Config::versionPatch());
-  platform_options.enableVulkanSubPlatform(true);
-  platform_options.enableDebugMode(true);
-
   // Make a platform
   std::cout << "Create a platform." << std::endl;
-  auto platform = zivc::makePlatform(platform_options);
+  zivc::SharedPlatform platform;
+  try {
+     platform = zivc::makePlatform(platform_options);
+  }
+  catch (const std::runtime_error& error) {
+    std::cerr << error.what() << std::endl;
+    return EXIT_FAILURE;
+  }
 
   const std::string indent1 = "    ";
   const std::string indent2 = indent1 + indent1;
@@ -109,7 +105,27 @@ int main(int /* argc */, char** /* argv */)
                 << ::toMegaBytes(heap_info.availableSize()) << " MB." << std::endl;
     }
   }
+  return EXIT_SUCCESS;
+}
 
+} // namespace
+
+int main(int /* argc */, char** /* argv */)
+{
+  zisc::SimpleMemoryResource mem_resource;
+
+  // Set platform options
+  zivc::PlatformOptions platform_options{&mem_resource};
+  platform_options.setPlatformName("PlatformExample");
+  platform_options.setPlatformVersionMajor(zivc::Config::versionMajor());
+  platform_options.setPlatformVersionMinor(zivc::Config::versionMinor());
+  platform_options.setPlatformVersionPatch(zivc::Config::versionPatch());
+  platform_options.enableVulkanSubPlatform(true);
+  platform_options.enableDebugMode(true);
+
+  const int result = ::showPlatformInfo(platform_options);
+
+  const std::string indent1 = "    ";
   std::cout << std::endl;
   std::cout << indent1 << "Host memory usage     : "
             << ::toMegaBytes(mem_resource.totalMemoryUsage()) << " MB."
@@ -118,5 +134,5 @@ int main(int /* argc */, char** /* argv */)
             << ::toMegaBytes(mem_resource.peakMemoryUsage()) << " MB."
             << std::endl;
 
-  return 0;
+  return result;
 }

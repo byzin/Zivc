@@ -16,22 +16,46 @@
 #include <cstdlib>
 #include <iostream>
 #include <stdexcept>
+#include <string>
 // Zisc
 #include "zisc/memory/simple_memory_resource.hpp"
+// Zivc
+#include "zivc/zivc.hpp"
+#include "zivc/zivc_config.hpp"
 // GUI
 #include "gui_application.hpp"
 #include "gui_application_options.hpp"
 
 namespace {
 
-int execGuiApp(example::GuiApplicationOptions& options)
+double toMegaBytes(const std::size_t bytes) noexcept
 {
+  const double mb = zisc::cast<double>(bytes) / (1024.0 * 1024.0);
+  return mb;
+}
+
+int execGuiApp(zivc::PlatformOptions& platform_options,
+               example::GuiApplicationOptions& gui_options)
+{
+  zivc::SharedPlatform platform;
+  // Create a zivc platform
+  try {
+    platform = zivc::makePlatform(platform_options);
+  }
+  catch (const std::runtime_error& error) {
+    std::cerr << error.what() << std::endl;
+    return EXIT_FAILURE;
+  }
+  if (!platform->hasSubPlatform(zivc::SubPlatformType::kVulkan)) {
+    std::cerr << "Vulkan sub-platform not found." << std::endl;
+    return EXIT_FAILURE;
+  }
+
   example::SharedGuiApp app;
   int result = EXIT_FAILURE;
-
   // Create an app
   try {
-    app = example::makeGuiApp(options);
+    app = example::makeGuiApp(gui_options);
   }
   catch (const std::runtime_error& error) {
     std::cerr << error.what() << std::endl;
@@ -57,7 +81,29 @@ int execGuiApp(example::GuiApplicationOptions& options)
 int main(int argc, char** argv)
 {
   zisc::SimpleMemoryResource mem_resource;
-  example::GuiApplicationOptions options{&mem_resource};
-  options.setWindowTitle("Zivc gui example");
-  return ::execGuiApp(options);
+
+  // Zivc options
+  zivc::PlatformOptions platform_options{&mem_resource};
+  platform_options.setPlatformName("GuiExample");
+  platform_options.setPlatformVersionMajor(zivc::Config::versionMajor());
+  platform_options.setPlatformVersionMinor(zivc::Config::versionMinor());
+  platform_options.setPlatformVersionPatch(zivc::Config::versionPatch());
+  platform_options.enableVulkanSubPlatform(true);
+  platform_options.enableDebugMode(true);
+  // Gui options
+  example::GuiApplicationOptions gui_options{&mem_resource};
+  gui_options.setWindowTitle("Zivc gui example");
+
+  const int result = ::execGuiApp(platform_options, gui_options);
+
+  const std::string indent1 = "    ";
+  std::cout << std::endl;
+  std::cout << indent1 << "Host memory usage     : "
+            << ::toMegaBytes(mem_resource.totalMemoryUsage()) << " MB."
+            << std::endl;
+  std::cout << indent1 << "Host peak memory usage: "
+            << ::toMegaBytes(mem_resource.peakMemoryUsage()) << " MB."
+            << std::endl;
+
+  return result;
 }

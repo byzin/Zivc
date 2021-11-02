@@ -22,6 +22,7 @@
 #include <map>
 #include <memory>
 #include <mutex>
+#include <stdexcept>
 #include <string_view>
 #include <type_traits>
 #include <utility>
@@ -131,7 +132,14 @@ SharedDevice VulkanSubPlatform::makeDevice(const DeviceInfo& device_info)
 
   ZivcObject::SharedPtr parent{getOwnPtr()};
   WeakDevice own{device};
-  device->initialize(std::move(parent), std::move(own), device_info);
+  try {
+    device->initialize(std::move(parent), std::move(own), device_info);
+  }
+  catch (const std::runtime_error& error) {
+    device->destroy();
+    device.reset();
+    throw error;
+  }
 
   return device;
 }

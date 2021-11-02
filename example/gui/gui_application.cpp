@@ -15,6 +15,7 @@
 #include "gui_application.hpp"
 // Standard C++ library
 #include <memory>
+#include <stdexcept>
 // Zisc
 #include "zisc/memory/simple_memory_resource.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
@@ -153,6 +154,8 @@ void GuiApplication::setMemoryResource(zisc::pmr::memory_resource* mem_resource)
 SharedGuiApp makeGuiApp(GuiApplicationOptions& options)
 {
   SharedGuiApp app;
+
+  // Create an application
   auto* mem_resource = options.memoryResource();
   if (mem_resource != nullptr) {
     zisc::pmr::polymorphic_allocator<GuiApplication> alloc{mem_resource};
@@ -161,14 +164,18 @@ SharedGuiApp makeGuiApp(GuiApplicationOptions& options)
   else {
     app = std::make_shared<GuiApplication>();
   }
+
+  // Initialize the app
   WeakObject own{app};
   try {
     app->initialize(std::move(own), options);
   }
   catch (const std::runtime_error& error) {
     app->destroy();
+    app.reset();
     throw error;
   }
+
   return app;
 }
 

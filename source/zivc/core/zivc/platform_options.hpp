@@ -61,6 +61,9 @@ class PlatformOptions : private zisc::NonCopyable<PlatformOptions>
   //! Enable the vulkan sub-platform
   void enableVulkanSubPlatform(const bool sub_platform_enabled) noexcept;
 
+  //! Enable WSI (Window System Integration) extension on Vulkan
+  void enableVulkanWSIExtension(const bool extension_enabled) noexcept;
+
   //! Return the underlying memory resource
   zisc::pmr::memory_resource* memoryResource() noexcept;
 
@@ -124,6 +127,9 @@ class PlatformOptions : private zisc::NonCopyable<PlatformOptions>
   //! Check whether the vulkan sub-platform is enabled
   bool vulkanSubPlatformEnabled() const noexcept;
 
+  //! Check whether WSI (Window System Integration) extension is enabled
+  bool vulkanWSIExtensionEnabled() const noexcept;
+
  private:
   //! Initialize options
   void initialize() noexcept;
@@ -139,7 +145,7 @@ class PlatformOptions : private zisc::NonCopyable<PlatformOptions>
   uint32b cpu_num_of_threads_ = 0;
   uint32b cpu_task_batch_size_ = 32;
   int32b vulkan_sub_platform_enabled_;
-  [[maybe_unused]] Padding<4> pad_;
+  int32b vulkan_wsi_extension_enabled_;
   void* vulkan_instance_ptr_ = nullptr;
   void* vulkan_get_proc_addr_ptr_ = nullptr;
 };

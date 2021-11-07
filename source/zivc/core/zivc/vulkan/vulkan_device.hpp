@@ -89,7 +89,7 @@ class VulkanDevice : public Device
 
 
   //! Initialize the vulkan device
-  VulkanDevice(IdData&& id);
+  VulkanDevice(const VulkanDeviceCapability capability, IdData&& id);
 
   //! Finalize the vulkan instance
   ~VulkanDevice() noexcept override;
@@ -106,6 +106,9 @@ class VulkanDevice : public Device
   //! Add a shader module of the given kernel set
   template <typename SetType>
   const ModuleData& addShaderModule(const KernelSet<SetType>& kernel_set);
+
+  //! Return the capability of the device
+  VulkanDeviceCapability capability() const noexcept;
 
   //! Return the command pool
   VkCommandPool& commandPool() noexcept;
@@ -302,7 +305,7 @@ class VulkanDevice : public Device
   const IndexQueue& fenceIndexQueue() const noexcept;
 
   //! Find the index of the optimal queue familty
-  uint32b findQueueFamily() const noexcept;
+  uint32b findQueueFamily(uint32b* queue_count) const noexcept;
 
   //! Get Vulkan function pointers used in VMA
   VmaVulkanFunctions getVmaVulkanFunctions() const noexcept;
@@ -315,6 +318,10 @@ class VulkanDevice : public Device
 
   //! Initialize the vulkan dispatch loader
   void initDispatcher();
+
+  //! Initialize device properties
+  void initProperties(zisc::pmr::vector<const char*>* extensions,
+                      zisc::pmr::vector<const char*>* layers);
 
   //! Initialize work group size of dimensions
   void initWorkGroupSizeDim() noexcept;
@@ -356,6 +363,8 @@ class VulkanDevice : public Device
   zisc::pmr::unique_ptr<zisc::pmr::map<uint64b, UniqueModuleData>> module_data_list_;
   zisc::pmr::unique_ptr<zisc::pmr::map<uint64b, UniqueKernelData>> kernel_data_list_;
   uint32b queue_family_index_ = invalidQueueIndex();
+  uint32b queue_count_ = 0;
+  VulkanDeviceCapability capability_;
   std::array<std::array<uint32b, 3>, 3> work_group_size_list_;
 };
 

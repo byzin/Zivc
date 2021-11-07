@@ -158,6 +158,20 @@ void PlatformOptions::enableVulkanSubPlatform(const bool sub_platform_enabled)
 /*!
   \details No detailed description
 
+  \param [in] extension_enabled No description.
+  */
+inline
+void PlatformOptions::enableVulkanWSIExtension(const bool extension_enabled)
+    noexcept
+{
+  vulkan_wsi_extension_enabled_ = extension_enabled 
+      ? Config::scalarResultTrue()
+      : Config::scalarResultFalse();
+}
+
+/*!
+  \details No detailed description
+
   \return No description
   */
 inline
@@ -392,6 +406,18 @@ bool PlatformOptions::vulkanSubPlatformEnabled() const noexcept
 
 /*!
   \details No detailed description
+
+  \return No description
+  */
+inline
+bool PlatformOptions::vulkanWSIExtensionEnabled() const noexcept
+{
+  const bool result = vulkan_wsi_extension_enabled_ == Config::scalarResultTrue();
+  return result;
+}
+
+/*!
+  \details No detailed description
   */
 inline
 void PlatformOptions::initialize() noexcept
@@ -402,6 +428,7 @@ void PlatformOptions::initialize() noexcept
   enableDebugMode(false);
 #endif // Z_DEBUG_MODE
   enableVulkanSubPlatform(true);
+  enableVulkanWSIExtension(false);
 }
 
 } // namespace zivc

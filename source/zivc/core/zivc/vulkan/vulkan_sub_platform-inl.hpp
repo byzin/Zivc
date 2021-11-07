@@ -85,6 +85,30 @@ std::string_view VulkanSubPlatform::engineName() const noexcept
   \return No description
   */
 inline
+auto VulkanSubPlatform::extensionPropertiesList() const noexcept
+    -> const zisc::pmr::vector<VkExtensionProperties>&
+{
+  return *extension_properties_list_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+bool VulkanSubPlatform::hasOwnInstance() const noexcept
+{
+  const bool result = instance_ != ZIVC_VK_NULL_HANDLE;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
 VkInstance& VulkanSubPlatform::instance() noexcept
 {
   return *instance_ref_;
@@ -99,6 +123,18 @@ inline
 const VkInstance& VulkanSubPlatform::instance() const noexcept
 {
   return *instance_ref_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+auto VulkanSubPlatform::layerPropertiesList() const noexcept
+    -> const zisc::pmr::vector<VkLayerProperties>&
+{
+  return *layer_properties_list_;
 }
 
 /*!
@@ -197,6 +233,16 @@ void VulkanSubPlatform::notifyOfDeviceMemoryDeallocation(
   usage.release(size);
 }
 
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+auto VulkanSubPlatform::windowSurfaceType() const noexcept -> WindowSurfaceType
+{
+  return window_surface_type_;
+}
 
 } // namespace zivc
 

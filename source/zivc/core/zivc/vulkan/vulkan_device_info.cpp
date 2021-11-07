@@ -134,6 +134,44 @@ void VulkanDeviceInfo::fetch(const VkPhysicalDevice& vdevice,
 /*!
   \details No detailed description
 
+  \param [in] name No description.
+  \return No description
+  */
+bool VulkanDeviceInfo::isExtensionSupported(const std::string_view name) const noexcept
+{
+  const auto comp = [](const VkExtensionProperties& lhs,
+                       const std::string_view rhs) noexcept
+  {
+    return compareProperties(lhs.extensionName, rhs);
+  };
+  const auto& prop_list = extensionPropertiesList();
+  const auto ite = std::lower_bound(prop_list.begin(), prop_list.end(), name, comp);
+  const bool result = (ite != prop_list.end()) && (ite->extensionName == name);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] name No description.
+  \return No description
+  */
+bool VulkanDeviceInfo::isLayerSupported(const std::string_view name) const noexcept
+{
+  const auto comp = [](const VkLayerProperties& lhs,
+                       const std::string_view rhs) noexcept
+  {
+    return compareProperties(lhs.layerName, rhs);
+  };
+  const auto& prop_list = layerPropertiesList();
+  const auto ite = std::lower_bound(prop_list.begin(), prop_list.end(), name, comp);
+  const bool result = (ite != prop_list.end()) && (ite->layerName == name);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
   \return No description
   */
 std::size_t VulkanDeviceInfo::maxAllocationSize() const noexcept
@@ -217,6 +255,20 @@ uint32b VulkanDeviceInfo::workGroupSize() const noexcept
 /*!
   \details No detailed description
 
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+bool VulkanDeviceInfo::compareProperties(const std::string_view lhs,
+                                         const std::string_view rhs) noexcept
+{
+  const bool result = lhs < rhs;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
   \param [in] dispatcher No description.
   */
 void VulkanDeviceInfo::fetchExtensionProperties(
@@ -228,6 +280,7 @@ void VulkanDeviceInfo::fetchExtensionProperties(
   const zivcvk::PhysicalDevice d{device()};
   const auto* loader = dispatcher.loaderImpl();
 
+  auto& prop_list = extension_properties_list_;
   uint32b size = 0;
   {
     auto result = d.enumerateDeviceExtensionProperties(nullptr, &size,
@@ -236,16 +289,24 @@ void VulkanDeviceInfo::fetchExtensionProperties(
       const char* message = "Fetching device extension props failed.";
       zivcvk::throwResultException(result, message);
     }
-    extension_properties_list_.resize(zisc::cast<std::size_t>(size));
+    prop_list.resize(zisc::cast<std::size_t>(size));
   }
   {
-    auto* data = zisc::reinterp<Props*>(extension_properties_list_.data());
+    auto* data = zisc::reinterp<Props*>(prop_list.data());
     auto result = d.enumerateDeviceExtensionProperties(nullptr, &size,
                                                        data, *loader);
     if (result != zivcvk::Result::eSuccess) {
       const char* message = "Fetching device extension props failed.";
       zivcvk::throwResultException(result, message);
     }
+  }
+  {
+    const auto comp = [](const VkExtensionProperties& lhs,
+                         const VkExtensionProperties& rhs) noexcept
+    {
+      return compareProperties(lhs.extensionName, rhs.extensionName);
+    };
+    std::sort(prop_list.begin(), prop_list.end(), comp);
   }
 }
 
@@ -426,6 +487,7 @@ void VulkanDeviceInfo::fetchLayerProperties(
   const zivcvk::PhysicalDevice d{device()};
   const auto* loader = dispatcher.loaderImpl();
 
+  auto& prop_list = layer_properties_list_;
   uint32b size = 0;
   {
     auto result = d.enumerateDeviceLayerProperties(&size, nullptr, *loader);
@@ -433,15 +495,23 @@ void VulkanDeviceInfo::fetchLayerProperties(
       const char* message = "Fetching device layer props failed.";
       zivcvk::throwResultException(result, message);
     }
-    layer_properties_list_.resize(zisc::cast<std::size_t>(size));
+    prop_list.resize(zisc::cast<std::size_t>(size));
   }
   {
-    auto* data = zisc::reinterp<Props*>(layer_properties_list_.data());
+    auto* data = zisc::reinterp<Props*>(prop_list.data());
     auto result = d.enumerateDeviceLayerProperties(&size, data, *loader);
     if (result != zivcvk::Result::eSuccess) {
       const char* message = "Fetching device layer props failed.";
       zivcvk::throwResultException(result, message);
     }
+  }
+  {
+    const auto comp = [](const VkLayerProperties& lhs,
+                         const VkLayerProperties& rhs) noexcept
+    {
+      return compareProperties(lhs.layerName, rhs.layerName);
+    };
+    std::sort(prop_list.begin(), prop_list.end(), comp);
   }
 }
 

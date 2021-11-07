@@ -34,6 +34,45 @@ double toMegaBytes(const std::size_t bytes) noexcept
   return mb;
 }
 
+void printWindowSurfaceType(const zivc::Platform& platform)
+{
+  const auto* vulkan_platform = zisc::reinterp<const zivc::VulkanSubPlatform*>(
+    platform.subPlatform(zivc::SubPlatformType::kVulkan));
+  using WSType = zivc::VulkanSubPlatform::WindowSurfaceType;
+  const char* ws_name = nullptr;
+  switch (vulkan_platform->windowSurfaceType()) {
+   case WSType::kWin32: {
+    ws_name = "Win32";
+    break;
+   }
+   case WSType::kMetal: {
+    ws_name = "Metal";
+    break;
+   }
+   case WSType::kMacOS: {
+    ws_name = "macOS";
+    break;
+   }
+   case WSType::kXcb: {
+    ws_name = "Xcb";
+    break;
+   }
+   case WSType::kXlib: {
+    ws_name = "X11";
+    break;
+   }
+   case WSType::kWayland: {
+    ws_name = "Wayland";
+    break;
+   }
+   case WSType::kNon:
+   default: {
+    break;
+   }
+  }
+  std::cout << "## Vulkan window surface type: " << ws_name << std::endl;
+}
+
 int execGuiApp(zivc::PlatformOptions& platform_options,
                example::GuiApplicationOptions& gui_options)
 {
@@ -51,11 +90,13 @@ int execGuiApp(zivc::PlatformOptions& platform_options,
     return EXIT_FAILURE;
   }
 
+  printWindowSurfaceType(*platform);
+
   example::SharedGuiApp app;
   int result = EXIT_FAILURE;
   // Create an app
   try {
-    app = example::makeGuiApp(gui_options);
+    app = example::makeGuiApp(*platform, gui_options);
   }
   catch (const std::runtime_error& error) {
     std::cerr << error.what() << std::endl;
@@ -89,6 +130,7 @@ int main(int argc, char** argv)
   platform_options.setPlatformVersionMinor(zivc::Config::versionMinor());
   platform_options.setPlatformVersionPatch(zivc::Config::versionPatch());
   platform_options.enableVulkanSubPlatform(true);
+  platform_options.enableVulkanWSIExtension(true);
   platform_options.enableDebugMode(true);
   // Gui options
   example::GuiApplicationOptions gui_options{&mem_resource};

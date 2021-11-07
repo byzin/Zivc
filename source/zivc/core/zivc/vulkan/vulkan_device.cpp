@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <charconv>
 #include <cstddef>
+#include <cstdio>
 #include <cstring>
 #include <iterator>
 #include <limits>
@@ -132,7 +133,9 @@ static_assert(sizeof(zivcvk::Fence) <= sizeof(Fence::Data));
 
   \param [in] id No description.
   */
-VulkanDevice::VulkanDevice(IdData&& id) : Device(std::move(id))
+VulkanDevice::VulkanDevice(const VulkanDeviceCapability capability, IdData&& id) :
+    Device(std::move(id)),
+    capability_{capability}
 {
 }
 
@@ -448,21 +451,6 @@ std::size_t VulkanDevice::numOfFences() const noexcept
 /*!
   \details No detailed description
 
-  \return No description
-  */
-std::size_t VulkanDevice::numOfQueues() const noexcept
-{
-  const auto& info = deviceInfoImpl();
-  const uint32b index = queueFamilyIndex();
-  const auto& queue_family_list = info.queueFamilyPropertiesList();
-
-  const std::size_t n = queue_family_list[index].properties1_.queueCount;
-  return n;
-}
-
-/*!
-  \details No detailed description
-
   \param [out] fence No description.
   */
 void VulkanDevice::returnFence(Fence* fence) noexcept
@@ -661,6 +649,7 @@ void VulkanDevice::waitForCompletion(const Fence& fence) const
   */
 void VulkanDevice::destroyData() noexcept
 {
+  queue_count_ = 0;
   queue_family_index_ = invalidQueueIndex();
 
   if (vm_allocator_ != nullptr) {
@@ -977,49 +966,91 @@ void VulkanDevice::destroyShaderModule(ModuleData* module) noexcept
 
   \return No description
   */
-uint32b VulkanDevice::findQueueFamily() const noexcept
+uint32b VulkanDevice::findQueueFamily(uint32b* queue_count) const noexcept
 {
-  auto has_flags = [](const zivcvk::QueueFamilyProperties& props,
-                      const bool graphics_excluded,
-                      const bool sparse_excluded) noexcept
+  const auto has_flag = [](const zivcvk::QueueFamilyProperties& props,
+                           const zivcvk::QueueFlagBits flag) noexcept
   {
-    auto has_flag = [&props](const zivcvk::QueueFlagBits flag) noexcept
-    {
-      const bool result = (props.queueFlags & flag) == flag;
-      return result;
-    };
-    const bool result =
-        has_flag(zivcvk::QueueFlagBits::eCompute) &&
-        has_flag(zivcvk::QueueFlagBits::eTransfer) &&
-        (!has_flag(zivcvk::QueueFlagBits::eGraphics) || !graphics_excluded) &&
-        (!has_flag(zivcvk::QueueFlagBits::eSparseBinding) || !sparse_excluded);
+    const bool result = (props.queueFlags & flag) == flag;
     return result;
   };
 
-  auto find_queue_family = [has_flags](const auto& info,
-                                       const bool graphics_excluded,
-                                       const bool sparse_excluded,
-                                       uint32b* index,
-                                       uint32b* num_of_queues) noexcept
+  const auto has_flags = [has_flag](const zivcvk::QueueFamilyProperties& props,
+                                    const bool graphics_required,
+                                    const bool compute_required,
+                                    const bool graphics_excluded,
+                                    const bool compute_excluded,
+                                    const bool sparse_excluded) noexcept
+  {
+    using QFlagBits = zivcvk::QueueFlagBits;
+    const bool result =
+        has_flag(props, QFlagBits::eTransfer) &&
+        (!graphics_required || has_flag(props, QFlagBits::eGraphics)) &&
+        (!compute_required || has_flag(props, QFlagBits::eCompute)) &&
+        (!graphics_excluded || !has_flag(props, QFlagBits::eGraphics)) &&
+        (!compute_excluded || !has_flag(props, QFlagBits::eCompute)) &&
+        (!sparse_excluded || !has_flag(props, QFlagBits::eSparseBinding));
+    return result;
+  };
+
+  const auto find_queue_family = [has_flags](const auto& info,
+                                             const bool graphics_required,
+                                             const bool compute_required,
+                                             const bool graphics_excluded,
+                                             const bool compute_excluded,
+                                             const bool sparse_excluded,
+                                             uint32b* index,
+                                             uint32b* q_count) noexcept
   {
     const auto& queue_family_list = info.queueFamilyPropertiesList();
     for (std::size_t i = 0; i < queue_family_list.size(); ++i) {
       const auto& p = queue_family_list[i];
-      if ((*num_of_queues <= p.properties1_.queueCount) &&
-          has_flags(p.properties1_, graphics_excluded, sparse_excluded)) {
+      if ((*q_count <= p.properties1_.queueCount) &&
+          has_flags(p.properties1_, graphics_required,
+                                    compute_required,
+                                    graphics_excluded,
+                                    compute_excluded,
+                                    sparse_excluded)) {
         *index = zisc::cast<uint32b>(i);
-        *num_of_queues = p.properties1_.queueCount;
+        *q_count = p.properties1_.queueCount;
       }
     }
   };
 
   const auto& info = deviceInfoImpl();
   uint32b index = invalidQueueIndex();
-  uint32b num_of_queues = 0;
-  find_queue_family(info, true, false, &index, &num_of_queues);
-  if (index == invalidQueueIndex())
-    find_queue_family(info, false, false, &index, &num_of_queues);
+  uint32b q_count = 0;
 
+  switch (capability()) {
+   case VulkanDeviceCapability::kCompute: {
+    // It tries to find a queue family that has compute but doesn't have graphics
+    // to avoid conflict with graphics use first
+    find_queue_family(info, false, true, true, false, false, &index, &q_count);
+    if (index == invalidQueueIndex()) {
+      // Find a queue family that has compute.
+      // It doesn't matter if the queue has graphics
+      find_queue_family(info, false, true, false, false, false, &index, &q_count);
+      if (index != invalidQueueIndex())
+        q_count = (std::max)(q_count - 1u, 1u); // Leave one queue for graphics use
+    }
+    break;
+   }
+   case VulkanDeviceCapability::kGui: {
+    find_queue_family(info, true, false, false, true, false, &index, &q_count);
+    if (index == invalidQueueIndex()) {
+      find_queue_family(info, true, false, false, false, false, &index, &q_count);
+      q_count = (std::max)(q_count - 1u, 1u); // Leave one queue for graphics use
+    }
+    if (index != invalidQueueIndex())
+      q_count = 1;
+    break;
+   }
+   default:
+    break;
+  }
+
+  if (queue_count != nullptr)
+    *queue_count = q_count;
   return index;
 }
 
@@ -1097,26 +1128,12 @@ void VulkanDevice::initCommandPool()
 void VulkanDevice::initDevice()
 {
   auto& sub_platform = parentImpl();
+  const auto& info = deviceInfoImpl();
 
   zisc::pmr::vector<const char*>::allocator_type layer_alloc{memoryResource()};
   zisc::pmr::vector<const char*> layers{layer_alloc};
   zisc::pmr::vector<const char*> extensions{layer_alloc};
-
-  extensions = {
-#if defined(Z_MAC)
-                VK_KHR_BIND_MEMORY_2_EXTENSION_NAME,
-                VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
-                VK_KHR_SHADER_FLOAT16_INT8_EXTENSION_NAME,
-                VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME,
-#endif // Z_MAC
-                VK_EXT_MEMORY_BUDGET_EXTENSION_NAME
-                //VK_EXT_EXTERNAL_MEMORY_HOST_EXTENSION_NAME,
-  };
-  if (sub_platform.isDebugMode()) {
-    layers.emplace_back("VK_LAYER_KHRONOS_validation");
-  }
-
-  const auto& info = deviceInfoImpl();
+  initProperties(&extensions, &layers);
 
   // Queue create info
   zisc::pmr::vector<float>::allocator_type priority_alloc{memoryResource()};
@@ -1177,6 +1194,65 @@ void VulkanDevice::initDispatcher()
 
 /*!
   \details No detailed description
+
+  \param [out] extensions No description.
+  \param [out] layers No description.
+  */
+void VulkanDevice::initProperties(zisc::pmr::vector<const char*>* extensions,
+                                  zisc::pmr::vector<const char*>* layers)
+{
+  auto& sub_platform = parentImpl();
+
+#if defined(Z_MAC)
+  *extensions = {VK_KHR_BIND_MEMORY_2_EXTENSION_NAME,
+                 VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME,
+                 VK_KHR_SHADER_FLOAT16_INT8_EXTENSION_NAME,
+                 VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME};
+#endif // Z_MAC
+
+  switch (capability()) {
+   case VulkanDeviceCapability::kCompute: {
+    extensions->emplace_back(VK_EXT_MEMORY_BUDGET_EXTENSION_NAME);
+                            //VK_EXT_EXTERNAL_MEMORY_HOST_EXTENSION_NAME,
+    break;
+   }
+   case VulkanDeviceCapability::kGui: {
+    extensions->emplace_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+    break;
+   }
+   default: {
+    break;
+   }
+  }
+
+  if (sub_platform.isDebugMode()) {
+    layers->emplace_back("VK_LAYER_KHRONOS_validation");
+  }
+
+  // Check if properties are supported
+  const auto throw_exception = [](const char* type, const char* name)
+  {
+    constexpr std::size_t max_message_size = 256;
+    std::array<char, max_message_size> message;
+    std::sprintf(message.data(),
+                 "%s property '%s' isn't supported in the device.",
+                 type,
+                 name);
+    throw SystemError{ErrorCode::kVulkanInitializationFailed, message.data()};
+  };
+  const auto& info = deviceInfoImpl();
+  for (const char* prop : *extensions) {
+    if (!info.isExtensionSupported(prop))
+      throw_exception("Extension", prop);
+  }
+  for (const char* prop : *layers) {
+    if (!info.isLayerSupported(prop))
+      throw_exception("Layer", prop);
+  }
+}
+
+/*!
+  \details No detailed description
   */
 void VulkanDevice::initWorkGroupSizeDim() noexcept
 {
@@ -1204,7 +1280,7 @@ void VulkanDevice::initWorkGroupSizeDim() noexcept
 void VulkanDevice::initQueueFamilyIndexList()
 {
   //! \todo Support queue family option
-  queue_family_index_ = findQueueFamily();
+  queue_family_index_ = findQueueFamily(&queue_count_);
   if (queue_family_index_ == invalidQueueIndex()) {
     const char* message = "Appropriate device queue not found.";
     throw SystemError{ErrorCode::kVulkanInitializationFailed, message};

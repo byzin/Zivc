@@ -234,6 +234,12 @@ class VulkanDeviceInfo : public DeviceInfo
   template <typename CppType, typename CType>
   static CppType& initProp(CType& prop) noexcept;
 
+  //! Check if the given extension is supported in the device
+  bool isExtensionSupported(const std::string_view name) const noexcept;
+
+  //! Check if the given layer is supported in the device
+  bool isLayerSupported(const std::string_view name) const noexcept;
+
   //! Return layer properties list of the device
   zisc::pmr::vector<VkLayerProperties>& layerPropertiesList() noexcept;
 
@@ -295,6 +301,10 @@ class VulkanDeviceInfo : public DeviceInfo
   uint32b workGroupSize() const noexcept override;
 
  private:
+  //! Compare two properties by it's name
+  static bool compareProperties(const std::string_view lhs,
+                                const std::string_view rhs) noexcept;
+
   //! Fetch extension properties from a physical device
   void fetchExtensionProperties(const VulkanDispatchLoader& dispatcher);
 

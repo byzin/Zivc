@@ -70,6 +70,17 @@ auto VulkanDevice::addShaderModule(const KernelSet<SetType>& kernel_set)
   \return No description
   */
 inline
+VulkanDeviceCapability VulkanDevice::capability() const noexcept
+{
+  return capability_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
 VkCommandPool& VulkanDevice::commandPool() noexcept
 {
   return command_pool_;
@@ -305,6 +316,18 @@ inline
 const VmaAllocator& VulkanDevice::memoryAllocator() const noexcept
 {
   return vm_allocator_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+std::size_t VulkanDevice::numOfQueues() const noexcept
+{
+  const auto n = zisc::cast<std::size_t>(queue_count_);
+  return n;
 }
 
 /*!

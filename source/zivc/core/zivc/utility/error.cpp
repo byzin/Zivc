@@ -53,6 +53,7 @@ std::string getErrorCodeString(const ErrorCode code) noexcept
     ERROR_CODE_STRING_CASE(NumOfParametersLimitExceeded, code_str)
     ERROR_CODE_STRING_CASE(VulkanInitializationFailed, code_str)
     ERROR_CODE_STRING_CASE(VulkanLibraryNotFound, code_str)
+    ERROR_CODE_STRING_CASE(VulkanWindowSurfaceNotFound, code_str)
   }
   return code_str;
 }

@@ -19,6 +19,26 @@
   #define VK_NO_PROTOTYPES 1
 #endif // ZIVC_DYNAMIC_VULKAN_LOADING
 
+// Enable vulkan platforms
+#if defined(Z_WINDOWS)
+  #define VK_USE_PLATFORM_WIN32_KHR 1
+#elif defined(Z_MAC)
+  #define VK_USE_PLATFORM_MACOS_MVK 1
+  #define VK_USE_PLATFORM_METAL_EXT 1
+#elif defined(Z_LINUX)
+  #if __has_include(<X11/Xlib.h>)
+    #define VK_USE_PLATFORM_XLIB_KHR 1
+  #endif // xlib
+  #if __has_include(<xcb/xcb.h>)
+    #define VK_USE_PLATFORM_XCB_KHR 1
+  #endif // xcb
+  #if __has_include(<wayland-client.h>)
+    #define VK_USE_PLATFORM_WAYLAND_KHR 1
+  #endif // wayland
+  #if !(defined(VK_USE_PLATFORM_XLIB_KHR) || defined(VK_USE_PLATFORM_XCB_KHR) || defined(VK_USE_PLATFORM_WAYLAND_KHR))
+    #define ZIVC_VK_NO_PLATFORM 1
+  #endif
+#endif
 #define VK_ENABLE_BETA_EXTENSIONS
 
 // Vulkan

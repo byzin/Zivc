@@ -35,6 +35,7 @@ enum class ErrorCode : int
   kNumOfParametersLimitExceeded,
   kVulkanInitializationFailed,
   kVulkanLibraryNotFound,
+  kVulkanWindowSurfaceNotFound,
 };
 
 //! Return the string of the given error code

@@ -85,7 +85,6 @@
 !/example/*.cpp
 !/example/dependencies/
 !/example/dependencies/glfw
-!/example/dependencies/glfw-patch
 !/example/dependencies/imgui
 !/example/gui/
 !/example/gui/*.hpp

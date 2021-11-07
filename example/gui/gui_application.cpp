@@ -102,7 +102,9 @@ const GuiPlatform* GuiApplication::platform() const noexcept
 /*!
   \details No detailed description
   */
-void GuiApplication::initialize(WeakPtr&& own, GuiApplicationOptions& options)
+void GuiApplication::initialize(WeakPtr&& own,
+                                zivc::Platform& zplatform,
+                                GuiApplicationOptions& options)
 {
   // Clear the previous platform data first
   destroy();
@@ -116,7 +118,7 @@ void GuiApplication::initialize(WeakPtr&& own, GuiApplicationOptions& options)
     platform_ = std::allocate_shared<GuiPlatform>(alloc);
     SharedObject parent{getOwnPtr()};
     WeakObject own{platform_};
-    platform()->initialize(std::move(parent), std::move(own), options);
+    platform()->initialize(std::move(parent), std::move(own), zplatform, options);
   }
 }
 
@@ -151,7 +153,8 @@ void GuiApplication::setMemoryResource(zisc::pmr::memory_resource* mem_resource)
   \param [in] options No description.
   \return No description
   */
-SharedGuiApp makeGuiApp(GuiApplicationOptions& options)
+SharedGuiApp makeGuiApp(zivc::Platform& zplatform,
+                        GuiApplicationOptions& options)
 {
   SharedGuiApp app;
 
@@ -168,7 +171,7 @@ SharedGuiApp makeGuiApp(GuiApplicationOptions& options)
   // Initialize the app
   WeakObject own{app};
   try {
-    app->initialize(std::move(own), options);
+    app->initialize(std::move(own), zplatform, options);
   }
   catch (const std::runtime_error& error) {
     app->destroy();

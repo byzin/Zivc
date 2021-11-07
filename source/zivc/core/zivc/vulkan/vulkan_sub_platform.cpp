@@ -14,6 +14,7 @@
 
 #include "vulkan_sub_platform.hpp"
 // Standard C++ library
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstddef>
@@ -37,6 +38,7 @@
 #include "vulkan_device.hpp"
 #include "vulkan_device_info.hpp"
 #include "utility/vulkan_dispatch_loader.hpp"
+#include "utility/vulkan.hpp"
 #include "utility/vulkan_hpp.hpp"
 #include "zivc/device.hpp"
 #include "zivc/platform.hpp"
@@ -112,6 +114,18 @@ VkAllocationCallbacks VulkanSubPlatform::makeAllocator() noexcept
   */
 SharedDevice VulkanSubPlatform::makeDevice(const DeviceInfo& device_info)
 {
+  return makeDevice(device_info, VulkanDeviceCapability::kCompute);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] device_info No description.
+  \return No description
+  */
+SharedDevice VulkanSubPlatform::makeDevice(const DeviceInfo& device_info,
+                                           const VulkanDeviceCapability capability)
+{
   // Check if the given device info is included in the info list
   {
     const auto& info_list = deviceInfoList();
@@ -128,7 +142,9 @@ SharedDevice VulkanSubPlatform::makeDevice(const DeviceInfo& device_info)
   }
 
   zisc::pmr::polymorphic_allocator<VulkanDevice> alloc{memoryResource()};
-  SharedDevice device = std::allocate_shared<VulkanDevice>(alloc, issueId());
+  SharedDevice device = std::allocate_shared<VulkanDevice>(alloc,
+                                                           capability,
+                                                           issueId());
 
   ZivcObject::SharedPtr parent{getOwnPtr()};
   WeakDevice own{device};
@@ -187,8 +203,11 @@ void VulkanSubPlatform::updateDeviceInfoList()
   */
 void VulkanSubPlatform::destroyData() noexcept
 {
+  window_surface_type_ = WindowSurfaceType::kNon;
   device_info_list_.reset();
   device_list_.reset();
+  layer_properties_list_.reset();
+  extension_properties_list_.reset();
 
   zivcvk::Instance ins{instance_};
   if (ins) {
@@ -211,6 +230,7 @@ void VulkanSubPlatform::initData(PlatformOptions& options)
 {
   initDispatcher(options);
   initAllocator();
+  initProperties();
   initInstance(options);
   initDeviceList();
   initDeviceInfoList();
@@ -603,6 +623,20 @@ VkApplicationInfo VulkanSubPlatform::makeApplicationInfo(
 
 /*!
   \details No detailed description
+
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+bool VulkanSubPlatform::compareProperties(const std::string_view lhs,
+                                          const std::string_view rhs) noexcept
+{
+  const bool result = lhs < rhs;
+  return result;
+}
+
+/*!
+  \details No detailed description
   */
 void VulkanSubPlatform::initAllocator() noexcept
 {
@@ -674,6 +708,8 @@ void VulkanSubPlatform::initInstance(PlatformOptions& options)
       validation_features_list.data(),
       0,
       nullptr};
+
+  initWindowSurface(options, &extensions);
 
   const zivcvk::ApplicationInfo app_info{makeApplicationInfo(
       options.platformName(),
@@ -748,6 +784,197 @@ void VulkanSubPlatform::initDispatcher(PlatformOptions& options)
   dispatcher_ = (ptr != nullptr) // Use the given loader instead of allocating new one
       ? zisc::pmr::allocateUnique<VulkanDispatchLoader>(alloc, mem_resource, *ptr)
       : zisc::pmr::allocateUnique<VulkanDispatchLoader>(alloc, mem_resource, lib);
+}
+
+/*!
+  \details No detailed description
+  */
+void VulkanSubPlatform::initProperties()
+{
+  auto* mem_resource = memoryResource();
+  const auto* loader = dispatcher().loaderImpl();
+
+  // Instance extension properties
+  {
+    // Create a properties list
+    {
+      using PropertiesList = decltype(extension_properties_list_)::element_type;
+      PropertiesList prop_list{PropertiesList::allocator_type{mem_resource}};
+      zisc::pmr::polymorphic_allocator<PropertiesList> alloc{mem_resource};
+      extension_properties_list_ = zisc::pmr::allocateUnique<PropertiesList>(
+          alloc,
+          std::move(prop_list));
+    }
+    auto& prop_list = *extension_properties_list_;
+    // Retrieve extension properties
+    uint32b size = 0;
+    {
+      const auto result = zivcvk::enumerateInstanceExtensionProperties(nullptr,
+                                                                       &size,
+                                                                       nullptr,
+                                                                       *loader);
+      if (result != zivcvk::Result::eSuccess) {
+        const char* message = "Enumerating instance extension properties failed.";
+        throw SystemError{ErrorCode::kInitializationFailed, message};
+      }
+    }
+    prop_list.resize(size);
+    {
+      auto* props = zisc::reinterp<zivcvk::ExtensionProperties*>(prop_list.data());
+      const auto result = zivcvk::enumerateInstanceExtensionProperties(nullptr,
+                                                                       &size,
+                                                                       props,
+                                                                       *loader);
+      if (result != zivcvk::Result::eSuccess) {
+        const char* message = "Enumerating instance extension properties failed.";
+        throw SystemError{ErrorCode::kInitializationFailed, message};
+      }
+    }
+    {
+      const auto comp = [](const VkExtensionProperties& lhs,
+                           const VkExtensionProperties& rhs) noexcept
+      {
+        return compareProperties(lhs.extensionName, rhs.extensionName);
+      };
+      std::sort(prop_list.begin(), prop_list.end(), comp);
+    }
+  }
+  {
+    // Create a properties list
+    {
+      using PropertiesList = decltype(layer_properties_list_)::element_type;
+      PropertiesList prop_list{PropertiesList::allocator_type{mem_resource}};
+      zisc::pmr::polymorphic_allocator<PropertiesList> alloc{mem_resource};
+      layer_properties_list_ = zisc::pmr::allocateUnique<PropertiesList>(
+          alloc,
+          std::move(prop_list));
+    }
+    auto& prop_list = *layer_properties_list_;
+    // Retrieve layer properties
+    uint32b size = 0;
+    {
+      const auto result = zivcvk::enumerateInstanceLayerProperties(&size,
+                                                                   nullptr,
+                                                                   *loader);
+      if (result != zivcvk::Result::eSuccess) {
+        const char* message = "Enumerating instance layer properties failed.";
+        throw SystemError{ErrorCode::kInitializationFailed, message};
+      }
+    }
+    prop_list.resize(size);
+    {
+      auto* props = zisc::reinterp<zivcvk::LayerProperties*>(prop_list.data());
+      const auto result = zivcvk::enumerateInstanceLayerProperties(&size,
+                                                                   props,
+                                                                   *loader);
+      if (result != zivcvk::Result::eSuccess) {
+        const char* message = "Enumerating instance layer properties failed.";
+        throw SystemError{ErrorCode::kInitializationFailed, message};
+      }
+    }
+    // Sort by property name
+    {
+      const auto comp = [](const VkLayerProperties& lhs,
+                           const VkLayerProperties& rhs) noexcept
+      {
+        return compareProperties(lhs.layerName, rhs.layerName);
+      };
+      std::sort(prop_list.begin(), prop_list.end(), comp);
+    }
+  }
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] options No description.
+  \param [out] extension_list No description.
+  */
+void VulkanSubPlatform::initWindowSurface(
+    const PlatformOptions& options,
+    zisc::pmr::vector<const char*>* extension_list)
+{
+  window_surface_type_ = WindowSurfaceType::kNon;
+  if (!options.vulkanWSIExtensionEnabled())
+    return;
+
+  const char* ws_name = nullptr;
+  if (isExtensionSupported(VK_KHR_SURFACE_EXTENSION_NAME)) {
+    const auto check_wstype = [this, &ws_name](const char* name,
+                                               const WindowSurfaceType type) noexcept
+    {
+      if ((ws_name == nullptr) && isExtensionSupported(name)) {
+        window_surface_type_ = type;
+        ws_name = name;
+      }
+    };
+#if defined(VK_USE_PLATFORM_WIN32_KHR)
+    check_wstype(VK_KHR_WIN32_SURFACE_EXTENSION_NAME, WindowSurfaceType::kWin32);
+#endif // VK_USE_PLATFORM_WIN32_KHR
+#if defined(VK_USE_PLATFORM_METAL_EXT)
+    check_wstype(VK_EXT_METAL_SURFACE_EXTENSION_NAME, WindowSurfaceType::kMetal);
+#endif // VK_USE_PLATFORM_METAL_EXT
+#if defined(VK_USE_PLATFORM_MACOS_MVK)
+    check_wstype(VK_MVK_MACOS_SURFACE_EXTENSION_NAME, WindowSurfaceType::kMacOS);
+#endif // VK_USE_PLATFORM_MACOS_MVK
+#if defined(VK_USE_PLATFORM_XCB_KHR)
+    check_wstype(VK_KHR_XCB_SURFACE_EXTENSION_NAME, WindowSurfaceType::kXcb);
+#endif // VK_USE_PLATFORM_XCB_KHR
+#if defined(VK_USE_PLATFORM_XLIB_KHR)
+    check_wstype(VK_KHR_XLIB_SURFACE_EXTENSION_NAME, WindowSurfaceType::kXlib);
+#endif // VK_USE_PLATFORM_XLIB_KHR
+#if defined(VK_USE_PLATFORM_WAYLAND_KHR)
+    check_wstype(VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME, WindowSurfaceType::kWayland);
+#endif // VK_USE_PLATFORM_WAYLAND_KHR
+  }
+
+  if (ws_name != nullptr) {
+    extension_list->emplace_back(VK_KHR_SURFACE_EXTENSION_NAME);
+    extension_list->emplace_back(ws_name);
+  }
+  else {
+    // We go this code path when no platform is found
+    const char* message = "No platform of window surface found.";
+    throw SystemError{ErrorCode::kVulkanWindowSurfaceNotFound, message};
+  }
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] name No description.
+  \return No description
+  */
+bool VulkanSubPlatform::isExtensionSupported(const std::string_view name) const noexcept
+{
+  const auto comp = [](const VkExtensionProperties& lhs,
+                       const std::string_view rhs) noexcept
+  {
+    return compareProperties(lhs.extensionName, rhs);
+  };
+  const auto& prop_list = extensionPropertiesList();
+  const auto ite = std::lower_bound(prop_list.begin(), prop_list.end(), name, comp);
+  const bool result = (ite != prop_list.end()) && (ite->extensionName == name);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] name No description.
+  \return No description
+  */
+bool VulkanSubPlatform::isLayerSupported(const std::string_view name) const noexcept
+{
+  const auto comp = [](const VkLayerProperties& lhs,
+                       const std::string_view rhs) noexcept
+  {
+    return compareProperties(lhs.layerName, rhs);
+  };
+  const auto& prop_list = layerPropertiesList();
+  const auto ite = std::lower_bound(prop_list.begin(), prop_list.end(), name, comp);
+  const bool result = (ite != prop_list.end()) && (ite->layerName == name);
+  return result;
 }
 
 } // namespace zivc

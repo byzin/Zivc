@@ -56,6 +56,17 @@ enum class SubPlatformType : uint32b
   kVulkan
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+  */
+enum class VulkanDeviceCapability : uint32b
+{
+  kCompute = 0,
+  kGui
+};
+
 // Buffer
 
 /*!

@@ -22,6 +22,11 @@
 // Zisc
 #include "zisc/memory/std_memory_resource.hpp"
 
+// Forward declaration
+namespace zivc {
+class Platform;
+} // namespace zivc
+
 namespace example {
 
 // Forward declaration
@@ -45,7 +50,9 @@ class GuiApplication : public GuiWidget
   int run();
 
   //! Initialize the application
-  void initialize(WeakPtr&& own, GuiApplicationOptions& options);
+  void initialize(WeakPtr&& own,
+                  zivc::Platform& zplatform,
+                  GuiApplicationOptions& options);
 
   //! Return the underlying memory resource
   zisc::pmr::memory_resource* memoryResource() noexcept override;
@@ -76,7 +83,8 @@ class GuiApplication : public GuiWidget
 using SharedGuiApp = std::shared_ptr<GuiApplication>;
 
 //! Make a gui application
-SharedGuiApp makeGuiApp(GuiApplicationOptions& options);
+SharedGuiApp makeGuiApp(zivc::Platform& zplatform,
+                        GuiApplicationOptions& options);
 
 } // namespace example
 

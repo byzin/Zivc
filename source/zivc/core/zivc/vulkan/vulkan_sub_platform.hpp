@@ -28,6 +28,7 @@
 #include "zisc/data_structure/mutex_bst.hpp"
 #include "zisc/non_copyable.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
+#include "zisc/zisc_config.hpp"
 // Zivc
 #include "vulkan_device_info.hpp"
 #include "utility/vulkan.hpp"
@@ -50,6 +51,23 @@ class PlatformOptions;
 class VulkanSubPlatform : public SubPlatform
 {
  public:
+  /*!
+    \brief No brief description
+
+    No detailed description.
+    */
+  enum class WindowSurfaceType : uint32b
+  {
+    kNon = 0,
+    kWin32,
+    kMacOS,
+    kMetal,
+    kXlib,
+    kXcb,
+    kWayland
+  };
+
+
   //! Create an empty vulkan sub-platform
   VulkanSubPlatform(Platform* platform) noexcept;
 
@@ -69,8 +87,14 @@ class VulkanSubPlatform : public SubPlatform
   //! Return the engine name
   std::string_view engineName() const noexcept;
 
+  //! Return the list of extension properties supported in the instance
+  const zisc::pmr::vector<VkExtensionProperties>& extensionPropertiesList() const noexcept;
+
   //! Add the underlying device info into the given list
   void getDeviceInfoList(zisc::pmr::vector<const DeviceInfo*>& device_info_list) const noexcept override;
+
+  //! Check if the sub-platform has own VkInstance
+  bool hasOwnInstance() const noexcept;
 
   //! Return the underlying Vulkan instance
   VkInstance& instance() noexcept;
@@ -81,12 +105,20 @@ class VulkanSubPlatform : public SubPlatform
   //! Check if the sub-platform is available
   bool isAvailable() const noexcept override;
 
+  //! Return the list of layer properties supported in the instance
+  const zisc::pmr::vector<VkLayerProperties>& layerPropertiesList() const noexcept;
+
   //! Make a host memory allocator for Vulkan object
   VkAllocationCallbacks makeAllocator() noexcept;
 
   //! Make a unique device
   [[nodiscard]]
   SharedDevice makeDevice(const DeviceInfo& device_info) override;
+
+  //! Make a unique device
+  [[nodiscard]]
+  SharedDevice makeDevice(const DeviceInfo& device_info,
+                          const VulkanDeviceCapability capability);
 
   //! Notify of device memory allocation
   void notifyOfDeviceMemoryAllocation(const std::size_t device_index,
@@ -106,6 +138,9 @@ class VulkanSubPlatform : public SubPlatform
 
   //! Update the device info list
   void updateDeviceInfoList() override;
+
+  //! Return the window surface type activated
+  WindowSurfaceType windowSurfaceType() const noexcept;
 
  protected:
   //! Destroy the sub-platform
@@ -245,6 +280,10 @@ class VulkanSubPlatform : public SubPlatform
         VkSystemAllocationScope);
   };
 
+  //! Compare two properties by it's name
+  static bool compareProperties(const std::string_view lhs,
+                                const std::string_view rhs) noexcept;
+
   //! Make an application info
   VkApplicationInfo makeApplicationInfo(
       const std::string_view app_name,
@@ -267,13 +306,30 @@ class VulkanSubPlatform : public SubPlatform
   //! Initialize the vulkan dispatch loader
   void initDispatcher(PlatformOptions& options);
 
+  //! Initialize the sub-platform properties
+  void initProperties();
+
+  //! Initialize window surface
+  void initWindowSurface(const PlatformOptions& options,
+                         zisc::pmr::vector<const char*>* extension_list);
+
+  //! Check if the given extension is supported in the instance
+  bool isExtensionSupported(const std::string_view name) const noexcept;
+
+  //! Check if the given layer is supported in the instance
+  bool isLayerSupported(const std::string_view name) const noexcept;
+
 
   VkInstance instance_ = ZIVC_VK_NULL_HANDLE;
   std::add_pointer_t<VkInstance> instance_ref_ = nullptr;
   zisc::pmr::unique_ptr<VulkanDispatchLoader> dispatcher_;
   zisc::pmr::unique_ptr<AllocatorData> allocator_data_;
+  zisc::pmr::unique_ptr<zisc::pmr::vector<VkExtensionProperties>> extension_properties_list_;
+  zisc::pmr::unique_ptr<zisc::pmr::vector<VkLayerProperties>> layer_properties_list_;
   zisc::pmr::unique_ptr<zisc::pmr::vector<VkPhysicalDevice>> device_list_;
   zisc::pmr::unique_ptr<zisc::pmr::vector<VulkanDeviceInfo>> device_info_list_;
+  WindowSurfaceType window_surface_type_ = WindowSurfaceType::kNon;
+  [[maybe_unused]] Padding<4> pad_;
   char engine_name_[32] = "Zivc";
 };
 

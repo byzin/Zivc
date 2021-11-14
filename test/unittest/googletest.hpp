@@ -24,6 +24,10 @@
 #pragma GCC diagnostic ignored "-Weverything"
 #endif // Z_CLANG
 
+// Workaround errors with X11
+#undef Bool
+#undef None
+
 // GoogleTest
 #include "gtest/gtest.h"
 

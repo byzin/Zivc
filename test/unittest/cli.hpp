@@ -32,6 +32,9 @@
 #pragma GCC diagnostic ignored "-Weverything"
 #endif // Z_CLANG
 
+// Workaround errors with X11
+#undef Success
+
 // CLI11
 #include "CLI/CLI.hpp"
 

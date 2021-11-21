@@ -73,9 +73,20 @@ class VulkanDispatchLoader
   //! Move a data
   VulkanDispatchLoader& operator=(VulkanDispatchLoader&& other) noexcept;
 
+  //! Return the underlying getter of vulkan device proc addr
+  PFN_vkGetDeviceProcAddr deviceProcAddr() const noexcept;
+
+  //! Return the underlying getter of vulkan instance proc addr
+  PFN_vkGetInstanceProcAddr instanceProcAddr() const noexcept;
 
   //! Check if the loader is available
   bool isAvailable() const noexcept;
+
+  //! Check if the loader is dispatchable for the device
+  bool isDispatchableForDevice() const noexcept;
+
+  //! Check if the loader is dispatchable for the instance
+  bool isDispatchableForInstance() const noexcept;
 
   //! Return the underlying vulkan dispatch loader
   LoaderImplPtr loaderImpl() noexcept;

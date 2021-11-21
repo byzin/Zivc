@@ -88,6 +88,7 @@ function(addGui gui_path)
   set(clang_tidy_exclusion_checks bugprone-exception-escape
                                   misc-no-recursion
                                   readability-function-cognitive-complexity
+                                  readability-uppercase-literal-suffix
                                   )
   Zivc_setStaticAnalyzer(gui
                          CLANG_TIDY_EXCLUSION_CHECKS ${clang_tidy_exclusion_checks})

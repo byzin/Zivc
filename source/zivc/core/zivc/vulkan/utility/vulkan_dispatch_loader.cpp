@@ -117,6 +117,28 @@ VulkanDispatchLoader& VulkanDispatchLoader::operator=(
 /*!
   \details No detailed description
 
+  \return No description
+  */
+PFN_vkGetDeviceProcAddr VulkanDispatchLoader::deviceProcAddr() const noexcept
+{
+  ConstLoaderImplPtr impl = loaderImpl();
+  return impl->vkGetDeviceProcAddr;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+PFN_vkGetInstanceProcAddr VulkanDispatchLoader::instanceProcAddr() const noexcept
+{
+  ConstLoaderImplPtr impl = loaderImpl();
+  return impl->vkGetInstanceProcAddr;
+}
+
+/*!
+  \details No detailed description
+
   \param [in] device No description.
   */
 void VulkanDispatchLoader::set(const VkDevice& device)

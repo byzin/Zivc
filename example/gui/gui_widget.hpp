@@ -31,6 +31,10 @@ class GuiWidget : public GuiObject
 
   //! Destroy the widget
   ~GuiWidget() noexcept override;
+
+
+  //! Draw a widget
+  virtual void draw() noexcept = 0;
 };
 
 } // namespace example

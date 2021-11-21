@@ -203,7 +203,7 @@ void VulkanSubPlatform::updateDeviceInfoList()
   */
 void VulkanSubPlatform::destroyData() noexcept
 {
-  window_surface_type_ = WindowSurfaceType::kNon;
+  window_surface_type_ = WindowSurfaceType::kNone;
   device_info_list_.reset();
   device_list_.reset();
   layer_properties_list_.reset();
@@ -784,6 +784,8 @@ void VulkanSubPlatform::initDispatcher(PlatformOptions& options)
   dispatcher_ = (ptr != nullptr) // Use the given loader instead of allocating new one
       ? zisc::pmr::allocateUnique<VulkanDispatchLoader>(alloc, mem_resource, *ptr)
       : zisc::pmr::allocateUnique<VulkanDispatchLoader>(alloc, mem_resource, lib);
+  ZISC_ASSERT(dispatcher().isDispatchableForInstance(), "Unexpected init.");
+  ZISC_ASSERT(!dispatcher().isDispatchableForDevice(), "Unexpected init.");
 }
 
 /*!
@@ -894,7 +896,7 @@ void VulkanSubPlatform::initWindowSurface(
     const PlatformOptions& options,
     zisc::pmr::vector<const char*>* extension_list)
 {
-  window_surface_type_ = WindowSurfaceType::kNon;
+  window_surface_type_ = WindowSurfaceType::kNone;
   if (!options.vulkanWSIExtensionEnabled())
     return;
 

@@ -58,7 +58,7 @@ class VulkanSubPlatform : public SubPlatform
     */
   enum class WindowSurfaceType : uint32b
   {
-    kNon = 0,
+    kNone = 0,
     kWin32,
     kMacOS,
     kMetal,
@@ -328,7 +328,7 @@ class VulkanSubPlatform : public SubPlatform
   zisc::pmr::unique_ptr<zisc::pmr::vector<VkLayerProperties>> layer_properties_list_;
   zisc::pmr::unique_ptr<zisc::pmr::vector<VkPhysicalDevice>> device_list_;
   zisc::pmr::unique_ptr<zisc::pmr::vector<VulkanDeviceInfo>> device_info_list_;
-  WindowSurfaceType window_surface_type_ = WindowSurfaceType::kNon;
+  WindowSurfaceType window_surface_type_ = WindowSurfaceType::kNone;
   [[maybe_unused]] Padding<4> pad_;
   char engine_name_[32] = "Zivc";
 };

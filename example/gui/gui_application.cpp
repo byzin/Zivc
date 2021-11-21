@@ -19,6 +19,8 @@
 // Zisc
 #include "zisc/memory/simple_memory_resource.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
+// ImGui
+#include "imgui.h"
 // Gui
 #include "gui_application_options.hpp"
 #include "gui_platform.hpp"
@@ -43,11 +45,52 @@ GuiApplication::~GuiApplication() noexcept
 
 /*!
   \details No detailed description
+  */
+void GuiApplication::draw() noexcept
+{
+  // 1. Show the big demo window
+  if (is_demo_window_active_)
+    ImGui::ShowDemoWindow(&is_demo_window_active_);
+
+  static bool show_another_window = false;
+  // 2. Show a simple window that we create ourselves.
+  {
+    static float f = 0.0f;
+    static int counter = 0;
+
+    ImGui::Begin("Hello, World");
+    ImGui::Text("This is some useful text.");
+    ImGui::Checkbox("Another Window", &show_another_window);
+    ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
+//    ImGui::ColorEdit3("clear color", (float*)
+    if (ImGui::Button("Button"))
+      counter++;
+    ImGui::SameLine();
+    ImGui::Text("counter = %d", counter);
+    ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+    ImGui::End();
+  }
+
+  // 3. Show another simple window
+  if (show_another_window) {
+    ImGui::Begin("Another Window", &show_another_window);
+    ImGui::Text("Hello from another window!");
+    if (ImGui::Button("Close Me"))
+      show_another_window = false;
+    ImGui::End();
+  }
+}
+
+/*!
+  \details No detailed description
 
   \return No description
   */
 int GuiApplication::run()
 {
+  while (platform()->show(this)) {
+    //
+  }
   return 0;
 }
 
@@ -120,6 +163,8 @@ void GuiApplication::initialize(WeakPtr&& own,
     WeakObject own{platform_};
     platform()->initialize(std::move(parent), std::move(own), zplatform, options);
   }
+
+  is_demo_window_active_ = true;
 }
 
 /*!

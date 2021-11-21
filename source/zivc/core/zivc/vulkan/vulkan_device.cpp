@@ -649,6 +649,10 @@ void VulkanDevice::waitForCompletion(const Fence& fence) const
   */
 void VulkanDevice::destroyData() noexcept
 {
+  zivcvk::Device d{device()};
+  if (d)
+    waitForCompletion();
+
   queue_count_ = 0;
   queue_family_index_ = invalidQueueIndex();
 
@@ -657,7 +661,6 @@ void VulkanDevice::destroyData() noexcept
     vm_allocator_ = ZIVC_VK_NULL_HANDLE;
   }
 
-  zivcvk::Device d{device()};
   if (d) {
     zivcvk::AllocationCallbacks alloc{makeAllocator()};
     const auto* loader = dispatcher().loaderImpl();
@@ -1190,6 +1193,8 @@ void VulkanDevice::initDispatcher()
   dispatcher_ = zisc::pmr::allocateUnique<VulkanDispatchLoader>(
       memoryResource(),
       sub_platform.dispatcher());
+  ZISC_ASSERT(dispatcher().isDispatchableForInstance(), "Unexpected init.");
+  ZISC_ASSERT(dispatcher().isDispatchableForDevice(), "Unexpected init.");
 }
 
 /*!

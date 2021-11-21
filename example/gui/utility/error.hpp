@@ -32,6 +32,7 @@ enum class ErrorCode : int
 {
   kGlfwInitializationFailed,
   kImGuiInitializationFailed,
+  kVulkanError,
 };
 
 //! Return the string of the given error code
@@ -86,6 +87,9 @@ class SystemError : public std::system_error
   //! Move data
   SystemError& operator=(SystemError&& other) noexcept;
 };
+
+//! Check the vulkan result and raise an exception if there is an error
+void checkVulkanResult(const int result);
 
 } // namespace example
 

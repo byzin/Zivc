@@ -20,6 +20,8 @@
 #include <string_view>
 // Zisc
 #include "zisc/memory/std_memory_resource.hpp"
+// Zivc
+#include "zivc/zivc_config.hpp"
 
 namespace example {
 
@@ -73,6 +75,16 @@ GuiApplicationOptions& GuiApplicationOptions::operator=(GuiApplicationOptions&& 
 std::string_view GuiApplicationOptions::description() const noexcept
 {
   return description_;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] flag No description.
+  */
+void GuiApplicationOptions::enableUnlimitedFrameRate(const bool flag) noexcept
+{
+  unlimited_frame_rate_enabled_ = flag ? zisc::kTrue : zisc::kFalse;
 }
 
 /*!
@@ -144,6 +156,17 @@ void GuiApplicationOptions::setWindowTitle(const std::string_view title) noexcep
 void GuiApplicationOptions::setWindowWidth(const std::size_t size) noexcept
 {
   window_width_ = size;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+bool GuiApplicationOptions::unlimitedFrameRateEnabled() const noexcept
+{
+  const bool flag = unlimited_frame_rate_enabled_ == zisc::kTrue;
+  return flag;
 }
 
 /*!

@@ -20,6 +20,9 @@
 #include <string_view>
 // Zisc
 #include "zisc/utility.hpp"
+// Zivc
+#include "zivc/vulkan/utility/vulkan.hpp"
+#include "zivc/vulkan/utility/vulkan_hpp.hpp"
 
 /*!
   \def ERROR_CODE_STRING_CASE 
@@ -50,6 +53,7 @@ std::string getErrorCodeString(const ErrorCode code) noexcept
   switch (code) {
     ERROR_CODE_STRING_CASE(GlfwInitializationFailed, code_str)
     ERROR_CODE_STRING_CASE(ImGuiInitializationFailed, code_str)
+    ERROR_CODE_STRING_CASE(VulkanError, code_str)
   }
   return code_str;
 }
@@ -137,6 +141,20 @@ SystemError& SystemError::operator=(SystemError&& other) noexcept
 {
   std::system_error::operator=(other);
   return *this;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] result No description.
+  */
+void checkVulkanResult(const int result)
+{
+  const auto r = zisc::cast<zivcvk::Result>(result);
+  if (r != zivcvk::Result::eSuccess) {
+    const auto desc = "Vulkan error: " + zivcvk::to_string(r) + ".";
+    throw SystemError{ErrorCode::kVulkanError, desc};
+  }
 }
 
 } // namespace example

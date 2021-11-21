@@ -65,7 +65,7 @@ void printWindowSurfaceType(const zivc::Platform& platform)
     ws_name = "Wayland";
     break;
    }
-   case WSType::kNon:
+   case WSType::kNone:
    default: {
     break;
    }

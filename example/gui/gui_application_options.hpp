@@ -23,6 +23,8 @@
 // Zisc
 #include "zisc/non_copyable.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
+// Zivc
+#include "zivc/zivc_config.hpp"
 
 namespace example {
 
@@ -49,6 +51,9 @@ class GuiApplicationOptions : private zisc::NonCopyable<GuiApplicationOptions>
   //! Return the application description
   std::string_view description() const noexcept;
 
+  //! Enable unlimited frame rate mode
+  void enableUnlimitedFrameRate(const bool flag) noexcept;
+
   //! Return the underlying memory resource
   zisc::pmr::memory_resource* memoryResource() noexcept;
 
@@ -70,6 +75,9 @@ class GuiApplicationOptions : private zisc::NonCopyable<GuiApplicationOptions>
   //! Set the window width size
   void setWindowWidth(const std::size_t size) noexcept;
 
+  //! Check if unlimited frame rate mode is enabled
+  bool unlimitedFrameRateEnabled() const noexcept;
+
   //! Return the window height size
   std::size_t windowHeight() const noexcept;
 
@@ -85,6 +93,7 @@ class GuiApplicationOptions : private zisc::NonCopyable<GuiApplicationOptions>
   std::string window_title_;
   std::size_t window_width_ = 1280;
   std::size_t window_height_ = 720;
+  zivc::uint8b unlimited_frame_rate_enabled_ = zisc::kTrue;
 };
 
 } // namespace example

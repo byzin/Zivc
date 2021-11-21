@@ -46,6 +46,9 @@ class GuiApplication : public GuiWidget
   ~GuiApplication() noexcept override;
 
 
+  //! Draw application widgets
+  void draw() noexcept override;
+
   //! Exec the application
   int run();
 
@@ -77,6 +80,7 @@ class GuiApplication : public GuiWidget
   std::unique_ptr<zisc::pmr::memory_resource> default_mem_resource_;
   zisc::pmr::memory_resource* custom_mem_resource_ = nullptr;
   SharedObject platform_;
+  bool is_demo_window_active_ = true;
 };
 
 // Type aliases

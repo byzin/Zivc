@@ -39,6 +39,30 @@ bool VulkanDispatchLoader::isAvailable() const noexcept
   \return No description
   */
 inline
+bool VulkanDispatchLoader::isDispatchableForDevice() const noexcept
+{
+  const bool result = deviceProcAddr() != nullptr;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+bool VulkanDispatchLoader::isDispatchableForInstance() const noexcept
+{
+  const bool result = instanceProcAddr() != nullptr;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
 auto VulkanDispatchLoader::loaderImpl() noexcept -> LoaderImplPtr
 {
   return loader_impl_.get();

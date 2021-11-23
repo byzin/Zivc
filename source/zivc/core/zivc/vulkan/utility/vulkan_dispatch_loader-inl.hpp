@@ -18,6 +18,8 @@
 #include "vulkan_dispatch_loader.hpp"
 // Standard C++ library
 #include <memory>
+// Zisc
+#include "zisc/utility.hpp"
 
 namespace zivc {
 
@@ -29,7 +31,7 @@ namespace zivc {
 inline
 bool VulkanDispatchLoader::isAvailable() const noexcept
 {
-  const bool result = loaderImpl() != nullptr;
+  const bool result = zisc::cast<bool>(loader_impl_);
   return result;
 }
 
@@ -41,7 +43,7 @@ bool VulkanDispatchLoader::isAvailable() const noexcept
 inline
 bool VulkanDispatchLoader::isDispatchableForDevice() const noexcept
 {
-  const bool result = deviceProcAddr() != nullptr;
+  const bool result = isAvailable() && (deviceProcAddr() != nullptr);
   return result;
 }
 
@@ -53,7 +55,7 @@ bool VulkanDispatchLoader::isDispatchableForDevice() const noexcept
 inline
 bool VulkanDispatchLoader::isDispatchableForInstance() const noexcept
 {
-  const bool result = instanceProcAddr() != nullptr;
+  const bool result = isAvailable() && (instanceProcAddr() != nullptr);
   return result;
 }
 
@@ -63,9 +65,9 @@ bool VulkanDispatchLoader::isDispatchableForInstance() const noexcept
   \return No description
   */
 inline
-auto VulkanDispatchLoader::loaderImpl() noexcept -> LoaderImplPtr
+auto VulkanDispatchLoader::loader() noexcept -> LoaderReference
 {
-  return loader_impl_.get();
+  return *loader_impl_;
 }
 
 /*!
@@ -74,9 +76,9 @@ auto VulkanDispatchLoader::loaderImpl() noexcept -> LoaderImplPtr
   \return No description
   */
 inline
-auto VulkanDispatchLoader::loaderImpl() const noexcept -> ConstLoaderImplPtr
+auto VulkanDispatchLoader::loader() const noexcept -> ConstLoaderReference
 {
-  return loader_impl_.get();
+  return *loader_impl_;
 }
 
 /*!
@@ -90,7 +92,9 @@ inline
 bool operator==(const VulkanDispatchLoader& lhs,
                 const VulkanDispatchLoader& rhs) noexcept
 {
-  const bool result = lhs.loaderImpl() == rhs.loaderImpl();
+  const bool result = lhs.isAvailable() &&
+                      rhs.isAvailable() &&
+                      (std::addressof(lhs.loader()) == std::addressof(rhs.loader()));
   return result;
 }
 

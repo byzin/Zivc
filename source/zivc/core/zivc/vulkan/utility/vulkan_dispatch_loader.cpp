@@ -31,27 +31,9 @@ namespace zivc {
 
 /*!
   \details No detailed description
-
-  \param [in,out] mem_resource No description.
   */
-VulkanDispatchLoader::VulkanDispatchLoader(
-    zisc::pmr::memory_resource* mem_resource,
-    std::string_view library_name)
+VulkanDispatchLoader::VulkanDispatchLoader()
 {
-  initialize(mem_resource, library_name);
-}
-
-/*!
-  \details No detailed description
-
-  \param [in,out] mem_resource No description.
-  \param [in] get_proc_addr No description.
-  */
-VulkanDispatchLoader::VulkanDispatchLoader(
-    zisc::pmr::memory_resource* mem_resource,
-    PFN_vkGetInstanceProcAddr get_proc_addr)
-{
-  initialize(mem_resource, get_proc_addr);
 }
 
 /*!
@@ -116,13 +98,21 @@ VulkanDispatchLoader& VulkanDispatchLoader::operator=(
 
 /*!
   \details No detailed description
+  */
+void VulkanDispatchLoader::destroy() noexcept
+{
+  loader_impl_.reset();
+  dynamic_loader_.reset();
+}
+
+/*!
+  \details No detailed description
 
   \return No description
   */
 PFN_vkGetDeviceProcAddr VulkanDispatchLoader::deviceProcAddr() const noexcept
 {
-  ConstLoaderImplPtr impl = loaderImpl();
-  return impl->vkGetDeviceProcAddr;
+  return loader().vkGetDeviceProcAddr;
 }
 
 /*!
@@ -132,8 +122,32 @@ PFN_vkGetDeviceProcAddr VulkanDispatchLoader::deviceProcAddr() const noexcept
   */
 PFN_vkGetInstanceProcAddr VulkanDispatchLoader::instanceProcAddr() const noexcept
 {
-  ConstLoaderImplPtr impl = loaderImpl();
-  return impl->vkGetInstanceProcAddr;
+  return loader().vkGetInstanceProcAddr;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in,out] mem_resource No description.
+  */
+void VulkanDispatchLoader::set(zisc::pmr::memory_resource* mem_resource,
+                               std::string_view library_name)
+{
+  destroy();
+  initialize(mem_resource, library_name);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in,out] mem_resource No description.
+  \param [in] get_proc_addr No description.
+  */
+void VulkanDispatchLoader::set(zisc::pmr::memory_resource* mem_resource,
+                               const PFN_vkGetInstanceProcAddr get_proc_addr)
+{
+  destroy();
+  initialize(mem_resource, get_proc_addr);
 }
 
 /*!
@@ -143,9 +157,8 @@ PFN_vkGetInstanceProcAddr VulkanDispatchLoader::instanceProcAddr() const noexcep
   */
 void VulkanDispatchLoader::set(const VkDevice& device)
 {
-  LoaderImplPtr impl = loaderImpl();
-  if (impl != nullptr)
-    impl->init(zivcvk::Device{device});
+  if (isAvailable())
+    loader().init(zivcvk::Device{device});
 }
 
 /*!
@@ -155,9 +168,8 @@ void VulkanDispatchLoader::set(const VkDevice& device)
   */
 void VulkanDispatchLoader::set(const VkInstance& instance)
 {
-  LoaderImplPtr impl = loaderImpl();
-  if (impl != nullptr)
-    impl->init(zivcvk::Instance{instance});
+  if (isAvailable())
+    loader().init(zivcvk::Instance{instance});
 }
 
 /*!
@@ -172,15 +184,6 @@ void VulkanDispatchLoader::copyFrom(const VulkanDispatchLoader& other) noexcept
     dynamic_loader_ = other.dynamic_loader_;
     loader_impl_ = other.loader_impl_;
   }
-}
-
-/*!
-  \details No detailed description
-  */
-void VulkanDispatchLoader::destroy() noexcept
-{
-  loader_impl_.reset();
-  dynamic_loader_.reset();
 }
 
 /*!
@@ -219,13 +222,13 @@ void VulkanDispatchLoader::initialize(zisc::pmr::memory_resource* mem_resource,
   \param [in] get_proc_addr No description.
   */
 void VulkanDispatchLoader::initialize(zisc::pmr::memory_resource* mem_resource,
-                                      PFN_vkGetInstanceProcAddr get_proc_addr)
+                                      const PFN_vkGetInstanceProcAddr get_proc_addr)
 {
   ZISC_ASSERT(mem_resource != nullptr, "The memory resource is null.");
   ZISC_ASSERT(get_proc_addr != nullptr, "'get_proc_addr' is null.");
   {
-    zisc::pmr::polymorphic_allocator<LoaderImpl> alloc{mem_resource};
-    loader_impl_ = std::allocate_shared<LoaderImpl>(alloc, get_proc_addr);
+    zisc::pmr::polymorphic_allocator<LoaderType> alloc{mem_resource};
+    loader_impl_ = std::allocate_shared<LoaderType>(alloc, get_proc_addr);
   }
 }
 

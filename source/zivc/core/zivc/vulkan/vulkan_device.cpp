@@ -174,7 +174,7 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
     return getShaderKernel(id);
 
   zivcvk::Device d{device()};
-  const auto* loader = dispatcher().loaderImpl();
+  const auto& loader = dispatcher().loader();
   auto* mem_resource = memoryResource();
   zivcvk::AllocationCallbacks alloc{makeAllocator()};
 
@@ -206,7 +206,7 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
         zivcvk::DescriptorSetLayoutCreateFlags{},
         zisc::cast<uint32b>(layout_bindings.size()),
         layout_bindings.data()};
-    desc_set_layout = d.createDescriptorSetLayout(create_info, alloc, *loader);
+    desc_set_layout = d.createDescriptorSetLayout(create_info, alloc, loader);
   }
 
   // Pipeline
@@ -222,7 +222,7 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
         std::addressof(desc_set_layout),
         1,
         std::addressof(push_constant_range)};
-    pline_layout = d.createPipelineLayout(create_info, alloc, *loader);
+    pline_layout = d.createPipelineLayout(create_info, alloc, loader);
   }
   // Specialization constants
   const auto& work_group_size = workGroupSizeDim(work_dimension);
@@ -294,7 +294,7 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
     auto result = d.createComputePipeline(zivcvk::PipelineCache{},
                                           pipeline_info,
                                           alloc,
-                                          *loader);
+                                          loader);
     if (result.result != zivcvk::Result::eSuccess) {
       const char* message = "Compute pipeline creation failed.";
       zivcvk::throwResultException(result.result, message);
@@ -403,7 +403,7 @@ QueueDebugLabelRegion VulkanDevice::makeQueueDebugLabel(
 VkCommandBuffer VulkanDevice::makeCommandBuffer()
 {
   zivcvk::Device d{device()};
-  const auto* loader = dispatcher().loaderImpl();
+  const auto& loader = dispatcher().loader();
   auto* mem_resource = memoryResource();
 
   const zivcvk::CommandBufferAllocateInfo alloc_info{
@@ -411,7 +411,7 @@ VkCommandBuffer VulkanDevice::makeCommandBuffer()
       zivcvk::CommandBufferLevel::ePrimary,
       1};
   zisc::pmr::vector<zivcvk::CommandBuffer>::allocator_type alloc{mem_resource};
-  auto commands = d.allocateCommandBuffers(alloc_info, alloc, *loader);
+  auto commands = d.allocateCommandBuffers(alloc_info, alloc, loader);
   ZISC_ASSERT(commands.size() == 1, "The size of command buffers isn't 1.");
   return zisc::cast<VkCommandBuffer>(commands[0]);
 }
@@ -488,8 +488,6 @@ void VulkanDevice::submit(const VkCommandBuffer& command_buffer,
                           const VkQueue& q,
                           const Fence& fence) const
 {
-  const auto* loader = dispatcher().loaderImpl();
-
   const zivcvk::CommandBuffer command{command_buffer};
   const zivcvk::Queue que{q};
   zivcvk::Fence fen = fence.isActive()
@@ -498,7 +496,7 @@ void VulkanDevice::submit(const VkCommandBuffer& command_buffer,
   zivcvk::SubmitInfo info{};
   info.setCommandBufferCount(1);
   info.setPCommandBuffers(std::addressof(command));
-  que.submit(info, fen, *loader);
+  que.submit(info, fen, dispatcher().loader());
 }
 
 /*!
@@ -514,7 +512,7 @@ void VulkanDevice::setDebugInfo(const VkObjectType vk_object_type,
                                 const std::string_view object_name,
                                 const ZivcObject* zivc_object)
 {
-  const auto* loader = dispatcher().loaderImpl();
+  const auto& loader = dispatcher().loader();
   zivcvk::Device d{device()};
   const auto object_type = zisc::cast<zivcvk::ObjectType>(vk_object_type);
   const auto handle = zisc::cast<uint64b>(zisc::reinterp<std::size_t>(vk_handle));
@@ -523,7 +521,7 @@ void VulkanDevice::setDebugInfo(const VkObjectType vk_object_type,
     const zivcvk::DebugUtilsObjectNameInfoEXT name_info{object_type,
                                                         handle,
                                                         object_name.data()};
-    d.setDebugUtilsObjectNameEXT(name_info, *loader);
+    d.setDebugUtilsObjectNameEXT(name_info, loader);
   }
   // Tag
   if (zivc_object != nullptr) {
@@ -533,7 +531,7 @@ void VulkanDevice::setDebugInfo(const VkObjectType vk_object_type,
                                                       tag_name,
                                                       sizeof(void*),
                                                       std::addressof(zivc_object)};
-    d.setDebugUtilsObjectTagEXT(tag_info, *loader);
+    d.setDebugUtilsObjectTagEXT(tag_info, loader);
   }
 }
 
@@ -545,7 +543,7 @@ void VulkanDevice::setDebugInfo(const VkObjectType vk_object_type,
 void VulkanDevice::setFenceSize(const std::size_t s)
 {
   zivcvk::Device d{device()};
-  const auto* loader = dispatcher().loaderImpl();
+  const auto& loader = dispatcher().loader();
   zivcvk::AllocationCallbacks alloc{makeAllocator()};
 
   fence_index_queue_->setCapacity(s);
@@ -560,20 +558,20 @@ void VulkanDevice::setFenceSize(const std::size_t s)
   // Add new fences
   for (std::size_t index = fence_list.size(); index < fence_size; ++index) {
     const zivcvk::FenceCreateInfo info{};
-    zivcvk::Fence fence = d.createFence(info, alloc, *loader);
+    zivcvk::Fence fence = d.createFence(info, alloc, loader);
     fence_list.emplace_back(zisc::cast<VkFence>(fence));
     updateFenceDebugInfo(index);
   }
   // Remove fences
   for (std::size_t i = fence_list.size(); fence_size < i; --i) {
     auto fence = zisc::cast<zivcvk::Fence>(fence_list.back());
-    d.destroyFence(fence, alloc, *loader);
+    d.destroyFence(fence, alloc, loader);
     fence_list.pop_back();
   }
   // Reset fences
   for (VkFence& fence : fence_list) {
     auto f = zisc::cast<zivcvk::Fence>(fence);
-    d.resetFences(f, *loader);
+    d.resetFences(f, loader);
   }
 }
 
@@ -584,9 +582,6 @@ void VulkanDevice::setFenceSize(const std::size_t s)
   */
 void VulkanDevice::takeFence(Fence* fence)
 {
-  zivcvk::Device d{device()};
-  const auto* loader = dispatcher().loaderImpl();
-
   IndexQueue& index_queue = fenceIndexQueue();
   const auto [result, fence_index] = index_queue.dequeue();
   if (!result) {
@@ -598,8 +593,9 @@ void VulkanDevice::takeFence(Fence* fence)
   auto* memory = std::addressof(fence->data());
   auto* dest = ::new (zisc::cast<void*>(memory)) zivcvk::Fence{};
   {
+    zivcvk::Device d{device()};
     auto f = zisc::cast<zivcvk::Fence>((*fence_list_)[fence_index]);
-    d.resetFences(f, *loader);
+    d.resetFences(f, dispatcher().loader());
     *dest = f;
   }
 }
@@ -610,8 +606,7 @@ void VulkanDevice::takeFence(Fence* fence)
 void VulkanDevice::waitForCompletion() const
 {
   const zivcvk::Device d{device()};
-  const auto* loader = dispatcher().loaderImpl();
-  d.waitIdle(*loader);
+  d.waitIdle(dispatcher().loader());
 }
 
 /*!
@@ -622,8 +617,7 @@ void VulkanDevice::waitForCompletion() const
 void VulkanDevice::waitForCompletion(const uint32b queue_index) const
 {
   const auto q = zisc::cast<zivcvk::Queue>(getQueue(queue_index));
-  const auto* loader = dispatcher().loaderImpl();
-  q.waitIdle(*loader);
+  q.waitIdle(dispatcher().loader());
 }
 
 /*!
@@ -635,14 +629,14 @@ void VulkanDevice::waitForCompletion(const Fence& fence) const
 {
   if (fence) {
     const zivcvk::Device d{device()};
-    const auto* loader = dispatcher().loaderImpl();
+    const auto& loader = dispatcher().loader();
 
     const auto* f = zisc::reinterp<const zivcvk::Fence*>(std::addressof(fence.data()));
     constexpr uint64b timeout = (std::numeric_limits<uint64b>::max)();
     [[maybe_unused]] const auto result = d.waitForFences(*f,
                                                          VK_TRUE,
                                                          timeout,
-                                                         *loader);
+                                                         loader);
     ZISC_ASSERT(result == zivcvk::Result::eSuccess, "Waiting for a fence failed.");
   }
 }
@@ -666,7 +660,7 @@ void VulkanDevice::destroyData() noexcept
 
   if (d) {
     zivcvk::AllocationCallbacks alloc{makeAllocator()};
-    const auto* loader = dispatcher().loaderImpl();
+    const auto& loader = dispatcher().loader();
 
     setFenceSize(0); // Destroy all fences
 
@@ -682,11 +676,11 @@ void VulkanDevice::destroyData() noexcept
     zivcvk::CommandPool command_pool{command_pool_};
     if (command_pool) {
       //! \todo Fix me. AMD gpu won't work with custom allocator
-      d.destroyCommandPool(command_pool, nullptr /* alloc */, *loader);
+      d.destroyCommandPool(command_pool, nullptr /* alloc */, loader);
       command_pool = nullptr;
     }
 
-    d.destroy(alloc, *loader);
+    d.destroy(alloc, loader);
     device_ = ZIVC_VK_NULL_HANDLE;
   }
 
@@ -892,7 +886,7 @@ auto VulkanDevice::addShaderModule(const uint64b id,
     -> const ModuleData&
 {
   zivcvk::Device d{device()};
-  const auto* loader = dispatcher().loaderImpl();
+  const auto& loader = dispatcher().loader();
   auto* mem_resource = memoryResource();
   zivcvk::AllocationCallbacks alloc{makeAllocator()};
 
@@ -900,7 +894,7 @@ auto VulkanDevice::addShaderModule(const uint64b id,
   zivcvk::ShaderModuleCreateInfo create_info{zivcvk::ShaderModuleCreateFlags{},
                                              code_size,
                                              spirv_code.data()};
-  auto module = d.createShaderModule(create_info, alloc, *loader);
+  auto module = d.createShaderModule(create_info, alloc, loader);
 
   const ModuleData* data = nullptr;
   {
@@ -925,25 +919,25 @@ auto VulkanDevice::addShaderModule(const uint64b id,
 void VulkanDevice::destroyShaderKernel(KernelData* kernel) noexcept
 {
   zivcvk::Device d{device()};
-  const auto* loader = dispatcher().loaderImpl();
+  const auto& loader = dispatcher().loader();
   zivcvk::AllocationCallbacks alloc{makeAllocator()};
 
   {
     zivcvk::Pipeline pline{kernel->pipeline_};
     if (pline)
-      d.destroyPipeline(pline, alloc, *loader);
+      d.destroyPipeline(pline, alloc, loader);
     kernel->pipeline_ = ZIVC_VK_NULL_HANDLE;
   }
   {
     zivcvk::PipelineLayout pline_layout{kernel->pipeline_layout_};
     if (pline_layout)
-      d.destroyPipelineLayout(pline_layout, alloc, *loader);
+      d.destroyPipelineLayout(pline_layout, alloc, loader);
     kernel->pipeline_layout_ = ZIVC_VK_NULL_HANDLE;
   }
   {
     zivcvk::DescriptorSetLayout desc_set_layout{kernel->desc_set_layout_};
     if (desc_set_layout)
-      d.destroyDescriptorSetLayout(desc_set_layout, alloc, *loader);
+      d.destroyDescriptorSetLayout(desc_set_layout, alloc, loader);
     kernel->desc_set_layout_ = ZIVC_VK_NULL_HANDLE;
   }
 }
@@ -957,12 +951,10 @@ void VulkanDevice::destroyShaderModule(ModuleData* module) noexcept
 {
   zivcvk::Device d{device()};
   zivcvk::AllocationCallbacks alloc{makeAllocator()};
-  const auto* loader = dispatcher().loaderImpl();
-
   {
     zivcvk::ShaderModule m{module->module_};
     if (m)
-      d.destroyShaderModule(m, alloc, *loader);
+      d.destroyShaderModule(m, alloc, dispatcher().loader());
     module->module_ = ZIVC_VK_NULL_HANDLE;
   }
 }
@@ -1067,46 +1059,46 @@ uint32b VulkanDevice::findQueueFamily(uint32b* queue_count) const noexcept
   */
 VmaVulkanFunctions VulkanDevice::getVmaVulkanFunctions() const noexcept
 {
-  const auto* loader = dispatcher().loaderImpl();
+  const auto& loader = dispatcher().loader();
   VmaVulkanFunctions functions;
-  functions.vkGetPhysicalDeviceProperties = loader->vkGetPhysicalDeviceProperties;
-  functions.vkGetPhysicalDeviceMemoryProperties = loader->vkGetPhysicalDeviceMemoryProperties;
-  functions.vkAllocateMemory = loader->vkAllocateMemory;
-  functions.vkFreeMemory = loader->vkFreeMemory;
-  functions.vkMapMemory = loader->vkMapMemory;
-  functions.vkUnmapMemory = loader->vkUnmapMemory;
-  functions.vkFlushMappedMemoryRanges = loader->vkFlushMappedMemoryRanges;
-  functions.vkInvalidateMappedMemoryRanges = loader->vkInvalidateMappedMemoryRanges;
-  functions.vkBindBufferMemory = loader->vkBindBufferMemory;
-  functions.vkBindImageMemory = loader->vkBindImageMemory;
-  functions.vkGetBufferMemoryRequirements = loader->vkGetBufferMemoryRequirements;
-  functions.vkGetImageMemoryRequirements = loader->vkGetImageMemoryRequirements;
-  functions.vkCreateBuffer = loader->vkCreateBuffer;
-  functions.vkDestroyBuffer = loader->vkDestroyBuffer;
-  functions.vkCreateImage = loader->vkCreateImage;
-  functions.vkDestroyImage = loader->vkDestroyImage;
-  functions.vkCmdCopyBuffer = loader->vkCmdCopyBuffer;
+  functions.vkGetPhysicalDeviceProperties = loader.vkGetPhysicalDeviceProperties;
+  functions.vkGetPhysicalDeviceMemoryProperties = loader.vkGetPhysicalDeviceMemoryProperties;
+  functions.vkAllocateMemory = loader.vkAllocateMemory;
+  functions.vkFreeMemory = loader.vkFreeMemory;
+  functions.vkMapMemory = loader.vkMapMemory;
+  functions.vkUnmapMemory = loader.vkUnmapMemory;
+  functions.vkFlushMappedMemoryRanges = loader.vkFlushMappedMemoryRanges;
+  functions.vkInvalidateMappedMemoryRanges = loader.vkInvalidateMappedMemoryRanges;
+  functions.vkBindBufferMemory = loader.vkBindBufferMemory;
+  functions.vkBindImageMemory = loader.vkBindImageMemory;
+  functions.vkGetBufferMemoryRequirements = loader.vkGetBufferMemoryRequirements;
+  functions.vkGetImageMemoryRequirements = loader.vkGetImageMemoryRequirements;
+  functions.vkCreateBuffer = loader.vkCreateBuffer;
+  functions.vkDestroyBuffer = loader.vkDestroyBuffer;
+  functions.vkCreateImage = loader.vkCreateImage;
+  functions.vkDestroyImage = loader.vkDestroyImage;
+  functions.vkCmdCopyBuffer = loader.vkCmdCopyBuffer;
 
-  if (loader->vkGetBufferMemoryRequirements2 != nullptr)
-    functions.vkGetBufferMemoryRequirements2KHR = loader->vkGetBufferMemoryRequirements2;
+  if (loader.vkGetBufferMemoryRequirements2 != nullptr)
+    functions.vkGetBufferMemoryRequirements2KHR = loader.vkGetBufferMemoryRequirements2;
   else
-    functions.vkGetBufferMemoryRequirements2KHR = loader->vkGetBufferMemoryRequirements2KHR;
-  if (loader->vkGetImageMemoryRequirements2 != nullptr)
-    functions.vkGetImageMemoryRequirements2KHR = loader->vkGetImageMemoryRequirements2;
+    functions.vkGetBufferMemoryRequirements2KHR = loader.vkGetBufferMemoryRequirements2KHR;
+  if (loader.vkGetImageMemoryRequirements2 != nullptr)
+    functions.vkGetImageMemoryRequirements2KHR = loader.vkGetImageMemoryRequirements2;
   else 
-    functions.vkGetImageMemoryRequirements2KHR = loader->vkGetImageMemoryRequirements2KHR;
-  if (loader->vkBindBufferMemory2 != nullptr)
-    functions.vkBindBufferMemory2KHR = loader->vkBindBufferMemory2;
+    functions.vkGetImageMemoryRequirements2KHR = loader.vkGetImageMemoryRequirements2KHR;
+  if (loader.vkBindBufferMemory2 != nullptr)
+    functions.vkBindBufferMemory2KHR = loader.vkBindBufferMemory2;
   else
-    functions.vkBindBufferMemory2KHR = loader->vkBindBufferMemory2KHR;
-  if (loader->vkBindImageMemory2 != nullptr)
-    functions.vkBindImageMemory2KHR = loader->vkBindImageMemory2;
+    functions.vkBindBufferMemory2KHR = loader.vkBindBufferMemory2KHR;
+  if (loader.vkBindImageMemory2 != nullptr)
+    functions.vkBindImageMemory2KHR = loader.vkBindImageMemory2;
   else
-    functions.vkBindImageMemory2KHR = loader->vkBindImageMemory2KHR;
-  if (loader->vkGetPhysicalDeviceMemoryProperties2 != nullptr)
-    functions.vkGetPhysicalDeviceMemoryProperties2KHR = loader->vkGetPhysicalDeviceMemoryProperties2;
+    functions.vkBindImageMemory2KHR = loader.vkBindImageMemory2KHR;
+  if (loader.vkGetPhysicalDeviceMemoryProperties2 != nullptr)
+    functions.vkGetPhysicalDeviceMemoryProperties2KHR = loader.vkGetPhysicalDeviceMemoryProperties2;
   else
-    functions.vkGetPhysicalDeviceMemoryProperties2KHR = loader->vkGetPhysicalDeviceMemoryProperties2KHR;
+    functions.vkGetPhysicalDeviceMemoryProperties2KHR = loader.vkGetPhysicalDeviceMemoryProperties2KHR;
   return functions;
 }
 
@@ -1116,7 +1108,7 @@ VmaVulkanFunctions VulkanDevice::getVmaVulkanFunctions() const noexcept
 void VulkanDevice::initCommandPool()
 {
   zivcvk::Device d{device()};
-  const auto* loader = dispatcher().loaderImpl();
+  const auto& loader = dispatcher().loader();
   zivcvk::AllocationCallbacks alloc{makeAllocator()};
 
   const zivcvk::CommandPoolCreateInfo create_info{
@@ -1124,7 +1116,7 @@ void VulkanDevice::initCommandPool()
       queueFamilyIndex()};
 
   //! \todo Fix me. AMD gpu won't work with custom allocator
-  auto command_pool = d.createCommandPool(create_info, nullptr /* alloc */, *loader);
+  auto command_pool = d.createCommandPool(create_info, nullptr /* alloc */, loader);
   command_pool_ = zisc::cast<VkCommandPool>(command_pool);
 }
 
@@ -1173,16 +1165,16 @@ void VulkanDevice::initDevice()
   device_create_info.setPNext(std::addressof(device_features));
 
   zivcvk::AllocationCallbacks alloc{sub_platform.makeAllocator()};
-  const auto* loader = dispatcher().loaderImpl();
+  const auto& loader = dispatcher().loader();
   const auto pdevice = zisc::cast<zivcvk::PhysicalDevice>(info.device());
-  auto d = pdevice.createDevice(device_create_info, alloc, *loader);
+  auto d = pdevice.createDevice(device_create_info, alloc, loader);
   device_ = zisc::cast<VkDevice>(d);
   dispatcher_->set(device());
 
   // Initialize queue list
   queue_list_->resize(numOfQueues(), ZIVC_VK_NULL_HANDLE);
   for (std::size_t i = 0; i < queue_list_->size(); ++i) {
-    auto q = d.getQueue(queueFamilyIndex(), zisc::cast<uint32b>(i), *loader);
+    auto q = d.getQueue(queueFamilyIndex(), zisc::cast<uint32b>(i), loader);
     (*queue_list_)[i] = zisc::cast<VkQueue>(q);
   }
 }

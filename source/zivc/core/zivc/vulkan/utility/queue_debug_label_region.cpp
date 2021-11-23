@@ -86,8 +86,7 @@ void QueueDebugLabelRegion::end() noexcept
 {
   zivcvk::Queue q{queue_};
   if (q) {
-    const auto* loader = dispatcher_->loaderImpl();
-    q.endDebugUtilsLabelEXT(*loader);
+    q.endDebugUtilsLabelEXT(dispatcher_->loader());
   }
   queue_ = ZIVC_VK_NULL_HANDLE;
   dispatcher_ = nullptr;
@@ -104,9 +103,8 @@ void QueueDebugLabelRegion::begin(const std::string_view label_name,
 {
   zivcvk::Queue q{queue_};
   if (q) {
-    const auto* loader = dispatcher_->loaderImpl();
     const zivcvk::DebugUtilsLabelEXT info{label_name.data(), color};
-    q.beginDebugUtilsLabelEXT(std::addressof(info), *loader);
+    q.beginDebugUtilsLabelEXT(&info, dispatcher_->loader());
   }
 }
 

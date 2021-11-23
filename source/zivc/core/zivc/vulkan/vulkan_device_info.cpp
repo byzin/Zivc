@@ -278,13 +278,13 @@ void VulkanDeviceInfo::fetchExtensionProperties(
   static_assert(sizeof(VkExtensionProperties) == sizeof(Props));
 
   const zivcvk::PhysicalDevice d{device()};
-  const auto* loader = dispatcher.loaderImpl();
+  const auto& loader = dispatcher.loader();
 
   auto& prop_list = extension_properties_list_;
   uint32b size = 0;
   {
     auto result = d.enumerateDeviceExtensionProperties(nullptr, &size,
-                                                       nullptr, *loader);
+                                                       nullptr, loader);
     if (result != zivcvk::Result::eSuccess) {
       const char* message = "Fetching device extension props failed.";
       zivcvk::throwResultException(result, message);
@@ -294,7 +294,7 @@ void VulkanDeviceInfo::fetchExtensionProperties(
   {
     auto* data = zisc::reinterp<Props*>(prop_list.data());
     auto result = d.enumerateDeviceExtensionProperties(nullptr, &size,
-                                                       data, *loader);
+                                                       data, loader);
     if (result != zivcvk::Result::eSuccess) {
       const char* message = "Fetching device extension props failed.";
       zivcvk::throwResultException(result, message);
@@ -319,7 +319,6 @@ void VulkanDeviceInfo::fetchFeatures(
     const VulkanDispatchLoader& dispatcher)
 {
   const zivcvk::PhysicalDevice d{device()};
-  const auto* loader = dispatcher.loaderImpl();
 
   zivcvk::PhysicalDeviceFeatures2 p;
   auto& props = features_;
@@ -483,7 +482,7 @@ void VulkanDeviceInfo::fetchFeatures(
        initProp<zivcvk::PhysicalDeviceZeroInitializeWorkgroupMemoryFeaturesKHR>(
           props.zero_initialize_workgroup_memory_)
        );
-  d.getFeatures2(&p, *loader);
+  d.getFeatures2(&p, dispatcher.loader());
   props.features1_ = zisc::cast<VkPhysicalDeviceFeatures>(p.features);
 }
 
@@ -499,12 +498,12 @@ void VulkanDeviceInfo::fetchLayerProperties(
   static_assert(sizeof(VkLayerProperties) == sizeof(Props));
 
   const zivcvk::PhysicalDevice d{device()};
-  const auto* loader = dispatcher.loaderImpl();
+  const auto& loader = dispatcher.loader();
 
   auto& prop_list = layer_properties_list_;
   uint32b size = 0;
   {
-    auto result = d.enumerateDeviceLayerProperties(&size, nullptr, *loader);
+    auto result = d.enumerateDeviceLayerProperties(&size, nullptr, loader);
     if (result != zivcvk::Result::eSuccess) {
       const char* message = "Fetching device layer props failed.";
       zivcvk::throwResultException(result, message);
@@ -513,7 +512,7 @@ void VulkanDeviceInfo::fetchLayerProperties(
   }
   {
     auto* data = zisc::reinterp<Props*>(prop_list.data());
-    auto result = d.enumerateDeviceLayerProperties(&size, data, *loader);
+    auto result = d.enumerateDeviceLayerProperties(&size, data, loader);
     if (result != zivcvk::Result::eSuccess) {
       const char* message = "Fetching device layer props failed.";
       zivcvk::throwResultException(result, message);
@@ -538,7 +537,6 @@ void VulkanDeviceInfo::fetchMemoryProperties(
     const VulkanDispatchLoader& dispatcher)
 {
   const zivcvk::PhysicalDevice d{device()};
-  const auto* loader = dispatcher.loaderImpl();
 
   zivcvk::PhysicalDeviceMemoryProperties2 p;
   auto& props = memory_properties_;
@@ -546,7 +544,7 @@ void VulkanDeviceInfo::fetchMemoryProperties(
        initProp<zivcvk::PhysicalDeviceMemoryBudgetPropertiesEXT>(
           props.budget_)
        );
-  d.getMemoryProperties2(&p, *loader);
+  d.getMemoryProperties2(&p, dispatcher.loader());
   props.properties1_ =
       zisc::cast<VkPhysicalDeviceMemoryProperties>(p.memoryProperties);
 }
@@ -560,7 +558,6 @@ void VulkanDeviceInfo::fetchProperties(
     const VulkanDispatchLoader& dispatcher)
 {
   const zivcvk::PhysicalDevice d{device()};
-  const auto* loader = dispatcher.loaderImpl();
 
   zivcvk::PhysicalDeviceProperties2 p;
   auto& props = properties_;
@@ -648,7 +645,7 @@ void VulkanDeviceInfo::fetchProperties(
        initProp<zivcvk::PhysicalDeviceVulkan12Properties>(
           props.vulkan12_)
        );
-  d.getProperties2(&p, *loader);
+  d.getProperties2(&p, dispatcher.loader());
   props.properties1_ = zisc::cast<VkPhysicalDeviceProperties>(p.properties);
 }
 
@@ -664,11 +661,11 @@ void VulkanDeviceInfo::fetchToolProperties(
   static_assert(sizeof(VkPhysicalDeviceToolPropertiesEXT) == sizeof(Props));
 
   const zivcvk::PhysicalDevice d{device()};
-  const auto* loader = dispatcher.loaderImpl();
+  const auto& loader = dispatcher.loader();
 
   uint32b size = 0;
   {
-    auto result = d.getToolPropertiesEXT(&size, nullptr, *loader);
+    auto result = d.getToolPropertiesEXT(&size, nullptr, loader);
     if (result != zivcvk::Result::eSuccess) {
       const char* message = "Fetching device tool props failed.";
       zivcvk::throwResultException(result, message);
@@ -677,7 +674,7 @@ void VulkanDeviceInfo::fetchToolProperties(
   }
   {
     auto* data = zisc::reinterp<Props*>(tool_properties_list_.data());
-    auto result = d.getToolPropertiesEXT(&size, data, *loader);
+    auto result = d.getToolPropertiesEXT(&size, data, loader);
     if (result != zivcvk::Result::eSuccess) {
       const char* message = "Fetching device tool props failed.";
       zivcvk::throwResultException(result, message);
@@ -697,12 +694,12 @@ void VulkanDeviceInfo::fetchQueueFamilyProperties(
   static_assert(sizeof(VkQueueFamilyProperties2) == sizeof(Props));
 
   const zivcvk::PhysicalDevice d{device()};
-  const auto* loader = dispatcher.loaderImpl();
+  const auto& loader = dispatcher.loader();
 
   constexpr std::size_t max_size = maxQueueFamilyCount();
   uint32b size = 0;
   {
-    d.getQueueFamilyProperties(&size, nullptr, *loader);
+    d.getQueueFamilyProperties(&size, nullptr, loader);
     ZISC_ASSERT(size <= max_size, "The number of queue families exceeded the limit.");
     queue_family_properties_list_.resize(zisc::cast<std::size_t>(size));
   }
@@ -718,7 +715,7 @@ void VulkanDeviceInfo::fetchQueueFamilyProperties(
         );
   }
 
-  d.getQueueFamilyProperties2(&size, p_list.data(), *loader);
+  d.getQueueFamilyProperties2(&size, p_list.data(), loader);
   for (std::size_t i = 0; i < size; ++i) {
     queue_family_properties_list_[i].properties1_ =
         zisc::cast<VkQueueFamilyProperties>(p_list[i].queueFamilyProperties);

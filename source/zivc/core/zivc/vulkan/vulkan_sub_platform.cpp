@@ -212,8 +212,7 @@ void VulkanSubPlatform::destroyData() noexcept
   zivcvk::Instance ins{instance_};
   if (ins) {
     zivcvk::AllocationCallbacks alloc{makeAllocator()};
-    const auto* loader = dispatcher().loaderImpl();
-    ins.destroy(alloc, *loader);
+    ins.destroy(alloc, dispatcher().loader());
     instance_ = ZIVC_VK_NULL_HANDLE;
   }
 
@@ -728,8 +727,8 @@ void VulkanSubPlatform::initInstance(PlatformOptions& options)
   }
 
   zivcvk::AllocationCallbacks alloc{makeAllocator()};
-  const auto* loader = dispatcher().loaderImpl();
-  zivcvk::Instance ins = zivcvk::createInstance(create_info, alloc, *loader);
+  const auto& loader = dispatcher().loader();
+  zivcvk::Instance ins = zivcvk::createInstance(create_info, alloc, loader);
   instance_ = zisc::cast<VkInstance>(ins);
   instance_ref_ = std::addressof(instance_);
   dispatcher_->set(instance());
@@ -744,8 +743,8 @@ void VulkanSubPlatform::initDeviceList()
 
   using DeviceList = zisc::pmr::vector<zivcvk::PhysicalDevice>;
   DeviceList::allocator_type alloc{memoryResource()};
-  const auto* loader = dispatcher().loaderImpl();
-  auto device_list = ins.enumeratePhysicalDevices(alloc, *loader);
+  const auto& loader = dispatcher().loader();
+  auto device_list = ins.enumeratePhysicalDevices(alloc, loader);
 
   using DstDeviceList = decltype(device_list_)::element_type;
   auto* list_ptr = zisc::reinterp<DstDeviceList*>(std::addressof(device_list));
@@ -781,9 +780,11 @@ void VulkanSubPlatform::initDispatcher(PlatformOptions& options)
   using FuncPtr = std::add_pointer_t<PFN_vkGetInstanceProcAddr>;
   auto* ptr = zisc::cast<FuncPtr>(options.vulkanGetProcAddrPtr());
   std::string_view lib = options.vulkanLibraryName();
-  dispatcher_ = (ptr != nullptr) // Use the given loader instead of allocating new one
-      ? zisc::pmr::allocateUnique<VulkanDispatchLoader>(alloc, mem_resource, *ptr)
-      : zisc::pmr::allocateUnique<VulkanDispatchLoader>(alloc, mem_resource, lib);
+  dispatcher_ = zisc::pmr::allocateUnique<VulkanDispatchLoader>(alloc);
+  if (ptr != nullptr)
+    dispatcher_->set(mem_resource, *ptr);
+  else
+    dispatcher_->set(mem_resource, lib);
   ZISC_ASSERT(dispatcher().isDispatchableForInstance(), "Unexpected init.");
   ZISC_ASSERT(!dispatcher().isDispatchableForDevice(), "Unexpected init.");
 }
@@ -794,7 +795,7 @@ void VulkanSubPlatform::initDispatcher(PlatformOptions& options)
 void VulkanSubPlatform::initProperties()
 {
   auto* mem_resource = memoryResource();
-  const auto* loader = dispatcher().loaderImpl();
+  const auto& loader = dispatcher().loader();
 
   // Instance extension properties
   {
@@ -814,7 +815,7 @@ void VulkanSubPlatform::initProperties()
       const auto result = zivcvk::enumerateInstanceExtensionProperties(nullptr,
                                                                        &size,
                                                                        nullptr,
-                                                                       *loader);
+                                                                       loader);
       if (result != zivcvk::Result::eSuccess) {
         const char* message = "Enumerating instance extension properties failed.";
         throw SystemError{ErrorCode::kInitializationFailed, message};
@@ -826,7 +827,7 @@ void VulkanSubPlatform::initProperties()
       const auto result = zivcvk::enumerateInstanceExtensionProperties(nullptr,
                                                                        &size,
                                                                        props,
-                                                                       *loader);
+                                                                       loader);
       if (result != zivcvk::Result::eSuccess) {
         const char* message = "Enumerating instance extension properties failed.";
         throw SystemError{ErrorCode::kInitializationFailed, message};
@@ -857,7 +858,7 @@ void VulkanSubPlatform::initProperties()
     {
       const auto result = zivcvk::enumerateInstanceLayerProperties(&size,
                                                                    nullptr,
-                                                                   *loader);
+                                                                   loader);
       if (result != zivcvk::Result::eSuccess) {
         const char* message = "Enumerating instance layer properties failed.";
         throw SystemError{ErrorCode::kInitializationFailed, message};
@@ -868,7 +869,7 @@ void VulkanSubPlatform::initProperties()
       auto* props = zisc::reinterp<zivcvk::LayerProperties*>(prop_list.data());
       const auto result = zivcvk::enumerateInstanceLayerProperties(&size,
                                                                    props,
-                                                                   *loader);
+                                                                   loader);
       if (result != zivcvk::Result::eSuccess) {
         const char* message = "Enumerating instance layer properties failed.";
         throw SystemError{ErrorCode::kInitializationFailed, message};

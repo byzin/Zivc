@@ -202,8 +202,6 @@ void VulkanBufferImpl::copyCmd(const VkCommandBuffer& command_buffer,
                                const VkBuffer& dest_buffer,
                                const VkBufferCopy& region) const
 {
-  const auto* loader = device().dispatcher().loaderImpl();
-
   const zivcvk::CommandBuffer command{command_buffer};
   ZISC_ASSERT(command, "The given command buffer is null.");
   const zivcvk::Buffer source{source_buffer};
@@ -211,7 +209,7 @@ void VulkanBufferImpl::copyCmd(const VkCommandBuffer& command_buffer,
   const zivcvk::Buffer dest{dest_buffer};
   ZISC_ASSERT(dest, "The given dest buffer is null.");
   const zivcvk::BufferCopy copy_region{region};
-  command.copyBuffer(source, dest, copy_region, *loader);
+  command.copyBuffer(source, dest, copy_region, device().dispatcher().loader());
 }
 
 /*!
@@ -423,13 +421,11 @@ void VulkanBufferImpl::fillFastCmd(const VkCommandBuffer& command_buffer,
                                    const std::size_t size,
                                    const uint32b data) const noexcept
 {
-  const auto* loader = device().dispatcher().loaderImpl();
-
   const zivcvk::CommandBuffer command{command_buffer};
   ZISC_ASSERT(command, "The given command buffer is null.");
   const zivcvk::Buffer buf{buffer};
   ZISC_ASSERT(buf, "The given buffer is null.");
-  command.fillBuffer(buf, dest_offset, size, data, *loader);
+  command.fillBuffer(buf, dest_offset, size, data, device().dispatcher().loader());
 }
 
 /*!

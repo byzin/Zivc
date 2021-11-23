@@ -84,10 +84,8 @@ CmdDebugLabelRegion& CmdDebugLabelRegion::operator=(CmdDebugLabelRegion&& other)
 void CmdDebugLabelRegion::end() noexcept
 {
   zivcvk::CommandBuffer command_buffer{command_buffer_};
-  if (command_buffer) {
-    const auto* loader = dispatcher_->loaderImpl();
-    command_buffer.endDebugUtilsLabelEXT(*loader);
-  }
+  if (command_buffer)
+    command_buffer.endDebugUtilsLabelEXT(dispatcher_->loader());
   command_buffer_ = ZIVC_VK_NULL_HANDLE;
   dispatcher_ = nullptr;
 }
@@ -103,9 +101,8 @@ void CmdDebugLabelRegion::begin(const std::string_view label_name,
 {
   zivcvk::CommandBuffer command_buffer{command_buffer_};
   if (command_buffer) {
-    const auto* loader = dispatcher_->loaderImpl();
     const zivcvk::DebugUtilsLabelEXT info{label_name.data(), color};
-    command_buffer.beginDebugUtilsLabelEXT(std::addressof(info), *loader);
+    command_buffer.beginDebugUtilsLabelEXT(&info, dispatcher_->loader());
   }
 }
 

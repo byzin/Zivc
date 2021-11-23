@@ -195,7 +195,7 @@ void GuiPlatform::destroyVulkan() noexcept
     auto d = zisc::cast<zivcvk::Device>(device().device());
     zivcvk::AllocationCallbacks alloc{vk_allocator_};
     zivcvk::DescriptorPool desc_pool{descriptor_pool_};
-    d.destroyDescriptorPool(desc_pool, alloc, *dispatcher().loaderImpl());
+    d.destroyDescriptorPool(desc_pool, alloc, dispatcher().loader());
     descriptor_pool_ = ZIVC_VK_NULL_HANDLE;
   }
 
@@ -353,7 +353,7 @@ void GuiPlatform::initImGui([[maybe_unused]] const GuiApplicationOptions& option
         wd.Frames[wd.FrameIndex].CommandPool);
     const zivcvk::CommandPoolResetFlags reset_flags{};
     auto d = zisc::cast<zivcvk::Device>(device().device());
-    d.resetCommandPool(command_pool, reset_flags, *dispatcher().loaderImpl());
+    d.resetCommandPool(command_pool, reset_flags, dispatcher().loader());
 
     //
     auto command_buffer = zisc::cast<zivcvk::CommandBuffer>(
@@ -361,16 +361,16 @@ void GuiPlatform::initImGui([[maybe_unused]] const GuiApplicationOptions& option
     zivcvk::CommandBufferBeginInfo begin_info{};
     begin_info.setFlags(zivcvk::CommandBufferUsageFlagBits::eOneTimeSubmit);
     const zivcvk::Result result = command_buffer.begin(&begin_info,
-                                                       *dispatcher().loaderImpl());
+                                                       dispatcher().loader());
     checkVulkanResult(zisc::cast<VkResult>(result));
     ImGui_ImplVulkan_CreateFontsTexture(zisc::cast<VkCommandBuffer>(command_buffer));
-    command_buffer.end(*dispatcher().loaderImpl());
+    command_buffer.end(dispatcher().loader());
 
     //
     zivcvk::SubmitInfo submit_info{};
     submit_info.setCommandBuffers(command_buffer);
     auto q = zisc::cast<zivcvk::Queue>(device().getQueue(0));
-    q.submit(submit_info, nullptr, *dispatcher().loaderImpl());
+    q.submit(submit_info, nullptr, dispatcher().loader());
     device().waitForCompletion();
 
     ImGui_ImplVulkan_DestroyFontUploadObjects();
@@ -422,10 +422,10 @@ void GuiPlatform::initVulkanWindow(const GuiApplicationOptions& options)
     auto physical_device = zisc::cast<zivcvk::PhysicalDevice>(info.device());
     const zivc::uint32b q_index = device().queueFamilyIndex();
     auto s = zisc::cast<zivcvk::SurfaceKHR>(windowData().Surface);
-    const auto* loader = dispatcher().loaderImpl();
+    const auto& loader = dispatcher().loader();
     const zivcvk::Bool32 result = physical_device.getSurfaceSupportKHR(q_index,
                                                                        s,
-                                                                       *loader);
+                                                                       loader);
     if (result != VK_TRUE)
       raiseImguiError("No WSI support on physical device 0");
   }
@@ -507,7 +507,7 @@ void GuiPlatform::initVulkanDescriptorPool(zivc::Platform& zplatform)
   }};
 
   auto d = zisc::cast<zivcvk::Device>(device().device());
-  const auto* loader = dispatcher().loaderImpl();
+  const auto& loader = dispatcher().loader();
   zivcvk::AllocationCallbacks alloc{vk_allocator_};
 
   zivcvk::DescriptorPoolCreateInfo info;
@@ -516,7 +516,7 @@ void GuiPlatform::initVulkanDescriptorPool(zivc::Platform& zplatform)
   info.setMaxSets(max_set_size);
   info.setPoolSizeCount(pool_list_size);
   info.setPPoolSizes(pool_size_list.data());
-  zivcvk::DescriptorPool desc_pool = d.createDescriptorPool(info, alloc, *loader);
+  zivcvk::DescriptorPool desc_pool = d.createDescriptorPool(info, alloc, loader);
   descriptor_pool_ = zisc::cast<VkDescriptorPool>(desc_pool);
 }
 
@@ -580,7 +580,7 @@ void GuiPlatform::presentFrameImpl()
   info.setPImageIndices(&wd.FrameIndex);
 
   auto q = zisc::cast<zivcvk::Queue>(device().getQueue(0));
-  const zivcvk::Result result = q.presentKHR(info, *dispatcher().loaderImpl());
+  const zivcvk::Result result = q.presentKHR(info, dispatcher().loader());
   if ((result == zivcvk::Result::eErrorOutOfDateKHR) ||
       (result == zivcvk::Result::eSuboptimalKHR)) {
     setSwapChainRebuild(true);
@@ -664,7 +664,7 @@ void GuiPlatform::renderFrameImpl(ImDrawData* draw_data)
                                                         image_acquired_semaphre,
                                                         nullptr,
                                                         &wd.FrameIndex,
-                                                        *dispatcher().loaderImpl());
+                                                        dispatcher().loader());
     if ((result == zivcvk::Result::eErrorOutOfDateKHR) ||
         (result == zivcvk::Result::eSuboptimalKHR)) {
       setSwapChainRebuild(true);
@@ -679,19 +679,19 @@ void GuiPlatform::renderFrameImpl(ImDrawData* draw_data)
     const zivcvk::Result result = d.waitForFences(fence,
                                                   VK_TRUE,
                                                   timeout,
-                                                  *dispatcher().loaderImpl());
+                                                  dispatcher().loader());
     checkVulkanResult(zisc::cast<VkResult>(result));
-    d.resetFences(fence, *dispatcher().loaderImpl());
+    d.resetFences(fence, dispatcher().loader());
   }
   auto command_buffer = zisc::cast<zivcvk::CommandBuffer>(fd->CommandBuffer);
   {
     auto command_pool = zisc::cast<zivcvk::CommandPool>(fd->CommandPool);
     const zivcvk::CommandPoolResetFlags reset_flags{};
-    d.resetCommandPool(command_pool, reset_flags, *dispatcher().loaderImpl());
+    d.resetCommandPool(command_pool, reset_flags, dispatcher().loader());
 
     zivcvk::CommandBufferBeginInfo info{};
     info.setFlags(zivcvk::CommandBufferUsageFlagBits::eOneTimeSubmit);
-    command_buffer.begin(info, *dispatcher().loaderImpl());
+    command_buffer.begin(info, dispatcher().loader());
   }
   {
     zivcvk::RenderPassBeginInfo info{};
@@ -703,15 +703,15 @@ void GuiPlatform::renderFrameImpl(ImDrawData* draw_data)
     info.setClearValues(*zisc::reinterp<const zivcvk::ClearValue*>(&wd.ClearValue));
 
     constexpr auto flag = zivcvk::SubpassContents::eInline;
-    command_buffer.beginRenderPass(info, flag, *dispatcher().loaderImpl());
+    command_buffer.beginRenderPass(info, flag, dispatcher().loader());
   }
 
   // Record dear imgui primitives into command buffer
   ImGui_ImplVulkan_RenderDrawData(draw_data, fd->CommandBuffer);
 
   {
-    command_buffer.endRenderPass(*dispatcher().loaderImpl());
-    command_buffer.end(*dispatcher().loaderImpl());
+    command_buffer.endRenderPass(dispatcher().loader());
+    command_buffer.end(dispatcher().loader());
   }
 
   // Submit command buffer
@@ -724,7 +724,7 @@ void GuiPlatform::renderFrameImpl(ImDrawData* draw_data)
     info.setCommandBuffers(command_buffer);
     info.setSignalSemaphores(render_complete_semaphore);
     auto q = zisc::cast<zivcvk::Queue>(device().getQueue(0));
-    q.submit(info, fence, *dispatcher().loaderImpl());
+    q.submit(info, fence, dispatcher().loader());
   }
 }
 

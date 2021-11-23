@@ -43,19 +43,16 @@ class VulkanDispatchLoader
 {
  public:
   // Type aliases
-  using LoaderImpl = zivcvk::DispatchLoaderDynamic;
-  using ConstLoaderImpl = std::add_const_t<LoaderImpl>;
-  using LoaderImplPtr = std::add_pointer_t<LoaderImpl>;
-  using ConstLoaderImplPtr = std::add_pointer_t<ConstLoaderImpl>;
+  using LoaderType = zivcvk::DispatchLoaderDynamic;
+  using ConstLoaderType = std::add_const_t<LoaderType>;
+  using LoaderReference = std::add_lvalue_reference_t<LoaderType>;
+  using ConstLoaderReference = std::add_lvalue_reference_t<ConstLoaderType>;
+  using LoaderPtr = std::add_pointer_t<LoaderType>;
+  using ConstLoaderPtr = std::add_pointer_t<ConstLoaderType>;
 
 
   //! Initialize the dispatch loader
-  VulkanDispatchLoader(zisc::pmr::memory_resource* mem_resource,
-                       std::string_view library_name);
-
-  //! Initialize the dispatch loader
-  VulkanDispatchLoader(zisc::pmr::memory_resource* mem_resource,
-                       PFN_vkGetInstanceProcAddr get_proc_addr);
+  VulkanDispatchLoader();
 
   //! Copy a data
   VulkanDispatchLoader(const VulkanDispatchLoader& other) noexcept;
@@ -73,6 +70,10 @@ class VulkanDispatchLoader
   //! Move a data
   VulkanDispatchLoader& operator=(VulkanDispatchLoader&& other) noexcept;
 
+
+  //! Destroy all underlying data
+  void destroy() noexcept;
+
   //! Return the underlying getter of vulkan device proc addr
   PFN_vkGetDeviceProcAddr deviceProcAddr() const noexcept;
 
@@ -89,10 +90,18 @@ class VulkanDispatchLoader
   bool isDispatchableForInstance() const noexcept;
 
   //! Return the underlying vulkan dispatch loader
-  LoaderImplPtr loaderImpl() noexcept;
+  LoaderReference loader() noexcept;
 
   //! Return the underlying vulkan dispatch loader
-  ConstLoaderImplPtr loaderImpl() const noexcept;
+  ConstLoaderReference loader() const noexcept;
+
+  //! Initialize the dispatch loader
+  void set(zisc::pmr::memory_resource* mem_resource,
+           std::string_view library_name);
+
+  //! Initialize the dispatch loader
+  void set(zisc::pmr::memory_resource* mem_resource,
+           const PFN_vkGetInstanceProcAddr get_proc_addr);
 
   //! The dispatcher obtains the function pointers from the given device
   void set(const VkDevice& device);
@@ -104,23 +113,20 @@ class VulkanDispatchLoader
   //! Copy a data
   void copyFrom(const VulkanDispatchLoader& other) noexcept;
 
-  //! Destroy all underlying data
-  void destroy() noexcept;
-
   //! Initialize the dispatch loader with dynamic vulkan library
   void initialize(zisc::pmr::memory_resource* mem_resource,
                   std::string_view library_name);
 
   //! Initialize the dispatch loader
   void initialize(zisc::pmr::memory_resource* mem_resource,
-                  PFN_vkGetInstanceProcAddr get_proc_addr);
+                  const PFN_vkGetInstanceProcAddr get_proc_addr);
 
   //! Move a data
   void moveFrom(VulkanDispatchLoader& other) noexcept;
 
 
   std::shared_ptr<zivcvk::DynamicLoader> dynamic_loader_ = nullptr;
-  std::shared_ptr<LoaderImpl> loader_impl_ = nullptr;
+  std::shared_ptr<LoaderType> loader_impl_ = nullptr;
 };
 
 //! Check if the given two loaders are same

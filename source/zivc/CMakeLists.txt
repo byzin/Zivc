@@ -14,7 +14,7 @@ function(Zivc_initZivcOptions)
   Zivc_setBooleanOption(ZIVC_ENABLE_VULKAN_SUB_PLATFORM ON ${option_description})
 
   set(option_description "Load Vulkan library dynamically at runtime.")
-  Zivc_setBooleanOption(ZIVC_DYNAMIC_VULKAN_LOADING OFF ${option_description})
+  Zivc_setBooleanOption(ZIVC_DYNAMIC_VULKAN_LOADING ON ${option_description})
 
   set(option_description "Enable Zivc to build VMA implementation.")
   Zivc_setBooleanOption(ZIVC_ENABLE_VMA_IMPLEMENTATION ON ${option_description})

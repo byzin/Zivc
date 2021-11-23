@@ -336,6 +336,8 @@ void VulkanDeviceInfo::fetchFeatures(
           props.acceleration_structure_),
        initProp<zivcvk::PhysicalDeviceBlendOperationAdvancedFeaturesEXT>(
           props.blend_operation_advanced_),
+       initProp<zivcvk::PhysicalDeviceBorderColorSwizzleFeaturesEXT>(
+          props.border_color_swizzle_),
        initProp<zivcvk::PhysicalDeviceBufferDeviceAddressFeatures>(
           props.buffer_device_address_),
        initProp<zivcvk::PhysicalDeviceColorWriteEnableFeaturesEXT>(
@@ -350,6 +352,8 @@ void VulkanDeviceInfo::fetchFeatures(
           props.descriptor_indexing_),
        initProp<zivcvk::PhysicalDeviceDeviceMemoryReportFeaturesEXT>(
           props.device_memory_report_),
+       initProp<zivcvk::PhysicalDeviceDynamicRenderingFeaturesKHR>(
+          props.dynamic_rendering_),
        initProp<zivcvk::PhysicalDeviceExtendedDynamicStateFeaturesEXT>(
           props.extended_dynamic_state_),
        initProp<zivcvk::PhysicalDeviceExtendedDynamicState2FeaturesEXT>(
@@ -376,12 +380,16 @@ void VulkanDeviceInfo::fetchFeatures(
           props.inline_uniform_block_),
        initProp<zivcvk::PhysicalDeviceLineRasterizationFeaturesEXT>(
           props.line_rasterization_),
+       initProp<zivcvk::PhysicalDeviceMaintenance4FeaturesKHR>(
+          props.maintenance4_),
        initProp<zivcvk::PhysicalDeviceMemoryPriorityFeaturesEXT>(
           props.memory_priority_features_),
        initProp<zivcvk::PhysicalDeviceMultiDrawFeaturesEXT>(
           props.multi_draw_),
        initProp<zivcvk::PhysicalDeviceMultiviewFeatures>(
           props.multiview_),
+       initProp<zivcvk::PhysicalDevicePageableDeviceLocalMemoryFeaturesEXT>(
+          props.pageable_device_local_memory_),
        initProp<zivcvk::PhysicalDevicePerformanceQueryFeaturesKHR>(
           props.performance_query_),
        initProp<zivcvk::PhysicalDevicePipelineCreationCacheControlFeaturesEXT>(
@@ -394,6 +402,8 @@ void VulkanDeviceInfo::fetchFeatures(
           props.present_id_),
        initProp<zivcvk::PhysicalDevicePresentWaitFeaturesKHR>(
           props.present_wait_),
+       initProp<zivcvk::PhysicalDevicePrimitiveTopologyListRestartFeaturesEXT>(
+          props.primitive_topology_list_restart_),
        initProp<zivcvk::PhysicalDevicePrivateDataFeaturesEXT>(
           props.private_data_features_),
        initProp<zivcvk::PhysicalDeviceProtectedMemoryFeatures>(
@@ -404,6 +414,8 @@ void VulkanDeviceInfo::fetchFeatures(
           props.ray_query_),
        initProp<zivcvk::PhysicalDeviceRayTracingPipelineFeaturesKHR>(
           props.ray_tracing_pipeline_features_),
+       initProp<zivcvk::PhysicalDeviceRGBA10X6FormatsFeaturesEXT>(
+          props.rgba10x6_formats),
        initProp<zivcvk::PhysicalDeviceRobustness2FeaturesEXT>(
           props.robustness2_),
        initProp<zivcvk::PhysicalDeviceSamplerYcbcrConversionFeatures>(
@@ -428,6 +440,8 @@ void VulkanDeviceInfo::fetchFeatures(
           props.shader_float16_int8_),
        initProp<zivcvk::PhysicalDeviceShaderImageAtomicInt64FeaturesEXT>(
           props.shader_image_atomic_int64_),
+       initProp<zivcvk::PhysicalDeviceShaderIntegerDotProductFeaturesKHR>(
+          props.shader_integer_dot_product_),
        initProp<zivcvk::PhysicalDeviceShaderSubgroupExtendedTypesFeatures>(
           props.shader_subgroup_extended_types_),
        initProp<zivcvk::PhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR>(
@@ -587,6 +601,8 @@ void VulkanDeviceInfo::fetchProperties(
           props.line_rasterization_),
        initProp<zivcvk::PhysicalDeviceMaintenance3Properties>(
           props.maintenance3_),
+       initProp<zivcvk::PhysicalDeviceMaintenance4PropertiesKHR>(
+          props.maintenance4_),
        initProp<zivcvk::PhysicalDeviceMultiDrawPropertiesEXT>(
           props.multi_draw_),
        initProp<zivcvk::PhysicalDeviceMultiviewProperties>(
@@ -613,6 +629,8 @@ void VulkanDeviceInfo::fetchProperties(
           props.sample_locations_),
        initProp<zivcvk::PhysicalDeviceSamplerFilterMinmaxProperties>(
           props.sampler_filter_minmax_),
+       initProp<zivcvk::PhysicalDeviceShaderIntegerDotProductPropertiesKHR>(
+          props.shader_integer_dot_product_),
        initProp<zivcvk::PhysicalDeviceSubgroupProperties>(
           props.subgroup_),
        initProp<zivcvk::PhysicalDeviceSubgroupSizeControlPropertiesEXT>(

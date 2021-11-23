@@ -77,6 +77,7 @@ class VulkanDeviceInfo : public DeviceInfo
     VkPhysicalDeviceInlineUniformBlockPropertiesEXT inline_uniform_block_;
     VkPhysicalDeviceLineRasterizationPropertiesEXT line_rasterization_;
     VkPhysicalDeviceMaintenance3Properties maintenance3_;
+    VkPhysicalDeviceMaintenance4PropertiesKHR maintenance4_;
     VkPhysicalDeviceMultiDrawPropertiesEXT multi_draw_;
     VkPhysicalDeviceMultiviewProperties multiview_;
     VkPhysicalDevicePCIBusInfoPropertiesEXT pci_bus_info_;
@@ -90,6 +91,7 @@ class VulkanDeviceInfo : public DeviceInfo
     VkPhysicalDeviceRobustness2PropertiesEXT robustness2_;
     VkPhysicalDeviceSampleLocationsPropertiesEXT sample_locations_;
     VkPhysicalDeviceSamplerFilterMinmaxProperties sampler_filter_minmax_;
+    VkPhysicalDeviceShaderIntegerDotProductPropertiesKHR shader_integer_dot_product_;
     VkPhysicalDeviceSubgroupProperties subgroup_;
     VkPhysicalDeviceSubgroupSizeControlPropertiesEXT subgroup_size_control_;
     VkPhysicalDeviceTexelBufferAlignmentPropertiesEXT texel_buffer_alignment_;
@@ -111,6 +113,7 @@ class VulkanDeviceInfo : public DeviceInfo
     VkPhysicalDeviceASTCDecodeFeaturesEXT astc_decode_;
     VkPhysicalDeviceAccelerationStructureFeaturesKHR acceleration_structure_;
     VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT blend_operation_advanced_;
+    VkPhysicalDeviceBorderColorSwizzleFeaturesEXT border_color_swizzle_;
     VkPhysicalDeviceBufferDeviceAddressFeatures buffer_device_address_;
     VkPhysicalDeviceColorWriteEnableFeaturesEXT color_write_enable_;
     VkPhysicalDeviceConditionalRenderingFeaturesEXT conditional_rendering_;
@@ -118,6 +121,7 @@ class VulkanDeviceInfo : public DeviceInfo
     VkPhysicalDeviceDepthClipEnableFeaturesEXT depth_clip_enabled_;
     VkPhysicalDeviceDescriptorIndexingFeatures descriptor_indexing_;
     VkPhysicalDeviceDeviceMemoryReportFeaturesEXT device_memory_report_;
+    VkPhysicalDeviceDynamicRenderingFeaturesKHR dynamic_rendering_;
     VkPhysicalDeviceExtendedDynamicStateFeaturesEXT extended_dynamic_state_;
     VkPhysicalDeviceExtendedDynamicState2FeaturesEXT extended_dynamic_state2_;
     VkPhysicalDeviceFragmentDensityMapFeaturesEXT fragment_density_map_;
@@ -131,20 +135,24 @@ class VulkanDeviceInfo : public DeviceInfo
     VkPhysicalDeviceIndexTypeUint8FeaturesEXT index_type_uint8_;
     VkPhysicalDeviceInlineUniformBlockFeaturesEXT inline_uniform_block_;
     VkPhysicalDeviceLineRasterizationFeaturesEXT line_rasterization_;
+    VkPhysicalDeviceMaintenance4FeaturesKHR maintenance4_;
     VkPhysicalDeviceMemoryPriorityFeaturesEXT memory_priority_features_;
     VkPhysicalDeviceMultiDrawFeaturesEXT multi_draw_;
     VkPhysicalDeviceMultiviewFeatures multiview_;
+    VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT pageable_device_local_memory_;
     VkPhysicalDevicePerformanceQueryFeaturesKHR performance_query_;
     VkPhysicalDevicePipelineCreationCacheControlFeaturesEXT pipeline_creation_cache_control_;
     VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR pipeline_executable_properties_;
     VkPhysicalDevicePortabilitySubsetFeaturesKHR portability_subset_;
     VkPhysicalDevicePresentIdFeaturesKHR present_id_;
     VkPhysicalDevicePresentWaitFeaturesKHR present_wait_;
+    VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT primitive_topology_list_restart_;
     VkPhysicalDevicePrivateDataFeaturesEXT private_data_features_;
     VkPhysicalDeviceProtectedMemoryFeatures protected_memory_;
     VkPhysicalDeviceProvokingVertexFeaturesEXT provoking_vertex_;
     VkPhysicalDeviceRayQueryFeaturesKHR ray_query_;
     VkPhysicalDeviceRayTracingPipelineFeaturesKHR ray_tracing_pipeline_features_;
+    VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT rgba10x6_formats;
     VkPhysicalDeviceRobustness2FeaturesEXT robustness2_;
     VkPhysicalDeviceSamplerYcbcrConversionFeatures sampler_ycbcr_conversion_;
     VkPhysicalDeviceScalarBlockLayoutFeaturesEXT scalar_block_layout_;
@@ -157,6 +165,7 @@ class VulkanDeviceInfo : public DeviceInfo
     VkPhysicalDeviceShaderDrawParametersFeatures shader_draw_parameters_;
     VkPhysicalDeviceShaderFloat16Int8FeaturesKHR shader_float16_int8_;
     VkPhysicalDeviceShaderImageAtomicInt64FeaturesEXT shader_image_atomic_int64_;
+    VkPhysicalDeviceShaderIntegerDotProductFeaturesKHR shader_integer_dot_product_;
     VkPhysicalDeviceShaderSubgroupExtendedTypesFeatures shader_subgroup_extended_types_;
     VkPhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR shader_subgroup_uniform_control_flow_;
     VkPhysicalDeviceShaderTerminateInvocationFeaturesKHR shader_terminate_invocation_;

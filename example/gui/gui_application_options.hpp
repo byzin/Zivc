@@ -94,6 +94,7 @@ class GuiApplicationOptions : private zisc::NonCopyable<GuiApplicationOptions>
   std::size_t window_width_ = 1280;
   std::size_t window_height_ = 720;
   zivc::uint8b unlimited_frame_rate_enabled_ = zisc::kTrue;
+  [[maybe_unused]] zivc::Padding<7> pad_;
 };
 
 } // namespace example

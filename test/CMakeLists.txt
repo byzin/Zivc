@@ -81,9 +81,6 @@ macro(setTestProject)
 
   # Check dependencies
   Zivc_checkTarget(Zivc)
-  add_subdirectory(${PROJECT_SOURCE_DIR}/dependencies/CLI11
-                   ${PROJECT_BINARY_DIR}/CLI11
-                   EXCLUDE_FROM_ALL)
   Zivc_checkTarget(CLI11::CLI11)
   addGoogleTest(${PROJECT_SOURCE_DIR}/dependencies/googletest)
   Zivc_checkTarget(gtest_main)

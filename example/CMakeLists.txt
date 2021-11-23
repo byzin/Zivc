@@ -194,7 +194,8 @@ macro(setExampleProject)
     ## 5. GUI example
     addExample(GuiExample ON
                SOURCE_FILES ${PROJECT_SOURCE_DIR}/gui_example.cpp
-               DEPENDS gui)
+                            ${PROJECT_SOURCE_DIR}/cli.cpp
+               DEPENDS CLI11::CLI11 gui)
   endif()
 
   # Kernel set

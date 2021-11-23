@@ -21,6 +21,8 @@
 #include "gui_widget.hpp"
 // Zisc
 #include "zisc/memory/std_memory_resource.hpp"
+// Zivc
+#include "zivc/zivc_config.hpp"
 
 // Forward declaration
 namespace zivc {
@@ -81,6 +83,7 @@ class GuiApplication : public GuiWidget
   zisc::pmr::memory_resource* custom_mem_resource_ = nullptr;
   SharedObject platform_;
   bool is_demo_window_active_ = true;
+  [[maybe_unused]] zivc::Padding<7> pad_;
 };
 
 // Type aliases

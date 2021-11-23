@@ -31,6 +31,14 @@ Zivc_restrictBuildDirectory(${PROJECT_SOURCE_DIR}/build)
 set(zivc_path ${PROJECT_SOURCE_DIR}/source/zivc)
 add_subdirectory(${zivc_path} ${PROJECT_BINARY_DIR}/Zivc)
 
+# Add dependencies used for both example and test
+if(ZIVC_BUILD_EXAMPLES OR ZIVC_BUILD_TESTS)
+  # CLI11
+  add_subdirectory(${PROJECT_SOURCE_DIR}/example/dependencies/CLI11
+                   ${PROJECT_BINARY_DIR}/CLI11
+                   EXCLUDE_FROM_ALL)
+endif()
+
 # Build examples
 if(ZIVC_BUILD_EXAMPLES)
   add_subdirectory(${PROJECT_SOURCE_DIR}/example ${PROJECT_BINARY_DIR}/Examples)

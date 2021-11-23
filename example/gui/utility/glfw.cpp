@@ -25,13 +25,6 @@ extern "C" {
 }
 
 #include "glfw.hpp"
-// Standard C++ library
-#include <array>
-#include <cstddef>
-#include <cstdio>
-// Zisc
-#include "zisc/utility.hpp"
-#include "error.hpp"
 
 namespace example {
 
@@ -40,18 +33,18 @@ namespace example {
 
   \param [in] get_instance_proc_addr No description.
   */
-void initGlfwVulkan(void* instance,
-                    void* get_instance_proc_addr,
-                    GLFWwindow* window,
-                    const void* alloc,
-                    const GlfwSurfaceType surface_type,
-                    void** surface)
+int initGlfwVulkan(void* instance,
+                   void* get_instance_proc_addr,
+                   GLFWwindow* window,
+                   const void* alloc,
+                   const GlfwSurfaceType surface_type,
+                   void** surface)
 {
   _glfw.vk.available = GLFW_TRUE;
   _glfw.vk.handle = nullptr;
   //_glfw.vk.extensions;
   _glfw.vk.GetInstanceProcAddr =
-      zisc::reinterp<PFN_vkGetInstanceProcAddr>(get_instance_proc_addr);
+      reinterpret_cast<PFN_vkGetInstanceProcAddr>(get_instance_proc_addr);
   _glfw.vk.KHR_surface = GLFW_TRUE;
   switch (surface_type) {
    case GlfwSurfaceType::kWin32: {
@@ -91,24 +84,21 @@ void initGlfwVulkan(void* instance,
    case GlfwSurfaceType::kNone:
    case GlfwSurfaceType::kWayland:
    default: {
-    constexpr std::size_t max_desc_size = 1024;
-    std::array<char, max_desc_size> desc;
-    std::sprintf(desc.data(),
-                 "Glfw Error: surface initialization failed. surfacetype=%d.\n",
-                 zisc::cast<int>(surface_type));
-    throw SystemError{ErrorCode::kGlfwInitializationFailed, desc.data()};
     break;
    }
   }
 
+  int result = static_cast<int>(VK_SUCCESS);
   {
-    auto* ins = zisc::reinterp<VkInstance>(instance);
-    auto* w = zisc::reinterp<_GLFWwindow*>(window);
-    const auto* vk_alloc = zisc::reinterp<const VkAllocationCallbacks*>(alloc);
-    auto* s = zisc::reinterp<VkSurfaceKHR*>(surface);
-    VkResult result = _glfwPlatformCreateWindowSurface(ins, w, vk_alloc, s);
-    checkVulkanResult(zisc::cast<int>(result));
+    auto* ins = reinterpret_cast<VkInstance>(instance);
+    auto* w = reinterpret_cast<_GLFWwindow*>(window);
+    const auto* vk_alloc = reinterpret_cast<const VkAllocationCallbacks*>(alloc);
+    auto* s = reinterpret_cast<VkSurfaceKHR*>(surface);
+    VkResult r = _glfwPlatformCreateWindowSurface(ins, w, vk_alloc, s);
+    result = static_cast<int>(r);
   }
+
+  return result;
 }
 
 } // namespace example

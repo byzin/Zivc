@@ -18,8 +18,6 @@
 #define GLFW_INCLUDE_NONE
 #define GLFW_INCLUDE_VULKAN
 #include "GLFW/glfw3.h"
-// Zivc
-#include "zivc/zivc_config.hpp"
 
 namespace example {
 
@@ -28,7 +26,7 @@ namespace example {
 
   No detailed description.
   */
-enum class GlfwSurfaceType : zivc::uint32b
+enum class GlfwSurfaceType : unsigned int
 {
   kNone = 0,
   kWin32,
@@ -40,12 +38,12 @@ enum class GlfwSurfaceType : zivc::uint32b
 };
 
 //! Initialize glfw library for vulkan
-void initGlfwVulkan(void* instance,
-                    void* get_instance_proc_addr,
-                    GLFWwindow* window,
-                    const void* alloc,
-                    const GlfwSurfaceType surface_type,
-                    void** surface);
+int initGlfwVulkan(void* instance,
+                   void* get_instance_proc_addr,
+                   GLFWwindow* window,
+                   const void* alloc,
+                   const GlfwSurfaceType surface_type,
+                   void** surface);
 
 } // namespace example
 

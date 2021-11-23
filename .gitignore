@@ -85,6 +85,7 @@
 !/example/*.cpp
 !/example/*.hpp
 !/example/dependencies/
+!/example/dependencies/CLI11
 !/example/dependencies/glfw
 !/example/dependencies/imgui
 !/example/gui/
@@ -101,7 +102,6 @@
 !/test/CMakeLists.txt
 !/test/dependencies/
 !/test/dependencies/googletest
-!/test/dependencies/CLI11
 !/test/unittest/
 !/test/unittest/*.hpp
 !/test/unittest/*.cpp

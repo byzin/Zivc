@@ -96,7 +96,7 @@ int main(int argc, char** argv)
 
   // Verify device
   if (!::checkIfDeviceIsAvailable()) {
-    std::quick_exit(EXIT_FAILURE);
+    return EXIT_FAILURE;
   }
 
   // Run unit test

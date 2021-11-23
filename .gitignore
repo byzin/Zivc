@@ -83,6 +83,7 @@
 !/example/
 !/example/CMakeLists.txt
 !/example/*.cpp
+!/example/*.hpp
 !/example/dependencies/
 !/example/dependencies/glfw
 !/example/dependencies/imgui

@@ -19,6 +19,7 @@
 #include <array>
 #include <cstddef>
 #include <type_traits>
+#include <utility>
 // Zisc
 #include "zisc/concepts.hpp"
 // Zivc
@@ -37,6 +38,27 @@ namespace zivc {
 class VulkanDevice;
 template <std::size_t, DerivedKSet, typename...> class KernelInitParams;
 template <typename, typename...> class VulkanKernel;
+
+/*!
+  \brief No brief description
+
+  No detailed description.
+  */
+class VulkanKernelHelper
+{
+ public:
+  //!
+  template <typename VKernel, typename Type, typename ...Types>
+  static LaunchResult run(VKernel* kernel,
+                          const Type& launch_options,
+                          Types&& ...args);
+
+  //!
+  template <typename VKernel, typename Type>
+  static void updateModuleScopePushConstantsCmd(VKernel* kernel,
+                                                const std::array<uint32b, 3>& work_size,
+                                                const Type& launch_options);
+};
 
 /*!
   \brief No brief description
@@ -80,7 +102,11 @@ class VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
 
   //! Execute a kernel
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
-  LaunchResult run(Args... args, const LaunchOptions& launch_options) override;
+  LaunchResult run(Args... args, const LaunchOptions& launch_options) override
+  {
+    //! \note Separate declaration and definition cause a build error on visual studio
+    return VulkanKernelHelper::run(this, launch_options, std::forward<Args>(args)...);
+  }
 
   //! Set a command buffer reference
   void setCommandBufferRef(const VkCommandBuffer* command_ref) noexcept;
@@ -99,6 +125,9 @@ class VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   void updateDebugInfoImpl() override;
 
  private:
+  friend VulkanKernelHelper;
+
+
   //! Make a struct of POD cache
   template <std::size_t kIndex, typename ...PodTypes>
   static auto makePodCacheType(const KernelArgCache<PodTypes...>& cache) noexcept;
@@ -154,7 +183,13 @@ class VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
 
   //! Update module scope push constans
   void updateModuleScopePushConstantsCmd(const std::array<uint32b, 3>& work_size,
-                                         const LaunchOptions& launch_options);
+                                         const LaunchOptions& launch_options)
+  {
+    //! \note Separate declaration and definition cause a build error on visual studio
+    VulkanKernelHelper::updateModuleScopePushConstantsCmd(this,
+                                                          work_size,
+                                                          launch_options);
+  }
 
   //! Update pod cache with the given args if needed
   bool updatePodCacheIfNeeded(Args... args) const noexcept;

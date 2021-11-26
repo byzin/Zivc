@@ -26,10 +26,20 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weverything"
 #endif // Z_CLANG
+#if defined(Z_VISUAL_STUDIO)
+#pragma warning(push)
+#pragma warning(disable : 4100)
+#pragma warning(disable : 4127)
+#pragma warning(disable : 4189)
+#pragma warning(disable : 4324)
+#endif // Z_VISUAL_STUDIO
 
 // VMA
 #include "vk_mem_alloc.h"
 
+#if defined(Z_VISUAL_STUDIO)
+#pragma warning(pop)
+#endif // Z_VISUAL_STUDIO
 #if defined(Z_CLANG)
 #pragma GCC diagnostic pop
 #endif // Z_CLANG

@@ -204,7 +204,7 @@ int64b IdData::id() const noexcept
 inline
 constexpr int64b IdData::invalidId() noexcept
 {
-  const int64b value = std::numeric_limits<int64b>::min();
+  const int64b value = (std::numeric_limits<int64b>::min)();
   return value;
 }
 

@@ -43,6 +43,9 @@
 
 // Vulkan
 #include <vulkan/vulkan.h>
+// For resolve build error on windows
+#undef min
+#undef max
 // Zivc
 #include "zivc/zivc_config.hpp"
 

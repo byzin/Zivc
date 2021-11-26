@@ -48,6 +48,47 @@ namespace zivc {
 /*!
   \details No detailed description
 
+  \param [in] kernel No description.
+  \param [in] launch_options No description.
+  \return No description
+  */
+template <typename CKernel, typename Type> inline
+LaunchResult CpuKernelHelper::run(CKernel* kernel, const Type& launch_options)
+{
+  // Command recording
+  auto c = [kernel]() noexcept
+  {
+    kernel->template runImpl<0, 0>();
+  };
+  using CommandT = decltype(c);
+  using CommandStorage = typename CKernel::CommandStorage;
+  static_assert(sizeof(CommandStorage) == sizeof(CommandT));
+  static_assert(std::alignment_of_v<CommandStorage> == std::alignment_of_v<CommandT>);
+  auto command_mem = zisc::cast<void*>(kernel->commandStorage());
+  CommandT* command = ::new (command_mem) CommandT{c};
+  // id counter
+  auto atomic_mem = zisc::cast<void*>(kernel->atomicStorage());
+  std::atomic<uint32b>* id = ::new (atomic_mem) std::atomic<uint32b>{0};
+
+  LaunchResult result{};
+  CpuDevice& device = kernel->parentImpl();
+  // Command submission
+  {
+    Fence& fence = result.fence();
+    fence.setDevice(launch_options.isExternalSyncMode() ? &device : nullptr);
+    constexpr uint32b dim = CKernel::dimension();
+    const auto work_size = CKernel::expandWorkSize(launch_options.workSize(), 1);
+    const auto global_offset =
+        CKernel::expandWorkSize(launch_options.globalIdOffset(), 0);
+    device.submit(*command, dim, work_size, global_offset, id, std::addressof(fence));
+  }
+  result.setAsync(true);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
   \param [in] id No description.
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
@@ -78,50 +119,6 @@ auto CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 kernel() const noexcept -> Function
 {
   return kernel_;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] args No description.
-  \param [in] launch_options No description.
-  */
-template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-inline
-LaunchResult CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-run(Args... args, const LaunchOptions& launch_options)
-{
-  // Update arg cache
-  updateArgCache<0>(args...);
-
-  // Command recording
-  auto c = [this]() noexcept
-  {
-    runImpl<0, 0>();
-  };
-  using CommandT = decltype(c);
-  static_assert(sizeof(CommandStorage) == sizeof(CommandT));
-  static_assert(std::alignment_of_v<CommandStorage> == std::alignment_of_v<CommandT>);
-  auto command_mem = zisc::cast<void*>(commandStorage());
-  CommandT* command = ::new (command_mem) CommandT{c};
-  // id counter
-  auto atomic_mem = zisc::cast<void*>(atomicStorage());
-  std::atomic<uint32b>* id = ::new (atomic_mem) std::atomic<uint32b>{0};
-
-  LaunchResult result{};
-  CpuDevice& device = parentImpl();
-  // Command submission
-  {
-    Fence& fence = result.fence();
-    fence.setDevice(launch_options.isExternalSyncMode() ? &device : nullptr);
-    constexpr uint32b dim = BaseKernel::dimension();
-    const auto work_size = BaseKernel::expandWorkSize(launch_options.workSize(), 1);
-    const auto global_offset =
-        BaseKernel::expandWorkSize(launch_options.globalIdOffset(), 0);
-    device.submit(*command, dim, work_size, global_offset, id, std::addressof(fence));
-  }
-  result.setAsync(true);
-  return result;
 }
 
 /*!

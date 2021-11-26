@@ -94,7 +94,11 @@ class Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> : public Kernel
                   const Params& params);
 
   //! Make launch options
-  LaunchOptions makeOptions() const noexcept;
+  LaunchOptions makeOptions() const noexcept
+  {
+    //! \note Separate declaration and definition cause a build error on visual studio
+    return LaunchOptions{};
+  }
 
   //! Return the number of kernel arguments required
   static constexpr std::size_t numOfArgs() noexcept;

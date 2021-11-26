@@ -77,9 +77,17 @@ function(Zivc_getZivcWarningFlags zivc_warning_flags)
                               # -Wno-padded
                               -Wno-sign-conversion
                               )
+    if(Z_VISUAL_STUDIO)
+      list(APPEND warning_flags -Wno-nonportable-system-include-path)
+    endif()
   elseif(Z_GCC)
     list(APPEND warning_flags -Wno-attributes
                               -Wno-sign-conversion
+                              )
+  elseif(Z_VISUAL_STUDIO)
+    list(APPEND warning_flags /wd4244 # conversion from '' to 'unsigned short', possible loss of data
+                              /wd4267 # conversion from 'size_t' to '', possible loss of data
+                              /wd4389 # '==': signed/unsigned mismatch
                               )
   endif()
 

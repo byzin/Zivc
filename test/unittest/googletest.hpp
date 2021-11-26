@@ -23,6 +23,10 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Weverything"
 #endif // Z_CLANG
+#if defined(Z_VISUAL_STUDIO)
+#pragma warning(push)
+#pragma warning(disable : 4018)
+#endif // Z_VISUAL_STUDIO
 
 // Workaround errors with X11
 #undef Bool
@@ -31,6 +35,9 @@
 // GoogleTest
 #include "gtest/gtest.h"
 
+#if defined(Z_VISUAL_STUDIO)
+#pragma warning(pop)
+#endif // Z_VISUAL_STUDIO
 #if defined(Z_CLANG)
 #pragma GCC diagnostic pop
 #endif // Z_CLANG

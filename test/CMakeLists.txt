@@ -49,6 +49,7 @@ function(getTestWarningFlags test_warning_flags)
                                 )
       if(Z_VISUAL_STUDIO)
         list(APPEND warning_flags -Wno-implicit-float-conversion
+                                  -Wno-nonportable-system-include-path
                                   -Wno-unused-result
                                   )
       endif()
@@ -58,6 +59,11 @@ function(getTestWarningFlags test_warning_flags)
                                 -Wno-sign-conversion
                                 -Wno-strict-overflow
                                 -Wno-unused-but-set-variable
+                                )
+    elseif(Z_VISUAL_STUDIO)
+      list(APPEND warning_flags /wd4244 # conversion from '' to 'unsigned short', possible loss of data
+                                /wd4267 # conversion from 'size_t' to '', possible loss of data
+                                /wd4389 # '==': signed/unsigned mismatch
                                 )
     endif()
   endif()

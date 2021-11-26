@@ -135,19 +135,6 @@ initialize(ZivcObject::SharedPtr&& parent,
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-auto Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-makeOptions() const noexcept -> LaunchOptions
-{
-  return LaunchOptions{};
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-inline
 constexpr std::size_t Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 numOfArgs() noexcept
 {

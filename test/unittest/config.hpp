@@ -26,6 +26,12 @@
 // Zivc
 #include "zivc/zivc_config.hpp"
 
+namespace zivc {
+
+class Platform;
+
+} // namespace zivc
+
 namespace ztest {
 
 /*!
@@ -39,6 +45,9 @@ class Config : private zisc::NonCopyable<Config>
   //! Destroy a config
   ~Config() noexcept;
 
+
+  //! Destroy undering platform
+  void destroyPlatform() noexcept;
 
   //! Return the device ID
   zivc::uint32b deviceId() const noexcept;
@@ -64,11 +73,20 @@ class Config : private zisc::NonCopyable<Config>
   //! Return the memory resource for unit test
   const zisc::pmr::memory_resource* memoryResource() const noexcept;
 
+  //! Return underlying platform
+  std::shared_ptr<zivc::Platform> platform() noexcept;
+
   //! Return the device ID
   void setDeviceId(const zivc::uint32b id) noexcept;
 
+  //! Make test use global platform instead of each test's platform
+  void setUseGlobalPlatform(const bool flag) noexcept;
+
   //! Return the work size of test kernel
   static std::size_t testKernelWorkSize1d() noexcept;
+
+  //! Check if test uses global platform instead of each test's platform
+  bool useGlobalPlatform() const noexcept;
 
  private:
   //! Initialize a config
@@ -79,10 +97,12 @@ class Config : private zisc::NonCopyable<Config>
   void initialize() noexcept;
 
 
+  std::shared_ptr<zivc::Platform> platform_;
   std::unique_ptr<zisc::pmr::memory_resource> mem_resource_;
   zivc::uint32b device_id_ = invalidDeviceId();
   zivc::uint8b is_debug_mode_ = zisc::kTrue;
-  [[maybe_unused]] std::array<zisc::uint8b, 3> padding_;
+  zivc::uint8b use_global_platform_ = zisc::kFalse;
+  [[maybe_unused]] zivc::Padding<2> padd_;
 };
 
 } // namespace ztest

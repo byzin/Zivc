@@ -32,6 +32,11 @@ std::unique_ptr<CLI::App> makeCommandLineParser(ztest::CliOption* options) noexc
   auto parser = std::make_unique<CLI::App>("Zivc unit test.");
   parser->allow_extras();
 
+  // Platform option
+  {
+    const char* desc = "Use each test's zivc platform instead of global platform.";
+    [[maybe_unused]] auto* option = parser->add_flag("--disable-global-platform", options->disable_global_platform_, desc);
+  }
   // Device option
   {
     const char* desc = "Specify the device which is used in the unit test.\n"
@@ -61,6 +66,7 @@ void processCommandLineArgs(const ztest::CliOption& options) noexcept
   auto& config = ztest::Config::globalConfig();
   config.setDeviceId(ztest::getDeviceId(options.device_name_));
   config.enableDebugMode(!options.is_nodebug_);
+  config.setUseGlobalPlatform(!options.disable_global_platform_);
 }
 
 bool checkIfDeviceIsAvailable()
@@ -101,5 +107,11 @@ int main(int argc, char** argv)
 
   // Run unit test
   ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+  const int result = RUN_ALL_TESTS();
+  // Destroy resources
+  {
+    auto& config = ztest::Config::globalConfig();
+    config.destroyPlatform();
+  }
+  return result;
 }

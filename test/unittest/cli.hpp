@@ -58,7 +58,8 @@ struct CliOption
 {
   std::string device_name_ = "cpu";
   bool is_nodebug_ = false;
-  [[maybe_unused]] std::array<zivc::uint8b, 7> padding_;
+  bool disable_global_platform_ = false;
+  [[maybe_unused]] zivc::Padding<6> padd_;
 };
 
 //! Get the device ID

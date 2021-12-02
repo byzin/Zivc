@@ -128,6 +128,12 @@ class GuiPlatform : public GuiObject
   //! Core implementation of presentation
   void presentFrameImpl();
 
+  //! Return the queue family index for GUI
+  zivc::uint32b queueFamilyIndexForGui() const noexcept;
+
+  //! Return the queue for GUI
+  VkQueue queueForGui() const noexcept;
+
   //! Raise a glfw error
   static void raiseGlfwError(const int error, const char* description);
 

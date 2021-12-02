@@ -182,9 +182,9 @@ class VulkanBufferImpl : private zisc::NonCopyable<VulkanBufferImpl>
       void* user_data) noexcept;
 
   //! Create a buffer create info
-  VkBufferCreateInfo makeBufferCreateInfo(
+  static VkBufferCreateInfo makeBufferCreateInfo(
       const std::size_t size,
-      const VkBufferUsageFlagBits desc_type) const noexcept;
+      const VkBufferUsageFlagBits desc_type) noexcept;
 
   //! Make a fill8 kernel instance
   [[nodiscard("The result will have a vulkan kernel.")]]

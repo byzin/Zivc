@@ -87,9 +87,13 @@ class VulkanDevice : public Device
     VkPipeline pipeline_ = ZIVC_VK_NULL_HANDLE;
   };
 
+  // Type aliases
+  using Capability = VulkanDeviceCapability;
+  static constexpr std::size_t kNumOfCapabilities = 2;
+
 
   //! Initialize the vulkan device
-  VulkanDevice(const VulkanDeviceCapability capability, IdData&& id);
+  VulkanDevice(IdData&& id);
 
   //! Finalize the vulkan instance
   ~VulkanDevice() noexcept override;
@@ -107,13 +111,10 @@ class VulkanDevice : public Device
   template <typename SetType>
   const ModuleData& addShaderModule(const KernelSet<SetType>& kernel_set);
 
-  //! Return the capability of the device
-  VulkanDeviceCapability capability() const noexcept;
-
-  //! Return the command pool
+  //! Return the command pool for compute
   VkCommandPool& commandPool() noexcept;
 
-  //! Return the command pool
+  //! Return the command pool for compute
   const VkCommandPool& commandPool() const noexcept;
 
   //! Return the underlying vulkan device
@@ -129,10 +130,13 @@ class VulkanDevice : public Device
   const VulkanDispatchLoader& dispatcher() const noexcept;
 
   //! Return the queue by the index
-  VkQueue& getQueue(const std::size_t index) noexcept;
+  VkQueue& getQueue(const Capability cap, const std::size_t index) noexcept;
 
   //! Return the queue by the index
-  const VkQueue& getQueue(const std::size_t index) const noexcept;
+  const VkQueue& getQueue(const Capability cap, const std::size_t index) const noexcept;
+
+  //! Return the queue family index list
+  std::array<uint32b, kNumOfCapabilities> getQueueFamilyIndexList(uint32b* size) const noexcept;
 
   //! Return the kernel id of the given kernel name
   static uint64b getKernelId(const std::string_view module_name,
@@ -143,6 +147,9 @@ class VulkanDevice : public Device
 
   //! Return the shader module by the the given kernel set ID
   const ModuleData& getShaderModule(const uint64b id) const noexcept;
+
+  //! Check if the device can be used for the given capability
+  bool hasCapability(const Capability cap) const noexcept;
 
   //! Check if the device has the kernel of the give kernel id
   bool hasShaderKernel(const uint64b id) const noexcept;
@@ -204,11 +211,14 @@ class VulkanDevice : public Device
   //! Return the number of available fences
   std::size_t numOfFences() const noexcept override;
 
-  //! Return the number of underlying command queues
+  //! Return the number of underlying command queues for compute
   std::size_t numOfQueues() const noexcept override;
 
+  //! Return the number of underlying command queues for compute
+  std::size_t numOfQueues(const Capability cap) const noexcept;
+
   //! Return an index of a queue family
-  uint32b queueFamilyIndex() const noexcept;
+  uint32b queueFamilyIndex(const Capability cap) const noexcept;
 
   //! Return the use of the given fence to the device
   void returnFence(Fence* fence) noexcept override;
@@ -235,6 +245,9 @@ class VulkanDevice : public Device
 
   //! Wait for a queue to be idle
   void waitForCompletion(const uint32b queue_index) const override;
+
+  //! Wait for a queue for compute to be idle
+  void waitForCompletion(const Capability cap,const uint32b queue_index) const;
 
   //! Wait for a fence to be signaled
   void waitForCompletion(const Fence& fence) const override;
@@ -293,6 +306,19 @@ class VulkanDevice : public Device
                                     const zisc::pmr::vector<uint32b>& spirv_code,
                                     const std::string_view module_name);
 
+  //! Return the capability of the index
+  static constexpr Capability getCapability(const std::size_t index) noexcept;
+
+  //! Return the index of the give capability
+  static constexpr std::size_t getCapabilityIndex(const Capability cap) noexcept;
+
+  //! Check if the give queue family property has required flags
+  static bool checkQueueFamilyFlags(const VkQueueFamilyProperties& props,
+                                    const bool graphics_required,
+                                    const bool compute_required,
+                                    const bool graphics_excluded,
+                                    const bool compute_excluded) noexcept;
+
   void destroyShaderKernel(KernelData* kernel) noexcept;
 
   //! Destroy shader module data
@@ -305,10 +331,13 @@ class VulkanDevice : public Device
   const IndexQueue& fenceIndexQueue() const noexcept;
 
   //! Find the index of the optimal queue familty
-  uint32b findQueueFamily(uint32b* queue_count) const noexcept;
+  uint32b findQueueFamily(const Capability cap, uint32b* queue_count) const noexcept;
 
   //! Get Vulkan function pointers used in VMA
   VmaVulkanFunctions getVmaVulkanFunctions() const noexcept;
+
+  //! Initialize capabilities
+  void initCapability() noexcept;
 
   //! Initialize a command pool
   void initCommandPool();
@@ -326,8 +355,16 @@ class VulkanDevice : public Device
   //! Initialize work group size of dimensions
   void initWorkGroupSizeDim() noexcept;
 
+  //! Initialize queue create info list
+  void initQueueCreateInfoList(
+      zisc::pmr::vector<VkDeviceQueueCreateInfo>* create_info_list,
+      zisc::pmr::vector<float>* priority_list) noexcept;
+
   //! Initialize a queue family index list
   void initQueueFamilyIndexList();
+
+  //! Initialize a queue list
+  void initQueueList();
 
   //! Initialize a vulkan memory allocator
   void initMemoryAllocator();
@@ -335,11 +372,17 @@ class VulkanDevice : public Device
   //! Make a device memory allocation notifier
   VmaDeviceMemoryCallbacks makeAllocationNotifier() noexcept;
 
+  //! Return the number of supported capabilities
+  static constexpr std::size_t numOfCapabilities() noexcept;
+
   //! Return the sub-platform
   VulkanSubPlatform& parentImpl() noexcept;
 
   //! Return the sub-platform
   const VulkanSubPlatform& parentImpl() const noexcept;
+
+  //! Return the offset of queue list for the given capability
+  std::size_t queueOffset(const Capability cap) const noexcept;
 
   //! Update the debug info of the fence by the given index
   void updateFenceDebugInfo(const std::size_t index);
@@ -362,9 +405,10 @@ class VulkanDevice : public Device
   zisc::pmr::unique_ptr<VulkanDispatchLoader> dispatcher_;
   zisc::pmr::unique_ptr<zisc::pmr::map<uint64b, UniqueModuleData>> module_data_list_;
   zisc::pmr::unique_ptr<zisc::pmr::map<uint64b, UniqueKernelData>> kernel_data_list_;
-  uint32b queue_family_index_ = invalidQueueIndex();
-  uint32b queue_count_ = 0;
-  VulkanDeviceCapability capability_;
+  std::array<uint32b, kNumOfCapabilities> queue_family_index_list_;
+  std::array<uint32b, kNumOfCapabilities> queue_count_list_;
+  std::array<uint32b, kNumOfCapabilities> queue_offset_list_;
+  uint32b capabilities_;
   std::array<std::array<uint32b, 3>, 3> work_group_size_list_;
 };
 

@@ -503,7 +503,8 @@ LaunchResult VulkanBuffer<T>::copyOnDevice(
   LaunchResult result{};
   // Submit the recorded commands
   {
-    VkQueue q = device.getQueue(launch_options.queueIndex());
+    constexpr VulkanDeviceCapability cap = VulkanDeviceCapability::kCompute;
+    VkQueue q = device.getQueue(cap, launch_options.queueIndex());
     Fence& fence = result.fence();
     fence.setDevice(launch_options.isExternalSyncMode() ? &device : nullptr);
     auto debug_region = device.makeQueueDebugLabel(q, launch_options);
@@ -575,7 +576,8 @@ LaunchResult VulkanBuffer<T>::fillFastOnDevice(
   LaunchResult result{};
   // Submit the recorded commands
   {
-    VkQueue q = device.getQueue(launch_options.queueIndex());
+    constexpr VulkanDeviceCapability cap = VulkanDeviceCapability::kCompute;
+    VkQueue q = device.getQueue(cap, launch_options.queueIndex());
     Fence& fence = result.fence();
     fence.setDevice(launch_options.isExternalSyncMode() ? &device : nullptr);
     auto debug_region = device.makeQueueDebugLabel(q, launch_options);

@@ -127,10 +127,10 @@ TEST(PlatformTest, MakeDeviceExceptionTest)
 {
   auto platform = ztest::makePlatform();
   constexpr std::size_t device_index = (std::numeric_limits<std::size_t>::max)();
-  ASSERT_THROW(auto d = platform->makeDevice(device_index), zivc::SystemError)
+  ASSERT_THROW(auto d = platform->queryDevice(device_index), zivc::SystemError)
       << "The bounds check of device index isn't performed.";
   const auto& info_list = platform->deviceInfoList();
-  ASSERT_THROW(auto d = platform->makeDevice(info_list.size()), zivc::SystemError)
+  ASSERT_THROW(auto d = platform->queryDevice(info_list.size()), zivc::SystemError)
       << "The bounds check of device index isn't performed.";
 }
 
@@ -138,6 +138,6 @@ TEST(PlatformTest, MakeDeviceTest)
 {
   auto platform = ztest::makePlatform();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
+  zivc::SharedDevice device = platform->queryDevice(config.deviceId());
   ASSERT_TRUE(device) << "Device creation failed.";
 }

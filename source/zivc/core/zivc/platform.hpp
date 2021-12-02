@@ -77,15 +77,15 @@ class Platform : private zisc::NonCopyable<Platform>
   [[nodiscard]]
   IdData issueId() noexcept;
 
-  //! Make a unique device
-  [[nodiscard]]
-  SharedDevice makeDevice(const std::size_t device_index);
-
   //! Return the underlying memory resource
   zisc::pmr::memory_resource* memoryResource() noexcept;
 
   //! Return the underlying memory resource
   const zisc::pmr::memory_resource* memoryResource() const noexcept;
+
+  //! Quaery a device
+  [[nodiscard]]
+  SharedDevice queryDevice(const std::size_t device_index);
 
   //! Return the sub-platform of the given type
   SubPlatform* subPlatform(const SubPlatformType type) noexcept;
@@ -97,6 +97,10 @@ class Platform : private zisc::NonCopyable<Platform>
   //! Create a sub-platform
   template <typename SubPlatformType>
   void initSubPlatform(PlatformOptions& options);
+
+  //! Make a unique device
+  [[nodiscard]]
+  SharedDevice makeDevice(const std::size_t device_index);
 
   //! Move memory resource data
   void moveMemoryResource(Platform& other) noexcept;
@@ -120,6 +124,7 @@ class Platform : private zisc::NonCopyable<Platform>
   std::unique_ptr<zisc::pmr::memory_resource> default_mem_resource_;
   zisc::pmr::memory_resource* custom_mem_resource_ = nullptr;
   std::array<SharedSubPlatform, kNumOfSubPlatforms> sub_platform_list_;
+  zisc::pmr::unique_ptr<zisc::pmr::vector<WeakDevice>> device_list_;
   zisc::pmr::unique_ptr<zisc::pmr::vector<const DeviceInfo*>> device_info_list_;
   std::atomic<int64b> id_count_ = 0;
   int32b is_debug_mode_;

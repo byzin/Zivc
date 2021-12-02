@@ -98,7 +98,8 @@ LaunchResult VulkanKernelHelper::run(VKernel* kernel,
   LaunchResult result{};
   // Command submission
   {
-    const VkQueue q = device.getQueue(launch_options.queueIndex());
+    constexpr VulkanDeviceCapability cap = VulkanDeviceCapability::kCompute;
+    const VkQueue q = device.getQueue(cap, launch_options.queueIndex());
     result.fence().setDevice(launch_options.isExternalSyncMode() ? &device : nullptr);
     auto debug_region = device.makeQueueDebugLabel(q, launch_options);
     device.submit(command, q, result.fence());
@@ -122,15 +123,16 @@ void VulkanKernelHelper::updateModuleScopePushConstantsCmd(
     const std::array<uint32b, 3>& work_size,
     const Type& launch_options)
 {
+  using KernelT = std::remove_cvref_t<VKernel>;
   std::array<uint32b, 23> constans;
   constans.fill(0);
 
   const VulkanDevice& device = kernel->parentImpl();
-  const auto& group_size = device.workGroupSizeDim(VKernel::dimension());
+  const auto& group_size = device.workGroupSizeDim(KernelT::dimension());
   // Global offset
   {
     const auto global_offset =
-        VKernel::expandWorkSize(launch_options.globalIdOffset(), 0);
+        KernelT::expandWorkSize(launch_options.globalIdOffset(), 0);
     constexpr std::size_t offset = 0;
     for (std::size_t i = 0; i < global_offset.size(); ++i)
       constans[offset + i] = global_offset[i];

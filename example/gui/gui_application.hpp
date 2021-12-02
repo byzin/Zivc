@@ -17,12 +17,14 @@
 
 // Standard C++ library
 #include <memory>
-// Gui
-#include "gui_widget.hpp"
+#include <thread>
 // Zisc
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
+#include "zivc/zivc.hpp"
 #include "zivc/zivc_config.hpp"
+// Gui
+#include "gui_widget.hpp"
 
 // Forward declaration
 namespace zivc {
@@ -84,6 +86,13 @@ class GuiApplication : public GuiWidget
   SharedObject platform_;
   bool is_demo_window_active_ = true;
   [[maybe_unused]] zivc::Padding<7> pad_;
+  // Example
+  zivc::SharedDevice zdevice_;
+  zivc::SharedBuffer<zivc::int32b> zbuffer_host_;
+  zivc::SharedBuffer<zivc::int32b> zbuffer1_;
+  zivc::SharedBuffer<zivc::int32b> zbuffer2_;
+  zivc::SharedKernelCommon zkernel_;
+  std::unique_ptr<std::thread> kernel_thread_;
 };
 
 // Type aliases

@@ -16,11 +16,16 @@
 // Standard C++ library
 #include <memory>
 #include <stdexcept>
-// Zisc
-#include "zisc/memory/simple_memory_resource.hpp"
-#include "zisc/memory/std_memory_resource.hpp"
+#include <thread>
 // ImGui
 #include "imgui.h"
+// Zisc
+#include "zisc/utility.hpp"
+#include "zisc/memory/simple_memory_resource.hpp"
+#include "zisc/memory/std_memory_resource.hpp"
+// Zivc
+#include "zivc/zivc.hpp"
+#include "zivc/kernel_set/kernel_set-example.hpp"
 // Gui
 #include "gui_application_options.hpp"
 #include "gui_platform.hpp"
@@ -63,8 +68,39 @@ void GuiApplication::draw() noexcept
     ImGui::Checkbox("Another Window", &show_another_window);
     ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
 //    ImGui::ColorEdit3("clear color", (float*)
-    if (ImGui::Button("Button"))
-      counter++;
+    if (ImGui::Button("Button")) {
+      [[maybe_unused]] auto make_kernel = [this]() noexcept
+      {
+        auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(example, testKernel, 1);
+        return zdevice_->makeKernel(kernel_params);
+      };
+      using KernelT = decltype(make_kernel())::element_type;
+      auto run_kernel = [this]()
+      {
+        {
+          auto* kernel = zisc::cast<KernelT*>(zkernel_.get());
+          auto launch_options = kernel->makeOptions();
+          launch_options.setWorkSize({1});
+          launch_options.setExternalSyncMode(true);
+          launch_options.setLabel("ExampleKernel");
+          auto result = kernel->run(*zbuffer1_, *zbuffer2_, 1, launch_options);
+          zdevice_->waitForCompletion(result.fence());
+        }
+        {
+          auto options = zbuffer2_->makeOptions();
+          options.setSize(1);
+          options.setExternalSyncMode(true);
+          auto result = zivc::copy(*zbuffer2_, zbuffer_host_.get(), options);
+          zdevice_->waitForCompletion(result.fence());
+          const auto& mem = zbuffer_host_->mapMemory();
+          counter += mem[0];
+        }
+      };
+      if (kernel_thread_ && kernel_thread_->joinable())
+        kernel_thread_->join();
+      kernel_thread_ = std::make_unique<std::thread>(run_kernel);
+//      counter++;
+    }
     ImGui::SameLine();
     ImGui::Text("counter = %d", counter);
     constexpr float one_sec_ms = 1000.0f;
@@ -165,6 +201,50 @@ void GuiApplication::initialize(WeakPtr&& own,
     platform()->initialize(std::move(parent), std::move(own), zplatform, options);
   }
 
+  // Kernel
+  {
+    // Create a device
+    const auto& device_info_list = zplatform.deviceInfoList();
+    std::size_t device_index = 0;
+    for (std::size_t i = 0; i < device_info_list.size(); ++i) {
+      const zivc::DeviceInfo& info = *device_info_list[i];
+      if (info.type() == zivc::SubPlatformType::kVulkan) {
+        device_index = i;
+        break;
+      }
+    }
+    try {
+      zdevice_ = zplatform.queryDevice(device_index);
+    }
+    catch (const std::runtime_error& error) {
+      std::cerr << error.what() << std::endl;
+    }
+  }
+  {
+    zbuffer_host_ = zdevice_->makeBuffer<zivc::int32b>(zivc::BufferUsage::kHostOnly);
+    zbuffer_host_->setSize(1);
+    auto mem = zbuffer_host_->mapMemory();
+    constexpr int value = 10;
+    mem[0] = value;
+  }
+  {
+    zbuffer1_ = zdevice_->makeBuffer<zivc::int32b>(zivc::BufferUsage::kDeviceOnly);
+    zbuffer1_->setSize(1);
+    auto options = zbuffer_host_->makeOptions();
+    options.setSize(1);
+    options.setExternalSyncMode(true);
+    auto result = zivc::copy(*zbuffer_host_, zbuffer1_.get(), options);
+    zdevice_->waitForCompletion(result.fence());
+  }
+  {
+    zbuffer2_ = zdevice_->makeBuffer<zivc::int32b>(zivc::BufferUsage::kDeviceOnly);
+    zbuffer2_->setSize(1);
+  }
+  {
+    auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(example, testKernel, 1);
+    zkernel_ = zdevice_->makeKernel(kernel_params);
+  }
+
   is_demo_window_active_ = true;
 }
 
@@ -173,6 +253,17 @@ void GuiApplication::initialize(WeakPtr&& own,
   */
 void GuiApplication::destroyData() noexcept
 {
+  if (kernel_thread_ && kernel_thread_->joinable()) {
+    kernel_thread_->join();
+    kernel_thread_.reset();
+  }
+
+  zkernel_.reset();
+  zbuffer2_.reset();
+  zbuffer1_.reset();
+  zbuffer_host_.reset();
+  zdevice_.reset();
+
   platform_.reset();
 
   default_mem_resource_.reset();

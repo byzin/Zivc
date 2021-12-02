@@ -39,7 +39,7 @@ TEST(BufferTest, FillBufferInt8Test)
 
   auto platform = ztest::makePlatform();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
+  zivc::SharedDevice device = platform->queryDevice(config.deviceId());
 
   auto buffer_device = device->makeBuffer<TestData>(zivc::BufferUsage::kDeviceOnly);
   auto buffer_host = device->makeBuffer<TestData>(zivc::BufferUsage::kHostOnly);
@@ -91,7 +91,7 @@ TEST(BufferTest, FillBufferInt16Test)
 
   auto platform = ztest::makePlatform();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
+  zivc::SharedDevice device = platform->queryDevice(config.deviceId());
 
   auto buffer_device = device->makeBuffer<TestData>(zivc::BufferUsage::kDeviceOnly);
   auto buffer_host = device->makeBuffer<TestData>(zivc::BufferUsage::kHostOnly);
@@ -143,7 +143,7 @@ TEST(BufferTest, FillBufferInt24Test)
 
   auto platform = ztest::makePlatform();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
+  zivc::SharedDevice device = platform->queryDevice(config.deviceId());
 
   auto buffer_device = device->makeBuffer<TestData>(zivc::BufferUsage::kDeviceOnly);
   auto buffer_host = device->makeBuffer<TestData>(zivc::BufferUsage::kHostOnly);
@@ -194,7 +194,7 @@ TEST(BufferTest, FillBufferInt24RangeTest)
 
   auto platform = ztest::makePlatform();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
+  zivc::SharedDevice device = platform->queryDevice(config.deviceId());
 
   auto buffer_device = device->makeBuffer<TestData>(zivc::BufferUsage::kDeviceOnly);
   auto buffer_host = device->makeBuffer<TestData>(zivc::BufferUsage::kHostOnly);
@@ -265,7 +265,7 @@ TEST(BufferTest, FillBufferInt48Test)
 
   auto platform = ztest::makePlatform();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
+  zivc::SharedDevice device = platform->queryDevice(config.deviceId());
 
   auto buffer_device = device->makeBuffer<TestData>(zivc::BufferUsage::kDeviceOnly);
   auto buffer_host = device->makeBuffer<TestData>(zivc::BufferUsage::kHostOnly);
@@ -316,7 +316,7 @@ TEST(BufferTest, FillBufferInt48RangeTest)
 
   auto platform = ztest::makePlatform();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
+  zivc::SharedDevice device = platform->queryDevice(config.deviceId());
 
   auto buffer_device = device->makeBuffer<TestData>(zivc::BufferUsage::kDeviceOnly);
   auto buffer_host = device->makeBuffer<TestData>(zivc::BufferUsage::kHostOnly);
@@ -387,7 +387,7 @@ TEST(BufferTest, FillBufferInt64Test)
 
   auto platform = ztest::makePlatform();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
+  zivc::SharedDevice device = platform->queryDevice(config.deviceId());
 
   auto buffer_device = device->makeBuffer<int2>(zivc::BufferUsage::kDeviceOnly);
   auto buffer_host = device->makeBuffer<int2>(zivc::BufferUsage::kHostOnly);
@@ -440,7 +440,7 @@ TEST(BufferTest, FillBufferInt96Test)
 
   auto platform = ztest::makePlatform();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
+  zivc::SharedDevice device = platform->queryDevice(config.deviceId());
 
   auto buffer_device = device->makeBuffer<TestData>(zivc::BufferUsage::kDeviceOnly);
   auto buffer_host = device->makeBuffer<TestData>(zivc::BufferUsage::kHostOnly);
@@ -491,7 +491,7 @@ TEST(BufferTest, FillBufferInt96RangeTest)
 
   auto platform = ztest::makePlatform();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
+  zivc::SharedDevice device = platform->queryDevice(config.deviceId());
 
   auto buffer_device = device->makeBuffer<TestData>(zivc::BufferUsage::kDeviceOnly);
   auto buffer_host = device->makeBuffer<TestData>(zivc::BufferUsage::kHostOnly);
@@ -561,7 +561,7 @@ TEST(BufferTest, FillBufferInt128Test)
 
   auto platform = ztest::makePlatform();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
+  zivc::SharedDevice device = platform->queryDevice(config.deviceId());
 
   auto buffer_device = device->makeBuffer<int4>(zivc::BufferUsage::kDeviceOnly);
   auto buffer_host = device->makeBuffer<int4>(zivc::BufferUsage::kHostOnly);
@@ -615,7 +615,7 @@ TEST(BufferTest, FillBufferInt192Test)
 
   auto platform = ztest::makePlatform();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
+  zivc::SharedDevice device = platform->queryDevice(config.deviceId());
 
   auto buffer_device = device->makeBuffer<TestData>(zivc::BufferUsage::kDeviceOnly);
   auto buffer_host = device->makeBuffer<TestData>(zivc::BufferUsage::kHostOnly);
@@ -667,7 +667,7 @@ TEST(BufferTest, FillBufferInt192RangeTest)
 
   auto platform = ztest::makePlatform();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
+  zivc::SharedDevice device = platform->queryDevice(config.deviceId());
 
   auto buffer_device = device->makeBuffer<TestData>(zivc::BufferUsage::kDeviceOnly);
   auto buffer_host = device->makeBuffer<TestData>(zivc::BufferUsage::kHostOnly);
@@ -739,7 +739,7 @@ TEST(BufferTest, FillBufferInt384Test)
 
   auto platform = ztest::makePlatform();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
+  zivc::SharedDevice device = platform->queryDevice(config.deviceId());
 
   auto buffer_device = device->makeBuffer<TestData>(zivc::BufferUsage::kDeviceOnly);
   auto buffer_host = device->makeBuffer<TestData>(zivc::BufferUsage::kHostOnly);
@@ -793,7 +793,7 @@ TEST(BufferTest, FillBufferInt384RangeTest)
 
   auto platform = ztest::makePlatform();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
+  zivc::SharedDevice device = platform->queryDevice(config.deviceId());
 
   auto buffer_device = device->makeBuffer<TestData>(zivc::BufferUsage::kDeviceOnly);
   auto buffer_host = device->makeBuffer<TestData>(zivc::BufferUsage::kHostOnly);

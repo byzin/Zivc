@@ -196,6 +196,7 @@ macro(setExampleProject)
     addGlfw(${PROJECT_SOURCE_DIR}/dependencies/glfw)
     addImgui(${PROJECT_SOURCE_DIR}/dependencies/imgui)
     addGui(${PROJECT_SOURCE_DIR}/gui)
+    target_link_libraries(gui PRIVATE KernelSet_example)
     ## 4. vulkan sub-platform example
     addExample(VulkanSubPlatformExample OFF
                SOURCE_FILES ${PROJECT_SOURCE_DIR}/vulkan_sub_platform_example.cpp)

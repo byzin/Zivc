@@ -55,13 +55,14 @@ namespace zivc {
 template <typename CKernel, typename Type> inline
 LaunchResult CpuKernelHelper::run(CKernel* kernel, const Type& launch_options)
 {
+  using KernelT = std::remove_cvref_t<CKernel>;
   // Command recording
   auto c = [kernel]() noexcept
   {
     kernel->template runImpl<0, 0>();
   };
   using CommandT = decltype(c);
-  using CommandStorage = typename CKernel::CommandStorage;
+  using CommandStorage = typename KernelT::CommandStorage;
   static_assert(sizeof(CommandStorage) == sizeof(CommandT));
   static_assert(std::alignment_of_v<CommandStorage> == std::alignment_of_v<CommandT>);
   auto command_mem = zisc::cast<void*>(kernel->commandStorage());
@@ -76,10 +77,10 @@ LaunchResult CpuKernelHelper::run(CKernel* kernel, const Type& launch_options)
   {
     Fence& fence = result.fence();
     fence.setDevice(launch_options.isExternalSyncMode() ? &device : nullptr);
-    constexpr uint32b dim = CKernel::dimension();
-    const auto work_size = CKernel::expandWorkSize(launch_options.workSize(), 1);
+    constexpr uint32b dim = KernelT::dimension();
+    const auto work_size = KernelT::expandWorkSize(launch_options.workSize(), 1);
     const auto global_offset =
-        CKernel::expandWorkSize(launch_options.globalIdOffset(), 0);
+        KernelT::expandWorkSize(launch_options.globalIdOffset(), 0);
     device.submit(*command, dim, work_size, global_offset, id, std::addressof(fence));
   }
   result.setAsync(true);

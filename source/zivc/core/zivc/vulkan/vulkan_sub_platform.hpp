@@ -115,11 +115,6 @@ class VulkanSubPlatform : public SubPlatform
   [[nodiscard]]
   SharedDevice makeDevice(const DeviceInfo& device_info) override;
 
-  //! Make a unique device
-  [[nodiscard]]
-  SharedDevice makeDevice(const DeviceInfo& device_info,
-                          const VulkanDeviceCapability capability);
-
   //! Notify of device memory allocation
   void notifyOfDeviceMemoryAllocation(const std::size_t device_index,
                                       const std::size_t heap_index,

@@ -55,6 +55,7 @@ Platform::Platform() noexcept
 Platform::Platform(Platform&& other) noexcept :
     default_mem_resource_{std::move(other.default_mem_resource_)},
     custom_mem_resource_{other.custom_mem_resource_},
+    device_list_{std::move(other.device_list_)},
     device_info_list_{std::move(other.device_info_list_)},
     id_count_{other.id_count_.load(std::memory_order::acquire)},
     is_debug_mode_{other.is_debug_mode_}
@@ -82,6 +83,7 @@ Platform& Platform::operator=(Platform&& other) noexcept
 {
   default_mem_resource_ = std::move(other.default_mem_resource_);
   custom_mem_resource_ = other.custom_mem_resource_;
+  device_list_ = std::move(other.device_list_);
   device_info_list_ = std::move(other.device_info_list_);
   id_count_ = other.id_count_.load(std::memory_order::acquire);
   is_debug_mode_ = other.is_debug_mode_;
@@ -97,30 +99,11 @@ Platform& Platform::operator=(Platform&& other) noexcept
 void Platform::destroy() noexcept
 {
   device_info_list_.reset();
+  device_list_.reset();
   for (auto& sub_platform : sub_platform_list_)
     sub_platform.reset();
   default_mem_resource_.reset();
   custom_mem_resource_ = nullptr;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] device_index No description.
-  \return No description
-  */
-SharedDevice Platform::makeDevice(const std::size_t device_index)
-{
-  const auto& info_list = deviceInfoList();
-  if (info_list.size() <= device_index) {
-    const char* message = "The device index is out of range.";
-    throw SystemError{ErrorCode::kInitializationFailed, message};
-  }
-  const DeviceInfo* info = info_list[device_index];
-  SubPlatform* sub_platform = subPlatform(info->type());
-  ZISC_ASSERT(sub_platform->isAvailable(), "The platform isn't available.");
-  auto device = sub_platform->makeDevice(*info);
-  return device;
 }
 
 /*!
@@ -144,13 +127,45 @@ void Platform::initialize(PlatformOptions& options)
     initSubPlatform<VulkanSubPlatform>(options);
 #endif // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
 
+  // Device list
+  using DeviceList = decltype(device_list_)::element_type;
+  DeviceList new_device_list{DeviceList::allocator_type{memoryResource()}};
+  device_list_ = zisc::pmr::allocateUnique<DeviceList>(
+    memoryResource(),
+    std::move(new_device_list));
+
   // Get device info list
-  using DeviceInfoList = zisc::pmr::vector<const DeviceInfo*>;
+  using DeviceInfoList = decltype(device_info_list_)::element_type;
   DeviceInfoList new_info_list{DeviceInfoList::allocator_type{memoryResource()}};
   device_info_list_ = zisc::pmr::allocateUnique<DeviceInfoList>(
       memoryResource(),
       std::move(new_info_list));
   updateDeviceInfoList();
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] device_index No description.
+  \return No description
+  */
+SharedDevice Platform::queryDevice(const std::size_t device_index)
+{
+  if (device_list_->size() <= device_index) {
+    const char* message = "The device index is out of range.";
+    throw SystemError{ErrorCode::kInitializationFailed, message};
+  }
+  SharedDevice device;
+  // Check if the device is already created
+  if (WeakDevice d = (*device_list_)[device_index]; !d.expired()) {
+    device = d.lock();
+  }
+  // If not, create a new device
+  if (!device) {
+    device = makeDevice(device_index);
+    (*device_list_)[device_index] = device;
+  }
+  return device;
 }
 
 /*!
@@ -167,6 +182,26 @@ void Platform::initSubPlatform(PlatformOptions& options)
   WeakSubPlatform own{sub_platform};
   sub_platform->initialize(std::move(own), options);
   setSubPlatform(std::move(sub_platform));
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] device_index No description.
+  \return No description
+  */
+SharedDevice Platform::makeDevice(const std::size_t device_index)
+{
+  const auto& info_list = deviceInfoList();
+  if (info_list.size() <= device_index) {
+    const char* message = "The device index is out of range.";
+    throw SystemError{ErrorCode::kInitializationFailed, message};
+  }
+  const DeviceInfo* info = info_list[device_index];
+  SubPlatform* sub_platform = subPlatform(info->type());
+  ZISC_ASSERT(sub_platform->isAvailable(), "The platform isn't available.");
+  auto device = sub_platform->makeDevice(*info);
+  return device;
 }
 
 /*!
@@ -214,6 +249,7 @@ void Platform::updateDeviceInfoList()
     if (sub_platform && sub_platform->isAvailable())
       sub_platform->getDeviceInfoList(*device_info_list_);
   }
+  device_list_->resize(num_of_devices);
 }
 
 /*!

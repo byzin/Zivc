@@ -71,7 +71,7 @@ bool checkIfDeviceIsAvailable()
     return false;
   }
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = platform->makeDevice(config.deviceId());
+  zivc::SharedDevice device = platform->queryDevice(config.deviceId());
   if (!device) {
     std::cerr << "[Error] Device isn't available." << std::endl;
     return false;

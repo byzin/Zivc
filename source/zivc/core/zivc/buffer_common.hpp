@@ -17,6 +17,7 @@
 
 // Standard C++ library
 #include <cstddef>
+#include <memory>
 #include <type_traits>
 // Zisc
 #include "zisc/concepts.hpp"
@@ -121,6 +122,9 @@ class BufferCommon : public ZivcObject
   BufferUsage buffer_usage_;
   uint32b type_size_ = 0;
 };
+
+// Type aliases
+using SharedBufferCommon = std::shared_ptr<BufferCommon>;
 
 } // namespace zivc
 

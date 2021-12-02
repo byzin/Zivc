@@ -175,7 +175,12 @@ void VulkanBufferImpl::allocateMemory(const std::size_t size,
                                       VmaAllocation* vm_allocation,
                                       VmaAllocationInfo* alloc_info) const
 {
-  const auto binfo = makeBufferCreateInfo(size, desc_type);
+  uint32b index_list_size = 0;
+  const auto family_index_list = device().getQueueFamilyIndexList(&index_list_size);
+  VkBufferCreateInfo binfo = makeBufferCreateInfo(size, desc_type);
+  binfo.queueFamilyIndexCount = index_list_size;
+  binfo.pQueueFamilyIndices = family_index_list.data();
+
   const auto alloc_create_info = makeAllocCreateInfo(buffer_usage, user_data);
   const auto result = vmaCreateBuffer(device().memoryAllocator(),
                                       std::addressof(binfo),
@@ -445,7 +450,12 @@ void VulkanBufferImpl::initAllocationInfo(const BufferUsage buffer_usage,
     deallocateMemory(std::addressof(buffer), nullptr, alloc_info);
   }
 
-  const auto binfo = makeBufferCreateInfo(1, desc_type);
+  VkBufferCreateInfo binfo = makeBufferCreateInfo(1, desc_type);
+  uint32b index_list_size = 0;
+  const auto family_index_list = device().getQueueFamilyIndexList(&index_list_size);
+  binfo.queueFamilyIndexCount = index_list_size;
+  binfo.pQueueFamilyIndices = family_index_list.data();
+
   const auto alloc_create_info = makeAllocCreateInfo(buffer_usage, nullptr);
   const auto result = vmaFindMemoryTypeIndexForBufferInfo(
       device().memoryAllocator(),
@@ -527,7 +537,7 @@ VmaAllocationCreateInfo VulkanBufferImpl::makeAllocCreateInfo(
   */
 VkBufferCreateInfo VulkanBufferImpl::makeBufferCreateInfo(
     const std::size_t size,
-    const VkBufferUsageFlagBits desc_type) const noexcept
+    const VkBufferUsageFlagBits desc_type) noexcept
 {
   // Buffer create info
   zivcvk::BufferCreateInfo buffer_create_info;
@@ -537,9 +547,8 @@ VkBufferCreateInfo VulkanBufferImpl::makeBufferCreateInfo(
                              zivcvk::BufferUsageFlagBits::eTransferDst |
                              descriptor_type;
   buffer_create_info.sharingMode = zivcvk::SharingMode::eExclusive;
-  const uint32b queue_family_index = device().queueFamilyIndex();
-  buffer_create_info.queueFamilyIndexCount = 1;
-  buffer_create_info.pQueueFamilyIndices = std::addressof(queue_family_index);
+  buffer_create_info.queueFamilyIndexCount = 0;
+  buffer_create_info.pQueueFamilyIndices = nullptr;
 
   return zisc::cast<VkBufferCreateInfo>(buffer_create_info);
 }

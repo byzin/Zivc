@@ -337,8 +337,8 @@ void GuiPlatform::initImGui([[maybe_unused]] const GuiApplicationOptions& option
     const zivc::VulkanDeviceInfo& info = device().deviceInfoImpl();
     init_info.PhysicalDevice = info.device();
     init_info.Device = device().device();
-    init_info.QueueFamily = device().queueFamilyIndex();
-    init_info.Queue = device().getQueue(0);
+    init_info.QueueFamily = queueFamilyIndexForGui();
+    init_info.Queue = queueForGui();
     init_info.PipelineCache = ZIVC_VK_NULL_HANDLE;
     init_info.DescriptorPool = descriptor_pool_;
     init_info.MinImageCount = minImageCount();
@@ -374,9 +374,9 @@ void GuiPlatform::initImGui([[maybe_unused]] const GuiApplicationOptions& option
     //
     zivcvk::SubmitInfo submit_info{};
     submit_info.setCommandBuffers(command_buffer);
-    auto q = zisc::cast<zivcvk::Queue>(device().getQueue(0));
+    auto q = zisc::cast<zivcvk::Queue>(queueForGui());
     q.submit(submit_info, nullptr, dispatcher().loader());
-    device().waitForCompletion();
+    device().waitForCompletion(zivc::VulkanDeviceCapability::kGui, 0);
 
     ImGui_ImplVulkan_DestroyFontUploadObjects();
   }
@@ -425,7 +425,7 @@ void GuiPlatform::initVulkanWindow(const GuiApplicationOptions& options)
   // Check for WSI support
   {
     auto physical_device = zisc::cast<zivcvk::PhysicalDevice>(info.device());
-    const zivc::uint32b q_index = device().queueFamilyIndex();
+    const zivc::uint32b q_index = queueFamilyIndexForGui();
     auto s = zisc::cast<zivcvk::SurfaceKHR>(windowData().Surface);
     const auto& loader = dispatcher().loader();
     const zivcvk::Bool32 result = physical_device.getSurfaceSupportKHR(q_index,
@@ -476,7 +476,7 @@ void GuiPlatform::initVulkanWindow(const GuiApplicationOptions& options)
                                            info.device(),
                                            device().device(),
                                            &windowData(),
-                                           device().queueFamilyIndex(),
+                                           queueFamilyIndexForGui(),
                                            &vk_allocator_,
                                            width,
                                            height,
@@ -532,15 +532,9 @@ void GuiPlatform::initVulkanDescriptorPool(zivc::Platform& zplatform)
   */
 void GuiPlatform::initVulkanDevice(zivc::Platform& zplatform)
 {
-  auto* vulkan_platform = zisc::reinterp<zivc::VulkanSubPlatform*>(
-      zplatform.subPlatform(zivc::SubPlatformType::kVulkan));
-
   // Create a device
   const std::size_t device_index = selectDevice(zplatform);
-  const auto& device_info_list = vulkan_platform->deviceInfoList();
-  const zivc::VulkanDeviceInfo& device_info = device_info_list[device_index];
-  device_ = vulkan_platform->makeDevice(device_info,
-                                        zivc::VulkanDeviceCapability::kGui);
+  device_ = zplatform.queryDevice(device_index);
 }
 
 /*!
@@ -584,7 +578,7 @@ void GuiPlatform::presentFrameImpl()
   info.setSwapchains(swapchain);
   info.setPImageIndices(&wd.FrameIndex);
 
-  auto q = zisc::cast<zivcvk::Queue>(device().getQueue(0));
+  auto q = zisc::cast<zivcvk::Queue>(queueForGui());
   const zivcvk::Result result = q.presentKHR(info, dispatcher().loader());
   if ((result == zivcvk::Result::eErrorOutOfDateKHR) ||
       (result == zivcvk::Result::eSuboptimalKHR)) {
@@ -593,6 +587,25 @@ void GuiPlatform::presentFrameImpl()
   }
   checkVulkanResult(zisc::cast<VkResult>(result));
   wd.SemaphoreIndex = (wd.SemaphoreIndex + 1) % wd.ImageCount; // Now we can use the next set of semaphores
+}
+
+zivc::uint32b GuiPlatform::queueFamilyIndexForGui() const noexcept
+{
+  constexpr auto cap = zivc::VulkanDeviceCapability::kGui;
+  const zivc::uint32b index = device().queueFamilyIndex(cap);
+  return index;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+VkQueue GuiPlatform::queueForGui() const noexcept
+{
+  constexpr auto cap = zivc::VulkanDeviceCapability::kGui;
+  VkQueue q = device().getQueue(cap, 0);
+  return q;
 }
 
 /*!
@@ -728,7 +741,7 @@ void GuiPlatform::renderFrameImpl(ImDrawData* draw_data)
     info.setPWaitDstStageMask(&wait_stage);
     info.setCommandBuffers(command_buffer);
     info.setSignalSemaphores(render_complete_semaphore);
-    auto q = zisc::cast<zivcvk::Queue>(device().getQueue(0));
+    auto q = zisc::cast<zivcvk::Queue>(queueForGui());
     q.submit(info, fence, dispatcher().loader());
   }
 }
@@ -748,7 +761,7 @@ void GuiPlatform::resizeSwapChain() noexcept
                                            info.device(),
                                            device().device(),
                                            &windowData(),
-                                           device().queueFamilyIndex(),
+                                           queueFamilyIndexForGui(),
                                            &vk_allocator_,
                                            width,
                                            height,
@@ -764,16 +777,16 @@ void GuiPlatform::resizeSwapChain() noexcept
   */
 std::size_t GuiPlatform::selectDevice(const zivc::Platform& zplatform) noexcept
 {
-  const auto* vulkan_platform = zisc::reinterp<const zivc::VulkanSubPlatform*>(
-      zplatform.subPlatform(zivc::SubPlatformType::kVulkan));
-  const auto& device_info_list = vulkan_platform->deviceInfoList();
-
-  // Select primary discrete gpu
+  // Find first discrete gpu
+  const auto& device_info_list = zplatform.deviceInfoList();
   bool is_device_found = false;
   std::size_t device_index = 0;
   for (device_index = 0; device_index < device_info_list.size(); ++device_index) {
-    const zivc::VulkanDeviceInfo& device_info = device_info_list[device_index];
-    const VkPhysicalDeviceProperties& prop = device_info.properties().properties1_;
+    const zivc::DeviceInfo* info = device_info_list[device_index];
+    if (info->type() != zivc::SubPlatformType::kVulkan)
+      continue;
+    const auto* device_info = zisc::cast<const zivc::VulkanDeviceInfo*>(info);
+    const VkPhysicalDeviceProperties& prop = device_info->properties().properties1_;
     if (prop.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
       is_device_found = true;
       break;

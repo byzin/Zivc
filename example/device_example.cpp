@@ -86,7 +86,7 @@ int doDeviceExample(zivc::PlatformOptions& platform_options)
 
     zivc::SharedDevice device;
     try {
-      device = platform->makeDevice(i);
+      device = platform->queryDevice(i);
     }
     catch (const std::runtime_error& error) {
       std::cerr << error.what() << std::endl;

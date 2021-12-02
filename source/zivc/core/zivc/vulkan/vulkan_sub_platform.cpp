@@ -114,18 +114,6 @@ VkAllocationCallbacks VulkanSubPlatform::makeAllocator() noexcept
   */
 SharedDevice VulkanSubPlatform::makeDevice(const DeviceInfo& device_info)
 {
-  return makeDevice(device_info, VulkanDeviceCapability::kCompute);
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] device_info No description.
-  \return No description
-  */
-SharedDevice VulkanSubPlatform::makeDevice(const DeviceInfo& device_info,
-                                           const VulkanDeviceCapability capability)
-{
   // Check if the given device info is included in the info list
   {
     const auto& info_list = deviceInfoList();
@@ -142,9 +130,7 @@ SharedDevice VulkanSubPlatform::makeDevice(const DeviceInfo& device_info,
   }
 
   zisc::pmr::polymorphic_allocator<VulkanDevice> alloc{memoryResource()};
-  SharedDevice device = std::allocate_shared<VulkanDevice>(alloc,
-                                                           capability,
-                                                           issueId());
+  SharedDevice device = std::allocate_shared<VulkanDevice>(alloc, issueId());
 
   ZivcObject::SharedPtr parent{getOwnPtr()};
   WeakDevice own{device};

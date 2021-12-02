@@ -17,6 +17,7 @@
 
 // Standard C++ library
 #include <cstddef>
+#include <memory>
 // Zivc
 #include "zivc_config.hpp"
 #include "utility/id_data.hpp"
@@ -45,6 +46,9 @@ class KernelCommon : public ZivcObject
   //! Return the work-group dimension
   virtual std::size_t dimensionSize() const noexcept = 0;
 };
+
+// Type aliases
+using SharedKernelCommon = std::shared_ptr<KernelCommon>;
 
 } // namespace zivc
 

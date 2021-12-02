@@ -61,8 +61,8 @@ void VulkanKernelImpl::addPodBarrierCmd(const VkCommandBuffer& command_buffer,
   const zivcvk::BufferMemoryBarrier buff_barrier{
       zivcvk::AccessFlagBits::eTransferWrite,
       zivcvk::AccessFlagBits::eUniformRead,
-      zdevice.queueFamilyIndex(),
-      zdevice.queueFamilyIndex(),
+      zdevice.queueFamilyIndex(VulkanDeviceCapability::kCompute),
+      zdevice.queueFamilyIndex(VulkanDeviceCapability::kCompute),
       buffer,
       0,
       VK_WHOLE_SIZE};

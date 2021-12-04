@@ -53,7 +53,8 @@ function(addGlfw glfw_path)
   # Suppress warnings
   set(glfw_warning_flags "")
   if(Z_CLANG)
-    list(APPEND glfw_warning_flags -Wno-unused-command-line-argument)
+    list(APPEND glfw_warning_flags -Wno-unused-command-line-argument
+                                   -Wno-unguarded-availability-new)
   endif()
   target_compile_options(glfw PRIVATE ${glfw_warning_flags})
   target_include_directories(glfw SYSTEM INTERFACE ${glfw_path}/include)

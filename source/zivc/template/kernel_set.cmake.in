@@ -216,6 +216,7 @@ function(Zivc_getClspvCompileFlags clspv_compile_flags)
                       )
   # Optimization options
   list(APPEND options -O=3
+                      --cl-native-math
                       --cost-kind=throughput
                       --enable-gvn-hoist
                       --enable-gvn-memdep

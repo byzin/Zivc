@@ -21,7 +21,7 @@ endfunction(Zivc_getPlatformFlags)
 
 
 function(Zivc_findVulkan vulkan_target)
-  find_package(Vulkan 1.2.189.0 REQUIRED)
+  find_package(Vulkan 1.2.198.1 REQUIRED)
   if(ZIVC_DYNAMIC_VULKAN_LOADING)
     set(target Vulkan::Headers)
   else()

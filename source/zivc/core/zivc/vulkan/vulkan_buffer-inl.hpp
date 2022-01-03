@@ -25,10 +25,10 @@
 #include <utility>
 // Zisc
 #include "zisc/bit.hpp"
+#include "zisc/boolean.hpp"
 #include "zisc/concepts.hpp"
 #include "zisc/error.hpp"
 #include "zisc/utility.hpp"
-#include "zisc/zisc_config.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "vulkan_buffer_impl.hpp"
@@ -398,7 +398,7 @@ void VulkanBuffer<T>::initData(const BufferInitParams& params)
   VulkanDevice& device = parentImpl();
   {
     rawBuffer().desc_type_ = params.descriptorType();
-    is_internal_ = params.internalBufferFlag() ? zisc::kTrue : zisc::kFalse;
+    is_internal_ = params.internalBufferFlag();
   }
   {
     const VulkanBufferImpl impl{std::addressof(device)};
@@ -728,8 +728,7 @@ void VulkanBuffer<T>::initFillKernel()
 template <KernelArg T> inline
 bool VulkanBuffer<T>::isInternal() const noexcept
 {
-  const bool result = is_internal_ == zisc::kTrue;
-  return result;
+  return is_internal_;
 }
 
 /*!

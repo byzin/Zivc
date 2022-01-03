@@ -22,7 +22,6 @@
 // Zisc
 #include "zisc/concepts.hpp"
 #include "zisc/non_copyable.hpp"
-#include "zisc/zisc_config.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "buffer_common.hpp"

@@ -23,7 +23,6 @@
 // Zisc
 #include "zisc/concepts.hpp"
 #include "zisc/algorithm.hpp"
-#include "zisc/zisc_config.hpp"
 // Zivc
 #include "id_data.hpp"
 #include "launch_options.hpp"

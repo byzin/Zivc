@@ -1,6 +1,6 @@
 # Zivc
 
-Zivc is a Vulkan compute wrapper.
+Zivc is cross-platform heterogeneous computing library.
 
 Version: 0.0.1
 
@@ -9,11 +9,12 @@ Version: 0.0.1
 ### Prerequisites ###
 
 * C+20 support compiler
-* [CMake](https://cmake.org/) (version 3.17 or later)
+* [CMake][cmake] (version 3.22 or later)
 
 #### Option ####
 
-* [Doxygen](http://www.doxygen.nl/) for the API documentation building
+* [Doxygen][doxygen] for the API documentation building
+* GUI example uses [glfw][glfw]. The example uses glfw submodule, but you may need to install the dependencies of glfw. Please see [Compiling GLFW][glfw_compiling].
 
 ## Importing ##
 
@@ -23,3 +24,8 @@ Version: 0.0.1
 
 This software is released under the MIT License,
 see [LICENSE.md](LICENSE.md)
+
+[cmake]: https://cmake.org/
+[doxygen]: http://www.doxygen.nl/
+[glfw]: https://www.glfw.org/
+[glfw_compiling]: https://www.glfw.org/docs/latest/compile_guide.html

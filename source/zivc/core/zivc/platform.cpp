@@ -22,7 +22,6 @@
 #include <utility>
 #include <vector>
 // Zisc
-#include "zisc/error.hpp"
 #include "zisc/utility.hpp"
 #include "zisc/memory/simple_memory_resource.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
@@ -199,7 +198,7 @@ SharedDevice Platform::makeDevice(const std::size_t device_index)
   }
   const DeviceInfo* info = info_list[device_index];
   SubPlatform* sub_platform = subPlatform(info->type());
-  ZISC_ASSERT(sub_platform->isAvailable(), "The platform isn't available.");
+  ZIVC_ASSERT(sub_platform->isAvailable(), "The platform isn't available.");
   auto device = sub_platform->makeDevice(*info);
   return device;
 }

@@ -19,6 +19,7 @@
 #include <string>
 #include <string_view>
 // Zisc
+#include "zisc/boolean.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "zivc/zivc_config.hpp"
@@ -84,7 +85,7 @@ std::string_view GuiApplicationOptions::description() const noexcept
   */
 void GuiApplicationOptions::enableUnlimitedFrameRate(const bool flag) noexcept
 {
-  unlimited_frame_rate_enabled_ = flag ? zisc::kTrue : zisc::kFalse;
+  unlimited_frame_rate_enabled_ = flag;
 }
 
 /*!
@@ -165,8 +166,7 @@ void GuiApplicationOptions::setWindowWidth(const std::size_t size) noexcept
   */
 bool GuiApplicationOptions::unlimitedFrameRateEnabled() const noexcept
 {
-  const bool flag = unlimited_frame_rate_enabled_ == zisc::kTrue;
-  return flag;
+  return unlimited_frame_rate_enabled_;
 }
 
 /*!

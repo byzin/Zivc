@@ -24,11 +24,10 @@
 #include <type_traits>
 #include <vector>
 // Zisc
-#include "zisc/data_structure/bounded_bst.hpp"
 #include "zisc/data_structure/mutex_bst.hpp"
+#include "zisc/data_structure/search_tree.hpp"
 #include "zisc/non_copyable.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
-#include "zisc/zisc_config.hpp"
 // Zivc
 #include "vulkan_device_info.hpp"
 #include "utility/vulkan.hpp"
@@ -168,7 +167,8 @@ class VulkanSubPlatform : public SubPlatform
   {
    public:
     using MemoryMapImpl = zisc::MutexBst;
-    using MemoryMap = zisc::BoundedBst<MemoryMapImpl>;
+    using MemoryMap = zisc::SearchTree<MemoryMapImpl>;
+    static_assert(MemoryMap::isConcurrent(), "The map must be concurrent.");
 
 
     //! Initialize the allocator data

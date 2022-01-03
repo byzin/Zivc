@@ -24,7 +24,6 @@
 #include <utility>
 // Zisc
 #include "zisc/utility.hpp"
-#include "zisc/zisc_config.hpp"
 // Zivc
 #include "id_data.hpp"
 #include "zivc/zivc_config.hpp"
@@ -105,7 +104,7 @@ uint32b LaunchOptions::queueIndex() const noexcept
 inline
 void LaunchOptions::setExternalSyncMode(const bool is_active) noexcept
 {
-  is_external_sync_mode_ = is_active ? zisc::kTrue : zisc::kFalse;
+  is_external_sync_mode_ = is_active;
 }
 
 /*!

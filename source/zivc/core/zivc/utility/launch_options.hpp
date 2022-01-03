@@ -21,7 +21,7 @@
 #include <string_view>
 #include <type_traits>
 // Zisc
-#include "zisc/zisc_config.hpp"
+#include "zisc/boolean.hpp"
 // Zivc
 #include "id_data.hpp"
 #include "zivc/zivc_config.hpp"
@@ -75,7 +75,7 @@ class LaunchOptions
   IdData::NameType label_;
   std::array<float, 4> label_color_{1.0f, 1.0f, 1.0f, 1.0f};
   uint32b queue_index_ = 0;
-  uint8b is_external_sync_mode_ = zisc::kFalse;
+  zisc::Boolean is_external_sync_mode_;
   [[maybe_unused]] Padding<3> pad_;
 };
 

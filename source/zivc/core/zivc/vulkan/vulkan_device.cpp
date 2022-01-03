@@ -336,7 +336,7 @@ auto VulkanDevice::getQueueFamilyIndexList(uint32b* size) const noexcept
     if (!hasCapability(cap))
       continue;
     const uint32b family_index = queueFamilyIndex(cap);
-    auto ite = std::find(index_list.begin(), index_list.end(), family_index);
+    auto* ite = std::find(index_list.begin(), index_list.end(), family_index);
     if (ite == index_list.end())
       index_list[s++] = family_index;
   }
@@ -506,8 +506,8 @@ void VulkanDevice::returnFence(Fence* fence) noexcept
 
   if (fence_index != invalid) {
     IndexQueue& index_queue = fenceIndexQueue();
-    [[maybe_unused]] const bool result = index_queue.enqueue(fence_index);
-    ZISC_ASSERT(result, "Queueing fence index failed.");
+    [[maybe_unused]] const auto result = index_queue.enqueue(fence_index);
+    ZISC_ASSERT(result.isSuccess(), "Queueing fence index failed.");
     *dest = zivcvk::Fence{};
   }
 }
@@ -581,12 +581,13 @@ void VulkanDevice::setFenceSize(const std::size_t s)
   const auto& loader = dispatcher().loader();
   zivcvk::AllocationCallbacks alloc{makeAllocator()};
 
-  fence_index_queue_->setCapacity(s);
-  fence_index_queue_->clear();
-  const std::size_t fence_size = (0 < s) ? fence_index_queue_->capacity() : 0;
+  IndexQueue& index_queue = fenceIndexQueue();
+  index_queue.setCapacity(s);
+  index_queue.clear();
+  const std::size_t fence_size = (0 < s) ? index_queue.capacity() : 0;
   for (std::size_t index = 0; index < fence_size; ++index) {
-    [[maybe_unused]] const bool result = fence_index_queue_->enqueue(index);
-    ZISC_ASSERT(result, "Enqueing fence index failed: ", index);
+    [[maybe_unused]] const auto result = index_queue.enqueue(index);
+    ZISC_ASSERT(result.isSuccess(), "Enqueing fence index failed: ", index);
   }
 
   auto& fence_list = *fence_list_;
@@ -618,8 +619,8 @@ void VulkanDevice::setFenceSize(const std::size_t s)
 void VulkanDevice::takeFence(Fence* fence)
 {
   IndexQueue& index_queue = fenceIndexQueue();
-  const auto [result, fence_index] = index_queue.dequeue();
-  if (!result) {
+  const auto index_result = index_queue.dequeue();
+  if (not index_result.isSuccess()) {
     //! \todo Available fence isn't found. Raise an exception?
     const char* message = "Available fence not found.";
     throw SystemError{ErrorCode::kAvailableFenceNotFound, message};
@@ -629,6 +630,7 @@ void VulkanDevice::takeFence(Fence* fence)
   auto* dest = ::new (zisc::cast<void*>(memory)) zivcvk::Fence{};
   {
     zivcvk::Device d{device()};
+    const std::size_t fence_index = index_result.get().get();
     auto f = zisc::cast<zivcvk::Fence>((*fence_list_)[fence_index]);
     d.resetFences(f, dispatcher().loader());
     *dest = f;
@@ -1065,7 +1067,7 @@ uint32b VulkanDevice::findQueueFamily(const Capability cap,
     for (uint32b i = 0; i < queue_family_list.size(); ++i) {
       if (!allow_overlap) {
         const auto& index_list = queue_family_index_list_;
-        auto ite = std::find(index_list.begin(), index_list.end(), i);
+        const auto* ite = std::find(index_list.begin(), index_list.end(), i);
         if (ite != index_list.end())
           continue;
       }

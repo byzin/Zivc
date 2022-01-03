@@ -33,7 +33,6 @@
 #include "zisc/binary_serializer.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 #include "zisc/memory/simple_memory_resource.hpp"
-#include "zisc/zisc_config.hpp"
 // Zivc
 #include "zivc/utility/zstd.hpp"
 

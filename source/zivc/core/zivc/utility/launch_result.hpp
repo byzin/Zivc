@@ -19,6 +19,7 @@
 #include <array>
 #include <type_traits>
 // Zisc
+#include "zisc/boolean.hpp"
 #include "zisc/non_copyable.hpp"
 // Zivc
 #include "fence.hpp"

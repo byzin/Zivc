@@ -20,8 +20,8 @@
 #include <type_traits>
 #include <utility>
 // Zisc
+#include "zisc/boolean.hpp"
 #include "zisc/non_copyable.hpp"
-#include "zisc/zisc_config.hpp"
 // Zivc
 #include "fence.hpp"
 #include "zivc/zivc_config.hpp"
@@ -33,7 +33,7 @@ namespace zivc {
   */
 inline
 LaunchResult::LaunchResult() noexcept :
-    is_async_{zisc::kFalse}
+    is_async_{}
 {
 }
 
@@ -101,8 +101,7 @@ const Fence& LaunchResult::fence() const noexcept
 inline
 bool LaunchResult::isAsync() const noexcept
 {
-  const bool result = is_async_ == zisc::kTrue;
-  return result;
+  return is_async_;
 }
 
 /*!
@@ -113,7 +112,7 @@ bool LaunchResult::isAsync() const noexcept
 inline
 void LaunchResult::setAsync(const bool is_async) noexcept
 {
-  is_async_ = is_async ? zisc::kTrue : zisc::kFalse;
+  is_async_ = is_async;
 }
 
 } // namespace zivc

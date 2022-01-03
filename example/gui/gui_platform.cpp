@@ -21,8 +21,8 @@
 #include <memory>
 #include <utility>
 // Zisc
+#include "zisc/boolean.hpp"
 #include "zisc/utility.hpp"
-#include "zisc/zisc_config.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "zivc/zivc.hpp"
@@ -556,8 +556,7 @@ VkInstance GuiPlatform::instance() const noexcept
   */
 bool GuiPlatform::isSwapChainRebuilt() const noexcept
 {
-  const bool flag = is_swap_chain_rebuilt_ == zisc::kTrue;
-  return flag;
+  return is_swap_chain_rebuilt_;
 }
 
 /*!
@@ -817,7 +816,7 @@ void GuiPlatform::setMinImageCount(const int image_count) noexcept
   */
 void GuiPlatform::setSwapChainRebuild(const bool is_rebuilt) noexcept
 {
-  is_swap_chain_rebuilt_ = is_rebuilt ? zisc::kTrue : zisc::kFalse;
+  is_swap_chain_rebuilt_ = is_rebuilt;
 }
 
 /*!

@@ -21,9 +21,8 @@
 #include <cstddef>
 #include <cstring>
 #include <string_view>
-// Zisc
-#include "zisc/error.hpp"
 // Zivc
+#include "error.hpp"
 #include "id_data.hpp"
 #include "zivc/kernel_set.hpp"
 
@@ -108,7 +107,7 @@ void KernelInitParams<kDim, KSet, Args...>::setKernelName(
     std::string_view kernel_name) noexcept
 {
   const std::size_t s = kernel_name.size();
-  ZISC_ASSERT(kernel_name.size() < maxKernelNameLength(),
+  ZIVC_ASSERT(kernel_name.size() < maxKernelNameLength(),
               "The kernel '", kernel_name, "' exceed the limit of name length. ",
               maxKernelNameLength(), " < n=", kernel_name.size(), ".");
   copyStr(kernel_name.data(), kernel_name_.data());

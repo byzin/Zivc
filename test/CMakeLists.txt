@@ -6,7 +6,7 @@
 # http://opensource.org/licenses/mit-license.php
 #
 
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.22)
 
 
 set(__zivc_dir__ ${CMAKE_SOURCE_DIR}/source/zivc)
@@ -26,10 +26,10 @@ endfunction(getTestCompileFlags)
 
 function(addGoogleTest googletest_path)
   set(source_dir ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/../source)
-  include(${source_dir}/dependencies/Zisc/source/zisc/cmake/general.cmake)
+  include(${source_dir}/zivc/cmake/general.cmake)
   include(${source_dir}/zivc/cmake/compiler.cmake)
 
-  Zisc_addGoogleTest(${googletest_path} ${PROJECT_BINARY_DIR}/GoogleTest)
+  Zivc_addGoogleTest(${googletest_path} ${PROJECT_BINARY_DIR}/GoogleTest)
   Zivc_populateTargetOptions(Zisc gtest)
   Zivc_populateTargetOptions(Zisc gtest_main)
 endfunction(addGoogleTest)

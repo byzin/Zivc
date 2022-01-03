@@ -18,6 +18,8 @@
 // Standard C++ library
 #include <array>
 #include <cstddef>
+// Zisc
+#include "zisc/boolean.hpp"
 // Zivc
 #include "zivc/zivc_config.hpp"
 
@@ -64,11 +66,11 @@ class KernelArgInfo
 
  private:
   std::size_t index_;
-  uint8b is_global_;
-  uint8b is_local_;
-  uint8b is_constant_;
-  uint8b is_pod_;
-  uint8b is_buffer_;
+  zisc::Boolean is_global_;
+  zisc::Boolean is_local_;
+  zisc::Boolean is_constant_;
+  zisc::Boolean is_pod_;
+  zisc::Boolean is_buffer_;
   [[maybe_unused]] std::array<uint8b, 3> padding_{0, 0, 0};
 };
 

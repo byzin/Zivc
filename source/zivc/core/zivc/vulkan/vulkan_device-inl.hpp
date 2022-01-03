@@ -29,7 +29,7 @@
 // Zisc
 #include "zisc/error.hpp"
 #include "zisc/utility.hpp"
-#include "zisc/data_structure/bounded_queue.hpp"
+#include "zisc/data_structure/queue.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "vulkan_device_info.hpp"

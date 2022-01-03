@@ -25,7 +25,6 @@
 // Zisc
 #include "zisc/concepts.hpp"
 #include "zisc/utility.hpp"
-#include "zisc/zisc_config.hpp"
 // Zivc
 #include "id_data.hpp"
 #include "zivc/zivc_config.hpp"

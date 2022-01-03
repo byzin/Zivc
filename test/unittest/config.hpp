@@ -20,8 +20,8 @@
 #include <limits>
 #include <memory>
 // Zisc
+#include "zisc/boolean.hpp"
 #include "zisc/non_copyable.hpp"
-#include "zisc/zisc_config.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "zivc/zivc_config.hpp"
@@ -100,8 +100,8 @@ class Config : private zisc::NonCopyable<Config>
   std::shared_ptr<zivc::Platform> platform_;
   std::unique_ptr<zisc::pmr::memory_resource> mem_resource_;
   zivc::uint32b device_id_ = invalidDeviceId();
-  zivc::uint8b is_debug_mode_ = zisc::kTrue;
-  zivc::uint8b use_global_platform_ = zisc::kFalse;
+  zisc::Boolean is_debug_mode_ = true;
+  zisc::Boolean use_global_platform_;
   [[maybe_unused]] zivc::Padding<2> padd_;
 };
 

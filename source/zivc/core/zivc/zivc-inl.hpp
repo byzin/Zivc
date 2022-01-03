@@ -22,7 +22,6 @@
 #include <utility>
 // Zisc
 #include "zisc/concepts.hpp"
-#include "zisc/error.hpp"
 #include "zisc/utility.hpp"
 // Zivc
 #include "buffer.hpp"
@@ -34,6 +33,7 @@
 #include "cpu/cpu_kernel.hpp"
 #include "utility/buffer_init_params.hpp"
 #include "utility/buffer_launch_options.hpp"
+#include "utility/error.hpp"
 #include "utility/kernel_arg_parser.hpp"
 #include "utility/kernel_init_params.hpp"
 #include "utility/launch_result.hpp"
@@ -76,7 +76,7 @@ LaunchResult copy(const Buffer<SrcType>& source,
 #endif // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
    }
    default: {
-    ZISC_ASSERT(false, "Error: Unsupported device type is specified.");
+    ZIVC_ASSERT(false, "Error: Unsupported device type is specified.");
     break;
    }
   }
@@ -112,7 +112,7 @@ LaunchResult fill(typename Buffer<Type>::ConstReference value,
 #endif // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
    }
    default: {
-    ZISC_ASSERT(false, "Error: Unsupported device type is specified.");
+    ZIVC_ASSERT(false, "Error: Unsupported device type is specified.");
     break;
    }
   }
@@ -145,7 +145,7 @@ SharedBuffer<Type> makeBuffer(Device* device, const BufferInitParams& params)
 #endif // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
    }
    default: {
-    ZISC_ASSERT(false, "Error: Unsupported device type is specified.");
+    ZIVC_ASSERT(false, "Error: Unsupported device type is specified.");
     break;
    }
   }
@@ -182,7 +182,7 @@ SharedKernel<kDim, KSet, Args...> makeKernel(
 #endif // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
    }
    default: {
-    ZISC_ASSERT(false, "Error: Unsupported device type is specified.");
+    ZIVC_ASSERT(false, "Error: Unsupported device type is specified.");
     break;
    }
   }

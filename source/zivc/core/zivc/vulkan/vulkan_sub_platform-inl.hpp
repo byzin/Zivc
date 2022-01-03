@@ -22,7 +22,7 @@
 #include <string_view>
 #include <vector>
 // Zisc
-#include "zisc/data_structure/bounded_bst.hpp"
+#include "zisc/data_structure/search_tree.hpp"
 #include "zisc/memory/memory.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc

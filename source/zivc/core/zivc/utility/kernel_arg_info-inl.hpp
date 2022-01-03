@@ -30,11 +30,11 @@ namespace zivc {
 inline
 constexpr KernelArgInfo::KernelArgInfo() noexcept :
     index_{0},
-    is_global_{zisc::kFalse},
-    is_local_{zisc::kFalse},
-    is_constant_{zisc::kFalse},
-    is_pod_{zisc::kFalse},
-    is_buffer_{zisc::kFalse}
+    is_global_{},
+    is_local_{},
+    is_constant_{},
+    is_pod_{},
+    is_buffer_{}
 {
 }
 
@@ -54,11 +54,11 @@ constexpr KernelArgInfo::KernelArgInfo(const bool is_global,
                                        const bool is_pod,
                                        const bool is_buffer) noexcept :
     index_{0},
-    is_global_{is_global ? zisc::kTrue : zisc::kFalse},
-    is_local_{is_local ? zisc::kTrue : zisc::kFalse},
-    is_constant_{is_constant ? zisc::kTrue : zisc::kFalse},
-    is_pod_{is_pod ? zisc::kTrue : zisc::kFalse},
-    is_buffer_{is_buffer ? zisc::kTrue : zisc::kFalse}
+    is_global_{is_global},
+    is_local_{is_local},
+    is_constant_{is_constant},
+    is_pod_{is_pod},
+    is_buffer_{is_buffer}
 {
 }
 

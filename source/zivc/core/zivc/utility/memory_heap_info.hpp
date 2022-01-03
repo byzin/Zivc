@@ -20,7 +20,7 @@
 #include <cstddef>
 #include <memory>
 // Zisc
-#include "zisc/zisc_config.hpp"
+#include "zisc/boolean.hpp"
 #include "zisc/memory/memory.hpp"
 // Zivc
 #include "zivc/zivc_config.hpp"
@@ -67,7 +67,7 @@ class MemoryHeapInfo
   std::size_t total_size_ = 0;
   std::size_t available_size_ = 0;
   Usage used_size_for_buffer_;
-  uint8b is_device_local_ = zisc::kFalse;
+  zisc::Boolean is_device_local_;
   [[maybe_unused]] std::array<uint8b, std::alignment_of_v<std::size_t> - 1> padding_;
 };
 

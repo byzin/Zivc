@@ -6,7 +6,7 @@
 # http://opensource.org/licenses/mit-license.php
 #
 
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.22)
 
 
 set(__zisc_dir__ ${CMAKE_SOURCE_DIR}/source/dependencies/Zisc)
@@ -28,7 +28,7 @@ macro(setDocumentProject)
     # Project
     set(DOXYGEN_PROJECT_NAME Zivc)
     set(DOXYGEN_PROJECT_NUMBER 0.0.1)
-    set(DOXYGEN_PROJECT_BRIEF "Zivc.")
+    set(DOXYGEN_PROJECT_BRIEF "Zivc is cross-platform heterogeneous compuling library.")
 
     # HTML
     set(html_theme_path ${__zisc_dir__}/document/doxygen_dark_theme)
@@ -51,7 +51,7 @@ macro(setDocumentProject)
     get_target_property(zivc_source_files Zivc SOURCES)
     Zivc_addDoxygenDoc(document ${PROJECT_BINARY_DIR}
       SOURCE_FILES_OR_DIRS ${CMAKE_SOURCE_DIR}/README.md
-                           ${CMAKE_SOURCE_DIR}/LICENSE.txt
+                           ${CMAKE_SOURCE_DIR}/LICENSE.md
                            ${__zivc_dir__}/document.dox
                            ${zivc_source_files})
   endif()

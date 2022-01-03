@@ -20,7 +20,7 @@
 #include <array>
 #include <cstddef>
 // Zisc
-#include "zisc/zisc_config.hpp"
+#include "zisc/boolean.hpp"
 #include "zisc/memory/memory.hpp"
 // Zivc
 #include "zivc/zivc_config.hpp"
@@ -46,8 +46,7 @@ std::size_t MemoryHeapInfo::availableSize() const noexcept
 inline
 bool MemoryHeapInfo::isDeviceLocal() const noexcept
 {
-  const bool flag = is_device_local_ != zisc::kFalse;
-  return flag;
+  return is_device_local_;
 }
 
 /*!
@@ -69,7 +68,7 @@ void MemoryHeapInfo::setAvailableSize(const std::size_t size) noexcept
 inline
 void MemoryHeapInfo::setDeviceLocal(const bool flag) noexcept
 {
-  is_device_local_ = flag ? zisc::kTrue : zisc::kFalse;
+  is_device_local_ = flag;
 }
 
 /*!

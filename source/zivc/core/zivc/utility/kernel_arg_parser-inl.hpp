@@ -23,7 +23,6 @@
 #include <type_traits>
 // Zisc
 #include "zisc/concepts.hpp"
-#include "zisc/zisc_config.hpp"
 // Zivc
 #include "kernel_arg_info.hpp"
 #include "kernel_arg_type_info.hpp"

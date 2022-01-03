@@ -17,7 +17,7 @@
 #define ZIVC_BUFFER_INIT_PARAMS_HPP
 
 // Zisc
-#include "zisc/zisc_config.hpp"
+#include "zisc/boolean.hpp"
 // Zivc
 #include "zivc/zivc_config.hpp"
 
@@ -75,7 +75,7 @@ class BufferInitParams
 
   BufferUsage flag_ = BufferUsage::kDeviceOnly;
   DescriptorType descriptor_type_ = DescriptorType::kStorage;
-  int8b is_internal_buffer_ = zisc::kFalse;
+  zisc::Boolean is_internal_buffer_;
   [[maybe_unused]] Padding<3> pad_;
 };
 

@@ -296,8 +296,9 @@ auto VulkanSubPlatform::Callbacks::allocateMemory(
   ZISC_ASSERT(std::isfinite(address), "The address float isn't finite.");
   auto& mem_map = alloc_data->memoryMap();
   {
-    const auto [result, index] = mem_map.add(address);
-    ZISC_ASSERT(result, "Adding the address into the map failed.");
+    const auto index_result = mem_map.add(address);
+    ZISC_ASSERT(index_result.isSuccess(), "Adding the address into the map failed.");
+    const std::size_t index = index_result.get().get();
     auto& mem_list = alloc_data->memoryList();
     const MemoryData data{size, alignment};
     mem_list[index] = data;
@@ -326,14 +327,15 @@ void VulkanSubPlatform::Callbacks::deallocateMemory(
     auto& mem_map = alloc_data->memoryMap();
     MemoryData data;
     {
-      const auto [result, index] = mem_map.contain(address);
-      ZISC_ASSERT(result, "The address isn't in the map.");
+      const auto index_result = mem_map.contain(address);
+      ZISC_ASSERT(index_result.isSuccess(), "The address isn't in the map.");
+      const std::size_t index = index_result.get().get();
       const auto& mem_list = alloc_data->memoryList();
       data = mem_list[index];
     }
     {
-      const auto [result, index] = mem_map.remove(address);
-      ZISC_ASSERT(result, "The address isn't in the map.");
+      const auto index_result = mem_map.remove(address);
+      ZISC_ASSERT(index_result.isSuccess(), "The address isn't in the map.");
     }
     alloc_data->memoryResource()->deallocate(memory, data.size_, data.alignment_);
   }
@@ -561,8 +563,9 @@ auto VulkanSubPlatform::Callbacks::reallocateMemory(
     auto& mem_map = alloc_data->memoryMap();
     MemoryData data;
     {
-      const auto [result, index] = mem_map.contain(address);
-      ZISC_ASSERT(result, "The address isn't in the map.");
+      const auto index_result = mem_map.contain(address);
+      ZISC_ASSERT(index_result.isSuccess(), "The address isn't in the map.");
+      const std::size_t index = index_result.get().get();
       const auto& mem_list = alloc_data->memoryList();
       data = mem_list[index];
     }

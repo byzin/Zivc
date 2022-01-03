@@ -19,7 +19,7 @@
 #include <cstddef>
 #include <memory>
 // Zisc
-#include "zisc/zisc_config.hpp"
+#include "zisc/boolean.hpp"
 // Zivc
 #include "zivc/zivc.hpp"
 #include "zivc/zivc_config.hpp"
@@ -172,7 +172,7 @@ class GuiPlatform : public GuiObject
   std::shared_ptr<ImGui_ImplVulkanH_Window> window_data_;
   ImGuiContext* imgui_context_ = nullptr;
   zivc::int32b min_image_count_ = -1;
-  zivc::uint8b is_swap_chain_rebuilt_ = zisc::kFalse;
+  zisc::Boolean is_swap_chain_rebuilt_;
   // GLFW
   GLFWwindow* glfw_window_ = nullptr;
   // Vulkan

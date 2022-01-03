@@ -16,7 +16,7 @@
 // Standard C++ library
 #include <memory>
 // Zisc
-#include "zisc/zisc_config.hpp"
+#include "zisc/boolean.hpp"
 #include "zisc/memory/simple_memory_resource.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
@@ -57,7 +57,7 @@ zivc::uint32b Config::deviceId() const noexcept
   */
 void Config::enableDebugMode(const bool flag) noexcept
 {
-  is_debug_mode_ = flag ? zisc::kTrue : zisc::kFalse;
+  is_debug_mode_ = flag;
 }
 
 /*!
@@ -78,8 +78,7 @@ Config& Config::globalConfig() noexcept
   */
 bool Config::isDebugMode() const noexcept
 {
-  const bool flag = is_debug_mode_ == zisc::kTrue;
-  return flag;
+  return is_debug_mode_;
 }
 
 /*!
@@ -140,7 +139,7 @@ void Config::setDeviceId(const zivc::uint32b id) noexcept
   */
 void Config::setUseGlobalPlatform(const bool flag) noexcept
 {
-  use_global_platform_ = flag ? zisc::kTrue : zisc::kFalse;
+  use_global_platform_ = flag;
 }
 
 /*!
@@ -160,8 +159,7 @@ std::size_t Config::testKernelWorkSize1d() noexcept
   */
 bool Config::useGlobalPlatform() const noexcept
 {
-  const bool result = use_global_platform_ == zisc::kTrue;
-  return result;
+  return use_global_platform_;
 }
 
 /*!

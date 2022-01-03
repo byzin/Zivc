@@ -23,15 +23,14 @@
 #include <utility>
 // Zisc
 #include "zisc/concepts.hpp"
-#include "zisc/error.hpp"
 #include "zisc/utility.hpp"
-#include "zisc/zisc_config.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "buffer_common.hpp"
 #include "zivc_config.hpp"
 #include "utility/buffer_init_params.hpp"
 #include "utility/buffer_launch_options.hpp"
+#include "utility/error.hpp"
 #include "utility/id_data.hpp"
 #include "utility/launch_result.hpp"
 #include "utility/mapped_memory.hpp"
@@ -225,9 +224,9 @@ LaunchResult Buffer<T>::copyFromDerived(const Buffer<SrcType>& source,
                                         const LaunchOptions& launch_options)
 {
   //! \todo Remove me
-  ZISC_ASSERT(type() == source.type(), "Type mismatch found.");
+  ZIVC_ASSERT(type() == source.type(), "Type mismatch found.");
   //! \todo Remove me
-  ZISC_ASSERT(getParent() == source.getParent(), "Type mismatch found.");
+  ZIVC_ASSERT(getParent() == source.getParent(), "Type mismatch found.");
   auto result = Derived<T>::copyFromImpl(source, this, launch_options);
   return result;
 }

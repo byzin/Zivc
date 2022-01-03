@@ -20,6 +20,19 @@
 #include <string>
 #include <string_view>
 #include <system_error>
+// Zisc
+#include "zisc/error.hpp"
+
+/*!
+  \def ZIVC_ASSERT(condition, ...)
+  \brief If condition is false, assert outputs messages and calls std::abort
+
+  No detailed description.
+
+  \param [in] condition No description.
+  \param [in] ... No description.
+  */
+#define ZIVC_ASSERT(condition, ...) ZISC_ASSERT(condition, __VA_ARGS__)
 
 namespace zivc {
 

@@ -24,7 +24,8 @@
 #include <string_view>
 // Zisc
 #include "zisc/concepts.hpp"
-#include "zisc/data_structure/bounded_queue.hpp"
+#include "zisc/data_structure/query_value.hpp"
+#include "zisc/data_structure/queue.hpp"
 #include "zisc/data_structure/scalable_circular_queue.hpp"
 #include "zisc/memory/memory.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
@@ -295,8 +296,9 @@ class VulkanDevice : public Device
         void* user_data);
   };
 
-  using IndexQueueImpl = zisc::ScalableCircularQueue<std::size_t>;
-  using IndexQueue = zisc::BoundedQueue<IndexQueueImpl, std::size_t>;
+  using IndexQueueImpl = zisc::ScalableCircularQueue<zisc::QueryValueU64>;
+  using IndexQueue = zisc::Queue<IndexQueueImpl, zisc::QueryValueU64>;
+  static_assert(IndexQueue::isConcurrent(), "The queue must be concurrent.");
   using UniqueModuleData = zisc::pmr::unique_ptr<ModuleData>;
   using UniqueKernelData = zisc::pmr::unique_ptr<KernelData>;
 

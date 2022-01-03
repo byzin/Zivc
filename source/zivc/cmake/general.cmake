@@ -41,6 +41,12 @@ function(Zivc_checkTarget target)
 endfunction(Zivc_checkTarget)
 
 
+function(Zivc_addGoogleTest source_dir binary_dir)
+  include(${__zisc_general_cmake_path})
+  Zisc_addGoogleTest(${source_dir} ${binary_dir})
+endfunction(Zivc_addGoogleTest)
+
+
 function(Zivc_printSystemInfo message_prefix)
   include(${__zisc_general_cmake_path})
   Zisc_printSystemInfo("${message_prefix}")

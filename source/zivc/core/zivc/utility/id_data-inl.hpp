@@ -25,9 +25,9 @@
 #include <string_view>
 #include <utility>
 // Zisc
-#include "zisc/error.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
+#include "error.hpp"
 #include "zivc/zivc_config.hpp"
 
 namespace zivc {
@@ -130,7 +130,7 @@ std::string_view IdData::fileName() const noexcept
 inline
 void* IdData::getData(const std::size_t index) noexcept
 {
-  ZISC_ASSERT(index < data_list_.size(), "The index is out of range.");
+  ZIVC_ASSERT(index < data_list_.size(), "The index is out of range.");
   return data_list_[index];
 }
 
@@ -143,7 +143,7 @@ void* IdData::getData(const std::size_t index) noexcept
 inline
 const void* IdData::getData(const std::size_t index) const noexcept
 {
-  ZISC_ASSERT(index < data_list_.size(), "The index is out of range.");
+  ZIVC_ASSERT(index < data_list_.size(), "The index is out of range.");
   return data_list_[index];
 }
 
@@ -251,7 +251,7 @@ std::string_view IdData::name() const noexcept
 inline
 void IdData::setData(void* data, const std::size_t index) noexcept
 {
-  ZISC_ASSERT(index < data_list_.size(), "The index is out of range.");
+  ZIVC_ASSERT(index < data_list_.size(), "The index is out of range.");
   data_list_[index] = data;
 }
 

@@ -21,6 +21,7 @@
 #include <string>
 #include <string_view>
 // Zisc
+#include "zisc/boolean.hpp"
 #include "zisc/non_copyable.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
@@ -93,7 +94,7 @@ class GuiApplicationOptions : private zisc::NonCopyable<GuiApplicationOptions>
   std::string window_title_;
   std::size_t window_width_ = 1280;
   std::size_t window_height_ = 720;
-  zivc::uint8b unlimited_frame_rate_enabled_ = zisc::kTrue;
+  zisc::Boolean unlimited_frame_rate_enabled_ = true;
   [[maybe_unused]] zivc::Padding<7> pad_;
 };
 

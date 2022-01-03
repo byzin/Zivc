@@ -49,51 +49,16 @@ function(Zivc_createLinkToTarget target output_dir)
 endfunction(Zivc_createLinkToTarget)
 
 
+function(Zivc_populateTargetOptions source_target dest_target)
+  include(${__zisc_compiler_cmake_path})
+  Zisc_populateTargetOptions("${source_target}" "${dest_target}")
+endfunction(Zivc_populateTargetOptions)
+
+
 function(Zivc_enableIpo target)
   include(${__zisc_compiler_cmake_path})
   Zisc_enableIpo(${target})
 endfunction(Zivc_enableIpo)
-
-
-function(Zivc_populateTargetOptions source_target dest_target)
-  include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/general.cmake)
-
-  Zivc_checkTarget(${source_target})
-  Zivc_checkTarget(${dest_target})
-
-  # TODO. Why it's needed?
-  set(THREADS_PREFER_PTHREAD_FLAG ON)
-  find_package(Threads REQUIRED)
-
-  get_target_property(zivc_compile_flags ${source_target} INTERFACE_COMPILE_OPTIONS)
-  if(zivc_compile_flags)
-    target_compile_options(${dest_target} PRIVATE ${zivc_compile_flags})
-  endif()
-  get_target_property(zivc_libraries ${source_target} INTERFACE_LINK_LIBRARIES)
-  if(zivc_libraries)
-    target_link_libraries(${dest_target} PRIVATE ${zivc_libraries})
-  endif()
-  get_target_property(zivc_linker_flags ${source_target} INTERFACE_LINK_OPTIONS)
-  if(zivc_linker_flags)
-    target_link_options(${dest_target} PRIVATE ${zivc_linker_flags})
-  endif()
-  get_target_property(zivc_definitions ${source_target} INTERFACE_COMPILE_DEFINITIONS)
-  if(zivc_definitions)
-    target_compile_definitions(${dest_target} PRIVATE ${zivc_definitions})
-  endif()
-  get_target_property(zivc_features ${source_target} INTERFACE_COMPILE_FEATURES)
-  if(zivc_features)
-    target_compile_features(${dest_target} PRIVATE ${zivc_features})
-  endif()
-  #  get_target_property(zivc_include_dirs ${source_target} INTERFACE_INCLUDE_DIRECTORIES)
-  #  if(zivc_include_dirs)
-  #    target_include_directories(${dest_target} PRIVATE ${zivc_include_dirs})
-  #  endif()
-  #  get_target_property(zivc_include_dirs ${source_target} INTERFACE_SYSTEM_INCLUDE_DIRECTORIES)
-  #  if(zivc_include_dirs)
-  #    target_include_directories(${dest_target} SYSTEM PRIVATE ${zivc_include_dirs})
-  #  endif()
-endfunction(Zivc_populateTargetOptions)
 
 
 function(Zivc_setRequiredCxxFlagsToTarget target)

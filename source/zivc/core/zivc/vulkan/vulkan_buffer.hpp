@@ -19,8 +19,8 @@
 #include <cstddef>
 #include <memory>
 // Zisc
+#include "zisc/boolean.hpp"
 #include "zisc/concepts.hpp"
-#include "zisc/zisc_config.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "utility/vulkan.hpp"
@@ -239,7 +239,7 @@ class VulkanBuffer : public Buffer<T>
 
   BufferData buffer_data_;
   std::size_t size_ = 0;
-  uint8b is_internal_ = zisc::kFalse;
+  zisc::Boolean is_internal_;
   [[maybe_unused]] Padding<7> pad_;
 };
 

@@ -16,8 +16,8 @@
 #define ZIVC_BUFFER_INIT_PARAMS_INL_HPP
 
 #include "buffer_init_params.hpp"
-// Zivc
-#include "zivc/zivc_config.hpp"
+// Zisc
+#include "zisc/boolean.hpp"
 // Zivc
 #include "zivc/zivc_config.hpp"
 
@@ -72,8 +72,7 @@ auto BufferInitParams::descriptorType() const noexcept -> DescriptorType
 inline
 bool BufferInitParams::internalBufferFlag() const noexcept
 {
-  const bool result = is_internal_buffer_ == zisc::kTrue;
-  return result;
+  return is_internal_buffer_;
 }
 
 /*!
@@ -107,7 +106,7 @@ void BufferInitParams::setDescriptorType(const DescriptorType type) noexcept
 inline
 void BufferInitParams::setInternalBufferFlag(const bool flag) noexcept
 {
-  is_internal_buffer_ = flag ? zisc::kTrue : zisc::kFalse;
+  is_internal_buffer_ = flag;
 }
 
 } // namespace zivc

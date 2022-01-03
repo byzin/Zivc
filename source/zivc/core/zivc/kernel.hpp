@@ -25,7 +25,6 @@
 // Zisc
 #include "zisc/concepts.hpp"
 #include "zisc/algorithm.hpp"
-#include "zisc/zisc_config.hpp"
 // Zivc
 #include "kernel_common.hpp"
 #include "kernel_set.hpp"

@@ -23,13 +23,13 @@
 #include <utility>
 #include <vector>
 // Zisc
-#include "zisc/error.hpp"
 #include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "device_info.hpp"
 #include "sub_platform.hpp"
 #include "zivc_config.hpp"
+#include "utility/error.hpp"
 #include "utility/id_data.hpp"
 
 namespace zivc {
@@ -55,7 +55,7 @@ inline
 bool Platform::hasSubPlatform(const SubPlatformType type) const noexcept
 {
   const std::size_t index = zisc::cast<std::size_t>(type);
-  ZISC_ASSERT(index < kNumOfSubPlatforms, "The index is out of range.");
+  ZIVC_ASSERT(index < kNumOfSubPlatforms, "The index is out of range.");
   const auto sub_platform = subPlatform(type);
   const bool result = (sub_platform != nullptr) && sub_platform->isAvailable();
   return result;
@@ -125,7 +125,7 @@ inline
 SubPlatform* Platform::subPlatform(const SubPlatformType type) noexcept
 {
   const std::size_t index = zisc::cast<std::size_t>(type);
-  ZISC_ASSERT(index < kNumOfSubPlatforms, "The index is out of range.");
+  ZIVC_ASSERT(index < kNumOfSubPlatforms, "The index is out of range.");
   SharedSubPlatform& sub_platform = sub_platform_list_[index];
   return sub_platform.get();
 }
@@ -140,7 +140,7 @@ inline
 const SubPlatform* Platform::subPlatform(const SubPlatformType type) const noexcept
 {
   const std::size_t index = zisc::cast<std::size_t>(type);
-  ZISC_ASSERT(index < kNumOfSubPlatforms, "The index is out of range.");
+  ZIVC_ASSERT(index < kNumOfSubPlatforms, "The index is out of range.");
   const SharedSubPlatform& sub_platform = sub_platform_list_[index];
   return sub_platform.get();
 }
@@ -154,7 +154,7 @@ inline
 void Platform::setSubPlatform(SharedSubPlatform&& sub_platform) noexcept
 {
   const std::size_t index = zisc::cast<std::size_t>(sub_platform->type());
-  ZISC_ASSERT(index < kNumOfSubPlatforms, "The index is out of range.");
+  ZIVC_ASSERT(index < kNumOfSubPlatforms, "The index is out of range.");
   sub_platform_list_[index] = std::move(sub_platform);
 }
 

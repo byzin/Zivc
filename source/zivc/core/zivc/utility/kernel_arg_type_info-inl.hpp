@@ -23,7 +23,6 @@
 #include <type_traits>
 // Zisc
 #include "zisc/concepts.hpp"
-#include "zisc/zisc_config.hpp"
 // Zivc
 #include "zivc/cppcl/address_space_pointer.hpp"
 #include "zivc/zivc_config.hpp"

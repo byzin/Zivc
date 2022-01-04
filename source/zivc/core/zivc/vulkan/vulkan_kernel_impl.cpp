@@ -21,7 +21,6 @@
 #include <utility>
 #include <vector>
 // Zisc
-#include "zisc/error.hpp"
 #include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
@@ -29,6 +28,7 @@
 #include "utility/vulkan_dispatch_loader.hpp"
 #include "utility/vulkan_hpp.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/utility/error.hpp"
 
 namespace zivc {
 
@@ -113,7 +113,7 @@ void VulkanKernelImpl::dispatchCmd(const VkCommandBuffer& command_buffer,
   const auto& loader = device().dispatcher().loader();
 
   const zivcvk::CommandBuffer command{command_buffer};
-  ZISC_ASSERT(command, "The given command buffer is null.");
+  ZIVC_ASSERT(command, "The given command buffer is null.");
 
   constexpr auto bind_point = zivcvk::PipelineBindPoint::eCompute;
   const zivcvk::PipelineLayout pline_layout{kdata->pipeline_layout_};
@@ -184,7 +184,7 @@ void VulkanKernelImpl::initDescriptorSet(
                                                        &desc_set_layout};
     zisc::pmr::polymorphic_allocator<zivcvk::DescriptorSet> set_alloc{mem_resource};
     auto desc_set = d.allocateDescriptorSets(alloc_info, set_alloc, loader);
-    ZISC_ASSERT(desc_set.size() == 1, "Multiple descriptor sets were created.");
+    ZIVC_ASSERT(desc_set.size() == 1, "Multiple descriptor sets were created.");
 
     // Output
     *descriptor_pool = zisc::cast<VkDescriptorPool>(desc_pool);

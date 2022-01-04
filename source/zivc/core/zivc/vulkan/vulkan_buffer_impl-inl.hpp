@@ -20,7 +20,6 @@
 #include <cstddef>
 #include <memory>
 // Zisc
-#include "zisc/error.hpp"
 #include "zisc/utility.hpp"
 // Zivc
 #include "utility/vulkan.hpp"
@@ -29,6 +28,7 @@
 #include "zivc/zivc_config.hpp"
 #include "zivc/cppcl/vector.hpp"
 #include "zivc/utility/buffer_launch_options.hpp"
+#include "zivc/utility/error.hpp"
 #include "zivc/utility/launch_result.hpp"
 #include "zivc/utility/launch_options.hpp"
 
@@ -87,7 +87,7 @@ LaunchResult VulkanBufferImpl::fill(KernelCommon* fill_kernel,
     break;
    }
    default:
-    ZISC_ASSERT(false, "Unsupported fill size is specified: ", data_size);
+    ZIVC_ASSERT(false, "Unsupported fill size is specified: ", data_size);
     break;
   }
   return result;
@@ -124,7 +124,7 @@ std::shared_ptr<KernelCommon> VulkanBufferImpl::makeFillKernel(
     kernel = makeFillU128Kernel(command_buffer);
     break;
    default:
-    ZISC_ASSERT(false, "Unsupported fill size is specified: ", data_size);
+    ZIVC_ASSERT(false, "Unsupported fill size is specified: ", data_size);
     break;
   }
   return kernel;

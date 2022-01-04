@@ -21,7 +21,6 @@
 #include <stdexcept>
 // Zisc
 #include "zisc/concepts.hpp"
-#include "zisc/error.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "buffer.hpp"

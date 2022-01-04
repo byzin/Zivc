@@ -19,7 +19,6 @@
 #include <type_traits>
 #include <utility>
 // Zisc
-#include "zisc/error.hpp"
 #include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
@@ -208,11 +207,11 @@ void VulkanBufferImpl::copyCmd(const VkCommandBuffer& command_buffer,
                                const VkBufferCopy& region) const
 {
   const zivcvk::CommandBuffer command{command_buffer};
-  ZISC_ASSERT(command, "The given command buffer is null.");
+  ZIVC_ASSERT(command, "The given command buffer is null.");
   const zivcvk::Buffer source{source_buffer};
-  ZISC_ASSERT(source, "The given source buffer is null.");
+  ZIVC_ASSERT(source, "The given source buffer is null.");
   const zivcvk::Buffer dest{dest_buffer};
-  ZISC_ASSERT(dest, "The given dest buffer is null.");
+  ZIVC_ASSERT(dest, "The given dest buffer is null.");
   const zivcvk::BufferCopy copy_region{region};
   command.copyBuffer(source, dest, copy_region, device().dispatcher().loader());
 }
@@ -427,9 +426,9 @@ void VulkanBufferImpl::fillFastCmd(const VkCommandBuffer& command_buffer,
                                    const uint32b data) const noexcept
 {
   const zivcvk::CommandBuffer command{command_buffer};
-  ZISC_ASSERT(command, "The given command buffer is null.");
+  ZIVC_ASSERT(command, "The given command buffer is null.");
   const zivcvk::Buffer buf{buffer};
-  ZISC_ASSERT(buf, "The given buffer is null.");
+  ZIVC_ASSERT(buf, "The given buffer is null.");
   command.fillBuffer(buf, dest_offset, size, data, device().dispatcher().loader());
 }
 

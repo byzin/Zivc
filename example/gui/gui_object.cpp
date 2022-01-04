@@ -17,8 +17,9 @@
 #include <memory>
 #include <utility>
 // Zisc
-#include "zisc/error.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
+// Zivc
+#include "zivc/utility/error.hpp"
 
 namespace example {
 
@@ -106,7 +107,7 @@ bool GuiObject::hasParent() const noexcept
   */
 zisc::pmr::memory_resource* GuiObject::memoryResource() noexcept
 {
-  ZISC_ASSERT(hasParent(), "Parent is null.");
+  ZIVC_ASSERT(hasParent(), "Parent is null.");
   auto* p = getParent();
   zisc::pmr::memory_resource* mem_resource = p->memoryResource();
   return mem_resource;
@@ -119,7 +120,7 @@ zisc::pmr::memory_resource* GuiObject::memoryResource() noexcept
   */
 const zisc::pmr::memory_resource* GuiObject::memoryResource() const noexcept
 {
-  ZISC_ASSERT(hasParent(), "Parent is null.");
+  ZIVC_ASSERT(hasParent(), "Parent is null.");
   const auto* p = getParent();
   const zisc::pmr::memory_resource* mem_resource = p->memoryResource();
   return mem_resource;

@@ -30,7 +30,6 @@
 #include <vector>
 // Zisc
 #include "zisc/bit.hpp"
-#include "zisc/error.hpp"
 #include "zisc/utility.hpp"
 #include "zisc/math/unit_multiple.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
@@ -286,18 +285,18 @@ auto VulkanSubPlatform::Callbacks::allocateMemory(
     size_t alignment,
     [[maybe_unused]] VkSystemAllocationScope scope) -> AllocationReturnType
 {
-  ZISC_ASSERT(user_data != nullptr, "The user data is null.");
+  ZIVC_ASSERT(user_data != nullptr, "The user data is null.");
   auto* alloc_data = zisc::cast<AllocatorData*>(user_data);
   void* memory = alloc_data->memoryResource()->allocate(size, alignment);
 
   // Store the allocation info
   static_assert(sizeof(void*) == sizeof(double));
   const auto address = zisc::bit_cast<double>(memory);
-  ZISC_ASSERT(std::isfinite(address), "The address float isn't finite.");
+  ZIVC_ASSERT(std::isfinite(address), "The address float isn't finite.");
   auto& mem_map = alloc_data->memoryMap();
   {
     const auto index_result = mem_map.add(address);
-    ZISC_ASSERT(index_result.isSuccess(), "Adding the address into the map failed.");
+    ZIVC_ASSERT(index_result.isSuccess(), "Adding the address into the map failed.");
     const std::size_t index = index_result.get().get();
     auto& mem_list = alloc_data->memoryList();
     const MemoryData data{size, alignment};
@@ -317,25 +316,25 @@ void VulkanSubPlatform::Callbacks::deallocateMemory(
     void* user_data,
     void* memory)
 {
-  ZISC_ASSERT(user_data != nullptr, "The user data is null.");
+  ZIVC_ASSERT(user_data != nullptr, "The user data is null.");
   if (memory != nullptr) {
     auto* alloc_data = zisc::cast<AllocatorData*>(user_data);
 
     static_assert(sizeof(void*) == sizeof(double));
     const auto address = zisc::bit_cast<double>(memory);
-    ZISC_ASSERT(std::isfinite(address), "The address float isn't finite.");
+    ZIVC_ASSERT(std::isfinite(address), "The address float isn't finite.");
     auto& mem_map = alloc_data->memoryMap();
     MemoryData data;
     {
       const auto index_result = mem_map.contain(address);
-      ZISC_ASSERT(index_result.isSuccess(), "The address isn't in the map.");
+      ZIVC_ASSERT(index_result.isSuccess(), "The address isn't in the map.");
       const std::size_t index = index_result.get().get();
       const auto& mem_list = alloc_data->memoryList();
       data = mem_list[index];
     }
     {
       const auto index_result = mem_map.remove(address);
-      ZISC_ASSERT(index_result.isSuccess(), "The address isn't in the map.");
+      ZIVC_ASSERT(index_result.isSuccess(), "The address isn't in the map.");
     }
     alloc_data->memoryResource()->deallocate(memory, data.size_, data.alignment_);
   }
@@ -548,7 +547,7 @@ auto VulkanSubPlatform::Callbacks::reallocateMemory(
     size_t alignment,
     VkSystemAllocationScope scope) -> ReallocationReturnType
 {
-  ZISC_ASSERT(user_data != nullptr, "The user data is null.");
+  ZIVC_ASSERT(user_data != nullptr, "The user data is null.");
   // Allocate new memory block
   void* memory = nullptr;
   if (0 < size)
@@ -559,12 +558,12 @@ auto VulkanSubPlatform::Callbacks::reallocateMemory(
 
     static_assert(sizeof(void*) == sizeof(double));
     const auto address = zisc::bit_cast<double>(original_memory);
-    ZISC_ASSERT(std::isfinite(address), "The address float isn't finite.");
+    ZIVC_ASSERT(std::isfinite(address), "The address float isn't finite.");
     auto& mem_map = alloc_data->memoryMap();
     MemoryData data;
     {
       const auto index_result = mem_map.contain(address);
-      ZISC_ASSERT(index_result.isSuccess(), "The address isn't in the map.");
+      ZIVC_ASSERT(index_result.isSuccess(), "The address isn't in the map.");
       const std::size_t index = index_result.get().get();
       const auto& mem_list = alloc_data->memoryList();
       data = mem_list[index];
@@ -774,8 +773,8 @@ void VulkanSubPlatform::initDispatcher(PlatformOptions& options)
     dispatcher_->set(mem_resource, *ptr);
   else
     dispatcher_->set(mem_resource, lib);
-  ZISC_ASSERT(dispatcher().isDispatchableForInstance(), "Unexpected init.");
-  ZISC_ASSERT(!dispatcher().isDispatchableForDevice(), "Unexpected init.");
+  ZIVC_ASSERT(dispatcher().isDispatchableForInstance(), "Unexpected init.");
+  ZIVC_ASSERT(!dispatcher().isDispatchableForDevice(), "Unexpected init.");
 }
 
 /*!

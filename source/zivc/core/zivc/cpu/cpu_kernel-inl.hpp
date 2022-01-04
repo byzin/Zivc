@@ -25,7 +25,6 @@
 #include <tuple>
 #include <type_traits>
 // Zisc
-#include "zisc/error.hpp"
 #include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc

@@ -24,13 +24,13 @@
 #include <utility>
 #include <vector>
 // Zisc
-#include "zisc/error.hpp"
 #include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "utility/vulkan_dispatch_loader.hpp"
 #include "utility/vulkan_hpp.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/utility/error.hpp"
 
 namespace zivc {
 
@@ -700,7 +700,7 @@ void VulkanDeviceInfo::fetchQueueFamilyProperties(
   uint32b size = 0;
   {
     d.getQueueFamilyProperties(&size, nullptr, loader);
-    ZISC_ASSERT(size <= max_size, "The number of queue families exceeded the limit.");
+    ZIVC_ASSERT(size <= max_size, "The number of queue families exceeded the limit.");
     queue_family_properties_list_.resize(zisc::cast<std::size_t>(size));
   }
 

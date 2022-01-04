@@ -27,7 +27,6 @@
 #include <type_traits>
 #include <vector>
 // Zisc
-#include "zisc/error.hpp"
 #include "zisc/utility.hpp"
 #include "zisc/data_structure/queue.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
@@ -42,6 +41,7 @@
 #include "utility/vulkan_memory_allocator.hpp"
 #include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/utility/error.hpp"
 
 namespace zivc {
 
@@ -143,7 +143,7 @@ inline
 VkQueue& VulkanDevice::getQueue(const Capability cap,
                                 const std::size_t index) noexcept
 {
-  ZISC_ASSERT(hasCapability(cap), "Unsupported capability is specified in getQueue.");
+  ZIVC_ASSERT(hasCapability(cap), "Unsupported capability is specified in getQueue.");
   const std::size_t qindex = index % numOfQueues(cap);
   const std::size_t qoffset = queueOffset(cap);
   VkQueue& q = (*queue_list_)[qindex + qoffset];
@@ -161,7 +161,7 @@ inline
 const VkQueue& VulkanDevice::getQueue(const Capability cap,
                                       const std::size_t index) const noexcept
 {
-  ZISC_ASSERT(hasCapability(cap), "Unsupported capability is specified in getQueue.");
+  ZIVC_ASSERT(hasCapability(cap), "Unsupported capability is specified in getQueue.");
   const std::size_t qindex = index % numOfQueues(cap);
   const std::size_t qoffset = queueOffset(cap);
   const VkQueue& q = (*queue_list_)[qindex + qoffset];
@@ -178,7 +178,7 @@ inline
 auto VulkanDevice::getShaderKernel(const uint64b id) const noexcept
     -> const KernelData&
 {
-  ZISC_ASSERT(hasShaderKernel(id), "Kernel data not found. id = ", id);
+  ZIVC_ASSERT(hasShaderKernel(id), "Kernel data not found. id = ", id);
   const KernelData* data = nullptr;
   {
     std::shared_lock<std::shared_mutex> lock{shader_mutex_};
@@ -198,7 +198,7 @@ inline
 auto VulkanDevice::getShaderModule(const uint64b id) const noexcept
     -> const ModuleData&
 {
-  ZISC_ASSERT(hasShaderModule(id), "Shader module not found. id = ", id);
+  ZIVC_ASSERT(hasShaderModule(id), "Shader module not found. id = ", id);
   const ModuleData* data = nullptr;
   {
     std::shared_lock<std::shared_mutex> lock{shader_mutex_};

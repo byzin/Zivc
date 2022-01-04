@@ -21,7 +21,6 @@
 #include <type_traits>
 #include <utility>
 // Zisc
-#include "zisc/error.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "vulkan_hpp.hpp"
@@ -194,7 +193,7 @@ void VulkanDispatchLoader::initialize(zisc::pmr::memory_resource* mem_resource,
 {
   PFN_vkGetInstanceProcAddr get_proc_addr = nullptr;
 #if defined(ZIVC_DYNAMIC_VULKAN_LOADING)
-  ZISC_ASSERT(mem_resource != nullptr, "The memory resource is null.");
+  ZIVC_ASSERT(mem_resource != nullptr, "The memory resource is null.");
   {
     using Loader = zivcvk::DynamicLoader;
     zisc::pmr::polymorphic_allocator<Loader> alloc{mem_resource};
@@ -207,7 +206,7 @@ void VulkanDispatchLoader::initialize(zisc::pmr::memory_resource* mem_resource,
       throw SystemError{ErrorCode::kVulkanLibraryNotFound, message};
     }
   }
-  ZISC_ASSERT(dynamic_loader_->success(), "Vulkan library not found.");
+  ZIVC_ASSERT(dynamic_loader_->success(), "Vulkan library not found.");
   const char* name = "vkGetInstanceProcAddr";
   get_proc_addr = dynamic_loader_->getProcAddress<PFN_vkGetInstanceProcAddr>(name);
 #else // ZIVC_DYNAMIC_VULKAN_LOADING
@@ -224,8 +223,8 @@ void VulkanDispatchLoader::initialize(zisc::pmr::memory_resource* mem_resource,
 void VulkanDispatchLoader::initialize(zisc::pmr::memory_resource* mem_resource,
                                       const PFN_vkGetInstanceProcAddr get_proc_addr)
 {
-  ZISC_ASSERT(mem_resource != nullptr, "The memory resource is null.");
-  ZISC_ASSERT(get_proc_addr != nullptr, "'get_proc_addr' is null.");
+  ZIVC_ASSERT(mem_resource != nullptr, "The memory resource is null.");
+  ZIVC_ASSERT(get_proc_addr != nullptr, "'get_proc_addr' is null.");
   {
     zisc::pmr::polymorphic_allocator<LoaderType> alloc{mem_resource};
     loader_impl_ = std::allocate_shared<LoaderType>(alloc, get_proc_addr);

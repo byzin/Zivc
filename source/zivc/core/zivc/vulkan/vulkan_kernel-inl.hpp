@@ -28,7 +28,6 @@
 #include <utility>
 // Zisc
 #include "zisc/concepts.hpp"
-#include "zisc/error.hpp"
 #include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
@@ -83,8 +82,10 @@ LaunchResult VulkanKernelHelper::run(VKernel* kernel,
     const auto work_size = kernel->calcDispatchWorkSize(launch_options.workSize());
 
     const auto flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    // Recording scope
     auto record_region = device.makeCmdRecord(command, flags);
     {
+      // Start labeling for debug until the end of the scope
       auto debug_region = device.makeCmdDebugLabel(command, launch_options);
       // Update global and region offsets
       kernel->updateModuleScopePushConstantsCmd(work_size, launch_options);
@@ -101,6 +102,7 @@ LaunchResult VulkanKernelHelper::run(VKernel* kernel,
     constexpr VulkanDeviceCapability cap = VulkanDeviceCapability::kCompute;
     const VkQueue q = device.getQueue(cap, launch_options.queueIndex());
     result.fence().setDevice(launch_options.isExternalSyncMode() ? &device : nullptr);
+    // Start labeling for debug until the end of the scope
     auto debug_region = device.makeQueueDebugLabel(q, launch_options);
     device.submit(command, q, result.fence());
   }
@@ -434,7 +436,7 @@ inline
 const VkBuffer& VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 getBufferHandle(const Buffer<Type>& buffer) noexcept
 {
-  ZISC_ASSERT(buffer.type() == SubPlatformType::kVulkan, "The buffer isn't vulkan.");
+  ZIVC_ASSERT(buffer.type() == SubPlatformType::kVulkan, "The buffer isn't vulkan.");
   using BufferT = VulkanBuffer<Type>;
   using BufferData = typename BufferT::BufferData;
   auto data = zisc::cast<const BufferData*>(buffer.rawBufferData());
@@ -692,7 +694,7 @@ updatePodCacheIfNeeded(Args... args) const noexcept
   bool have_new_pod = false;
   if constexpr (hasPodArg()) {
     const PodCacheT data = makePodCache(args...);
-    ZISC_ASSERT(pod_cache_->isHostVisible(), "The cache isn't host visible.");
+    ZIVC_ASSERT(pod_cache_->isHostVisible(), "The cache isn't host visible.");
     auto cache = pod_cache_->mapMemory();
     have_new_pod = cache[0] != data;
     if (have_new_pod)

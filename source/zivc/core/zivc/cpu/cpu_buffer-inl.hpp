@@ -25,7 +25,6 @@
 #include <vector>
 // Zisc
 #include "zisc/concepts.hpp"
-#include "zisc/error.hpp"
 #include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
@@ -35,6 +34,7 @@
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/buffer_init_params.hpp"
 #include "zivc/utility/buffer_launch_options.hpp"
+#include "zivc/utility/error.hpp"
 #include "zivc/utility/id_data.hpp"
 #include "zivc/utility/launch_result.hpp"
 #include "zivc/utility/zivc_object.hpp"
@@ -157,7 +157,7 @@ template <KernelArg T> inline
 void* CpuBuffer<T>::mapMemoryData() const
 {
   Pointer d = const_cast<Pointer>(data());
-  ZISC_ASSERT(d != nullptr, "The data is null.");
+  ZIVC_ASSERT(d != nullptr, "The data is null.");
   return zisc::cast<void*>(d);
 }
 

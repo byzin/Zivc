@@ -20,9 +20,9 @@
 #include <cstddef>
 #include <type_traits>
 // Zisc
-#include "zisc/error.hpp"
 #include "zisc/utility.hpp"
 // Zivc
+#include "error.hpp"
 #include "zivc/buffer_common.hpp"
 #include "zivc/zivc_config.hpp"
 
@@ -78,7 +78,7 @@ template <KernelArg T> inline
 auto MappedMemory<T>::begin() noexcept -> Iterator
 {
   auto ite = data();
-  ZISC_ASSERT(ite != nullptr, "The data is null.");
+  ZIVC_ASSERT(ite != nullptr, "The data is null.");
   return ite;
 }
 
@@ -91,7 +91,7 @@ template <KernelArg T> inline
 auto MappedMemory<T>::begin() const noexcept -> ConstIterator
 {
   auto ite = data();
-  ZISC_ASSERT(ite != nullptr, "The data is null.");
+  ZIVC_ASSERT(ite != nullptr, "The data is null.");
   return ite;
 }
 
@@ -104,7 +104,7 @@ template <KernelArg T> inline
 auto MappedMemory<T>::cbegin() const noexcept -> ConstIterator
 {
   auto ite = data();
-  ZISC_ASSERT(ite != nullptr, "The data is null.");
+  ZIVC_ASSERT(ite != nullptr, "The data is null.");
   return ite;
 }
 
@@ -117,7 +117,7 @@ template <KernelArg T> inline
 auto MappedMemory<T>::end() noexcept -> Iterator
 {
   auto ite = data();
-  ZISC_ASSERT(ite != nullptr, "The data is null.");
+  ZIVC_ASSERT(ite != nullptr, "The data is null.");
   ite = ite + size();
   return ite;
 }
@@ -131,7 +131,7 @@ template <KernelArg T> inline
 auto MappedMemory<T>::end() const noexcept -> ConstIterator
 {
   auto ite = data();
-  ZISC_ASSERT(ite != nullptr, "The data is null.");
+  ZIVC_ASSERT(ite != nullptr, "The data is null.");
   ite = ite + size();
   return ite;
 }
@@ -145,7 +145,7 @@ template <KernelArg T> inline
 auto MappedMemory<T>::cend() const noexcept -> ConstIterator
 {
   auto ite = data();
-  ZISC_ASSERT(ite != nullptr, "The data is null.");
+  ZIVC_ASSERT(ite != nullptr, "The data is null.");
   ite = ite + size();
   return ite;
 }
@@ -234,8 +234,8 @@ template <KernelArg T> inline
 auto MappedMemory<T>::get(const std::size_t index) noexcept -> Reference
 {
   auto d = data();
-  ZISC_ASSERT(d != nullptr, "The data is null.");
-  ZISC_ASSERT(index < size(), "The index is out of bounds");
+  ZIVC_ASSERT(d != nullptr, "The data is null.");
+  ZIVC_ASSERT(index < size(), "The index is out of bounds");
   Reference value = d[index];
   return value;
 }
@@ -250,8 +250,8 @@ template <KernelArg T> inline
 auto MappedMemory<T>::get(const std::size_t index) const noexcept -> ConstReference
 {
   auto d = data();
-  ZISC_ASSERT(d != nullptr, "The data is null.");
-  ZISC_ASSERT(index < size(), "The index is out of bounds");
+  ZIVC_ASSERT(d != nullptr, "The data is null.");
+  ZIVC_ASSERT(index < size(), "The index is out of bounds");
   ConstReference value = d[index];
   return value;
 }
@@ -278,8 +278,8 @@ template <KernelArg T> inline
 void MappedMemory<T>::set(const std::size_t index, ConstReference value) noexcept
 {
   auto d = data();
-  ZISC_ASSERT(d != nullptr, "The data is null.");
-  ZISC_ASSERT(index < size(), "The index is out of bounds");
+  ZIVC_ASSERT(d != nullptr, "The data is null.");
+  ZIVC_ASSERT(index < size(), "The index is out of bounds");
   d[index] = value;
 }
 
@@ -317,7 +317,7 @@ void MappedMemory<T>::unmap() noexcept
 template <KernelArg T> inline
 const BufferCommon* MappedMemory<T>::internalBuffer() const noexcept
 {
-  ZISC_ASSERT(buffer_ != nullptr, "The internal buffer is null.");
+  ZIVC_ASSERT(buffer_ != nullptr, "The internal buffer is null.");
   return buffer_;
 }
 

@@ -20,6 +20,7 @@
 // Zivc
 #include "types.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/utility/error.hpp"
 
 namespace zivc {
 
@@ -121,7 +122,7 @@ void WorkItem::setWorkGroupId(const uint32b id) noexcept
   work_group_id_[0] = id % nwx;
   work_group_id_[1] = (id / nwx) % nwy;
   work_group_id_[2] = id / (nwx * nwy);
-  ZISC_ASSERT(work_group_id_[2] < get_num_groups(2),
+  ZIVC_ASSERT(work_group_id_[2] < get_num_groups(2),
               "The given work-group ID is invalid: ID=", id);
 }
 

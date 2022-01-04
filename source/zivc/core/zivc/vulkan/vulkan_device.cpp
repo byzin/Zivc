@@ -32,7 +32,6 @@
 #include <vector>
 // Zisc
 #include "zisc/bit.hpp"
-#include "zisc/error.hpp"
 #include "zisc/utility.hpp"
 #include "zisc/hash/fnv_1a_hash_engine.hpp"
 #include "zisc/memory/memory.hpp"
@@ -435,7 +434,7 @@ VkCommandBuffer VulkanDevice::makeCommandBuffer()
       1};
   zisc::pmr::vector<zivcvk::CommandBuffer>::allocator_type alloc{mem_resource};
   auto commands = d.allocateCommandBuffers(alloc_info, alloc, dispatcher().loader());
-  ZISC_ASSERT(commands.size() == 1, "The size of command buffers isn't 1.");
+  ZIVC_ASSERT(commands.size() == 1, "The size of command buffers isn't 1.");
   return zisc::cast<VkCommandBuffer>(commands[0]);
 }
 
@@ -507,7 +506,7 @@ void VulkanDevice::returnFence(Fence* fence) noexcept
   if (fence_index != invalid) {
     IndexQueue& index_queue = fenceIndexQueue();
     [[maybe_unused]] const auto result = index_queue.enqueue(fence_index);
-    ZISC_ASSERT(result.isSuccess(), "Queueing fence index failed.");
+    ZIVC_ASSERT(result.isSuccess(), "Queueing fence index failed.");
     *dest = zivcvk::Fence{};
   }
 }
@@ -587,7 +586,7 @@ void VulkanDevice::setFenceSize(const std::size_t s)
   const std::size_t fence_size = (0 < s) ? index_queue.capacity() : 0;
   for (std::size_t index = 0; index < fence_size; ++index) {
     [[maybe_unused]] const auto result = index_queue.enqueue(index);
-    ZISC_ASSERT(result.isSuccess(), "Enqueing fence index failed: ", index);
+    ZIVC_ASSERT(result.isSuccess(), "Enqueing fence index failed: ", index);
   }
 
   auto& fence_list = *fence_list_;
@@ -665,7 +664,7 @@ void VulkanDevice::waitForCompletion(const uint32b queue_index) const
 void VulkanDevice::waitForCompletion(const Capability cap, 
                                      const uint32b queue_index) const
 {
-  ZISC_ASSERT(hasCapability(cap), "Unsupported capability is specified in wait.");
+  ZIVC_ASSERT(hasCapability(cap), "Unsupported capability is specified in wait.");
   const auto q = zisc::cast<zivcvk::Queue>(getQueue(cap, queue_index));
   q.waitIdle(dispatcher().loader());
 }
@@ -685,7 +684,7 @@ void VulkanDevice::waitForCompletion(const Fence& fence) const
                                                          VK_TRUE,
                                                          timeout,
                                                          dispatcher().loader());
-    ZISC_ASSERT(result == zivcvk::Result::eSuccess, "Waiting for a fence failed.");
+    ZIVC_ASSERT(result == zivcvk::Result::eSuccess, "Waiting for a fence failed.");
   }
 }
 
@@ -1267,8 +1266,8 @@ void VulkanDevice::initDispatcher()
   dispatcher_ = zisc::pmr::allocateUnique<VulkanDispatchLoader>(
       memoryResource(),
       sub_platform.dispatcher());
-  ZISC_ASSERT(dispatcher().isDispatchableForInstance(), "Unexpected init.");
-  ZISC_ASSERT(dispatcher().isDispatchableForDevice(), "Unexpected init.");
+  ZIVC_ASSERT(dispatcher().isDispatchableForInstance(), "Unexpected init.");
+  ZIVC_ASSERT(dispatcher().isDispatchableForDevice(), "Unexpected init.");
 }
 
 /*!
@@ -1341,7 +1340,7 @@ void VulkanDevice::initWorkGroupSizeDim() noexcept
     for (uint32b i = 0; product(work_group_size) < group_size; i = (i + 1) % dim)
       work_group_size[i] *= 2;
     [[maybe_unused]] const uint32b s = product(work_group_size);
-    ZISC_ASSERT(s == group_size,
+    ZIVC_ASSERT(s == group_size,
                 "The work-group size should be power of 2: group size = ", s);
     work_group_size_list_[dim - 1] = work_group_size;
   }
@@ -1404,7 +1403,7 @@ void VulkanDevice::initQueueCreateInfoList(
   if (hasCapability(Capability::kGui)) {
     const uint32b family_index = queueFamilyIndex(Capability::kGui);
     zivcvk::DeviceQueueCreateInfo* create_info = find_create_info(family_index);
-    ZISC_ASSERT(create_info != nullptr, "Setting priority for GUI failed.");
+    ZIVC_ASSERT(create_info != nullptr, "Setting priority for GUI failed.");
     const float* p = nullptr;
     std::size_t n = 0;
     if (queueFamilyIndex(Capability::kCompute) == queueFamilyIndex(Capability::kGui)) {

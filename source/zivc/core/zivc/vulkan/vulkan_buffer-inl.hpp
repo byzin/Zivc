@@ -27,7 +27,6 @@
 #include "zisc/bit.hpp"
 #include "zisc/boolean.hpp"
 #include "zisc/concepts.hpp"
-#include "zisc/error.hpp"
 #include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
@@ -489,8 +488,10 @@ LaunchResult VulkanBuffer<T>::copyOnDevice(
                                                   : src_data.command_buffer_;
   {
     constexpr auto flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    // Recording scope
     auto record_region = device.makeCmdRecord(command, flags);
     {
+      // Start labeling for debug until the end of the scope
       auto debug_region = device.makeCmdDebugLabel(command, launch_options);
       // Record buffer copying operation
       const VkBufferCopy copy_region{launch_options.sourceOffsetInBytes(),
@@ -507,6 +508,7 @@ LaunchResult VulkanBuffer<T>::copyOnDevice(
     VkQueue q = device.getQueue(cap, launch_options.queueIndex());
     Fence& fence = result.fence();
     fence.setDevice(launch_options.isExternalSyncMode() ? &device : nullptr);
+    // Start labeling for debug until the end of the scope
     auto debug_region = device.makeQueueDebugLabel(q, launch_options);
     device.submit(command, q, fence);
   }
@@ -563,8 +565,10 @@ LaunchResult VulkanBuffer<T>::fillFastOnDevice(
   // Record commands
   {
     constexpr auto flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    // Recording scope
     auto record_region = device.makeCmdRecord(command, flags);
     {
+      // Start labeling for debug until the end of the scope
       auto debug_region = device.makeCmdDebugLabel(command, launch_options);
       // Record buffer filling operation
       const VulkanBufferImpl impl{std::addressof(device)};
@@ -580,6 +584,7 @@ LaunchResult VulkanBuffer<T>::fillFastOnDevice(
     VkQueue q = device.getQueue(cap, launch_options.queueIndex());
     Fence& fence = result.fence();
     fence.setDevice(launch_options.isExternalSyncMode() ? &device : nullptr);
+    // Start labeling for debug until the end of the scope
     auto debug_region = device.makeQueueDebugLabel(q, launch_options);
     device.submit(command, q, fence);
   }
@@ -709,7 +714,7 @@ void VulkanBuffer<T>::initFillKernel()
 {
   VulkanDevice& device = parentImpl();
   if (!rawBuffer().fill_kernel_ && isDeviceLocal()) {
-    ZISC_ASSERT(commandBuffer() != ZIVC_VK_NULL_HANDLE, "Command buffer is null.");
+    ZIVC_ASSERT(commandBuffer() != ZIVC_VK_NULL_HANDLE, "Command buffer is null.");
     VulkanBufferImpl impl{std::addressof(device)};
     rawBuffer().fill_kernel_ = impl.makeFillKernel<T>(commandBuffer());
   }

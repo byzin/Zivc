@@ -21,12 +21,12 @@
 #include <vector>
 // Zisc
 #include "zisc/binary_serializer.hpp"
-#include "zisc/error.hpp"
 #include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/utility/error.hpp"
 #include "zivc/utility/zstd.hpp"
 
 #if defined(ZIVC_BAKE_KERNELS)
@@ -71,7 +71,7 @@ void loadBakedSpirvCode(zisc::pmr::vector<zivc::uint32b>* spirv_code_out) noexce
                 "The size of the encoded SPIR-V code isn't valid.");
   std::size_t raw_size = ZSTD_getFrameContentSize(encoded_code.data(),
                                                   encoded_code.size());
-  ZISC_ASSERT(raw_size == expected_raw_size,
+  ZIVC_ASSERT(raw_size == expected_raw_size,
               "The header of the encoded kernel set isn't valid.");
 
   // Create a Zstd context
@@ -107,9 +107,9 @@ void KernelSet_@kernel_set_name@::loadSpirVCode(
   ::loadBakedSpirvCode(spirv_code_out);
 #else // ZIVC_BAKE_KERNELS
   std::ifstream spv_file{"@spv_file_path@", std::ios_base::binary};
-  ZISC_ASSERT(spv_file.is_open(), "The SPIR-V file not found.");
+  ZIVC_ASSERT(spv_file.is_open(), "The SPIR-V file not found.");
   const std::streamsize spv_size = zisc::BSerializer::getDistance(&spv_file);
-  ZISC_ASSERT((spv_size % 4) == 0, "The size of the SPIR-V code isn't valid.");
+  ZIVC_ASSERT((spv_size % 4) == 0, "The size of the SPIR-V code isn't valid.");
   spirv_code_out->resize(zisc::cast<std::size_t>(spv_size / 4));
   spv_file.read(reinterpret_cast<char*>(spirv_code_out->data()), spv_size);
 #endif // ZIVC_BAKE_KERNELS

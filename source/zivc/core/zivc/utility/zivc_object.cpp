@@ -18,9 +18,9 @@
 #include <string_view>
 #include <utility>
 // Zisc
-#include "zisc/error.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
+#include "error.hpp"
 #include "id_data.hpp"
 #include "zivc/zivc_config.hpp"
 
@@ -124,7 +124,7 @@ void ZivcObject::initObject(SharedPtr&& parent, WeakPtr&& own) noexcept
   */
 bool ZivcObject::isDebugMode() const noexcept
 {
-  ZISC_ASSERT(hasParent(), "Parent is null.");
+  ZIVC_ASSERT(hasParent(), "Parent is null.");
   const auto* p = getParent();
   const bool mode = p->isDebugMode();
   return mode;
@@ -137,7 +137,7 @@ bool ZivcObject::isDebugMode() const noexcept
   */
 IdData ZivcObject::issueId() noexcept
 {
-  ZISC_ASSERT(hasParent(), "Parent is null.");
+  ZIVC_ASSERT(hasParent(), "Parent is null.");
   auto* p = getParent();
   IdData child_id = p->issueId();
   return child_id;
@@ -150,7 +150,7 @@ IdData ZivcObject::issueId() noexcept
   */
 zisc::pmr::memory_resource* ZivcObject::memoryResource() noexcept
 {
-  ZISC_ASSERT(hasParent(), "Parent is null.");
+  ZIVC_ASSERT(hasParent(), "Parent is null.");
   auto* p = getParent();
   zisc::pmr::memory_resource* mem_resource = p->memoryResource();
   return mem_resource;
@@ -163,7 +163,7 @@ zisc::pmr::memory_resource* ZivcObject::memoryResource() noexcept
   */
 const zisc::pmr::memory_resource* ZivcObject::memoryResource() const noexcept
 {
-  ZISC_ASSERT(hasParent(), "Parent is null.");
+  ZIVC_ASSERT(hasParent(), "Parent is null.");
   const auto* p = getParent();
   const zisc::pmr::memory_resource* mem_resource = p->memoryResource();
   return mem_resource;
@@ -201,7 +201,7 @@ void ZivcObject::setNameIfEmpty(const std::string_view object_name)
   */
 SubPlatformType ZivcObject::type() const noexcept
 {
-  ZISC_ASSERT(hasParent(), "Parent is null.");
+  ZIVC_ASSERT(hasParent(), "Parent is null.");
   const auto* p = getParent();
   return p->type();
 }

@@ -22,14 +22,14 @@
 #include <utility>
 // Zisc
 #include "zisc/concepts.hpp"
-#include "zisc/error.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "buffer_init_params.hpp"
+#include "error.hpp"
+#include "id_data.hpp"
+#include "zivc_object.hpp"
 #include "zivc/buffer.hpp"
 #include "zivc/zivc_config.hpp"
-#include "zivc/utility/id_data.hpp"
-#include "zivc/utility/zivc_object.hpp"
 
 namespace zivc {
 
@@ -71,7 +71,7 @@ ZivcObject* ReinterpBuffer<Derived, T>::getParent() noexcept
 {
   ZivcObject* data = nullptr;
   if constexpr (std::is_const_v<BufferT>) {
-    ZISC_ASSERT(false, "'getParent' cannot be called with const qualified buffer.");
+    ZIVC_ASSERT(false, "'getParent' cannot be called with const qualified buffer.");
   }
   else {
     auto b = internalBuffer();
@@ -102,7 +102,7 @@ ZivcObject* ReinterpBuffer<Derived, T>::getOwn() noexcept
 {
   ZivcObject* data = nullptr;
   if constexpr (std::is_const_v<BufferT>) {
-    ZISC_ASSERT(false, "'getOwn' cannot be called with const qualified buffer.");
+    ZIVC_ASSERT(false, "'getOwn' cannot be called with const qualified buffer.");
   }
   else {
     auto b = internalBuffer();
@@ -229,7 +229,7 @@ zisc::pmr::memory_resource* ReinterpBuffer<Derived, T>::memoryResource() noexcep
 {
   zisc::pmr::memory_resource* mem_resource = nullptr;
   if constexpr (std::is_const_v<BufferT>) {
-    ZISC_ASSERT(false, "'memoryResource' cannot be called with const qualified buffer.");
+    ZIVC_ASSERT(false, "'memoryResource' cannot be called with const qualified buffer.");
   }
   else {
     auto b = internalBuffer();
@@ -261,7 +261,7 @@ void* ReinterpBuffer<Derived, T>::rawBufferData() noexcept
 {
   void* data = nullptr;
   if constexpr (std::is_const_v<BufferT>) {
-    ZISC_ASSERT(false, "'rawBufferData' cannot be called with const qualified buffer.");
+    ZIVC_ASSERT(false, "'rawBufferData' cannot be called with const qualified buffer.");
   }
   else {
     auto b = internalBuffer();
@@ -289,7 +289,7 @@ template <DerivedBuffer Derived, KernelArg T> inline
 void ReinterpBuffer<Derived, T>::setSize(const std::size_t s)
 {
   if constexpr (std::is_const_v<BufferT>) {
-    ZISC_ASSERT(false, "'setSize' cannot be called with const qualified buffer.");
+    ZIVC_ASSERT(false, "'setSize' cannot be called with const qualified buffer.");
   }
   else {
     auto b = internalBuffer();
@@ -364,7 +364,7 @@ void ReinterpBuffer<Derived, T>::updateDebugInfoImpl() noexcept
 template <DerivedBuffer Derived, KernelArg T> inline
 auto ReinterpBuffer<Derived, T>::internalBuffer() noexcept -> BufferP
 {
-  ZISC_ASSERT(buffer_ != nullptr, "The internal buffer is null.");
+  ZIVC_ASSERT(buffer_ != nullptr, "The internal buffer is null.");
   return buffer_;
 }
 
@@ -376,7 +376,7 @@ auto ReinterpBuffer<Derived, T>::internalBuffer() noexcept -> BufferP
 template <DerivedBuffer Derived, KernelArg T> inline
 auto ReinterpBuffer<Derived, T>::internalBuffer() const noexcept -> ConstBufferP
 {
-  ZISC_ASSERT(buffer_ != nullptr, "The internal buffer is null.");
+  ZIVC_ASSERT(buffer_ != nullptr, "The internal buffer is null.");
   return buffer_;
 }
 

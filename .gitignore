@@ -110,6 +110,8 @@
 !/test/unittest/kernels/kernel_test/*.cl
 !/test/unittest/kernels/kernel_test2/
 !/test/unittest/kernels/kernel_test2/*.cl
+!/test/unittest/kernels/kernel_test_params/
+!/test/unittest/kernels/kernel_test_params/*.cl
 !/test/unittest/kernels/kernel_test_pod/
 !/test/unittest/kernels/kernel_test_pod/*.cl
 

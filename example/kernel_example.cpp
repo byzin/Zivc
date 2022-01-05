@@ -149,12 +149,12 @@ int doKernelExample(zivc::PlatformOptions& platform_options)
 
     auto launch_options = kernel->makeOptions();
     launch_options.setWorkSize({1920 * 1080});
-    launch_options.setExternalSyncMode(false);
+    launch_options.requestFence(false);
     auto result = kernel->run(*buffer1, *buffer3, n, launch_options);
 
     auto launch_options2 = kernel2->makeOptions();
     launch_options2.setWorkSize({1920 * 1080});
-    launch_options2.setExternalSyncMode(true);
+    launch_options2.requestFence(true);
     auto result2 = kernel2->run(*buffer2, *buffer4, n, launch_options2);
 
 //    device->waitForCompletion(result.fence());

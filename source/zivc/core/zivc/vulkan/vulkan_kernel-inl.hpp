@@ -101,7 +101,7 @@ LaunchResult VulkanKernelHelper::run(VKernel* kernel,
   {
     constexpr VulkanDeviceCapability cap = VulkanDeviceCapability::kCompute;
     const VkQueue q = device.getQueue(cap, launch_options.queueIndex());
-    result.fence().setDevice(launch_options.isExternalSyncMode() ? &device : nullptr);
+    result.fence().setDevice(launch_options.isFenceRequested() ? &device : nullptr);
     // Start labeling for debug until the end of the scope
     auto debug_region = device.makeQueueDebugLabel(q, launch_options);
     device.submit(command, q, result.fence());

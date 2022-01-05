@@ -25,6 +25,7 @@
 #include "zisc/utility.hpp"
 #include "zisc/memory/simple_memory_resource.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
+#include "zisc/thread/thread_manager.hpp"
 // Zivc
 #include "device.hpp"
 #include "platform_options.hpp"
@@ -165,6 +166,30 @@ SharedDevice Platform::queryDevice(const std::size_t device_index)
     (*device_list_)[device_index] = device;
   }
   return device;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+zisc::ThreadManager& Platform::threadManager() noexcept
+{
+  auto* sub_Platform = subPlatform(SubPlatformType::kCpu);
+  auto* cpu_platform = zisc::cast<CpuSubPlatform*>(sub_Platform);
+  return cpu_platform->threadManager();
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+const zisc::ThreadManager& Platform::threadManager() const noexcept
+{
+  const auto* sub_Platform = subPlatform(SubPlatformType::kCpu);
+  const auto* cpu_platform = zisc::cast<const CpuSubPlatform*>(sub_Platform);
+  return cpu_platform->threadManager();
 }
 
 /*!

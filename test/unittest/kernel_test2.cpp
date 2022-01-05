@@ -72,7 +72,7 @@ TEST(KernelTest, KernelMultipleInvocationsTest)
   // Init buffers
   {
     auto options = buff_device->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = buff_device->fill(0, options);
     device->waitForCompletion(result.fence());
   }
@@ -117,49 +117,49 @@ TEST(KernelTest, KernelMultipleInvocationsTest)
   {
     auto launch_options = kernel1->makeOptions();
     launch_options.setWorkSize({n});
-    launch_options.setExternalSyncMode(false);
+    launch_options.requestFence(false);
     launch_options.setLabel("invocation1Kernel");
     auto result = kernel1->run(*buff_device, n, launch_options);
   }
   {
     auto launch_options = kernel2->makeOptions();
     launch_options.setWorkSize({n});
-    launch_options.setExternalSyncMode(false);
+    launch_options.requestFence(false);
     launch_options.setLabel("invocation1Kernel");
     auto result = kernel2->run(*buff_device, n, launch_options);
   }
   {
     auto launch_options = kernel3->makeOptions();
     launch_options.setWorkSize({n});
-    launch_options.setExternalSyncMode(false);
+    launch_options.requestFence(false);
     launch_options.setLabel("invocation1Kernel");
     auto result = kernel3->run(*buff_device, n, launch_options);
   }
   {
     auto launch_options = kernel4->makeOptions();
     launch_options.setWorkSize({n});
-    launch_options.setExternalSyncMode(false);
+    launch_options.requestFence(false);
     launch_options.setLabel("invocation2Kernel");
     auto result = kernel4->run(*buff_device, n, launch_options);
   }
   {
     auto launch_options = kernel5->makeOptions();
     launch_options.setWorkSize({n});
-    launch_options.setExternalSyncMode(false);
+    launch_options.requestFence(false);
     launch_options.setLabel("invocation3Kernel");
     auto result = kernel5->run(*buff_device, n, launch_options);
   }
   {
     auto launch_options = kernel6->makeOptions();
     launch_options.setWorkSize({n});
-    launch_options.setExternalSyncMode(false);
+    launch_options.requestFence(false);
     launch_options.setLabel("invocation3Kernel");
     auto result = kernel6->run(*buff_device, n, launch_options);
   }
   {
     auto launch_options = kernel7->makeOptions();
     launch_options.setWorkSize({n});
-    launch_options.setExternalSyncMode(false);
+    launch_options.requestFence(false);
     launch_options.setLabel("invocation3Kernel");
     auto result = kernel7->run(*buff_device, n, launch_options);
   }
@@ -171,7 +171,7 @@ TEST(KernelTest, KernelMultipleInvocationsTest)
     buff_host->setSize(buff_device->size());
     {
       auto options = buff_device->makeOptions();
-      options.setExternalSyncMode(true);
+      options.requestFence(true);
       auto result = zivc::copy(*buff_device, buff_host.get(), options);
       device->waitForCompletion(result.fence());
     }
@@ -209,19 +209,19 @@ TEST(KernelTest, KernelBufferChangeTest)
   // Init buffers
   {
     auto options = buff_device1->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = buff_device1->fill(0, options);
     device->waitForCompletion(result.fence());
   }
   {
     auto options = buff_device2->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = buff_device2->fill(0, options);
     device->waitForCompletion(result.fence());
   }
   {
     auto options = buff_device3->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = buff_device3->fill(0, options);
     device->waitForCompletion(result.fence());
   }
@@ -236,7 +236,7 @@ TEST(KernelTest, KernelBufferChangeTest)
   {
     auto launch_options = kernel->makeOptions();
     launch_options.setWorkSize({n});
-    launch_options.setExternalSyncMode(false);
+    launch_options.requestFence(false);
     launch_options.setLabel("invocation1Kernel");
     auto result = kernel->run(*buff_device1, n, launch_options);
     device->waitForCompletion();
@@ -244,7 +244,7 @@ TEST(KernelTest, KernelBufferChangeTest)
   {
     auto launch_options = kernel->makeOptions();
     launch_options.setWorkSize({n});
-    launch_options.setExternalSyncMode(false);
+    launch_options.requestFence(false);
     launch_options.setLabel("invocation1Kernel");
     auto result = kernel->run(*buff_device2, n, launch_options);
     device->waitForCompletion();
@@ -252,7 +252,7 @@ TEST(KernelTest, KernelBufferChangeTest)
   {
     auto launch_options = kernel->makeOptions();
     launch_options.setWorkSize({n});
-    launch_options.setExternalSyncMode(false);
+    launch_options.requestFence(false);
     launch_options.setLabel("invocation1Kernel");
     auto result = kernel->run(*buff_device3, n, launch_options);
     device->waitForCompletion();
@@ -265,7 +265,7 @@ TEST(KernelTest, KernelBufferChangeTest)
     buff_host->setSize(buff_device1->size());
     {
       auto options = buff_device1->makeOptions();
-      options.setExternalSyncMode(true);
+      options.requestFence(true);
       auto result = zivc::copy(*buff_device1, buff_host.get(), options);
       device->waitForCompletion(result.fence());
     }
@@ -280,7 +280,7 @@ TEST(KernelTest, KernelBufferChangeTest)
     buff_host->setSize(buff_device2->size());
     {
       auto options = buff_device2->makeOptions();
-      options.setExternalSyncMode(true);
+      options.requestFence(true);
       auto result = zivc::copy(*buff_device2, buff_host.get(), options);
       device->waitForCompletion(result.fence());
     }
@@ -295,7 +295,7 @@ TEST(KernelTest, KernelBufferChangeTest)
     buff_host->setSize(buff_device3->size());
     {
       auto options = buff_device3->makeOptions();
-      options.setExternalSyncMode(true);
+      options.requestFence(true);
       auto result = zivc::copy(*buff_device3, buff_host.get(), options);
       device->waitForCompletion(result.fence());
     }
@@ -365,7 +365,7 @@ TEST(KernelTest, KernelQueueTest)
     // Init buffers
     {
       auto options = buff_device->makeOptions();
-      options.setExternalSyncMode(true);
+      options.requestFence(true);
       auto result = buff_device->fill(0, options);
       device->waitForCompletion(result.fence());
     }
@@ -375,7 +375,7 @@ TEST(KernelTest, KernelQueueTest)
       auto launch_options = kernel1->makeOptions();
       launch_options.setWorkSize({n});
       launch_options.setQueueIndex(queue_index);
-      launch_options.setExternalSyncMode(false);
+      launch_options.requestFence(false);
       launch_options.setLabel("invocation1Kernel");
       auto result = kernel1->run(*buff_device, n, launch_options);
     }
@@ -383,7 +383,7 @@ TEST(KernelTest, KernelQueueTest)
       auto launch_options = kernel2->makeOptions();
       launch_options.setWorkSize({n});
       launch_options.setQueueIndex(queue_index);
-      launch_options.setExternalSyncMode(false);
+      launch_options.requestFence(false);
       launch_options.setLabel("invocation1Kernel");
       auto result = kernel2->run(*buff_device, n, launch_options);
     }
@@ -391,7 +391,7 @@ TEST(KernelTest, KernelQueueTest)
       auto launch_options = kernel3->makeOptions();
       launch_options.setWorkSize({n});
       launch_options.setQueueIndex(queue_index);
-      launch_options.setExternalSyncMode(false);
+      launch_options.requestFence(false);
       launch_options.setLabel("invocation1Kernel");
       auto result = kernel3->run(*buff_device, n, launch_options);
     }
@@ -399,7 +399,7 @@ TEST(KernelTest, KernelQueueTest)
       auto launch_options = kernel4->makeOptions();
       launch_options.setWorkSize({n});
       launch_options.setQueueIndex(queue_index);
-      launch_options.setExternalSyncMode(false);
+      launch_options.requestFence(false);
       launch_options.setLabel("invocation2Kernel");
       auto result = kernel4->run(*buff_device, n, launch_options);
     }
@@ -407,7 +407,7 @@ TEST(KernelTest, KernelQueueTest)
       auto launch_options = kernel5->makeOptions();
       launch_options.setWorkSize({n});
       launch_options.setQueueIndex(queue_index);
-      launch_options.setExternalSyncMode(false);
+      launch_options.requestFence(false);
       launch_options.setLabel("invocation3Kernel");
       auto result = kernel5->run(*buff_device, n, launch_options);
     }
@@ -415,7 +415,7 @@ TEST(KernelTest, KernelQueueTest)
       auto launch_options = kernel6->makeOptions();
       launch_options.setWorkSize({n});
       launch_options.setQueueIndex(queue_index);
-      launch_options.setExternalSyncMode(false);
+      launch_options.requestFence(false);
       launch_options.setLabel("invocation3Kernel");
       auto result = kernel6->run(*buff_device, n, launch_options);
     }
@@ -423,7 +423,7 @@ TEST(KernelTest, KernelQueueTest)
       auto launch_options = kernel7->makeOptions();
       launch_options.setWorkSize({n});
       launch_options.setQueueIndex(queue_index);
-      launch_options.setExternalSyncMode(false);
+      launch_options.requestFence(false);
       launch_options.setLabel("invocation3Kernel");
       auto result = kernel7->run(*buff_device, n, launch_options);
       device->waitForCompletion(queue_index);
@@ -435,7 +435,7 @@ TEST(KernelTest, KernelQueueTest)
       buff_host->setSize(buff_device->size());
       {
         auto options = buff_device->makeOptions();
-        options.setExternalSyncMode(true);
+        options.requestFence(true);
         auto result = zivc::copy(*buff_device, buff_host.get(), options);
         device->waitForCompletion(result.fence());
       }
@@ -470,7 +470,7 @@ TEST(KernelTest, KernelFenceTest)
   // Init buffers
   {
     auto options = buff_device->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = buff_device->fill(0, options);
     device->waitForCompletion(result.fence());
   }
@@ -518,7 +518,7 @@ TEST(KernelTest, KernelFenceTest)
     auto launch_options = kernel1->makeOptions();
     launch_options.setWorkSize({n});
     launch_options.setQueueIndex(0);
-    launch_options.setExternalSyncMode(true);
+    launch_options.requestFence(true);
     launch_options.setLabel("invocation1Kernel");
     auto result = kernel1->run(*buff_device, n, launch_options);
     device->waitForCompletion(result.fence());
@@ -527,7 +527,7 @@ TEST(KernelTest, KernelFenceTest)
     auto launch_options = kernel2->makeOptions();
     launch_options.setWorkSize({n});
     launch_options.setQueueIndex(1);
-    launch_options.setExternalSyncMode(true);
+    launch_options.requestFence(true);
     launch_options.setLabel("invocation1Kernel");
     auto result = kernel2->run(*buff_device, n, launch_options);
     device->waitForCompletion(result.fence());
@@ -536,7 +536,7 @@ TEST(KernelTest, KernelFenceTest)
     auto launch_options = kernel3->makeOptions();
     launch_options.setWorkSize({n});
     launch_options.setQueueIndex(2);
-    launch_options.setExternalSyncMode(true);
+    launch_options.requestFence(true);
     launch_options.setLabel("invocation1Kernel");
     auto result = kernel3->run(*buff_device, n, launch_options);
     device->waitForCompletion(result.fence());
@@ -545,7 +545,7 @@ TEST(KernelTest, KernelFenceTest)
     auto launch_options = kernel4->makeOptions();
     launch_options.setWorkSize({n});
     launch_options.setQueueIndex(3);
-    launch_options.setExternalSyncMode(true);
+    launch_options.requestFence(true);
     launch_options.setLabel("invocation2Kernel");
     auto result = kernel4->run(*buff_device, n, launch_options);
     device->waitForCompletion(result.fence());
@@ -554,7 +554,7 @@ TEST(KernelTest, KernelFenceTest)
     auto launch_options = kernel5->makeOptions();
     launch_options.setWorkSize({n});
     launch_options.setQueueIndex(4);
-    launch_options.setExternalSyncMode(true);
+    launch_options.requestFence(true);
     launch_options.setLabel("invocation3Kernel");
     auto result = kernel5->run(*buff_device, n, launch_options);
     device->waitForCompletion(result.fence());
@@ -563,7 +563,7 @@ TEST(KernelTest, KernelFenceTest)
     auto launch_options = kernel6->makeOptions();
     launch_options.setWorkSize({n});
     launch_options.setQueueIndex(5);
-    launch_options.setExternalSyncMode(true);
+    launch_options.requestFence(true);
     launch_options.setLabel("invocation3Kernel");
     auto result = kernel6->run(*buff_device, n, launch_options);
     device->waitForCompletion(result.fence());
@@ -572,7 +572,7 @@ TEST(KernelTest, KernelFenceTest)
     auto launch_options = kernel7->makeOptions();
     launch_options.setWorkSize({n});
     launch_options.setQueueIndex(6);
-    launch_options.setExternalSyncMode(true);
+    launch_options.requestFence(true);
     launch_options.setLabel("invocation3Kernel");
     auto result = kernel7->run(*buff_device, n, launch_options);
     device->waitForCompletion(result.fence());
@@ -584,7 +584,7 @@ TEST(KernelTest, KernelFenceTest)
     buff_host->setSize(buff_device->size());
     {
       auto options = buff_device->makeOptions();
-      options.setExternalSyncMode(true);
+      options.requestFence(true);
       auto result = zivc::copy(*buff_device, buff_host.get(), options);
       device->waitForCompletion(result.fence());
     }

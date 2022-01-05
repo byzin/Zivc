@@ -507,7 +507,7 @@ LaunchResult VulkanBuffer<T>::copyOnDevice(
     constexpr VulkanDeviceCapability cap = VulkanDeviceCapability::kCompute;
     VkQueue q = device.getQueue(cap, launch_options.queueIndex());
     Fence& fence = result.fence();
-    fence.setDevice(launch_options.isExternalSyncMode() ? &device : nullptr);
+    fence.setDevice(launch_options.isFenceRequested() ? &device : nullptr);
     // Start labeling for debug until the end of the scope
     auto debug_region = device.makeQueueDebugLabel(q, launch_options);
     device.submit(command, q, fence);
@@ -583,7 +583,7 @@ LaunchResult VulkanBuffer<T>::fillFastOnDevice(
     constexpr VulkanDeviceCapability cap = VulkanDeviceCapability::kCompute;
     VkQueue q = device.getQueue(cap, launch_options.queueIndex());
     Fence& fence = result.fence();
-    fence.setDevice(launch_options.isExternalSyncMode() ? &device : nullptr);
+    fence.setDevice(launch_options.isFenceRequested() ? &device : nullptr);
     // Start labeling for debug until the end of the scope
     auto debug_region = device.makeQueueDebugLabel(q, launch_options);
     device.submit(command, q, fence);

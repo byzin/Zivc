@@ -272,7 +272,7 @@ LaunchResult VulkanBufferImpl::fillImpl(KernelCommon* fill_kernel,
 
   kernel_launch_options.setWorkSize({zisc::cast<uint32b>(work_size * adjustment)});
   kernel_launch_options.setQueueIndex(launch_options.queueIndex());
-  kernel_launch_options.setExternalSyncMode(launch_options.isExternalSyncMode());
+  kernel_launch_options.requestFence(launch_options.isFenceRequested());
   kernel_launch_options.setLabel(launch_options.label());
   kernel_launch_options.setLabelColor(launch_options.labelColor());
 

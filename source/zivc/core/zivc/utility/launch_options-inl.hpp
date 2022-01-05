@@ -57,9 +57,9 @@ LaunchOptions::LaunchOptions(const uint32b queue_index) noexcept :
   \return No description
   */
 inline
-bool LaunchOptions::isExternalSyncMode() const noexcept
+bool LaunchOptions::isFenceRequested() const noexcept
 {
-  return is_external_sync_mode_;
+  return is_fence_requested_;
 }
 
 /*!
@@ -99,12 +99,12 @@ uint32b LaunchOptions::queueIndex() const noexcept
 /*!
   \details No detailed description
 
-  \param [in] is_active No description.
+  \param [in] flag No description.
   */
 inline
-void LaunchOptions::setExternalSyncMode(const bool is_active) noexcept
+void LaunchOptions::requestFence(const bool flag) noexcept
 {
-  is_external_sync_mode_ = is_active;
+  is_fence_requested_ = flag;
 }
 
 /*!

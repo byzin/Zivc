@@ -20,6 +20,7 @@
 #include <cstddef>
 // Zisc
 #include "zisc/memory/memory.hpp"
+#include "zisc/thread/thread_manager.hpp"
 #include "zisc/utility.hpp"
 // Zivc
 #include "cpu_device_info.hpp"
@@ -71,9 +72,9 @@ void CpuSubPlatform::notifyOfDeviceMemoryDeallocation(const std::size_t size) no
   \return No description
   */
 inline
-std::size_t CpuSubPlatform::numOfThreads() const noexcept
+std::size_t CpuSubPlatform::taskBatchSize() const noexcept
 {
-  return zisc::cast<std::size_t>(num_of_threads_);
+  return zisc::cast<std::size_t>(task_batch_size_);
 }
 
 /*!
@@ -82,9 +83,20 @@ std::size_t CpuSubPlatform::numOfThreads() const noexcept
   \return No description
   */
 inline
-std::size_t CpuSubPlatform::taskBatchSize() const noexcept
+zisc::ThreadManager& CpuSubPlatform::threadManager() noexcept
 {
-  return zisc::cast<std::size_t>(task_batch_size_);
+  return *thread_manager_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+const zisc::ThreadManager& CpuSubPlatform::threadManager() const noexcept
+{
+  return *thread_manager_;
 }
 
 } // namespace zivc

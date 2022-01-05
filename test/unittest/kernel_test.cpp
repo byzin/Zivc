@@ -55,13 +55,13 @@ TEST(KernelTest, SimpleKernelTest)
   auto launch_options = kernel->makeOptions();
   launch_options.setQueueIndex(0);
   launch_options.setWorkSize({1});
-  launch_options.setExternalSyncMode(false);
+  launch_options.requestFence(false);
   launch_options.setLabel("SimpleKernel");
   ASSERT_EQ(1, launch_options.dimension());
   ASSERT_EQ(1, launch_options.numOfArgs());
   ASSERT_EQ(0, launch_options.queueIndex());
   ASSERT_EQ(1, launch_options.workSize()[0]);
-  ASSERT_FALSE(launch_options.isExternalSyncMode());
+  ASSERT_FALSE(launch_options.isFenceRequested());
   auto result = kernel->run(*buffer, launch_options);
   device->waitForCompletion();
 }
@@ -94,7 +94,7 @@ TEST(KernelTest, BasicTypeSizeTest)
   {
     auto launch_options = kernel->makeOptions();
     launch_options.setWorkSize({1});
-    launch_options.setExternalSyncMode(false);
+    launch_options.requestFence(false);
     launch_options.setLabel("BasicTypeSizeKernel");
     auto result = kernel->run(*buff_device1, launch_options);
     device->waitForCompletion();
@@ -103,7 +103,7 @@ TEST(KernelTest, BasicTypeSizeTest)
   // Check the outputs
   {
     auto options = buff_device1->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_device1, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
@@ -294,7 +294,7 @@ TEST(KernelTest, ClassSize1Test)
   {
     auto launch_options = kernel->makeOptions();
     launch_options.setWorkSize({1});
-    launch_options.setExternalSyncMode(false);
+    launch_options.requestFence(false);
     launch_options.setLabel("ClassSize1Kernel");
     auto result = kernel->run(*buff_device1, launch_options);
     device->waitForCompletion();
@@ -303,7 +303,7 @@ TEST(KernelTest, ClassSize1Test)
   // Check the outputs
   {
     auto options = buff_device1->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_device1, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
@@ -345,7 +345,7 @@ TEST(KernelTest, InputOutput1Test)
     }
     auto options = buff_device1->makeOptions();
     options.setSize(n);
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_host, buff_device1.get(), options);
     device->waitForCompletion(result.fence());
   }
@@ -360,7 +360,7 @@ TEST(KernelTest, InputOutput1Test)
   {
     auto launch_options = kernel->makeOptions();
     launch_options.setWorkSize({zisc::cast<uint32b>(n)});
-    launch_options.setExternalSyncMode(false);
+    launch_options.requestFence(false);
     launch_options.setLabel("InputOutput1Kernel");
     auto result = kernel->run(*buff_device1, *buff_device2, launch_options);
     device->waitForCompletion();
@@ -370,7 +370,7 @@ TEST(KernelTest, InputOutput1Test)
   {
     auto options = buff_device2->makeOptions();
     options.setSize(n);
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_device2, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
@@ -411,7 +411,7 @@ TEST(KernelTest, InputOutputHost1Test)
     }
     auto options = buff_input->makeOptions();
     options.setSize(n);
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_host, buff_input.get(), options);
     device->waitForCompletion(result.fence());
   }
@@ -426,7 +426,7 @@ TEST(KernelTest, InputOutputHost1Test)
   {
     auto launch_options = kernel->makeOptions();
     launch_options.setWorkSize({zisc::cast<uint32b>(n)});
-    launch_options.setExternalSyncMode(false);
+    launch_options.requestFence(false);
     launch_options.setLabel("InputOutput1Kernel");
     auto result = kernel->run(*buff_input, *buff_output, launch_options);
     device->waitForCompletion();
@@ -436,7 +436,7 @@ TEST(KernelTest, InputOutputHost1Test)
   {
     auto options = buff_output->makeOptions();
     options.setSize(n);
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_output, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
@@ -477,7 +477,7 @@ TEST(KernelTest, InputOutputHost2Test)
     }
     auto options = buff_input->makeOptions();
     options.setSize(n);
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_host, buff_input.get(), options);
     device->waitForCompletion(result.fence());
   }
@@ -492,7 +492,7 @@ TEST(KernelTest, InputOutputHost2Test)
   {
     auto launch_options = kernel->makeOptions();
     launch_options.setWorkSize({zisc::cast<uint32b>(n)});
-    launch_options.setExternalSyncMode(false);
+    launch_options.requestFence(false);
     launch_options.setLabel("InputOutput1Kernel");
     auto result = kernel->run(*buff_input, *buff_output, launch_options);
     device->waitForCompletion();
@@ -502,7 +502,7 @@ TEST(KernelTest, InputOutputHost2Test)
   {
     auto options = buff_output->makeOptions();
     options.setSize(n);
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_output, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
@@ -543,7 +543,7 @@ TEST(KernelTest, InputOutputHostToDevice1Test)
     }
     auto options = buff_input->makeOptions();
     options.setSize(n);
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_host, buff_input.get(), options);
     device->waitForCompletion(result.fence());
   }
@@ -558,7 +558,7 @@ TEST(KernelTest, InputOutputHostToDevice1Test)
   {
     auto launch_options = kernel->makeOptions();
     launch_options.setWorkSize({zisc::cast<uint32b>(n)});
-    launch_options.setExternalSyncMode(false);
+    launch_options.requestFence(false);
     launch_options.setLabel("InputOutput1Kernel");
     auto result = kernel->run(*buff_input, *buff_output, launch_options);
     device->waitForCompletion();
@@ -568,7 +568,7 @@ TEST(KernelTest, InputOutputHostToDevice1Test)
   {
     auto options = buff_output->makeOptions();
     options.setSize(n);
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_output, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
@@ -609,7 +609,7 @@ TEST(KernelTest, InputOutputHostToDevice2Test)
     }
     auto options = buff_input->makeOptions();
     options.setSize(n);
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_host, buff_input.get(), options);
     device->waitForCompletion(result.fence());
   }
@@ -624,7 +624,7 @@ TEST(KernelTest, InputOutputHostToDevice2Test)
   {
     auto launch_options = kernel->makeOptions();
     launch_options.setWorkSize({zisc::cast<uint32b>(n)});
-    launch_options.setExternalSyncMode(false);
+    launch_options.requestFence(false);
     launch_options.setLabel("InputOutput1Kernel");
     auto result = kernel->run(*buff_input, *buff_output, launch_options);
     device->waitForCompletion();
@@ -634,7 +634,7 @@ TEST(KernelTest, InputOutputHostToDevice2Test)
   {
     auto options = buff_output->makeOptions();
     options.setSize(n);
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_output, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
@@ -675,7 +675,7 @@ TEST(KernelTest, InputOutputDeviceToHost1Test)
     }
     auto options = buff_input->makeOptions();
     options.setSize(n);
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_host, buff_input.get(), options);
     device->waitForCompletion(result.fence());
   }
@@ -690,7 +690,7 @@ TEST(KernelTest, InputOutputDeviceToHost1Test)
   {
     auto launch_options = kernel->makeOptions();
     launch_options.setWorkSize({zisc::cast<uint32b>(n)});
-    launch_options.setExternalSyncMode(false);
+    launch_options.requestFence(false);
     launch_options.setLabel("InputOutput1Kernel");
     auto result = kernel->run(*buff_input, *buff_output, launch_options);
     device->waitForCompletion();
@@ -700,7 +700,7 @@ TEST(KernelTest, InputOutputDeviceToHost1Test)
   {
     auto options = buff_output->makeOptions();
     options.setSize(n);
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_output, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
@@ -741,7 +741,7 @@ TEST(KernelTest, InputOutputDeviceToHost2Test)
     }
     auto options = buff_input->makeOptions();
     options.setSize(n);
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_host, buff_input.get(), options);
     device->waitForCompletion(result.fence());
   }
@@ -756,7 +756,7 @@ TEST(KernelTest, InputOutputDeviceToHost2Test)
   {
     auto launch_options = kernel->makeOptions();
     launch_options.setWorkSize({zisc::cast<uint32b>(n)});
-    launch_options.setExternalSyncMode(false);
+    launch_options.requestFence(false);
     launch_options.setLabel("InputOutput1Kernel");
     auto result = kernel->run(*buff_input, *buff_output, launch_options);
     device->waitForCompletion();
@@ -766,7 +766,7 @@ TEST(KernelTest, InputOutputDeviceToHost2Test)
   {
     auto options = buff_output->makeOptions();
     options.setSize(n);
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_output, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
@@ -816,7 +816,7 @@ TEST(KernelTest, InputOutput2Test)
 
     auto options = buff_device1->makeOptions();
     options.setSize(n);
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_host, buff_device1.get(), options);
     device->waitForCompletion(result.fence());
   }
@@ -831,7 +831,7 @@ TEST(KernelTest, InputOutput2Test)
   {
     auto launch_options = kernel->makeOptions();
     launch_options.setWorkSize({zisc::cast<uint32b>(n)});
-    launch_options.setExternalSyncMode(false);
+    launch_options.requestFence(false);
     launch_options.setLabel("InputOutput2Kernel");
     auto result = kernel->run(*buff_device1, *buff_device2, launch_options);
     device->waitForCompletion();
@@ -840,7 +840,7 @@ TEST(KernelTest, InputOutput2Test)
   // Check the outputs
   {
     auto options = buff_device2->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_device2, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
@@ -923,13 +923,13 @@ TEST(KernelTest, WorkItem1dTest)
   // Init buffers
   {
     auto options = buff_device->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = buff_device->fill(0, options);
     device->waitForCompletion(result.fence());
   }
   {
     auto options = buff_properties->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = buff_properties->fill(0, options);
     device->waitForCompletion(result.fence());
   }
@@ -944,7 +944,7 @@ TEST(KernelTest, WorkItem1dTest)
   {
     auto launch_options = kernel->makeOptions();
     launch_options.setWorkSize({n_dim});
-    launch_options.setExternalSyncMode(false);
+    launch_options.requestFence(false);
     launch_options.setLabel("workItem1dKernel");
     auto result = kernel->run(*buff_device, *buff_properties, n, launch_options);
     device->waitForCompletion();
@@ -956,7 +956,7 @@ TEST(KernelTest, WorkItem1dTest)
     buff_host->setSize(buff_properties->size());
 
     auto options = buff_properties->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_properties, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
@@ -982,7 +982,7 @@ TEST(KernelTest, WorkItem1dTest)
     buff_host->setSize(buff_device->size());
 
     auto options = buff_device->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_device, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
@@ -1022,13 +1022,13 @@ TEST(KernelTest, WorkItem2dTest)
   // Init buffers
   {
     auto options = buff_device->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = buff_device->fill(0, options);
     device->waitForCompletion(result.fence());
   }
   {
     auto options = buff_properties->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = buff_properties->fill(0, options);
     device->waitForCompletion(result.fence());
   }
@@ -1043,7 +1043,7 @@ TEST(KernelTest, WorkItem2dTest)
   {
     auto launch_options = kernel->makeOptions();
     launch_options.setWorkSize({n_dim, n_dim});
-    launch_options.setExternalSyncMode(false);
+    launch_options.requestFence(false);
     launch_options.setLabel("workItem2dKernel");
     auto result = kernel->run(*buff_device, *buff_properties, n, launch_options);
     device->waitForCompletion();
@@ -1055,7 +1055,7 @@ TEST(KernelTest, WorkItem2dTest)
     buff_host->setSize(buff_properties->size());
 
     auto options = buff_properties->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_properties, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
@@ -1081,7 +1081,7 @@ TEST(KernelTest, WorkItem2dTest)
     buff_host->setSize(buff_device->size());
 
     auto options = buff_device->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_device, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
@@ -1121,13 +1121,13 @@ TEST(KernelTest, WorkItem3dTest)
   // Init buffers
   {
     auto options = buff_device->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = buff_device->fill(0, options);
     device->waitForCompletion(result.fence());
   }
   {
     auto options = buff_properties->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = buff_properties->fill(0, options);
     device->waitForCompletion(result.fence());
   }
@@ -1142,7 +1142,7 @@ TEST(KernelTest, WorkItem3dTest)
   {
     auto launch_options = kernel->makeOptions();
     launch_options.setWorkSize({n_dim, n_dim, n_dim});
-    launch_options.setExternalSyncMode(false);
+    launch_options.requestFence(false);
     launch_options.setLabel("workItem3dKernel");
     auto result = kernel->run(*buff_device, *buff_properties, n, launch_options);
     device->waitForCompletion();
@@ -1154,7 +1154,7 @@ TEST(KernelTest, WorkItem3dTest)
     buff_host->setSize(buff_properties->size());
 
     auto options = buff_properties->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_properties, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
@@ -1180,7 +1180,7 @@ TEST(KernelTest, WorkItem3dTest)
     buff_host->setSize(buff_device->size());
 
     auto options = buff_device->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_device, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
@@ -1225,25 +1225,25 @@ TEST(KernelTest, WorkItemOffset1dTest)
   // Init buffers
   {
     auto options = buff_device1->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = buff_device1->fill(0, options);
     device->waitForCompletion(result.fence());
   }
   {
     auto options = buff_device2->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = buff_device2->fill(0, options);
     device->waitForCompletion(result.fence());
   }
   {
     auto options = buff_device3->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = buff_device3->fill(0, options);
     device->waitForCompletion(result.fence());
   }
   {
     auto options = buff_properties->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = buff_properties->fill(0, options);
     device->waitForCompletion(result.fence());
   }
@@ -1259,7 +1259,7 @@ TEST(KernelTest, WorkItemOffset1dTest)
     auto launch_options = kernel->makeOptions();
     launch_options.setWorkSize({n_dim});
     launch_options.setGlobalIdOffset({offset_x});
-    launch_options.setExternalSyncMode(false);
+    launch_options.requestFence(false);
     launch_options.setLabel("workItemOffset1dKernel");
     auto result = kernel->run(*buff_device1, *buff_device2, *buff_device3, *buff_properties, n, launch_options);
     device->waitForCompletion();
@@ -1271,7 +1271,7 @@ TEST(KernelTest, WorkItemOffset1dTest)
     buff_host->setSize(buff_properties->size());
 
     auto options = buff_properties->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_properties, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
@@ -1285,7 +1285,7 @@ TEST(KernelTest, WorkItemOffset1dTest)
     buff_host->setSize(buff_device1->size());
 
     auto options = buff_device1->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_device1, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
@@ -1300,7 +1300,7 @@ TEST(KernelTest, WorkItemOffset1dTest)
     buff_host->setSize(buff_device2->size());
 
     auto options = buff_device2->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_device2, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
@@ -1323,7 +1323,7 @@ TEST(KernelTest, WorkItemOffset1dTest)
     buff_host->setSize(buff_device3->size());
 
     auto options = buff_device3->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_device3, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
@@ -1368,7 +1368,7 @@ TEST(KernelTest, WorkItemOffset3dTest)
   // Init buffers
   {
     auto options = buff_device1->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = buff_device1->fill(0, options);
     device->waitForCompletion(result.fence());
   }
@@ -1383,13 +1383,13 @@ TEST(KernelTest, WorkItemOffset3dTest)
     }
 
     auto options = buff_device2->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_host, buff_device2.get(), options);
     device->waitForCompletion(result.fence());
   }
   {
     auto options = buff_properties->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = buff_properties->fill(0, options);
     device->waitForCompletion(result.fence());
   }
@@ -1409,7 +1409,7 @@ TEST(KernelTest, WorkItemOffset3dTest)
     auto launch_options = kernel->makeOptions();
     launch_options.setWorkSize({n_dim, n_dim, n_dim});
     launch_options.setGlobalIdOffset({offset_x, offset_y, offset_z});
-    launch_options.setExternalSyncMode(false);
+    launch_options.requestFence(false);
     launch_options.setLabel("workItemOffset3dKernel");
     auto result = kernel->run(*buff_device1, *buff_device2, *buff_properties, n, launch_options);
     device->waitForCompletion();
@@ -1421,7 +1421,7 @@ TEST(KernelTest, WorkItemOffset3dTest)
     buff_host->setSize(buff_properties->size());
 
     auto options = buff_properties->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_properties, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
@@ -1437,7 +1437,7 @@ TEST(KernelTest, WorkItemOffset3dTest)
     buff_host->setSize(buff_device1->size());
 
     auto options = buff_device1->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_device1, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 

@@ -58,6 +58,9 @@ class LaunchResult : private zisc::NonCopyable<LaunchResult>
   //! Return the fence of the kernel execution
   const Fence& fence() const noexcept;
 
+  //! Check if the result has a active fence
+  bool hasFence() const noexcept;
+
   //! Check whether the execution is asyncronous
   bool isAsync() const noexcept;
 
@@ -66,8 +69,8 @@ class LaunchResult : private zisc::NonCopyable<LaunchResult>
 
  private:
   Fence fence_;
-  uint8b is_async_;
-  [[maybe_unused]] std::array<uint8b, std::alignment_of_v<Fence> - 1> padding_;
+  zisc::Boolean is_async_;
+  [[maybe_unused]] Padding<std::alignment_of_v<Fence> - 1> pad_;
 };
 
 } // namespace zivc

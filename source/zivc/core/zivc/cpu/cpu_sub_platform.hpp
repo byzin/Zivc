@@ -21,6 +21,7 @@
 #include <vector>
 // Zisc
 #include "zisc/memory/std_memory_resource.hpp"
+#include "zisc/thread/thread_manager.hpp"
 // Zivc
 #include "cpu_device_info.hpp"
 #include "zivc/device.hpp"
@@ -70,11 +71,14 @@ class CpuSubPlatform : public SubPlatform
   //! Return the number of available devices
   std::size_t numOfDevices() const noexcept override;
 
-  //! Return the number of thread which is used for kernel execution
-  std::size_t numOfThreads() const noexcept;
-
   //! Return the task batch size per thread
   std::size_t taskBatchSize() const noexcept;
+
+  //! Return the underlying thread manager which is used for kernel exection
+  zisc::ThreadManager& threadManager() noexcept;
+
+  //! Return the underlying thread manager which is used for kernel exection
+  const zisc::ThreadManager& threadManager() const noexcept;
 
   //! Return the sub-platform type
   SubPlatformType type() const noexcept override;
@@ -94,8 +98,9 @@ class CpuSubPlatform : public SubPlatform
 
  private:
   zisc::pmr::unique_ptr<CpuDeviceInfo> device_info_;
-  uint32b num_of_threads_ = 0;
+  zisc::pmr::unique_ptr<zisc::ThreadManager> thread_manager_;
   uint32b task_batch_size_ = 0;
+  [[maybe_unused]] Padding<4> pad_;
 };
 
 } // namespace zivc

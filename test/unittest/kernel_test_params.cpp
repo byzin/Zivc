@@ -43,7 +43,7 @@ template <zisc::Scalar Scalar>
 void initScalarBuffer(const zivc::Device& device, zivc::Buffer<Scalar>& buffer)
 {
   auto options = buffer.makeOptions();
-  options.setExternalSyncMode(true);
+  options.requestFence(true);
   //! \todo remove me
   if constexpr (sizeof(Scalar) == 4) { 
     auto result = buffer.fill(zisc::cast<Scalar>(0), options);
@@ -60,7 +60,7 @@ testing::AssertionResult testScalarBuffer(zivc::Device& device,
   buff_host->setSize(1);
   {
     auto options = buffer.makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(buffer, buff_host.get(), options);
     device.waitForCompletion(result.fence());
   }
@@ -238,7 +238,7 @@ TEST(KernelTest, LargeNumOfParametersTest)
       mem[0] = ParamTest{0, 0, 0.0f};
     }
     auto options = buffer.makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_host, std::addressof(buffer), options);
     d.waitForCompletion(result.fence());
   };
@@ -327,7 +327,7 @@ TEST(KernelTest, LargeNumOfParametersTest)
   {
     auto launch_options = kernel->makeOptions();
     launch_options.setWorkSize({1});
-    launch_options.setExternalSyncMode(false);
+    launch_options.requestFence(false);
     launch_options.setLabel("LargeNumOfParametersKernel");
     auto result = kernel->run(*buff_device1, *buff_device2, *buff_device3,
                               *buff_device4, *buff_device5, *buff_device6,
@@ -368,7 +368,7 @@ TEST(KernelTest, LargeNumOfParametersTest)
     buff_host->setSize(1);
     {
       auto options = buffer.makeOptions();
-      options.setExternalSyncMode(true);
+      options.requestFence(true);
       auto result = zivc::copy(buffer, buff_host.get(), options);
       d.waitForCompletion(result.fence());
     }

@@ -128,10 +128,10 @@ class CpuDevice : public Device
 
  private:
   //! Execute a command on a number of the given batch size
-  static void execBatchCommand(const Command& command,
-                               const uint32b block_id,
-                               const uint32b group_id_max,
-                               const uint32b batch_size) noexcept;
+  static void execBatchCommands(const Command& command,
+                                const uint32b block_id,
+                                const uint32b group_id_max,
+                                const uint32b batch_size) noexcept;
 
   //! Issue new block ID
   static uint32b issue(std::atomic<uint32b>* counter) noexcept;
@@ -144,7 +144,6 @@ class CpuDevice : public Device
 
 
   zisc::Memory::Usage heap_usage_;
-  zisc::pmr::unique_ptr<zisc::ThreadManager> thread_manager_;
 };
 
 } // namespace zivc

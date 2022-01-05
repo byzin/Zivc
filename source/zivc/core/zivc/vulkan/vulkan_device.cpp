@@ -335,7 +335,8 @@ auto VulkanDevice::getQueueFamilyIndexList(uint32b* size) const noexcept
     if (!hasCapability(cap))
       continue;
     const uint32b family_index = queueFamilyIndex(cap);
-    auto* ite = std::find(index_list.begin(), index_list.end(), family_index);
+    using Iterator = decltype(index_list)::const_iterator;
+    Iterator ite = std::find(index_list.begin(), index_list.end(), family_index);
     if (ite == index_list.end())
       index_list[s++] = family_index;
   }
@@ -1066,7 +1067,8 @@ uint32b VulkanDevice::findQueueFamily(const Capability cap,
     for (uint32b i = 0; i < queue_family_list.size(); ++i) {
       if (!allow_overlap) {
         const auto& index_list = queue_family_index_list_;
-        const auto* ite = std::find(index_list.begin(), index_list.end(), i);
+        using Iterator = std::remove_cvref_t<decltype(index_list)>::const_iterator;
+        Iterator ite = std::find(index_list.begin(), index_list.end(), i);
         if (ite != index_list.end())
           continue;
       }

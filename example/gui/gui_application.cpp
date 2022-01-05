@@ -81,7 +81,7 @@ void GuiApplication::draw() noexcept
           auto* kernel = zisc::cast<KernelT*>(zkernel_.get());
           auto launch_options = kernel->makeOptions();
           launch_options.setWorkSize({1});
-          launch_options.setExternalSyncMode(true);
+          launch_options.requestFence(true);
           launch_options.setLabel("ExampleKernel");
           auto result = kernel->run(*zbuffer1_, *zbuffer2_, 1, launch_options);
           zdevice_->waitForCompletion(result.fence());
@@ -89,7 +89,7 @@ void GuiApplication::draw() noexcept
         {
           auto options = zbuffer2_->makeOptions();
           options.setSize(1);
-          options.setExternalSyncMode(true);
+          options.requestFence(true);
           auto result = zivc::copy(*zbuffer2_, zbuffer_host_.get(), options);
           zdevice_->waitForCompletion(result.fence());
           const auto& mem = zbuffer_host_->mapMemory();
@@ -232,7 +232,7 @@ void GuiApplication::initialize(WeakPtr&& own,
     zbuffer1_->setSize(1);
     auto options = zbuffer_host_->makeOptions();
     options.setSize(1);
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*zbuffer_host_, zbuffer1_.get(), options);
     zdevice_->waitForCompletion(result.fence());
   }

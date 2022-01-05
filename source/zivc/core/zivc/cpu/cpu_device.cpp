@@ -154,14 +154,16 @@ void CpuDevice::submit(const Command& command,
     const uint32b num_of_works = work_size[0] * work_size[1] * work_size[2];
     const uint32b n = (num_of_works + (batch_size - 1)) / batch_size;
     for (uint32b block_id = issue(id); block_id < n; block_id = issue(id))
-      execBatchCommand(command, block_id, num_of_works, batch_size);
+      execBatchCommands(command, block_id, num_of_works, batch_size);
   };
 
+  // Create tasks as many as the number of unlydering threads and run those in parallel
   auto& manager = threadManager();
   constexpr int64b start = 0;
   const int64b end = manager.numOfThreads();
   constexpr auto parent_id = zisc::ThreadManager::kAllPrecedences;
   auto result = manager.enqueueLoop(std::move(task), start, end, parent_id);
+  // Set a fence
   if (fence->isActive()) {
     auto* fen = zisc::reinterp<CpuFence*>(std::addressof(fence->data()));
     *fen = std::move(result);
@@ -217,7 +219,6 @@ void CpuDevice::waitForCompletion(const Fence& fence) const
   */
 void CpuDevice::destroyData() noexcept
 {
-  thread_manager_.reset();
 }
 
 /*!
@@ -225,15 +226,10 @@ void CpuDevice::destroyData() noexcept
   */
 void CpuDevice::initData()
 {
-  auto& platform = parentImpl();
+  [[maybe_unused]] auto& platform = parentImpl();
 
   heap_usage_.setPeak(0);
   heap_usage_.setTotal(0);
-  auto* mem_resource = memoryResource();
-  zisc::pmr::polymorphic_allocator<zisc::ThreadManager> alloc{mem_resource};
-  thread_manager_ = zisc::pmr::allocateUnique(alloc,
-                                              platform.numOfThreads(),
-                                              mem_resource);
 }
 
 /*!
@@ -252,10 +248,10 @@ void CpuDevice::updateDebugInfoImpl()
   \param [in] batch_size No description.
   */
 inline
-void CpuDevice::execBatchCommand(const Command& command,
-                                 const uint32b block_id,
-                                 const uint32b group_id_max,
-                                 const uint32b batch_size) noexcept
+void CpuDevice::execBatchCommands(const Command& command,
+                                  const uint32b block_id,
+                                  const uint32b group_id_max,
+                                  const uint32b batch_size) noexcept
 {
   for (uint32b i = 0; i < batch_size; ++i) {
     const uint32b group_id = block_id * batch_size + i;

@@ -138,6 +138,10 @@ TEST(PlatformTest, MakeDeviceTest)
 {
   auto platform = ztest::makePlatform();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = platform->queryDevice(config.deviceId());
-  ASSERT_TRUE(device) << "Device creation failed.";
+
+  zivc::SharedDevice device1 = platform->queryDevice(config.deviceId());
+  ASSERT_TRUE(device1) << "Device creation failed.";
+  // Second query should return the same device unless the first device is destroyed
+  zivc::SharedDevice device2 = platform->queryDevice(config.deviceId());
+  ASSERT_EQ(device1.get(), device2.get()) << "The device query failed.";
 }

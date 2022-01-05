@@ -75,12 +75,11 @@ LaunchResult CpuKernelHelper::run(CKernel* kernel, const Type& launch_options)
   // Command submission
   {
     Fence& fence = result.fence();
-    fence.setDevice(launch_options.isExternalSyncMode() ? &device : nullptr);
+    fence.setDevice(launch_options.isFenceRequested() ? &device : nullptr);
     constexpr uint32b dim = KernelT::dimension();
     const auto work_size = KernelT::expandWorkSize(launch_options.workSize(), 1);
-    const auto global_offset =
-        KernelT::expandWorkSize(launch_options.globalIdOffset(), 0);
-    device.submit(*command, dim, work_size, global_offset, id, std::addressof(fence));
+    const auto id_offset = KernelT::expandWorkSize(launch_options.globalIdOffset(), 0);
+    device.submit(*command, dim, work_size, id_offset, id, std::addressof(fence));
   }
   result.setAsync(true);
   return result;

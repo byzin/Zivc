@@ -506,9 +506,10 @@ TEST(BufferTest, CopyMaxAllocBufferTest)
   {
     auto options = buffer_device->makeOptions();
     options.setLabel("HostToDeviceCopy");
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buffer_host, buffer_device.get(), options);
     if (result.isAsync()) {
+      ASSERT_TRUE(result.hasFence()) << "The result of the copy is wrong.";
       ASSERT_TRUE(result.fence()) << "The result of the copy is wrong.";
       result.fence().wait();
     }
@@ -521,9 +522,10 @@ TEST(BufferTest, CopyMaxAllocBufferTest)
   {
     auto options = buffer_device->makeOptions();
     options.setLabel("DeviceToHostCopy");
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buffer_device, buffer_host.get(), options);
     if (result.isAsync()) {
+      ASSERT_TRUE(result.hasFence()) << "The result of the copy is wrong.";
       ASSERT_TRUE(result.fence()) << "The result of the copy is wrong.";
       result.fence().wait();
     }
@@ -558,7 +560,7 @@ TEST(BufferTest, CopyBufferTest)
   {
     auto options = buffer_device->makeOptions();
     options.setLabel("HostToDeviceCopy");
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buffer_host, buffer_device.get(), options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.fence()) << "The result of the copy is wrong.";
@@ -573,7 +575,7 @@ TEST(BufferTest, CopyBufferTest)
   {
     auto options = buffer_device->makeOptions();
     options.setLabel("DeviceToHostCopy");
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buffer_device, buffer_host.get(), options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.fence()) << "The result of the copy is wrong.";
@@ -619,7 +621,7 @@ TEST(BufferTest, CopyBufferRangeTest)
   {
     auto options = buffer_device->makeOptions();
     options.setLabel("HostToDeviceCopy");
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     options.setSourceOffset(offset);
     options.setDestOffset(offset);
     options.setSize(buffer_device->size() - 2 * offset);
@@ -637,7 +639,7 @@ TEST(BufferTest, CopyBufferRangeTest)
   {
     auto options = buffer_device->makeOptions();
     options.setLabel("DeviceToHostCopy");
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     options.setSourceOffset(offset);
     options.setDestOffset(offset);
     options.setSize(buffer_device->size() - 2 * offset);
@@ -693,7 +695,7 @@ TEST(BufferTest, CopyBufferRangeTest2)
   {
     auto options = buffer_device->makeOptions();
     options.setLabel("HostToDeviceCopy");
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     options.setDestOffset(offset);
     options.setSize(buffer_device->size() - offset);
     auto result = zivc::copy(*buffer_host, buffer_device.get(), options);
@@ -710,7 +712,7 @@ TEST(BufferTest, CopyBufferRangeTest2)
   {
     auto options = buffer_device->makeOptions();
     options.setLabel("DeviceToHostCopy");
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     options.setSourceOffset(offset);
     options.setDestOffset(offset);
     options.setSize(buffer_device->size() - offset);
@@ -760,7 +762,7 @@ TEST(BufferTest, CopyHostBufferTest)
   {
     auto options = buffer_host2->makeOptions();
     options.setLabel("HostToHostCopy");
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buffer_host, buffer_host2.get(), options);
     if ((device->type() != zivc::SubPlatformType::kCpu) && buffer_host2->isDeviceLocal()) {
       ASSERT_TRUE(result.isAsync());
@@ -779,7 +781,7 @@ TEST(BufferTest, CopyHostBufferTest)
   {
     auto options = buffer_host2->makeOptions();
     options.setLabel("HostToHostCopy");
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buffer_host2, buffer_host.get(), options);
     if ((device->type() != zivc::SubPlatformType::kCpu) && buffer_host->isDeviceLocal()) {
       ASSERT_TRUE(result.isAsync());
@@ -829,7 +831,7 @@ TEST(BufferTest, CopyHostBufferRangeTest)
   {
     auto options = buffer_host2->makeOptions();
     options.setLabel("HostToHostCopy");
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     options.setSourceOffset(offset);
     options.setDestOffset(offset);
     options.setSize(buffer_host2->size() - 2 * offset);
@@ -851,7 +853,7 @@ TEST(BufferTest, CopyHostBufferRangeTest)
   {
     auto options = buffer_host2->makeOptions();
     options.setLabel("HostToHostCopy");
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     options.setSourceOffset(offset);
     options.setDestOffset(offset);
     options.setSize(buffer_host2->size() - 2 * offset);
@@ -911,7 +913,7 @@ TEST(BufferTest, CopyHostBufferRangeTest2)
   {
     auto options = buffer_host2->makeOptions();
     options.setLabel("HostToHostCopy");
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     options.setDestOffset(offset);
     options.setSize(buffer_host2->size() - offset);
     auto result = zivc::copy(*buffer_host, buffer_host2.get(), options);
@@ -932,7 +934,7 @@ TEST(BufferTest, CopyHostBufferRangeTest2)
   {
     auto options = buffer_host2->makeOptions();
     options.setLabel("HostToHostCopy");
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     options.setSourceOffset(offset);
     options.setDestOffset(offset);
     options.setSize(buffer_host2->size() - offset);
@@ -982,7 +984,7 @@ TEST(BufferTest, FillBufferFastInt8Test)
   {
     auto options = buffer_device->makeOptions();
     options.setLabel("FillBuffer");
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = buffer_device->fill(v, options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.fence()) << "The result of the filling is wrong.";
@@ -993,7 +995,7 @@ TEST(BufferTest, FillBufferFastInt8Test)
   {
     auto options = buffer_device->makeOptions();
     options.setLabel("DeviceToHostCopy");
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buffer_device, buffer_host.get(), options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.fence()) << "The result of the copy is wrong.";
@@ -1032,7 +1034,7 @@ TEST(BufferTest, FillBufferFastInt16Test)
   {
     auto options = buffer_device->makeOptions();
     options.setLabel("FillBuffer");
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = buffer_device->fill(v, options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.fence()) << "The result of the filling is wrong.";
@@ -1043,7 +1045,7 @@ TEST(BufferTest, FillBufferFastInt16Test)
   {
     auto options = buffer_device->makeOptions();
     options.setLabel("DeviceToHostCopy");
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buffer_device, buffer_host.get(), options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.fence()) << "The result of the copy is wrong.";
@@ -1082,7 +1084,7 @@ TEST(BufferTest, FillBufferFastInt32Test)
   {
     auto options = buffer_device->makeOptions();
     options.setLabel("FillBuffer");
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = buffer_device->fill(v, options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.fence()) << "The result of the filling is wrong.";
@@ -1093,7 +1095,7 @@ TEST(BufferTest, FillBufferFastInt32Test)
   {
     auto options = buffer_device->makeOptions();
     options.setLabel("DeviceToHostCopy");
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buffer_device, buffer_host.get(), options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.fence()) << "The result of the copy is wrong.";
@@ -1133,7 +1135,7 @@ TEST(BufferTest, FillBufferFastRangeTest)
   {
     auto options = buffer_device->makeOptions();
     options.setLabel("FillBuffer");
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     {
       auto result = buffer_device->fill(0, options);
       if (result.isAsync()) {
@@ -1155,7 +1157,7 @@ TEST(BufferTest, FillBufferFastRangeTest)
   {
     auto options = buffer_device->makeOptions();
     options.setLabel("DeviceToHostCopy");
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buffer_device, buffer_host.get(), options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.fence()) << "The result of the copy is wrong.";
@@ -1198,7 +1200,7 @@ TEST(BufferTest, FillHostBufferTest)
   {
     auto options = buffer_host->makeOptions();
     options.setLabel("FillBuffer");
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = buffer_host->fill(v, options);
     if ((device->type() != zivc::SubPlatformType::kCpu) && buffer_host->isDeviceLocal()) {
       ASSERT_TRUE(result.isAsync());
@@ -1238,7 +1240,7 @@ TEST(BufferTest, FillHostBufferRangeTest)
   {
     auto options = buffer_host->makeOptions();
     options.setLabel("FillBuffer");
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     {
       auto result = buffer_host->fill(0, options);
       if ((device->type() != zivc::SubPlatformType::kCpu) && buffer_host->isDeviceLocal()) {
@@ -1408,7 +1410,7 @@ TEST(BufferTest, CopyBufferReinterpTest)
   {
     auto options = buffer_device2.makeOptions();
     options.setLabel("HostToDeviceCopy");
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     options.setSourceOffset(k * offset);
     options.setDestOffset(k * offset);
     options.setSize(buffer_device2.size() - 2 * k * offset);
@@ -1426,7 +1428,7 @@ TEST(BufferTest, CopyBufferReinterpTest)
   {
     auto options = buffer_device2.makeOptions();
     options.setLabel("DeviceToHostCopy");
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     options.setSourceOffset(k * offset);
     options.setDestOffset(k * offset);
     options.setSize(buffer_device2.size() - 2 * k * offset);
@@ -1496,7 +1498,7 @@ TEST(BufferTest, CopyHostBufferReinterpTest)
   {
     auto options = buffer_host3.makeOptions();
     options.setLabel("HostToHostCopy");
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     options.setSourceOffset(k * offset);
     options.setDestOffset(k * offset);
     options.setSize(buffer_host3.size() - 2 * k * offset);
@@ -1518,7 +1520,7 @@ TEST(BufferTest, CopyHostBufferReinterpTest)
   {
     auto options = buffer_host4.makeOptions();
     options.setLabel("HostToHostCopy");
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     options.setSourceOffset(k * offset);
     options.setDestOffset(k * offset);
     options.setSize(buffer_host3.size() - 2 * k * offset);

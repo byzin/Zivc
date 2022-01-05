@@ -43,8 +43,8 @@ class LaunchOptions
   LaunchOptions(const uint32b queue_index) noexcept;
 
 
-  //! Check whether external sync mode is required
-  bool isExternalSyncMode() const noexcept;
+  //! Check whether a fence is requested
+  bool isFenceRequested() const noexcept;
 
   //! Return the label of the launching
   std::string_view label() const noexcept;
@@ -55,8 +55,8 @@ class LaunchOptions
   //! Return the queue index
   uint32b queueIndex() const noexcept;
 
-  //! Set external sync mode
-  void setExternalSyncMode(const bool is_active) noexcept;
+  //! Request a fence if an exection is async
+  void requestFence(const bool flag) noexcept;
 
   //! Set the queue index which is used for a kernel execution
   void setQueueIndex(const uint32b queue_index) noexcept;
@@ -75,7 +75,7 @@ class LaunchOptions
   IdData::NameType label_;
   std::array<float, 4> label_color_{1.0f, 1.0f, 1.0f, 1.0f};
   uint32b queue_index_ = 0;
-  zisc::Boolean is_external_sync_mode_;
+  zisc::Boolean is_fence_requested_;
   [[maybe_unused]] Padding<3> pad_;
 };
 

@@ -100,7 +100,7 @@ std::size_t CpuDevice::taskBatchSize() const noexcept
 inline
 zisc::ThreadManager& CpuDevice::threadManager() noexcept
 {
-  return *thread_manager_;
+  return parentImpl().threadManager();
 }
 
 /*!
@@ -111,7 +111,7 @@ zisc::ThreadManager& CpuDevice::threadManager() noexcept
 inline
 const zisc::ThreadManager& CpuDevice::threadManager() const noexcept
 {
-  return *thread_manager_;
+  return parentImpl().threadManager();
 }
 
 /*!

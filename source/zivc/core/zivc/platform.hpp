@@ -30,6 +30,13 @@
 #include "sub_platform.hpp"
 #include "zivc_config.hpp"
 
+namespace zisc {
+
+// Forward declaration
+class ThreadManager;
+
+} /* namespace zisc */
+
 namespace zivc {
 
 // Forward declaration
@@ -92,6 +99,12 @@ class Platform : private zisc::NonCopyable<Platform>
 
   //! Return the sub-platform of the given type
   const SubPlatform* subPlatform(const SubPlatformType type) const noexcept;
+
+  //! Return the underlying thread manager which is used for cpu kernel exection
+  zisc::ThreadManager& threadManager() noexcept;
+
+  //! Return the underlying thread manager which is used for cpu kernel exection
+  const zisc::ThreadManager& threadManager() const noexcept;
 
  private:
   //! Create a sub-platform

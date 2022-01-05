@@ -22,6 +22,7 @@
 // Zisc
 #include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
+#include "zisc/thread/thread_manager.hpp"
 // Zivc
 #include "cpu_device.hpp"
 #include "cpu_device_info.hpp"
@@ -137,8 +138,8 @@ void CpuSubPlatform::updateDeviceInfoList()
   */
 void CpuSubPlatform::destroyData() noexcept
 {
-  num_of_threads_ = 0;
   task_batch_size_ = 0;
+  thread_manager_.reset();
   device_info_.reset();
 }
 
@@ -150,12 +151,24 @@ void CpuSubPlatform::destroyData() noexcept
 void CpuSubPlatform::initData(PlatformOptions& options)
 {
   auto* mem_resource = memoryResource();
-  zisc::pmr::polymorphic_allocator<CpuDeviceInfo> alloc{mem_resource};
-  device_info_ = zisc::pmr::allocateUnique<CpuDeviceInfo>(alloc, mem_resource);
-  num_of_threads_ = options.cpuNumOfThreads();
-  constexpr uint32b max_batch_size = maxTaskBatchSize();
-  task_batch_size_ = options.cpuTaskBatchSize();
-  task_batch_size_ = zisc::clamp(task_batch_size_, 1U, max_batch_size);
+  // Init device info
+  {
+    zisc::pmr::polymorphic_allocator<CpuDeviceInfo> alloc{mem_resource};
+    device_info_ = zisc::pmr::allocateUnique<CpuDeviceInfo>(alloc, mem_resource);
+  }
+  // Init the thread manager
+  {
+    zisc::pmr::polymorphic_allocator<zisc::ThreadManager> alloc{mem_resource};
+    thread_manager_ = zisc::pmr::allocateUnique(alloc,
+                                                options.cpuNumOfThreads(),
+                                                mem_resource);
+  }
+  // Init batch size
+  {
+    constexpr uint32b max_batch_size = maxTaskBatchSize();
+    task_batch_size_ = options.cpuTaskBatchSize();
+    task_batch_size_ = zisc::clamp(task_batch_size_, 1U, max_batch_size);
+  }
 }
 
 /*!

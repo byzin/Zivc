@@ -99,6 +99,17 @@ const Fence& LaunchResult::fence() const noexcept
   \return No description
   */
 inline
+bool LaunchResult::hasFence() const noexcept
+{
+  return fence().isActive();
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
 bool LaunchResult::isAsync() const noexcept
 {
   return is_async_;

@@ -46,7 +46,7 @@ testing::AssertionResult testVectorBuffer(zivc::Device& device,
   buff_host->setSize(buffer.size());
   {
     auto options = buffer.makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(buffer, buff_host.get(), options);
     device.waitForCompletion(result.fence());
   }
@@ -95,7 +95,7 @@ TEST(KernelTest, Pod1Test)
   {
     auto launch_options = kernel->makeOptions();
     launch_options.setWorkSize({1});
-    launch_options.setExternalSyncMode(false);
+    launch_options.requestFence(false);
     launch_options.setLabel("Pod1Kernel");
     auto result = kernel->run(*buff_device, expected, launch_options);
     device->waitForCompletion();
@@ -104,7 +104,7 @@ TEST(KernelTest, Pod1Test)
   // Check the outputs
   {
     auto options = buff_device->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_device, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
@@ -140,7 +140,7 @@ TEST(KernelTest, Pod2Test)
       std::iota(mem.begin(), mem.end(), 0);
     }
     auto options = buff_device1->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_host, buff_device1.get(), options);
     device->waitForCompletion(result.fence());
   }
@@ -156,7 +156,7 @@ TEST(KernelTest, Pod2Test)
     const uint32b res = zisc::cast<uint32b>(n);
     auto launch_options = kernel->makeOptions();
     launch_options.setWorkSize({res});
-    launch_options.setExternalSyncMode(false);
+    launch_options.requestFence(false);
     launch_options.setLabel("Pod2Kernel");
     auto result = kernel->run(*buff_device1, *buff_device2, res, launch_options);
     device->waitForCompletion();
@@ -165,7 +165,7 @@ TEST(KernelTest, Pod2Test)
   // Check the outputs
   {
     auto options = buff_device2->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_device2, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
@@ -220,7 +220,7 @@ TEST(KernelTest, Pod3Test)
   {
     auto launch_options = kernel->makeOptions();
     launch_options.setWorkSize({1});
-    launch_options.setExternalSyncMode(false);
+    launch_options.requestFence(false);
     launch_options.setLabel("Pod3Kernel");
     auto result = kernel->run(
         i0, u0, f0,
@@ -236,7 +236,7 @@ TEST(KernelTest, Pod3Test)
     buff_host->setSize(3);
 
     auto options = buff_device_i->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_device_i, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
@@ -253,7 +253,7 @@ TEST(KernelTest, Pod3Test)
     buff_host->setSize(3);
 
     auto options = buff_device_u->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_device_u, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
@@ -270,7 +270,7 @@ TEST(KernelTest, Pod3Test)
     buff_host->setSize(3);
 
     auto options = buff_device_f->makeOptions();
-    options.setExternalSyncMode(true);
+    options.requestFence(true);
     auto result = zivc::copy(*buff_device_f, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
@@ -332,7 +332,7 @@ TEST(KernelTest, PodSizeAlignmentTest)
   {
     auto launch_options = kernel->makeOptions();
     launch_options.setWorkSize({1});
-    launch_options.setExternalSyncMode(false);
+    launch_options.requestFence(false);
     launch_options.setLabel("PodSizeAlignmentKernel");
     auto result = kernel->run(*buff_device1, i16, i8_1, i8_2,
                               u32, u8_1, u8_2, u8_3, u8_4,
@@ -429,7 +429,7 @@ TEST(KernelTest, PodSizeAlignment2Test)
   {
     auto launch_options = kernel->makeOptions();
     launch_options.setWorkSize({1});
-    launch_options.setExternalSyncMode(false);
+    launch_options.requestFence(false);
     launch_options.setLabel("PodSizeAlignment2Kernel");
     auto result = kernel->run(
         *buff_device1, *buff_device2, *buff_device3, *buff_device4,
@@ -608,7 +608,7 @@ TEST(KernelTest, PodMultipleValuesTest)
     {
       auto launch_options = kernel->makeOptions();
       launch_options.setWorkSize({1});
-      launch_options.setExternalSyncMode(false);
+      launch_options.requestFence(false);
       launch_options.setLabel("PodSizeAlignment2Kernel");
       auto result = kernel->run(
           *buff_device1, *buff_device2, *buff_device3, *buff_device4,
@@ -727,7 +727,7 @@ TEST(KernelTest, PodMultipleValuesTest)
     {
       auto launch_options = kernel->makeOptions();
       launch_options.setWorkSize({1});
-      launch_options.setExternalSyncMode(false);
+      launch_options.requestFence(false);
       launch_options.setLabel("PodSizeAlignmentKernel");
       auto result = kernel->run(
           *buff_device1, *buff_device2, *buff_device3, *buff_device4,
@@ -846,7 +846,7 @@ TEST(KernelTest, PodMultipleValuesTest)
     {
       auto launch_options = kernel->makeOptions();
       launch_options.setWorkSize({1});
-      launch_options.setExternalSyncMode(false);
+      launch_options.requestFence(false);
       launch_options.setLabel("PodSizeAlignmentKernel");
       auto result = kernel->run(
           *buff_device1, *buff_device2, *buff_device3, *buff_device4,
@@ -1052,7 +1052,7 @@ TEST(KernelTest, PodVectorTypeTest)
   {
     auto launch_options = kernel->makeOptions();
     launch_options.setWorkSize({1});
-    launch_options.setExternalSyncMode(false);
+    launch_options.requestFence(false);
     launch_options.setLabel("PodVectorKernel");
     auto result = kernel->run(
         *buff_device1, *buff_device2, *buff_device3, *buff_device4,
@@ -1079,7 +1079,7 @@ TEST(KernelTest, PodVectorTypeTest)
     buff_host->setSize(buff_device9->size());
     {
       auto options = buff_device9->makeOptions();
-      options.setExternalSyncMode(true);
+      options.requestFence(true);
       auto result = zivc::copy(*buff_device9, buff_host.get(), options);
       device->waitForCompletion(result.fence());
     }

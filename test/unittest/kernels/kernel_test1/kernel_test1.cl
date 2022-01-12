@@ -1,5 +1,5 @@
 /*!
-  \file kernel_test.cl
+  \file kernel_test1.cl
   \author Sho Ikeda
   \brief No brief description
 
@@ -12,8 +12,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_TEST_KERNEL_TEST_CL
-#define ZIVC_TEST_KERNEL_TEST_CL
+#ifndef ZIVC_TEST_KERNEL_TEST1_CL
+#define ZIVC_TEST_KERNEL_TEST1_CL
 
 // Zivc
 #include "zivc/cl/atomic.cl"
@@ -536,4 +536,4 @@ __kernel void workItemOffset3dKernel(zivc::GlobalPtr<uint32b> outputs,
   }
 }
 
-#endif // ZIVC_TEST_KERNEL_TEST_CL
+#endif // ZIVC_TEST_KERNEL_TEST1_CL

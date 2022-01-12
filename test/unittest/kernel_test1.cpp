@@ -1,5 +1,5 @@
 /*!
-  \file kernel_test.cpp
+  \file kernel_test1.cpp
   \author Sho Ikeda
   \brief No brief description
 
@@ -33,7 +33,7 @@
 #include "utility/config.hpp"
 #include "utility/googletest.hpp"
 #include "utility/test.hpp"
-#include "zivc/kernel_set/kernel_set-kernel_test.hpp"
+#include "zivc/kernel_set/kernel_set-kernel_test1.hpp"
 
 TEST(KernelTest, SimpleKernelTest)
 {
@@ -46,7 +46,7 @@ TEST(KernelTest, SimpleKernelTest)
   buffer->setSize(1);
 
   // Make a kernel
-  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test, simpleKernel, 1);
+  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test1, simpleKernel, 1);
   auto kernel = device->makeKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(1, kernel->argSize()) << "Wrong kernel property.";
@@ -85,7 +85,7 @@ TEST(KernelTest, BasicTypeSizeTest)
   buff_host->setSize(n);
 
   // Make a kernel
-  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test, basicTypeSizeKernel, 1);
+  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test1, basicTypeSizeKernel, 1);
   auto kernel = device->makeKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(1, kernel->argSize()) << "Wrong kernel property.";
@@ -285,7 +285,7 @@ TEST(KernelTest, ClassSize1Test)
   buff_host->setSize(2);
 
   // Make a kernel
-  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test, classSize1Kernel, 1);
+  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test1, classSize1Kernel, 1);
   auto kernel = device->makeKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(1, kernel->argSize()) << "Wrong kernel property.";
@@ -310,7 +310,7 @@ TEST(KernelTest, ClassSize1Test)
     const auto mem = buff_host->mapMemory();
     std::size_t i = 0;
 
-    using TestType = zivc::cl::kernel_test::ClassSizeTest1;
+    using TestType = zivc::cl::kernel_test1::ClassSizeTest1;
 
     EXPECT_EQ(sizeof(TestType), mem[i++]) << "Type size mismatch!.";
     EXPECT_EQ(std::alignment_of_v<TestType>, mem[i++]) << "Type size mismatch!.";
@@ -351,7 +351,7 @@ TEST(KernelTest, InputOutput1Test)
   }
 
   // Make a kernel
-  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test, inputOutput1Kernel, 1);
+  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test1, inputOutput1Kernel, 1);
   auto kernel = device->makeKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel->argSize()) << "Wrong kernel property.";
@@ -417,7 +417,7 @@ TEST(KernelTest, InputOutputHost1Test)
   }
 
   // Make a kernel
-  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test, inputOutput1Kernel, 1);
+  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test1, inputOutput1Kernel, 1);
   auto kernel = device->makeKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel->argSize()) << "Wrong kernel property.";
@@ -483,7 +483,7 @@ TEST(KernelTest, InputOutputHost2Test)
   }
 
   // Make a kernel
-  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test, inputOutput1Kernel, 1);
+  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test1, inputOutput1Kernel, 1);
   auto kernel = device->makeKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel->argSize()) << "Wrong kernel property.";
@@ -549,7 +549,7 @@ TEST(KernelTest, InputOutputHostToDevice1Test)
   }
 
   // Make a kernel
-  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test, inputOutput1Kernel, 1);
+  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test1, inputOutput1Kernel, 1);
   auto kernel = device->makeKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel->argSize()) << "Wrong kernel property.";
@@ -615,7 +615,7 @@ TEST(KernelTest, InputOutputHostToDevice2Test)
   }
 
   // Make a kernel
-  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test, inputOutput1Kernel, 1);
+  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test1, inputOutput1Kernel, 1);
   auto kernel = device->makeKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel->argSize()) << "Wrong kernel property.";
@@ -681,7 +681,7 @@ TEST(KernelTest, InputOutputDeviceToHost1Test)
   }
 
   // Make a kernel
-  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test, inputOutput1Kernel, 1);
+  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test1, inputOutput1Kernel, 1);
   auto kernel = device->makeKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel->argSize()) << "Wrong kernel property.";
@@ -747,7 +747,7 @@ TEST(KernelTest, InputOutputDeviceToHost2Test)
   }
 
   // Make a kernel
-  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test, inputOutput1Kernel, 1);
+  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test1, inputOutput1Kernel, 1);
   auto kernel = device->makeKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel->argSize()) << "Wrong kernel property.";
@@ -791,7 +791,7 @@ TEST(KernelTest, InputOutput2Test)
   using zivc::int32b;
   using zivc::uint32b;
 
-  using TestType = zivc::cl::kernel_test::ClassSizeTest1;
+  using TestType = zivc::cl::kernel_test1::ClassSizeTest1;
 
   // Allocate buffers
   auto buff_device1 = device->makeBuffer<TestType>(zivc::BufferUsage::kDeviceOnly);
@@ -822,7 +822,7 @@ TEST(KernelTest, InputOutput2Test)
   }
 
   // Make a kernel
-  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test, inputOutput2Kernel, 1);
+  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test1, inputOutput2Kernel, 1);
   auto kernel = device->makeKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel->argSize()) << "Wrong kernel property.";
@@ -935,7 +935,7 @@ TEST(KernelTest, WorkItem1dTest)
   }
 
   // Make a kernel
-  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test, workItem1dKernel, 1);
+  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test1, workItem1dKernel, 1);
   auto kernel = device->makeKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(3, kernel->argSize()) << "Wrong kernel property.";
@@ -1034,7 +1034,7 @@ TEST(KernelTest, WorkItem2dTest)
   }
 
   // Make a kernel
-  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test, workItem2dKernel, 2);
+  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test1, workItem2dKernel, 2);
   auto kernel = device->makeKernel(kernel_params);
   ASSERT_EQ(2, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(3, kernel->argSize()) << "Wrong kernel property.";
@@ -1133,7 +1133,7 @@ TEST(KernelTest, WorkItem3dTest)
   }
 
   // Make a kernel
-  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test, workItem3dKernel, 3);
+  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test1, workItem3dKernel, 3);
   auto kernel = device->makeKernel(kernel_params);
   ASSERT_EQ(3, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(3, kernel->argSize()) << "Wrong kernel property.";
@@ -1249,7 +1249,7 @@ TEST(KernelTest, WorkItemOffset1dTest)
   }
 
   // Make a kernel
-  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test, workItemOffset1dKernel, 1);
+  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test1, workItemOffset1dKernel, 1);
   auto kernel = device->makeKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(5, kernel->argSize()) << "Wrong kernel property.";
@@ -1352,7 +1352,7 @@ TEST(KernelTest, WorkItemOffset3dTest)
 
   using zivc::int32b;
   using zivc::uint32b;
-  using GlobalId = zivc::cl::kernel_test::inner::GlobalId3d;
+  using GlobalId = zivc::cl::kernel_test1::inner::GlobalId3d;
 
   constexpr std::size_t n_dim = 250;
   constexpr std::size_t n = n_dim * n_dim * n_dim;
@@ -1395,7 +1395,7 @@ TEST(KernelTest, WorkItemOffset3dTest)
   }
 
   // Make a kernel
-  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test, workItemOffset3dKernel, 3);
+  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test1, workItemOffset3dKernel, 3);
   auto kernel = device->makeKernel(kernel_params);
   ASSERT_EQ(3, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(4, kernel->argSize()) << "Wrong kernel property.";

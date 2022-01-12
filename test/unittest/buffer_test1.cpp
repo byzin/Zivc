@@ -1,5 +1,5 @@
 /*!
-  \file buffer_test.cpp
+  \file buffer_test1.cpp
   \author Sho Ikeda
   \brief No brief description
 

@@ -106,8 +106,8 @@
 !/test/unittest/*.hpp
 !/test/unittest/*.cpp
 !/test/unittest/kernels/
-!/test/unittest/kernels/kernel_test/
-!/test/unittest/kernels/kernel_test/*.cl
+!/test/unittest/kernels/kernel_test1/
+!/test/unittest/kernels/kernel_test1/*.cl
 !/test/unittest/kernels/kernel_test2/
 !/test/unittest/kernels/kernel_test2/*.cl
 !/test/unittest/kernels/kernel_test_params/

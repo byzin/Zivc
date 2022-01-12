@@ -20,10 +20,10 @@
 // Zivc
 #include "zivc/zivc.hpp"
 // Test
-#include "cli.hpp"
-#include "config.hpp"
-#include "googletest.hpp"
-#include "test.hpp"
+#include "utility/cli.hpp"
+#include "utility/config.hpp"
+#include "utility/googletest.hpp"
+#include "utility/test.hpp"
 
 namespace {
 

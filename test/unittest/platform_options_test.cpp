@@ -18,7 +18,7 @@
 #include "zivc/platform_options.hpp"
 #include "zivc/zivc_config.hpp"
 // Test
-#include "googletest.hpp"
+#include "utility/googletest.hpp"
 
 TEST(PlatformOptionsTest, SetterGetterTest)
 {

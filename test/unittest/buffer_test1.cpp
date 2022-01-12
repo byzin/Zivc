@@ -25,9 +25,9 @@
 #include "zivc/zivc.hpp"
 #include "zivc/zivc_config.hpp"
 // Test
-#include "config.hpp"
-#include "googletest.hpp"
-#include "test.hpp"
+#include "utility/config.hpp"
+#include "utility/googletest.hpp"
+#include "utility/test.hpp"
 
 TEST(BufferTest, DeviceOnlyBufferInitializationTest)
 {

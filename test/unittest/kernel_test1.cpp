@@ -30,9 +30,9 @@
 #include "zivc/cppcl/types.hpp"
 #include "zivc/cppcl/vector.hpp"
 // Test
-#include "config.hpp"
-#include "googletest.hpp"
-#include "test.hpp"
+#include "utility/config.hpp"
+#include "utility/googletest.hpp"
+#include "utility/test.hpp"
 #include "zivc/kernel_set/kernel_set-kernel_test.hpp"
 
 TEST(KernelTest, SimpleKernelTest)

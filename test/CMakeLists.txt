@@ -92,7 +92,7 @@ macro(setTestProject)
   Zivc_checkTarget(gtest_main)
 
   # Create a unit test
-  file(GLOB unittest_source_files ${PROJECT_SOURCE_DIR}/unittest/*[.hpp|.cpp])
+  file(GLOB_RECURSE unittest_source_files ${PROJECT_SOURCE_DIR}/unittest/*[.hpp|.cpp])
   add_executable(${PROJECT_NAME} ${unittest_source_files})
   source_group(${PROJECT_NAME} FILES ${unittest_source_files})
 
@@ -110,6 +110,7 @@ macro(setTestProject)
                                                 gtest_main
                                                 Zivc
                                                 ${test_linker_flags})
+  target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/unittest)
   target_compile_definitions(${PROJECT_NAME} PRIVATE ${test_definitions})
   Zivc_enableIpo(${PROJECT_NAME})
 

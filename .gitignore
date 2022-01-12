@@ -114,6 +114,9 @@
 !/test/unittest/kernels/kernel_test_params/*.cl
 !/test/unittest/kernels/kernel_test_pod/
 !/test/unittest/kernels/kernel_test_pod/*.cl
+!/test/unittest/utility/
+!/test/unittest/utility/*.hpp
+!/test/unittest/utility/*.cpp
 
 # Build directories
 !/build/

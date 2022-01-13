@@ -341,7 +341,7 @@ template <typename FloatN> inline
 FloatN Math::Builtin::ceil(const FloatN x) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
-  const auto y = ZIVC_GLOBAL_NAMESPACE::ceil(x);
+  const auto y = ZIVC_CL_GLOBAL_NAMESPACE::ceil(x);
   return y;
 }
 
@@ -351,7 +351,7 @@ template <typename FloatN> inline
 FloatN Math::Builtin::floor(const FloatN x) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
-  const auto y = ZIVC_GLOBAL_NAMESPACE::floor(x);
+  const auto y = ZIVC_CL_GLOBAL_NAMESPACE::floor(x);
   return y;
 }
 
@@ -361,7 +361,7 @@ template <typename FloatN> inline
 FloatN Math::Builtin::trunc(const FloatN x) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
-  const auto y = ZIVC_GLOBAL_NAMESPACE::trunc(x);
+  const auto y = ZIVC_CL_GLOBAL_NAMESPACE::trunc(x);
   return y;
 }
 
@@ -371,7 +371,7 @@ template <typename FloatN> inline
 FloatN Math::Builtin::round(const FloatN x) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
-  const auto y = ZIVC_GLOBAL_NAMESPACE::round(x);
+  const auto y = ZIVC_CL_GLOBAL_NAMESPACE::round(x);
   return y;
 }
 
@@ -382,8 +382,8 @@ FloatN Math::Builtin::rint(const FloatN x) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
   //! \todo Use rint instead of round
-//  const auto y = ZIVC_GLOBAL_NAMESPACE::rint(x);
-  const auto y = ZIVC_GLOBAL_NAMESPACE::round(x);
+//  const auto y = ZIVC_CL_GLOBAL_NAMESPACE::rint(x);
+  const auto y = ZIVC_CL_GLOBAL_NAMESPACE::round(x);
   return y;
 }
 
@@ -393,7 +393,7 @@ template <typename FloatN> inline
 FloatN Math::Builtin::fmod(const FloatN x, const FloatN y) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
-  const auto z = ZIVC_GLOBAL_NAMESPACE::fmod(x, y);
+  const auto z = ZIVC_CL_GLOBAL_NAMESPACE::fmod(x, y);
   return z;
 }
 
@@ -403,7 +403,7 @@ template <typename FloatN> inline
 FloatN Math::Builtin::fma(const FloatN a, const FloatN b, const FloatN c) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
-  const auto y = ZIVC_GLOBAL_NAMESPACE::fma(a, b, c);
+  const auto y = ZIVC_CL_GLOBAL_NAMESPACE::fma(a, b, c);
   return y;
 }
 
@@ -413,7 +413,7 @@ template <typename FloatN> inline
 FloatN Math::Builtin::exp(const FloatN x) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
-  const auto y = ZIVC_GLOBAL_NAMESPACE::exp(x);
+  const auto y = ZIVC_CL_GLOBAL_NAMESPACE::exp(x);
   return y;
 }
 
@@ -423,7 +423,7 @@ template <typename FloatN> inline
 FloatN Math::Builtin::exp2(const FloatN x) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
-  const auto y = ZIVC_GLOBAL_NAMESPACE::exp2(x);
+  const auto y = ZIVC_CL_GLOBAL_NAMESPACE::exp2(x);
   return y;
 }
 
@@ -433,7 +433,7 @@ template <typename FloatN> inline
 FloatN Math::Builtin::log(const FloatN x) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
-  const auto y = ZIVC_GLOBAL_NAMESPACE::log(x);
+  const auto y = ZIVC_CL_GLOBAL_NAMESPACE::log(x);
   return y;
 }
 
@@ -443,7 +443,7 @@ template <typename FloatN> inline
 FloatN Math::Builtin::log2(const FloatN x) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
-  const auto y = ZIVC_GLOBAL_NAMESPACE::log2(x);
+  const auto y = ZIVC_CL_GLOBAL_NAMESPACE::log2(x);
   return y;
 }
 
@@ -453,7 +453,7 @@ template <typename FloatN> inline
 FloatN Math::Builtin::pow(const FloatN base, const FloatN e) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
-  const auto y = ZIVC_GLOBAL_NAMESPACE::pow(base, e);
+  const auto y = ZIVC_CL_GLOBAL_NAMESPACE::pow(base, e);
   return y;
 }
 
@@ -463,7 +463,7 @@ template <typename FloatN> inline
 FloatN Math::Builtin::rsqrt(const FloatN x) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
-  const auto y = ZIVC_GLOBAL_NAMESPACE::rsqrt(x);
+  const auto y = ZIVC_CL_GLOBAL_NAMESPACE::rsqrt(x);
   return y;
 }
 
@@ -473,7 +473,7 @@ template <typename FloatN> inline
 FloatN Math::Builtin::sqrt(const FloatN x) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
-  const auto y = ZIVC_GLOBAL_NAMESPACE::sqrt(x);
+  const auto y = ZIVC_CL_GLOBAL_NAMESPACE::sqrt(x);
   return y;
 }
 
@@ -485,7 +485,7 @@ FloatN Math::Builtin::cbrt(const FloatN x) noexcept
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
   static_assert(!Config::isBuiltinMathCbrtUsed(),
                 "Builtin 'cbrt' isn't implemented yet.");
-//  const auto y = ZIVC_GLOBAL_NAMESPACE::cbrt(x);
+//  const auto y = ZIVC_CL_GLOBAL_NAMESPACE::cbrt(x);
   const auto y = x;
   return y;
 }
@@ -496,7 +496,7 @@ template <typename FloatN> inline
 FloatN Math::Builtin::sin(const FloatN theta) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
-  const auto y = ZIVC_GLOBAL_NAMESPACE::sin(theta);
+  const auto y = ZIVC_CL_GLOBAL_NAMESPACE::sin(theta);
   return y;
 }
 
@@ -506,7 +506,7 @@ template <typename FloatN> inline
 FloatN Math::Builtin::cos(const FloatN theta) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
-  const auto y = ZIVC_GLOBAL_NAMESPACE::cos(theta);
+  const auto y = ZIVC_CL_GLOBAL_NAMESPACE::cos(theta);
   return y;
 }
 
@@ -516,7 +516,7 @@ template <typename FloatN> inline
 FloatN Math::Builtin::tan(const FloatN theta) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
-  const auto y = ZIVC_GLOBAL_NAMESPACE::tan(theta);
+  const auto y = ZIVC_CL_GLOBAL_NAMESPACE::tan(theta);
   return y;
 }
 
@@ -526,7 +526,7 @@ template <typename FloatN> inline
 FloatN Math::Builtin::asin(const FloatN x) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
-  const auto y = ZIVC_GLOBAL_NAMESPACE::asin(x);
+  const auto y = ZIVC_CL_GLOBAL_NAMESPACE::asin(x);
   return y;
 }
 
@@ -536,7 +536,7 @@ template <typename FloatN> inline
 FloatN Math::Builtin::acos(const FloatN x) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
-  const auto y = ZIVC_GLOBAL_NAMESPACE::acos(x);
+  const auto y = ZIVC_CL_GLOBAL_NAMESPACE::acos(x);
   return y;
 }
 
@@ -546,7 +546,7 @@ template <typename FloatN> inline
 FloatN Math::Builtin::atan(const FloatN x) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
-  const auto y = ZIVC_GLOBAL_NAMESPACE::atan(x);
+  const auto y = ZIVC_CL_GLOBAL_NAMESPACE::atan(x);
   return y;
 }
 
@@ -562,7 +562,7 @@ FloatN Math::Builtin::frexp(const FloatN x, IntegerNPtr e) noexcept
                 "The IntegerNPtr isn't integer pointer type.");
   static_assert(!Config::isBuiltinMathFrexpUsed(),
                 "The builtin 'frexp' isn't implemented yet.");
-//  const auto y = ZIVC_GLOBAL_NAMESPACE::frexp(x, e);
+//  const auto y = ZIVC_CL_GLOBAL_NAMESPACE::frexp(x, e);
   const auto y = x;
   (void)e;
   return y;
@@ -575,7 +575,7 @@ FloatN Math::Builtin::ldexp(const FloatN x, const IntegerN e) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
   static_assert(kIsInteger<IntegerN>, "The IntegerN isn't integer type.");
-  const auto y = ZIVC_GLOBAL_NAMESPACE::ldexp(x, e);
+  const auto y = ZIVC_CL_GLOBAL_NAMESPACE::ldexp(x, e);
   return y;
 }
 
@@ -587,7 +587,7 @@ auto Math::Builtin::ilogb(const FloatN x) noexcept
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
   constexpr size_t n = VectorTypeInfo<FloatN>::size();
   using IntegerN = Integer32VecType<n>;
-//  const IntegerN y = ZIVC_GLOBAL_NAMESPACE::ilogb(x);
+//  const IntegerN y = ZIVC_CL_GLOBAL_NAMESPACE::ilogb(x);
   const IntegerN y = make<IntegerN>(0);
   (void)x;
   return y;
@@ -604,7 +604,7 @@ FloatN Math::Builtin::modf(const FloatN x, FloatNPtr iptr) noexcept
   static_assert(kIsFloatingPoint<FloatNType> & ASpaceInfo::isPointer(),
                 "The FloatNPtr isn't floating point.");
   static_assert(kIsSame<FloatN, FloatNType>, "The x and iptr types aren't same.");
-//  const auto y = ZIVC_GLOBAL_NAMESPACE::modf(x, iptr);
+//  const auto y = ZIVC_CL_GLOBAL_NAMESPACE::modf(x, iptr);
   const auto y = x;
   (void)iptr;
   return y;
@@ -616,7 +616,7 @@ template <typename FloatN> inline
 FloatN Math::Builtin::copysign(const FloatN x, const FloatN y) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
-  const auto z = ZIVC_GLOBAL_NAMESPACE::copysign(x, y);
+  const auto z = ZIVC_CL_GLOBAL_NAMESPACE::copysign(x, y);
   return z;
 }
 
@@ -706,7 +706,7 @@ FloatN Math::Zivc::exp(const FloatN x) noexcept
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
   static_assert(Config::isBuiltinMathExpUsed(),
                 "Zivc 'exp' isn't implemented yet.");
-  const auto y = ZIVC_GLOBAL_NAMESPACE::exp(x);
+  const auto y = ZIVC_CL_GLOBAL_NAMESPACE::exp(x);
   return y;
 }
 
@@ -718,7 +718,7 @@ FloatN Math::Zivc::exp2(const FloatN x) noexcept
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
   static_assert(Config::isBuiltinMathExpUsed(),
                 "Zivc 'exp2' isn't implemented yet.");
-  const auto y = ZIVC_GLOBAL_NAMESPACE::exp2(x);
+  const auto y = ZIVC_CL_GLOBAL_NAMESPACE::exp2(x);
   return y;
 }
 
@@ -730,7 +730,7 @@ FloatN Math::Zivc::log(const FloatN x) noexcept
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
   static_assert(Config::isBuiltinMathLogUsed(),
                 "Zivc 'log' isn't implemented yet.");
-  const auto y = ZIVC_GLOBAL_NAMESPACE::log(x);
+  const auto y = ZIVC_CL_GLOBAL_NAMESPACE::log(x);
   return y;
 }
 
@@ -742,7 +742,7 @@ FloatN Math::Zivc::log2(const FloatN x) noexcept
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
   static_assert(Config::isBuiltinMathLogUsed(),
                 "Zivc 'log2' isn't implemented yet.");
-  const auto y = ZIVC_GLOBAL_NAMESPACE::log2(x);
+  const auto y = ZIVC_CL_GLOBAL_NAMESPACE::log2(x);
   return y;
 }
 
@@ -754,7 +754,7 @@ FloatN Math::Zivc::pow(const FloatN base, const FloatN e) noexcept
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
   static_assert(Config::isBuiltinMathPowUsed(),
                 "Zivc 'pow' isn't implemented yet.");
-  const auto y = ZIVC_GLOBAL_NAMESPACE::pow(base, e);
+  const auto y = ZIVC_CL_GLOBAL_NAMESPACE::pow(base, e);
   return y;
 }
 
@@ -766,7 +766,7 @@ FloatN Math::Zivc::rsqrt(const FloatN x) noexcept
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
   static_assert(Config::isBuiltinMathSqrtUsed(),
                 "Zivc 'rsqrt' isn't implemented yet.");
-  const auto y = ZIVC_GLOBAL_NAMESPACE::rsqrt(x);
+  const auto y = ZIVC_CL_GLOBAL_NAMESPACE::rsqrt(x);
   return y;
 }
 
@@ -778,7 +778,7 @@ FloatN Math::Zivc::sqrt(const FloatN x) noexcept
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
   static_assert(Config::isBuiltinMathSqrtUsed(),
                 "Zivc 'sqrt' isn't implemented yet.");
-  const auto y = ZIVC_GLOBAL_NAMESPACE::sqrt(x);
+  const auto y = ZIVC_CL_GLOBAL_NAMESPACE::sqrt(x);
   return y;
 }
 

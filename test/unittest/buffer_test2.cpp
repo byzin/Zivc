@@ -24,8 +24,8 @@
 #include "zisc/math/unit_multiple.hpp"
 // Zivc
 #include "zivc/zivc.hpp"
+#include "zivc/zivc_cl.hpp"
 #include "zivc/zivc_config.hpp"
-#include "zivc/cppcl/vector.hpp"
 // Test
 #include "utility/config.hpp"
 #include "utility/googletest.hpp"
@@ -382,24 +382,24 @@ TEST(BufferTest, FillBufferInt48RangeTest)
 TEST(BufferTest, FillBufferInt64Test)
 {
   using zivc::int32b;
-  using zivc::cl::int2;
-  static_assert(sizeof(int2) == 8);
+  using zivc::cl_int2;
+  static_assert(sizeof(cl_int2) == 8);
 
   auto platform = ztest::makePlatform();
   const ztest::Config& config = ztest::Config::globalConfig();
   zivc::SharedDevice device = platform->queryDevice(config.deviceId());
 
-  auto buffer_device = device->makeBuffer<int2>(zivc::BufferUsage::kDeviceOnly);
-  auto buffer_host = device->makeBuffer<int2>(zivc::BufferUsage::kHostOnly);
+  auto buffer_device = device->makeBuffer<cl_int2>(zivc::BufferUsage::kDeviceOnly);
+  auto buffer_host = device->makeBuffer<cl_int2>(zivc::BufferUsage::kHostOnly);
 
   // Allocate memories
   {
     constexpr std::size_t alloc_size = 16ull * 1024ull * 1024ull;
-    const std::size_t s = alloc_size / sizeof(int2);
+    const std::size_t s = alloc_size / sizeof(cl_int2);
     buffer_device->setSize(s);
     buffer_host->setSize(s);
   }
-  const int2 v{0b01010101'01010101, 0b10101010'10101010};
+  const cl_int2 v{0b01010101'01010101, 0b10101010'10101010};
   // Fill buffer test
   {
     auto options = buffer_device->makeOptions();
@@ -557,24 +557,24 @@ TEST(BufferTest, FillBufferInt96RangeTest)
 TEST(BufferTest, FillBufferInt128Test)
 {
   using zivc::int32b;
-  using zivc::cl::int4;
+  using zivc::cl_int4;
 
   auto platform = ztest::makePlatform();
   const ztest::Config& config = ztest::Config::globalConfig();
   zivc::SharedDevice device = platform->queryDevice(config.deviceId());
 
-  auto buffer_device = device->makeBuffer<int4>(zivc::BufferUsage::kDeviceOnly);
-  auto buffer_host = device->makeBuffer<int4>(zivc::BufferUsage::kHostOnly);
+  auto buffer_device = device->makeBuffer<cl_int4>(zivc::BufferUsage::kDeviceOnly);
+  auto buffer_host = device->makeBuffer<cl_int4>(zivc::BufferUsage::kHostOnly);
 
   // Allocate memories
   {
     constexpr std::size_t alloc_size = 16ull * 1024ull * 1024ull;
-    const std::size_t s = alloc_size / sizeof(int4);
+    const std::size_t s = alloc_size / sizeof(cl_int4);
     buffer_device->setSize(s);
     buffer_host->setSize(s);
   }
-  const int4 v{0b01010101'01010101, 0b10101010'10101010,
-               0b11110000'11110000, 0b11111111'00000000};
+  const cl_int4 v{0b01010101'01010101, 0b10101010'10101010,
+                  0b11110000'11110000, 0b11111111'00000000};
   // Fill buffer test
   {
     auto options = buffer_device->makeOptions();

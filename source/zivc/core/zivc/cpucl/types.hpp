@@ -7,8 +7,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_CL_TYPES_HPP
-#define ZIVC_CL_TYPES_HPP
+#ifndef ZIVC_CPUCL_TYPES_HPP
+#define ZIVC_CPUCL_TYPES_HPP
 
 // Standard C++ library
 #include <cstddef>
@@ -38,4 +38,4 @@ using uintptr_t = std::uintptr_t;
 
 #include "types-inl.hpp"
 
-#endif // ZIVC_CL_TYPES_HPP
+#endif // ZIVC_CPUCL_TYPES_HPP

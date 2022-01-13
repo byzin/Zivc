@@ -7,8 +7,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_CL_MATH_INL_HPP
-#define ZIVC_CL_MATH_INL_HPP
+#ifndef ZIVC_CPUCL_MATH_INL_HPP
+#define ZIVC_CPUCL_MATH_INL_HPP
 
 #include "math.hpp"
 // Standard C++ library
@@ -967,4 +967,4 @@ FloatN copysign(const FloatN& x, const FloatN& y) noexcept
 
 } // namespace zivc
 
-#endif // ZIVC_CL_MATH_INL_HPP
+#endif // ZIVC_CPUCL_MATH_INL_HPP

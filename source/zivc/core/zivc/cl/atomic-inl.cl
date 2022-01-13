@@ -139,7 +139,7 @@ Integer Atomic::addImpl(AddressSpaceInteger p, const Integer value) noexcept
                 "The given p isn't global or local 32bit integer.");
   static_assert(isInteger32<Integer>(),
                 "The Integer isn't 32bit integer type.");
-  const auto old = ZIVC_GLOBAL_NAMESPACE::atomic_add(p, value);
+  const auto old = ZIVC_CL_GLOBAL_NAMESPACE::atomic_add(p, value);
   return old;
 }
 
@@ -152,7 +152,7 @@ Integer Atomic::subImpl(AddressSpaceInteger p, const Integer value) noexcept
                 "The given p isn't global or local 32bit integer.");
   static_assert(isInteger32<Integer>(),
                 "The Integer isn't 32bit integer type.");
-  const auto old = ZIVC_GLOBAL_NAMESPACE::atomic_sub(p, value);
+  const auto old = ZIVC_CL_GLOBAL_NAMESPACE::atomic_sub(p, value);
   return old;
 }
 
@@ -165,7 +165,7 @@ Type Atomic::swapImpl(AddressSpaceType p, const Type value) noexcept
                 "The given p isn't global or local 32bit integer.");
   static_assert(isInteger32<Type>(),
                 "The Integer isn't 32bit integer type.");
-  const auto old = ZIVC_GLOBAL_NAMESPACE::atomic_xchg(p, value);
+  const auto old = ZIVC_CL_GLOBAL_NAMESPACE::atomic_xchg(p, value);
   return old;
 }
 
@@ -176,7 +176,7 @@ auto Atomic::incrementImpl(AddressSpaceInteger p) noexcept
 {
   static_assert(isGlobalOrLocalInteger32Ptr<AddressSpaceInteger>(),
                 "The given p isn't global or local 32bit integer.");
-  const auto old = ZIVC_GLOBAL_NAMESPACE::atomic_inc(p);
+  const auto old = ZIVC_CL_GLOBAL_NAMESPACE::atomic_inc(p);
   return old;
 }
 
@@ -187,7 +187,7 @@ auto Atomic::decrementImpl(AddressSpaceInteger p) noexcept
 {
   static_assert(isGlobalOrLocalInteger32Ptr<AddressSpaceInteger>(),
                 "The given p isn't global or local 32bit integer.");
-  const auto old = ZIVC_GLOBAL_NAMESPACE::atomic_dec(p);
+  const auto old = ZIVC_CL_GLOBAL_NAMESPACE::atomic_dec(p);
   return old;
 }
 
@@ -202,7 +202,7 @@ Integer Atomic::compareAndSwapImpl(AddressSpaceInteger p,
                 "The given p isn't global or local 32bit integer.");
   static_assert(isInteger32<Integer>(),
                 "The Integer isn't 32bit integer type.");
-  const auto old = ZIVC_GLOBAL_NAMESPACE::atomic_cmpxchg(p, comp, value);
+  const auto old = ZIVC_CL_GLOBAL_NAMESPACE::atomic_cmpxchg(p, comp, value);
   return old;
 }
 
@@ -215,7 +215,7 @@ Integer Atomic::minImpl(AddressSpaceInteger p, const Integer value) noexcept
                 "The given p isn't global or local 32bit integer.");
   static_assert(isInteger32<Integer>(),
                 "The Integer isn't 32bit integer type.");
-  const auto old = ZIVC_GLOBAL_NAMESPACE::atomic_min(p, value);
+  const auto old = ZIVC_CL_GLOBAL_NAMESPACE::atomic_min(p, value);
   return old;
 }
 
@@ -228,7 +228,7 @@ Integer Atomic::maxImpl(AddressSpaceInteger p, const Integer value) noexcept
                 "The given p isn't global or local 32bit integer.");
   static_assert(isInteger32<Integer>(),
                 "The Integer isn't 32bit integer type.");
-  const auto old = ZIVC_GLOBAL_NAMESPACE::atomic_max(p, value);
+  const auto old = ZIVC_CL_GLOBAL_NAMESPACE::atomic_max(p, value);
   return old;
 }
 
@@ -241,7 +241,7 @@ Integer Atomic::bitAndImpl(AddressSpaceInteger p, const Integer value) noexcept
                 "The given p isn't global or local 32bit integer.");
   static_assert(isInteger32<Integer>(),
                 "The Integer isn't 32bit integer type.");
-  const auto old = ZIVC_GLOBAL_NAMESPACE::atomic_and(p, value);
+  const auto old = ZIVC_CL_GLOBAL_NAMESPACE::atomic_and(p, value);
   return old;
 }
 
@@ -254,7 +254,7 @@ Integer Atomic::bitOrImpl(AddressSpaceInteger p, const Integer value) noexcept
                 "The given p isn't global or local 32bit integer.");
   static_assert(isInteger32<Integer>(),
                 "The Integer isn't 32bit integer type.");
-  const auto old = ZIVC_GLOBAL_NAMESPACE::atomic_or(p, value);
+  const auto old = ZIVC_CL_GLOBAL_NAMESPACE::atomic_or(p, value);
   return old;
 }
 
@@ -267,7 +267,7 @@ Integer Atomic::bitXorImpl(AddressSpaceInteger p, const Integer value) noexcept
                 "The given p isn't global or local 32bit integer.");
   static_assert(isInteger32<Integer>(),
                 "The Integer isn't 32bit integer type.");
-  const auto old = ZIVC_GLOBAL_NAMESPACE::atomic_xor(p, value);
+  const auto old = ZIVC_CL_GLOBAL_NAMESPACE::atomic_xor(p, value);
   return old;
 }
 
@@ -286,13 +286,13 @@ auto Atomic::performImpl(AddressSpaceInteger p,
   // Perform an expression atomically
   auto old = *p;
   auto cmp = old;
-#if !(defined(Z_MAC) && defined(ZIVC_VULKAN))
+#if !(defined(Z_MAC) && defined(ZIVC_CL_VULKAN))
   do {
 #endif
     cmp = old;
     const auto value = expression(cmp, forward<Types>(arguments)...);
     old = compareAndSwap(p, cmp, value);
-#if !(defined(Z_MAC) && defined(ZIVC_VULKAN))
+#if !(defined(Z_MAC) && defined(ZIVC_CL_VULKAN))
   } while (old != cmp);
 #endif
   return old;

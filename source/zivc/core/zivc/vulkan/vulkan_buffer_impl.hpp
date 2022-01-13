@@ -24,8 +24,8 @@
 #include "utility/vulkan.hpp"
 #include "utility/vulkan_memory_allocator.hpp"
 #include "zivc/buffer.hpp"
-#include "zivc/cppcl/vector.hpp"
 #include "zivc/kernel_common.hpp"
+#include "zivc/zivc_cl.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/buffer_launch_options.hpp"
 #include "zivc/utility/launch_result.hpp"
@@ -107,8 +107,8 @@ class VulkanBufferImpl : private zisc::NonCopyable<VulkanBufferImpl>
     k8 = sizeof(uint8b),
     k16 = sizeof(uint16b),
     k32 = sizeof(uint32b),
-    k64 = sizeof(cl::uint2),
-    k128 = sizeof(cl::uint4),
+    k64 = sizeof(cl_uint2),
+    k128 = sizeof(cl_uint4),
   };
 
 
@@ -158,8 +158,8 @@ class VulkanBufferImpl : private zisc::NonCopyable<VulkanBufferImpl>
   //! Fill the given buffer with the specified value in u64 elements
   [[nodiscard]]
   LaunchResult fillU64(KernelCommon* fill_kernel,
-                       Buffer<cl::uint2>* data_buffer,
-                       Buffer<cl::uint2>* buffer,
+                       Buffer<cl_uint2>* data_buffer,
+                       Buffer<cl_uint2>* buffer,
                        const LaunchOptions& launch_options,
                        const std::size_t offset,
                        const std::size_t size) const;
@@ -167,8 +167,8 @@ class VulkanBufferImpl : private zisc::NonCopyable<VulkanBufferImpl>
   //! Fill the given buffer with the specified value in u128 elements
   [[nodiscard]]
   LaunchResult fillU128(KernelCommon* fill_kernel,
-                        Buffer<cl::uint4>* data_buffer,
-                        Buffer<cl::uint4>* buffer,
+                        Buffer<cl_uint4>* data_buffer,
+                        Buffer<cl_uint4>* buffer,
                         const LaunchOptions& launch_options,
                         const std::size_t offset,
                         const std::size_t size) const;

@@ -22,11 +22,14 @@
 //#pragma clang diagnostic push
 //#pragma clang diagnostic ignored "-Wc++98-c++11-c++14-compat-pedantic"
 
-// Definitions
-#define ZIVC_GLOBAL_NAMESPACE
+/*!
+  \brief No brief
+  \details No detailed description
 
-@kernel_inclusion_lines@
+  \param [out] outputs No description.
 
+  \note This function should neber be invoked
+  */
 __kernel void zivcClspvInitKernel(__global uint* outputs)
 {
   size_t i = 0;
@@ -65,15 +68,29 @@ __kernel void zivcClspvInitKernel(__global uint* outputs)
   outputs[i++] = get_sub_group_local_id();
 }
 
+// Definitions
+
+/*!
+  \def ZIVC_CL_GLOBAL_NAMESPACE
+  \brief No brief description
+
+  No detailed description.
+  */
+#define ZIVC_CL_GLOBAL_NAMESPACE
+
+// Main kernels
+@kernel_inclusion_lines@
+
+// Unset definitions
+#if defined(ZIVC_CL_GLOBAL_NAMESPACE) // The check is for avoiding unused macro warning
+#undef ZIVC_CL_GLOBAL_NAMESPACE
+#endif /* ZIVC_CL_GLOBAL_NAMESPACE */
+
 static_assert(ZIVC_KERNEL_SET_@kernel_set_name@_CL == 0x@kernel_set_number@u,
               "The ID number of the kernel set isn't valid.");
 
-#if !defined(ZIVC_GLOBAL_NAMESPACE)
-static_assert(false, "The macro 'ZIVC_GLOBAL_NAMESPACE' isn't defined.");
-#endif
-
-#pragma clang diagnostic pop
-#pragma clang diagnostic pop
 //#pragma clang diagnostic pop
+#pragma clang diagnostic pop
+#pragma clang diagnostic pop
 
 #endif /* ZIVC_KERNEL_SET_@kernel_set_name@_CL */

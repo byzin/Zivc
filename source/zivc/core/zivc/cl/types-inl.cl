@@ -10,12 +10,15 @@
 #ifndef ZIVC_TYPES_INL_CL
 #define ZIVC_TYPES_INL_CL
 
+// Zivc
+#include "cpucl.hpp"
+
 namespace zivc {
 
 namespace inner {
 
 // Type aliases
-#if defined(ZIVC_CPU)
+#if defined(ZIVC_CL_CPU)
 // Integer types
 typedef ::zivc::int8b int8b;
 typedef ::zivc::int16b int16b;

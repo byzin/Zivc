@@ -26,9 +26,8 @@
 #include "zisc/utility.hpp"
 // Zivc
 #include "zivc/zivc.hpp"
+#include "zivc/zivc_cl.hpp"
 #include "zivc/zivc_config.hpp"
-#include "zivc/cppcl/types.hpp"
-#include "zivc/cppcl/vector.hpp"
 // Test
 #include "utility/config.hpp"
 #include "utility/googletest.hpp"
@@ -124,43 +123,43 @@ TEST(KernelTest, BasicTypeSizeTest)
     EXPECT_EQ(sizeof(int64b), mem[i++]) << "Type size mismatch!.";
     EXPECT_EQ(std::alignment_of_v<int64b>, mem[i++]) << "Type size mismatch!.";
 
-    using zivc::cl::char2;
-    using zivc::cl::char3;
-    using zivc::cl::char4;
-    using zivc::cl::short2;
-    using zivc::cl::short3;
-    using zivc::cl::short4;
-    using zivc::cl::int2;
-    using zivc::cl::int3;
-    using zivc::cl::int4;
-    using zivc::cl::long2;
-    using zivc::cl::long3;
-    using zivc::cl::long4;
+    using zivc::cl_char2;
+    using zivc::cl_char3;
+    using zivc::cl_char4;
+    using zivc::cl_short2;
+    using zivc::cl_short3;
+    using zivc::cl_short4;
+    using zivc::cl_int2;
+    using zivc::cl_int3;
+    using zivc::cl_int4;
+    using zivc::cl_long2;
+    using zivc::cl_long3;
+    using zivc::cl_long4;
 
-    EXPECT_EQ(sizeof(char2), mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(std::alignment_of_v<char2>, mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(sizeof(char3), mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(std::alignment_of_v<char3>, mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(sizeof(char4), mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(std::alignment_of_v<char4>, mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(sizeof(short2), mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(std::alignment_of_v<short2>, mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(sizeof(short3), mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(std::alignment_of_v<short3>, mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(sizeof(short4), mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(std::alignment_of_v<short4>, mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(sizeof(int2), mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(std::alignment_of_v<int2>, mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(sizeof(int3), mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(std::alignment_of_v<int3>, mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(sizeof(int4), mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(std::alignment_of_v<int4>, mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(sizeof(long2), mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(std::alignment_of_v<long2>, mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(sizeof(long3), mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(std::alignment_of_v<long3>, mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(sizeof(long4), mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(std::alignment_of_v<long4>, mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(sizeof(cl_char2), mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(std::alignment_of_v<cl_char2>, mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(sizeof(cl_char3), mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(std::alignment_of_v<cl_char3>, mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(sizeof(cl_char4), mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(std::alignment_of_v<cl_char4>, mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(sizeof(cl_short2), mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(std::alignment_of_v<cl_short2>, mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(sizeof(cl_short3), mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(std::alignment_of_v<cl_short3>, mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(sizeof(cl_short4), mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(std::alignment_of_v<cl_short4>, mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(sizeof(cl_int2), mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(std::alignment_of_v<cl_int2>, mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(sizeof(cl_int3), mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(std::alignment_of_v<cl_int3>, mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(sizeof(cl_int4), mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(std::alignment_of_v<cl_int4>, mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(sizeof(cl_long2), mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(std::alignment_of_v<cl_long2>, mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(sizeof(cl_long3), mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(std::alignment_of_v<cl_long3>, mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(sizeof(cl_long4), mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(std::alignment_of_v<cl_long4>, mem[i++]) << "Type size mismatch!.";
 
     using zivc::uint8b;
     using zivc::uint16b;
@@ -176,81 +175,81 @@ TEST(KernelTest, BasicTypeSizeTest)
     EXPECT_EQ(sizeof(uint64b), mem[i++]) << "Type size mismatch!.";
     EXPECT_EQ(std::alignment_of_v<uint64b>, mem[i++]) << "Type size mismatch!.";
 
-    using zivc::cl::uchar2;
-    using zivc::cl::uchar3;
-    using zivc::cl::uchar4;
-    using zivc::cl::ushort2;
-    using zivc::cl::ushort3;
-    using zivc::cl::ushort4;
-    using zivc::cl::uint2;
-    using zivc::cl::uint3;
-    using zivc::cl::uint4;
-    using zivc::cl::ulong2;
-    using zivc::cl::ulong3;
-    using zivc::cl::ulong4;
+    using zivc::cl_uchar2;
+    using zivc::cl_uchar3;
+    using zivc::cl_uchar4;
+    using zivc::cl_ushort2;
+    using zivc::cl_ushort3;
+    using zivc::cl_ushort4;
+    using zivc::cl_uint2;
+    using zivc::cl_uint3;
+    using zivc::cl_uint4;
+    using zivc::cl_ulong2;
+    using zivc::cl_ulong3;
+    using zivc::cl_ulong4;
 
-    EXPECT_EQ(sizeof(uchar2), mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(std::alignment_of_v<uchar2>, mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(sizeof(uchar3), mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(std::alignment_of_v<uchar3>, mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(sizeof(uchar4), mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(std::alignment_of_v<uchar4>, mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(sizeof(ushort2), mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(std::alignment_of_v<ushort2>, mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(sizeof(ushort3), mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(std::alignment_of_v<ushort3>, mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(sizeof(ushort4), mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(std::alignment_of_v<ushort4>, mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(sizeof(uint2), mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(std::alignment_of_v<uint2>, mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(sizeof(uint3), mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(std::alignment_of_v<uint3>, mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(sizeof(uint4), mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(std::alignment_of_v<uint4>, mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(sizeof(ulong2), mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(std::alignment_of_v<ulong2>, mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(sizeof(ulong3), mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(std::alignment_of_v<ulong3>, mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(sizeof(ulong4), mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(std::alignment_of_v<ulong4>, mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(sizeof(cl_uchar2), mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(std::alignment_of_v<cl_uchar2>, mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(sizeof(cl_uchar3), mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(std::alignment_of_v<cl_uchar3>, mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(sizeof(cl_uchar4), mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(std::alignment_of_v<cl_uchar4>, mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(sizeof(cl_ushort2), mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(std::alignment_of_v<cl_ushort2>, mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(sizeof(cl_ushort3), mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(std::alignment_of_v<cl_ushort3>, mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(sizeof(cl_ushort4), mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(std::alignment_of_v<cl_ushort4>, mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(sizeof(cl_uint2), mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(std::alignment_of_v<cl_uint2>, mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(sizeof(cl_uint3), mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(std::alignment_of_v<cl_uint3>, mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(sizeof(cl_uint4), mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(std::alignment_of_v<cl_uint4>, mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(sizeof(cl_ulong2), mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(std::alignment_of_v<cl_ulong2>, mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(sizeof(cl_ulong3), mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(std::alignment_of_v<cl_ulong3>, mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(sizeof(cl_ulong4), mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(std::alignment_of_v<cl_ulong4>, mem[i++]) << "Type size mismatch!.";
 
-    using zivc::cl::half;
+    using zivc::cl_half;
 
-    EXPECT_EQ(sizeof(half), mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(std::alignment_of_v<half>, mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(sizeof(cl_half), mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(std::alignment_of_v<cl_half>, mem[i++]) << "Type size mismatch!.";
     EXPECT_EQ(sizeof(float), mem[i++]) << "Type size mismatch!.";
     EXPECT_EQ(std::alignment_of_v<float>, mem[i++]) << "Type size mismatch!.";
     EXPECT_EQ(sizeof(double), mem[i++]) << "Type size mismatch!.";
     EXPECT_EQ(std::alignment_of_v<double>, mem[i++]) << "Type size mismatch!.";
 
-    using zivc::cl::half2;
-    using zivc::cl::half3;
-    using zivc::cl::half4;
-    using zivc::cl::float2;
-    using zivc::cl::float3;
-    using zivc::cl::float4;
-    using zivc::cl::double2;
-    using zivc::cl::double3;
-    using zivc::cl::double4;
+    using zivc::cl_half2;
+    using zivc::cl_half3;
+    using zivc::cl_half4;
+    using zivc::cl_float2;
+    using zivc::cl_float3;
+    using zivc::cl_float4;
+    using zivc::cl_double2;
+    using zivc::cl_double3;
+    using zivc::cl_double4;
 
-    EXPECT_EQ(sizeof(half2), mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(std::alignment_of_v<half2>, mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(sizeof(half3), mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(std::alignment_of_v<half3>, mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(sizeof(half4), mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(std::alignment_of_v<half4>, mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(sizeof(float2), mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(std::alignment_of_v<float2>, mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(sizeof(float3), mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(std::alignment_of_v<float3>, mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(sizeof(float4), mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(std::alignment_of_v<float4>, mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(sizeof(double2), mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(std::alignment_of_v<double2>, mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(sizeof(double3), mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(std::alignment_of_v<double3>, mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(sizeof(double4), mem[i++]) << "Type size mismatch!.";
-    EXPECT_EQ(std::alignment_of_v<double4>, mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(sizeof(cl_half2), mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(std::alignment_of_v<cl_half2>, mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(sizeof(cl_half3), mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(std::alignment_of_v<cl_half3>, mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(sizeof(cl_half4), mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(std::alignment_of_v<cl_half4>, mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(sizeof(cl_float2), mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(std::alignment_of_v<cl_float2>, mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(sizeof(cl_float3), mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(std::alignment_of_v<cl_float3>, mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(sizeof(cl_float4), mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(std::alignment_of_v<cl_float4>, mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(sizeof(cl_double2), mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(std::alignment_of_v<cl_double2>, mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(sizeof(cl_double3), mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(std::alignment_of_v<cl_double3>, mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(sizeof(cl_double4), mem[i++]) << "Type size mismatch!.";
+    EXPECT_EQ(std::alignment_of_v<cl_double4>, mem[i++]) << "Type size mismatch!.";
 
 //    using zivc::cl::size_t;
 //    using zivc::cl::ptrdiff_t;
@@ -310,7 +309,7 @@ TEST(KernelTest, ClassSize1Test)
     const auto mem = buff_host->mapMemory();
     std::size_t i = 0;
 
-    using TestType = zivc::cl::kernel_test1::ClassSizeTest1;
+    using TestType = zivc::cl::ClassSizeTest1;
 
     EXPECT_EQ(sizeof(TestType), mem[i++]) << "Type size mismatch!.";
     EXPECT_EQ(std::alignment_of_v<TestType>, mem[i++]) << "Type size mismatch!.";
@@ -791,7 +790,7 @@ TEST(KernelTest, InputOutput2Test)
   using zivc::int32b;
   using zivc::uint32b;
 
-  using TestType = zivc::cl::kernel_test1::ClassSizeTest1;
+  using TestType = zivc::cl::ClassSizeTest1;
 
   // Allocate buffers
   auto buff_device1 = device->makeBuffer<TestType>(zivc::BufferUsage::kDeviceOnly);
@@ -1352,7 +1351,7 @@ TEST(KernelTest, WorkItemOffset3dTest)
 
   using zivc::int32b;
   using zivc::uint32b;
-  using GlobalId = zivc::cl::kernel_test1::inner::GlobalId3d;
+  using GlobalId = zivc::cl::inner::GlobalId3d;
 
   constexpr std::size_t n_dim = 250;
   constexpr std::size_t n = n_dim * n_dim * n_dim;

@@ -23,7 +23,7 @@
 #include <type_traits>
 // Zivc
 #include "zivc/zivc_config.hpp"
-#include "zivc/cppcl/vector.hpp"
+#include "zivc/cpucl/vector.hpp"
 
 // #define ZIVC_PRINT_CACHE_TREE
 

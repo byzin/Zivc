@@ -12,8 +12,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_CL_TYPES_INL_HPP
-#define ZIVC_CL_TYPES_INL_HPP
+#ifndef ZIVC_CPUCL_TYPES_INL_HPP
+#define ZIVC_CPUCL_TYPES_INL_HPP
 
 #include "types.hpp"
 // Standard C++ library
@@ -39,4 +39,4 @@ concept Half = zisc::SameAs<half, std::remove_cvref_t<Type>>;
 
 } // namespace zivc
 
-#endif // ZIVC_CL_TYPES_INL_HPP
+#endif // ZIVC_CPUCL_TYPES_INL_HPP

@@ -7,8 +7,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_CL_VECTOR_INL_HPP
-#define ZIVC_CL_VECTOR_INL_HPP
+#ifndef ZIVC_CPUCL_VECTOR_INL_HPP
+#define ZIVC_CPUCL_VECTOR_INL_HPP
 
 #include "vector.hpp"
 // Standard C++ library
@@ -1816,4 +1816,4 @@ void vstore_half4(
 
 } // namespace zivc
 
-#endif // ZIVC_CL_VECTOR_INL_HPP
+#endif // ZIVC_CPUCL_VECTOR_INL_HPP

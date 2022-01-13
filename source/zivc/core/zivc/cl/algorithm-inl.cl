@@ -25,11 +25,11 @@ auto Algorithm::absolute(const ArithN x) noexcept
 {
   static_assert(kIsArithmetic<ArithN>, "The ArithN isn't arithmetic type.");
   if constexpr (kIsInteger<ArithN>) {
-    const auto result = ZIVC_GLOBAL_NAMESPACE::abs(x);
+    const auto result = ZIVC_CL_GLOBAL_NAMESPACE::abs(x);
     return result;
   }
   else {
-    const auto result = ZIVC_GLOBAL_NAMESPACE::fabs(x);
+    const auto result = ZIVC_CL_GLOBAL_NAMESPACE::fabs(x);
     return result;
   }
 }
@@ -43,7 +43,7 @@ Arith1N Algorithm::clamp(const Arith1N x,
 {
   static_assert(kIsArithmetic<Arith1N>, "The Arith1N isn't arithmetic type.");
   static_assert(kIsArithmetic<Arith2N>, "The Arith2N isn't arithmetic type.");
-  const auto result = ZIVC_GLOBAL_NAMESPACE::clamp(x, minval, maxval);
+  const auto result = ZIVC_CL_GLOBAL_NAMESPACE::clamp(x, minval, maxval);
   return result;
 }
 
@@ -111,7 +111,7 @@ template <typename ArithN> inline
 ArithN Algorithm::max(const ArithN x, const ArithN y) noexcept
 {
   static_assert(kIsArithmetic<ArithN>, "The ArithN isn't arithmetic type.");
-  const auto result = ZIVC_GLOBAL_NAMESPACE::max(x, y);
+  const auto result = ZIVC_CL_GLOBAL_NAMESPACE::max(x, y);
   return result;
 }
 
@@ -121,7 +121,7 @@ template <typename ArithN> inline
 ArithN Algorithm::min(const ArithN x, const ArithN y) noexcept
 {
   static_assert(kIsArithmetic<ArithN>, "The ArithN isn't arithmetic type.");
-  const auto result = ZIVC_GLOBAL_NAMESPACE::min(x, y);
+  const auto result = ZIVC_CL_GLOBAL_NAMESPACE::min(x, y);
   return result;
 }
 
@@ -132,7 +132,7 @@ Float1N Algorithm::mix(const Float1N x, const Float1N y, const Float2N a) noexce
 {
   static_assert(kIsFloatingPoint<Float1N>, "The Float1N isn't floating point.");
   static_assert(kIsFloatingPoint<Float2N>, "The Float1N isn't floating point.");
-  const auto result = ZIVC_GLOBAL_NAMESPACE::mix(x, y, a);
+  const auto result = ZIVC_CL_GLOBAL_NAMESPACE::mix(x, y, a);
   return result;
 }
 
@@ -142,7 +142,7 @@ template <typename FloatN> inline
 FloatN Algorithm::sign(const FloatN x) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The Float1N isn't floating point.");
-  const auto result = ZIVC_GLOBAL_NAMESPACE::sign(x);
+  const auto result = ZIVC_CL_GLOBAL_NAMESPACE::sign(x);
   return result;
 }
 
@@ -152,7 +152,7 @@ template <typename IntegerN> inline
 IntegerN Algorithm::popcount(const IntegerN x) noexcept
 {
   static_assert(kIsInteger<IntegerN>, "The IntegerN isn't integer type.");
-  const auto result = ZIVC_GLOBAL_NAMESPACE::popcount(x);
+  const auto result = ZIVC_CL_GLOBAL_NAMESPACE::popcount(x);
   return result;
 }
 

@@ -7,8 +7,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_CL_ATOMIC_HPP
-#define ZIVC_CL_ATOMIC_HPP
+#ifndef ZIVC_CPUCL_ATOMIC_HPP
+#define ZIVC_CPUCL_ATOMIC_HPP
 
 // Zivc
 #include "address_space_pointer.hpp"
@@ -79,4 +79,4 @@ Integer atomic_xor(AddressSpacePointer<kAddressSpaceType, Integer> p,
 
 #include "atomic-inl.hpp"
 
-#endif // ZIVC_CL_ATOMIC_HPP
+#endif // ZIVC_CPUCL_ATOMIC_HPP

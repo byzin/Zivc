@@ -27,6 +27,7 @@
 #include "utility/vulkan_hpp.hpp"
 #include "utility/vulkan_memory_allocator.hpp"
 #include "zivc/zivc.hpp"
+#include "zivc/zivc_cl.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/kernel_set/kernel_set-zivc_internal_kernel.hpp"
 #include "zivc/utility/error.hpp"
@@ -260,7 +261,7 @@ LaunchResult VulkanBufferImpl::fillImpl(KernelCommon* fill_kernel,
                                         const std::size_t size) const
 {
   using FillKernelP = std::add_pointer_t<KernelType>;
-  using FillInfoT = zivc::cl::zivc_internal_kernel::zivc::FillInfo;
+  using FillInfoT = zivc::cl::zivc::FillInfo;
   auto* kernel = zisc::cast<FillKernelP>(fill_kernel);
 
   auto kernel_launch_options = kernel->makeOptions();
@@ -372,16 +373,16 @@ LaunchResult VulkanBufferImpl::fillU32(KernelCommon* fill_kernel,
   \return No description
   */
 LaunchResult VulkanBufferImpl::fillU64(KernelCommon* fill_kernel,
-                                       Buffer<cl::uint2>* data_buffer,
-                                       Buffer<cl::uint2>* buffer,
+                                       Buffer<cl_uint2>* data_buffer,
+                                       Buffer<cl_uint2>* buffer,
                                        const LaunchOptions& launch_options,
                                        const std::size_t offset,
                                        const std::size_t size) const
 {
   using FillKernelT =
       std::remove_cvref_t<decltype(*::makeFillU64KernelImpl(nullptr, nullptr))>;
-  auto result = fillImpl<cl::uint2, FillKernelT>(fill_kernel, data_buffer, buffer,
-                                                 launch_options, offset, size);
+  auto result = fillImpl<cl_uint2, FillKernelT>(fill_kernel, data_buffer, buffer,
+                                                launch_options, offset, size);
   return result;
 }
 
@@ -397,16 +398,16 @@ LaunchResult VulkanBufferImpl::fillU64(KernelCommon* fill_kernel,
   \return No description
   */
 LaunchResult VulkanBufferImpl::fillU128(KernelCommon* fill_kernel,
-                                       Buffer<cl::uint4>* data_buffer,
-                                       Buffer<cl::uint4>* buffer,
+                                       Buffer<cl_uint4>* data_buffer,
+                                       Buffer<cl_uint4>* buffer,
                                        const LaunchOptions& launch_options,
                                        const std::size_t offset,
                                        const std::size_t size) const
 {
   using FillKernelT =
       std::remove_cvref_t<decltype(*::makeFillU128KernelImpl(nullptr, nullptr))>;
-  auto result = fillImpl<cl::uint4, FillKernelT>(fill_kernel, data_buffer, buffer,
-                                                 launch_options, offset, size);
+  auto result = fillImpl<cl_uint4, FillKernelT>(fill_kernel, data_buffer, buffer,
+                                                launch_options, offset, size);
   return result;
 }
 

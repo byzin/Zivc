@@ -39,34 +39,13 @@ function(Zivc_makeKernelInclusionString kernel_inclusion_lines)
 endfunction(Zivc_makeKernelInclusionString)
 
 
-# Create alias files of given kernel source files
-function(Zivc_createKernelFileAliases output_dir kernel_alias_files)
-  set(kernel_files ${ARGN})
-  set(alias_files "")
-  file(MAKE_DIRECTORY ${output_dir})
-  foreach(kernel_file IN LISTS kernel_files)
-    get_filename_component(kernel_file_name ${kernel_file} NAME_WLE)
-    set(alias_file "${output_dir}/${kernel_file_name}.hpp")
-    list(APPEND alias_files ${alias_file})
-    file(CREATE_LINK ${kernel_file} ${alias_file} COPY_ON_ERROR)
-  endforeach(kernel_file)
-
-  # Output
-  set(${kernel_alias_files} ${alias_files} PARENT_SCOPE)
-endfunction(Zivc_createKernelFileAliases)
-
-
 function(Zivc_initCpuBackend target)
   # Make the output dir for C++ backend
   set(output_dir ${PROJECT_BINARY_DIR}/cpp)
   set(cpp_include_dir ${output_dir}/include)
   set(include_dirs ${cpp_include_dir} ${kernel_set_include_dirs})
 
-  # Get kernel inclusion code
-  Zivc_createKernelFileAliases(${output_dir}/alias
-                               kernel_alias_files
-                               ${kernel_set_source_files})
-  Zivc_makeKernelInclusionString(kernel_inclusion_lines ${kernel_alias_files})
+  Zivc_makeKernelInclusionString(kernel_inclusion_lines ${kernel_set_source_files})
 
   # Hpp file
   file(MAKE_DIRECTORY ${cpp_include_dir}/zivc/kernel_set)
@@ -80,7 +59,7 @@ function(Zivc_initCpuBackend target)
                  ${cpp_file_path}
                  @ONLY)
 
-  set(cpp_source_files ${hpp_file_path} ${cpp_file_path} ${kernel_alias_files})
+  set(cpp_source_files ${hpp_file_path} ${cpp_file_path} ${kernel_set_source_files})
   add_library(${target} STATIC ${cpp_source_files})
   source_group(${target} FILES ${cpp_source_files})
 
@@ -90,7 +69,7 @@ function(Zivc_initCpuBackend target)
                                              CXX_STANDARD_REQUIRED ON)
   Zivc_getCxxWarningFlags(cxx_compile_warning_flags)
   Zivc_getZivcKernelFlags(zivc_compile_flags zivc_definitions)
-  list(APPEND zivc_definitions ZIVC_CPU=1)
+  list(APPEND zivc_definitions ZIVC_CL_CPU=1)
   Zivc_getZivcWarningFlags(zivc_warning_flags)
   target_compile_options(${target} PUBLIC ${zivc_compile_flags}
                                    PRIVATE ${cxx_compile_warning_flags}
@@ -173,7 +152,7 @@ endfunction(Zivc_findSpirvDis)
 
 
 function(Zivc_getClspvCompileFlags clspv_compile_flags)
-  set(options -D=ZIVC_VULKAN=1)
+  set(options -D=ZIVC_CL_VULKAN=1)
   ## include directories
   set(include_dirs ${kernel_set_include_dirs})
   foreach(include_dir IN LISTS include_dirs)
@@ -209,7 +188,7 @@ function(Zivc_getClspvCompileFlags clspv_compile_flags)
                       --global-offset-push-constant
                       --inline-entry-points
                       --int8
-                      --long-vector
+                      # --long-vector
                       --pod-ubo
                       --spv-version=${spv_version}
                       --work-dim

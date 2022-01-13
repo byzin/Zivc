@@ -7,8 +7,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_CL_GEOMETRIC_INL_HPP
-#define ZIVC_CL_GEOMETRIC_INL_HPP
+#ifndef ZIVC_CPUCL_GEOMETRIC_INL_HPP
+#define ZIVC_CPUCL_GEOMETRIC_INL_HPP
 
 #include "geometric.hpp"
 // Standard C++ library
@@ -185,4 +185,4 @@ FloatN normalize(const FloatN& p) noexcept
 
 } // namespace zivc
 
-#endif // ZIVC_CL_GEOMETRIC_INL_HPP
+#endif // ZIVC_CPUCL_GEOMETRIC_INL_HPP

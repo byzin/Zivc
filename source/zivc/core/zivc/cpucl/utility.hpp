@@ -7,8 +7,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_CL_UTILITY_HPP
-#define ZIVC_CL_UTILITY_HPP
+#ifndef ZIVC_CPUCL_UTILITY_HPP
+#define ZIVC_CPUCL_UTILITY_HPP
 
 // Zivc
 #include "types.hpp"
@@ -388,4 +388,4 @@ double4 as_double4(Type&& value) noexcept;
 
 #include "utility-inl.hpp"
 
-#endif // ZIVC_CL_UTILITY_HPP
+#endif // ZIVC_CPUCL_UTILITY_HPP

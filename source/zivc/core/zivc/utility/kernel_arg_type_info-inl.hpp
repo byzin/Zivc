@@ -24,8 +24,8 @@
 // Zisc
 #include "zisc/concepts.hpp"
 // Zivc
-#include "zivc/cppcl/address_space_pointer.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/cpucl/address_space_pointer.hpp"
 
 namespace zivc {
 

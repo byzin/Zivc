@@ -31,7 +31,7 @@
 #include "zivc/device.hpp"
 #include "zivc/device_info.hpp"
 #include "zivc/zivc_config.hpp"
-#include "zivc/cppcl/utility.hpp"
+#include "zivc/cpucl/utility.hpp"
 #include "zivc/utility/id_data.hpp"
 #include "zivc/utility/fence.hpp"
 

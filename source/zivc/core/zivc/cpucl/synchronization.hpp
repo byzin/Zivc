@@ -7,8 +7,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_CL_SYNCHRONIZATION_HPP
-#define ZIVC_CL_SYNCHRONIZATION_HPP
+#ifndef ZIVC_CPUCL_SYNCHRONIZATION_HPP
+#define ZIVC_CPUCL_SYNCHRONIZATION_HPP
 
 // Zivc
 #include "types.hpp"
@@ -38,4 +38,4 @@ void barrier(const int32b /* flags */) noexcept {}
 
 } // namespace zivc
 
-#endif // ZIVC_CL_SYNCHRONIZATION_HPP
+#endif // ZIVC_CPUCL_SYNCHRONIZATION_HPP

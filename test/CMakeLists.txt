@@ -170,6 +170,20 @@ macro(setTestProject)
       SOURCE_FILES ${kernel_test_pod_sources}
       INCLUDE_DIRS ${kernel_set_kernel_test_pod_dir})
   target_link_libraries(${PROJECT_NAME} PRIVATE KernelSet_kernel_test_pod)
+  ## opencl C++ test1
+  set(kernel_set_cl_cpp_test1_dir ${PROJECT_SOURCE_DIR}/unittest/kernels/cl_cpp_test1)
+  file(GLOB_RECURSE cl_cpp_test1_sources ${kernel_set_cl_cpp_test1_dir}/*.cl)
+  Zivc_addKernelSet(cl_cpp_test1 ${PROJECT_VERSION}
+      SOURCE_FILES ${cl_cpp_test1_sources}
+      INCLUDE_DIRS ${kernel_set_cl_cpp_test1_dir})
+  target_link_libraries(${PROJECT_NAME} PRIVATE KernelSet_cl_cpp_test1)
+  ## opencl C++ type test
+  set(kernel_set_cl_cpp_test_type_dir ${PROJECT_SOURCE_DIR}/unittest/kernels/cl_cpp_test_type)
+  file(GLOB_RECURSE cl_cpp_test_type_sources ${kernel_set_cl_cpp_test_type_dir}/*.cl)
+  Zivc_addKernelSet(cl_cpp_test_type ${PROJECT_VERSION}
+      SOURCE_FILES ${cl_cpp_test_type_sources}
+      INCLUDE_DIRS ${kernel_set_cl_cpp_test_type_dir})
+  target_link_libraries(${PROJECT_NAME} PRIVATE KernelSet_cl_cpp_test_type)
 
   # Add tests for CMake
   add_test(NAME ${PROJECT_NAME}-cpu COMMAND ${PROJECT_NAME} --device cpu

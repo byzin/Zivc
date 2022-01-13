@@ -21,7 +21,7 @@ namespace zivc {
 inline
 void Synchronization::barrier(const int32b flags) noexcept
 {
-  ZIVC_GLOBAL_NAMESPACE::barrier(flags);
+  ZIVC_CL_GLOBAL_NAMESPACE::barrier(flags);
 }
 
 /*!

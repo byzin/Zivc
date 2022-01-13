@@ -7,8 +7,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_CL_ALGORITHM_INL_HPP
-#define ZIVC_CL_ALGORITHM_INL_HPP
+#ifndef ZIVC_CPUCL_ALGORITHM_INL_HPP
+#define ZIVC_CPUCL_ALGORITHM_INL_HPP
 
 #include "algorithm.hpp"
 // Standard C++ library
@@ -490,4 +490,4 @@ IntegerN popcount(const IntegerN& x) noexcept
 
 } // namespace zivc
 
-#endif // ZIVC_CL_ALGORITHM_INL_HPP
+#endif // ZIVC_CPUCL_ALGORITHM_INL_HPP

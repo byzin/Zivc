@@ -26,7 +26,7 @@ ComparisonResultType<FloatN> Relation::isEqual(const FloatN x,
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point type.");
   using ResultType = ComparisonResultType<FloatN>;
-  const auto result = cast<ResultType>(ZIVC_GLOBAL_NAMESPACE::isequal(x, y));
+  const auto result = cast<ResultType>(ZIVC_CL_GLOBAL_NAMESPACE::isequal(x, y));
   return result;
 }
 
@@ -38,7 +38,7 @@ ComparisonResultType<FloatN> Relation::isNotEqual(const FloatN x,
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point type.");
   using ResultType = ComparisonResultType<FloatN>;
-  const auto result = cast<ResultType>(ZIVC_GLOBAL_NAMESPACE::isnotequal(x, y));
+  const auto result = cast<ResultType>(ZIVC_CL_GLOBAL_NAMESPACE::isnotequal(x, y));
   return result;
 }
 
@@ -50,7 +50,7 @@ ComparisonResultType<FloatN> Relation::isGreater(const FloatN x,
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point type.");
   using ResultType = ComparisonResultType<FloatN>;
-  const auto result = cast<ResultType>(ZIVC_GLOBAL_NAMESPACE::isgreater(x, y));
+  const auto result = cast<ResultType>(ZIVC_CL_GLOBAL_NAMESPACE::isgreater(x, y));
   return result;
 }
 
@@ -62,7 +62,7 @@ ComparisonResultType<FloatN> Relation::isGreaterEqual(const FloatN x,
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point type.");
   using ResultType = ComparisonResultType<FloatN>;
-  const auto result = cast<ResultType>(ZIVC_GLOBAL_NAMESPACE::isgreaterequal(x, y));
+  const auto result = cast<ResultType>(ZIVC_CL_GLOBAL_NAMESPACE::isgreaterequal(x, y));
   return result;
 }
 
@@ -74,7 +74,7 @@ ComparisonResultType<FloatN> Relation::isLess(const FloatN x,
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point type.");
   using ResultType = ComparisonResultType<FloatN>;
-  const auto result = cast<ResultType>(ZIVC_GLOBAL_NAMESPACE::isless(x, y));
+  const auto result = cast<ResultType>(ZIVC_CL_GLOBAL_NAMESPACE::isless(x, y));
   return result;
 }
 
@@ -86,7 +86,7 @@ ComparisonResultType<FloatN> Relation::isLessEqual(const FloatN x,
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point type.");
   using ResultType = ComparisonResultType<FloatN>;
-  const auto result = cast<ResultType>(ZIVC_GLOBAL_NAMESPACE::islessequal(x, y));
+  const auto result = cast<ResultType>(ZIVC_CL_GLOBAL_NAMESPACE::islessequal(x, y));
   return result;
 }
 
@@ -97,7 +97,7 @@ ComparisonResultType<FloatN> Relation::isInf(const FloatN arg) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point type.");
   using ResultType = ComparisonResultType<FloatN>;
-  const auto result = cast<ResultType>(ZIVC_GLOBAL_NAMESPACE::isinf(arg));
+  const auto result = cast<ResultType>(ZIVC_CL_GLOBAL_NAMESPACE::isinf(arg));
   return result;
 }
 
@@ -108,7 +108,7 @@ ComparisonResultType<FloatN> Relation::isNan(const FloatN arg) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point type.");
   using ResultType = ComparisonResultType<FloatN>;
-  const auto result = cast<ResultType>(ZIVC_GLOBAL_NAMESPACE::isnan(arg));
+  const auto result = cast<ResultType>(ZIVC_CL_GLOBAL_NAMESPACE::isnan(arg));
   return result;
 }
 
@@ -119,7 +119,7 @@ ComparisonResultType<FloatN> Relation::isSignBitSet(const FloatN arg) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point type.");
   using ResultType = ComparisonResultType<FloatN>;
-  const auto result = cast<ResultType>(ZIVC_GLOBAL_NAMESPACE::signbit(arg));
+  const auto result = cast<ResultType>(ZIVC_CL_GLOBAL_NAMESPACE::signbit(arg));
   return result;
 }
 
@@ -128,7 +128,7 @@ ComparisonResultType<FloatN> Relation::isSignBitSet(const FloatN arg) noexcept
 template <typename TypeN> inline
 TypeN Relation::selectBit(const TypeN a, const TypeN b, const TypeN c) noexcept
 {
-  const auto result = ZIVC_GLOBAL_NAMESPACE::bitselect(a, b, c);
+  const auto result = ZIVC_CL_GLOBAL_NAMESPACE::bitselect(a, b, c);
   return result;
 }
 
@@ -140,7 +140,7 @@ TypeN Relation::selectValue(const TypeN a,
                             const IntegerN c) noexcept
 {
   static_assert(kIsInteger<IntegerN>, "The IntegerN isn't integer type.");
-  const auto result = ZIVC_GLOBAL_NAMESPACE::select(a, b, c);
+  const auto result = ZIVC_CL_GLOBAL_NAMESPACE::select(a, b, c);
   return result;
 }
 

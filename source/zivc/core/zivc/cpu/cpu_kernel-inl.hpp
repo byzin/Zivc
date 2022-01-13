@@ -33,7 +33,7 @@
 #include "zivc/kernel.hpp"
 #include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
-#include "zivc/cppcl/address_space_pointer.hpp"
+#include "zivc/cpucl/address_space_pointer.hpp"
 #include "zivc/utility/fence.hpp"
 #include "zivc/utility/id_data.hpp"
 #include "zivc/utility/kernel_arg_type_info.hpp"

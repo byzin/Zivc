@@ -25,8 +25,8 @@
 #include "utility/vulkan.hpp"
 #include "zivc/buffer.hpp"
 #include "zivc/kernel_common.hpp"
+#include "zivc/zivc_cl.hpp"
 #include "zivc/zivc_config.hpp"
-#include "zivc/cppcl/vector.hpp"
 #include "zivc/utility/buffer_launch_options.hpp"
 #include "zivc/utility/error.hpp"
 #include "zivc/utility/launch_result.hpp"
@@ -75,14 +75,14 @@ LaunchResult VulkanBufferImpl::fill(KernelCommon* fill_kernel,
     break;
    }
    case FillUnitSize::k64: {
-    auto data_buff = data_buffer->reinterp<cl::uint2>();
-    auto buff = buffer->template reinterp<cl::uint2>();
+    auto data_buff = data_buffer->reinterp<cl_uint2>();
+    auto buff = buffer->template reinterp<cl_uint2>();
     result = fillU64(fill_kernel, &data_buff, &buff, launch_options, offset, size);
     break;
    }
    case FillUnitSize::k128: {
-    auto data_buff = data_buffer->reinterp<cl::uint4>();
-    auto buff = buffer->template reinterp<cl::uint4>();
+    auto data_buff = data_buffer->reinterp<cl_uint4>();
+    auto buff = buffer->template reinterp<cl_uint4>();
     result = fillU128(fill_kernel, &data_buff, &buff, launch_options, offset, size);
     break;
    }

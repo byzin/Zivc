@@ -11,10 +11,10 @@
 #define ZIVC_UTILITY_INL_CL
 
 #include "utility.cl"
-#if defined(ZIVC_CPU)
+#if defined(ZIVC_CL_CPU)
 #include <cstdio>
 #include <cstdlib>
-#endif // ZIVC_CPU
+#endif // ZIVC_CL_CPU
 // Zivc
 #include "types.cl"
 #include "type_traits.cl"
@@ -42,12 +42,12 @@ int32b print(ConstConstantPtr<char> format, const Types... args) noexcept
 {
   int32b result = 0;
   constexpr size_t num_of_args = sizeof...(args);
-#if defined(ZIVC_CPU)
+#if defined(ZIVC_CL_CPU)
   if constexpr (0 < num_of_args)
     result = std::printf(format.get(), args...);
   else
     result = std::printf(format.get());
-#endif // ZIVC_CPU
+#endif // ZIVC_CL_CPU
   return result;
 }
 
@@ -60,13 +60,13 @@ void assertIfFalse(const int32b condition,
 {
   constexpr size_t num_of_args = sizeof...(args);
   if (!condition) {
-#if defined(ZIVC_CPU)
+#if defined(ZIVC_CL_CPU)
     if constexpr (0 < num_of_args)
       std::fprintf(stderr, format.get(), args...);
     else
       std::fprintf(stderr, format.get());
     std::abort();
-#endif // ZIVC_CPU
+#endif // ZIVC_CL_CPU
   }
 }
 
@@ -775,7 +775,7 @@ ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(double2);
 ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(double3);
 ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(double4);
 
-#if defined(ZIVC_CPU)
+#if defined(ZIVC_CL_CPU)
 
 template <AddressSpaceType kASpaceType, typename Type>
 struct TypeConverter<AddressSpacePointer<kASpaceType, Type>>
@@ -796,7 +796,7 @@ struct TypeConverter<AddressSpacePointer<kASpaceType, Type>>
   }
 };
 
-#endif // ZIVC_CPU
+#endif // ZIVC_CL_CPU
 
 } // namespace inner
 

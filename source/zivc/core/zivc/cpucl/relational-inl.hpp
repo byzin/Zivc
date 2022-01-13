@@ -7,8 +7,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_CL_RELATIONAL_INL_HPP
-#define ZIVC_CL_RELATIONAL_INL_HPP
+#ifndef ZIVC_CPUCL_RELATIONAL_INL_HPP
+#define ZIVC_CPUCL_RELATIONAL_INL_HPP
 
 #include "relational.hpp"
 // Standard C++ library
@@ -749,4 +749,4 @@ TypeN select(const TypeN& a, const TypeN& b, const IntegerN& c) noexcept
 
 } // namespace zivc
 
-#endif // ZIVC_CL_RELATIONAL_INL_HPP
+#endif // ZIVC_CPUCL_RELATIONAL_INL_HPP

@@ -53,7 +53,7 @@ FloatingPoint<kFormat>::downscale(const BitVec<kN> x) noexcept
     src_exp_bit = src_exp_bit >> sig_size_diff; 
     src_exp_bit = src_exp_bit - exp_bias_diff;
     dst_bit = cast<DstBitVec>(src_exp_bit) & DstFloat::exponentBitMask();
-#if defined(ZIVC_VULKAN)
+#if defined(ZIVC_CL_VULKAN)
     //! \todo [Bug] MSB of exponent bits disappears, remove this macro in future
     constexpr DstBitType l_mask =
         ~static_cast<DstBitType>(DstFloat::signBitMask() >> 1);

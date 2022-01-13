@@ -19,8 +19,6 @@
 // Standard C++ library
 #include <string_view>
 #include <type_traits>
-// Zisc
-#include "zisc/utility.hpp"
 
 namespace zivc {
 

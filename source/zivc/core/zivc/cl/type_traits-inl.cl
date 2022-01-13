@@ -129,7 +129,7 @@ struct AddressSpaceInfoHelper
   static constexpr int32b kIsPointer = kResultFalse;
 };
 
-#if defined(ZIVC_CPU)
+#if defined(ZIVC_CL_CPU)
 
 template <AddressSpaceType kASpaceType, typename T>
 struct AddressSpaceInfoHelper<AddressSpacePointer<kASpaceType, T>>
@@ -150,7 +150,7 @@ struct AddressSpaceInfoHelper<AddressSpacePointer<kASpaceType, T>>
   static constexpr int32b kIsPointer = kResultTrue<int32b>;
 };
 
-#else // ZIVC_CPU
+#else // ZIVC_CL_CPU
 
 template <typename T>
 struct AddressSpaceInfoHelper<Global<T>>
@@ -262,7 +262,7 @@ struct AddressSpaceInfoHelper<GenericPtr<T>>
   static constexpr int32b kIsPointer = kResultTrue<int32b>;
 };
 
-#endif // ZIVC_CPU
+#endif // ZIVC_CL_CPU
 
 } // namespace inner
 

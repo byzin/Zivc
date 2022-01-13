@@ -7,8 +7,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_CL_MATH_HPP
-#define ZIVC_CL_MATH_HPP
+#ifndef ZIVC_CPUCL_MATH_HPP
+#define ZIVC_CPUCL_MATH_HPP
 
 // Standard C++ library
 #include <climits>
@@ -485,4 +485,4 @@ FloatN copysign(const FloatN& x, const FloatN& y) noexcept;
 
 #include "math-inl.hpp"
 
-#endif // ZIVC_CL_MATH_HPP
+#endif // ZIVC_CPUCL_MATH_HPP

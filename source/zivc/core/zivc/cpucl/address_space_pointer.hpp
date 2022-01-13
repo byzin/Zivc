@@ -12,8 +12,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_CL_ADDRESS_SPACE_POINTER_HPP
-#define ZIVC_CL_ADDRESS_SPACE_POINTER_HPP
+#ifndef ZIVC_CPUCL_ADDRESS_SPACE_POINTER_HPP
+#define ZIVC_CPUCL_ADDRESS_SPACE_POINTER_HPP
 
 // Standard C++ library
 #include <cstddef>
@@ -258,4 +258,4 @@ bool operator>=(
 
 #include "address_space_pointer-inl.hpp"
 
-#endif // ZIVC_CL_ADDRESS_SPACE_POINTER_HPP
+#endif // ZIVC_CPUCL_ADDRESS_SPACE_POINTER_HPP

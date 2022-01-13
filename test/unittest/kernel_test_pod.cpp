@@ -26,9 +26,8 @@
 #include "zisc/utility.hpp"
 // Zivc
 #include "zivc/zivc.hpp"
+#include "zivc/zivc_cl.hpp"
 #include "zivc/zivc_config.hpp"
-#include "zivc/cppcl/types.hpp"
-#include "zivc/cppcl/vector.hpp"
 // Test
 #include "utility/config.hpp"
 #include "utility/googletest.hpp"
@@ -371,7 +370,7 @@ TEST(KernelTest, PodSizeAlignment2Test)
   using zivc::uint8b;
   using zivc::uint16b;
   using zivc::uint32b;
-  using PodTest = zivc::cl::kernel_test_pod::inner::PodAlignmentTest;
+  using PodTest = zivc::cl::inner::PodAlignmentTest;
 
   auto init_buffer = [](zivc::Device& d, auto& buffer, const auto value)
   {
@@ -548,7 +547,7 @@ TEST(KernelTest, PodMultipleValuesTest)
   using zivc::uint8b;
   using zivc::uint16b;
   using zivc::uint32b;
-  using PodTest = zivc::cl::kernel_test_pod::inner::PodAlignmentTest;
+  using PodTest = zivc::cl::inner::PodAlignmentTest;
 
   auto init_buffer = [](zivc::Device& d, auto& buffer, const auto value)
   {
@@ -966,15 +965,15 @@ TEST(KernelTest, PodVectorTypeTest)
   using zivc::uint8b;
   using zivc::uint16b;
   using zivc::uint32b;
-  using zivc::cl::uchar2;
-  using zivc::cl::uchar4;
-  using zivc::cl::short2;
-  using zivc::cl::short4;
-  using zivc::cl::int2;
-  using zivc::cl::int4;
-  using zivc::cl::float2;
-  using zivc::cl::float4;
-  using PodTest = zivc::cl::kernel_test_pod::inner::PodVectorTest;
+  using zivc::cl_uchar2;
+  using zivc::cl_uchar4;
+  using zivc::cl_short2;
+  using zivc::cl_short4;
+  using zivc::cl_int2;
+  using zivc::cl_int4;
+  using zivc::cl_float2;
+  using zivc::cl_float4;
+  using PodTest = zivc::cl::inner::PodVectorTest;
 
   auto init_buffer = [](zivc::Device& d, auto& buffer, const auto value)
   {
@@ -993,33 +992,33 @@ TEST(KernelTest, PodVectorTypeTest)
   };
 
   // Allocate buffers
-  auto buff_device1 = device->makeBuffer<uchar2>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device1 = device->makeBuffer<cl_uchar2>(zivc::BufferUsage::kDeviceOnly);
   buff_device1->setSize(4);
-  auto buff_device2 = device->makeBuffer<uchar4>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device2 = device->makeBuffer<cl_uchar4>(zivc::BufferUsage::kDeviceOnly);
   buff_device2->setSize(4);
-  auto buff_device3 = device->makeBuffer<short2>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device3 = device->makeBuffer<cl_short2>(zivc::BufferUsage::kDeviceOnly);
   buff_device3->setSize(4);
-  auto buff_device4 = device->makeBuffer<short4>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device4 = device->makeBuffer<cl_short4>(zivc::BufferUsage::kDeviceOnly);
   buff_device4->setSize(4);
-  auto buff_device5 = device->makeBuffer<int2>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device5 = device->makeBuffer<cl_int2>(zivc::BufferUsage::kDeviceOnly);
   buff_device5->setSize(4);
-  auto buff_device6 = device->makeBuffer<int4>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device6 = device->makeBuffer<cl_int4>(zivc::BufferUsage::kDeviceOnly);
   buff_device6->setSize(4);
-  auto buff_device7 = device->makeBuffer<float2>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device7 = device->makeBuffer<cl_float2>(zivc::BufferUsage::kDeviceOnly);
   buff_device7->setSize(4);
-  auto buff_device8 = device->makeBuffer<float4>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device8 = device->makeBuffer<cl_float4>(zivc::BufferUsage::kDeviceOnly);
   buff_device8->setSize(4);
   auto buff_device9 = device->makeBuffer<PodTest>(zivc::BufferUsage::kDeviceOnly);
   buff_device9->setSize(2);
 
-  init_buffer(*device, *buff_device1, uchar2{0, 0});
-  init_buffer(*device, *buff_device2, uchar4{0, 0, 0, 0});
-  init_buffer(*device, *buff_device3, short2{0, 0});
-  init_buffer(*device, *buff_device4, short4{0, 0, 0, 0});
-  init_buffer(*device, *buff_device5, int2{0, 0});
-  init_buffer(*device, *buff_device6, int4{0, 0, 0, 0});
-  init_buffer(*device, *buff_device7, float2{0.0f, 0.0f});
-  init_buffer(*device, *buff_device8, float4{0.0f, 0.0f, 0.0f, 0.0f});
+  init_buffer(*device, *buff_device1, cl_uchar2{0, 0});
+  init_buffer(*device, *buff_device2, cl_uchar4{0, 0, 0, 0});
+  init_buffer(*device, *buff_device3, cl_short2{0, 0});
+  init_buffer(*device, *buff_device4, cl_short4{0, 0, 0, 0});
+  init_buffer(*device, *buff_device5, cl_int2{0, 0});
+  init_buffer(*device, *buff_device6, cl_int4{0, 0, 0, 0});
+  init_buffer(*device, *buff_device7, cl_float2{0.0f, 0.0f});
+  init_buffer(*device, *buff_device8, cl_float4{0.0f, 0.0f, 0.0f, 0.0f});
 
   // Make a kernel
   auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test_pod, podVectorKernel, 1);
@@ -1027,22 +1026,22 @@ TEST(KernelTest, PodVectorTypeTest)
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(26, kernel->argSize()) << "Wrong kernel property.";
 
-  const uchar2 u8v2_1{1, 2};
-  const uchar2 u8v2_2{3, 4};
-  const uchar4 u8v4_1{1, 2, 3, 4};
-  const uchar4 u8v4_2{5, 6, 7, 8};
-  const short2 i16v2_1{1, 2};
-  const short2 i16v2_2{3, 4};
-  const short4 i16v4_1{1, 2, 3, 4};
-  const short4 i16v4_2{5, 6, 7, 8};
-  const int2 i32v2_1{1, 2};
-  const int2 i32v2_2{3, 4};
-  const int4 i32v4_1{1, 2, 3, 4};
-  const int4 i32v4_2{5, 6, 7, 8};
-  const float2 f32v2_1{1.0f, 2.0f};
-  const float2 f32v2_2{3.0f, 4.0f};
-  const float4 f32v4_1{1.0f, 2.0f, 3.0f, 4.0f};
-  const float4 f32v4_2{5.0f, 6.0f, 7.0f, 8.0f};
+  const cl_uchar2 u8v2_1{1, 2};
+  const cl_uchar2 u8v2_2{3, 4};
+  const cl_uchar4 u8v4_1{1, 2, 3, 4};
+  const cl_uchar4 u8v4_2{5, 6, 7, 8};
+  const cl_short2 i16v2_1{1, 2};
+  const cl_short2 i16v2_2{3, 4};
+  const cl_short4 i16v4_1{1, 2, 3, 4};
+  const cl_short4 i16v4_2{5, 6, 7, 8};
+  const cl_int2 i32v2_1{1, 2};
+  const cl_int2 i32v2_2{3, 4};
+  const cl_int4 i32v4_1{1, 2, 3, 4};
+  const cl_int4 i32v4_2{5, 6, 7, 8};
+  const cl_float2 f32v2_1{1.0f, 2.0f};
+  const cl_float2 f32v2_2{3.0f, 4.0f};
+  const cl_float4 f32v4_1{1.0f, 2.0f, 3.0f, 4.0f};
+  const cl_float4 f32v4_2{5.0f, 6.0f, 7.0f, 8.0f};
   const PodTest podtest{u8v2_1, u8v2_2, u8v4_1, u8v4_2,
                         i16v2_1, i16v2_2, i16v2_1, i16v4_1, i16v4_2,
                         i32v2_1, i32v2_2, i32v2_1, i32v4_1, i32v4_2,

@@ -56,7 +56,7 @@ function(Zivc_getZivcFlags zivc_compile_flags zivc_linker_flags zivc_definitions
   endif()
 
   # C++
-  list(APPEND definitions ZIVC_CPU=1)
+  list(APPEND definitions ZIVC_CL_CPU=1)
   # Suppress warnings
   if(Z_VISUAL_STUDIO)
     list(APPEND definitions _CRT_SECURE_NO_WARNINGS)
@@ -174,7 +174,7 @@ macro(Zivc_setZivcProject)
 
   # Check dependencies
   ## Zisc
-  set(zisc_path ${dependencies_dir}/Zisc/source/zisc)
+  set(zisc_path ${dependencies_dir}/Zisc)
   add_subdirectory(${zisc_path} ${PROJECT_BINARY_DIR}/Zisc)
   ## cpu_features
   set(cpu_features_path ${dependencies_dir}/cpu_features)
@@ -192,6 +192,7 @@ macro(Zivc_setZivcProject)
 
   # Create Zivc library
   file(GLOB_RECURSE zivc_source_files ${zivc_core_dir}/zivc/*[.hpp|.cpp])
+  file(GLOB_RECURSE zivc_source_cl_files ${zivc_core_dir}/zivc/*.cl)
   if(NOT ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
     foreach(source_file IN LISTS zivc_source_files)
       if(source_file MATCHES "${zivc_core_dir}/zivc/vulkan/.*")
@@ -200,8 +201,8 @@ macro(Zivc_setZivcProject)
     endforeach(source_file)
   endif()
   list(APPEND zivc_source_files ${zivc_config_dir}/zivc_config-inl.hpp)
-  add_library(${PROJECT_NAME} STATIC ${zivc_source_files})
-  source_group(${PROJECT_NAME} FILES ${zivc_source_files})
+  add_library(${PROJECT_NAME} STATIC ${zivc_source_files} ${zivc_source_cl_files})
+  source_group(${PROJECT_NAME} FILES ${zivc_source_files} ${zivc_source_cl_files})
 
   # Compiler flags
   include(${PROJECT_SOURCE_DIR}/cmake/compiler.cmake)
@@ -214,7 +215,8 @@ macro(Zivc_setZivcProject)
   target_compile_options(${PROJECT_NAME} PUBLIC ${zivc_compile_flags}
                                          PRIVATE ${cxx_compile_warning_flags}
                                                  ${zivc_warning_flags})
-  target_link_libraries(${PROJECT_NAME} PUBLIC Zisc cpu_features)
+  target_link_libraries(${PROJECT_NAME} PUBLIC Zisc
+                                        PRIVATE cpu_features)
   target_link_options(${PROJECT_NAME} PUBLIC ${zivc_linker_flags})
   target_compile_definitions(${PROJECT_NAME} PUBLIC ${zivc_definitions})
   target_include_directories(${PROJECT_NAME} PUBLIC ${zivc_core_dir}

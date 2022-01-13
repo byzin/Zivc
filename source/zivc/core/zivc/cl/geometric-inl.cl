@@ -105,7 +105,7 @@ FloatN Geometry::crossImpl(const FloatN p0, const FloatN p1) noexcept
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
   static_assert((VecInfo::size() == 3) || (VecInfo::size() == 4),
                 "The size of vector should be 3 or 4.");
-  const auto result = ZIVC_GLOBAL_NAMESPACE::cross(p0, p1);
+  const auto result = ZIVC_CL_GLOBAL_NAMESPACE::cross(p0, p1);
   return result;
 }
 
@@ -115,7 +115,7 @@ template <typename FloatN> inline
 auto Geometry::dotImpl(const FloatN p0, const FloatN p1) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
-  const auto result = ZIVC_GLOBAL_NAMESPACE::dot(p0, p1);
+  const auto result = ZIVC_CL_GLOBAL_NAMESPACE::dot(p0, p1);
   return result;
 }
 
@@ -143,7 +143,7 @@ template <typename FloatN> inline
 auto Geometry::distanceImpl(const FloatN p0, const FloatN p1) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
-  const auto result = ZIVC_GLOBAL_NAMESPACE::distance(p0, p1);
+  const auto result = ZIVC_CL_GLOBAL_NAMESPACE::distance(p0, p1);
   return result;
 }
 
@@ -153,7 +153,7 @@ template <typename FloatN> inline
 auto Geometry::lengthImpl(const FloatN p) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
-  const auto result = ZIVC_GLOBAL_NAMESPACE::length(p);
+  const auto result = ZIVC_CL_GLOBAL_NAMESPACE::length(p);
   return result;
 }
 
@@ -163,7 +163,7 @@ template <typename FloatN> inline
 FloatN Geometry::normalizeImpl(const FloatN p) noexcept
 {
   static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point.");
-  const auto result = ZIVC_GLOBAL_NAMESPACE::normalize(p);
+  const auto result = ZIVC_CL_GLOBAL_NAMESPACE::normalize(p);
   return result;
 }
 

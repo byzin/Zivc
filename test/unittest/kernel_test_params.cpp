@@ -27,9 +27,8 @@
 #include "zisc/utility.hpp"
 // Zivc
 #include "zivc/zivc.hpp"
+#include "zivc/zivc_cl.hpp"
 #include "zivc/zivc_config.hpp"
-#include "zivc/cppcl/types.hpp"
-#include "zivc/cppcl/vector.hpp"
 // Test
 #include "utility/config.hpp"
 #include "utility/googletest.hpp"
@@ -88,7 +87,7 @@ TEST(KernelTest, LargeNumOfParametersTest)
   using zivc::uint8b;
   using zivc::uint16b;
   using zivc::uint32b;
-  using ParamTest = zivc::cl::kernel_test_params::ParamTest;
+  using ParamTest = zivc::cl::ParamTest;
 
   // Allocate buffers
   auto buff_device1 = device->makeBuffer<int8b>(zivc::BufferUsage::kDeviceOnly);

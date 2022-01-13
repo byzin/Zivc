@@ -21,7 +21,6 @@
 #include <string_view>
 #include <type_traits>
 // Zisc
-#include "zisc/utility.hpp"
 #include "zisc/zisc_config.hpp"
 
 namespace zivc {

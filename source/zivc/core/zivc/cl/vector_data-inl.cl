@@ -70,15 +70,15 @@ auto VectorData::loadImpl(const size_t offset, AddressSpaceType p) noexcept
     return data;
   }
   else if constexpr (kN == 2) {
-    const auto data = ZIVC_GLOBAL_NAMESPACE::vload2(offset, p);
+    const auto data = ZIVC_CL_GLOBAL_NAMESPACE::vload2(offset, p);
     return data;
   }
   else if constexpr (kN == 3) {
-    const auto data = ZIVC_GLOBAL_NAMESPACE::vload3(offset, p);
+    const auto data = ZIVC_CL_GLOBAL_NAMESPACE::vload3(offset, p);
     return data;
   }
   else if constexpr (kN == 4) {
-    const auto data = ZIVC_GLOBAL_NAMESPACE::vload4(offset, p);
+    const auto data = ZIVC_CL_GLOBAL_NAMESPACE::vload4(offset, p);
     return data;
   }
   else {
@@ -98,32 +98,32 @@ auto VectorData::loadHalfImpl(const size_t offset, AddressSpaceType p) noexcept
   using ElemType = typename ASpaceInfo::DataType;
 
   if constexpr (kIsHalf<ElemType>) {
-#if defined(ZIVC_CPU)
+#if defined(ZIVC_CL_CPU)
     if constexpr (kN == 1) {
-      const auto data = ZIVC_GLOBAL_NAMESPACE::vload_half(offset, p);
+      const auto data = ZIVC_CL_GLOBAL_NAMESPACE::vload_half(offset, p);
       return data;
     }
     else if constexpr (kN == 2) {
-      const auto data = ZIVC_GLOBAL_NAMESPACE::vload_half2(offset, p);
+      const auto data = ZIVC_CL_GLOBAL_NAMESPACE::vload_half2(offset, p);
       return data;
     }
     else if constexpr (kN == 3) {
-      const auto data = ZIVC_GLOBAL_NAMESPACE::vload_half3(offset, p);
+      const auto data = ZIVC_CL_GLOBAL_NAMESPACE::vload_half3(offset, p);
       return data;
     }
     else if constexpr (kN == 4) {
-      const auto data = ZIVC_GLOBAL_NAMESPACE::vload_half4(offset, p);
+      const auto data = ZIVC_CL_GLOBAL_NAMESPACE::vload_half4(offset, p);
       return data;
     }
     else {
       static_assert(0 < kN, "The size of vector is wrong.");
     }
-#else // ZIVC_CPU
+#else // ZIVC_CL_CPU
     (void)offset;
     (void)p;
     const auto data = make<FloatVec<kN>>(0.0f);
     return data;
-#endif // ZIVC_CPU
+#endif // ZIVC_CL_CPU
   }
   else if constexpr (kIsSame<uint16b, ElemType>) {
     const auto data = loadHalfUImpl<kN>(offset, p);
@@ -170,13 +170,13 @@ void VectorData::storeImpl(const VectorType data,
     p[offset] = data;
   }
   else if constexpr (n == 2) {
-    ZIVC_GLOBAL_NAMESPACE::vstore2(data, offset, p);
+    ZIVC_CL_GLOBAL_NAMESPACE::vstore2(data, offset, p);
   }
   else if constexpr (n == 3) {
-    ZIVC_GLOBAL_NAMESPACE::vstore3(data, offset, p);
+    ZIVC_CL_GLOBAL_NAMESPACE::vstore3(data, offset, p);
   }
   else if constexpr (n == 4) {
-    ZIVC_GLOBAL_NAMESPACE::vstore4(data, offset, p);
+    ZIVC_CL_GLOBAL_NAMESPACE::vstore4(data, offset, p);
   }
   else {
     static_assert(0 < n, "The size of vector is wrong.");
@@ -203,27 +203,27 @@ void VectorData::storeHalfImpl(const VectorType data,
 
   // Destination type
   if constexpr (kIsHalf<ElemType>) {
-#if defined(ZIVC_CPU)
+#if defined(ZIVC_CL_CPU)
     if constexpr (n == 1) {
-      ZIVC_GLOBAL_NAMESPACE::vstore_half(data, offset, p);
+      ZIVC_CL_GLOBAL_NAMESPACE::vstore_half(data, offset, p);
     }
     else if constexpr (n == 2) {
-      ZIVC_GLOBAL_NAMESPACE::vstore_half2(data, offset, p);
+      ZIVC_CL_GLOBAL_NAMESPACE::vstore_half2(data, offset, p);
     }
     else if constexpr (n == 3) {
-      ZIVC_GLOBAL_NAMESPACE::vstore_half3(data, offset, p);
+      ZIVC_CL_GLOBAL_NAMESPACE::vstore_half3(data, offset, p);
     }
     else if constexpr (n == 4) {
-      ZIVC_GLOBAL_NAMESPACE::vstore_half4(data, offset, p);
+      ZIVC_CL_GLOBAL_NAMESPACE::vstore_half4(data, offset, p);
     }
     else {
       static_assert(0 < n, "The size of vector is wrong.");
     }
-#else // ZIVC_CPU
+#else // ZIVC_CL_CPU
     (void)data;
     (void)offset;
     (void)p;
-#endif // ZIVC_CPU
+#endif // ZIVC_CL_CPU
   }
   else if constexpr (kIsSame<uint16b, ElemType>) {
     storeHalfUImpl(data, offset, p);

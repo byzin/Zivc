@@ -228,7 +228,7 @@ KernelInitParams<kDim, KSet, Args...> makeKernelInitParams(
 #define ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_set_name, kernel_name, dimension) \
     ::zivc::makeKernelInitParams< dimension >( \
         ::zivc::kernel_set::KernelSet_ ## kernel_set_name {}, \
-        ::zivc::cl:: kernel_set_name :: kernel_name, \
+        ::zivc::cl:: kernel_name, \
         #kernel_name )
 
 } // namespace zivc

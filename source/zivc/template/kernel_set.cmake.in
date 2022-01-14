@@ -86,6 +86,16 @@ function(Zivc_initCpuBackend target)
 
   #
   Zivc_setStaticAnalyzer(${target})
+
+  # For LSP
+  set(lsp_dir ${PROJECT_BINARY_DIR}/lsp)
+  file(MAKE_DIRECTORY ${lsp_dir})
+  set(kernel_set_additional_options ${cxx_compile_warning_flags} ${zivc_warning_flags})
+  set(kernel_set_target ${target})
+  configure_file(@kernel_set_template_dir@/kernel_set_lsp.cmake.in
+                 ${lsp_dir}/CMakeLists.txt
+                 @ONLY)
+  add_subdirectory(${lsp_dir} ${lsp_dir}/Binary EXCLUDE_FROM_ALL)
 endfunction(Zivc_initCpuBackend)
 
 

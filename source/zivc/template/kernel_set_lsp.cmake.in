@@ -1,0 +1,23 @@
+# file: CMakeLists.txt
+# author: Sho Ikeda
+#
+# Copyright (c) 2015-2022 Sho Ikeda
+# This software is released under the MIT License.
+# http://opensource.org/licenses/mit-license.php
+#
+
+cmake_minimum_required(VERSION 3.22)
+
+macro(Zivc_setKernelSet_@kernel_set_name@LspProject)
+  project(KernelSet_@kernel_set_name@Lsp VERSION @kernel_set_version@ LANGUAGES CXX)
+
+  set(kernel_set_source_files @kernel_set_source_files@)
+  add_library(${PROJECT_NAME} STATIC ${kernel_set_source_files})
+  set_source_files_properties(${kernel_set_source_files} PROPERTIES LANGUAGE CXX)
+  target_compile_options(${PROJECT_NAME} PRIVATE @kernel_set_additional_options@)
+  target_link_libraries(${PROJECT_NAME} PRIVATE @kernel_set_target@)
+endmacro(Zivc_setKernelSet_@kernel_set_name@LspProject)
+
+
+##
+Zivc_setKernelSet_@kernel_set_name@LspProject()

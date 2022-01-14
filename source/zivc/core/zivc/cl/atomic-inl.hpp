@@ -1,5 +1,5 @@
 /*!
-  \file atomic-inl.cl
+  \file atomic-inl.hpp
   \author Sho Ikeda
 
   Copyright (c) 2015-2022 Sho Ikeda
@@ -7,14 +7,14 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_ATOMIC_INL_CL
-#define ZIVC_ATOMIC_INL_CL
+#ifndef ZIVC_CL_ATOMIC_INL_HPP
+#define ZIVC_CL_ATOMIC_INL_HPP
 
-#include "atomic.cl"
+#include "atomic.hpp"
 // Zivc
-#include "types.cl"
-#include "type_traits.cl"
-#include "utility.cl"
+#include "types.hpp"
+#include "type_traits.hpp"
+#include "utility.hpp"
 
 namespace zivc {
 
@@ -432,4 +432,4 @@ Integer atoic_xor(AddressSpaceInteger p, const Integer value) noexcept
 
 } // namespace zivc
 
-#endif /* ZIVC_ATOMIC_INL_CL */
+#endif /* ZIVC_CL_ATOMIC_INL_HPP */

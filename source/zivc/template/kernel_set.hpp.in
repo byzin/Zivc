@@ -39,6 +39,7 @@ namespace cl {
 #include "zivc/cpucl/cl_define.hpp"
 
 // Main kernels
+#include "zivc/cl/types.hpp"
 @kernel_inclusion_lines@
 
 #include "zivc/cpucl/cl_undefine.hpp"

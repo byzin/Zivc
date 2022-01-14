@@ -1,5 +1,5 @@
 /*!
-  \file array.cl
+  \file array.hpp
   \author Sho Ikeda
 
   Copyright (c) 2015-2022 Sho Ikeda
@@ -7,12 +7,12 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_ARRAY_CL
-#define ZIVC_ARRAY_CL
+#ifndef ZIVC_CL_ARRAY_HPP
+#define ZIVC_CL_ARRAY_HPP
 
 // Zivc
-#include "types.cl"
-#include "type_traits.cl"
+#include "types.hpp"
+#include "type_traits.hpp"
 
 namespace zivc {
 
@@ -95,6 +95,6 @@ class Array
 
 } // namespace zivc
 
-#include "array-inl.cl"
+#include "array-inl.hpp"
 
-#endif // ZIVC_ARRAY_CL
+#endif // ZIVC_CL_ARRAY_HPP

@@ -7,13 +7,13 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_GEOMETRIC_INL_CL
-#define ZIVC_GEOMETRIC_INL_CL
+#ifndef ZIVC_CL_GEOMETRIC_INL_HPP
+#define ZIVC_CL_GEOMETRIC_INL_HPP
 
-#include "geometric.cl"
+#include "geometric.hpp"
 // Zivc
-#include "types.cl"
-#include "type_traits.cl"
+#include "types.hpp"
+#include "type_traits.hpp"
 
 namespace zivc {
 
@@ -231,4 +231,4 @@ FloatN normalize(const FloatN p) noexcept
 
 } // namespace zivc
 
-#endif /* ZIVC_GEOMETRIC_INL_CL */
+#endif /* ZIVC_CL_GEOMETRIC_INL_HPP */

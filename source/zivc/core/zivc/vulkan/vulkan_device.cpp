@@ -686,6 +686,7 @@ void VulkanDevice::waitForCompletion(const Fence& fence) const
                                                          timeout,
                                                          dispatcher().loader());
     ZIVC_ASSERT(result == zivcvk::Result::eSuccess, "Waiting for a fence failed.");
+    const_cast<Fence*>(std::addressof(fence))->clear();
   }
 }
 

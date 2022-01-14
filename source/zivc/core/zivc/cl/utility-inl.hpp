@@ -1,5 +1,5 @@
 /*!
-  \file utility-inl.cl
+  \file utility-inl.hpp
   \author Sho Ikeda
 
   Copyright (c) 2015-2022 Sho Ikeda
@@ -7,17 +7,17 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_UTILITY_INL_CL
-#define ZIVC_UTILITY_INL_CL
+#ifndef ZIVC_CL_UTILITY_INL_HPP
+#define ZIVC_CL_UTILITY_INL_HPP
 
-#include "utility.cl"
+#include "utility.hpp"
 #if defined(ZIVC_CL_CPU)
 #include <cstdio>
 #include <cstdlib>
 #endif // ZIVC_CL_CPU
 // Zivc
-#include "types.cl"
-#include "type_traits.cl"
+#include "types.hpp"
+#include "type_traits.hpp"
 
 namespace zivc {
 
@@ -851,4 +851,4 @@ Type&& forward(RemoveReferenceType<Type>&& t) noexcept
 
 } // namespace zivc
 
-#endif /* ZIVC_UTILITY_INL_CL */
+#endif /* ZIVC_CL_UTILITY_INL_HPP */

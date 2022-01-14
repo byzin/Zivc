@@ -1,5 +1,5 @@
 /*!
-  \file types-inl.cl
+  \file types-inl.hpp
   \author Sho Ikeda
 
   Copyright (c) 2015-2022 Sho Ikeda
@@ -7,8 +7,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_TYPES_INL_CL
-#define ZIVC_TYPES_INL_CL
+#ifndef ZIVC_CL_TYPES_INL_HPP
+#define ZIVC_CL_TYPES_INL_HPP
 
 // Zivc
 #include "cpucl.hpp"
@@ -187,4 +187,4 @@ static_assert(sizeof(inner::ConstGenericPtr<int>) == sizeof(const void*),
 
 } // namespace zivc
 
-#endif /* ZIVC_TYPES_INL_CL */
+#endif /* ZIVC_CL_TYPES_INL_HPP */

@@ -1,5 +1,5 @@
 /*!
-  \file type_traits.cl
+  \file type_traits.hpp
   \author Sho Ikeda
 
   Copyright (c) 2015-2022 Sho Ikeda
@@ -7,11 +7,11 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_TYPE_TRAITS_CL
-#define ZIVC_TYPE_TRAITS_CL
+#ifndef ZIVC_CL_TYPE_TRAITS_HPP
+#define ZIVC_CL_TYPE_TRAITS_HPP
 
 // Zivc
-#include "types.cl"
+#include "types.hpp"
 
 namespace zivc {
 
@@ -337,6 +337,6 @@ using ComparisonResultType = IntegerTypeFromVec<RemoveCvType<T>>;
 
 } // namespace zivc
 
-#include "type_traits-inl.cl"
+#include "type_traits-inl.hpp"
 
-#endif /* ZIVC_TYPE_TRAITS_CL */
+#endif /* ZIVC_CL_TYPE_TRAITS_HPP */

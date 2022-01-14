@@ -1,5 +1,5 @@
 /*!
-  \file synchronization-inl.cl
+  \file synchronization-inl.hpp
   \author Sho Ikeda
 
   Copyright (c) 2015-2022 Sho Ikeda
@@ -7,12 +7,12 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_SYNCHRONIZATION_INL_CL
-#define ZIVC_SYNCHRONIZATION_INL_CL
+#ifndef ZIVC_CL_SYNCHRONIZATION_INL_HPP
+#define ZIVC_CL_SYNCHRONIZATION_INL_HPP
 
-#include "synchronization.cl"
+#include "synchronization.hpp"
 // Zivc
-#include "types.cl"
+#include "types.hpp"
 
 namespace zivc {
 
@@ -58,4 +58,4 @@ void barrier(const int32b flags) noexcept
 
 } // namespace zivc
 
-#endif /* ZIVC_SYNCHRONIZATION_INL_CL */
+#endif /* ZIVC_CL_SYNCHRONIZATION_INL_HPP */

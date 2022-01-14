@@ -1,5 +1,5 @@
 /*!
-  \file vector_data.cl
+  \file vector_data.hpp
   \author Sho Ikeda
 
   Copyright (c) 2015-2022 Sho Ikeda
@@ -7,12 +7,12 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_VECTOR_DATA_CL
-#define ZIVC_VECTOR_DATA_CL
+#ifndef ZIVC_CL_VECTOR_DATA_HPP
+#define ZIVC_CL_VECTOR_DATA_HPP
 
 // Zivc
-#include "types.cl"
-#include "type_traits.cl"
+#include "types.hpp"
+#include "type_traits.hpp"
 
 namespace zivc {
 
@@ -154,6 +154,6 @@ void vstore_half4(const VectorType data,
 
 } // namespace zivc
 
-#include "vector_data-inl.cl"
+#include "vector_data-inl.hpp"
 
-#endif /* ZIVC_VECTOR_DATA_CL */
+#endif /* ZIVC_CL_VECTOR_DATA_HPP */

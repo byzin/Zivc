@@ -15,6 +15,8 @@
 #ifndef ZIVC_TEST_TEST_HPP
 #define ZIVC_TEST_TEST_HPP
 
+// Standard C++ library
+#include <initializer_list>
 // Zisc
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
@@ -26,6 +28,22 @@ namespace ztest {
 //! Make a platform for unit test
 zivc::SharedPlatform makePlatform();
 
+//! Fill a device buffer with the give value
+template <typename Type>
+void fillDeviceBuffer(const Type& value, zivc::Buffer<Type>* buffer);
+
+//! Initialize a device buffer with the given initializer list
+template <typename Type>
+void setDeviceBuffer(zivc::Device& device,
+                     std::initializer_list<Type> init_list,
+                     zivc::Buffer<Type>* buffer);
+
+//! Copy buffer data
+template <typename Type>
+void copyBuffer(const zivc::Buffer<Type>& source, zivc::Buffer<Type>* dest);
+
 } // namespace ztest
+
+#include "test-inl.hpp"
 
 #endif // ZIVC_TEST_TEST_HPP

@@ -1,5 +1,5 @@
 /*!
-  \file type_traits-inl.cl
+  \file type_traits-inl.hpp
   \author Sho Ikeda
 
   Copyright (c) 2015-2022 Sho Ikeda
@@ -7,12 +7,12 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_TYPE_TRAITS_INL_CL
-#define ZIVC_TYPE_TRAITS_INL_CL
+#ifndef ZIVC_CL_TYPE_TRAITS_INL_HPP
+#define ZIVC_CL_TYPE_TRAITS_INL_HPP
 
-#include "type_traits.cl"
+#include "type_traits.hpp"
 // Zivc
-#include "types.cl"
+#include "types.hpp"
 
 namespace zivc {
 
@@ -681,4 +681,4 @@ struct TypeIdentity
 
 } // namespace zivc
 
-#endif /* ZIVC_TYPE_TRAITS_INL_CL */
+#endif /* ZIVC_CL_TYPE_TRAITS_INL_HPP */

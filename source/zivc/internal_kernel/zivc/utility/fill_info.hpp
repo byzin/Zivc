@@ -1,5 +1,5 @@
 /*!
-  \file fill_info.cl
+  \file fill_info.hpp
   \author Sho Ikeda
   \brief No brief description
 
@@ -12,11 +12,11 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_FILL_INFO_CL
-#define ZIVC_FILL_INFO_CL
+#ifndef ZIVC_CL_FILL_INFO_HPP
+#define ZIVC_CL_FILL_INFO_HPP
 
 // Zivc
-#include "zivc/cl/types.cl"
+#include "zivc/cl/types.hpp"
 
 namespace zivc {
 
@@ -110,6 +110,6 @@ bool operator!=(const FillInfo& lhs, const FillInfo& rhs) noexcept
 
 } // namespace zivc
 
-#include "fill_info-inl.cl"
+#include "fill_info-inl.hpp"
 
-#endif // ZIVC_FILL_INFO_CL
+#endif // ZIVC_CL_FILL_INFO_HPP

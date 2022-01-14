@@ -1,5 +1,5 @@
 /*!
-  \file geometric.cl
+  \file geometric.hpp
   \author Sho Ikeda
 
   Copyright (c) 2015-2022 Sho Ikeda
@@ -7,12 +7,12 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_GEOMETRIC_CL
-#define ZIVC_GEOMETRIC_CL
+#ifndef ZIVC_CL_GEOMETRIC_HPP
+#define ZIVC_CL_GEOMETRIC_HPP
 
 // Zivc
-#include "types.cl"
-#include "type_traits.cl"
+#include "types.hpp"
+#include "type_traits.hpp"
 
 namespace zivc {
 
@@ -103,6 +103,6 @@ FloatN normalize(const FloatN p) noexcept;
 
 } // namespace zivc
 
-#include "geometric-inl.cl"
+#include "geometric-inl.hpp"
 
-#endif /* ZIVC_GEOMETRIC_CL */
+#endif /* ZIVC_CL_GEOMETRIC_HPP */

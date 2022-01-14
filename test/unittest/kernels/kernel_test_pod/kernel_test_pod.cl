@@ -16,9 +16,9 @@
 #define ZIVC_TEST_KERNEL_TEST_POD_CL
 
 // Zivc
-#include "zivc/cl/atomic.cl"
-#include "zivc/cl/types.cl"
-#include "zivc/cl/utility.cl"
+#include "zivc/cl/atomic.hpp"
+#include "zivc/cl/types.hpp"
+#include "zivc/cl/utility.hpp"
 
 using zivc::int8b;
 using zivc::int16b;

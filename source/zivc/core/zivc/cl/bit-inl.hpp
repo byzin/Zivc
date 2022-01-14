@@ -1,5 +1,5 @@
 /*!
-  \file bit-inl.cl
+  \file bit-inl.hpp
   \author Sho Ikeda
   \brief No brief description
 
@@ -12,10 +12,10 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_BIT_INL_CL
-#define ZIVC_BIT_INL_CL
+#ifndef ZIVC_CL_BIT_INL_HPP
+#define ZIVC_CL_BIT_INL_HPP
 
-#include "bit.cl"
+#include "bit.hpp"
 
 namespace zivc {
 
@@ -52,4 +52,4 @@ To castBit(const From& from) noexcept
 
 } // namespace zivc
 
-#endif // ZIVC_BIT_INL_CL
+#endif // ZIVC_CL_BIT_INL_HPP

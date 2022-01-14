@@ -16,8 +16,8 @@
 #define ZIVC_EXAMPLE_CL
 
 // Zivc
-#include "zivc/cl/types.cl"
-#include "zivc/cl/utility.cl"
+#include "zivc/cl/types.hpp"
+#include "zivc/cl/utility.hpp"
 
 using zivc::int16b;
 using zivc::int32b;

@@ -34,7 +34,7 @@
 !/source/zivc/internal_kernel/zivc/kernel/
 !/source/zivc/internal_kernel/zivc/kernel/*.cl
 !/source/zivc/internal_kernel/zivc/utility/
-!/source/zivc/internal_kernel/zivc/utility/*.cl
+!/source/zivc/internal_kernel/zivc/utility/*.hpp
 !/source/zivc/kernel_baker/
 !/source/zivc/kernel_baker/CMakeLists.txt
 !/source/zivc/kernel_baker/kernel_baker.cpp

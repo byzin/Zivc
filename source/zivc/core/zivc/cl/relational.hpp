@@ -1,5 +1,5 @@
 /*!
-  \file relational.cl
+  \file relational.hpp
   \author Sho Ikeda
 
   Copyright (c) 2015-2022 Sho Ikeda
@@ -7,12 +7,12 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_RELATIONAL_CL
-#define ZIVC_RELATIONAL_CL
+#ifndef ZIVC_CL_RELATIONAL_HPP
+#define ZIVC_CL_RELATIONAL_HPP
 
 // Zivc
-#include "types.cl"
-#include "type_traits.cl"
+#include "types.hpp"
+#include "type_traits.hpp"
 
 namespace zivc {
 
@@ -123,6 +123,6 @@ TypeN select(const TypeN a, const TypeN b, const IntegerN c) noexcept;
 
 } // namespace zivc
 
-#include "relational-inl.cl"
+#include "relational-inl.hpp"
 
-#endif /* ZIVC_RELATIONAL_CL */
+#endif /* ZIVC_CL_RELATIONAL_HPP */

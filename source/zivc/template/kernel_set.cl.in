@@ -61,9 +61,9 @@ __kernel void zivcClspvInitKernel(__global uint* outputs)
 //  outputs[i++] = get_global_linear_id(); //!< \todo Try me
 //  outputs[i++] = get_local_linear_id(); //!< \todo Try me
   outputs[i++] = get_sub_group_size();
-//  outputs[i++] = get_max_sub_group_size();
+  outputs[i++] = get_max_sub_group_size();
   outputs[i++] = get_num_sub_groups();
-//  outputs[i++] = get_enqueued_num_sub_groups();
+  outputs[i++] = get_enqueued_num_sub_groups();
   outputs[i++] = get_sub_group_id();
   outputs[i++] = get_sub_group_local_id();
 }
@@ -79,6 +79,7 @@ __kernel void zivcClspvInitKernel(__global uint* outputs)
 #define ZIVC_CL_GLOBAL_NAMESPACE
 
 // Main kernels
+#include "zivc/cl/types.hpp"
 @kernel_inclusion_lines@
 
 // Unset definitions
@@ -88,6 +89,7 @@ __kernel void zivcClspvInitKernel(__global uint* outputs)
 
 static_assert(ZIVC_KERNEL_SET_@kernel_set_name@_CL == 0x@kernel_set_number@u,
               "The ID number of the kernel set isn't valid.");
+static_assert(__OPENCL_CPP_VERSION__ == 100, "OpenCL version isn't 1.0.");
 
 //#pragma clang diagnostic pop
 #pragma clang diagnostic pop

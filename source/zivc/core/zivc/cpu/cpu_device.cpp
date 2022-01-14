@@ -211,6 +211,7 @@ void CpuDevice::waitForCompletion(const Fence& fence) const
     const auto* memory = std::addressof(fence.data());
     const auto& f = *zisc::reinterp<const ::CpuFence*>(memory);
     f.wait();
+    const_cast<Fence*>(std::addressof(fence))->clear();
   }
 }
 

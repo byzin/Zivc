@@ -1,5 +1,5 @@
 /*!
-  \file types.cl
+  \file types.hpp
   \author Sho Ikeda
 
   Copyright (c) 2015-2022 Sho Ikeda
@@ -7,10 +7,10 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_TYPES_CL
-#define ZIVC_TYPES_CL
+#ifndef ZIVC_CL_TYPES_HPP
+#define ZIVC_CL_TYPES_HPP
 
-#include "types-inl.cl"
+#include "types-inl.hpp"
 
 namespace zivc {
 
@@ -64,4 +64,4 @@ using ConstGenericPtr = inner::ConstGenericPtr<Type>;
 
 } // namespace zivc
 
-#endif /* ZIVC_TYPES_CL */
+#endif /* ZIVC_CL_TYPES_HPP */

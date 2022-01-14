@@ -192,7 +192,6 @@ macro(Zivc_setZivcProject)
 
   # Create Zivc library
   file(GLOB_RECURSE zivc_source_files ${zivc_core_dir}/zivc/*[.hpp|.cpp])
-  file(GLOB_RECURSE zivc_source_cl_files ${zivc_core_dir}/zivc/*.cl)
   if(NOT ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
     foreach(source_file IN LISTS zivc_source_files)
       if(source_file MATCHES "${zivc_core_dir}/zivc/vulkan/.*")
@@ -201,8 +200,8 @@ macro(Zivc_setZivcProject)
     endforeach(source_file)
   endif()
   list(APPEND zivc_source_files ${zivc_config_dir}/zivc_config-inl.hpp)
-  add_library(${PROJECT_NAME} STATIC ${zivc_source_files} ${zivc_source_cl_files})
-  source_group(${PROJECT_NAME} FILES ${zivc_source_files} ${zivc_source_cl_files})
+  add_library(${PROJECT_NAME} STATIC ${zivc_source_files})
+  source_group(${PROJECT_NAME} FILES ${zivc_source_files})
 
   # Compiler flags
   include(${PROJECT_SOURCE_DIR}/cmake/compiler.cmake)

@@ -12,14 +12,14 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_FILL_U8_KERNEL_CL
-#define ZIVC_FILL_U8_KERNEL_CL
+#ifndef ZIVC_CL_FILL_U8_KERNEL_CL
+#define ZIVC_CL_FILL_U8_KERNEL_CL
 
 // Zivc
-#include "zivc/cl/types.cl"
-#include "zivc/cl/utility.cl"
+#include "zivc/cl/types.hpp"
+#include "zivc/cl/utility.hpp"
 // Internal kernel
-#include "utility/fill_info.cl"
+#include "utility/fill_info.hpp"
 
 using uint8b = zivc::uint8b;
 
@@ -45,4 +45,4 @@ __kernel void Zivc_fillU8Kernel(zivc::ConstGlobalPtr<uint8b> data,
   }
 }
 
-#endif // ZIVC_FILL_U8_KERNEL_CL
+#endif // ZIVC_CL_FILL_U8_KERNEL_CL

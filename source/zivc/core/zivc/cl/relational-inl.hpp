@@ -7,14 +7,14 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_RELATIONAL_INL_CL
-#define ZIVC_RELATIONAL_INL_CL
+#ifndef ZIVC_CL_RELATIONAL_INL_HPP
+#define ZIVC_CL_RELATIONAL_INL_HPP
 
-#include "relational.cl"
+#include "relational.hpp"
 // Zivc
-#include "types.cl"
-#include "type_traits.cl"
-#include "utility.cl"
+#include "types.hpp"
+#include "type_traits.hpp"
+#include "utility.hpp"
 
 namespace zivc {
 
@@ -255,4 +255,4 @@ TypeN select(const TypeN a, const TypeN b, const IntegerN c) noexcept
 
 } // namespace zivc
 
-#endif /* ZIVC_RELATIONAL_INL_CL */
+#endif /* ZIVC_CL_RELATIONAL_INL_HPP */

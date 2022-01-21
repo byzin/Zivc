@@ -63,7 +63,7 @@ size_t FillInfo::elementSize() const noexcept
 inline
 constexpr size_t FillInfo::dataCapacityInBytes() noexcept
 {
-  static_assert(sizeof(FillInfo) == kInfoSize, "The size of FillInfo is wrong.");
+  static_assert(sizeof(FillInfo) == kInfoSize, "The size of FillInfo isn't correct.");
   return kDataCapacityInBytes;
 }
 

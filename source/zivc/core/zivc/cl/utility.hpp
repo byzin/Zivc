@@ -18,13 +18,13 @@ namespace zivc {
 
 //! Write the message on standard output
 template <typename ...Types>
-int32b print(ConstConstantPtr<char> format, const Types... args) noexcept;
+int32b print(ConstConstantPtr<char> format, const Types&... args) noexcept;
 
 //! Assert the message on standard error output and raise an error
 template <typename ...Types>
 void assertIfFalse(const int32b condition,
                    ConstConstantPtr<char> format,
-                   const Types... args) noexcept;
+                   const Types&... args) noexcept;
 
 // Work-Item functions
 
@@ -136,27 +136,52 @@ size_t getLocalLinearId() noexcept;
 // Type utilities
 
 //! Make a value
-template <typename Type, typename ...ArgumentTypes>
-Type make(const ArgumentTypes... args) noexcept;
+template <typename Type, typename ...ArgTypes>
+Type make(const ArgTypes... args) noexcept;
 
 //! Make a char2 value
 char2 makeChar2(const int8b v) noexcept;
 
 //! Make a char2 value
-char2 makeChar2(const int8b x, const int8b y) noexcept;
+char2 makeChar2(const int8b v0, const int8b v1) noexcept;
 
 //! Make a char3 value
 char3 makeChar3(const int8b v) noexcept;
 
 //! Make a char3 value
-char3 makeChar3(const int8b x, const int8b y, const int8b z) noexcept;
+char3 makeChar3(const int8b v0, const int8b v1, const int8b v2) noexcept;
+
+//! Make a char3 value
+char3 makeChar3(const char2 v0, const int8b v1) noexcept;
+
+//! Make a char3 value
+char3 makeChar3(const int8b v0, const char2 v1) noexcept;
 
 //! Make a char4 value
 char4 makeChar4(const int8b v) noexcept;
 
 //! Make a char4 value
-char4 makeChar4(const int8b x, const int8b y,
-                const int8b z, const int8b w) noexcept;
+char4 makeChar4(const int8b v0, const int8b v1,
+                const int8b v2, const int8b v3) noexcept;
+
+//! Make a char4 value
+char4 makeChar4(const char2 v0, const int8b v1, const int8b v2) noexcept;
+
+//! Make a char4 value
+char4 makeChar4(const int8b v0, const char2 v1, const int8b v2) noexcept;
+
+//! Make a char4 value
+char4 makeChar4(const int8b v0, const int8b v1, const char2 v2) noexcept;
+
+//! Make a char4 value
+char4 makeChar4(const char2 v0, const char2 v1) noexcept;
+
+//! Make a char4 value
+char4 makeChar4(const char3 v0, const int8b v1) noexcept;
+
+//! Make a char4 value
+char4 makeChar4(const int8b v0, const char3 v1) noexcept;
+
 
 //! Make a uchar2 value
 uchar2 makeUChar2(const uint8b v) noexcept;
@@ -328,6 +353,7 @@ double4 makeDouble4(const double v) noexcept;
 //! Make a double4 value
 double4 makeDouble4(const double x, const double y,
                     const double z, const double w) noexcept;
+
 
 //! Convert type from T to Type
 template <typename Type, typename T>

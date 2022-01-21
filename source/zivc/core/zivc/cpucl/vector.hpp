@@ -21,535 +21,727 @@
 #include "types.hpp"
 #include "zivc/zivc_config.hpp"
 
-namespace zivc {
-
-namespace cl {
+namespace zivc::cl {
 
 /*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam Type No description.
+  \tparam kN No description.
   */
-template <typename Type, size_t kN> struct Vector;
+template <Arithmetic Type, size_t kN> struct Vector;
 
 /*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
   */
-template <typename Type>
-struct alignas(2 * sizeof(Type)) Vector<Type, 2>
+template <Arithmetic T>
+struct alignas(2 * sizeof(T)) Vector<T, 2>
 {
+  //
+  using Type = std::remove_cvref_t<T>;
+  using ConstType = std::add_const_t<Type>;
+  using Pointer = std::add_pointer_t<Type>;
+  using ConstPointer = std::add_pointer_t<ConstType>;
+  using Reference = std::add_lvalue_reference_t<Type>;
+  using ConstReference = std::add_lvalue_reference_t<ConstType>;
+
+
+  // STL conpatible member types
+  using value_type = Type;
+  using size_type = size_t;
+  using difference_type = ptrdiff_t;
+  using reference = Reference;
+  using const_reference = ConstReference;
+  using pointer = Pointer;
+  using const_pointer = ConstPointer;
+  using iterator = Pointer;
+  using const_iterator = ConstPointer;
+
+
   //! Initialize a vector
   Vector() noexcept;
 
-  //! Initialize all elements of a vector by v
-  Vector(const Type v) noexcept;
+  //! Fill all elements with the given value v
+  Vector(ConstReference v) noexcept;
 
   //! Initialize a vector
-  Vector(const Type v0, const Type v1) noexcept;
+  Vector(ConstReference v0, ConstReference v1) noexcept;
 
 
-  operator bool() const noexcept {return false;}
+  //! Return the reference to the element by the index
+  Reference operator[](const size_type index) noexcept;
 
-  //! Return a reference to the element
-  Type& operator[](const size_t index) noexcept;
+  //! Return the reference to the element by the index
+  ConstReference operator[](const size_type index) const noexcept;
 
-  //! Return a reference to the element
-  const Type& operator[](const size_t index) const noexcept;
+  //! Check if all elements are true
+  operator bool() const noexcept;
 
+
+  // Iterators
+
+  //! Return an iterator to the beginning
+  iterator begin() noexcept;
+
+  //! Return an iterator to the beginning
+  const_iterator begin() const noexcept;
+
+  //! Return an iterator to the endif
+  iterator end() noexcept;
+
+  //! Return an iterator to the endif
+  const_iterator end() const noexcept;
+
+
+  //! Return the alignment of the vector
+  static constexpr size_type alignment() noexcept;
+
+  //! Return the direct access to the underlying array
+  Pointer data() noexcept;
+
+  //! Return the direct access to the underlying array
+  ConstPointer data() const noexcept;
+
+  //! Return the reference to the element by the index
+  Reference get(const size_type index) noexcept; 
+
+  //! Return the reference to the element by the index
+  ConstReference get(const size_type index) const noexcept; 
 
   //! Return the size of the vector
-  static constexpr size_t size() noexcept;
+  static constexpr size_type size() noexcept;
 
 
-  Type x,
-       y;
+  Type x;
+  Type y;
 };
 
 /*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
   */
-template <typename Type>
-struct alignas(4 * sizeof(Type)) Vector<Type, 3>
+template <Arithmetic T>
+struct alignas(4 * sizeof(T)) Vector<T, 3>
 {
+  //
+  using Type = std::remove_cvref_t<T>;
+  using ConstType = std::add_const_t<Type>;
+  using Pointer = std::add_pointer_t<Type>;
+  using ConstPointer = std::add_pointer_t<ConstType>;
+  using Reference = std::add_lvalue_reference_t<Type>;
+  using ConstReference = std::add_lvalue_reference_t<ConstType>;
+  using Vector2 = Vector<T, 2>;
+
+
+  // STL conpatible member types
+  using value_type = Type;
+  using size_type = size_t;
+  using difference_type = ptrdiff_t;
+  using reference = Reference;
+  using const_reference = ConstReference;
+  using pointer = Pointer;
+  using const_pointer = ConstPointer;
+  using iterator = Pointer;
+  using const_iterator = ConstPointer;
+
+
   //! Initialize a vector
   Vector() noexcept;
 
-  //! Initialize all elements of a vector by v
-  Vector(const Type v) noexcept;
+  //! Fill all elements with the given value v
+  Vector(ConstReference v) noexcept;
 
   //! Initialize a vector
-  Vector(const Type v0, const Type v1, const Type v2) noexcept;
+  Vector(ConstReference v0, ConstReference v1, ConstReference v2) noexcept;
+
+  //! Initialize a vector
+  Vector(const Vector2& v0, ConstReference v1) noexcept;
+
+  //! Initialize a vector
+  Vector(ConstReference v0, const Vector2& v1) noexcept;
 
 
-  operator bool() const noexcept {return false;}
+  //! Return the reference to the element by the index
+  Reference operator[](const size_type index) noexcept;
 
-  //! Return a reference to the element
-  Type& operator[](const size_t index) noexcept;
+  //! Return the reference to the element by the index
+  ConstReference operator[](const size_type index) const noexcept;
 
-  //! Return a reference to the element
-  const Type& operator[](const size_t index) const noexcept;
+  //! Check if all elements are true
+  operator bool() const noexcept;
 
+
+  // Iterators
+
+  //! Return an iterator to the beginning
+  iterator begin() noexcept;
+
+  //! Return an iterator to the beginning
+  const_iterator begin() const noexcept;
+
+  //! Return an iterator to the endif
+  iterator end() noexcept;
+
+  //! Return an iterator to the endif
+  const_iterator end() const noexcept;
+
+
+  //! Return the alignment of the vector
+  static constexpr size_type alignment() noexcept;
+
+  //! Return the direct access to the underlying array
+  Pointer data() noexcept;
+
+  //! Return the direct access to the underlying array
+  ConstPointer data() const noexcept;
+
+  //! Return the reference to the element by the index
+  Reference get(const size_type index) noexcept; 
+
+  //! Return the reference to the element by the index
+  ConstReference get(const size_type index) const noexcept; 
 
   //! Return the size of the vector
-  static constexpr size_t size() noexcept;
+  static constexpr size_type size() noexcept;
 
 
-  Type x,
-       y,
-       z,
-       __padding_;
+  Type x;
+  Type y;
+  Type z;
+  [[maybe_unused]] Type pad_;
 };
 
 /*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
   */
-template <typename Type>
-struct alignas(4 * sizeof(Type)) Vector<Type, 4>
+template <Arithmetic T>
+struct alignas(4 * sizeof(T)) Vector<T, 4>
 {
+  //
+  using Type = std::remove_cvref_t<T>;
+  using ConstType = std::add_const_t<Type>;
+  using Pointer = std::add_pointer_t<Type>;
+  using ConstPointer = std::add_pointer_t<ConstType>;
+  using Reference = std::add_lvalue_reference_t<Type>;
+  using ConstReference = std::add_lvalue_reference_t<ConstType>;
+  using Vector2 = Vector<T, 2>;
+  using Vector3 = Vector<T, 3>;
+
+
+  // STL conpatible member types
+  using value_type = Type;
+  using size_type = size_t;
+  using difference_type = ptrdiff_t;
+  using reference = Reference;
+  using const_reference = ConstReference;
+  using pointer = Pointer;
+  using const_pointer = ConstPointer;
+  using iterator = Pointer;
+  using const_iterator = ConstPointer;
+
+
   //! Initialize a vector
   Vector() noexcept;
 
-  //! Initialize all elements of a vector by v
-  Vector(const Type v) noexcept;
+  //! Fill all elements with the given value v
+  Vector(ConstReference v) noexcept;
 
   //! Initialize a vector
-  Vector(const Type v0, const Type v1, const Type v2, const Type v3) noexcept;
+  Vector(ConstReference v0, ConstReference v1, ConstReference v2, ConstReference v3) noexcept;
+
+  //! Initialize a vector
+  Vector(const Vector2& v0, ConstReference v1, ConstReference v2) noexcept;
+
+  //! Initialize a vector
+  Vector(ConstReference v0, const Vector2& v1, ConstReference v2) noexcept;
+
+  //! Initialize a vector
+  Vector(ConstReference v0, ConstReference v1, const Vector2& v2) noexcept;
+
+  //! Initialize a vector
+  Vector(const Vector2& v0, const Vector2& v1) noexcept;
+
+  //! Initialize a vector
+  Vector(const Vector3& v0, ConstReference v1) noexcept;
+
+  //! Initialize a vector
+  Vector(ConstReference v0, const Vector3& v1) noexcept;
 
 
-  operator bool() const noexcept {return false;}
+  //! Return the reference to the element by the index
+  Reference operator[](const size_type index) noexcept;
 
-  //! Return a reference to the element
-  Type& operator[](const size_t index) noexcept;
+  //! Return the reference to the element by the index
+  ConstReference operator[](const size_type index) const noexcept;
 
-  //! Return a reference to the element
-  const Type& operator[](const size_t index) const noexcept;
+  //! Check if all elements are true
+  operator bool() const noexcept;
 
+
+  // Iterators
+
+  //! Return an iterator to the beginning
+  iterator begin() noexcept;
+
+  //! Return an iterator to the beginning
+  const_iterator begin() const noexcept;
+
+  //! Return an iterator to the endif
+  iterator end() noexcept;
+
+  //! Return an iterator to the endif
+  const_iterator end() const noexcept;
+
+
+  //! Return the alignment of the vector
+  static constexpr size_type alignment() noexcept;
+
+  //! Return the direct access to the underlying array
+  Pointer data() noexcept;
+
+  //! Return the direct access to the underlying array
+  ConstPointer data() const noexcept;
+
+  //! Return the reference to the element by the index
+  Reference get(const size_type index) noexcept; 
+
+  //! Return the reference to the element by the index
+  ConstReference get(const size_type index) const noexcept; 
 
   //! Return the size of the vector
-  static constexpr size_t size() noexcept;
+  static constexpr size_type size() noexcept;
 
 
-  Type x,
-       y,
-       z,
-       w;
+  Type x;
+  Type y;
+  Type z;
+  Type w;
 };
 
-//!
-template <typename Type, size_t kN>
+// Assignment
+
+//! Apply addition assignment to each element of the given vector
+template <Arithmetic Type, size_t kN>
 Vector<Type, kN>& operator+=(Vector<Type, kN>& lhs,
                              const Vector<Type, kN>& rhs) noexcept;
-//!
-template <typename Type, size_t kN>
-Vector<Type, kN>& operator+=(Vector<Type, kN>& lhs,
-                             const Type& rhs) noexcept;
 
-//!
-template <typename Type, size_t kN>
+//! Apply addition assignment to each element of the given vector
+template <Arithmetic Type1, Arithmetic Type2, size_t kN>
+Vector<Type1, kN>& operator+=(Vector<Type1, kN>& lhs,
+                              const Type2& rhs) noexcept;
+
+//! Apply subtraction assignment to each element of the given vector
+template <Arithmetic Type, size_t kN>
 Vector<Type, kN>& operator-=(Vector<Type, kN>& lhs,
                              const Vector<Type, kN>& rhs) noexcept;
 
-//!
-template <typename Type, size_t kN>
-Vector<Type, kN>& operator-=(Vector<Type, kN>& lhs,
-                             const Type& rhs) noexcept;
+//! Apply subtraction assignment to each element of the given vector
+template <Arithmetic Type1, Arithmetic Type2, size_t kN>
+Vector<Type1, kN>& operator-=(Vector<Type1, kN>& lhs,
+                              const Type2& rhs) noexcept;
 
-//!
-template <typename Type, size_t kN>
+//! Apply multiplication assignment to each element of the given vector
+template <Arithmetic Type, size_t kN>
 Vector<Type, kN>& operator*=(Vector<Type, kN>& lhs,
                              const Vector<Type, kN>& rhs) noexcept;
 
-//!
-template <typename Type, size_t kN>
-Vector<Type, kN>& operator*=(Vector<Type, kN>& lhs,
-                             const Type& rhs) noexcept;
+//! Apply multiplication assignment to each element of the given vector
+template <Arithmetic Type1, Arithmetic Type2, size_t kN>
+Vector<Type1, kN>& operator*=(Vector<Type1, kN>& lhs,
+                              const Type2& rhs) noexcept;
 
-//!
-template <typename Type, size_t kN>
+//! Apply division assignment to each element of the given vector
+template <Arithmetic Type, size_t kN>
 Vector<Type, kN>& operator/=(Vector<Type, kN>& lhs,
                              const Vector<Type, kN>& rhs) noexcept;
 
-//!
-template <typename Type, size_t kN>
-Vector<Type, kN>& operator/=(Vector<Type, kN>& lhs,
-                             const Type& rhs) noexcept;
+//! Apply division assignment to each element of the given vector
+template <Arithmetic Type1, Arithmetic Type2, size_t kN>
+Vector<Type1, kN>& operator/=(Vector<Type1, kN>& lhs,
+                              const Type2& rhs) noexcept;
 
-//!
-template <typename Type, size_t kN>
+//! Apply modulo assignment to each element of the given vector
+template <zisc::Integer Type, size_t kN>
 Vector<Type, kN>& operator%=(Vector<Type, kN>& lhs,
                              const Vector<Type, kN>& rhs) noexcept;
 
-//!
-template <typename Type, size_t kN>
-Vector<Type, kN>& operator%=(Vector<Type, kN>& lhs,
-                             const Type& rhs) noexcept;
+//! Apply modulo assignment to each element of the given vector
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN>
+Vector<Type1, kN>& operator%=(Vector<Type1, kN>& lhs,
+                              const Type2& rhs) noexcept;
 
-//!
-template <typename Type, size_t kN>
+//! Apply bitwise AND assignment to each element of the given vector
+template <zisc::Integer Type, size_t kN>
 Vector<Type, kN>& operator&=(Vector<Type, kN>& lhs,
                              const Vector<Type, kN>& rhs) noexcept;
 
-//!
-template <typename Type, size_t kN>
-Vector<Type, kN>& operator&=(Vector<Type, kN>& lhs,
-                             const Type& rhs) noexcept;
+//! Apply bitwise AND assignment to each element of the given vector
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN>
+Vector<Type1, kN>& operator&=(Vector<Type1, kN>& lhs,
+                              const Type2& rhs) noexcept;
 
-//!
-template <typename Type, size_t kN>
+//! Apply bitwise OR assignment to each element of the given vector
+template <zisc::Integer Type, size_t kN>
 Vector<Type, kN>& operator|=(Vector<Type, kN>& lhs,
                              const Vector<Type, kN>& rhs) noexcept;
 
-//!
-template <typename Type, size_t kN>
-Vector<Type, kN>& operator|=(Vector<Type, kN>& lhs,
-                             const Type& rhs) noexcept;
+//! Apply bitwise OR assignment to each element of the given vector
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN>
+Vector<Type1, kN>& operator|=(Vector<Type1, kN>& lhs,
+                              const Type2& rhs) noexcept;
 
-//!
-template <typename Type, size_t kN>
+//! Apply bitwise XOR assignment to each element of the given vector
+template <zisc::Integer Type, size_t kN>
 Vector<Type, kN>& operator^=(Vector<Type, kN>& lhs,
                              const Vector<Type, kN>& rhs) noexcept;
 
-//!
-template <typename Type, size_t kN>
-Vector<Type, kN>& operator^=(Vector<Type, kN>& lhs,
-                             const Type& rhs) noexcept;
+//! Apply bitwise XOR assignment to each element of the given vector
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN>
+Vector<Type1, kN>& operator^=(Vector<Type1, kN>& lhs,
+                              const Type2& rhs) noexcept;
 
-//!
-template <typename Type1, typename Type2, size_t kN>
+//! Apply bitwise left shift assignment to each element of the given vector
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN>
 Vector<Type1, kN>& operator<<=(Vector<Type1, kN>& lhs,
                                const Vector<Type2, kN>& rhs) noexcept;
 
-//!
-template <typename Type1, typename Type2, size_t kN>
+//! Apply bitwise left shift assignment to each element of the given vector
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN>
 Vector<Type1, kN>& operator<<=(Vector<Type1, kN>& lhs,
                                const Type2& rhs) noexcept;
 
-//!
-template <typename Type1, typename Type2, size_t kN>
+//! Apply bitwise right shift assignment to each element of the given vector
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN>
 Vector<Type1, kN>& operator>>=(Vector<Type1, kN>& lhs,
                                const Vector<Type2, kN>& rhs) noexcept;
 
-//!
-template <typename Type1, typename Type2, size_t kN>
+//! Apply bitwise right shift assignment to each element of the given vector
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN>
 Vector<Type1, kN>& operator>>=(Vector<Type1, kN>& lhs,
                                const Type2& rhs) noexcept;
+
+// Increment/decrement
 
 //! Pre-increment a vector
-template <typename Type, size_t kN>
+template <Arithmetic Type, size_t kN>
 Vector<Type, kN>& operator++(Vector<Type, kN>& value) noexcept;
 
 //! Pre-decrement a vector
-template <typename Type, size_t kN>
+template <Arithmetic Type, size_t kN>
 Vector<Type, kN>& operator--(Vector<Type, kN>& value) noexcept;
 
 //! Post-increment a vector
-template <typename Type, size_t kN>
+template <Arithmetic Type, size_t kN>
 Vector<Type, kN> operator++(Vector<Type, kN>& value, int) noexcept;
 
 //! Post-decrement a vector
-template <typename Type, size_t kN>
+template <Arithmetic Type, size_t kN>
 Vector<Type, kN> operator--(Vector<Type, kN>& value, int) noexcept;
 
-//!
-template <typename Type, size_t kN>
+// Arithmetic
+
+//! Unary plus
+template <Arithmetic Type, size_t kN>
+Vector<Type, kN> operator+(const Vector<Type, kN>& value) noexcept;
+
+//! Unary minus
+template <Arithmetic Type, size_t kN>
 Vector<Type, kN> operator-(const Vector<Type, kN>& value) noexcept;
 
 //! Compute an addition of two vectors
-template <typename Type, size_t kN>
+template <Arithmetic Type, size_t kN>
 Vector<Type, kN> operator+(const Vector<Type, kN>& lhs,
                            const Vector<Type, kN>& rhs) noexcept;
 
 //! Compute an addition of a scalar and a vector
-template <typename Type, size_t kN>
-Vector<Type, kN> operator+(const Type& lhs,
-                           const Vector<Type, kN>& rhs) noexcept;
+template <Arithmetic Type1, Arithmetic Type2, size_t kN>
+Vector<Type2, kN> operator+(const Type1& lhs,
+                            const Vector<Type2, kN>& rhs) noexcept;
 
 //! Compute an addition of a scalar and a vector
-template <typename Type, size_t kN>
-Vector<Type, kN> operator+(const Vector<Type, kN>& lhs,
-                           const Type& rhs) noexcept;
+template <Arithmetic Type1, Arithmetic Type2, size_t kN>
+Vector<Type1, kN> operator+(const Vector<Type1, kN>& lhs,
+                            const Type2& rhs) noexcept;
 
 //! Compute a subtract of two vectors
-template <typename Type, size_t kN>
+template <Arithmetic Type, size_t kN>
 Vector<Type, kN> operator-(const Vector<Type, kN>& lhs,
                            const Vector<Type, kN>& rhs) noexcept;
 
 //! Compute a subtract of a scalar and a vector
-template <typename Type, size_t kN>
-Vector<Type, kN> operator-(const Type& lhs,
-                           const Vector<Type, kN>& rhs) noexcept;
+template <Arithmetic Type1, Arithmetic Type2, size_t kN>
+Vector<Type2, kN> operator-(const Type1& lhs,
+                            const Vector<Type2, kN>& rhs) noexcept;
 
 //! Compute a subtract of a scalar and a vector
-template <typename Type, size_t kN>
-Vector<Type, kN> operator-(const Vector<Type, kN>& lhs,
-                           const Type& rhs) noexcept;
+template <Arithmetic Type1, Arithmetic Type2, size_t kN>
+Vector<Type1, kN> operator-(const Vector<Type1, kN>& lhs,
+                            const Type2& rhs) noexcept;
 
 //! Compute a multiplication of two vectors
-template <typename Type, size_t kN>
+template <Arithmetic Type, size_t kN>
 Vector<Type, kN> operator*(const Vector<Type, kN>& lhs,
                            const Vector<Type, kN>& rhs) noexcept;
 
 //! Compute a multiplication of a scalar and a vector
-template <typename Type, size_t kN>
-Vector<Type, kN> operator*(const Type& lhs,
-                           const Vector<Type, kN>& rhs) noexcept;
+template <Arithmetic Type1, Arithmetic Type2, size_t kN>
+Vector<Type2, kN> operator*(const Type1& lhs,
+                            const Vector<Type2, kN>& rhs) noexcept;
 
 //! Compute a multiplication of a scalar and a vector
-template <typename Type, size_t kN>
-Vector<Type, kN> operator*(const Vector<Type, kN>& lhs,
-                           const Type& rhs) noexcept;
+template <Arithmetic Type1, Arithmetic Type2, size_t kN>
+Vector<Type1, kN> operator*(const Vector<Type1, kN>& lhs,
+                            const Type2& rhs) noexcept;
 
 //! Compute a division of two vectors
-template <typename Type, size_t kN>
+template <Arithmetic Type, size_t kN>
 Vector<Type, kN> operator/(const Vector<Type, kN>& lhs,
                            const Vector<Type, kN>& rhs) noexcept;
 
 //! Compute a division of a scalar and a vector
-template <typename Type, size_t kN>
-Vector<Type, kN> operator/(const Type& lhs,
-                           const Vector<Type, kN>& rhs) noexcept;
+template <Arithmetic Type1, Arithmetic Type2, size_t kN>
+Vector<Type2, kN> operator/(const Type1& lhs,
+                            const Vector<Type2, kN>& rhs) noexcept;
 
 //! Compute a division of a scalar and a vector
-template <typename Type, size_t kN>
-Vector<Type, kN> operator/(const Vector<Type, kN>& lhs,
-                           const Type& rhs) noexcept;
+template <Arithmetic Type1, Arithmetic Type2, size_t kN>
+Vector<Type1, kN> operator/(const Vector<Type1, kN>& lhs,
+                            const Type2& rhs) noexcept;
 
 //! Compute a reminder of two vectors
-template <typename Type, size_t kN>
+template <zisc::Integer Type, size_t kN>
 Vector<Type, kN> operator%(const Vector<Type, kN>& lhs,
                            const Vector<Type, kN>& rhs) noexcept;
 
 //! Compute a reminder of a scalar and a vector
-template <typename Type, size_t kN>
-Vector<Type, kN> operator%(const Type& lhs,
-                           const Vector<Type, kN>& rhs) noexcept;
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN>
+Vector<Type2, kN> operator%(const Type1& lhs,
+                            const Vector<Type2, kN>& rhs) noexcept;
 
 //! Compute a reminder of a scalar and a vector
-template <typename Type, size_t kN>
-Vector<Type, kN> operator%(const Vector<Type, kN>& lhs,
-                           const Type& rhs) noexcept;
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN>
+Vector<Type1, kN> operator%(const Vector<Type1, kN>& lhs,
+                            const Type2& rhs) noexcept;
 
 //! Compute a bitwise NOT
-template <typename Type, size_t kN>
+template <zisc::Integer Type, size_t kN>
 Vector<Type, kN> operator~(const Vector<Type, kN>& value) noexcept;
 
 //! Compute a bitwise AND
-template <typename Type, size_t kN>
+template <zisc::Integer Type, size_t kN>
 Vector<Type, kN> operator&(const Vector<Type, kN>& lhs,
                            const Vector<Type, kN>& rhs) noexcept;
 
 //! Compute a bitwise AND
-template <typename Type, size_t kN>
-Vector<Type, kN> operator&(const Type& lhs,
-                           const Vector<Type, kN>& rhs) noexcept;
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN>
+Vector<Type2, kN> operator&(const Type1& lhs,
+                            const Vector<Type2, kN>& rhs) noexcept;
 
 //! Compute a bitwise AND
-template <typename Type, size_t kN>
-Vector<Type, kN> operator&(const Vector<Type, kN>& lhs,
-                           const Type& rhs) noexcept;
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN>
+Vector<Type1, kN> operator&(const Vector<Type1, kN>& lhs,
+                            const Type2& rhs) noexcept;
 
 //! Compute a bitwise OR
-template <typename Type, size_t kN>
+template <zisc::Integer Type, size_t kN>
 Vector<Type, kN> operator|(const Vector<Type, kN>& lhs,
                            const Vector<Type, kN>& rhs) noexcept;
 
 //! Compute a bitwise OR
-template <typename Type, size_t kN>
-Vector<Type, kN> operator|(const Type& lhs,
-                           const Vector<Type, kN>& rhs) noexcept;
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN>
+Vector<Type2, kN> operator|(const Type1& lhs,
+                            const Vector<Type2, kN>& rhs) noexcept;
 
 //! Compute a bitwise OR
-template <typename Type, size_t kN>
-Vector<Type, kN> operator|(const Vector<Type, kN>& lhs,
-                           const Type& rhs) noexcept;
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN>
+Vector<Type1, kN> operator|(const Vector<Type1, kN>& lhs,
+                            const Type2& rhs) noexcept;
 
 //! Compute a bitwise XOR
-template <typename Type, size_t kN>
+template <zisc::Integer Type, size_t kN>
 Vector<Type, kN> operator^(const Vector<Type, kN>& lhs,
                            const Vector<Type, kN>& rhs) noexcept;
 
 //! Compute a bitwise XOR
-template <typename Type, size_t kN>
-Vector<Type, kN> operator^(const Type& lhs,
-                           const Vector<Type, kN>& rhs) noexcept;
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN>
+Vector<Type2, kN> operator^(const Type1& lhs,
+                            const Vector<Type2, kN>& rhs) noexcept;
 
 //! Compute a bitwise XOR
-template <typename Type, size_t kN>
-Vector<Type, kN> operator^(const Vector<Type, kN>& lhs,
-                           const Type& rhs) noexcept;
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN>
+Vector<Type1, kN> operator^(const Vector<Type1, kN>& lhs,
+                            const Type2& rhs) noexcept;
 
 //! Compute a left shift
-template <typename Type1, typename Type2, size_t kN>
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN>
 Vector<Type1, kN> operator<<(const Vector<Type1, kN>& lhs,
                              const Vector<Type2, kN>& rhs) noexcept;
 
 //! Compute a left shift
-template <typename Type1, typename Type2, size_t kN>
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN>
 Vector<Type1, kN> operator<<(const Type1& lhs,
                              const Vector<Type2, kN>& rhs) noexcept;
 
 //! Compute a left shift
-template <typename Type1, typename Type2, size_t kN>
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN>
 Vector<Type1, kN> operator<<(const Vector<Type1, kN>& lhs,
                              const Type2& rhs) noexcept;
 
 //! Compute a right shift
-template <typename Type1, typename Type2, size_t kN>
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN>
 Vector<Type1, kN> operator>>(const Vector<Type1, kN>& lhs,
                              const Vector<Type2, kN>& rhs) noexcept;
 
 //! Compute a right shift
-template <typename Type1, typename Type2, size_t kN>
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN>
 Vector<Type1, kN> operator>>(const Type1& lhs,
                              const Vector<Type2, kN>& rhs) noexcept;
 
 //! Compute a right shift
-template <typename Type1, typename Type2, size_t kN>
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN>
 Vector<Type1, kN> operator>>(const Vector<Type1, kN>& lhs,
                              const Type2& rhs) noexcept;
 
-//! Check if two values are equal in value
-template <typename Type, size_t kN>
-Vector<Config::ComparisonResultType<Type>, kN> operator==(
-    const Vector<Type, kN>& lhs,
-    const Vector<Type, kN>& rhs) noexcept;
+// Logical
+
+//! Logical NOT
+template <Arithmetic Type, size_t kN>
+Vector<bool, kN> operator!(const Vector<Type, kN>& value) noexcept;
+
+//! Logical AND
+template <Arithmetic Type, size_t kN>
+Vector<bool, kN> operator&&(const Vector<Type, kN>& lhs,
+                            const Vector<Type, kN>& rhs) noexcept;
+
+//! Logical AND
+template <Arithmetic Type1, Arithmetic Type2, size_t kN>
+Vector<bool, kN> operator&&(const Type1& lhs,
+                            const Vector<Type2, kN>& rhs) noexcept;
+
+//! Logical AND
+template <Arithmetic Type1, Arithmetic Type2, size_t kN>
+Vector<bool, kN> operator&&(const Vector<Type1, kN>& lhs,
+                            const Type2& rhs) noexcept;
+
+//! Logical OR
+template <Arithmetic Type, size_t kN>
+Vector<bool, kN> operator||(const Vector<Type, kN>& lhs,
+                            const Vector<Type, kN>& rhs) noexcept;
+
+//! Logical OR
+template <Arithmetic Type1, Arithmetic Type2, size_t kN>
+Vector<bool, kN> operator||(const Type1& lhs,
+                            const Vector<Type2, kN>& rhs) noexcept;
+
+//! Logical OR
+template <Arithmetic Type1, Arithmetic Type2, size_t kN>
+Vector<bool, kN> operator||(const Vector<Type1, kN>& lhs,
+                            const Type2& rhs) noexcept;
+
+// Comparison
 
 //! Check if two values are equal in value
-template <typename Type, size_t kN>
-Vector<Config::ComparisonResultType<Type>, kN> operator==(
-    const Type& lhs,
-    const Vector<Type, kN>& rhs) noexcept;
+template <Arithmetic Type, size_t kN>
+Vector<bool, kN> operator==(const Vector<Type, kN>& lhs,
+                            const Vector<Type, kN>& rhs) noexcept;
 
 //! Check if two values are equal in value
-template <typename Type, size_t kN>
-Vector<Config::ComparisonResultType<Type>, kN> operator==(
-    const Vector<Type, kN>& lhs,
-    const Type& rhs) noexcept;
+template <Arithmetic Type1, Arithmetic Type2, size_t kN>
+Vector<bool, kN> operator==(const Type1& lhs,
+                            const Vector<Type2, kN>& rhs) noexcept;
 
 //! Check if two values are equal in value
-template <typename Type, size_t kN>
-Vector<Config::ComparisonResultType<Type>, kN> operator!=(
-    const Vector<Type, kN>& lhs,
-    const Vector<Type, kN>& rhs) noexcept;
+template <Arithmetic Type1, Arithmetic Type2, size_t kN>
+Vector<bool, kN> operator==(const Vector<Type1, kN>& lhs,
+                            const Type2& rhs) noexcept;
 
 //! Check if two values are equal in value
-template <typename Type, size_t kN>
-Vector<Config::ComparisonResultType<Type>, kN> operator!=(
-    const Type& lhs,
-    const Vector<Type, kN>& rhs) noexcept;
+template <Arithmetic Type, size_t kN>
+Vector<bool, kN> operator!=(const Vector<Type, kN>& lhs,
+                            const Vector<Type, kN>& rhs) noexcept;
 
 //! Check if two values are equal in value
-template <typename Type, size_t kN>
-Vector<Config::ComparisonResultType<Type>, kN> operator!=(
-    const Vector<Type, kN>& lhs,
-    const Type& rhs) noexcept;
+template <Arithmetic Type1, Arithmetic Type2, size_t kN>
+Vector<bool, kN> operator!=(const Type1& lhs,
+                            const Vector<Type2, kN>& rhs) noexcept;
+
+//! Check if two values are equal in value
+template <Arithmetic Type1, Arithmetic Type2, size_t kN>
+Vector<bool, kN> operator!=(const Vector<Type1, kN>& lhs,
+                            const Type2& rhs) noexcept;
 
 //!
-template <typename Type, size_t kN>
-Vector<Config::ComparisonResultType<Type>, kN> operator<(
-    const Vector<Type, kN>& lhs,
-    const Vector<Type, kN>& rhs) noexcept;
+template <Arithmetic Type, size_t kN>
+Vector<bool, kN> operator<(const Vector<Type, kN>& lhs,
+                           const Vector<Type, kN>& rhs) noexcept;
 
 //!
-template <typename Type, size_t kN>
-Vector<Config::ComparisonResultType<Type>, kN> operator<(
-    const Type& lhs,
-    const Vector<Type, kN>& rhs) noexcept;
+template <Arithmetic Type1, Arithmetic Type2, size_t kN>
+Vector<bool, kN> operator<(const Type1& lhs,
+                           const Vector<Type2, kN>& rhs) noexcept;
 
 //!
-template <typename Type, size_t kN>
-Vector<Config::ComparisonResultType<Type>, kN> operator<(
-    const Vector<Type, kN>& lhs,
-    const Type& rhs) noexcept;
+template <Arithmetic Type1, Arithmetic Type2, size_t kN>
+Vector<bool, kN> operator<(const Vector<Type1, kN>& lhs,
+                           const Type2& rhs) noexcept;
 
 //!
-template <typename Type, size_t kN>
-Vector<Config::ComparisonResultType<Type>, kN> operator<=(
-    const Vector<Type, kN>& lhs,
-    const Vector<Type, kN>& rhs) noexcept;
+template <Arithmetic Type, size_t kN>
+Vector<bool, kN> operator<=(const Vector<Type, kN>& lhs,
+                            const Vector<Type, kN>& rhs) noexcept;
 
 //!
-template <typename Type, size_t kN>
-Vector<Config::ComparisonResultType<Type>, kN> operator<=(
-    const Type& lhs,
-    const Vector<Type, kN>& rhs) noexcept;
+template <Arithmetic Type1, Arithmetic Type2, size_t kN>
+Vector<bool, kN> operator<=(const Type1& lhs,
+                            const Vector<Type2, kN>& rhs) noexcept;
 
 //!
-template <typename Type, size_t kN>
-Vector<Config::ComparisonResultType<Type>, kN> operator<=(
-    const Vector<Type, kN>& lhs,
-    const Type& rhs) noexcept;
+template <Arithmetic Type1, Arithmetic Type2, size_t kN>
+Vector<bool, kN> operator<=(const Vector<Type1, kN>& lhs,
+                            const Type2& rhs) noexcept;
 
 //!
-template <typename Type, size_t kN>
-Vector<Config::ComparisonResultType<Type>, kN> operator>(
-    const Vector<Type, kN>& lhs,
-    const Vector<Type, kN>& rhs) noexcept;
+template <Arithmetic Type, size_t kN>
+Vector<bool, kN> operator>(const Vector<Type, kN>& lhs,
+                           const Vector<Type, kN>& rhs) noexcept;
 
 //!
-template <typename Type, size_t kN>
-Vector<Config::ComparisonResultType<Type>, kN> operator>(
-    const Type& lhs,
-    const Vector<Type, kN>& rhs) noexcept;
+template <Arithmetic Type1, Arithmetic Type2, size_t kN>
+Vector<bool, kN> operator>(const Type1& lhs,
+                           const Vector<Type2, kN>& rhs) noexcept;
 
 //!
-template <typename Type, size_t kN>
-Vector<Config::ComparisonResultType<Type>, kN> operator>(
-    const Vector<Type, kN>& lhs,
-    const Type& rhs) noexcept;
+template <Arithmetic Type1, Arithmetic Type2, size_t kN>
+Vector<bool, kN> operator>(const Vector<Type1, kN>& lhs,
+                           const Type2& rhs) noexcept;
 
 //!
-template <typename Type, size_t kN>
-Vector<Config::ComparisonResultType<Type>, kN> operator>=(
-    const Vector<Type, kN>& lhs,
-    const Vector<Type, kN>& rhs) noexcept;
+template <Arithmetic Type, size_t kN>
+Vector<bool, kN> operator>=(const Vector<Type, kN>& lhs,
+                            const Vector<Type, kN>& rhs) noexcept;
 
 //!
-template <typename Type, size_t kN>
-Vector<Config::ComparisonResultType<Type>, kN> operator>=(
-    const Type& lhs,
-    const Vector<Type, kN>& rhs) noexcept;
+template <Arithmetic Type1, Arithmetic Type2, size_t kN>
+Vector<bool, kN> operator>=(const Type1& lhs,
+                            const Vector<Type2, kN>& rhs) noexcept;
 
 //!
-template <typename Type, size_t kN>
-Vector<Config::ComparisonResultType<Type>, kN> operator>=(
-    const Vector<Type, kN>& lhs,
-    const Type& rhs) noexcept;
-
-//! Return the result of boolean negation operations
-template <typename Type, size_t kN>
-Vector<Config::ComparisonResultType<Type>, kN> operator!(
-    const Vector<Type, kN>& value) noexcept;
-
-//! Return the result of boolean AND operations
-template <typename Type, size_t kN>
-Vector<Config::ComparisonResultType<Type>, kN> operator&&(
-    const Vector<Type, kN>& lhs,
-    const Vector<Type, kN>& rhs) noexcept;
-
-//! Return the result of boolean AND operations
-template <typename Type, size_t kN>
-Vector<Config::ComparisonResultType<Type>, kN> operator&&(
-    const Type& lhs,
-    const Vector<Type, kN>& rhs) noexcept;
-
-//! Return the result of boolean AND operations
-template <typename Type, size_t kN>
-Vector<Config::ComparisonResultType<Type>, kN> operator&&(
-    const Vector<Type, kN>& lhs,
-    const Type& rhs) noexcept;
-
-//! Return the result of boolean OR operations
-template <typename Type, size_t kN>
-Vector<Config::ComparisonResultType<Type>, kN> operator||(
-    const Vector<Type, kN>& lhs,
-    const Vector<Type, kN>& rhs) noexcept;
-
-//! Return the result of boolean OR operations
-template <typename Type, size_t kN>
-Vector<Config::ComparisonResultType<Type>, kN> operator||(
-    const Type& lhs,
-    const Vector<Type, kN>& rhs) noexcept;
-
-//! Return the result of boolean OR operations
-template <typename Type, size_t kN>
-Vector<Config::ComparisonResultType<Type>, kN> operator||(
-    const Vector<Type, kN>& lhs,
-    const Type& rhs) noexcept;
+template <Arithmetic Type1, Arithmetic Type2, size_t kN>
+Vector<bool, kN> operator>=(const Vector<Type1, kN>& lhs,
+                            const Type2& rhs) noexcept;
 
 // Type aliases
 // Vector2
@@ -638,7 +830,7 @@ class VectorData
       const half* p) noexcept;
 
   //! Read half data from address (p + offset). The address must be 16bit aligned
-  template <AddressSpaceType kAddressSpaceType, inner::Half Type>
+  template <AddressSpaceType kAddressSpaceType, Half Type>
   static float vload_half(
       const size_t offset,
       const AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept;
@@ -649,7 +841,7 @@ class VectorData
       const half* p) noexcept;
 
   //! Read half data from address (p + offset * 2). The address must be 16bit aligned
-  template <AddressSpaceType kAddressSpaceType, inner::Half Type>
+  template <AddressSpaceType kAddressSpaceType, Half Type>
   static float2 vload_half2(
       const size_t offset,
       const AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept;
@@ -660,7 +852,7 @@ class VectorData
       const half* p) noexcept;
 
   //! Read half data from address (p + offset * 3). The address must be 16bit aligned
-  template <AddressSpaceType kAddressSpaceType, inner::Half Type>
+  template <AddressSpaceType kAddressSpaceType, Half Type>
   static float3 vload_half3(
       const size_t offset,
       const AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept;
@@ -671,7 +863,7 @@ class VectorData
       const half* p) noexcept;
 
   //! Read half data from address (p + offset * 4). The address must be 16bit aligned
-  template <AddressSpaceType kAddressSpaceType, inner::Half Type>
+  template <AddressSpaceType kAddressSpaceType, Half Type>
   static float4 vload_half4(
       const size_t offset,
       const AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept;
@@ -725,7 +917,7 @@ class VectorData
       half* p) noexcept;
 
   //! The value is converted to a half and writen to the address (p + offset)
-  template <AddressSpaceType kAddressSpaceType, inner::Half Type>
+  template <AddressSpaceType kAddressSpaceType, Half Type>
   static void vstore_half(
       const float data,
       const size_t offset,
@@ -738,7 +930,7 @@ class VectorData
       half* p) noexcept;
 
   //! The value is converted to a half and writen to the address (p + offset * 2)
-  template <AddressSpaceType kAddressSpaceType, inner::Half Type>
+  template <AddressSpaceType kAddressSpaceType, Half Type>
   static void vstore_half2(
       const float2& data,
       const size_t offset,
@@ -751,7 +943,7 @@ class VectorData
       half* p) noexcept;
 
   //! The value is converted to a half and writen to the address (p + offset * 3)
-  template <AddressSpaceType kAddressSpaceType, inner::Half Type>
+  template <AddressSpaceType kAddressSpaceType, Half Type>
   static void vstore_half3(
       const float3& data,
       const size_t offset,
@@ -764,7 +956,7 @@ class VectorData
       half* p) noexcept;
 
   //! The value is converted to a half and writen to the address (p + offset * 4)
-  template <AddressSpaceType kAddressSpaceType, inner::Half Type>
+  template <AddressSpaceType kAddressSpaceType, Half Type>
   static void vstore_half4(
       const float4& data,
       const size_t offset,
@@ -832,7 +1024,7 @@ float vload_half(
     const half* p) noexcept;
 
 //! Read half data from address (p + offset). The address must be 16bit aligned
-template <AddressSpaceType kAddressSpaceType, inner::Half Type>
+template <AddressSpaceType kAddressSpaceType, Half Type>
 float vload_half(
     const size_t offset,
     const AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept;
@@ -843,7 +1035,7 @@ float2 vload_half2(
     const half* p) noexcept;
 
 //! Read half data from address (p + offset * 2). The address must be 16bit aligned
-template <AddressSpaceType kAddressSpaceType, inner::Half Type>
+template <AddressSpaceType kAddressSpaceType, Half Type>
 float2 vload_half2(
     const size_t offset,
     const AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept;
@@ -854,7 +1046,7 @@ float3 vload_half3(
     const half* p) noexcept;
 
 //! Read half data from address (p + offset * 3). The address must be 16bit aligned
-template <AddressSpaceType kAddressSpaceType, inner::Half Type>
+template <AddressSpaceType kAddressSpaceType, Half Type>
 float3 vload_half3(
     const size_t offset,
     const AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept;
@@ -865,7 +1057,7 @@ float4 vload_half4(
     const half* p) noexcept;
 
 //! Read half data from address (p + offset * 4). The address must be 16bit aligned
-template <AddressSpaceType kAddressSpaceType, inner::Half Type>
+template <AddressSpaceType kAddressSpaceType, Half Type>
 float4 vload_half4(
     const size_t offset,
     const AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept;
@@ -913,7 +1105,7 @@ void vstore_half(
     half* p) noexcept;
 
 //! The value is converted to a half and writen to the address (p + offset)
-template <AddressSpaceType kAddressSpaceType, inner::Half Type>
+template <AddressSpaceType kAddressSpaceType, Half Type>
 void vstore_half(
     const float data,
     const size_t offset,
@@ -926,7 +1118,7 @@ void vstore_half2(
     half* p) noexcept;
 
 //! The value is converted to a half and writen to the address (p + offset * 2)
-template <AddressSpaceType kAddressSpaceType, inner::Half Type>
+template <AddressSpaceType kAddressSpaceType, Half Type>
 void vstore_half2(
     const float2& data,
     const size_t offset,
@@ -939,7 +1131,7 @@ void vstore_half3(
     half* p) noexcept;
 
 //! The value is converted to a half and writen to the address (p + offset * 3)
-template <AddressSpaceType kAddressSpaceType, inner::Half Type>
+template <AddressSpaceType kAddressSpaceType, Half Type>
 void vstore_half3(
     const float3& data,
     const size_t offset,
@@ -952,15 +1144,13 @@ void vstore_half4(
     half* p) noexcept;
 
 //! The value is converted to a half and writen to the address (p + offset * 4)
-template <AddressSpaceType kAddressSpaceType, inner::Half Type>
+template <AddressSpaceType kAddressSpaceType, Half Type>
 void vstore_half4(
     const float4& data,
     const size_t offset,
     AddressSpacePointer<kAddressSpaceType, Type> p) noexcept;
 
-} // namespace cl
-
-} // namespace zivc
+} // namespace zivc::cl
 
 #include "vector-inl.hpp"
 

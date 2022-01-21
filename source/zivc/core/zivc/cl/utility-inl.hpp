@@ -21,60 +21,68 @@
 
 namespace zivc {
 
-#if defined(Z_CLANG)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdouble-promotion"
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wformat-security"
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wformat-nonliteral"
-#elif defined(Z_GCC)
+#if defined(Z_CLANG) || defined(Z_GCC)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdouble-promotion"
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-security"
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
-#endif
+#endif // Z_CLANG || Z_GCC
 
 /*!
+  \details No detailed description
+
+  \tparam Types No description.
+  \param [in] format No description.
+  \param [in] args No description.
+  \return No description
   */
-template <typename ...Types>
-int32b print(ConstConstantPtr<char> format, const Types... args) noexcept
+template <typename ...Types> inline
+int32b print(ConstConstantPtr<char> format, const Types&... args) noexcept
 {
   int32b result = 0;
-  constexpr size_t num_of_args = sizeof...(args);
 #if defined(ZIVC_CL_CPU)
+  constexpr size_t num_of_args = sizeof...(args);
   if constexpr (0 < num_of_args)
     result = std::printf(format.get(), args...);
   else
     result = std::printf(format.get());
+#else // ZIVC_CL_CPU
+  static_cast<void>(format);
 #endif // ZIVC_CL_CPU
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Types No description.
+  \param [in] condition No description.
+  \param [in] format No description.
+  \param [in] args description.
   */
 template <typename ...Types> inline
 void assertIfFalse(const int32b condition,
                    ConstConstantPtr<char> format,
                    const Types... args) noexcept
 {
-  constexpr size_t num_of_args = sizeof...(args);
   if (!condition) {
 #if defined(ZIVC_CL_CPU)
+    constexpr size_t num_of_args = sizeof...(args);
     if constexpr (0 < num_of_args)
       std::fprintf(stderr, format.get(), args...);
     else
       std::fprintf(stderr, format.get());
     std::abort();
+#else // ZIVC_CL_CPU
+    static_cast<void>(format);
 #endif // ZIVC_CL_CPU
   }
 }
 
-#if defined(Z_CLANG)
-#pragma clang diagnostic pop
-#pragma clang diagnostic pop
-#pragma clang diagnostic pop
-#elif defined(Z_GCC)
+#if defined(Z_CLANG) || defined(Z_GCC)
+#pragma GCC diagnostic pop
 #pragma GCC diagnostic pop
 #pragma GCC diagnostic pop
 #endif
@@ -541,150 +549,6 @@ size_t getLocalLinearId() noexcept
   }
 
   return id;
-}
-
-namespace inner {
-
-template <typename Type>
-struct TypeValueMaker
-{
-  //! Create a value
-  static Type make(const Type v) noexcept
-  {
-    return v;
-  }
-};
-
-} // namespace inner
-
-#define ZIVC_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL2(Type, ElemType, name) \
-  namespace inner { \
-    template <> \
-    struct TypeValueMaker< Type > \
-    { \
-      static Type make(const ElemType v) noexcept \
-      { \
-        const Type data{v, v}; \
-        return data; \
-      } \
-      static Type make(const ElemType x, const ElemType y) noexcept \
-      { \
-        const Type data{x, y}; \
-        return data; \
-      } \
-    }; \
-  } \
-  inline Type make ## name (const ElemType v) noexcept \
-  { \
-    const auto data = inner::TypeValueMaker< Type >::make(v); \
-    return data; \
-  } \
-  inline Type make ## name (const ElemType x, const ElemType y) noexcept \
-  { \
-    const auto data = inner::TypeValueMaker< Type >::make(x, y); \
-    return data; \
-  }
-
-#define ZIVC_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL3(Type, ElemType, name) \
-  namespace inner { \
-    template <> \
-    struct TypeValueMaker< Type > \
-    { \
-      static Type make(const ElemType v) noexcept \
-      { \
-        const Type data{v, v, v}; \
-        return data; \
-      } \
-      static Type make(const ElemType x, const ElemType y, \
-                       const ElemType z) noexcept \
-      { \
-        const Type data{x, y, z}; \
-        return data; \
-      } \
-    }; \
-  } \
-  inline Type make ## name (const ElemType v) noexcept \
-  { \
-    const auto data = inner::TypeValueMaker< Type >::make(v); \
-    return data; \
-  } \
-  inline Type make ## name (const ElemType x, const ElemType y, \
-                     const ElemType z) noexcept \
-  { \
-    const auto data = inner::TypeValueMaker< Type >::make(x, y, z); \
-    return data; \
-  }
-
-#define ZIVC_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL4(Type, ElemType, name) \
-  namespace inner { \
-    template <> \
-    struct TypeValueMaker< Type > \
-    { \
-      static Type make(const ElemType v) noexcept \
-      { \
-        const Type data{v, v, v, v}; \
-        return data; \
-      } \
-      static Type make(const ElemType x, const ElemType y, \
-                       const ElemType z, const ElemType w) noexcept \
-      { \
-        const Type data{x, y, z, w}; \
-        return data; \
-      } \
-    }; \
-  } \
-  inline Type make ## name (const ElemType v) noexcept \
-  { \
-    const auto data = inner::TypeValueMaker< Type >::make(v); \
-    return data; \
-  } \
-  inline Type make ## name (const ElemType x, const ElemType y, \
-                     const ElemType z, const ElemType w) noexcept \
-  { \
-    const auto data = inner::TypeValueMaker< Type >::make(x, y, z, w); \
-    return data; \
-  }
-
-ZIVC_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL2(char2, int8b, Char2)
-ZIVC_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL2(uchar2, uint8b, UChar2)
-ZIVC_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL2(short2, int16b, Short2)
-ZIVC_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL2(ushort2, uint16b, UShort2)
-ZIVC_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL2(int2, int32b, Int2)
-ZIVC_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL2(uint2, uint32b, UInt2)
-ZIVC_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL2(long2, int64b, Long2)
-ZIVC_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL2(ulong2, uint64b, ULong2)
-ZIVC_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL2(float2, float, Float2)
-ZIVC_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL2(double2, double, Double2)
-
-ZIVC_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL3(char3, int8b, Char3)
-ZIVC_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL3(uchar3, uint8b, UChar3)
-ZIVC_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL3(short3, int16b, Short3)
-ZIVC_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL3(ushort3, uint16b, UShort3)
-ZIVC_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL3(int3, int32b, Int3)
-ZIVC_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL3(uint3, uint32b, UInt3)
-ZIVC_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL3(long3, int64b, Long3)
-ZIVC_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL3(ulong3, uint64b, ULong3)
-ZIVC_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL3(float3, float, Float3)
-ZIVC_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL3(double3, double, Double3)
-
-ZIVC_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL4(char4, int8b, Char4)
-ZIVC_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL4(uchar4, uint8b, UChar4)
-ZIVC_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL4(short4, int16b, Short4)
-ZIVC_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL4(ushort4, uint16b, UShort4)
-ZIVC_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL4(int4, int32b, Int4)
-ZIVC_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL4(uint4, uint32b, UInt4)
-ZIVC_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL4(long4, int64b, Long4)
-ZIVC_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL4(ulong4, uint64b, ULong4)
-ZIVC_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL4(float4, float, Float4)
-ZIVC_TYPE_VALUE_MAKER_TEMPLATE_SPECIALIZATION_IMPL4(double4, double, Double4)
-
-/*!
-  */
-template <typename Type, typename ...ArgumentTypes> inline
-Type make(const ArgumentTypes... args) noexcept
-{
-  const auto data = inner::TypeValueMaker<Type>::make(args...);
-  return data;
 }
 
 namespace inner {

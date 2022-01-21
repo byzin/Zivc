@@ -18,439 +18,1159 @@
 #include "zisc/concepts.hpp"
 #include "zisc/ieee_754_binary.hpp"
 #include "zisc/utility.hpp"
+#include "zisc/memory/memory.hpp"
 // Zivc
 #include "types.hpp"
 #include "zivc/zivc_config.hpp"
 
-namespace zivc {
-
-namespace cl {
+namespace zivc::cl {
 
 /*!
+  \details No detailed description
   */
-template <typename Type> inline
-Vector<Type, 2>::Vector() noexcept : Vector(zisc::cast<Type>(0))
+template <Arithmetic T> inline
+Vector<T, 2>::Vector() noexcept : Vector(zisc::cast<Type>(0))
 {
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] v No description.
   */
-template <typename Type> inline
-Vector<Type, 2>::Vector(const Type v) noexcept : Vector(v, v)
+template <Arithmetic T> inline
+Vector<T, 2>::Vector(ConstReference v) noexcept : Vector(v, v)
 {
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] v0 No description.
+  \param [in] v1 No description.
   */
-template <typename Type> inline
-Vector<Type, 2>::Vector(const Type v0, const Type v1) noexcept :
+template <Arithmetic T> inline
+Vector<T, 2>::Vector(ConstReference v0, ConstReference v1) noexcept :
     x{v0},
     y{v1}
 {
-  static_assert(sizeof(Vector) == 2 * sizeof(Type),
-                "The size of Vector2 is wrong.");
-  static_assert(std::alignment_of_v<Vector> == 2 * sizeof(Type),
-                "The alignment of Vector2 is wrong.");
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] index No description.
+  \return No description
   */
-template <typename Type> inline
-Type& Vector<Type, 2>::operator[](const size_t index) noexcept
+template <Arithmetic T> inline
+auto Vector<T, 2>::operator[](const size_type index) noexcept -> Reference
 {
-  auto& result = (index == 0) ? x : y;
+  return get(index);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] index No description.
+  \return No description
+  */
+template <Arithmetic T> inline
+auto Vector<T, 2>::operator[](const size_type index) const noexcept -> ConstReference
+{
+  return get(index);
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+Vector<T, 2>::operator bool() const noexcept
+{
+  const bool result = zisc::cast<bool>(x) && zisc::cast<bool>(y);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
-template <typename Type> inline
-const Type& Vector<Type, 2>::operator[](const size_t index) const noexcept
+template <Arithmetic T> inline
+auto Vector<T, 2>::begin() noexcept -> iterator
 {
-  const auto& result = (index == 0) ? x : y;
-  return result;
+  return data();
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
-template <typename Type> inline
-constexpr size_t Vector<Type, 2>::size() noexcept
+template <Arithmetic T> inline
+auto Vector<T, 2>::begin() const noexcept -> const_iterator
+{
+  return data();
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+auto Vector<T, 2>::end() noexcept -> iterator
+{
+  constexpr size_type align_s = alignment();
+  Pointer p = zisc::assume_aligned<align_s>(data() + size());
+  return p;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+auto Vector<T, 2>::end() const noexcept -> const_iterator
+{
+  constexpr size_type align_s = alignment();
+  ConstPointer p = zisc::assume_aligned<align_s>(data() + size());
+  return p;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+constexpr auto Vector<T, 2>::alignment() noexcept -> size_type
+{
+  constexpr size_type align_s = std::alignment_of_v<Vector>;
+  constexpr size_type s = sizeof(Vector);
+  static_assert(s == size() * sizeof(Type), "The size of Vector isn't correct.");
+  static_assert(align_s == s, "The alignment of Vector isn't correct.");
+  return align_s;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+auto Vector<T, 2>::data() noexcept -> Pointer
+{
+  constexpr size_type align_s = alignment();
+  Pointer p = zisc::assume_aligned<align_s>(&x);
+  return p;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+auto Vector<T, 2>::data() const noexcept -> ConstPointer
+{
+  constexpr size_type align_s = alignment();
+  ConstPointer p = zisc::assume_aligned<align_s>(&x);
+  return p;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] index No description.
+  \return No description
+  */
+template <Arithmetic T> inline
+auto Vector<T, 2>::get(const size_type index) noexcept -> Reference
+{
+  Pointer p = data();
+  return p[index];
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] index No description.
+  \return No description
+  */
+template <Arithmetic T> inline
+auto Vector<T, 2>::get(const size_type index) const noexcept -> ConstReference
+{
+  ConstPointer p = data();
+  return p[index];
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+constexpr auto Vector<T, 2>::size() noexcept -> size_type
 {
   return 2;
 }
 
 /*!
+  \details No detailed description
   */
-template <typename Type> inline
-Vector<Type, 3>::Vector() noexcept : Vector(zisc::cast<Type>(0))
+template <Arithmetic T> inline
+Vector<T, 3>::Vector() noexcept : Vector(zisc::cast<Type>(0))
 {
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] v No description.
   */
-template <typename Type> inline
-Vector<Type, 3>::Vector(const Type v) noexcept : Vector(v, v, v)
+template <Arithmetic T> inline
+Vector<T, 3>::Vector(ConstReference v) noexcept : Vector(v, v, v)
 {
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] v0 No description.
+  \param [in] v1 No description.
+  \param [in] v2 No description.
   */
-template <typename Type> inline
-Vector<Type, 3>::Vector(const Type v0, const Type v1, const Type v2) noexcept :
+template <Arithmetic T> inline
+Vector<T, 3>::Vector(ConstReference v0, ConstReference v1, ConstReference v2) noexcept :
     x{v0},
     y{v1},
     z{v2},
-    __padding_{zisc::cast<Type>(0)}
+    pad_{zisc::cast<Type>(0)}
 {
-  static_assert(sizeof(Vector) == 4 * sizeof(Type),
-                "The size of Vector3 is wrong.");
-  static_assert(std::alignment_of_v<Vector> == 4 * sizeof(Type),
-                "The size of Vector3 is wrong.");
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] v0 No description.
+  \param [in] v1 No description.
   */
-template <typename Type> inline
-Type& Vector<Type, 3>::operator[](const size_t index) noexcept
+template <Arithmetic T> inline
+Vector<T, 3>::Vector(const Vector2& v0, ConstReference v1) noexcept :
+    Vector(v0.x, v0.y, v1)
 {
-  auto& result = (index == 0) ? x : (index == 1) ? y : z;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] v0 No description.
+  \param [in] v1 No description.
+  */
+template <Arithmetic T> inline
+Vector<T, 3>::Vector(ConstReference v0, const Vector2& v1) noexcept :
+    Vector(v0, v1.x, v1.y)
+{
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] index No description.
+  \return No description
+  */
+template <Arithmetic Type> inline
+auto Vector<Type, 3>::operator[](const size_type index) noexcept -> Reference
+{
+  return get(index);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] index No description.
+  \return No description
+  */
+template <Arithmetic T> inline
+auto Vector<T, 3>::operator[](const size_type index) const noexcept -> ConstReference
+{
+  return get(index);
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+Vector<T, 3>::operator bool() const noexcept
+{
+  const bool result = zisc::cast<bool>(x) && zisc::cast<bool>(y) &&
+                      zisc::cast<bool>(z);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
-template <typename Type> inline
-const Type& Vector<Type, 3>::operator[](const size_t index) const noexcept
+template <Arithmetic T> inline
+auto Vector<T, 3>::begin() noexcept -> iterator
 {
-  const auto& result = (index == 0) ? x : (index == 1) ? y : z;
-  return result;
+  return data();
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
-template <typename Type> inline
-constexpr size_t Vector<Type, 3>::size() noexcept
+template <Arithmetic T> inline
+auto Vector<T, 3>::begin() const noexcept -> const_iterator
+{
+  return data();
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+auto Vector<T, 3>::end() noexcept -> iterator
+{
+  Pointer p = data() + size();
+  return p;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+auto Vector<T, 3>::end() const noexcept -> const_iterator
+{
+  ConstPointer p = data() + size();
+  return p;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+constexpr auto Vector<T, 3>::alignment() noexcept -> size_type
+{
+  constexpr size_type align_s = std::alignment_of_v<Vector>;
+  constexpr size_type s = sizeof(Vector);
+  static_assert(s == 4 * sizeof(Type), "The size of Vector isn't correct.");
+  static_assert(align_s == s, "The alignment of Vector isn't correct.");
+  return align_s;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+auto Vector<T, 3>::data() noexcept -> Pointer
+{
+  constexpr size_type align_s = alignment();
+  Pointer p = zisc::assume_aligned<align_s>(&x);
+  return p;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+auto Vector<T, 3>::data() const noexcept -> ConstPointer
+{
+  constexpr size_type align_s = alignment();
+  ConstPointer p = zisc::assume_aligned<align_s>(&x);
+  return p;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] index No description.
+  \return No description
+  */
+template <Arithmetic T> inline
+auto Vector<T, 3>::get(const size_type index) noexcept -> Reference
+{
+  Pointer p = data();
+  return p[index];
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] index No description.
+  \return No description
+  */
+template <Arithmetic T> inline
+auto Vector<T, 3>::get(const size_type index) const noexcept -> ConstReference
+{
+  ConstPointer p = data();
+  return p[index];
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+constexpr auto Vector<T, 3>::size() noexcept -> size_type
 {
   return 3;
 }
 
 /*!
+  \details No detailed description
   */
-template <typename Type> inline
-Vector<Type, 4>::Vector() noexcept : Vector(zisc::cast<Type>(0))
+template <Arithmetic T> inline
+Vector<T, 4>::Vector() noexcept : Vector(zisc::cast<Type>(0))
 {
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] v No description.
   */
-template <typename Type> inline
-Vector<Type, 4>::Vector(const Type v) noexcept : Vector(v, v, v, v)
+template <Arithmetic T> inline
+Vector<T, 4>::Vector(ConstReference v) noexcept : Vector(v, v, v, v)
 {
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] v0 No description.
+  \param [in] v1 No description.
+  \param [in] v2 No description.
+  \param [in] v3 No description.
   */
-template <typename Type> inline
-Vector<Type, 4>::Vector(const Type v0, const Type v1, const Type v2, const Type v3)
-    noexcept :
-        x{v0},
-        y{v1},
-        z{v2},
-        w{v3}
+template <Arithmetic T> inline
+Vector<T, 4>::Vector(ConstReference v0, ConstReference v1, ConstReference v2, ConstReference v3) noexcept :
+    x{v0},
+    y{v1},
+    z{v2},
+    w{v3}
 {
-  static_assert(sizeof(Vector) == 4 * sizeof(Type),
-                "The size of Vector4 is wrong.");
-  static_assert(std::alignment_of_v<Vector> == 4 * sizeof(Type),
-                "The size of Vector4 is wrong.");
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] v0 No description.
+  \param [in] v1 No description.
+  \param [in] v2 No description.
   */
-template <typename Type> inline
-Type& Vector<Type, 4>::operator[](const size_t index) noexcept
+template <Arithmetic T> inline
+Vector<T, 4>::Vector(const Vector2& v0, ConstReference v1, ConstReference v2) noexcept :
+    Vector(v0.x, v0.y, v1, v2)
 {
-  auto& result = ((index & 2u) == 0)
-      ? (index == 0) ? x : y
-      : (index == 2) ? z : w;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] v0 No description.
+  \param [in] v1 No description.
+  \param [in] v2 No description.
+  */
+template <Arithmetic T> inline
+Vector<T, 4>::Vector(ConstReference v0, const Vector2& v1, ConstReference v2) noexcept :
+    Vector(v0, v1.x, v1.y, v2)
+{
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] v0 No description.
+  \param [in] v1 No description.
+  \param [in] v2 No description.
+  */
+template <Arithmetic T> inline
+Vector<T, 4>::Vector(ConstReference v0, ConstReference v1, const Vector2& v2) noexcept :
+    Vector(v0, v1, v2.x, v2.y)
+{
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] v0 No description.
+  \param [in] v1 No description.
+  */
+template <Arithmetic T> inline
+Vector<T, 4>::Vector(const Vector2& v0, const Vector2& v1) noexcept :
+    Vector(v0.x, v0.y, v1.x, v1.y)
+{
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] v0 No description.
+  \param [in] v1 No description.
+  */
+template <Arithmetic T> inline
+Vector<T, 4>::Vector(const Vector3& v0, ConstReference v1) noexcept :
+    Vector(v0.x, v0.y, v0.z, v1)
+{
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] v0 No description.
+  \param [in] v1 No description.
+  */
+template <Arithmetic T> inline
+Vector<T, 4>::Vector(ConstReference v0, const Vector3& v1) noexcept :
+    Vector(v0, v1.x, v1.y, v1.z)
+{
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] index No description.
+  \return No description
+  */
+template <Arithmetic T> inline
+auto Vector<T, 4>::operator[](const size_type index) noexcept -> Reference
+{
+  return get(index);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] index No description.
+  \return No description
+  */
+template <Arithmetic T> inline
+auto Vector<T, 4>::operator[](const size_type index) const noexcept -> ConstReference
+{
+  return get(index);
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+Vector<T, 4>::operator bool() const noexcept
+{
+  const bool result = zisc::cast<bool>(x) && zisc::cast<bool>(y) &&
+                      zisc::cast<bool>(z) && zisc::cast<bool>(z);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
-template <typename Type> inline
-const Type& Vector<Type, 4>::operator[](const size_t index) const noexcept
+template <Arithmetic T> inline
+auto Vector<T, 4>::begin() noexcept -> iterator
 {
-  const auto& result = ((index & 2u) == 0)
-      ? (index == 0) ? x : y
-      : (index == 2) ? z : w;
-  return result;
+  return data();
 }
 
 /*!
+  \details No detailed description
+
+  \return No description
   */
-template <typename Type> inline
-constexpr size_t Vector<Type, 4>::size() noexcept
+template <Arithmetic T> inline
+auto Vector<T, 4>::begin() const noexcept -> const_iterator
+{
+  return data();
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+auto Vector<T, 4>::end() noexcept -> iterator
+{
+  constexpr size_type align_s = alignment();
+  Pointer p = zisc::assume_aligned<align_s>(data() + size());
+  return p;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+auto Vector<T, 4>::end() const noexcept -> const_iterator
+{
+  constexpr size_type align_s = alignment();
+  ConstPointer p = zisc::assume_aligned<align_s>(data() + size());
+  return p;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+constexpr auto Vector<T, 4>::alignment() noexcept -> size_type
+{
+  constexpr size_type align_s = std::alignment_of_v<Vector>;
+  constexpr size_type s = sizeof(Vector);
+  static_assert(s == size() * sizeof(Type), "The size of Vector isn't correct.");
+  static_assert(align_s == s, "The alignment of Vector isn't correct.");
+  return align_s;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+auto Vector<T, 4>::data() noexcept -> Pointer
+{
+  constexpr size_type align_s = alignment();
+  Pointer p = zisc::assume_aligned<align_s>(&x);
+  return p;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+auto Vector<T, 4>::data() const noexcept -> ConstPointer
+{
+  constexpr size_type align_s = alignment();
+  ConstPointer p = zisc::assume_aligned<align_s>(&x);
+  return p;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] index No description.
+  \return No description
+  */
+template <Arithmetic T> inline
+auto Vector<T, 4>::get(const size_type index) noexcept -> Reference
+{
+  Pointer p = data();
+  return p[index];
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] index No description.
+  \return No description
+  */
+template <Arithmetic T> inline
+auto Vector<T, 4>::get(const size_type index) const noexcept -> ConstReference
+{
+  ConstPointer p = data();
+  return p[index];
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+constexpr auto Vector<T, 4>::size() noexcept -> size_type
 {
   return 4;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in,out] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
+template <Arithmetic Type, size_t kN> inline
 Vector<Type, kN>& operator+=(Vector<Type, kN>& lhs,
                              const Vector<Type, kN>& rhs) noexcept
 {
-  lhs = lhs + rhs;
+  for (size_t index = 0; index < kN; ++index)
+    lhs[index] += rhs[index];
   return lhs;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in,out] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Type, kN>& operator+=(Vector<Type, kN>& lhs,
-                             const Type& rhs) noexcept
+template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
+Vector<Type1, kN>& operator+=(Vector<Type1, kN>& lhs,
+                              const Type2& rhs) noexcept
 {
-  lhs = lhs + rhs;
+  for (size_t index = 0; index < kN; ++index)
+    lhs[index] += rhs;
   return lhs;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in,out] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
+template <Arithmetic Type, size_t kN> inline
 Vector<Type, kN>& operator-=(Vector<Type, kN>& lhs,
                              const Vector<Type, kN>& rhs) noexcept
 {
-  lhs = lhs - rhs;
+  for (size_t index = 0; index < kN; ++index)
+    lhs[index] -= rhs[index];
   return lhs;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in,out] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Type, kN>& operator-=(Vector<Type, kN>& lhs,
-                             const Type& rhs) noexcept
+template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
+Vector<Type1, kN>& operator-=(Vector<Type1, kN>& lhs,
+                              const Type2& rhs) noexcept
 {
-  lhs = lhs - rhs;
+  for (size_t index = 0; index < kN; ++index)
+    lhs[index] -= rhs;
   return lhs;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in,out] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
+template <Arithmetic Type, size_t kN> inline
 Vector<Type, kN>& operator*=(Vector<Type, kN>& lhs,
                              const Vector<Type, kN>& rhs) noexcept
 {
-  lhs = lhs * rhs;
+  for (size_t index = 0; index < kN; ++index)
+    lhs[index] *= rhs[index];
   return lhs;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in,out] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Type, kN>& operator*=(Vector<Type, kN>& lhs,
-                             const Type& rhs) noexcept
+template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
+Vector<Type1, kN>& operator*=(Vector<Type1, kN>& lhs,
+                              const Type2& rhs) noexcept
 {
-  lhs = lhs * rhs;
+  for (size_t index = 0; index < kN; ++index)
+    lhs[index] *= rhs;
   return lhs;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in,out] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
+template <Arithmetic Type, size_t kN> inline
 Vector<Type, kN>& operator/=(Vector<Type, kN>& lhs,
                              const Vector<Type, kN>& rhs) noexcept
 {
-  lhs = lhs / rhs;
+  for (size_t index = 0; index < kN; ++index)
+    lhs[index] /= rhs[index];
   return lhs;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in,out] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Type, kN>& operator/=(Vector<Type, kN>& lhs,
-                             const Type& rhs) noexcept
+template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
+Vector<Type1, kN>& operator/=(Vector<Type1, kN>& lhs,
+                              const Type2& rhs) noexcept
 {
-  lhs = lhs / rhs;
+  for (size_t index = 0; index < kN; ++index)
+    lhs[index] /= rhs;
   return lhs;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in,out] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
+template <zisc::Integer Type, size_t kN> inline
 Vector<Type, kN>& operator%=(Vector<Type, kN>& lhs,
                              const Vector<Type, kN>& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type>, "The Type isn't integer type.");
-  lhs = lhs % rhs;
+  for (size_t index = 0; index < kN; ++index)
+    lhs[index] %= rhs[index];
   return lhs;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in,out] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Type, kN>& operator%=(Vector<Type, kN>& lhs,
-                             const Type& rhs) noexcept
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
+Vector<Type1, kN>& operator%=(Vector<Type1, kN>& lhs,
+                              const Type2& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type>, "The Type isn't integer type.");
-  lhs = lhs % rhs;
+  for (size_t index = 0; index < kN; ++index)
+    lhs[index] %= rhs;
   return lhs;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in,out] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
+template <zisc::Integer Type, size_t kN> inline
 Vector<Type, kN>& operator&=(Vector<Type, kN>& lhs,
                              const Vector<Type, kN>& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type>, "The Type isn't integer type.");
-  lhs = lhs & rhs;
+  for (size_t index = 0; index < kN; ++index)
+    lhs[index] &= rhs[index];
   return lhs;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in,out] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Type, kN>& operator&=(Vector<Type, kN>& lhs,
-                             const Type& rhs) noexcept
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
+Vector<Type1, kN>& operator&=(Vector<Type1, kN>& lhs,
+                              const Type2& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type>, "The Type isn't integer type.");
-  lhs = lhs & rhs;
+  for (size_t index = 0; index < kN; ++index)
+    lhs[index] &= rhs;
   return lhs;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in,out] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
+template <zisc::Integer Type, size_t kN> inline
 Vector<Type, kN>& operator|=(Vector<Type, kN>& lhs,
                              const Vector<Type, kN>& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type>, "The Type isn't integer type.");
-  lhs = lhs | rhs;
+  for (size_t index = 0; index < kN; ++index)
+    lhs[index] |= rhs[index];
   return lhs;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in,out] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Type, kN>& operator|=(Vector<Type, kN>& lhs,
-                             const Type& rhs) noexcept
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
+Vector<Type1, kN>& operator|=(Vector<Type1, kN>& lhs,
+                              const Type2& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type>, "The Type isn't integer type.");
-  lhs = lhs | rhs;
+  for (size_t index = 0; index < kN; ++index)
+    lhs[index] |= rhs;
   return lhs;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in,out] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
+template <zisc::Integer Type, size_t kN> inline
 Vector<Type, kN>& operator^=(Vector<Type, kN>& lhs,
                              const Vector<Type, kN>& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type>, "The Type isn't integer type.");
-  lhs = lhs ^ rhs;
+  for (size_t index = 0; index < kN; ++index)
+    lhs[index] ^= rhs[index];
   return lhs;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in,out] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Type, kN>& operator^=(Vector<Type, kN>& lhs,
-                             const Type& rhs) noexcept
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
+Vector<Type1, kN>& operator^=(Vector<Type1, kN>& lhs,
+                              const Type2& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type>, "The Type isn't integer type.");
-  lhs = lhs ^ rhs;
+  for (size_t index = 0; index < kN; ++index)
+    lhs[index] ^= rhs;
   return lhs;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in,out] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type1, typename Type2, size_t kN> inline
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 Vector<Type1, kN>& operator<<=(Vector<Type1, kN>& lhs,
                                const Vector<Type2, kN>& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type1>, "The Type1 isn't integer type.");
-  static_assert(std::is_integral_v<Type2>, "The Type2 isn't integer type.");
-  lhs = lhs << rhs;
+  for (size_t index = 0; index < kN; ++index)
+    lhs[index] <<= rhs[index];
   return lhs;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in,out] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type1, typename Type2, size_t kN> inline
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 Vector<Type1, kN>& operator<<=(Vector<Type1, kN>& lhs,
                                const Type2& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type1>, "The Type1 isn't integer type.");
-  static_assert(std::is_integral_v<Type2>, "The Type2 isn't integer type.");
-  lhs = lhs << rhs;
+  for (size_t index = 0; index < kN; ++index)
+    lhs[index] <<= rhs;
   return lhs;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in,out] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type1, typename Type2, size_t kN> inline
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 Vector<Type1, kN>& operator>>=(Vector<Type1, kN>& lhs,
                                const Vector<Type2, kN>& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type1>, "The Type1 isn't integer type.");
-  static_assert(std::is_integral_v<Type2>, "The Type2 isn't integer type.");
-  lhs = lhs >> rhs;
+  for (size_t index = 0; index < kN; ++index)
+    lhs[index] >>= rhs[index];
   return lhs;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in,out] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type1, typename Type2, size_t kN> inline
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 Vector<Type1, kN>& operator>>=(Vector<Type1, kN>& lhs,
                                const Type2& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type1>, "The Type1 isn't integer type.");
-  static_assert(std::is_integral_v<Type2>, "The Type2 isn't integer type.");
-  lhs = lhs >> rhs;
+  for (size_t index = 0; index < kN; ++index)
+    lhs[index] >>= rhs;
   return lhs;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in,out] value No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
+template <Arithmetic Type, size_t kN> inline
 Vector<Type, kN>& operator++(Vector<Type, kN>& value) noexcept
 {
-  value = value + zisc::cast<Type>(1);
+  constexpr auto one = zisc::cast<Type>(1);
+  value += one;
   return value;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in,out] value No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
+template <Arithmetic Type, size_t kN> inline
 Vector<Type, kN>& operator--(Vector<Type, kN>& value) noexcept
 {
-  value = value - zisc::cast<Type>(1);
+  constexpr auto one = zisc::cast<Type>(1);
+  value -= one;
   return value;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in,out] value No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
+template <Arithmetic Type, size_t kN> inline
 Vector<Type, kN> operator++(Vector<Type, kN>& value, int) noexcept
 {
-  const auto temp = value;
-  value = value + zisc::cast<Type>(1);
-  return temp;
+  constexpr auto one = zisc::cast<Type>(1);
+  const auto old = value;
+  value += one;
+  return old;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in,out] value No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
+template <Arithmetic Type, size_t kN> inline
 Vector<Type, kN> operator--(Vector<Type, kN>& value, int) noexcept
 {
-  const auto temp = value;
-  value = value - zisc::cast<Type>(1);
-  return temp;
+  constexpr auto one = zisc::cast<Type>(1);
+  const auto old = value;
+  value -= one;
+  return old;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in] value No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
+template <Arithmetic Type, size_t kN> inline
+Vector<Type, kN> operator+(const Vector<Type, kN>& value) noexcept
+{
+  return value;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in] value No description.
+  \return No description
+  */
+template <Arithmetic Type, size_t kN> inline
 Vector<Type, kN> operator-(const Vector<Type, kN>& value) noexcept
 {
   Vector<Type, kN> result;
@@ -460,8 +1180,15 @@ Vector<Type, kN> operator-(const Vector<Type, kN>& value) noexcept
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
+template <Arithmetic Type, size_t kN> inline
 Vector<Type, kN> operator+(const Vector<Type, kN>& lhs,
                            const Vector<Type, kN>& rhs) noexcept
 {
@@ -472,30 +1199,52 @@ Vector<Type, kN> operator+(const Vector<Type, kN>& lhs,
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Type, kN> operator+(const Type& lhs,
-                           const Vector<Type, kN>& rhs) noexcept
+template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
+Vector<Type2, kN> operator+(const Type1& lhs,
+                            const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<Type, kN> result;
+  Vector<Type2, kN> result;
   for (size_t index = 0; index < kN; ++index)
     result[index] = lhs + rhs[index];
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Type, kN> operator+(const Vector<Type, kN>& lhs,
-                           const Type& rhs) noexcept
+template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
+Vector<Type1, kN> operator+(const Vector<Type1, kN>& lhs,
+                            const Type2& rhs) noexcept
 {
-  const auto result = rhs + lhs;
-  return result;
+  return (rhs + lhs);
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
+template <Arithmetic Type, size_t kN> inline
 Vector<Type, kN> operator-(const Vector<Type, kN>& lhs,
                            const Vector<Type, kN>& rhs) noexcept
 {
@@ -506,30 +1255,55 @@ Vector<Type, kN> operator-(const Vector<Type, kN>& lhs,
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Type, kN> operator-(const Type& lhs,
-                           const Vector<Type, kN>& rhs) noexcept
+template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
+Vector<Type2, kN> operator-(const Type1& lhs,
+                            const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<Type, kN> result;
+  Vector<Type2, kN> result;
   for (size_t index = 0; index < kN; ++index)
     result[index] = lhs - rhs[index];
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Type, kN> operator-(const Vector<Type, kN>& lhs,
-                           const Type& rhs) noexcept
+template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
+Vector<Type1, kN> operator-(const Vector<Type1, kN>& lhs,
+                            const Type2& rhs) noexcept
 {
-  const auto result = -(rhs - lhs);
+  Vector<Type2, kN> result;
+  for (size_t index = 0; index < kN; ++index)
+    result[index] = lhs[index] - rhs;
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
+template <Arithmetic Type, size_t kN> inline
 Vector<Type, kN> operator*(const Vector<Type, kN>& lhs,
                            const Vector<Type, kN>& rhs) noexcept
 {
@@ -540,30 +1314,52 @@ Vector<Type, kN> operator*(const Vector<Type, kN>& lhs,
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Type, kN> operator*(const Type& lhs,
-                           const Vector<Type, kN>& rhs) noexcept
+template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
+Vector<Type2, kN> operator*(const Type1& lhs,
+                            const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<Type, kN> result;
+  Vector<Type2, kN> result;
   for (size_t index = 0; index < kN; ++index)
     result[index] = lhs * rhs[index];
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Type, kN> operator*(const Vector<Type, kN>& lhs,
-                           const Type& rhs) noexcept
+template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
+Vector<Type1, kN> operator*(const Vector<Type1, kN>& lhs,
+                            const Type2& rhs) noexcept
 {
-  const auto result = rhs * lhs;
-  return result;
+  return (rhs * lhs);
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
+template <Arithmetic Type, size_t kN> inline
 Vector<Type, kN> operator/(const Vector<Type, kN>& lhs,
                            const Vector<Type, kN>& rhs) noexcept
 {
@@ -574,36 +1370,58 @@ Vector<Type, kN> operator/(const Vector<Type, kN>& lhs,
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Type, kN> operator/(const Type& lhs,
-                           const Vector<Type, kN>& rhs) noexcept
+template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
+Vector<Type2, kN> operator/(const Type1& lhs,
+                            const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<Type, kN> result;
+  Vector<Type2, kN> result;
   for (size_t index = 0; index < kN; ++index)
     result[index] = lhs / rhs[index];
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Type, kN> operator/(const Vector<Type, kN>& lhs,
-                           const Type& rhs) noexcept
+template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
+Vector<Type1, kN> operator/(const Vector<Type1, kN>& lhs,
+                            const Type2& rhs) noexcept
 {
-  Vector<Type, kN> result;
+  Vector<Type1, kN> result;
   for (size_t index = 0; index < kN; ++index)
     result[index] = lhs[index] / rhs;
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
+template <zisc::Integer Type, size_t kN> inline
 Vector<Type, kN> operator%(const Vector<Type, kN>& lhs,
                            const Vector<Type, kN>& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type>, "The Type isn't integer type.");
   Vector<Type, kN> result;
   for (size_t index = 0; index < kN; ++index)
     result[index] = lhs[index] % rhs[index];
@@ -611,37 +1429,56 @@ Vector<Type, kN> operator%(const Vector<Type, kN>& lhs,
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Type, kN> operator%(const Type& lhs,
-                           const Vector<Type, kN>& rhs) noexcept
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
+Vector<Type2, kN> operator%(const Type1& lhs,
+                            const Vector<Type2, kN>& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type>, "The Type isn't integer type.");
-  Vector<Type, kN> result;
+  Vector<Type2, kN> result;
   for (size_t index = 0; index < kN; ++index)
     result[index] = lhs % rhs[index];
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Type, kN> operator%(const Vector<Type, kN>& lhs,
-                           const Type& rhs) noexcept
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
+Vector<Type1, kN> operator%(const Vector<Type1, kN>& lhs,
+                            const Type2& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type>, "The Type isn't integer type.");
-  Vector<Type, kN> result;
+  Vector<Type1, kN> result;
   for (size_t index = 0; index < kN; ++index)
     result[index] = lhs[index] % rhs;
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in] value No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
+template <zisc::Integer Type, size_t kN> inline
 Vector<Type, kN> operator~(const Vector<Type, kN>& value) noexcept
 {
-  static_assert(std::is_integral_v<Type>, "The Type isn't integer type.");
   Vector<Type, kN> result;
   for (size_t index = 0; index < kN; ++index)
     result[index] = ~value[index];
@@ -649,12 +1486,18 @@ Vector<Type, kN> operator~(const Vector<Type, kN>& value) noexcept
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
+template <zisc::Integer Type, size_t kN> inline
 Vector<Type, kN> operator&(const Vector<Type, kN>& lhs,
                            const Vector<Type, kN>& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type>, "The Type isn't integer type.");
   Vector<Type, kN> result;
   for (size_t index = 0; index < kN; ++index)
     result[index] = lhs[index] & rhs[index];
@@ -662,36 +1505,55 @@ Vector<Type, kN> operator&(const Vector<Type, kN>& lhs,
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Type, kN> operator&(const Type& lhs,
-                           const Vector<Type, kN>& rhs) noexcept
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
+Vector<Type2, kN> operator&(const Type1& lhs,
+                            const Vector<Type2, kN>& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type>, "The Type isn't integer type.");
-  Vector<Type, kN> result;
+  Vector<Type2, kN> result;
   for (size_t index = 0; index < kN; ++index)
     result[index] = lhs & rhs[index];
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Type, kN> operator&(const Vector<Type, kN>& lhs,
-                           const Type& rhs) noexcept
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
+Vector<Type1, kN> operator&(const Vector<Type1, kN>& lhs,
+                            const Type2& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type>, "The Type isn't integer type.");
-  const auto result = rhs & lhs;
-  return result;
+  return (rhs & lhs);
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
+template <zisc::Integer Type, size_t kN> inline
 Vector<Type, kN> operator|(const Vector<Type, kN>& lhs,
                            const Vector<Type, kN>& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type>, "The Type isn't integer type.");
   Vector<Type, kN> result;
   for (size_t index = 0; index < kN; ++index)
     result[index] = lhs[index] | rhs[index];
@@ -699,36 +1561,55 @@ Vector<Type, kN> operator|(const Vector<Type, kN>& lhs,
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Type, kN> operator|(const Type& lhs,
-                           const Vector<Type, kN>& rhs) noexcept
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
+Vector<Type2, kN> operator|(const Type1& lhs,
+                            const Vector<Type2, kN>& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type>, "The Type isn't integer type.");
-  Vector<Type, kN> result;
+  Vector<Type2, kN> result;
   for (size_t index = 0; index < kN; ++index)
     result[index] = lhs | rhs[index];
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Type, kN> operator|(const Vector<Type, kN>& lhs,
-                           const Type& rhs) noexcept
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
+Vector<Type1, kN> operator|(const Vector<Type1, kN>& lhs,
+                            const Type2& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type>, "The Type isn't integer type.");
-  const auto result = rhs | lhs;
-  return result;
+  return (rhs | lhs);
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
+template <zisc::Integer Type, size_t kN> inline
 Vector<Type, kN> operator^(const Vector<Type, kN>& lhs,
                            const Vector<Type, kN>& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type>, "The Type isn't integer type.");
   Vector<Type, kN> result;
   for (size_t index = 0; index < kN; ++index)
     result[index] = lhs[index] ^ rhs[index];
@@ -736,37 +1617,56 @@ Vector<Type, kN> operator^(const Vector<Type, kN>& lhs,
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Type, kN> operator^(const Type& lhs,
-                           const Vector<Type, kN>& rhs) noexcept
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
+Vector<Type2, kN> operator^(const Type1& lhs,
+                            const Vector<Type2, kN>& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type>, "The Type isn't integer type.");
-  Vector<Type, kN> result;
+  Vector<Type2, kN> result;
   for (size_t index = 0; index < kN; ++index)
     result[index] = lhs ^ rhs[index];
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Type, kN> operator^(const Vector<Type, kN>& lhs,
-                           const Type& rhs) noexcept
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
+Vector<Type1, kN> operator^(const Vector<Type1, kN>& lhs,
+                            const Type2& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type>, "The Type isn't integer type.");
-  const auto result = rhs ^ lhs;
-  return result;
+  return (rhs ^ lhs);
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type1, typename Type2, size_t kN> inline
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 Vector<Type1, kN> operator<<(const Vector<Type1, kN>& lhs,
                              const Vector<Type2, kN>& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type1>, "The Type1 isn't integer type.");
-  static_assert(std::is_integral_v<Type2>, "The Type2 isn't integer type.");
   Vector<Type1, kN> result;
   for (size_t index = 0; index < kN; ++index)
     result[index] = zisc::cast<Type1>(lhs[index] << rhs[index]);
@@ -774,13 +1674,19 @@ Vector<Type1, kN> operator<<(const Vector<Type1, kN>& lhs,
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type1, typename Type2, size_t kN> inline
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 Vector<Type1, kN> operator<<(const Type1& lhs,
                              const Vector<Type2, kN>& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type1>, "The Type1 isn't integer type.");
-  static_assert(std::is_integral_v<Type2>, "The Type2 isn't integer type.");
   Vector<Type1, kN> result;
   for (size_t index = 0; index < kN; ++index)
     result[index] = zisc::cast<Type1>(lhs << rhs[index]);
@@ -788,13 +1694,19 @@ Vector<Type1, kN> operator<<(const Type1& lhs,
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type1, typename Type2, size_t kN> inline
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 Vector<Type1, kN> operator<<(const Vector<Type1, kN>& lhs,
                              const Type2& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type1>, "The Type1 isn't integer type.");
-  static_assert(std::is_integral_v<Type2>, "The Type2 isn't integer type.");
   Vector<Type1, kN> result;
   for (size_t index = 0; index < kN; ++index)
     result[index] = zisc::cast<Type1>(lhs[index] << rhs);
@@ -802,13 +1714,19 @@ Vector<Type1, kN> operator<<(const Vector<Type1, kN>& lhs,
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type1, typename Type2, size_t kN> inline
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 Vector<Type1, kN> operator>>(const Vector<Type1, kN>& lhs,
                              const Vector<Type2, kN>& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type1>, "The Type1 isn't integer type.");
-  static_assert(std::is_integral_v<Type2>, "The Type2 isn't integer type.");
   Vector<Type1, kN> result;
   for (size_t index = 0; index < kN; ++index)
     result[index] = zisc::cast<Type1>(lhs[index] >> rhs[index]);
@@ -816,13 +1734,19 @@ Vector<Type1, kN> operator>>(const Vector<Type1, kN>& lhs,
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type1, typename Type2, size_t kN> inline
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 Vector<Type1, kN> operator>>(const Type1& lhs,
                              const Vector<Type2, kN>& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type1>, "The Type1 isn't integer type.");
-  static_assert(std::is_integral_v<Type2>, "The Type2 isn't integer type.");
   Vector<Type1, kN> result;
   for (size_t index = 0; index < kN; ++index)
     result[index] = zisc::cast<Type1>(lhs >> rhs[index]);
@@ -830,13 +1754,19 @@ Vector<Type1, kN> operator>>(const Type1& lhs,
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type1, typename Type2, size_t kN> inline
+template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 Vector<Type1, kN> operator>>(const Vector<Type1, kN>& lhs,
                              const Type2& rhs) noexcept
 {
-  static_assert(std::is_integral_v<Type1>, "The Type1 isn't integer type.");
-  static_assert(std::is_integral_v<Type2>, "The Type2 isn't integer type.");
   Vector<Type1, kN> result;
   for (size_t index = 0; index < kN; ++index)
     result[index] = zisc::cast<Type1>(lhs[index] >> rhs);
@@ -844,317 +1774,468 @@ Vector<Type1, kN> operator>>(const Vector<Type1, kN>& lhs,
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in] value No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Config::ComparisonResultType<Type>, kN> operator==(
-    const Vector<Type, kN>& lhs,
-    const Vector<Type, kN>& rhs) noexcept
+template <Arithmetic Type, size_t kN> inline
+Vector<bool, kN> operator!(const Vector<Type, kN>& value) noexcept
 {
-  Vector<Config::ComparisonResultType<Type>, kN> result;
+  Vector<bool, kN> result;
   for (size_t index = 0; index < kN; ++index)
-    result[index] = zisc::equal(lhs[index], rhs[index])
-        ? Config::vecResultTrue<Type>() 
-        : Config::vecResultFalse<Type>();
+    result[index] = !value[index];
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Config::ComparisonResultType<Type>, kN> operator==(
-    const Type& lhs,
-    const Vector<Type, kN>& rhs) noexcept
+template <Arithmetic Type, size_t kN> inline
+Vector<bool, kN> operator&&(const Vector<Type, kN>& lhs,
+                            const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<Config::ComparisonResultType<Type>, kN> result;
+  Vector<bool, kN> result;
   for (size_t index = 0; index < kN; ++index)
-    result[index] = zisc::equal(lhs, rhs[index])
-        ? Config::vecResultTrue<Type>() 
-        : Config::vecResultFalse<Type>();
+    result[index] = lhs[index] && rhs[index];
   return result;
 }
 
 /*!
-  */
-template <typename Type, size_t kN> inline
-Vector<Config::ComparisonResultType<Type>, kN> operator==(
-    const Vector<Type, kN>& lhs,
-    const Type& rhs) noexcept
-{
-  const auto result = rhs == lhs;
-  return result;
-}
+  \details No detailed description
 
-/*!
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Config::ComparisonResultType<Type>, kN> operator!=(
-    const Vector<Type, kN>& lhs,
-    const Vector<Type, kN>& rhs) noexcept
+template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
+Vector<bool, kN> operator&&(const Type1& lhs,
+                            const Vector<Type2, kN>& rhs) noexcept
 {
-  const auto result = ~(lhs == rhs);
-  return result;
-}
-
-/*!
-  */
-template <typename Type, size_t kN> inline
-Vector<Config::ComparisonResultType<Type>, kN> operator!=(
-    const Type& lhs,
-    const Vector<Type, kN>& rhs) noexcept
-{
-  const auto result = ~(lhs == rhs);
-  return result;
-}
-
-/*!
-  */
-template <typename Type, size_t kN> inline
-Vector<Config::ComparisonResultType<Type>, kN> operator!=(
-    const Vector<Type, kN>& lhs,
-    const Type& rhs) noexcept
-{
-  const auto result = rhs != lhs;
-  return result;
-}
-
-/*!
-  */
-template <typename Type, size_t kN> inline
-Vector<Config::ComparisonResultType<Type>, kN> operator<(
-    const Vector<Type, kN>& lhs,
-    const Vector<Type, kN>& rhs) noexcept
-{
-  Vector<Config::ComparisonResultType<Type>, kN> result;
+  Vector<bool, kN> result;
   for (size_t index = 0; index < kN; ++index)
-    result[index] = (lhs[index] < rhs[index])
-        ? Config::vecResultTrue<Type>() 
-        : Config::vecResultFalse<Type>();
+    result[index] = lhs && rhs[index];
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Config::ComparisonResultType<Type>, kN> operator<(
-    const Type& lhs,
-    const Vector<Type, kN>& rhs) noexcept
+template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
+Vector<bool, kN> operator&&(const Vector<Type1, kN>& lhs,
+                            const Type2& rhs) noexcept
 {
-  Vector<Config::ComparisonResultType<Type>, kN> result;
+  return (rhs && lhs);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <Arithmetic Type, size_t kN> inline
+Vector<bool, kN> operator||(const Vector<Type, kN>& lhs,
+                            const Vector<Type, kN>& rhs) noexcept
+{
+  Vector<bool, kN> result;
   for (size_t index = 0; index < kN; ++index)
-    result[index] = (lhs < rhs[index])
-        ? Config::vecResultTrue<Type>() 
-        : Config::vecResultFalse<Type>();
+    result[index] = lhs[index] || rhs[index];
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Config::ComparisonResultType<Type>, kN> operator<(
-    const Vector<Type, kN>& lhs,
-    const Type& rhs) noexcept
+template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
+Vector<bool, kN> operator||(const Type1& lhs,
+                            const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<Config::ComparisonResultType<Type>, kN> result;
+  Vector<bool, kN> result;
   for (size_t index = 0; index < kN; ++index)
-    result[index] = (lhs[index] < rhs)
-        ? Config::vecResultTrue<Type>() 
-        : Config::vecResultFalse<Type>();
+    result[index] = lhs || rhs[index];
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Config::ComparisonResultType<Type>, kN> operator<=(
-    const Vector<Type, kN>& lhs,
-    const Vector<Type, kN>& rhs) noexcept
+template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
+Vector<bool, kN> operator||(const Vector<Type1, kN>& lhs,
+                            const Type2& rhs) noexcept
 {
-  const auto result = (lhs == rhs) || (lhs < rhs);
-  return result;
+  return (rhs || lhs);
 }
 
 /*!
-  */
-template <typename Type, size_t kN> inline
-Vector<Config::ComparisonResultType<Type>, kN> operator<=(
-    const Type& lhs,
-    const Vector<Type, kN>& rhs) noexcept
-{
-  const auto result = (lhs == rhs) || (lhs < rhs);
-  return result;
-}
+  \details No detailed description
 
-/*!
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Config::ComparisonResultType<Type>, kN> operator<=(
-    const Vector<Type, kN>& lhs,
-    const Type& rhs) noexcept
+template <Arithmetic Type, size_t kN> inline
+Vector<bool, kN> operator==(const Vector<Type, kN>& lhs,
+                            const Vector<Type, kN>& rhs) noexcept
 {
-  const auto result = (lhs == rhs) || (lhs < rhs);
-  return result;
-}
-
-/*!
-  */
-template <typename Type, size_t kN> inline
-Vector<Config::ComparisonResultType<Type>, kN> operator>(
-    const Vector<Type, kN>& lhs,
-    const Vector<Type, kN>& rhs) noexcept
-{
-  const auto result = rhs < lhs;
-  return result;
-}
-
-/*!
-  */
-template <typename Type, size_t kN> inline
-Vector<Config::ComparisonResultType<Type>, kN> operator>(
-    const Type& lhs,
-    const Vector<Type, kN>& rhs) noexcept
-{
-  const auto result = rhs < lhs;
-  return result;
-}
-
-/*!
-  */
-template <typename Type, size_t kN> inline
-Vector<Config::ComparisonResultType<Type>, kN> operator>(
-    const Vector<Type, kN>& lhs,
-    const Type& rhs) noexcept
-{
-  const auto result = rhs < lhs;
-  return result;
-}
-
-/*!
-  */
-template <typename Type, size_t kN> inline
-Vector<Config::ComparisonResultType<Type>, kN> operator>=(
-    const Vector<Type, kN>& lhs,
-    const Vector<Type, kN>& rhs) noexcept
-{
-  const auto result = rhs <= lhs;
-  return result;
-}
-
-/*!
-  */
-template <typename Type, size_t kN> inline
-Vector<Config::ComparisonResultType<Type>, kN> operator>=(
-    const Type& lhs,
-    const Vector<Type, kN>& rhs) noexcept
-{
-  const auto result = rhs <= lhs;
-  return result;
-}
-
-/*!
-  */
-template <typename Type, size_t kN> inline
-Vector<Config::ComparisonResultType<Type>, kN> operator>=(
-    const Vector<Type, kN>& lhs,
-    const Type& rhs) noexcept
-{
-  const auto result = rhs <= lhs;
-  return result;
-}
-
-/*!
-  */
-template <typename Type, size_t kN> inline
-Vector<Config::ComparisonResultType<Type>, kN> operator!(
-    const Vector<Type, kN>& value) noexcept
-{
-  Vector<Config::ComparisonResultType<Type>, kN> result;
+  Vector<bool, kN> result;
   for (size_t index = 0; index < kN; ++index)
-    result[index] = !value[index]
-        ? Config::vecResultTrue<Type>() 
-        : Config::vecResultFalse<Type>();
+    result[index] = zisc::equal(lhs[index], rhs[index]);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Config::ComparisonResultType<Type>, kN> operator&&(
-    const Vector<Type, kN>& lhs,
-    const Vector<Type, kN>& rhs) noexcept
+template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
+Vector<bool, kN> operator==(const Type1& lhs,
+                            const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<Config::ComparisonResultType<Type>, kN> result;
+  Vector<bool, kN> result;
   for (size_t index = 0; index < kN; ++index)
-    result[index] = (lhs[index] && rhs[index])
-        ? Config::vecResultTrue<Type>() 
-        : Config::vecResultFalse<Type>();
+    result[index] = zisc::equal(lhs, rhs[index]);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Config::ComparisonResultType<Type>, kN> operator&&(
-    const Type& lhs,
-    const Vector<Type, kN>& rhs) noexcept
+template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
+Vector<bool, kN> operator==(const Vector<Type1, kN>& lhs,
+                            const Type2& rhs) noexcept
 {
-  Vector<Config::ComparisonResultType<Type>, kN> result;
+  return (rhs == lhs);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <Arithmetic Type, size_t kN> inline
+Vector<bool, kN> operator!=(const Vector<Type, kN>& lhs,
+                            const Vector<Type, kN>& rhs) noexcept
+{
+  Vector<bool, kN> result;
   for (size_t index = 0; index < kN; ++index)
-    result[index] = (lhs && rhs[index])
-        ? Config::vecResultTrue<Type>() 
-        : Config::vecResultFalse<Type>();
+    result[index] = !zisc::equal(lhs[index], rhs[index]);
   return result;
 }
 
 /*!
-  */
-template <typename Type, size_t kN> inline
-Vector<Config::ComparisonResultType<Type>, kN> operator&&(
-    const Vector<Type, kN>& lhs,
-    const Type& rhs) noexcept
-{
-  const auto result = rhs && lhs;
-  return result;
-}
+  \details No detailed description
 
-/*!
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Config::ComparisonResultType<Type>, kN> operator||(
-    const Vector<Type, kN>& lhs,
-    const Vector<Type, kN>& rhs) noexcept
+template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
+Vector<bool, kN> operator!=(const Type1& lhs,
+                            const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<Config::ComparisonResultType<Type>, kN> result;
+  Vector<bool, kN> result;
   for (size_t index = 0; index < kN; ++index)
-    result[index] = (lhs[index] || rhs[index])
-        ? Config::vecResultTrue<Type>()
-        : Config::vecResultFalse<Type>();
+    result[index] = !zisc::equal(lhs, rhs[index]);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Config::ComparisonResultType<Type>, kN> operator||(
-    const Type& lhs,
-    const Vector<Type, kN>& rhs) noexcept
+template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
+Vector<bool, kN> operator!=(const Vector<Type1, kN>& lhs,
+                            const Type2& rhs) noexcept
 {
-  Vector<Config::ComparisonResultType<Type>, kN> result;
+  return (rhs != lhs);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <Arithmetic Type, size_t kN> inline
+Vector<bool, kN> operator<(const Vector<Type, kN>& lhs,
+                           const Vector<Type, kN>& rhs) noexcept
+{
+  Vector<bool, kN> result;
   for (size_t index = 0; index < kN; ++index)
-    result[index] = (lhs || rhs[index])
-        ? Config::vecResultTrue<Type>()
-        : Config::vecResultFalse<Type>();
+    result[index] = lhs[index] < rhs[index];
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
-template <typename Type, size_t kN> inline
-Vector<Config::ComparisonResultType<Type>, kN> operator||(
-    const Vector<Type, kN>& lhs,
-    const Type& rhs) noexcept
+template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
+Vector<bool, kN> operator<(const Type1& lhs,
+                           const Vector<Type2, kN>& rhs) noexcept
 {
-  const auto result = rhs || lhs;
+  Vector<bool, kN> result;
+  for (size_t index = 0; index < kN; ++index)
+    result[index] = lhs < rhs[index];
   return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
+Vector<bool, kN> operator<(const Vector<Type1, kN>& lhs,
+                           const Type2& rhs) noexcept
+{
+  return (rhs > lhs);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <Arithmetic Type, size_t kN> inline
+Vector<bool, kN> operator<=(const Vector<Type, kN>& lhs,
+                            const Vector<Type, kN>& rhs) noexcept
+{
+  Vector<bool, kN> result;
+  for (size_t index = 0; index < kN; ++index)
+    result[index] = lhs[index] <= rhs[index];
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
+Vector<bool, kN> operator<=(const Type1& lhs,
+                            const Vector<Type2, kN>& rhs) noexcept
+{
+  Vector<bool, kN> result;
+  for (size_t index = 0; index < kN; ++index)
+    result[index] = lhs <= rhs[index];
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
+Vector<bool, kN> operator<=(const Vector<Type1, kN>& lhs,
+                            const Type2& rhs) noexcept
+{
+  return (rhs >= lhs);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <Arithmetic Type, size_t kN> inline
+Vector<bool, kN> operator>(const Vector<Type, kN>& lhs,
+                           const Vector<Type, kN>& rhs) noexcept
+{
+  Vector<bool, kN> result;
+  for (size_t index = 0; index < kN; ++index)
+    result[index] = lhs[index] > rhs[index];
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
+Vector<bool, kN> operator>(const Type1& lhs,
+                           const Vector<Type2, kN>& rhs) noexcept
+{
+  Vector<bool, kN> result;
+  for (size_t index = 0; index < kN; ++index)
+    result[index] = lhs > rhs[index];
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
+Vector<bool, kN> operator>(const Vector<Type1, kN>& lhs,
+                           const Type2& rhs) noexcept
+{
+  return (rhs < lhs);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <Arithmetic Type, size_t kN> inline
+Vector<bool, kN> operator>=(const Vector<Type, kN>& lhs,
+                            const Vector<Type, kN>& rhs) noexcept
+{
+  Vector<bool, kN> result;
+  for (size_t index = 0; index < kN; ++index)
+    result[index] = lhs[index] >= rhs[index];
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
+Vector<bool, kN> operator>=(const Type1& lhs,
+                            const Vector<Type2, kN>& rhs) noexcept
+{
+  Vector<bool, kN> result;
+  for (size_t index = 0; index < kN; ++index)
+    result[index] = lhs >= rhs[index];
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
+Vector<bool, kN> operator>=(const Vector<Type1, kN>& lhs,
+                            const Type2& rhs) noexcept
+{
+  return (rhs <= lhs);
 }
 
 /*!
@@ -1239,7 +2320,7 @@ float VectorData::vload_half(
 
 /*!
   */
-template <AddressSpaceType kAddressSpaceType, inner::Half Type> inline
+template <AddressSpaceType kAddressSpaceType, Half Type> inline
 float VectorData::vload_half(
     const size_t offset,
     const AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept
@@ -1261,7 +2342,7 @@ float2 VectorData::vload_half2(
 
 /*!
   */
-template <AddressSpaceType kAddressSpaceType, inner::Half Type> inline
+template <AddressSpaceType kAddressSpaceType, Half Type> inline
 float2 VectorData::vload_half2(
     const size_t offset,
     const AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept
@@ -1283,7 +2364,7 @@ float3 VectorData::vload_half3(
 
 /*!
   */
-template <AddressSpaceType kAddressSpaceType, inner::Half Type> inline
+template <AddressSpaceType kAddressSpaceType, Half Type> inline
 float3 VectorData::vload_half3(
     const size_t offset,
     const AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept
@@ -1304,7 +2385,7 @@ float4 VectorData::vload_half4(
 }
 /*!
   */
-template <AddressSpaceType kAddressSpaceType, inner::Half Type> inline
+template <AddressSpaceType kAddressSpaceType, Half Type> inline
 float4 VectorData::vload_half4(
     const size_t offset,
     const AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept
@@ -1397,7 +2478,7 @@ void VectorData::vstore_half(
 
 /*!
   */
-template <AddressSpaceType kAddressSpaceType, inner::Half Type> inline
+template <AddressSpaceType kAddressSpaceType, Half Type> inline
 void VectorData::vstore_half(
     const float data,
     const size_t offset,
@@ -1419,7 +2500,7 @@ void VectorData::vstore_half2(
 
 /*!
   */
-template <AddressSpaceType kAddressSpaceType, inner::Half Type> inline
+template <AddressSpaceType kAddressSpaceType, Half Type> inline
 void VectorData::vstore_half2(
     const float2& data,
     const size_t offset,
@@ -1441,7 +2522,7 @@ void VectorData::vstore_half3(
 
 /*!
   */
-template <AddressSpaceType kAddressSpaceType, inner::Half Type> inline
+template <AddressSpaceType kAddressSpaceType, Half Type> inline
 void VectorData::vstore_half3(
     const float3& data,
     const size_t offset,
@@ -1463,7 +2544,7 @@ void VectorData::vstore_half4(
 
 /*!
   */
-template <AddressSpaceType kAddressSpaceType, inner::Half Type> inline
+template <AddressSpaceType kAddressSpaceType, Half Type> inline
 void VectorData::vstore_half4(
     const float4& data,
     const size_t offset,
@@ -1594,7 +2675,7 @@ float vload_half(
 
 /*!
   */
-template <AddressSpaceType kAddressSpaceType, inner::Half Type> inline
+template <AddressSpaceType kAddressSpaceType, Half Type> inline
 float vload_half(const size_t offset,
                  const AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept
 {
@@ -1615,7 +2696,7 @@ float2 vload_half2(
 
 /*!
   */
-template <AddressSpaceType kAddressSpaceType, inner::Half Type> inline
+template <AddressSpaceType kAddressSpaceType, Half Type> inline
 float2 vload_half2(const size_t offset,
                    const AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept
 {
@@ -1636,7 +2717,7 @@ float3 vload_half3(
 
 /*!
   */
-template <AddressSpaceType kAddressSpaceType, inner::Half Type> inline
+template <AddressSpaceType kAddressSpaceType, Half Type> inline
 float3 vload_half3(const size_t offset,
                    const AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept
 {
@@ -1656,7 +2737,7 @@ float4 vload_half4(
 }
 /*!
   */
-template <AddressSpaceType kAddressSpaceType, inner::Half Type> inline
+template <AddressSpaceType kAddressSpaceType, Half Type> inline
 float4 vload_half4(const size_t offset,
                    const AddressSpacePointer<kAddressSpaceType, Type>& p) noexcept
 {
@@ -1737,7 +2818,7 @@ void vstore_half(
 
 /*!
   */
-template <AddressSpaceType kAddressSpaceType, inner::Half Type> inline
+template <AddressSpaceType kAddressSpaceType, Half Type> inline
 void vstore_half(
     const float data,
     const size_t offset,
@@ -1759,7 +2840,7 @@ void vstore_half2(
 
 /*!
   */
-template <AddressSpaceType kAddressSpaceType, inner::Half Type> inline
+template <AddressSpaceType kAddressSpaceType, Half Type> inline
 void vstore_half2(
     const float2& data,
     const size_t offset,
@@ -1781,7 +2862,7 @@ void vstore_half3(
 
 /*!
   */
-template <AddressSpaceType kAddressSpaceType, inner::Half Type> inline
+template <AddressSpaceType kAddressSpaceType, Half Type> inline
 void vstore_half3(
     const float3& data,
     const size_t offset,
@@ -1803,7 +2884,7 @@ void vstore_half4(
 
 /*!
   */
-template <AddressSpaceType kAddressSpaceType, inner::Half Type> inline
+template <AddressSpaceType kAddressSpaceType, Half Type> inline
 void vstore_half4(
     const float4& data,
     const size_t offset,
@@ -1812,8 +2893,6 @@ void vstore_half4(
   VectorData::vstore_half4<kAddressSpaceType, Type>(data, offset, p);
 }
 
-} // namespace cl
-
-} // namespace zivc
+} // namespace zivc::cl
 
 #endif // ZIVC_CPUCL_VECTOR_INL_HPP

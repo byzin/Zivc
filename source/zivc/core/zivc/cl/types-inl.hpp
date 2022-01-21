@@ -13,22 +13,20 @@
 // Zivc
 #include "cpucl.hpp"
 
-namespace zivc {
-
-namespace inner {
+namespace zivc::inner {
 
 // Type aliases
 #if defined(ZIVC_CL_CPU)
 // Integer types
-typedef ::zivc::int8b int8b;
-typedef ::zivc::int16b int16b;
-typedef ::zivc::int32b int32b;
-typedef ::zivc::int64b int64b;
+using int8b = ::zivc::int8b;
+using int16b = ::zivc::int16b;
+using int32b = ::zivc::int32b;
+using int64b = ::zivc::int64b;
 // Unsigned integer types
-typedef ::zivc::uint8b uint8b;
-typedef ::zivc::uint16b uint16b;
-typedef ::zivc::uint32b uint32b;
-typedef ::zivc::uint64b uint64b;
+using uint8b = ::zivc::uint8b;
+using uint16b = ::zivc::uint16b;
+using uint32b = ::zivc::uint32b;
+using uint64b = ::zivc::uint64b;
 // Address space types
 // Global
 template <typename Type>
@@ -55,11 +53,9 @@ using ConstConstantPtr = AddressSpacePointer<AddressSpaceType::kConstant, const 
 template <typename Type>
 using Private = Type;
 template <typename Type>
-using PrivatePtr = 
-    typename AddressSpacePointer<AddressSpaceType::kPrivate, Type>::Pointer;
+using PrivatePtr = typename AddressSpacePointer<AddressSpaceType::kPrivate, Type>::Pointer;
 template <typename Type>
-using ConstPrivatePtr =
-    typename AddressSpacePointer<AddressSpaceType::kPrivate, const Type>::ConstPointer;
+using ConstPrivatePtr = typename AddressSpacePointer<AddressSpaceType::kPrivate, const Type>::ConstPointer;
 // Generic
 template <typename Type>
 using Generic = Type;
@@ -69,15 +65,15 @@ template <typename Type>
 using ConstGenericPtr = ConstPrivatePtr<Type>;
 #else // Vulkan
 // Integer types
-typedef char int8b;
-typedef short int16b;
-typedef int int32b;
-typedef long int64b;
+using int8b = char;
+using int16b = short;
+using int32b = int;
+using int64b = long;
 // Unsigned integer types
-typedef unsigned char uint8b;
-typedef unsigned short uint16b;
-typedef unsigned int uint32b;
-typedef unsigned long uint64b;
+using uint8b = unsigned char;
+using uint16b = unsigned short;
+using uint32b = unsigned int;
+using uint64b = unsigned long;
 // Address space types
 // Global
 template <typename Type>
@@ -116,75 +112,6 @@ template <typename Type>
 using ConstGenericPtr = const Generic<Type>*;
 #endif
 
-} // namespace inner
-
-// Type size check
-#define ZIVC_TYPE_SIZE_CHECK_IMPL(type, size) \
-  static_assert(sizeof( type ) == size , \
-                "The size of " #type " is wrong."); \
-  static_assert(alignof( type ) == size , \
-                "The align of " #type " is wrong.")
-
-ZIVC_TYPE_SIZE_CHECK_IMPL(inner::int8b, 1);
-ZIVC_TYPE_SIZE_CHECK_IMPL(char2, 2);
-ZIVC_TYPE_SIZE_CHECK_IMPL(char3, 4);
-ZIVC_TYPE_SIZE_CHECK_IMPL(char4, 4);
-ZIVC_TYPE_SIZE_CHECK_IMPL(inner::uint8b, 1);
-ZIVC_TYPE_SIZE_CHECK_IMPL(uchar2, 2);
-ZIVC_TYPE_SIZE_CHECK_IMPL(uchar3, 4);
-ZIVC_TYPE_SIZE_CHECK_IMPL(uchar4, 4);
-ZIVC_TYPE_SIZE_CHECK_IMPL(inner::int16b, 2);
-ZIVC_TYPE_SIZE_CHECK_IMPL(short2, 4);
-ZIVC_TYPE_SIZE_CHECK_IMPL(short3, 8);
-ZIVC_TYPE_SIZE_CHECK_IMPL(short4, 8);
-ZIVC_TYPE_SIZE_CHECK_IMPL(inner::uint16b, 2);
-ZIVC_TYPE_SIZE_CHECK_IMPL(ushort2, 4);
-ZIVC_TYPE_SIZE_CHECK_IMPL(ushort3, 8);
-ZIVC_TYPE_SIZE_CHECK_IMPL(ushort4, 8);
-ZIVC_TYPE_SIZE_CHECK_IMPL(inner::int32b, 4);
-ZIVC_TYPE_SIZE_CHECK_IMPL(int2, 8);
-ZIVC_TYPE_SIZE_CHECK_IMPL(int3, 16);
-ZIVC_TYPE_SIZE_CHECK_IMPL(int4, 16);
-ZIVC_TYPE_SIZE_CHECK_IMPL(inner::uint32b, 4);
-ZIVC_TYPE_SIZE_CHECK_IMPL(uint2, 8);
-ZIVC_TYPE_SIZE_CHECK_IMPL(uint3, 16);
-ZIVC_TYPE_SIZE_CHECK_IMPL(uint4, 16);
-ZIVC_TYPE_SIZE_CHECK_IMPL(inner::int64b, 8);
-ZIVC_TYPE_SIZE_CHECK_IMPL(long2, 16);
-ZIVC_TYPE_SIZE_CHECK_IMPL(long3, 32);
-ZIVC_TYPE_SIZE_CHECK_IMPL(long4, 32);
-ZIVC_TYPE_SIZE_CHECK_IMPL(half, 2);
-ZIVC_TYPE_SIZE_CHECK_IMPL(half2, 4);
-ZIVC_TYPE_SIZE_CHECK_IMPL(half3, 8);
-ZIVC_TYPE_SIZE_CHECK_IMPL(half4, 8);
-ZIVC_TYPE_SIZE_CHECK_IMPL(float, 4);
-ZIVC_TYPE_SIZE_CHECK_IMPL(float2, 8);
-ZIVC_TYPE_SIZE_CHECK_IMPL(float3, 16);
-ZIVC_TYPE_SIZE_CHECK_IMPL(float4, 16);
-ZIVC_TYPE_SIZE_CHECK_IMPL(double, 8);
-ZIVC_TYPE_SIZE_CHECK_IMPL(double2, 16);
-ZIVC_TYPE_SIZE_CHECK_IMPL(double3, 32);
-ZIVC_TYPE_SIZE_CHECK_IMPL(double4, 32);
-
-static_assert(sizeof(inner::GlobalPtr<int>) == sizeof(void*),
-              "The size of GlobalPtr is wrong.");
-static_assert(sizeof(inner::ConstGlobalPtr<int>) == sizeof(const void*),
-              "The size of ConstGlobalPtr is wrong.");
-static_assert(sizeof(inner::LocalPtr<int>) == sizeof(void*),
-              "The size of LocalPtr is wrong.");
-static_assert(sizeof(inner::ConstLocalPtr<int>) == sizeof(const void*),
-              "The size of LocalPtr is wrong.");
-static_assert(sizeof(inner::ConstantPtr<int>) == sizeof(void*),
-              "The size of ConstantPtr is wrong.");
-static_assert(sizeof(inner::PrivatePtr<int>) == sizeof(void*),
-              "The size of PrivatePtr is wrong.");
-static_assert(sizeof(inner::ConstPrivatePtr<int>) == sizeof(const void*),
-              "The size of PrivatePtr is wrong.");
-static_assert(sizeof(inner::GenericPtr<int>) == sizeof(void*),
-              "The size of GenericPtr is wrong.");
-static_assert(sizeof(inner::ConstGenericPtr<int>) == sizeof(const void*),
-              "The size of ConstGenericPtr is wrong.");
-
-} // namespace zivc
+} // namespace zivc::inner
 
 #endif /* ZIVC_CL_TYPES_INL_HPP */

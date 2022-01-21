@@ -17,6 +17,7 @@
 #include <cstddef>
 #include <iostream>
 #include <limits>
+#include <memory>
 #include <string_view>
 // Zisc
 #include "zisc/utility.hpp"
@@ -28,6 +29,22 @@
 #include "utility/config.hpp"
 #include "utility/googletest.hpp"
 #include "utility/test.hpp"
+
+#define ZIVC_CHECK_TYPE_SIZE(type, expected_size) \
+  static_assert(sizeof( type ) == ( expected_size ), \
+                "The size of '" #type "' isn't correct."); \
+  static_assert(std::alignment_of_v< type > == ( expected_size ), \
+                "The alignment of '" #type "' isn't correct.")
+
+// Check size of basic data types
+ZIVC_CHECK_TYPE_SIZE(zivc::int8b, 1);
+ZIVC_CHECK_TYPE_SIZE(zivc::uint8b, 1);
+ZIVC_CHECK_TYPE_SIZE(zivc::int16b, 2);
+ZIVC_CHECK_TYPE_SIZE(zivc::uint16b, 2);
+ZIVC_CHECK_TYPE_SIZE(zivc::int32b, 4);
+ZIVC_CHECK_TYPE_SIZE(zivc::uint32b, 4);
+ZIVC_CHECK_TYPE_SIZE(zivc::int64b, 8);
+ZIVC_CHECK_TYPE_SIZE(zivc::uint64b, 8);
 
 TEST(PlatformTest, InitializationTest)
 {

@@ -225,7 +225,7 @@ TEST(ClCppTest, VectorConstructionTest)
     ASSERT_EQ(1, mem[0].y) << "Vector int2 construction failed.";
     ASSERT_EQ(2, mem[1].x) << "Vector int2 construction failed.";
     ASSERT_EQ(2, mem[1].y) << "Vector int2 construction failed.";
-    ASSERT_EQ(3, mem[2].y) << "Vector int2 construction failed.";
+    ASSERT_EQ(3, mem[2].x) << "Vector int2 construction failed.";
     ASSERT_EQ(4, mem[2].y) << "Vector int2 construction failed.";
   }
   // output3

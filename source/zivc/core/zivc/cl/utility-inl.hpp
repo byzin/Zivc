@@ -554,6 +554,171 @@ size_t getLocalLinearId() noexcept
 namespace inner {
 
 /*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam Type No description.
+  */
+template <typename Type>
+struct MakingVectorImpl 
+{
+  //! Create a vector
+  template <typename ...ArgTypes>
+  static Type make(const ArgTypes&... args) noexcept;
+};
+
+} /* namespace inner */
+
+template <typename Type, typename ...ArgTypes> inline
+Type make(const ArgTypes&... args) noexcept
+{
+  const Type v = inner::MakingVectorImpl<Type>::make(args...);
+  return v;
+}
+
+/*!
+  \def ZIVC_MAKING_VECTOR_SPECIALIZATION_IMPL
+  \brief No brief description
+
+  No detailed description.
+
+  \param [in] scalar_type No description.
+  \param [in] vector_type No description.
+  \param [in] vector_func No description.
+  */
+#define ZIVC_MAKING_VECTOR_SPECIALIZATION_IMPL(scalar_type, vector_type, vector_func) \
+  namespace inner { \
+    template <> \
+    struct MakingVectorImpl< vector_type ## 2 > \
+    { \
+      template <typename ...ArgTypes> inline \
+      static vector_type ## 2 make(const ArgTypes&... args) noexcept \
+      { \
+        return make ## vector_func ## 2(args...); \
+      } \
+    }; \
+    template <> \
+    struct MakingVectorImpl< vector_type ## 3 > \
+    { \
+      template <typename ...ArgTypes> inline \
+      static vector_type ## 3 make(const ArgTypes&... args) noexcept \
+      { \
+        return make ## vector_func ## 3(args...); \
+      } \
+    }; \
+    template <> \
+    struct MakingVectorImpl< vector_type ## 4 > \
+    { \
+      template <typename ...ArgTypes> inline \
+      static vector_type ## 4 make(const ArgTypes&... args) noexcept \
+      { \
+        return make ## vector_func ## 4(args...); \
+      } \
+    }; \
+  } \
+  inline \
+  vector_type ## 2 make ## vector_func ## 2(const scalar_type v) noexcept \
+  { \
+    return vector_type ## 2{v, v}; \
+  } \
+  inline \
+  vector_type ## 2 make ## vector_func ## 2(const scalar_type v0, \
+                                            const scalar_type v1) noexcept \
+  { \
+    return vector_type ## 2{v0, v1}; \
+  } \
+  inline \
+  vector_type ## 3 make ## vector_func ## 3(const scalar_type v) noexcept \
+  { \
+    return vector_type ## 3{v, v, v}; \
+  } \
+  inline \
+  vector_type ## 3 make ## vector_func ## 3(const scalar_type v0, \
+                                            const scalar_type v1, \
+                                            const scalar_type v2) noexcept \
+  { \
+    return vector_type ## 3{v0, v1, v2}; \
+  } \
+  inline \
+  vector_type ## 3 make ## vector_func ## 3(const vector_type ## 2 v0, \
+                                            const scalar_type v1) noexcept \
+  { \
+    return vector_type ## 3{v0, v1}; \
+  } \
+  inline \
+  vector_type ## 3 make ## vector_func ## 3(const scalar_type v0, \
+                                            const vector_type ## 2 v1) noexcept \
+  { \
+    return vector_type ## 3{v0, v1}; \
+  } \
+  inline \
+  vector_type ## 4 make ## vector_func ## 4(const scalar_type v) noexcept \
+  { \
+    return vector_type ## 4{v, v, v, v}; \
+  } \
+  inline \
+  vector_type ## 4 make ## vector_func ## 4(const scalar_type v0, \
+                                            const scalar_type v1, \
+                                            const scalar_type v2, \
+                                            const scalar_type v3) noexcept \
+  { \
+    return vector_type ## 4{v0, v1, v2, v3}; \
+  } \
+  inline \
+  vector_type ## 4 make ## vector_func ## 4(const vector_type ## 2 v0, \
+                                            const scalar_type v1, \
+                                            const scalar_type v2) noexcept \
+  { \
+    return vector_type ## 4{v0, v1, v2}; \
+  } \
+  inline \
+  vector_type ## 4 make ## vector_func ## 4(const scalar_type v0, \
+                                            const vector_type ## 2 v1, \
+                                            const scalar_type v2) noexcept \
+  { \
+    return vector_type ## 4{v0, v1, v2}; \
+  } \
+  inline \
+  vector_type ## 4 make ## vector_func ## 4(const scalar_type v0, \
+                                            const scalar_type v1, \
+                                            const vector_type ## 2 v2) noexcept \
+  { \
+    return vector_type ## 4{v0, v1, v2}; \
+  } \
+  inline \
+  vector_type ## 4 make ## vector_func ## 4(const vector_type ## 2 v0, \
+                                            const vector_type ## 2 v1) noexcept \
+  { \
+    return vector_type ## 4{v0, v1}; \
+  } \
+  inline \
+  vector_type ## 4 make ## vector_func ## 4(const vector_type ## 3 v0, \
+                                            const scalar_type v1) noexcept \
+  { \
+    return vector_type ## 4{v0, v1}; \
+  } \
+  inline \
+  vector_type ## 4 make ## vector_func ## 4(const scalar_type v0, \
+                                            const vector_type ## 3 v1) noexcept \
+  { \
+    return vector_type ## 4{v0, v1}; \
+  }
+
+ZIVC_MAKING_VECTOR_SPECIALIZATION_IMPL(int8b, char, Char)
+ZIVC_MAKING_VECTOR_SPECIALIZATION_IMPL(uint8b, uchar, UChar)
+ZIVC_MAKING_VECTOR_SPECIALIZATION_IMPL(int16b, short, Short)
+ZIVC_MAKING_VECTOR_SPECIALIZATION_IMPL(uint16b, ushort, UShort)
+ZIVC_MAKING_VECTOR_SPECIALIZATION_IMPL(int32b, int, Int)
+ZIVC_MAKING_VECTOR_SPECIALIZATION_IMPL(uint32b, uint, UInt)
+ZIVC_MAKING_VECTOR_SPECIALIZATION_IMPL(int64b, long, Long)
+ZIVC_MAKING_VECTOR_SPECIALIZATION_IMPL(uint64b, ulong, ULong)
+ZIVC_MAKING_VECTOR_SPECIALIZATION_IMPL(float, float, Float)
+ZIVC_MAKING_VECTOR_SPECIALIZATION_IMPL(double, double, Double)
+
+namespace inner {
+
+/*!
   */
 template <typename Type>
 struct TypeConverter

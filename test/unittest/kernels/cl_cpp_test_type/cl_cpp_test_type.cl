@@ -17,6 +17,7 @@
 
 // Zivc
 #include "zivc/cl/types.hpp"
+#include "zivc/cl/type_traits.hpp"
 #include "zivc/cl/utility.hpp"
 
 /*!
@@ -196,16 +197,15 @@ __kernel void vectorConstructionKernel(zivc::GlobalPtr<int2> output_vec2,
   size_t index = 0;
   // vector2
   {
-    const int2 v{0, 1};
+    const int2 v = zivc::makeInt2(0, 1);
     output_vec2[index++] = v;
   }
   {
-//    const int2 v{2};
-//    output_vec2[index++] = v;
-    output_vec2[index++] = 0;
+    const int2 v = zivc::makeInt2(2);
+    output_vec2[index++] = v;
   }
   {
-    const int2 s{3, 4};
+    const int2 s = zivc::make<int2>(3, 4);
     const int2 v{s};
     output_vec2[index++] = v;
   }
@@ -213,23 +213,22 @@ __kernel void vectorConstructionKernel(zivc::GlobalPtr<int2> output_vec2,
   index = 0;
   // vector3
   {
-    const int3 v{0, 1, 2};
+    const int3 v = zivc::makeInt3(0, 1, 2);
     output_vec3[index++] = v;
   }
   {
     const int2 s{3, 4};
-    const int3 v0{s, 5};
+    const int3 v0 = zivc::makeInt3(s, 5);
     output_vec3[index++] = v0;
-    const int3 v1{5, s};
+    const int3 v1 = zivc::makeInt3(5, s);
     output_vec3[index++] = v1;
   }
   {
-//    const int3 v{6};
-//    output_vec3[index++] = v;
-    output_vec3[index++] = 0;
+    const int3 v = zivc::makeInt3(6);
+    output_vec3[index++] = v;
   }
   {
-    const int3 s{7, 8, 9};
+    const int3 s = zivc::make<int3>(7, 8, 9);
     const int3 v{s};
     output_vec3[index++] = v;
   }
@@ -237,37 +236,217 @@ __kernel void vectorConstructionKernel(zivc::GlobalPtr<int2> output_vec2,
   index = 0;
   // vector4
   {
-    const int4 v{0, 1, 2, 3};
+    const int4 v = zivc::makeInt4(0, 1, 2, 3);
     output_vec4[index++] = v;
   }
   {
     const int2 s{4, 5};
-    const int4 v0{s, 6, 7};
+    const int4 v0 = zivc::makeInt4(s, 6, 7);
     output_vec4[index++] = v0;
-    const int4 v1{6, s, 7};
+    const int4 v1 = zivc::makeInt4(6, s, 7);
     output_vec4[index++] = v1;
-    const int4 v2{6, 7, s};
+    const int4 v2 = zivc::makeInt4(6, 7, s);
     output_vec4[index++] = v2;
-    const int4 v3{s, s};
+    const int4 v3 = zivc::makeInt4(s, s);
     output_vec4[index++] = v3;
   }
   {
     const int3 s{8, 9, 10};
-    const int4 v0{s, 11};
+    const int4 v0 = zivc::makeInt4(s, 11);
     output_vec4[index++] = v0;
-    const int4 v1{11, s};
+    const int4 v1 = zivc::makeInt4(11, s);
     output_vec4[index++] = v1;
   }
   {
-//    const int4 v{12};
-//    output_vec4[index++] = v;
-    output_vec4[index++] = 0;
+    const int4 v = zivc::makeInt4(12);
+    output_vec4[index++] = v;
   }
   {
-    const int4 s{13, 14, 15, 16};
+    const int4 s = zivc::make<int4>(13, 14, 15, 16);
     const int4 v{s};
     output_vec4[index++] = v;
   }
+
+  //
+#define ZIVC_CHECK_MAKING_VECTOR_TYPE(vector_type, vector_func, v0, v1, v2, v3) \
+  { \
+    using VectorType = zivc::Private< vector_type ## 2 >; \
+    { \
+      auto v = zivc::make ## vector_func ## 2( v0 ); \
+      using ResultType = decltype(v); \
+      static_assert(zivc::kIsSame<VectorType, ResultType>); \
+    } \
+    { \
+      auto v = zivc::make ## vector_func ## 2( v0, v1 ); \
+      using ResultType = decltype(v); \
+      static_assert(zivc::kIsSame<VectorType, ResultType>); \
+    } \
+    { \
+      auto v = zivc::make< vector_type ## 2 >( v0 ); \
+      using ResultType = decltype(v); \
+      static_assert(zivc::kIsSame<VectorType, ResultType>); \
+    } \
+    { \
+      auto v = zivc::make< vector_type ## 2 >( v0, v1 ); \
+      using ResultType = decltype(v); \
+      static_assert(zivc::kIsSame<VectorType, ResultType>); \
+    } \
+  } \
+  { \
+    using Vec2 = zivc::Private<vector_type ## 2>; \
+    using VectorType = zivc::Private< vector_type ## 3 >; \
+    { \
+      auto v = zivc::make ## vector_func ## 3( v0 ); \
+      using ResultType = decltype(v); \
+      static_assert(zivc::kIsSame<VectorType, ResultType>); \
+    } \
+    { \
+      auto v = zivc::make ## vector_func ## 3( v0, v1, v2 ); \
+      using ResultType = decltype(v); \
+      static_assert(zivc::kIsSame<VectorType, ResultType>); \
+    } \
+    { \
+      auto v = zivc::make ## vector_func ## 3( Vec2{v0, v1}, v2 ); \
+      using ResultType = decltype(v); \
+      static_assert(zivc::kIsSame<VectorType, ResultType>); \
+    } \
+    { \
+      auto v = zivc::make ## vector_func ## 3( v0, Vec2{v1, v2} ); \
+      using ResultType = decltype(v); \
+      static_assert(zivc::kIsSame<VectorType, ResultType>); \
+    } \
+    { \
+      auto v = zivc::make< vector_type ## 3 >( v0 ); \
+      using ResultType = decltype(v); \
+      static_assert(zivc::kIsSame<VectorType, ResultType>); \
+    } \
+    { \
+      auto v = zivc::make< vector_type ## 3 >( v0, v1, v2 ); \
+      using ResultType = decltype(v); \
+      static_assert(zivc::kIsSame<VectorType, ResultType>); \
+    } \
+    { \
+      auto v = zivc::make< vector_type ## 3 >( Vec2{v0, v1}, v2 ); \
+      using ResultType = decltype(v); \
+      static_assert(zivc::kIsSame<VectorType, ResultType>); \
+    } \
+    { \
+      auto v = zivc::make< vector_type ## 3 >( v0, Vec2{v1, v2} ); \
+      using ResultType = decltype(v); \
+      static_assert(zivc::kIsSame<VectorType, ResultType>); \
+    } \
+  } \
+  { \
+    using Vec2 = zivc::Private<vector_type ## 2>; \
+    using Vec3 = zivc::Private<vector_type ## 3>; \
+    using VectorType = zivc::Private< vector_type ## 4 >; \
+    { \
+      auto v = zivc::make ## vector_func ## 4( v0 ); \
+      using ResultType = decltype(v); \
+      static_assert(zivc::kIsSame<VectorType, ResultType>); \
+    } \
+    { \
+      auto v = zivc::make ## vector_func ## 4( v0, v1, v2, v3 ); \
+      using ResultType = decltype(v); \
+      static_assert(zivc::kIsSame<VectorType, ResultType>); \
+    } \
+    { \
+      auto v = zivc::make ## vector_func ## 4( Vec2{v0, v1}, v2, v3 ); \
+      using ResultType = decltype(v); \
+      static_assert(zivc::kIsSame<VectorType, ResultType>); \
+    } \
+    { \
+      auto v = zivc::make ## vector_func ## 4( v0, Vec2{v1, v2}, v3 ); \
+      using ResultType = decltype(v); \
+      static_assert(zivc::kIsSame<VectorType, ResultType>); \
+    } \
+    { \
+      auto v = zivc::make ## vector_func ## 4( v0, v1, Vec2{v2, v3} ); \
+      using ResultType = decltype(v); \
+      static_assert(zivc::kIsSame<VectorType, ResultType>); \
+    } \
+    { \
+      auto v = zivc::make ## vector_func ## 4( Vec2{v0, v1}, Vec2{v2, v3} ); \
+      using ResultType = decltype(v); \
+      static_assert(zivc::kIsSame<VectorType, ResultType>); \
+    } \
+    { \
+      auto v = zivc::make ## vector_func ## 4( Vec3{v0, v1, v2}, v3 ); \
+      using ResultType = decltype(v); \
+      static_assert(zivc::kIsSame<VectorType, ResultType>); \
+    } \
+    { \
+      auto v = zivc::make ## vector_func ## 4( v0, Vec3{v1, v2, v3} ); \
+      using ResultType = decltype(v); \
+      static_assert(zivc::kIsSame<VectorType, ResultType>); \
+    } \
+    { \
+      auto v = zivc::make< vector_type ## 4 >( v0 ); \
+      using ResultType = decltype(v); \
+      static_assert(zivc::kIsSame<VectorType, ResultType>); \
+    } \
+    { \
+      auto v = zivc::make< vector_type ## 4 >( v0, v1, v2, v3 ); \
+      using ResultType = decltype(v); \
+      static_assert(zivc::kIsSame<VectorType, ResultType>); \
+    } \
+    { \
+      auto v = zivc::make< vector_type ## 4 >( Vec2{v0, v1}, v2, v3 ); \
+      using ResultType = decltype(v); \
+      static_assert(zivc::kIsSame<VectorType, ResultType>); \
+    } \
+    { \
+      auto v = zivc::make< vector_type ## 4 >( v0, Vec2{v1, v2}, v3 ); \
+      using ResultType = decltype(v); \
+      static_assert(zivc::kIsSame<VectorType, ResultType>); \
+    } \
+    { \
+      auto v = zivc::make< vector_type ## 4 >( v0, v1, Vec2{v2, v3} ); \
+      using ResultType = decltype(v); \
+      static_assert(zivc::kIsSame<VectorType, ResultType>); \
+    } \
+    { \
+      auto v = zivc::make< vector_type ## 4 >( Vec2{v0, v1}, Vec2{v2, v3} ); \
+      using ResultType = decltype(v); \
+      static_assert(zivc::kIsSame<VectorType, ResultType>); \
+    } \
+    { \
+      auto v = zivc::make< vector_type ## 4 >( Vec3{v0, v1, v2}, v3 ); \
+      using ResultType = decltype(v); \
+      static_assert(zivc::kIsSame<VectorType, ResultType>); \
+    } \
+    { \
+      auto v = zivc::make< vector_type ## 4 >( v0, Vec3{v1, v2, v3} ); \
+      using ResultType = decltype(v); \
+      static_assert(zivc::kIsSame<VectorType, ResultType>); \
+    } \
+  }
+  const auto c = [](const zivc::int32b i) noexcept
+  {
+    return static_cast<zivc::int8b>(i);
+  };
+  const auto uc = [](const zivc::uint32b u) noexcept
+  {
+    return static_cast<zivc::uint8b>(u);
+  };
+  const auto s = [](const zivc::int32b i) noexcept
+  {
+    return static_cast<zivc::int16b>(i);
+  };
+  const auto us = [](const zivc::uint32b u) noexcept
+  {
+    return static_cast<zivc::uint16b>(u);
+  };
+  ZIVC_CHECK_MAKING_VECTOR_TYPE(char, Char, c(0), c(1), c(2), c(3))
+  ZIVC_CHECK_MAKING_VECTOR_TYPE(uchar, UChar, uc(0u), uc(1u), uc(2u), uc(3u))
+  ZIVC_CHECK_MAKING_VECTOR_TYPE(short, Short, s(0), s(1), s(2), s(3))
+  ZIVC_CHECK_MAKING_VECTOR_TYPE(ushort, UShort, us(0u), us(1u), us(2u), us(3u))
+  ZIVC_CHECK_MAKING_VECTOR_TYPE(int, Int, 0, 1, 2, 3)
+  ZIVC_CHECK_MAKING_VECTOR_TYPE(uint, UInt, 0u, 1u, 2u, 3u)
+  ZIVC_CHECK_MAKING_VECTOR_TYPE(long, Long, 0l, 1l, 2l, 3l)
+  ZIVC_CHECK_MAKING_VECTOR_TYPE(ulong, ULong, 0ul, 1ul, 2ul, 3ul)
+  ZIVC_CHECK_MAKING_VECTOR_TYPE(float, Float, 0.0f, 1.0f, 2.0f, 3.0f)
+  ZIVC_CHECK_MAKING_VECTOR_TYPE(double, Double, 0.0, 1.0, 2.0, 3.0)
 }
 
 #endif /* ZIVC_TEST_OPENCL_CPP_TEST_VECTOR_CL */

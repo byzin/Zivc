@@ -137,7 +137,7 @@ size_t getLocalLinearId() noexcept;
 
 //! Make a value
 template <typename Type, typename ...ArgTypes>
-Type make(const ArgTypes... args) noexcept;
+Type make(const ArgTypes&... args) noexcept;
 
 //! Make a char2 value
 char2 makeChar2(const int8b v) noexcept;
@@ -218,6 +218,9 @@ uchar4 makeUChar4(const uint8b v0, const uchar2 v1, const uint8b v2) noexcept;
 uchar4 makeUChar4(const uint8b v0, const uint8b v1, const uchar2 v2) noexcept;
 
 //! Make a uchar4 value
+uchar4 makeUChar4(const uchar2 v0, const uchar2 v1) noexcept;
+
+//! Make a uchar4 value
 uchar4 makeUChar4(const uchar3 v0, const uint8b v1) noexcept;
 
 //! Make a uchar4 value
@@ -256,6 +259,9 @@ short4 makeShort4(const int16b v0, const short2 v1, const int16b v2) noexcept;
 
 //! Make a short4 value
 short4 makeShort4(const int16b v0, const int16b v1, const short2 v2) noexcept;
+
+//! Make a short4 value
+short4 makeShort4(const short2 v0, const short2 v1) noexcept;
 
 //! Make a short4 value
 short4 makeShort4(const short3 v0, const int16b v1) noexcept;
@@ -298,6 +304,9 @@ ushort4 makeUShort4(const uint16b v0, const ushort2 v1, const uint16b v2) noexce
 ushort4 makeUShort4(const uint16b v0, const uint16b v1, const ushort2 v2) noexcept;
 
 //! Make a ushort4 value
+ushort4 makeUShort4(const ushort2 v0, const ushort2 v1) noexcept;
+
+//! Make a ushort4 value
 ushort4 makeUShort4(const ushort3 v0, const uint16b v1) noexcept;
 
 //! Make a ushort4 value
@@ -332,10 +341,13 @@ int4 makeInt4(const int32b v0, const int32b v1,
 int4 makeInt4(const int2 v0, const int32b v1, const int32b v2) noexcept;
 
 //! Make a int4 value
-int4 makeInt4(const int32b v0, const int2 v0, const int32b v1) noexcept;
+int4 makeInt4(const int32b v0, const int2 v1, const int32b v2) noexcept;
 
 //! Make a int4 value
 int4 makeInt4(const int32b v0, const int32b v1, const int2 v2) noexcept;
+
+//! Make a int4 value
+int4 makeInt4(const int2 v0, const int2 v1) noexcept;
 
 //! Make a int4 value
 int4 makeInt4(const int3 v0, const int32b v1) noexcept;
@@ -378,6 +390,9 @@ uint4 makeUInt4(const uint32b v0, const uint2 v1, const uint32b v2) noexcept;
 uint4 makeUInt4(const uint32b v0, const uint32b v1, const uint2 v2) noexcept;
 
 //! Make a uint4 value
+uint4 makeUInt4(const uint2 v0, const uint2 v1) noexcept;
+
+//! Make a uint4 value
 uint4 makeUInt4(const uint3 v0, const uint32b v1) noexcept;
 
 //! Make a uint4 value
@@ -418,6 +433,9 @@ long4 makeLong4(const int64b v0, const long2 v1, const int64b v2) noexcept;
 long4 makeLong4(const int64b v0, const int64b v1, const long2 v2) noexcept;
 
 //! Make a long4 value
+long4 makeLong4(const long2 v0, const long2 v1) noexcept;
+
+//! Make a long4 value
 long4 makeLong4(const long3 v0, const int64b v1) noexcept;
 
 //! Make a long4 value
@@ -435,6 +453,12 @@ ulong3 makeULong3(const uint64b v) noexcept;
 //! Make a ulong3 value
 ulong3 makeULong3(const uint64b v0, const uint64b v1, const uint64b v2) noexcept;
 
+//! Make a ulong3 value
+ulong3 makeULong3(const ulong2 v0, const uint64b v1) noexcept;
+
+//! Make a ulong3 value
+ulong3 makeULong3(const uint64b v0, const ulong2 v1) noexcept;
+
 //! Make a ulong4 value
 ulong4 makeULong4(const uint64b v) noexcept;
 
@@ -450,6 +474,9 @@ ulong4 makeULong4(const uint64b v0, const ulong2 v1, const uint64b v2) noexcept;
 
 //! Make a ulong4 value
 ulong4 makeULong4(const uint64b v0, const uint64b v1, const ulong2 v2) noexcept;
+
+//! Make a ulong4 value
+ulong4 makeULong4(const ulong2 v0, const ulong2 v1) noexcept;
 
 //! Make a ulong4 value
 ulong4 makeULong4(const ulong3 v0, const uint64b v1) noexcept;
@@ -492,6 +519,9 @@ float4 makeFloat4(const float v0, const float2 v1, const float v2) noexcept;
 float4 makeFloat4(const float v0, const float v1, const float2 v2) noexcept;
 
 //! Make a float4 value
+float4 makeFloat4(const float2 v0, const float2 v1) noexcept;
+
+//! Make a float4 value
 float4 makeFloat4(const float3 v0, const float v1) noexcept;
 
 //! Make a float4 value
@@ -532,10 +562,15 @@ double4 makeDouble4(const double v0, const double2 v1, const double v2) noexcept
 double4 makeDouble4(const double v0, const double v1, const double2 v2) noexcept;
 
 //! Make a double4 value
+double4 makeDouble4(const double2 v0, const double2 v1) noexcept;
+
+//! Make a double4 value
 double4 makeDouble4(const double3 v0, const double v1) noexcept;
 
 //! Make a double4 value
 double4 makeDouble4(const double v0, const double3 v1) noexcept;
+
+//
 
 //! Convert type from T to Type
 template <typename Type, typename T>

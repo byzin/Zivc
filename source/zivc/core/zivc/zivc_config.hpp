@@ -97,47 +97,8 @@ concept KernelArg = std::is_standard_layout_v<Type> &&
 class Config
 {
  public:
-  //! Result type of vector comparison
-  template <typename Type>
-  using ComparisonResultType = std::conditional_t<sizeof(Type) == 1, int8b,
-                               std::conditional_t<sizeof(Type) == 2, int16b,
-                               std::conditional_t<sizeof(Type) == 8, int64b,
-                                                                     int32b>>>;
-
-
   //! Check if vulkan sub-platform is enabled
   static constexpr bool isVulkanSubPlatformEnabled() noexcept;
-
-  //! Represent 'false' value of scalar value comparison
-  static constexpr int32b scalarResultFalse() noexcept
-  {
-    const int32b result = 0b0;
-    return result; 
-  }
-
-  //! Represent 'true' value of scalar value comparison
-  static constexpr int32b scalarResultTrue() noexcept
-  {
-    const int32b result = 0b1;
-    return result;
-  }
-
-  //! Represent 'false' value of scalar value comparison
-  template <typename Type>
-  static constexpr ComparisonResultType<Type> vecResultFalse() noexcept
-  {
-    const ComparisonResultType<Type> result = 0b0;
-    return result;
-  }
-
-  //! Represent 'true' value of scalar value comparison
-  template <typename Type>
-  static constexpr ComparisonResultType<Type> vecResultTrue() noexcept
-  {
-    const auto zero = Config::vecResultFalse<Type>();
-    const ComparisonResultType<Type> result = ~zero;
-    return result;
-  }
 
   //! Return the value of the major component of the Zivc version number
   static constexpr int versionMajor() noexcept;

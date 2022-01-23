@@ -44,30 +44,6 @@ constexpr bool Config::isVulkanSubPlatformEnabled() noexcept
 
   \return No description
   */
-//inline
-//constexpr int32b Config::scalarResultFalse() noexcept
-//{
-//  const int32b result = 0b0;
-//  return result;
-//}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-//inline
-//constexpr int32b Config::scalarResultTrue() noexcept
-//{
-//  const int32b result = 0b1;
-//  return result;
-//}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
 inline
 constexpr int Config::versionMajor() noexcept
 {

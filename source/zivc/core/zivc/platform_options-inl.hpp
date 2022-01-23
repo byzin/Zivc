@@ -73,10 +73,11 @@ PlatformOptions::PlatformOptions(PlatformOptions&& other) noexcept :
     platform_version_major_{other.platform_version_major_},
     platform_version_minor_{other.platform_version_minor_},
     platform_version_patch_{other.platform_version_patch_},
-    debug_mode_enabled_{other.debug_mode_enabled_},
     cpu_num_of_threads_{other.cpu_num_of_threads_},
     cpu_task_batch_size_{other.cpu_task_batch_size_},
+    debug_mode_enabled_{other.debug_mode_enabled_},
     vulkan_sub_platform_enabled_{other.vulkan_sub_platform_enabled_},
+    vulkan_wsi_extension_enabled_{other.vulkan_wsi_extension_enabled_},
     vulkan_instance_ptr_{other.vulkan_instance_ptr_},
     vulkan_get_proc_addr_ptr_{other.vulkan_get_proc_addr_ptr_}
 {
@@ -97,10 +98,11 @@ PlatformOptions& PlatformOptions::operator=(PlatformOptions&& other) noexcept
   platform_version_major_ = other.platform_version_major_;
   platform_version_minor_ = other.platform_version_minor_;
   platform_version_patch_ = other.platform_version_patch_;
-  debug_mode_enabled_ = other.debug_mode_enabled_;
   cpu_num_of_threads_ = other.cpu_num_of_threads_;
   cpu_task_batch_size_ = other.cpu_task_batch_size_;
+  debug_mode_enabled_ = other.debug_mode_enabled_;
   vulkan_sub_platform_enabled_ = other.vulkan_sub_platform_enabled_;
+  vulkan_wsi_extension_enabled_ = other.vulkan_wsi_extension_enabled_;
   vulkan_instance_ptr_ = other.vulkan_instance_ptr_;
   vulkan_get_proc_addr_ptr_ = other.vulkan_get_proc_addr_ptr_;
   return *this;
@@ -136,9 +138,7 @@ uint32b PlatformOptions::cpuTaskBatchSize() const noexcept
 inline
 void PlatformOptions::enableDebugMode(const bool debug_mode_enabled) noexcept
 {
-  debug_mode_enabled_ = debug_mode_enabled
-      ? Config::scalarResultTrue()
-      : Config::scalarResultFalse();
+  debug_mode_enabled_ = debug_mode_enabled;
 }
 
 /*!
@@ -150,9 +150,7 @@ inline
 void PlatformOptions::enableVulkanSubPlatform(const bool sub_platform_enabled)
     noexcept
 {
-  vulkan_sub_platform_enabled_ = sub_platform_enabled
-      ? Config::scalarResultTrue()
-      : Config::scalarResultFalse();
+  vulkan_sub_platform_enabled_ = sub_platform_enabled;
 }
 
 /*!
@@ -164,9 +162,7 @@ inline
 void PlatformOptions::enableVulkanWSIExtension(const bool extension_enabled)
     noexcept
 {
-  vulkan_wsi_extension_enabled_ = extension_enabled 
-      ? Config::scalarResultTrue()
-      : Config::scalarResultFalse();
+  vulkan_wsi_extension_enabled_ = extension_enabled;
 }
 
 /*!
@@ -244,8 +240,7 @@ uint32b PlatformOptions::platformVersionPatch() const noexcept
 inline
 bool PlatformOptions::debugModeEnabled() const noexcept
 {
-  const bool result = debug_mode_enabled_ == Config::scalarResultTrue();
-  return result;
+  return static_cast<bool>(debug_mode_enabled_);
 }
 
 /*!
@@ -400,8 +395,7 @@ void* PlatformOptions::vulkanGetProcAddrPtr() noexcept
 inline
 bool PlatformOptions::vulkanSubPlatformEnabled() const noexcept
 {
-  const bool result = vulkan_sub_platform_enabled_ == Config::scalarResultTrue();
-  return result;
+  return static_cast<bool>(vulkan_sub_platform_enabled_);
 }
 
 /*!
@@ -412,8 +406,7 @@ bool PlatformOptions::vulkanSubPlatformEnabled() const noexcept
 inline
 bool PlatformOptions::vulkanWSIExtensionEnabled() const noexcept
 {
-  const bool result = vulkan_wsi_extension_enabled_ == Config::scalarResultTrue();
-  return result;
+  return static_cast<bool>(vulkan_wsi_extension_enabled_);
 }
 
 /*!

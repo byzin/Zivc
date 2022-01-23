@@ -23,6 +23,7 @@
 #include <utility>
 #include <vector>
 // Zisc
+#include "zisc/boolean.hpp"
 #include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
@@ -69,8 +70,7 @@ bool Platform::hasSubPlatform(const SubPlatformType type) const noexcept
 inline
 bool Platform::isDebugMode() const noexcept
 {
-  const bool result = is_debug_mode_ == Config::scalarResultTrue();
-  return result;
+  return static_cast<bool>(is_debug_mode_);
 }
 
 /*!

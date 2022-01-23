@@ -22,6 +22,7 @@
 #include <utility>
 #include <vector>
 // Zisc
+#include "zisc/boolean.hpp"
 #include "zisc/utility.hpp"
 #include "zisc/memory/simple_memory_resource.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
@@ -235,8 +236,7 @@ SharedDevice Platform::makeDevice(const std::size_t device_index)
   */
 void Platform::setDebugMode(const bool is_debug_mode) noexcept
 {
-  is_debug_mode_ = is_debug_mode ? Config::scalarResultTrue()
-                                 : Config::scalarResultFalse();
+  is_debug_mode_ = is_debug_mode;
 }
 
 /*!

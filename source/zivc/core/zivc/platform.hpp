@@ -22,6 +22,7 @@
 #include <memory>
 #include <vector>
 // Zisc
+#include "zisc/boolean.hpp"
 #include "zisc/non_copyable.hpp"
 #include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
@@ -140,8 +141,8 @@ class Platform : private zisc::NonCopyable<Platform>
   zisc::pmr::unique_ptr<zisc::pmr::vector<WeakDevice>> device_list_;
   zisc::pmr::unique_ptr<zisc::pmr::vector<const DeviceInfo*>> device_info_list_;
   std::atomic<int64b> id_count_ = 0;
-  int32b is_debug_mode_;
-  [[maybe_unused]] Padding<4> pad_;
+  zisc::Boolean is_debug_mode_;
+  [[maybe_unused]] Padding<7> pad_;
 };
 
 // Type aliases

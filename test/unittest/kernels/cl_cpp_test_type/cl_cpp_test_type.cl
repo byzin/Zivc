@@ -690,6 +690,7 @@ __kernel void vectorArithmeticOperatorTest(
     out_float4[oindex + 1] = v0.x / v1;
     out_float4[oindex + 2] = v0 / v1.x;
   }
+  iindex += 2;
   oindex += 3;
   // Modulo
   {

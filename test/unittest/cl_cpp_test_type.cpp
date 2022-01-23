@@ -14,6 +14,8 @@
 
 // Standard C++ library
 #include <initializer_list>
+#include <limits>
+#include <type_traits>
 // Zisc
 #include "zisc/utility.hpp"
 // Zivc
@@ -724,5 +726,769 @@ TEST(ClCppTest, VectorArithmeticOperatorTest)
     EXPECT_FLOAT_EQ(-0.1f, mem[13].y) << "Vector float4 division failed.";
     EXPECT_FLOAT_EQ(0.4f, mem[13].z) << "Vector float4 division failed.";
     EXPECT_FLOAT_EQ(1.2f, mem[13].w) << "Vector float4 division failed.";
+  }
+}
+
+TEST(ClCppTest, VectorArithmeticAssignmentOperatorTest)
+{
+  auto platform = ztest::makePlatform();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  zivc::SharedDevice device = platform->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_int2;
+  using zivc::cl_int3;
+  using zivc::cl_int4;
+
+  auto buffer_in2 = device->makeBuffer<cl_int2>(zivc::BufferUsage::kDeviceOnly);
+  {
+    std::initializer_list<cl_int2> v = {cl_int2{1, -1},
+                                        cl_int2{10, -10},
+                                        cl_int2{1, 5},
+                                        cl_int2{10, 2}};
+    ztest::setDeviceBuffer(*device, v, buffer_in2.get());
+  }
+  auto buffer_in3 = device->makeBuffer<cl_int3>(zivc::BufferUsage::kDeviceOnly);
+  {
+    std::initializer_list<cl_int3> v = {cl_int3{1, -1, 4},
+                                        cl_int3{10, -10, -4},
+                                        cl_int3{1, 5, 4},
+                                        cl_int3{10, 2, 7}};
+    ztest::setDeviceBuffer(*device, v, buffer_in3.get());
+  }
+  auto buffer_in4 = device->makeBuffer<cl_int4>(zivc::BufferUsage::kDeviceOnly);
+  {
+    std::initializer_list<cl_int4> v = {cl_int4{1, -1, 4, 12},
+                                        cl_int4{10, -10, -4, -8},
+                                        cl_int4{1, 5, 4, 12},
+                                        cl_int4{10, 2, 7, 8}};
+    ztest::setDeviceBuffer(*device, v, buffer_in4.get());
+  }
+  const std::size_t n = 10;
+  auto buffer_out2 = device->makeBuffer<cl_int2>(zivc::BufferUsage::kDeviceOnly);
+  buffer_out2->setSize(n + 3);
+  {
+    const cl_int2 v{0, 0};
+    ztest::fillDeviceBuffer(v, buffer_out2.get());
+  }
+  auto buffer_out3 = device->makeBuffer<cl_int3>(zivc::BufferUsage::kDeviceOnly);
+  buffer_out3->setSize(n + 3);
+  {
+    const cl_int3 v{0, 0, 0};
+    ztest::fillDeviceBuffer(v, buffer_out3.get());
+  }
+  auto buffer_out4 = device->makeBuffer<cl_int4>(zivc::BufferUsage::kDeviceOnly);
+  buffer_out4->setSize(n + 3);
+  {
+    const cl_int4 v{0, 0, 0, 0};
+    ztest::fillDeviceBuffer(v, buffer_out4.get());
+  }
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vectorArithmeticAssignmentOperatorTest, 1);
+  auto kernel = device->makeKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(6, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  auto launch_options = kernel->makeOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({1});
+  launch_options.requestFence(true);
+  launch_options.setLabel("VectorArithmeticAssignmentOperatorTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(6, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  auto result = kernel->run(*buffer_in2, *buffer_in3, *buffer_in4,
+                            *buffer_out2, *buffer_out3, *buffer_out4,
+                            launch_options);
+  device->waitForCompletion(result.fence());
+
+  // output2
+  {
+    auto buffer = device->makeBuffer<cl_int2>(zivc::BufferUsage::kHostOnly);
+    ztest::copyBuffer(*buffer_out2, buffer.get());
+    const auto mem = buffer->mapMemory();
+    EXPECT_EQ(11, mem[0].x) << "Vector int2 addition failed.";
+    EXPECT_EQ(-11, mem[0].y) << "Vector int2 addition failed.";
+    EXPECT_EQ(11, mem[1].x) << "Vector int2 addition failed.";
+    EXPECT_EQ(9, mem[1].y) << "Vector int2 addition failed.";
+    EXPECT_EQ(-9, mem[2].x) << "Vector int2 subtraction failed.";
+    EXPECT_EQ(9, mem[2].y) << "Vector int2 subtraction failed.";
+    EXPECT_EQ(-9, mem[3].x) << "Vector int2 subtraction failed.";
+    EXPECT_EQ(-11, mem[3].y) << "Vector int2 subtraction failed.";
+    EXPECT_EQ(10, mem[4].x) << "Vector int2 multiplication failed.";
+    EXPECT_EQ(10, mem[4].y) << "Vector int2 multiplication failed.";
+    EXPECT_EQ(10, mem[5].x) << "Vector int2 multiplication failed.";
+    EXPECT_EQ(-10, mem[5].y) << "Vector int2 multiplication failed.";
+    EXPECT_EQ(0, mem[6].x) << "Vector int2 division failed.";
+    EXPECT_EQ(0, mem[6].y) << "Vector int2 division failed.";
+    EXPECT_EQ(0, mem[7].x) << "Vector int2 division failed.";
+    EXPECT_EQ(0, mem[7].y) << "Vector int2 division failed.";
+    EXPECT_EQ(1, mem[8].x) << "Vector int2 modulo failed.";
+    EXPECT_EQ(1, mem[8].y) << "Vector int2 modulo failed.";
+    EXPECT_EQ(1, mem[9].x) << "Vector int2 modulo failed.";
+    EXPECT_EQ(5, mem[9].y) << "Vector int2 modulo failed.";
+  }
+  // output3
+  {
+    auto buffer = device->makeBuffer<cl_int3>(zivc::BufferUsage::kHostOnly);
+    ztest::copyBuffer(*buffer_out3, buffer.get());
+    const auto mem = buffer->mapMemory();
+    EXPECT_EQ(11, mem[0].x) << "Vector int3 addition failed.";
+    EXPECT_EQ(-11, mem[0].y) << "Vector int3 addition failed.";
+    EXPECT_EQ(0, mem[0].z) << "Vector int3 addition failed.";
+    EXPECT_EQ(11, mem[1].x) << "Vector int3 addition failed.";
+    EXPECT_EQ(9, mem[1].y) << "Vector int3 addition failed.";
+    EXPECT_EQ(14, mem[1].z) << "Vector int3 addition failed.";
+    EXPECT_EQ(-9, mem[2].x) << "Vector int3 subtraction failed.";
+    EXPECT_EQ(9, mem[2].y) << "Vector int3 subtraction failed.";
+    EXPECT_EQ(8, mem[2].z) << "Vector int3 subtraction failed.";
+    EXPECT_EQ(-9, mem[3].x) << "Vector int3 subtraction failed.";
+    EXPECT_EQ(-11, mem[3].y) << "Vector int3 subtraction failed.";
+    EXPECT_EQ(-6, mem[3].z) << "Vector int3 subtraction failed.";
+    EXPECT_EQ(10, mem[4].x) << "Vector int3 multiplication failed.";
+    EXPECT_EQ(10, mem[4].y) << "Vector int3 multiplication failed.";
+    EXPECT_EQ(-16, mem[4].z) << "Vector int3 multiplication failed.";
+    EXPECT_EQ(10, mem[5].x) << "Vector int3 multiplication failed.";
+    EXPECT_EQ(-10, mem[5].y) << "Vector int3 multiplication failed.";
+    EXPECT_EQ(40, mem[5].z) << "Vector int3 multiplication failed.";
+    EXPECT_EQ(0, mem[6].x) << "Vector int3 division failed.";
+    EXPECT_EQ(0, mem[6].y) << "Vector int3 division failed.";
+    EXPECT_EQ(-1, mem[6].z) << "Vector int3 division failed.";
+    EXPECT_EQ(0, mem[7].x) << "Vector int3 division failed.";
+    EXPECT_EQ(0, mem[7].y) << "Vector int3 division failed.";
+    EXPECT_EQ(0, mem[7].z) << "Vector int3 division failed.";
+    EXPECT_EQ(1, mem[8].x) << "Vector int3 modulo failed.";
+    EXPECT_EQ(1, mem[8].y) << "Vector int3 modulo failed.";
+    EXPECT_EQ(4, mem[8].z) << "Vector int3 modulo failed.";
+    EXPECT_EQ(1, mem[9].x) << "Vector int3 modulo failed.";
+    EXPECT_EQ(5, mem[9].y) << "Vector int3 modulo failed.";
+    EXPECT_EQ(4, mem[9].z) << "Vector int3 modulo failed.";
+  }
+  // output4
+  {
+    auto buffer = device->makeBuffer<cl_int4>(zivc::BufferUsage::kHostOnly);
+    ztest::copyBuffer(*buffer_out4, buffer.get());
+    const auto mem = buffer->mapMemory();
+    EXPECT_EQ(11, mem[0].x) << "Vector int4 addition failed.";
+    EXPECT_EQ(-11, mem[0].y) << "Vector int4 addition failed.";
+    EXPECT_EQ(0, mem[0].z) << "Vector int4 addition failed.";
+    EXPECT_EQ(4, mem[0].w) << "Vector int4 addition failed.";
+    EXPECT_EQ(11, mem[1].x) << "Vector int4 addition failed.";
+    EXPECT_EQ(9, mem[1].y) << "Vector int4 addition failed.";
+    EXPECT_EQ(14, mem[1].z) << "Vector int4 addition failed.";
+    EXPECT_EQ(22, mem[1].w) << "Vector int4 addition failed.";
+    EXPECT_EQ(-9, mem[2].x) << "Vector int4 subtraction failed.";
+    EXPECT_EQ(9, mem[2].y) << "Vector int4 subtraction failed.";
+    EXPECT_EQ(8, mem[2].z) << "Vector int4 subtraction failed.";
+    EXPECT_EQ(20, mem[2].w) << "Vector int4 subtraction failed.";
+    EXPECT_EQ(-9, mem[3].x) << "Vector int4 subtraction failed.";
+    EXPECT_EQ(-11, mem[3].y) << "Vector int4 subtraction failed.";
+    EXPECT_EQ(-6, mem[3].z) << "Vector int4 subtraction failed.";
+    EXPECT_EQ(2, mem[3].w) << "Vector int4 subtraction failed.";
+    EXPECT_EQ(10, mem[4].x) << "Vector int4 multiplication failed.";
+    EXPECT_EQ(10, mem[4].y) << "Vector int4 multiplication failed.";
+    EXPECT_EQ(-16, mem[4].z) << "Vector int4 multiplication failed.";
+    EXPECT_EQ(-96, mem[4].w) << "Vector int4 multiplication failed.";
+    EXPECT_EQ(10, mem[5].x) << "Vector int4 multiplication failed.";
+    EXPECT_EQ(-10, mem[5].y) << "Vector int4 multiplication failed.";
+    EXPECT_EQ(40, mem[5].z) << "Vector int4 multiplication failed.";
+    EXPECT_EQ(120, mem[5].w) << "Vector int4 multiplication failed.";
+    EXPECT_EQ(0, mem[6].x) << "Vector int4 division failed.";
+    EXPECT_EQ(0, mem[6].y) << "Vector int4 division failed.";
+    EXPECT_EQ(-1, mem[6].z) << "Vector int4 division failed.";
+    EXPECT_EQ(-1, mem[6].w) << "Vector int4 division failed.";
+    EXPECT_EQ(0, mem[7].x) << "Vector int4 division failed.";
+    EXPECT_EQ(0, mem[7].y) << "Vector int4 division failed.";
+    EXPECT_EQ(0, mem[7].z) << "Vector int4 division failed.";
+    EXPECT_EQ(1, mem[7].w) << "Vector int4 division failed.";
+    EXPECT_EQ(1, mem[8].x) << "Vector int4 modulo failed.";
+    EXPECT_EQ(1, mem[8].y) << "Vector int4 modulo failed.";
+    EXPECT_EQ(4, mem[8].z) << "Vector int4 modulo failed.";
+    EXPECT_EQ(4, mem[8].w) << "Vector int4 modulo failed.";
+    EXPECT_EQ(1, mem[9].x) << "Vector int4 modulo failed.";
+    EXPECT_EQ(5, mem[9].y) << "Vector int4 modulo failed.";
+    EXPECT_EQ(4, mem[9].z) << "Vector int4 modulo failed.";
+    EXPECT_EQ(2, mem[9].w) << "Vector int4 modulo failed.";
+  }
+}
+
+TEST(ClCppTest, VectorBitwiseOperatorTest)
+{
+  auto platform = ztest::makePlatform();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  zivc::SharedDevice device = platform->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::uint64b;
+  using zivc::cl_ulong2;
+  using zivc::cl_ulong3;
+  using zivc::cl_ulong4;
+
+  constexpr uint64b mask01 = std::numeric_limits<uint64b>::max();
+  constexpr uint64b mask02 = 0b0101'0101'1010'1010'1100'0011'0000'1111ul;
+  constexpr uint64b mask03 = 0b0101'0101'0101'0101'0101'0101'0101'0101ul;
+  constexpr uint64b mask04 = 0b0000'0000'0000'0000'1111'1111'1111'1111ul;
+  constexpr uint64b mask05 = 0b1111'1111'1111'1111'0000'0000'0000'0000ul;
+
+  auto buffer_in2 = device->makeBuffer<cl_ulong2>(zivc::BufferUsage::kDeviceOnly);
+  {
+    std::initializer_list<cl_ulong2> v = {cl_ulong2{mask01, mask01},
+                                          cl_ulong2{mask02, mask03},
+                                          cl_ulong2{mask04, mask05},
+                                          cl_ulong2{32ul, 64ul},
+                                          cl_ulong2{2ul, 4ul}};
+    ztest::setDeviceBuffer(*device, v, buffer_in2.get());
+  }
+  auto buffer_in3 = device->makeBuffer<cl_ulong3>(zivc::BufferUsage::kDeviceOnly);
+  {
+    std::initializer_list<cl_ulong3> v = {cl_ulong3{mask01, mask01, mask01},
+                                          cl_ulong3{mask02, mask03, mask02},
+                                          cl_ulong3{mask04, mask05, mask04},
+                                          cl_ulong3{32ul, 64ul, 128ul},
+                                          cl_ulong3{2ul, 4ul, 6ul}};
+    ztest::setDeviceBuffer(*device, v, buffer_in3.get());
+  }
+  auto buffer_in4 = device->makeBuffer<cl_ulong4>(zivc::BufferUsage::kDeviceOnly);
+  {
+    std::initializer_list<cl_ulong4> v = {cl_ulong4{mask01, mask01, mask01, mask01},
+                                          cl_ulong4{mask02, mask03, mask02, mask03},
+                                          cl_ulong4{mask04, mask05, mask04, mask05},
+                                          cl_ulong4{32ul, 64ul, 128ul, 256ul},
+                                          cl_ulong4{2ul, 4ul, 6ul, 8ul}};
+    ztest::setDeviceBuffer(*device, v, buffer_in4.get());
+  }
+  const std::size_t n = 14;
+  auto buffer_out2 = device->makeBuffer<cl_ulong2>(zivc::BufferUsage::kDeviceOnly);
+  buffer_out2->setSize(n);
+  {
+    const cl_ulong2 v{0, 0};
+    ztest::fillDeviceBuffer(v, buffer_out2.get());
+  }
+  auto buffer_out3 = device->makeBuffer<cl_ulong3>(zivc::BufferUsage::kDeviceOnly);
+  buffer_out3->setSize(n);
+  {
+    const cl_ulong3 v{0, 0, 0};
+    ztest::fillDeviceBuffer(v, buffer_out3.get());
+  }
+  auto buffer_out4 = device->makeBuffer<cl_ulong4>(zivc::BufferUsage::kDeviceOnly);
+  buffer_out4->setSize(n);
+  {
+    const cl_ulong4 v{0, 0, 0, 0};
+    ztest::fillDeviceBuffer(v, buffer_out4.get());
+  }
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vectorBitwiseOperatorTest, 1);
+  auto kernel = device->makeKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(6, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  auto launch_options = kernel->makeOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({1});
+  launch_options.requestFence(true);
+  launch_options.setLabel("VectorBitwiseOperatorTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(6, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  auto result = kernel->run(*buffer_in2, *buffer_in3, *buffer_in4,
+                            *buffer_out2, *buffer_out3, *buffer_out4,
+                            launch_options);
+  device->waitForCompletion(result.fence());
+
+  // output2
+  {
+    auto buffer = device->makeBuffer<cl_ulong2>(zivc::BufferUsage::kHostOnly);
+    ztest::copyBuffer(*buffer_out2, buffer.get());
+    const auto mem = buffer->mapMemory();
+    EXPECT_EQ(compl mask02, mem[0].x) << "Vector ulong2 bitwise NOT failed.";
+    EXPECT_EQ(compl mask03, mem[0].y) << "Vector ulong2 bitwise NOT failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[1].x) << "Vector ulong2 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask03, mem[1].y) << "Vector ulong2 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[2].x) << "Vector ulong2 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask03, mem[2].y) << "Vector ulong2 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[3].x) << "Vector ulong2 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[3].y) << "Vector ulong2 bitwise AND failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[4].x) << "Vector ulong2 bitwise OR failed.";
+    EXPECT_EQ(mask03 bitor mask05, mem[4].y) << "Vector ulong2 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[5].x) << "Vector ulong2 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask05, mem[5].y) << "Vector ulong2 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[6].x) << "Vector ulong2 bitwise OR failed.";
+    EXPECT_EQ(mask03 bitor mask04, mem[6].y) << "Vector ulong2 bitwise OR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[7].x) << "Vector ulong2 bitwise XOR failed.";
+    EXPECT_EQ(mask03 xor mask05, mem[7].y) << "Vector ulong2 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[8].x) << "Vector ulong2 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask05, mem[8].y) << "Vector ulong2 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[9].x) << "Vector ulong2 bitwise XOR failed.";
+    EXPECT_EQ(mask03 xor mask04, mem[9].y) << "Vector ulong2 bitwise XOR failed.";
+    EXPECT_EQ(32ul << 2ul, mem[10].x) << "Vector ulong2 left shift failed.";
+    EXPECT_EQ(64ul << 4ul, mem[10].y) << "Vector ulong2 left shift failed.";
+    EXPECT_EQ(32ul << 2ul, mem[11].x) << "Vector ulong2 left shift failed.";
+    EXPECT_EQ(64ul << 2ul, mem[11].y) << "Vector ulong2 left shift failed.";
+    EXPECT_EQ(32ul >> 2ul, mem[12].x) << "Vector ulong2 right shift failed.";
+    EXPECT_EQ(64ul >> 4ul, mem[12].y) << "Vector ulong2 right shift failed.";
+    EXPECT_EQ(32ul >> 2ul, mem[13].x) << "Vector ulong2 right shift failed.";
+    EXPECT_EQ(64ul >> 2ul, mem[13].y) << "Vector ulong2 right shift failed.";
+  }
+  // output3
+  {
+    auto buffer = device->makeBuffer<cl_ulong3>(zivc::BufferUsage::kHostOnly);
+    ztest::copyBuffer(*buffer_out3, buffer.get());
+    const auto mem = buffer->mapMemory();
+    EXPECT_EQ(compl mask02, mem[0].x) << "Vector ulong3 bitwise NOT failed.";
+    EXPECT_EQ(compl mask03, mem[0].y) << "Vector ulong3 bitwise NOT failed.";
+    EXPECT_EQ(compl mask02, mem[0].z) << "Vector ulong3 bitwise NOT failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[1].x) << "Vector ulong3 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask03, mem[1].y) << "Vector ulong3 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[1].z) << "Vector ulong3 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[2].x) << "Vector ulong3 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask03, mem[2].y) << "Vector ulong3 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[2].z) << "Vector ulong3 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[3].x) << "Vector ulong3 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[3].y) << "Vector ulong3 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[3].z) << "Vector ulong3 bitwise AND failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[4].x) << "Vector ulong3 bitwise OR failed.";
+    EXPECT_EQ(mask03 bitor mask05, mem[4].y) << "Vector ulong3 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[4].z) << "Vector ulong3 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[5].x) << "Vector ulong3 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask05, mem[5].y) << "Vector ulong3 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[5].z) << "Vector ulong3 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[6].x) << "Vector ulong3 bitwise OR failed.";
+    EXPECT_EQ(mask03 bitor mask04, mem[6].y) << "Vector ulong3 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[6].z) << "Vector ulong3 bitwise OR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[7].x) << "Vector ulong3 bitwise XOR failed.";
+    EXPECT_EQ(mask03 xor mask05, mem[7].y) << "Vector ulong3 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[7].z) << "Vector ulong3 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[8].x) << "Vector ulong3 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask05, mem[8].y) << "Vector ulong3 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[8].z) << "Vector ulong3 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[9].x) << "Vector ulong3 bitwise XOR failed.";
+    EXPECT_EQ(mask03 xor mask04, mem[9].y) << "Vector ulong3 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[9].z) << "Vector ulong3 bitwise XOR failed.";
+    EXPECT_EQ(32ul << 2ul, mem[10].x) << "Vector ulong3 left shift failed.";
+    EXPECT_EQ(64ul << 4ul, mem[10].y) << "Vector ulong3 left shift failed.";
+    EXPECT_EQ(128ul << 6ul, mem[10].z) << "Vector ulong3 left shift failed.";
+    EXPECT_EQ(32ul << 2ul, mem[11].x) << "Vector ulong3 left shift failed.";
+    EXPECT_EQ(64ul << 2ul, mem[11].y) << "Vector ulong3 left shift failed.";
+    EXPECT_EQ(128ul << 2ul, mem[11].z) << "Vector ulong3 left shift failed.";
+    EXPECT_EQ(32ul >> 2ul, mem[12].x) << "Vector ulong3 right shift failed.";
+    EXPECT_EQ(64ul >> 4ul, mem[12].y) << "Vector ulong3 right shift failed.";
+    EXPECT_EQ(128ul >> 6ul, mem[12].z) << "Vector ulong3 right shift failed.";
+    EXPECT_EQ(32ul >> 2ul, mem[13].x) << "Vector ulong3 right shift failed.";
+    EXPECT_EQ(64ul >> 2ul, mem[13].y) << "Vector ulong3 right shift failed.";
+    EXPECT_EQ(128ul >> 2ul, mem[13].z) << "Vector ulong3 right shift failed.";
+  }
+  // output4
+  {
+    auto buffer = device->makeBuffer<cl_ulong4>(zivc::BufferUsage::kHostOnly);
+    ztest::copyBuffer(*buffer_out4, buffer.get());
+    const auto mem = buffer->mapMemory();
+    EXPECT_EQ(compl mask02, mem[0].x) << "Vector ulong4 bitwise NOT failed.";
+    EXPECT_EQ(compl mask03, mem[0].y) << "Vector ulong4 bitwise NOT failed.";
+    EXPECT_EQ(compl mask02, mem[0].z) << "Vector ulong4 bitwise NOT failed.";
+    EXPECT_EQ(compl mask03, mem[0].w) << "Vector ulong4 bitwise NOT failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[1].x) << "Vector ulong4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask03, mem[1].y) << "Vector ulong4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[1].z) << "Vector ulong4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask03, mem[1].w) << "Vector ulong4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[2].x) << "Vector ulong4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask03, mem[2].y) << "Vector ulong4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[2].z) << "Vector ulong4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask03, mem[2].w) << "Vector ulong4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[3].x) << "Vector ulong4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[3].y) << "Vector ulong4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[3].z) << "Vector ulong4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[3].w) << "Vector ulong4 bitwise AND failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[4].x) << "Vector ulong4 bitwise OR failed.";
+    EXPECT_EQ(mask03 bitor mask05, mem[4].y) << "Vector ulong4 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[4].z) << "Vector ulong4 bitwise OR failed.";
+    EXPECT_EQ(mask03 bitor mask05, mem[4].w) << "Vector ulong4 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[5].x) << "Vector ulong4 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask05, mem[5].y) << "Vector ulong4 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[5].z) << "Vector ulong4 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask05, mem[5].w) << "Vector ulong4 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[6].x) << "Vector ulong4 bitwise OR failed.";
+    EXPECT_EQ(mask03 bitor mask04, mem[6].y) << "Vector ulong4 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[6].z) << "Vector ulong4 bitwise OR failed.";
+    EXPECT_EQ(mask03 bitor mask04, mem[6].w) << "Vector ulong4 bitwise OR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[7].x) << "Vector ulong4 bitwise XOR failed.";
+    EXPECT_EQ(mask03 xor mask05, mem[7].y) << "Vector ulong4 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[7].z) << "Vector ulong4 bitwise XOR failed.";
+    EXPECT_EQ(mask03 xor mask05, mem[7].w) << "Vector ulong4 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[8].x) << "Vector ulong4 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask05, mem[8].y) << "Vector ulong4 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[8].z) << "Vector ulong4 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask05, mem[8].w) << "Vector ulong4 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[9].x) << "Vector ulong4 bitwise XOR failed.";
+    EXPECT_EQ(mask03 xor mask04, mem[9].y) << "Vector ulong4 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[9].z) << "Vector ulong4 bitwise XOR failed.";
+    EXPECT_EQ(mask03 xor mask04, mem[9].w) << "Vector ulong4 bitwise XOR failed.";
+    EXPECT_EQ(32ul << 2ul, mem[10].x) << "Vector ulong4 left shift failed.";
+    EXPECT_EQ(64ul << 4ul, mem[10].y) << "Vector ulong4 left shift failed.";
+    EXPECT_EQ(128ul << 6ul, mem[10].z) << "Vector ulong4 left shift failed.";
+    EXPECT_EQ(256ul << 8ul, mem[10].w) << "Vector ulong4 left shift failed.";
+    EXPECT_EQ(32ul << 2ul, mem[11].x) << "Vector ulong4 left shift failed.";
+    EXPECT_EQ(64ul << 2ul, mem[11].y) << "Vector ulong4 left shift failed.";
+    EXPECT_EQ(128ul << 2ul, mem[11].z) << "Vector ulong4 left shift failed.";
+    EXPECT_EQ(256ul << 2ul, mem[11].w) << "Vector ulong4 left shift failed.";
+    EXPECT_EQ(32ul >> 2ul, mem[12].x) << "Vector ulong4 right shift failed.";
+    EXPECT_EQ(64ul >> 4ul, mem[12].y) << "Vector ulong4 right shift failed.";
+    EXPECT_EQ(128ul >> 6ul, mem[12].z) << "Vector ulong4 right shift failed.";
+    EXPECT_EQ(256ul >> 8ul, mem[12].w) << "Vector ulong4 right shift failed.";
+    EXPECT_EQ(32ul >> 2ul, mem[13].x) << "Vector ulong4 right shift failed.";
+    EXPECT_EQ(64ul >> 2ul, mem[13].y) << "Vector ulong4 right shift failed.";
+    EXPECT_EQ(128ul >> 2ul, mem[13].z) << "Vector ulong4 right shift failed.";
+    EXPECT_EQ(256ul >> 2ul, mem[13].w) << "Vector ulong4 right shift failed.";
+  }
+}
+
+TEST(ClCppTest, VectorBitwiseAssignmentOperatorTest)
+{
+  auto platform = ztest::makePlatform();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  zivc::SharedDevice device = platform->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::uint64b;
+  using zivc::cl_ulong2;
+  using zivc::cl_ulong3;
+  using zivc::cl_ulong4;
+
+  constexpr uint64b mask01 = std::numeric_limits<uint64b>::max();
+  constexpr uint64b mask02 = 0b0101'0101'1010'1010'1100'0011'0000'1111ul;
+  constexpr uint64b mask03 = 0b0101'0101'0101'0101'0101'0101'0101'0101ul;
+  constexpr uint64b mask04 = 0b0000'0000'0000'0000'1111'1111'1111'1111ul;
+  constexpr uint64b mask05 = 0b1111'1111'1111'1111'0000'0000'0000'0000ul;
+
+  auto buffer_in2 = device->makeBuffer<cl_ulong2>(zivc::BufferUsage::kDeviceOnly);
+  {
+    std::initializer_list<cl_ulong2> v = {cl_ulong2{mask01, mask01},
+                                          cl_ulong2{mask02, mask03},
+                                          cl_ulong2{mask04, mask05},
+                                          cl_ulong2{32ul, 64ul},
+                                          cl_ulong2{2ul, 4ul}};
+    ztest::setDeviceBuffer(*device, v, buffer_in2.get());
+  }
+  auto buffer_in3 = device->makeBuffer<cl_ulong3>(zivc::BufferUsage::kDeviceOnly);
+  {
+    std::initializer_list<cl_ulong3> v = {cl_ulong3{mask01, mask01, mask01},
+                                          cl_ulong3{mask02, mask03, mask02},
+                                          cl_ulong3{mask04, mask05, mask04},
+                                          cl_ulong3{32ul, 64ul, 128ul},
+                                          cl_ulong3{2ul, 4ul, 6ul}};
+    ztest::setDeviceBuffer(*device, v, buffer_in3.get());
+  }
+  auto buffer_in4 = device->makeBuffer<cl_ulong4>(zivc::BufferUsage::kDeviceOnly);
+  {
+    std::initializer_list<cl_ulong4> v = {cl_ulong4{mask01, mask01, mask01, mask01},
+                                          cl_ulong4{mask02, mask03, mask02, mask03},
+                                          cl_ulong4{mask04, mask05, mask04, mask05},
+                                          cl_ulong4{32ul, 64ul, 128ul, 256ul},
+                                          cl_ulong4{2ul, 4ul, 6ul, 8ul}};
+    ztest::setDeviceBuffer(*device, v, buffer_in4.get());
+  }
+  const std::size_t n = 14;
+  auto buffer_out2 = device->makeBuffer<cl_ulong2>(zivc::BufferUsage::kDeviceOnly);
+  buffer_out2->setSize(n);
+  {
+    const cl_ulong2 v{0, 0};
+    ztest::fillDeviceBuffer(v, buffer_out2.get());
+  }
+  auto buffer_out3 = device->makeBuffer<cl_ulong3>(zivc::BufferUsage::kDeviceOnly);
+  buffer_out3->setSize(n);
+  {
+    const cl_ulong3 v{0, 0, 0};
+    ztest::fillDeviceBuffer(v, buffer_out3.get());
+  }
+  auto buffer_out4 = device->makeBuffer<cl_ulong4>(zivc::BufferUsage::kDeviceOnly);
+  buffer_out4->setSize(n);
+  {
+    const cl_ulong4 v{0, 0, 0, 0};
+    ztest::fillDeviceBuffer(v, buffer_out4.get());
+  }
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vectorBitwiseAssignmentOperatorTest, 1);
+  auto kernel = device->makeKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(6, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  auto launch_options = kernel->makeOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({1});
+  launch_options.requestFence(true);
+  launch_options.setLabel("VectorBitwiseAssignmentOperatorTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(6, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  auto result = kernel->run(*buffer_in2, *buffer_in3, *buffer_in4,
+                            *buffer_out2, *buffer_out3, *buffer_out4,
+                            launch_options);
+  device->waitForCompletion(result.fence());
+
+  // output2
+  {
+    auto buffer = device->makeBuffer<cl_ulong2>(zivc::BufferUsage::kHostOnly);
+    ztest::copyBuffer(*buffer_out2, buffer.get());
+    const auto mem = buffer->mapMemory();
+    EXPECT_EQ(mask01 bitand mask02, mem[0].x) << "Vector ulong2 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask03, mem[0].y) << "Vector ulong2 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[1].x) << "Vector ulong2 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[1].y) << "Vector ulong2 bitwise AND failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[2].x) << "Vector ulong2 bitwise OR failed.";
+    EXPECT_EQ(mask03 bitor mask05, mem[2].y) << "Vector ulong2 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[3].x) << "Vector ulong2 bitwise OR failed.";
+    EXPECT_EQ(mask03 bitor mask04, mem[3].y) << "Vector ulong2 bitwise OR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[4].x) << "Vector ulong2 bitwise XOR failed.";
+    EXPECT_EQ(mask03 xor mask05, mem[4].y) << "Vector ulong2 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[5].x) << "Vector ulong2 bitwise XOR failed.";
+    EXPECT_EQ(mask03 xor mask04, mem[5].y) << "Vector ulong2 bitwise XOR failed.";
+    EXPECT_EQ(32ul << 2ul, mem[6].x) << "Vector ulong2 left shift failed.";
+    EXPECT_EQ(64ul << 4ul, mem[6].y) << "Vector ulong2 left shift failed.";
+    EXPECT_EQ(32ul << 2ul, mem[7].x) << "Vector ulong2 left shift failed.";
+    EXPECT_EQ(64ul << 2ul, mem[7].y) << "Vector ulong2 left shift failed.";
+    EXPECT_EQ(32ul >> 2ul, mem[8].x) << "Vector ulong2 right shift failed.";
+    EXPECT_EQ(64ul >> 4ul, mem[8].y) << "Vector ulong2 right shift failed.";
+    EXPECT_EQ(32ul >> 2ul, mem[9].x) << "Vector ulong2 right shift failed.";
+    EXPECT_EQ(64ul >> 2ul, mem[9].y) << "Vector ulong2 right shift failed.";
+  }
+  // output3
+  {
+    auto buffer = device->makeBuffer<cl_ulong3>(zivc::BufferUsage::kHostOnly);
+    ztest::copyBuffer(*buffer_out3, buffer.get());
+    const auto mem = buffer->mapMemory();
+    EXPECT_EQ(mask01 bitand mask02, mem[0].x) << "Vector ulong3 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask03, mem[0].y) << "Vector ulong3 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[0].z) << "Vector ulong3 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[1].x) << "Vector ulong3 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[1].y) << "Vector ulong3 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[1].z) << "Vector ulong3 bitwise AND failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[2].x) << "Vector ulong3 bitwise OR failed.";
+    EXPECT_EQ(mask03 bitor mask05, mem[2].y) << "Vector ulong3 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[2].z) << "Vector ulong3 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[3].x) << "Vector ulong3 bitwise OR failed.";
+    EXPECT_EQ(mask03 bitor mask04, mem[3].y) << "Vector ulong3 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[3].z) << "Vector ulong3 bitwise OR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[4].x) << "Vector ulong3 bitwise XOR failed.";
+    EXPECT_EQ(mask03 xor mask05, mem[4].y) << "Vector ulong3 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[4].z) << "Vector ulong3 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[5].x) << "Vector ulong3 bitwise XOR failed.";
+    EXPECT_EQ(mask03 xor mask04, mem[5].y) << "Vector ulong3 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[5].z) << "Vector ulong3 bitwise XOR failed.";
+    EXPECT_EQ(32ul << 2ul, mem[6].x) << "Vector ulong3 left shift failed.";
+    EXPECT_EQ(64ul << 4ul, mem[6].y) << "Vector ulong3 left shift failed.";
+    EXPECT_EQ(128ul << 6ul, mem[6].z) << "Vector ulong3 left shift failed.";
+    EXPECT_EQ(32ul << 2ul, mem[7].x) << "Vector ulong3 left shift failed.";
+    EXPECT_EQ(64ul << 2ul, mem[7].y) << "Vector ulong3 left shift failed.";
+    EXPECT_EQ(128ul << 2ul, mem[7].z) << "Vector ulong3 left shift failed.";
+    EXPECT_EQ(32ul >> 2ul, mem[8].x) << "Vector ulong3 right shift failed.";
+    EXPECT_EQ(64ul >> 4ul, mem[8].y) << "Vector ulong3 right shift failed.";
+    EXPECT_EQ(128ul >> 6ul, mem[8].z) << "Vector ulong3 right shift failed.";
+    EXPECT_EQ(32ul >> 2ul, mem[9].x) << "Vector ulong3 right shift failed.";
+    EXPECT_EQ(64ul >> 2ul, mem[9].y) << "Vector ulong3 right shift failed.";
+    EXPECT_EQ(128ul >> 2ul, mem[9].z) << "Vector ulong3 right shift failed.";
+  }
+  // output4
+  {
+    auto buffer = device->makeBuffer<cl_ulong4>(zivc::BufferUsage::kHostOnly);
+    ztest::copyBuffer(*buffer_out4, buffer.get());
+    const auto mem = buffer->mapMemory();
+    EXPECT_EQ(mask01 bitand mask02, mem[0].x) << "Vector ulong4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask03, mem[0].y) << "Vector ulong4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[0].z) << "Vector ulong4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask03, mem[0].w) << "Vector ulong4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[1].x) << "Vector ulong4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[1].y) << "Vector ulong4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[1].z) << "Vector ulong4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[1].w) << "Vector ulong4 bitwise AND failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[2].x) << "Vector ulong4 bitwise OR failed.";
+    EXPECT_EQ(mask03 bitor mask05, mem[2].y) << "Vector ulong4 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[2].z) << "Vector ulong4 bitwise OR failed.";
+    EXPECT_EQ(mask03 bitor mask05, mem[2].w) << "Vector ulong4 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[3].x) << "Vector ulong4 bitwise OR failed.";
+    EXPECT_EQ(mask03 bitor mask04, mem[3].y) << "Vector ulong4 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[3].z) << "Vector ulong4 bitwise OR failed.";
+    EXPECT_EQ(mask03 bitor mask04, mem[3].w) << "Vector ulong4 bitwise OR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[4].x) << "Vector ulong4 bitwise XOR failed.";
+    EXPECT_EQ(mask03 xor mask05, mem[4].y) << "Vector ulong4 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[4].z) << "Vector ulong4 bitwise XOR failed.";
+    EXPECT_EQ(mask03 xor mask05, mem[4].w) << "Vector ulong4 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[5].x) << "Vector ulong4 bitwise XOR failed.";
+    EXPECT_EQ(mask03 xor mask04, mem[5].y) << "Vector ulong4 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[5].z) << "Vector ulong4 bitwise XOR failed.";
+    EXPECT_EQ(mask03 xor mask04, mem[5].w) << "Vector ulong4 bitwise XOR failed.";
+    EXPECT_EQ(32ul << 2ul, mem[6].x) << "Vector ulong4 left shift failed.";
+    EXPECT_EQ(64ul << 4ul, mem[6].y) << "Vector ulong4 left shift failed.";
+    EXPECT_EQ(128ul << 6ul, mem[6].z) << "Vector ulong4 left shift failed.";
+    EXPECT_EQ(256ul << 8ul, mem[6].w) << "Vector ulong4 left shift failed.";
+    EXPECT_EQ(32ul << 2ul, mem[7].x) << "Vector ulong4 left shift failed.";
+    EXPECT_EQ(64ul << 2ul, mem[7].y) << "Vector ulong4 left shift failed.";
+    EXPECT_EQ(128ul << 2ul, mem[7].z) << "Vector ulong4 left shift failed.";
+    EXPECT_EQ(256ul << 2ul, mem[7].w) << "Vector ulong4 left shift failed.";
+    EXPECT_EQ(32ul >> 2ul, mem[8].x) << "Vector ulong4 right shift failed.";
+    EXPECT_EQ(64ul >> 4ul, mem[8].y) << "Vector ulong4 right shift failed.";
+    EXPECT_EQ(128ul >> 6ul, mem[8].z) << "Vector ulong4 right shift failed.";
+    EXPECT_EQ(256ul >> 8ul, mem[8].w) << "Vector ulong4 right shift failed.";
+    EXPECT_EQ(32ul >> 2ul, mem[9].x) << "Vector ulong4 right shift failed.";
+    EXPECT_EQ(64ul >> 2ul, mem[9].y) << "Vector ulong4 right shift failed.";
+    EXPECT_EQ(128ul >> 2ul, mem[9].z) << "Vector ulong4 right shift failed.";
+    EXPECT_EQ(256ul >> 2ul, mem[9].w) << "Vector ulong4 right shift failed.";
+  }
+}
+
+TEST(ClCppTest, VectorIncrementDecrementTest)
+{
+  auto platform = ztest::makePlatform();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  zivc::SharedDevice device = platform->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_int4;
+
+  auto buffer_inout4 = device->makeBuffer<cl_int4>(zivc::BufferUsage::kDeviceOnly);
+  {
+    std::initializer_list<cl_int4> v = {cl_int4{0, 1, 2, 3},
+                                        cl_int4{0, 0, 0, 0},
+                                        cl_int4{0, 1, 2, 3},
+                                        cl_int4{0, 0, 0, 0},
+                                        cl_int4{0, 1, 2, 3},
+                                        cl_int4{0, 0, 0, 0},
+                                        cl_int4{0, 1, 2, 3},
+                                        cl_int4{0, 0, 0, 0}};
+    ztest::setDeviceBuffer(*device, v, buffer_inout4.get());
+  }
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vectorIncrementDecrementTest, 1);
+  auto kernel = device->makeKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(1, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  auto launch_options = kernel->makeOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({1});
+  launch_options.requestFence(true);
+  launch_options.setLabel("VectorIncrementDecrementTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(1, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  auto result = kernel->run(*buffer_inout4, launch_options);
+  device->waitForCompletion(result.fence());
+
+  // output4
+  {
+    auto buffer = device->makeBuffer<cl_int4>(zivc::BufferUsage::kHostOnly);
+    ztest::copyBuffer(*buffer_inout4, buffer.get());
+    const auto mem = buffer->mapMemory();
+    EXPECT_EQ( 1, mem[0].x) << "Vector int4 incremenet failed.";
+    EXPECT_EQ( 2, mem[0].y) << "Vector int4 incremenet failed.";
+    EXPECT_EQ( 3, mem[0].z) << "Vector int4 incremenet failed.";
+    EXPECT_EQ( 4, mem[0].w) << "Vector int4 incremenet failed.";
+    EXPECT_EQ( 0, mem[1].x) << "Vector int4 incremenet failed.";
+    EXPECT_EQ( 1, mem[1].y) << "Vector int4 incremenet failed.";
+    EXPECT_EQ( 2, mem[1].z) << "Vector int4 incremenet failed.";
+    EXPECT_EQ( 3, mem[1].w) << "Vector int4 incremenet failed.";
+    EXPECT_EQ( 1, mem[2].x) << "Vector int4 incremenet failed.";
+    EXPECT_EQ( 2, mem[2].y) << "Vector int4 incremenet failed.";
+    EXPECT_EQ( 3, mem[2].z) << "Vector int4 incremenet failed.";
+    EXPECT_EQ( 4, mem[2].w) << "Vector int4 incremenet failed.";
+    EXPECT_EQ( 1, mem[3].x) << "Vector int4 incremenet failed.";
+    EXPECT_EQ( 2, mem[3].y) << "Vector int4 incremenet failed.";
+    EXPECT_EQ( 3, mem[3].z) << "Vector int4 incremenet failed.";
+    EXPECT_EQ( 4, mem[3].w) << "Vector int4 incremenet failed.";
+    EXPECT_EQ(-1, mem[4].x) << "Vector int4 decremenet failed.";
+    EXPECT_EQ( 0, mem[4].y) << "Vector int4 decremenet failed.";
+    EXPECT_EQ( 1, mem[4].z) << "Vector int4 decremenet failed.";
+    EXPECT_EQ( 2, mem[4].w) << "Vector int4 decremenet failed.";
+    EXPECT_EQ( 0, mem[5].x) << "Vector int4 decremenet failed.";
+    EXPECT_EQ( 1, mem[5].y) << "Vector int4 decremenet failed.";
+    EXPECT_EQ( 2, mem[5].z) << "Vector int4 decremenet failed.";
+    EXPECT_EQ( 3, mem[5].w) << "Vector int4 decremenet failed.";
+    EXPECT_EQ(-1, mem[6].x) << "Vector int4 decremenet failed.";
+    EXPECT_EQ( 0, mem[6].y) << "Vector int4 decremenet failed.";
+    EXPECT_EQ( 1, mem[6].z) << "Vector int4 decremenet failed.";
+    EXPECT_EQ( 2, mem[6].w) << "Vector int4 decremenet failed.";
+    EXPECT_EQ(-1, mem[7].x) << "Vector int4 decremenet failed.";
+    EXPECT_EQ( 0, mem[7].y) << "Vector int4 decremenet failed.";
+    EXPECT_EQ( 1, mem[7].z) << "Vector int4 decremenet failed.";
+    EXPECT_EQ( 2, mem[7].w) << "Vector int4 decremenet failed.";
+  }
+}
+
+TEST(ClCppTest, VectorConditionalOperatorTest)
+{
+  auto platform = ztest::makePlatform();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  zivc::SharedDevice device = platform->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_int4;
+
+  auto buffer_inout4 = device->makeBuffer<cl_int4>(zivc::BufferUsage::kDeviceOnly);
+  {
+    std::initializer_list<cl_int4> v = {cl_int4{1, 0, 0, 0},
+                                        cl_int4{1, 2, 3, 4},
+                                        cl_int4{-1, -2, -3, -4},
+                                        cl_int4{0, 0, 0, 0},
+                                        cl_int4{0, 0, 0, 0}};
+    ztest::setDeviceBuffer(*device, v, buffer_inout4.get());
+  }
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vectorConditionalOperatorTest, 1);
+  auto kernel = device->makeKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(1, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  auto launch_options = kernel->makeOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({1});
+  launch_options.requestFence(true);
+  launch_options.setLabel("VectorConditionalOperatorTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(1, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  auto result = kernel->run(*buffer_inout4, launch_options);
+  device->waitForCompletion(result.fence());
+
+  // output4
+  {
+    auto buffer = device->makeBuffer<cl_int4>(zivc::BufferUsage::kHostOnly);
+    ztest::copyBuffer(*buffer_inout4, buffer.get());
+    const auto mem = buffer->mapMemory();
+    EXPECT_EQ( 1, mem[3].x) << "Vector int4 conditional operator failed.";
+    EXPECT_EQ( 2, mem[3].y) << "Vector int4 conditional operator failed.";
+    EXPECT_EQ( 3, mem[3].z) << "Vector int4 conditional operator failed.";
+    EXPECT_EQ( 4, mem[3].w) << "Vector int4 conditional operator failed.";
+    EXPECT_EQ(-1, mem[4].x) << "Vector int4 conditional operator failed.";
+    EXPECT_EQ(-2, mem[4].y) << "Vector int4 conditional operator failed.";
+    EXPECT_EQ(-3, mem[4].z) << "Vector int4 conditional operator failed.";
+    EXPECT_EQ(-4, mem[4].w) << "Vector int4 conditional operator failed.";
   }
 }

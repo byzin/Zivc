@@ -592,22 +592,12 @@ Vector<Type1, kN> operator<<(const Vector<Type1, kN>& lhs,
 
 //! Compute a left shift
 template <zisc::Integer Type1, zisc::Integer Type2, size_t kN>
-Vector<Type1, kN> operator<<(const Type1& lhs,
-                             const Vector<Type2, kN>& rhs) noexcept;
-
-//! Compute a left shift
-template <zisc::Integer Type1, zisc::Integer Type2, size_t kN>
 Vector<Type1, kN> operator<<(const Vector<Type1, kN>& lhs,
                              const Type2& rhs) noexcept;
 
 //! Compute a right shift
 template <zisc::Integer Type1, zisc::Integer Type2, size_t kN>
 Vector<Type1, kN> operator>>(const Vector<Type1, kN>& lhs,
-                             const Vector<Type2, kN>& rhs) noexcept;
-
-//! Compute a right shift
-template <zisc::Integer Type1, zisc::Integer Type2, size_t kN>
-Vector<Type1, kN> operator>>(const Type1& lhs,
                              const Vector<Type2, kN>& rhs) noexcept;
 
 //! Compute a right shift

@@ -716,4 +716,462 @@ __kernel void vectorArithmeticOperatorTest(
   }
 }
 
+__kernel void vectorArithmeticAssignmentOperatorTest(
+    zivc::ConstGlobalPtr<int2> in_int2,
+    zivc::ConstGlobalPtr<int3> in_int3,
+    zivc::ConstGlobalPtr<int4> in_int4,
+    zivc::GlobalPtr<int2> out_int2,
+    zivc::GlobalPtr<int3> out_int3,
+    zivc::GlobalPtr<int4> out_int4)
+{
+  const size_t global_index = zivc::getGlobalIdX();
+  if (global_index != 0)
+    return;
+
+  size_t iindex = 0;
+  size_t oindex = 0;
+  // Addition
+  {
+    const int2 v0 = in_int2[iindex];
+    const int2 v1 = in_int2[iindex + 1];
+    out_int2[oindex] = v0;
+    out_int2[oindex] += v1;
+    out_int2[oindex + 1] = v0;
+    out_int2[oindex + 1] += v1.x;
+  }
+  {
+    const int3 v0 = in_int3[iindex];
+    const int3 v1 = in_int3[iindex + 1];
+    out_int3[oindex] = v0;
+    out_int3[oindex] += v1;
+    out_int3[oindex + 1] = v0;
+    out_int3[oindex + 1] += v1.x;
+  }
+  {
+    const int4 v0 = in_int4[iindex];
+    const int4 v1 = in_int4[iindex + 1];
+    out_int4[oindex] = v0;
+    out_int4[oindex] += v1;
+    out_int4[oindex + 1] = v0;
+    out_int4[oindex + 1] += v1.x;
+  }
+  oindex += 2;
+  // Subtraction
+  {
+    const int2 v0 = in_int2[iindex];
+    const int2 v1 = in_int2[iindex + 1];
+    out_int2[oindex] = v0;
+    out_int2[oindex] -= v1;
+    out_int2[oindex + 1] = v0;
+    out_int2[oindex + 1] -= v1.x;
+  }
+  {
+    const int3 v0 = in_int3[iindex];
+    const int3 v1 = in_int3[iindex + 1];
+    out_int3[oindex] = v0;
+    out_int3[oindex] -= v1;
+    out_int3[oindex + 1] = v0;
+    out_int3[oindex + 1] -= v1.x;
+  }
+  {
+    const int4 v0 = in_int4[iindex];
+    const int4 v1 = in_int4[iindex + 1];
+    out_int4[oindex] = v0;
+    out_int4[oindex] -= v1;
+    out_int4[oindex + 1] = v0;
+    out_int4[oindex + 1] -= v1.x;
+  }
+  oindex += 2;
+  // Multiplication
+  {
+    const int2 v0 = in_int2[iindex];
+    const int2 v1 = in_int2[iindex + 1];
+    out_int2[oindex] = v0;
+    out_int2[oindex] *= v1;
+    out_int2[oindex + 1] = v0;
+    out_int2[oindex + 1] *= v1.x;
+  }
+  {
+    const int3 v0 = in_int3[iindex];
+    const int3 v1 = in_int3[iindex + 1];
+    out_int3[oindex] = v0;
+    out_int3[oindex] *= v1;
+    out_int3[oindex + 1] = v0;
+    out_int3[oindex + 1] *= v1.x;
+  }
+  {
+    const int4 v0 = in_int4[iindex];
+    const int4 v1 = in_int4[iindex + 1];
+    out_int4[oindex] = v0;
+    out_int4[oindex] *= v1;
+    out_int4[oindex + 1] = v0;
+    out_int4[oindex + 1] *= v1.x;
+  }
+  oindex += 2;
+  // Division
+  {
+    const int2 v0 = in_int2[iindex];
+    const int2 v1 = in_int2[iindex + 1];
+    out_int2[oindex] = v0;
+    out_int2[oindex] /= v1;
+    out_int2[oindex + 1] = v0;
+    out_int2[oindex + 1] /= v1.x;
+  }
+  {
+    const int3 v0 = in_int3[iindex];
+    const int3 v1 = in_int3[iindex + 1];
+    out_int3[oindex] = v0;
+    out_int3[oindex] /= v1;
+    out_int3[oindex + 1] = v0;
+    out_int3[oindex + 1] /= v1.x;
+  }
+  {
+    const int4 v0 = in_int4[iindex];
+    const int4 v1 = in_int4[iindex + 1];
+    out_int4[oindex] = v0;
+    out_int4[oindex] /= v1;
+    out_int4[oindex + 1] = v0;
+    out_int4[oindex + 1] /= v1.x;
+  }
+  iindex += 2;
+  oindex += 2;
+  // Modulo
+  {
+    const int2 v0 = in_int2[iindex];
+    const int2 v1 = in_int2[iindex + 1];
+    out_int2[oindex] = v0;
+    out_int2[oindex] %= v1;
+    out_int2[oindex + 1] = v0;
+    out_int2[oindex + 1] %= v1.x;
+  }
+  {
+    const int3 v0 = in_int3[iindex];
+    const int3 v1 = in_int3[iindex + 1];
+    out_int3[oindex] = v0;
+    out_int3[oindex] %= v1;
+    out_int3[oindex + 1] = v0;
+    out_int3[oindex + 1] %= v1.x;
+  }
+  {
+    const int4 v0 = in_int4[iindex];
+    const int4 v1 = in_int4[iindex + 1];
+    out_int4[oindex] = v0;
+    out_int4[oindex] %= v1;
+    out_int4[oindex + 1] = v0;
+    out_int4[oindex + 1] %= v1.x;
+  }
+}
+
+__kernel void vectorBitwiseOperatorTest(
+    zivc::ConstGlobalPtr<ulong2> in_ulong2,
+    zivc::ConstGlobalPtr<ulong3> in_ulong3,
+    zivc::ConstGlobalPtr<ulong4> in_ulong4,
+    zivc::GlobalPtr<ulong2> out_ulong2,
+    zivc::GlobalPtr<ulong3> out_ulong3,
+    zivc::GlobalPtr<ulong4> out_ulong4)
+{
+  const size_t global_index = zivc::getGlobalIdX();
+  if (global_index != 0)
+    return;
+
+  size_t iindex = 0;
+  size_t oindex = 0;
+  // bitwise NOT
+  {
+    const ulong2 v = in_ulong2[iindex + 1];
+    out_ulong2[oindex] = ~v;
+  }
+  {
+    const ulong3 v = in_ulong3[iindex + 1];
+    out_ulong3[oindex] = ~v;
+  }
+  {
+    const ulong4 v = in_ulong4[iindex + 1];
+    out_ulong4[oindex] = ~v;
+  }
+  ++oindex;
+  // bitwise AND
+  {
+    const ulong2 v0 = in_ulong2[iindex];
+    const ulong2 v1 = in_ulong2[iindex + 1];
+    out_ulong2[oindex] = v0 & v1;
+    out_ulong2[oindex + 1] = v0.x & v1;
+    out_ulong2[oindex + 2] = v0 & v1.x;
+  }
+  {
+    const ulong3 v0 = in_ulong3[iindex];
+    const ulong3 v1 = in_ulong3[iindex + 1];
+    out_ulong3[oindex] = v0 & v1;
+    out_ulong3[oindex + 1] = v0.x & v1;
+    out_ulong3[oindex + 2] = v0 & v1.x;
+  }
+  {
+    const ulong4 v0 = in_ulong4[iindex];
+    const ulong4 v1 = in_ulong4[iindex + 1];
+    out_ulong4[oindex] = v0 & v1;
+    out_ulong4[oindex + 1] = v0.x & v1;
+    out_ulong4[oindex + 2] = v0 & v1.x;
+  }
+  ++iindex;
+  oindex += 3;
+  // bitwise OR
+  {
+    const ulong2 v0 = in_ulong2[iindex];
+    const ulong2 v1 = in_ulong2[iindex + 1];
+    out_ulong2[oindex] = v0 | v1;
+    out_ulong2[oindex + 1] = v0.x | v1;
+    out_ulong2[oindex + 2] = v0 | v1.x;
+  }
+  {
+    const ulong3 v0 = in_ulong3[iindex];
+    const ulong3 v1 = in_ulong3[iindex + 1];
+    out_ulong3[oindex] = v0 | v1;
+    out_ulong3[oindex + 1] = v0.x | v1;
+    out_ulong3[oindex + 2] = v0 | v1.x;
+  }
+  {
+    const ulong4 v0 = in_ulong4[iindex];
+    const ulong4 v1 = in_ulong4[iindex + 1];
+    out_ulong4[oindex] = v0 | v1;
+    out_ulong4[oindex + 1] = v0.x | v1;
+    out_ulong4[oindex + 2] = v0 | v1.x;
+  }
+  oindex += 3;
+  // bitwise XOR
+  {
+    const ulong2 v0 = in_ulong2[iindex];
+    const ulong2 v1 = in_ulong2[iindex + 1];
+    out_ulong2[oindex] = v0 ^ v1;
+    out_ulong2[oindex + 1] = v0.x ^ v1;
+    out_ulong2[oindex + 2] = v0 ^ v1.x;
+  }
+  {
+    const ulong3 v0 = in_ulong3[iindex];
+    const ulong3 v1 = in_ulong3[iindex + 1];
+    out_ulong3[oindex] = v0 ^ v1;
+    out_ulong3[oindex + 1] = v0.x ^ v1;
+    out_ulong3[oindex + 2] = v0 ^ v1.x;
+  }
+  {
+    const ulong4 v0 = in_ulong4[iindex];
+    const ulong4 v1 = in_ulong4[iindex + 1];
+    out_ulong4[oindex] = v0 ^ v1;
+    out_ulong4[oindex + 1] = v0.x ^ v1;
+    out_ulong4[oindex + 2] = v0 ^ v1.x;
+  }
+  iindex += 2;
+  oindex += 3;
+  // Left shift
+  {
+    const ulong2 v0 = in_ulong2[iindex];
+    const ulong2 v1 = in_ulong2[iindex + 1];
+    out_ulong2[oindex] = v0 << v1;
+    out_ulong2[oindex + 1] = v0 << v1.x;
+  }
+  {
+    const ulong3 v0 = in_ulong3[iindex];
+    const ulong3 v1 = in_ulong3[iindex + 1];
+    out_ulong3[oindex] = v0 << v1;
+    out_ulong3[oindex + 1] = v0 << v1.x;
+  }
+  {
+    const ulong4 v0 = in_ulong4[iindex];
+    const ulong4 v1 = in_ulong4[iindex + 1];
+    out_ulong4[oindex] = v0 << v1;
+    out_ulong4[oindex + 1] = v0 << v1.x;
+  }
+  oindex += 2;
+  // Right shift
+  {
+    const ulong2 v0 = in_ulong2[iindex];
+    const ulong2 v1 = in_ulong2[iindex + 1];
+    out_ulong2[oindex] = v0 >> v1;
+    out_ulong2[oindex + 1] = v0 >> v1.x;
+  }
+  {
+    const ulong3 v0 = in_ulong3[iindex];
+    const ulong3 v1 = in_ulong3[iindex + 1];
+    out_ulong3[oindex] = v0 >> v1;
+    out_ulong3[oindex + 1] = v0 >> v1.x;
+  }
+  {
+    const ulong4 v0 = in_ulong4[iindex];
+    const ulong4 v1 = in_ulong4[iindex + 1];
+    out_ulong4[oindex] = v0 >> v1;
+    out_ulong4[oindex + 1] = v0 >> v1.x;
+  }
+}
+
+__kernel void vectorBitwiseAssignmentOperatorTest(
+    zivc::ConstGlobalPtr<ulong2> in_ulong2,
+    zivc::ConstGlobalPtr<ulong3> in_ulong3,
+    zivc::ConstGlobalPtr<ulong4> in_ulong4,
+    zivc::GlobalPtr<ulong2> out_ulong2,
+    zivc::GlobalPtr<ulong3> out_ulong3,
+    zivc::GlobalPtr<ulong4> out_ulong4)
+{
+  const size_t global_index = zivc::getGlobalIdX();
+  if (global_index != 0)
+    return;
+
+  size_t iindex = 0;
+  size_t oindex = 0;
+  // bitwise AND
+  {
+    const ulong2 v0 = in_ulong2[iindex];
+    const ulong2 v1 = in_ulong2[iindex + 1];
+    out_ulong2[oindex] = v0;
+    out_ulong2[oindex] &= v1;
+    out_ulong2[oindex + 1] = v0;
+    out_ulong2[oindex + 1] &= v1.x;
+  }
+  {
+    const ulong3 v0 = in_ulong3[iindex];
+    const ulong3 v1 = in_ulong3[iindex + 1];
+    out_ulong3[oindex] = v0;
+    out_ulong3[oindex] &= v1;
+    out_ulong3[oindex + 1] = v0;
+    out_ulong3[oindex + 1] &= v1.x;
+  }
+  {
+    const ulong4 v0 = in_ulong4[iindex];
+    const ulong4 v1 = in_ulong4[iindex + 1];
+    out_ulong4[oindex] = v0;
+    out_ulong4[oindex] &= v1;
+    out_ulong4[oindex + 1] = v0;
+    out_ulong4[oindex + 1] &= v1.x;
+  }
+  ++iindex;
+  oindex += 2;
+  // bitwise OR
+  {
+    const ulong2 v0 = in_ulong2[iindex];
+    const ulong2 v1 = in_ulong2[iindex + 1];
+    out_ulong2[oindex] = v0;
+    out_ulong2[oindex] |= v1;
+    out_ulong2[oindex + 1] = v0;
+    out_ulong2[oindex + 1] |= v1.x;
+  }
+  {
+    const ulong3 v0 = in_ulong3[iindex];
+    const ulong3 v1 = in_ulong3[iindex + 1];
+    out_ulong3[oindex] = v0;
+    out_ulong3[oindex] |= v1;
+    out_ulong3[oindex + 1] = v0;
+    out_ulong3[oindex + 1] |= v1.x;
+  }
+  {
+    const ulong4 v0 = in_ulong4[iindex];
+    const ulong4 v1 = in_ulong4[iindex + 1];
+    out_ulong4[oindex] = v0;
+    out_ulong4[oindex] |= v1;
+    out_ulong4[oindex + 1] = v0;
+    out_ulong4[oindex + 1] |= v1.x;
+  }
+  oindex += 2;
+  // bitwise XOR
+  {
+    const ulong2 v0 = in_ulong2[iindex];
+    const ulong2 v1 = in_ulong2[iindex + 1];
+    out_ulong2[oindex] = v0;
+    out_ulong2[oindex] ^= v1;
+    out_ulong2[oindex + 1] = v0;
+    out_ulong2[oindex + 1] ^= v1.x;
+  }
+  {
+    const ulong3 v0 = in_ulong3[iindex];
+    const ulong3 v1 = in_ulong3[iindex + 1];
+    out_ulong3[oindex] = v0;
+    out_ulong3[oindex] ^= v1;
+    out_ulong3[oindex + 1] = v0;
+    out_ulong3[oindex + 1] ^= v1.x;
+  }
+  {
+    const ulong4 v0 = in_ulong4[iindex];
+    const ulong4 v1 = in_ulong4[iindex + 1];
+    out_ulong4[oindex] = v0;
+    out_ulong4[oindex] ^= v1;
+    out_ulong4[oindex + 1] = v0;
+    out_ulong4[oindex + 1] ^= v1.x;
+  }
+  iindex += 2;
+  oindex += 2;
+  // Left shift
+  {
+    const ulong2 v0 = in_ulong2[iindex];
+    const ulong2 v1 = in_ulong2[iindex + 1];
+    out_ulong2[oindex] = v0;
+    out_ulong2[oindex] <<= v1;
+    out_ulong2[oindex + 1] = v0;
+    out_ulong2[oindex + 1] <<= v1.x;
+  }
+  {
+    const ulong3 v0 = in_ulong3[iindex];
+    const ulong3 v1 = in_ulong3[iindex + 1];
+    out_ulong3[oindex] = v0;
+    out_ulong3[oindex] <<= v1;
+    out_ulong3[oindex + 1] = v0;
+    out_ulong3[oindex + 1] <<= v1.x;
+  }
+  {
+    const ulong4 v0 = in_ulong4[iindex];
+    const ulong4 v1 = in_ulong4[iindex + 1];
+    out_ulong4[oindex] = v0;
+    out_ulong4[oindex] <<= v1;
+    out_ulong4[oindex + 1] = v0;
+    out_ulong4[oindex + 1] <<= v1.x;
+  }
+  oindex += 2;
+  // Right shift
+  {
+    const ulong2 v0 = in_ulong2[iindex];
+    const ulong2 v1 = in_ulong2[iindex + 1];
+    out_ulong2[oindex] = v0;
+    out_ulong2[oindex] >>= v1;
+    out_ulong2[oindex + 1] = v0;
+    out_ulong2[oindex + 1] >>= v1.x;
+  }
+  {
+    const ulong3 v0 = in_ulong3[iindex];
+    const ulong3 v1 = in_ulong3[iindex + 1];
+    out_ulong3[oindex] = v0;
+    out_ulong3[oindex] >>= v1;
+    out_ulong3[oindex + 1] = v0;
+    out_ulong3[oindex + 1] >>= v1.x;
+  }
+  {
+    const ulong4 v0 = in_ulong4[iindex];
+    const ulong4 v1 = in_ulong4[iindex + 1];
+    out_ulong4[oindex] = v0;
+    out_ulong4[oindex] >>= v1;
+    out_ulong4[oindex + 1] = v0;
+    out_ulong4[oindex + 1] >>= v1.x;
+  }
+}
+
+__kernel void vectorIncrementDecrementTest(zivc::GlobalPtr<int4> inout_int4)
+{
+  const size_t global_index = zivc::getGlobalIdX();
+  if (global_index != 0)
+    return;
+
+  inout_int4[1] = inout_int4[0]++;
+  inout_int4[3] = ++inout_int4[2];
+  inout_int4[5] = inout_int4[4]--;
+  inout_int4[7] = --inout_int4[6];
+}
+
+__kernel void vectorConditionalOperatorTest(zivc::GlobalPtr<int4> inout_int4)
+{
+  const size_t global_index = zivc::getGlobalIdX();
+  if (global_index != 0)
+    return;
+
+  const int4 flag = inout_int4[0];
+  const int4 v0 = inout_int4[1];
+  const int4 v1 = inout_int4[2];
+  inout_int4[3] = static_cast<bool>(flag.x) ? v0 : v1;
+  inout_int4[4] = static_cast<bool>(flag.y) ? v0 : v1;
+}
+
 #endif /* ZIVC_TEST_OPENCL_CPP_TEST_VECTOR_CL */

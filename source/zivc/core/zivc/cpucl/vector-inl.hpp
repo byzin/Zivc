@@ -1684,26 +1684,6 @@ Vector<Type1, kN> operator<<(const Vector<Type1, kN>& lhs,
   \return No description
   */
 template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
-Vector<Type1, kN> operator<<(const Type1& lhs,
-                             const Vector<Type2, kN>& rhs) noexcept
-{
-  Vector<Type1, kN> result;
-  for (size_t index = 0; index < kN; ++index)
-    result[index] = zisc::cast<Type1>(lhs << rhs[index]);
-  return result;
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type1 No description.
-  \tparam Type2 No description.
-  \tparam kN No description.
-  \param [in] lhs No description.
-  \param [in] rhs No description.
-  \return No description
-  */
-template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 Vector<Type1, kN> operator<<(const Vector<Type1, kN>& lhs,
                              const Type2& rhs) noexcept
 {
@@ -1730,26 +1710,6 @@ Vector<Type1, kN> operator>>(const Vector<Type1, kN>& lhs,
   Vector<Type1, kN> result;
   for (size_t index = 0; index < kN; ++index)
     result[index] = zisc::cast<Type1>(lhs[index] >> rhs[index]);
-  return result;
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type1 No description.
-  \tparam Type2 No description.
-  \tparam kN No description.
-  \param [in] lhs No description.
-  \param [in] rhs No description.
-  \return No description
-  */
-template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
-Vector<Type1, kN> operator>>(const Type1& lhs,
-                             const Vector<Type2, kN>& rhs) noexcept
-{
-  Vector<Type1, kN> result;
-  for (size_t index = 0; index < kN; ++index)
-    result[index] = zisc::cast<Type1>(lhs >> rhs[index]);
   return result;
 }
 

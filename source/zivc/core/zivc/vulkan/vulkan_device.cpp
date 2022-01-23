@@ -1516,16 +1516,14 @@ void VulkanDevice::initMemoryAllocator()
   VmaVulkanFunctions functions = getVmaVulkanFunctions();
 
   VmaAllocatorCreateInfo create_info;
-  create_info.flags = 0;
+  create_info.flags = VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT;
   create_info.physicalDevice = info.device();
   create_info.device = device();
   create_info.preferredLargeHeapBlockSize = 0;
   create_info.pAllocationCallbacks = std::addressof(alloc);
   create_info.pDeviceMemoryCallbacks = std::addressof(notifier);
-  create_info.frameInUseCount = 0;
   create_info.pHeapSizeLimit = nullptr;
   create_info.pVulkanFunctions = std::addressof(functions);
-  create_info.pRecordSettings = nullptr;
   create_info.instance = sub_platform.instance();
   create_info.vulkanApiVersion = vkGetVulkanApiVersion();
   create_info.pTypeExternalMemoryHandleTypes = nullptr;

@@ -36,6 +36,7 @@
 
 // VMA
 #include "vk_mem_alloc.h"
+static_assert(VMA_MEMORY_BUDGET, "VK_EXT_memory_budget isn't supported in the vulkan.");
 
 #if defined(Z_VISUAL_STUDIO)
 #pragma warning(pop)

@@ -20,7 +20,7 @@
 // VMA Debug
 #if defined(Z_DEBUG_MODE)
 #define VMA_DEBUG_INITIALIZE_ALLOCATIONS 1
-#define VMA_DEBUG_MARGIN 32
+#define VMA_DEBUG_MARGIN 256
 #define VMA_DEBUG_DETECT_CORRUPTION 1
 #else
 static_assert(false);

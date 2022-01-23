@@ -449,4 +449,270 @@ __kernel void vectorConstructionKernel(zivc::GlobalPtr<int2> output_vec2,
   ZIVC_CHECK_MAKING_VECTOR_TYPE(double, Double, 0.0, 1.0, 2.0, 3.0)
 }
 
+__kernel void vectorArithmeticOperatorTest(
+    zivc::ConstGlobalPtr<int2> in_int2,
+    zivc::ConstGlobalPtr<int3> in_int3,
+    zivc::ConstGlobalPtr<int4> in_int4,
+    zivc::ConstGlobalPtr<float2> in_float2,
+    zivc::ConstGlobalPtr<float3> in_float3,
+    zivc::ConstGlobalPtr<float4> in_float4,
+    zivc::GlobalPtr<int2> out_int2,
+    zivc::GlobalPtr<int3> out_int3,
+    zivc::GlobalPtr<int4> out_int4,
+    zivc::GlobalPtr<float2> out_float2,
+    zivc::GlobalPtr<float3> out_float3,
+    zivc::GlobalPtr<float4> out_float4)
+{
+  const size_t global_index = zivc::getGlobalIdX();
+  if (global_index != 0)
+    return;
+
+  size_t iindex = 0;
+  size_t oindex = 0;
+  // Unary plus
+  {
+    const int2 v = in_int2[iindex];
+    out_int2[oindex] = +v;
+  }
+  {
+    const int3 v = in_int3[iindex];
+    out_int3[oindex] = +v;
+  }
+  {
+    const int4 v = in_int4[iindex];
+    out_int4[oindex] = +v;
+  }
+  {
+    const float2 v = in_float2[iindex];
+    out_float2[oindex] = +v;
+  }
+  {
+    const float3 v = in_float3[iindex];
+    out_float3[oindex] = +v;
+  }
+  {
+    const float4 v = in_float4[iindex];
+    out_float4[oindex] = +v;
+  }
+  ++oindex;
+  // Unary minus
+  {
+    out_int2[oindex] = -in_int2[iindex];
+  }
+  {
+    out_int3[oindex] = -in_int3[iindex];
+  }
+  {
+    out_int4[oindex] = -in_int4[iindex];
+  }
+  {
+    out_float2[oindex] = -in_float2[iindex];
+  }
+  {
+    out_float3[oindex] = -in_float3[iindex];
+  }
+  {
+    out_float4[oindex] = -in_float4[iindex];
+  }
+  ++oindex;
+  // Addition
+  {
+    const int2 v0 = in_int2[iindex];
+    const int2 v1 = in_int2[iindex + 1];
+    out_int2[oindex] = v0 + v1;
+    out_int2[oindex + 1] = v0.x + v1;
+    out_int2[oindex + 2] = v0 + v1.x;
+  }
+  {
+    const int3 v0 = in_int3[iindex];
+    const int3 v1 = in_int3[iindex + 1];
+    out_int3[oindex] = v0 + v1;
+    out_int3[oindex + 1] = v0.x + v1;
+    out_int3[oindex + 2] = v0 + v1.x;
+  }
+  {
+    const int4 v0 = in_int4[iindex];
+    const int4 v1 = in_int4[iindex + 1];
+    out_int4[oindex] = v0 + v1;
+    out_int4[oindex + 1] = v0.x + v1;
+    out_int4[oindex + 2] = v0 + v1.x;
+  }
+  {
+    const float2 v0 = in_float2[iindex];
+    const float2 v1 = in_float2[iindex + 1];
+    out_float2[oindex] = v0 + v1;
+    out_float2[oindex + 1] = v0.x + v1;
+    out_float2[oindex + 2] = v0 + v1.x;
+  }
+  {
+    const float3 v0 = in_float3[iindex];
+    const float3 v1 = in_float3[iindex + 1];
+    out_float3[oindex] = v0 + v1;
+    out_float3[oindex + 1] = v0.x + v1;
+    out_float3[oindex + 2] = v0 + v1.x;
+  }
+  {
+    const float4 v0 = in_float4[iindex];
+    const float4 v1 = in_float4[iindex + 1];
+    out_float4[oindex] = v0 + v1;
+    out_float4[oindex + 1] = v0.x + v1;
+    out_float4[oindex + 2] = v0 + v1.x;
+  }
+  oindex += 3;
+  // Subtraction
+  {
+    const int2 v0 = in_int2[iindex];
+    const int2 v1 = in_int2[iindex + 1];
+    out_int2[oindex] = v0 - v1;
+    out_int2[oindex + 1] = v0.x - v1;
+    out_int2[oindex + 2] = v0 - v1.x;
+  }
+  {
+    const int3 v0 = in_int3[iindex];
+    const int3 v1 = in_int3[iindex + 1];
+    out_int3[oindex] = v0 - v1;
+    out_int3[oindex + 1] = v0.x - v1;
+    out_int3[oindex + 2] = v0 - v1.x;
+  }
+  {
+    const int4 v0 = in_int4[iindex];
+    const int4 v1 = in_int4[iindex + 1];
+    out_int4[oindex] = v0 - v1;
+    out_int4[oindex + 1] = v0.x - v1;
+    out_int4[oindex + 2] = v0 - v1.x;
+  }
+  {
+    const float2 v0 = in_float2[iindex];
+    const float2 v1 = in_float2[iindex + 1];
+    out_float2[oindex] = v0 - v1;
+    out_float2[oindex + 1] = v0.x - v1;
+    out_float2[oindex + 2] = v0 - v1.x;
+  }
+  {
+    const float3 v0 = in_float3[iindex];
+    const float3 v1 = in_float3[iindex + 1];
+    out_float3[oindex] = v0 - v1;
+    out_float3[oindex + 1] = v0.x - v1;
+    out_float3[oindex + 2] = v0 - v1.x;
+  }
+  {
+    const float4 v0 = in_float4[iindex];
+    const float4 v1 = in_float4[iindex + 1];
+    out_float4[oindex] = v0 - v1;
+    out_float4[oindex + 1] = v0.x - v1;
+    out_float4[oindex + 2] = v0 - v1.x;
+  }
+  oindex += 3;
+  // Multiplication
+  {
+    const int2 v0 = in_int2[iindex];
+    const int2 v1 = in_int2[iindex + 1];
+    out_int2[oindex] = v0 * v1;
+    out_int2[oindex + 1] = v0.x * v1;
+    out_int2[oindex + 2] = v0 * v1.x;
+  }
+  {
+    const int3 v0 = in_int3[iindex];
+    const int3 v1 = in_int3[iindex + 1];
+    out_int3[oindex] = v0 * v1;
+    out_int3[oindex + 1] = v0.x * v1;
+    out_int3[oindex + 2] = v0 * v1.x;
+  }
+  {
+    const int4 v0 = in_int4[iindex];
+    const int4 v1 = in_int4[iindex + 1];
+    out_int4[oindex] = v0 * v1;
+    out_int4[oindex + 1] = v0.x * v1;
+    out_int4[oindex + 2] = v0 * v1.x;
+  }
+  {
+    const float2 v0 = in_float2[iindex];
+    const float2 v1 = in_float2[iindex + 1];
+    out_float2[oindex] = v0 * v1;
+    out_float2[oindex + 1] = v0.x * v1;
+    out_float2[oindex + 2] = v0 * v1.x;
+  }
+  {
+    const float3 v0 = in_float3[iindex];
+    const float3 v1 = in_float3[iindex + 1];
+    out_float3[oindex] = v0 * v1;
+    out_float3[oindex + 1] = v0.x * v1;
+    out_float3[oindex + 2] = v0 * v1.x;
+  }
+  {
+    const float4 v0 = in_float4[iindex];
+    const float4 v1 = in_float4[iindex + 1];
+    out_float4[oindex] = v0 * v1;
+    out_float4[oindex + 1] = v0.x * v1;
+    out_float4[oindex + 2] = v0 * v1.x;
+  }
+  oindex += 3;
+  // Division
+  {
+    const int2 v0 = in_int2[iindex];
+    const int2 v1 = in_int2[iindex + 1];
+    out_int2[oindex] = v0 / v1;
+    out_int2[oindex + 1] = v0.x / v1;
+    out_int2[oindex + 2] = v0 / v1.x;
+  }
+  {
+    const int3 v0 = in_int3[iindex];
+    const int3 v1 = in_int3[iindex + 1];
+    out_int3[oindex] = v0 / v1;
+    out_int3[oindex + 1] = v0.x / v1;
+    out_int3[oindex + 2] = v0 / v1.x;
+  }
+  {
+    const int4 v0 = in_int4[iindex];
+    const int4 v1 = in_int4[iindex + 1];
+    out_int4[oindex] = v0 / v1;
+    out_int4[oindex + 1] = v0.x / v1;
+    out_int4[oindex + 2] = v0 / v1.x;
+  }
+  {
+    const float2 v0 = in_float2[iindex];
+    const float2 v1 = in_float2[iindex + 1];
+    out_float2[oindex] = v0 / v1;
+    out_float2[oindex + 1] = v0.x / v1;
+    out_float2[oindex + 2] = v0 / v1.x;
+  }
+  {
+    const float3 v0 = in_float3[iindex];
+    const float3 v1 = in_float3[iindex + 1];
+    out_float3[oindex] = v0 / v1;
+    out_float3[oindex + 1] = v0.x / v1;
+    out_float3[oindex + 2] = v0 / v1.x;
+  }
+  {
+    const float4 v0 = in_float4[iindex];
+    const float4 v1 = in_float4[iindex + 1];
+    out_float4[oindex] = v0 / v1;
+    out_float4[oindex + 1] = v0.x / v1;
+    out_float4[oindex + 2] = v0 / v1.x;
+  }
+  oindex += 3;
+  // Modulo
+  {
+    const int2 v0 = in_int2[iindex];
+    const int2 v1 = in_int2[iindex + 1];
+    out_int2[oindex] = v0 % v1;
+    out_int2[oindex + 1] = v0.x % v1;
+    out_int2[oindex + 2] = v0 % v1.x;
+  }
+  {
+    const int3 v0 = in_int3[iindex];
+    const int3 v1 = in_int3[iindex + 1];
+    out_int3[oindex] = v0 % v1;
+    out_int3[oindex + 1] = v0.x % v1;
+    out_int3[oindex + 2] = v0 % v1.x;
+  }
+  {
+    const int4 v0 = in_int4[iindex];
+    const int4 v1 = in_int4[iindex + 1];
+    out_int4[oindex] = v0 % v1;
+    out_int4[oindex + 1] = v0.x % v1;
+    out_int4[oindex + 2] = v0 % v1.x;
+  }
+}
+
 #endif /* ZIVC_TEST_OPENCL_CPP_TEST_VECTOR_CL */

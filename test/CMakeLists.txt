@@ -124,6 +124,7 @@ macro(setTestProject)
                                   modernize-loop-convert
                                   modernize-use-auto
                                   readability-function-cognitive-complexity
+                                  readability-function-size
                                   readability-implicit-bool-conversion
                                   readability-isolate-declaration
                                   readability-magic-numbers

@@ -17,8 +17,11 @@
 
 // Zivc
 #include "zivc/zivc_config.hpp"
-#include "zivc/cpucl/types.hpp"
-#include "zivc/cpucl/vector.hpp"
+#include "zivc/cpucl/cpucl.hpp"
+
+namespace zivc::cl {
+#include "zivc/cl/boolean.hpp"
+} /* namespace zivc::cl */
 
 namespace zivc {
 
@@ -69,6 +72,9 @@ using cl_float4 = cl::float4; //!< Corresponding to 'float4' in OpenCL
 using cl_double2 = cl::double2; //!< Corresponding to 'double2' in OpenCL
 using cl_double3 = cl::double3; //!< Corresponding to 'double3' in OpenCL
 using cl_double4 = cl::double4; //!< Corresponding to 'double4' in OpenCL
+
+//
+using cl_Boolean = cl::zivc::Boolean;
 
 } /* namespace zivc */
 

@@ -16,6 +16,7 @@
 #define ZIVC_TEST_OPENCL_CPP_TEST_VECTOR_CL
 
 // Zivc
+#include "zivc/cl/boolean.hpp"
 #include "zivc/cl/types.hpp"
 #include "zivc/cl/type_traits.hpp"
 #include "zivc/cl/utility.hpp"
@@ -1172,6 +1173,70 @@ __kernel void vectorConditionalOperatorTest(zivc::GlobalPtr<int4> inout_int4)
   const int4 v1 = inout_int4[2];
   inout_int4[3] = static_cast<bool>(flag.x) ? v0 : v1;
   inout_int4[4] = static_cast<bool>(flag.y) ? v0 : v1;
+}
+
+namespace test {
+
+template <typename ResultType> inline
+void setBoolResult(const ResultType result, zivc::GlobalPtr<zivc::Boolean> out)
+{
+  out[0] = result.x;
+  out[1] = result.y;
+  out[2] = result.z;
+  out[3] = result.w;
+}
+
+} /* namespace test */
+
+__kernel void vectorComparisonOperatorTest(zivc::ConstGlobalPtr<int4> in_int4,
+                                           zivc::GlobalPtr<zivc::Boolean> out)
+{
+  const size_t global_index = zivc::getGlobalIdX();
+  if (global_index != 0)
+    return;
+
+  size_t iindex = 0;
+  size_t oindex = 0;
+  {
+    const int4 v0 = in_int4[iindex];
+    const int4 v1 = in_int4[iindex + 1];
+    test::setBoolResult(v0 == v1, out + oindex);
+    oindex += 4;
+    test::setBoolResult(v0.x == v1, out + oindex);
+    oindex += 4;
+    test::setBoolResult(v0 == v1.x, out + oindex);
+    oindex += 4;
+    test::setBoolResult(v0 != v1, out + oindex);
+    oindex += 4;
+    test::setBoolResult(v0.x != v1, out + oindex);
+    oindex += 4;
+    test::setBoolResult(v0 != v1.x, out + oindex);
+    oindex += 4;
+    test::setBoolResult(v0 < v1, out + oindex);
+    oindex += 4;
+    test::setBoolResult(v0.x < v1, out + oindex);
+    oindex += 4;
+    test::setBoolResult(v0 < v1.x, out + oindex);
+    oindex += 4;
+    test::setBoolResult(v0 > v1, out + oindex);
+    oindex += 4;
+    test::setBoolResult(v0.x > v1, out + oindex);
+    oindex += 4;
+    test::setBoolResult(v0 > v1.x, out + oindex);
+    oindex += 4;
+    test::setBoolResult(v0 <= v1, out + oindex);
+    oindex += 4;
+    test::setBoolResult(v0.x <= v1, out + oindex);
+    oindex += 4;
+    test::setBoolResult(v0 <= v1.x, out + oindex);
+    oindex += 4;
+    test::setBoolResult(v0 >= v1, out + oindex);
+    oindex += 4;
+    test::setBoolResult(v0.x >= v1, out + oindex);
+    oindex += 4;
+    test::setBoolResult(v0 >= v1.x, out + oindex);
+    oindex += 4;
+  }
 }
 
 #endif /* ZIVC_TEST_OPENCL_CPP_TEST_VECTOR_CL */

@@ -1492,3 +1492,144 @@ TEST(ClCppTest, VectorConditionalOperatorTest)
     EXPECT_EQ(-4, mem[4].w) << "Vector int4 conditional operator failed.";
   }
 }
+
+TEST(ClCppTest, VectorComparisonOperatorTest)
+{
+  auto platform = ztest::makePlatform();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  zivc::SharedDevice device = platform->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_int4;
+  using zivc::cl_Boolean;
+
+  auto buffer_in4 = device->makeBuffer<cl_int4>(zivc::BufferUsage::kDeviceOnly);
+  {
+    std::initializer_list<cl_int4> v = {cl_int4{1, 1, 1, 1},
+                                        cl_int4{-1, 0, 1, 2}};
+    ztest::setDeviceBuffer(*device, v, buffer_in4.get());
+  }
+  auto buffer_out = device->makeBuffer<cl_Boolean>(zivc::BufferUsage::kDeviceOnly);
+  buffer_out->setSize(72);
+  {
+    cl_Boolean v;
+    v.set(false);
+    ztest::fillDeviceBuffer(v, buffer_out.get());
+  }
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vectorComparisonOperatorTest, 1);
+  auto kernel = device->makeKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(2, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  auto launch_options = kernel->makeOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({1});
+  launch_options.requestFence(true);
+  launch_options.setLabel("VectorConditionalOperatorTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(2, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  auto result = kernel->run(*buffer_in4, *buffer_out, launch_options);
+  device->waitForCompletion(result.fence());
+
+  // output4
+  {
+    auto buffer = device->makeBuffer<cl_int4>(zivc::BufferUsage::kHostOnly);
+    ztest::copyBuffer(*buffer_in4, buffer.get());
+    const auto mem = buffer->mapMemory();
+    EXPECT_EQ( 1, mem[3].x) << "Vector int4 conditional operator failed.";
+    EXPECT_EQ( 2, mem[3].y) << "Vector int4 conditional operator failed.";
+    EXPECT_EQ( 3, mem[3].z) << "Vector int4 conditional operator failed.";
+    EXPECT_EQ( 4, mem[3].w) << "Vector int4 conditional operator failed.";
+    EXPECT_EQ(-1, mem[4].x) << "Vector int4 conditional operator failed.";
+    EXPECT_EQ(-2, mem[4].y) << "Vector int4 conditional operator failed.";
+    EXPECT_EQ(-3, mem[4].z) << "Vector int4 conditional operator failed.";
+    EXPECT_EQ(-4, mem[4].w) << "Vector int4 conditional operator failed.";
+  }
+  // output
+  {
+    auto buffer = device->makeBuffer<cl_Boolean>(zivc::BufferUsage::kHostOnly);
+    ztest::copyBuffer(*buffer_out, buffer.get());
+    const auto mem = buffer->mapMemory();
+    std::size_t index = 0;
+    EXPECT_FALSE(mem[index++]) << "Vector int4 equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 not equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 not equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 not equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 not equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 not equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 not equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 not equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 not equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 not equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 not equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 not equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 not equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 less than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 less than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 less than failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 less than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 less than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 less than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 less than failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 less than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 less than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 less than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 less than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 less than failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 greater than failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 greater than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 greater than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 greater than failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 greater than failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 greater than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 greater than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 greater than failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 greater than failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 greater than failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 greater than failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 greater than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 less than or equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 less than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 less than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 less than or equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 less than or equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 less than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 less than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 less than or equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 less than or equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 less than or equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 less than or equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 less than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 greater than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 greater than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 greater than or equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 greater than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 greater than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 greater than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 greater than or equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 greater than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 greater than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 greater than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 greater than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 greater than or equal to failed.";
+  }
+}

@@ -925,61 +925,61 @@ TEST(ClCppTest, VectorBitwiseOperatorTest)
   zivc::SharedDevice device = platform->queryDevice(config.deviceId());
 
   // Allocate buffers
-  using zivc::uint64b;
-  using zivc::cl_ulong2;
-  using zivc::cl_ulong3;
-  using zivc::cl_ulong4;
+  using zivc::uint32b;
+  using zivc::cl_uint2;
+  using zivc::cl_uint3;
+  using zivc::cl_uint4;
 
-  constexpr uint64b mask01 = std::numeric_limits<uint64b>::max();
-  constexpr uint64b mask02 = 0b0101'0101'1010'1010'1100'0011'0000'1111ul;
-  constexpr uint64b mask03 = 0b0101'0101'0101'0101'0101'0101'0101'0101ul;
-  constexpr uint64b mask04 = 0b0000'0000'0000'0000'1111'1111'1111'1111ul;
-  constexpr uint64b mask05 = 0b1111'1111'1111'1111'0000'0000'0000'0000ul;
+  constexpr uint32b mask01 = std::numeric_limits<uint32b>::max();
+  constexpr uint32b mask02 = 0b0101'0101'1010'1010'1100'0011'0000'1111u;
+  constexpr uint32b mask03 = 0b0101'0101'0101'0101'0101'0101'0101'0101u;
+  constexpr uint32b mask04 = 0b0000'0000'0000'0000'1111'1111'1111'1111u;
+  constexpr uint32b mask05 = 0b1111'1111'1111'1111'0000'0000'0000'0000u;
 
-  auto buffer_in2 = device->makeBuffer<cl_ulong2>(zivc::BufferUsage::kDeviceOnly);
+  auto buffer_in2 = device->makeBuffer<cl_uint2>(zivc::BufferUsage::kDeviceOnly);
   {
-    std::initializer_list<cl_ulong2> v = {cl_ulong2{mask01, mask01},
-                                          cl_ulong2{mask02, mask03},
-                                          cl_ulong2{mask04, mask05},
-                                          cl_ulong2{32ul, 64ul},
-                                          cl_ulong2{2ul, 4ul}};
+    std::initializer_list<cl_uint2> v = {cl_uint2{mask01, mask01},
+                                         cl_uint2{mask02, mask03},
+                                         cl_uint2{mask04, mask05},
+                                         cl_uint2{32u, 64u},
+                                         cl_uint2{2u, 4u}};
     ztest::setDeviceBuffer(*device, v, buffer_in2.get());
   }
-  auto buffer_in3 = device->makeBuffer<cl_ulong3>(zivc::BufferUsage::kDeviceOnly);
+  auto buffer_in3 = device->makeBuffer<cl_uint3>(zivc::BufferUsage::kDeviceOnly);
   {
-    std::initializer_list<cl_ulong3> v = {cl_ulong3{mask01, mask01, mask01},
-                                          cl_ulong3{mask02, mask03, mask02},
-                                          cl_ulong3{mask04, mask05, mask04},
-                                          cl_ulong3{32ul, 64ul, 128ul},
-                                          cl_ulong3{2ul, 4ul, 6ul}};
+    std::initializer_list<cl_uint3> v = {cl_uint3{mask01, mask01, mask01},
+                                         cl_uint3{mask02, mask03, mask02},
+                                         cl_uint3{mask04, mask05, mask04},
+                                         cl_uint3{32u, 64u, 128u},
+                                         cl_uint3{2u, 4u, 6u}};
     ztest::setDeviceBuffer(*device, v, buffer_in3.get());
   }
-  auto buffer_in4 = device->makeBuffer<cl_ulong4>(zivc::BufferUsage::kDeviceOnly);
+  auto buffer_in4 = device->makeBuffer<cl_uint4>(zivc::BufferUsage::kDeviceOnly);
   {
-    std::initializer_list<cl_ulong4> v = {cl_ulong4{mask01, mask01, mask01, mask01},
-                                          cl_ulong4{mask02, mask03, mask02, mask03},
-                                          cl_ulong4{mask04, mask05, mask04, mask05},
-                                          cl_ulong4{32ul, 64ul, 128ul, 256ul},
-                                          cl_ulong4{2ul, 4ul, 6ul, 8ul}};
+    std::initializer_list<cl_uint4> v = {cl_uint4{mask01, mask01, mask01, mask01},
+                                         cl_uint4{mask02, mask03, mask02, mask03},
+                                         cl_uint4{mask04, mask05, mask04, mask05},
+                                         cl_uint4{32u, 64u, 128u, 256u},
+                                         cl_uint4{2u, 4u, 6u, 8u}};
     ztest::setDeviceBuffer(*device, v, buffer_in4.get());
   }
   const std::size_t n = 14;
-  auto buffer_out2 = device->makeBuffer<cl_ulong2>(zivc::BufferUsage::kDeviceOnly);
+  auto buffer_out2 = device->makeBuffer<cl_uint2>(zivc::BufferUsage::kDeviceOnly);
   buffer_out2->setSize(n);
   {
-    const cl_ulong2 v{0, 0};
+    const cl_uint2 v{0, 0};
     ztest::fillDeviceBuffer(v, buffer_out2.get());
   }
-  auto buffer_out3 = device->makeBuffer<cl_ulong3>(zivc::BufferUsage::kDeviceOnly);
+  auto buffer_out3 = device->makeBuffer<cl_uint3>(zivc::BufferUsage::kDeviceOnly);
   buffer_out3->setSize(n);
   {
-    const cl_ulong3 v{0, 0, 0};
+    const cl_uint3 v{0, 0, 0};
     ztest::fillDeviceBuffer(v, buffer_out3.get());
   }
-  auto buffer_out4 = device->makeBuffer<cl_ulong4>(zivc::BufferUsage::kDeviceOnly);
+  auto buffer_out4 = device->makeBuffer<cl_uint4>(zivc::BufferUsage::kDeviceOnly);
   buffer_out4->setSize(n);
   {
-    const cl_ulong4 v{0, 0, 0, 0};
+    const cl_uint4 v{0, 0, 0, 0};
     ztest::fillDeviceBuffer(v, buffer_out4.get());
   }
 
@@ -1009,147 +1009,147 @@ TEST(ClCppTest, VectorBitwiseOperatorTest)
 
   // output2
   {
-    auto buffer = device->makeBuffer<cl_ulong2>(zivc::BufferUsage::kHostOnly);
+    auto buffer = device->makeBuffer<cl_uint2>(zivc::BufferUsage::kHostOnly);
     ztest::copyBuffer(*buffer_out2, buffer.get());
     const auto mem = buffer->mapMemory();
-    EXPECT_EQ(compl mask02, mem[0].x) << "Vector ulong2 bitwise NOT failed.";
-    EXPECT_EQ(compl mask03, mem[0].y) << "Vector ulong2 bitwise NOT failed.";
-    EXPECT_EQ(mask01 bitand mask02, mem[1].x) << "Vector ulong2 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask03, mem[1].y) << "Vector ulong2 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask02, mem[2].x) << "Vector ulong2 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask03, mem[2].y) << "Vector ulong2 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask02, mem[3].x) << "Vector ulong2 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask02, mem[3].y) << "Vector ulong2 bitwise AND failed.";
-    EXPECT_EQ(mask02 bitor mask04, mem[4].x) << "Vector ulong2 bitwise OR failed.";
-    EXPECT_EQ(mask03 bitor mask05, mem[4].y) << "Vector ulong2 bitwise OR failed.";
-    EXPECT_EQ(mask02 bitor mask04, mem[5].x) << "Vector ulong2 bitwise OR failed.";
-    EXPECT_EQ(mask02 bitor mask05, mem[5].y) << "Vector ulong2 bitwise OR failed.";
-    EXPECT_EQ(mask02 bitor mask04, mem[6].x) << "Vector ulong2 bitwise OR failed.";
-    EXPECT_EQ(mask03 bitor mask04, mem[6].y) << "Vector ulong2 bitwise OR failed.";
-    EXPECT_EQ(mask02 xor mask04, mem[7].x) << "Vector ulong2 bitwise XOR failed.";
-    EXPECT_EQ(mask03 xor mask05, mem[7].y) << "Vector ulong2 bitwise XOR failed.";
-    EXPECT_EQ(mask02 xor mask04, mem[8].x) << "Vector ulong2 bitwise XOR failed.";
-    EXPECT_EQ(mask02 xor mask05, mem[8].y) << "Vector ulong2 bitwise XOR failed.";
-    EXPECT_EQ(mask02 xor mask04, mem[9].x) << "Vector ulong2 bitwise XOR failed.";
-    EXPECT_EQ(mask03 xor mask04, mem[9].y) << "Vector ulong2 bitwise XOR failed.";
-    EXPECT_EQ(32ul << 2ul, mem[10].x) << "Vector ulong2 left shift failed.";
-    EXPECT_EQ(64ul << 4ul, mem[10].y) << "Vector ulong2 left shift failed.";
-    EXPECT_EQ(32ul << 2ul, mem[11].x) << "Vector ulong2 left shift failed.";
-    EXPECT_EQ(64ul << 2ul, mem[11].y) << "Vector ulong2 left shift failed.";
-    EXPECT_EQ(32ul >> 2ul, mem[12].x) << "Vector ulong2 right shift failed.";
-    EXPECT_EQ(64ul >> 4ul, mem[12].y) << "Vector ulong2 right shift failed.";
-    EXPECT_EQ(32ul >> 2ul, mem[13].x) << "Vector ulong2 right shift failed.";
-    EXPECT_EQ(64ul >> 2ul, mem[13].y) << "Vector ulong2 right shift failed.";
+    EXPECT_EQ(compl mask02, mem[0].x) << "Vector uint2 bitwise NOT failed.";
+    EXPECT_EQ(compl mask03, mem[0].y) << "Vector uint2 bitwise NOT failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[1].x) << "Vector uint2 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask03, mem[1].y) << "Vector uint2 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[2].x) << "Vector uint2 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask03, mem[2].y) << "Vector uint2 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[3].x) << "Vector uint2 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[3].y) << "Vector uint2 bitwise AND failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[4].x) << "Vector uint2 bitwise OR failed.";
+    EXPECT_EQ(mask03 bitor mask05, mem[4].y) << "Vector uint2 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[5].x) << "Vector uint2 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask05, mem[5].y) << "Vector uint2 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[6].x) << "Vector uint2 bitwise OR failed.";
+    EXPECT_EQ(mask03 bitor mask04, mem[6].y) << "Vector uint2 bitwise OR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[7].x) << "Vector uint2 bitwise XOR failed.";
+    EXPECT_EQ(mask03 xor mask05, mem[7].y) << "Vector uint2 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[8].x) << "Vector uint2 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask05, mem[8].y) << "Vector uint2 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[9].x) << "Vector uint2 bitwise XOR failed.";
+    EXPECT_EQ(mask03 xor mask04, mem[9].y) << "Vector uint2 bitwise XOR failed.";
+    EXPECT_EQ(32u << 2u, mem[10].x) << "Vector uint2 left shift failed.";
+    EXPECT_EQ(64u << 4u, mem[10].y) << "Vector uint2 left shift failed.";
+    EXPECT_EQ(32u << 2u, mem[11].x) << "Vector uint2 left shift failed.";
+    EXPECT_EQ(64u << 2u, mem[11].y) << "Vector uint2 left shift failed.";
+    EXPECT_EQ(32u >> 2u, mem[12].x) << "Vector uint2 right shift failed.";
+    EXPECT_EQ(64u >> 4u, mem[12].y) << "Vector uint2 right shift failed.";
+    EXPECT_EQ(32u >> 2u, mem[13].x) << "Vector uint2 right shift failed.";
+    EXPECT_EQ(64u >> 2u, mem[13].y) << "Vector uint2 right shift failed.";
   }
   // output3
   {
-    auto buffer = device->makeBuffer<cl_ulong3>(zivc::BufferUsage::kHostOnly);
+    auto buffer = device->makeBuffer<cl_uint3>(zivc::BufferUsage::kHostOnly);
     ztest::copyBuffer(*buffer_out3, buffer.get());
     const auto mem = buffer->mapMemory();
-    EXPECT_EQ(compl mask02, mem[0].x) << "Vector ulong3 bitwise NOT failed.";
-    EXPECT_EQ(compl mask03, mem[0].y) << "Vector ulong3 bitwise NOT failed.";
-    EXPECT_EQ(compl mask02, mem[0].z) << "Vector ulong3 bitwise NOT failed.";
-    EXPECT_EQ(mask01 bitand mask02, mem[1].x) << "Vector ulong3 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask03, mem[1].y) << "Vector ulong3 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask02, mem[1].z) << "Vector ulong3 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask02, mem[2].x) << "Vector ulong3 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask03, mem[2].y) << "Vector ulong3 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask02, mem[2].z) << "Vector ulong3 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask02, mem[3].x) << "Vector ulong3 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask02, mem[3].y) << "Vector ulong3 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask02, mem[3].z) << "Vector ulong3 bitwise AND failed.";
-    EXPECT_EQ(mask02 bitor mask04, mem[4].x) << "Vector ulong3 bitwise OR failed.";
-    EXPECT_EQ(mask03 bitor mask05, mem[4].y) << "Vector ulong3 bitwise OR failed.";
-    EXPECT_EQ(mask02 bitor mask04, mem[4].z) << "Vector ulong3 bitwise OR failed.";
-    EXPECT_EQ(mask02 bitor mask04, mem[5].x) << "Vector ulong3 bitwise OR failed.";
-    EXPECT_EQ(mask02 bitor mask05, mem[5].y) << "Vector ulong3 bitwise OR failed.";
-    EXPECT_EQ(mask02 bitor mask04, mem[5].z) << "Vector ulong3 bitwise OR failed.";
-    EXPECT_EQ(mask02 bitor mask04, mem[6].x) << "Vector ulong3 bitwise OR failed.";
-    EXPECT_EQ(mask03 bitor mask04, mem[6].y) << "Vector ulong3 bitwise OR failed.";
-    EXPECT_EQ(mask02 bitor mask04, mem[6].z) << "Vector ulong3 bitwise OR failed.";
-    EXPECT_EQ(mask02 xor mask04, mem[7].x) << "Vector ulong3 bitwise XOR failed.";
-    EXPECT_EQ(mask03 xor mask05, mem[7].y) << "Vector ulong3 bitwise XOR failed.";
-    EXPECT_EQ(mask02 xor mask04, mem[7].z) << "Vector ulong3 bitwise XOR failed.";
-    EXPECT_EQ(mask02 xor mask04, mem[8].x) << "Vector ulong3 bitwise XOR failed.";
-    EXPECT_EQ(mask02 xor mask05, mem[8].y) << "Vector ulong3 bitwise XOR failed.";
-    EXPECT_EQ(mask02 xor mask04, mem[8].z) << "Vector ulong3 bitwise XOR failed.";
-    EXPECT_EQ(mask02 xor mask04, mem[9].x) << "Vector ulong3 bitwise XOR failed.";
-    EXPECT_EQ(mask03 xor mask04, mem[9].y) << "Vector ulong3 bitwise XOR failed.";
-    EXPECT_EQ(mask02 xor mask04, mem[9].z) << "Vector ulong3 bitwise XOR failed.";
-    EXPECT_EQ(32ul << 2ul, mem[10].x) << "Vector ulong3 left shift failed.";
-    EXPECT_EQ(64ul << 4ul, mem[10].y) << "Vector ulong3 left shift failed.";
-    EXPECT_EQ(128ul << 6ul, mem[10].z) << "Vector ulong3 left shift failed.";
-    EXPECT_EQ(32ul << 2ul, mem[11].x) << "Vector ulong3 left shift failed.";
-    EXPECT_EQ(64ul << 2ul, mem[11].y) << "Vector ulong3 left shift failed.";
-    EXPECT_EQ(128ul << 2ul, mem[11].z) << "Vector ulong3 left shift failed.";
-    EXPECT_EQ(32ul >> 2ul, mem[12].x) << "Vector ulong3 right shift failed.";
-    EXPECT_EQ(64ul >> 4ul, mem[12].y) << "Vector ulong3 right shift failed.";
-    EXPECT_EQ(128ul >> 6ul, mem[12].z) << "Vector ulong3 right shift failed.";
-    EXPECT_EQ(32ul >> 2ul, mem[13].x) << "Vector ulong3 right shift failed.";
-    EXPECT_EQ(64ul >> 2ul, mem[13].y) << "Vector ulong3 right shift failed.";
-    EXPECT_EQ(128ul >> 2ul, mem[13].z) << "Vector ulong3 right shift failed.";
+    EXPECT_EQ(compl mask02, mem[0].x) << "Vector uint3 bitwise NOT failed.";
+    EXPECT_EQ(compl mask03, mem[0].y) << "Vector uint3 bitwise NOT failed.";
+    EXPECT_EQ(compl mask02, mem[0].z) << "Vector uint3 bitwise NOT failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[1].x) << "Vector uint3 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask03, mem[1].y) << "Vector uint3 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[1].z) << "Vector uint3 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[2].x) << "Vector uint3 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask03, mem[2].y) << "Vector uint3 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[2].z) << "Vector uint3 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[3].x) << "Vector uint3 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[3].y) << "Vector uint3 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[3].z) << "Vector uint3 bitwise AND failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[4].x) << "Vector uint3 bitwise OR failed.";
+    EXPECT_EQ(mask03 bitor mask05, mem[4].y) << "Vector uint3 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[4].z) << "Vector uint3 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[5].x) << "Vector uint3 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask05, mem[5].y) << "Vector uint3 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[5].z) << "Vector uint3 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[6].x) << "Vector uint3 bitwise OR failed.";
+    EXPECT_EQ(mask03 bitor mask04, mem[6].y) << "Vector uint3 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[6].z) << "Vector uint3 bitwise OR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[7].x) << "Vector uint3 bitwise XOR failed.";
+    EXPECT_EQ(mask03 xor mask05, mem[7].y) << "Vector uint3 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[7].z) << "Vector uint3 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[8].x) << "Vector uint3 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask05, mem[8].y) << "Vector uint3 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[8].z) << "Vector uint3 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[9].x) << "Vector uint3 bitwise XOR failed.";
+    EXPECT_EQ(mask03 xor mask04, mem[9].y) << "Vector uint3 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[9].z) << "Vector uint3 bitwise XOR failed.";
+    EXPECT_EQ(32u << 2u, mem[10].x) << "Vector uint3 left shift failed.";
+    EXPECT_EQ(64u << 4u, mem[10].y) << "Vector uint3 left shift failed.";
+    EXPECT_EQ(128u << 6u, mem[10].z) << "Vector uint3 left shift failed.";
+    EXPECT_EQ(32u << 2u, mem[11].x) << "Vector uint3 left shift failed.";
+    EXPECT_EQ(64u << 2u, mem[11].y) << "Vector uint3 left shift failed.";
+    EXPECT_EQ(128u << 2u, mem[11].z) << "Vector uint3 left shift failed.";
+    EXPECT_EQ(32u >> 2u, mem[12].x) << "Vector uint3 right shift failed.";
+    EXPECT_EQ(64u >> 4u, mem[12].y) << "Vector uint3 right shift failed.";
+    EXPECT_EQ(128u >> 6u, mem[12].z) << "Vector uint3 right shift failed.";
+    EXPECT_EQ(32u >> 2u, mem[13].x) << "Vector uint3 right shift failed.";
+    EXPECT_EQ(64u >> 2u, mem[13].y) << "Vector uint3 right shift failed.";
+    EXPECT_EQ(128u >> 2u, mem[13].z) << "Vector uint3 right shift failed.";
   }
   // output4
   {
-    auto buffer = device->makeBuffer<cl_ulong4>(zivc::BufferUsage::kHostOnly);
+    auto buffer = device->makeBuffer<cl_uint4>(zivc::BufferUsage::kHostOnly);
     ztest::copyBuffer(*buffer_out4, buffer.get());
     const auto mem = buffer->mapMemory();
-    EXPECT_EQ(compl mask02, mem[0].x) << "Vector ulong4 bitwise NOT failed.";
-    EXPECT_EQ(compl mask03, mem[0].y) << "Vector ulong4 bitwise NOT failed.";
-    EXPECT_EQ(compl mask02, mem[0].z) << "Vector ulong4 bitwise NOT failed.";
-    EXPECT_EQ(compl mask03, mem[0].w) << "Vector ulong4 bitwise NOT failed.";
-    EXPECT_EQ(mask01 bitand mask02, mem[1].x) << "Vector ulong4 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask03, mem[1].y) << "Vector ulong4 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask02, mem[1].z) << "Vector ulong4 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask03, mem[1].w) << "Vector ulong4 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask02, mem[2].x) << "Vector ulong4 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask03, mem[2].y) << "Vector ulong4 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask02, mem[2].z) << "Vector ulong4 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask03, mem[2].w) << "Vector ulong4 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask02, mem[3].x) << "Vector ulong4 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask02, mem[3].y) << "Vector ulong4 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask02, mem[3].z) << "Vector ulong4 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask02, mem[3].w) << "Vector ulong4 bitwise AND failed.";
-    EXPECT_EQ(mask02 bitor mask04, mem[4].x) << "Vector ulong4 bitwise OR failed.";
-    EXPECT_EQ(mask03 bitor mask05, mem[4].y) << "Vector ulong4 bitwise OR failed.";
-    EXPECT_EQ(mask02 bitor mask04, mem[4].z) << "Vector ulong4 bitwise OR failed.";
-    EXPECT_EQ(mask03 bitor mask05, mem[4].w) << "Vector ulong4 bitwise OR failed.";
-    EXPECT_EQ(mask02 bitor mask04, mem[5].x) << "Vector ulong4 bitwise OR failed.";
-    EXPECT_EQ(mask02 bitor mask05, mem[5].y) << "Vector ulong4 bitwise OR failed.";
-    EXPECT_EQ(mask02 bitor mask04, mem[5].z) << "Vector ulong4 bitwise OR failed.";
-    EXPECT_EQ(mask02 bitor mask05, mem[5].w) << "Vector ulong4 bitwise OR failed.";
-    EXPECT_EQ(mask02 bitor mask04, mem[6].x) << "Vector ulong4 bitwise OR failed.";
-    EXPECT_EQ(mask03 bitor mask04, mem[6].y) << "Vector ulong4 bitwise OR failed.";
-    EXPECT_EQ(mask02 bitor mask04, mem[6].z) << "Vector ulong4 bitwise OR failed.";
-    EXPECT_EQ(mask03 bitor mask04, mem[6].w) << "Vector ulong4 bitwise OR failed.";
-    EXPECT_EQ(mask02 xor mask04, mem[7].x) << "Vector ulong4 bitwise XOR failed.";
-    EXPECT_EQ(mask03 xor mask05, mem[7].y) << "Vector ulong4 bitwise XOR failed.";
-    EXPECT_EQ(mask02 xor mask04, mem[7].z) << "Vector ulong4 bitwise XOR failed.";
-    EXPECT_EQ(mask03 xor mask05, mem[7].w) << "Vector ulong4 bitwise XOR failed.";
-    EXPECT_EQ(mask02 xor mask04, mem[8].x) << "Vector ulong4 bitwise XOR failed.";
-    EXPECT_EQ(mask02 xor mask05, mem[8].y) << "Vector ulong4 bitwise XOR failed.";
-    EXPECT_EQ(mask02 xor mask04, mem[8].z) << "Vector ulong4 bitwise XOR failed.";
-    EXPECT_EQ(mask02 xor mask05, mem[8].w) << "Vector ulong4 bitwise XOR failed.";
-    EXPECT_EQ(mask02 xor mask04, mem[9].x) << "Vector ulong4 bitwise XOR failed.";
-    EXPECT_EQ(mask03 xor mask04, mem[9].y) << "Vector ulong4 bitwise XOR failed.";
-    EXPECT_EQ(mask02 xor mask04, mem[9].z) << "Vector ulong4 bitwise XOR failed.";
-    EXPECT_EQ(mask03 xor mask04, mem[9].w) << "Vector ulong4 bitwise XOR failed.";
-    EXPECT_EQ(32ul << 2ul, mem[10].x) << "Vector ulong4 left shift failed.";
-    EXPECT_EQ(64ul << 4ul, mem[10].y) << "Vector ulong4 left shift failed.";
-    EXPECT_EQ(128ul << 6ul, mem[10].z) << "Vector ulong4 left shift failed.";
-    EXPECT_EQ(256ul << 8ul, mem[10].w) << "Vector ulong4 left shift failed.";
-    EXPECT_EQ(32ul << 2ul, mem[11].x) << "Vector ulong4 left shift failed.";
-    EXPECT_EQ(64ul << 2ul, mem[11].y) << "Vector ulong4 left shift failed.";
-    EXPECT_EQ(128ul << 2ul, mem[11].z) << "Vector ulong4 left shift failed.";
-    EXPECT_EQ(256ul << 2ul, mem[11].w) << "Vector ulong4 left shift failed.";
-    EXPECT_EQ(32ul >> 2ul, mem[12].x) << "Vector ulong4 right shift failed.";
-    EXPECT_EQ(64ul >> 4ul, mem[12].y) << "Vector ulong4 right shift failed.";
-    EXPECT_EQ(128ul >> 6ul, mem[12].z) << "Vector ulong4 right shift failed.";
-    EXPECT_EQ(256ul >> 8ul, mem[12].w) << "Vector ulong4 right shift failed.";
-    EXPECT_EQ(32ul >> 2ul, mem[13].x) << "Vector ulong4 right shift failed.";
-    EXPECT_EQ(64ul >> 2ul, mem[13].y) << "Vector ulong4 right shift failed.";
-    EXPECT_EQ(128ul >> 2ul, mem[13].z) << "Vector ulong4 right shift failed.";
-    EXPECT_EQ(256ul >> 2ul, mem[13].w) << "Vector ulong4 right shift failed.";
+    EXPECT_EQ(compl mask02, mem[0].x) << "Vector uint4 bitwise NOT failed.";
+    EXPECT_EQ(compl mask03, mem[0].y) << "Vector uint4 bitwise NOT failed.";
+    EXPECT_EQ(compl mask02, mem[0].z) << "Vector uint4 bitwise NOT failed.";
+    EXPECT_EQ(compl mask03, mem[0].w) << "Vector uint4 bitwise NOT failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[1].x) << "Vector uint4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask03, mem[1].y) << "Vector uint4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[1].z) << "Vector uint4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask03, mem[1].w) << "Vector uint4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[2].x) << "Vector uint4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask03, mem[2].y) << "Vector uint4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[2].z) << "Vector uint4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask03, mem[2].w) << "Vector uint4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[3].x) << "Vector uint4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[3].y) << "Vector uint4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[3].z) << "Vector uint4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[3].w) << "Vector uint4 bitwise AND failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[4].x) << "Vector uint4 bitwise OR failed.";
+    EXPECT_EQ(mask03 bitor mask05, mem[4].y) << "Vector uint4 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[4].z) << "Vector uint4 bitwise OR failed.";
+    EXPECT_EQ(mask03 bitor mask05, mem[4].w) << "Vector uint4 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[5].x) << "Vector uint4 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask05, mem[5].y) << "Vector uint4 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[5].z) << "Vector uint4 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask05, mem[5].w) << "Vector uint4 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[6].x) << "Vector uint4 bitwise OR failed.";
+    EXPECT_EQ(mask03 bitor mask04, mem[6].y) << "Vector uint4 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[6].z) << "Vector uint4 bitwise OR failed.";
+    EXPECT_EQ(mask03 bitor mask04, mem[6].w) << "Vector uint4 bitwise OR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[7].x) << "Vector uint4 bitwise XOR failed.";
+    EXPECT_EQ(mask03 xor mask05, mem[7].y) << "Vector uint4 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[7].z) << "Vector uint4 bitwise XOR failed.";
+    EXPECT_EQ(mask03 xor mask05, mem[7].w) << "Vector uint4 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[8].x) << "Vector uint4 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask05, mem[8].y) << "Vector uint4 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[8].z) << "Vector uint4 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask05, mem[8].w) << "Vector uint4 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[9].x) << "Vector uint4 bitwise XOR failed.";
+    EXPECT_EQ(mask03 xor mask04, mem[9].y) << "Vector uint4 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[9].z) << "Vector uint4 bitwise XOR failed.";
+    EXPECT_EQ(mask03 xor mask04, mem[9].w) << "Vector uint4 bitwise XOR failed.";
+    EXPECT_EQ(32u << 2u, mem[10].x) << "Vector uint4 left shift failed.";
+    EXPECT_EQ(64u << 4u, mem[10].y) << "Vector uint4 left shift failed.";
+    EXPECT_EQ(128u << 6u, mem[10].z) << "Vector uint4 left shift failed.";
+    EXPECT_EQ(256u << 8u, mem[10].w) << "Vector uint4 left shift failed.";
+    EXPECT_EQ(32u << 2u, mem[11].x) << "Vector uint4 left shift failed.";
+    EXPECT_EQ(64u << 2u, mem[11].y) << "Vector uint4 left shift failed.";
+    EXPECT_EQ(128u << 2u, mem[11].z) << "Vector uint4 left shift failed.";
+    EXPECT_EQ(256u << 2u, mem[11].w) << "Vector uint4 left shift failed.";
+    EXPECT_EQ(32u >> 2u, mem[12].x) << "Vector uint4 right shift failed.";
+    EXPECT_EQ(64u >> 4u, mem[12].y) << "Vector uint4 right shift failed.";
+    EXPECT_EQ(128u >> 6u, mem[12].z) << "Vector uint4 right shift failed.";
+    EXPECT_EQ(256u >> 8u, mem[12].w) << "Vector uint4 right shift failed.";
+    EXPECT_EQ(32u >> 2u, mem[13].x) << "Vector uint4 right shift failed.";
+    EXPECT_EQ(64u >> 2u, mem[13].y) << "Vector uint4 right shift failed.";
+    EXPECT_EQ(128u >> 2u, mem[13].z) << "Vector uint4 right shift failed.";
+    EXPECT_EQ(256u >> 2u, mem[13].w) << "Vector uint4 right shift failed.";
   }
 }
 
@@ -1160,61 +1160,61 @@ TEST(ClCppTest, VectorBitwiseAssignmentOperatorTest)
   zivc::SharedDevice device = platform->queryDevice(config.deviceId());
 
   // Allocate buffers
-  using zivc::uint64b;
-  using zivc::cl_ulong2;
-  using zivc::cl_ulong3;
-  using zivc::cl_ulong4;
+  using zivc::uint32b;
+  using zivc::cl_uint2;
+  using zivc::cl_uint3;
+  using zivc::cl_uint4;
 
-  constexpr uint64b mask01 = std::numeric_limits<uint64b>::max();
-  constexpr uint64b mask02 = 0b0101'0101'1010'1010'1100'0011'0000'1111ul;
-  constexpr uint64b mask03 = 0b0101'0101'0101'0101'0101'0101'0101'0101ul;
-  constexpr uint64b mask04 = 0b0000'0000'0000'0000'1111'1111'1111'1111ul;
-  constexpr uint64b mask05 = 0b1111'1111'1111'1111'0000'0000'0000'0000ul;
+  constexpr uint32b mask01 = std::numeric_limits<uint32b>::max();
+  constexpr uint32b mask02 = 0b0101'0101'1010'1010'1100'0011'0000'1111u;
+  constexpr uint32b mask03 = 0b0101'0101'0101'0101'0101'0101'0101'0101u;
+  constexpr uint32b mask04 = 0b0000'0000'0000'0000'1111'1111'1111'1111u;
+  constexpr uint32b mask05 = 0b1111'1111'1111'1111'0000'0000'0000'0000u;
 
-  auto buffer_in2 = device->makeBuffer<cl_ulong2>(zivc::BufferUsage::kDeviceOnly);
+  auto buffer_in2 = device->makeBuffer<cl_uint2>(zivc::BufferUsage::kDeviceOnly);
   {
-    std::initializer_list<cl_ulong2> v = {cl_ulong2{mask01, mask01},
-                                          cl_ulong2{mask02, mask03},
-                                          cl_ulong2{mask04, mask05},
-                                          cl_ulong2{32ul, 64ul},
-                                          cl_ulong2{2ul, 4ul}};
+    std::initializer_list<cl_uint2> v = {cl_uint2{mask01, mask01},
+                                         cl_uint2{mask02, mask03},
+                                         cl_uint2{mask04, mask05},
+                                         cl_uint2{32u, 64u},
+                                         cl_uint2{2u, 4u}};
     ztest::setDeviceBuffer(*device, v, buffer_in2.get());
   }
-  auto buffer_in3 = device->makeBuffer<cl_ulong3>(zivc::BufferUsage::kDeviceOnly);
+  auto buffer_in3 = device->makeBuffer<cl_uint3>(zivc::BufferUsage::kDeviceOnly);
   {
-    std::initializer_list<cl_ulong3> v = {cl_ulong3{mask01, mask01, mask01},
-                                          cl_ulong3{mask02, mask03, mask02},
-                                          cl_ulong3{mask04, mask05, mask04},
-                                          cl_ulong3{32ul, 64ul, 128ul},
-                                          cl_ulong3{2ul, 4ul, 6ul}};
+    std::initializer_list<cl_uint3> v = {cl_uint3{mask01, mask01, mask01},
+                                         cl_uint3{mask02, mask03, mask02},
+                                         cl_uint3{mask04, mask05, mask04},
+                                         cl_uint3{32u, 64u, 128u},
+                                         cl_uint3{2u, 4u, 6u}};
     ztest::setDeviceBuffer(*device, v, buffer_in3.get());
   }
-  auto buffer_in4 = device->makeBuffer<cl_ulong4>(zivc::BufferUsage::kDeviceOnly);
+  auto buffer_in4 = device->makeBuffer<cl_uint4>(zivc::BufferUsage::kDeviceOnly);
   {
-    std::initializer_list<cl_ulong4> v = {cl_ulong4{mask01, mask01, mask01, mask01},
-                                          cl_ulong4{mask02, mask03, mask02, mask03},
-                                          cl_ulong4{mask04, mask05, mask04, mask05},
-                                          cl_ulong4{32ul, 64ul, 128ul, 256ul},
-                                          cl_ulong4{2ul, 4ul, 6ul, 8ul}};
+    std::initializer_list<cl_uint4> v = {cl_uint4{mask01, mask01, mask01, mask01},
+                                         cl_uint4{mask02, mask03, mask02, mask03},
+                                         cl_uint4{mask04, mask05, mask04, mask05},
+                                         cl_uint4{32u, 64u, 128u, 256u},
+                                         cl_uint4{2u, 4u, 6u, 8u}};
     ztest::setDeviceBuffer(*device, v, buffer_in4.get());
   }
   const std::size_t n = 14;
-  auto buffer_out2 = device->makeBuffer<cl_ulong2>(zivc::BufferUsage::kDeviceOnly);
+  auto buffer_out2 = device->makeBuffer<cl_uint2>(zivc::BufferUsage::kDeviceOnly);
   buffer_out2->setSize(n);
   {
-    const cl_ulong2 v{0, 0};
+    const cl_uint2 v{0, 0};
     ztest::fillDeviceBuffer(v, buffer_out2.get());
   }
-  auto buffer_out3 = device->makeBuffer<cl_ulong3>(zivc::BufferUsage::kDeviceOnly);
+  auto buffer_out3 = device->makeBuffer<cl_uint3>(zivc::BufferUsage::kDeviceOnly);
   buffer_out3->setSize(n);
   {
-    const cl_ulong3 v{0, 0, 0};
+    const cl_uint3 v{0, 0, 0};
     ztest::fillDeviceBuffer(v, buffer_out3.get());
   }
-  auto buffer_out4 = device->makeBuffer<cl_ulong4>(zivc::BufferUsage::kDeviceOnly);
+  auto buffer_out4 = device->makeBuffer<cl_uint4>(zivc::BufferUsage::kDeviceOnly);
   buffer_out4->setSize(n);
   {
-    const cl_ulong4 v{0, 0, 0, 0};
+    const cl_uint4 v{0, 0, 0, 0};
     ztest::fillDeviceBuffer(v, buffer_out4.get());
   }
 
@@ -1244,111 +1244,111 @@ TEST(ClCppTest, VectorBitwiseAssignmentOperatorTest)
 
   // output2
   {
-    auto buffer = device->makeBuffer<cl_ulong2>(zivc::BufferUsage::kHostOnly);
+    auto buffer = device->makeBuffer<cl_uint2>(zivc::BufferUsage::kHostOnly);
     ztest::copyBuffer(*buffer_out2, buffer.get());
     const auto mem = buffer->mapMemory();
-    EXPECT_EQ(mask01 bitand mask02, mem[0].x) << "Vector ulong2 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask03, mem[0].y) << "Vector ulong2 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask02, mem[1].x) << "Vector ulong2 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask02, mem[1].y) << "Vector ulong2 bitwise AND failed.";
-    EXPECT_EQ(mask02 bitor mask04, mem[2].x) << "Vector ulong2 bitwise OR failed.";
-    EXPECT_EQ(mask03 bitor mask05, mem[2].y) << "Vector ulong2 bitwise OR failed.";
-    EXPECT_EQ(mask02 bitor mask04, mem[3].x) << "Vector ulong2 bitwise OR failed.";
-    EXPECT_EQ(mask03 bitor mask04, mem[3].y) << "Vector ulong2 bitwise OR failed.";
-    EXPECT_EQ(mask02 xor mask04, mem[4].x) << "Vector ulong2 bitwise XOR failed.";
-    EXPECT_EQ(mask03 xor mask05, mem[4].y) << "Vector ulong2 bitwise XOR failed.";
-    EXPECT_EQ(mask02 xor mask04, mem[5].x) << "Vector ulong2 bitwise XOR failed.";
-    EXPECT_EQ(mask03 xor mask04, mem[5].y) << "Vector ulong2 bitwise XOR failed.";
-    EXPECT_EQ(32ul << 2ul, mem[6].x) << "Vector ulong2 left shift failed.";
-    EXPECT_EQ(64ul << 4ul, mem[6].y) << "Vector ulong2 left shift failed.";
-    EXPECT_EQ(32ul << 2ul, mem[7].x) << "Vector ulong2 left shift failed.";
-    EXPECT_EQ(64ul << 2ul, mem[7].y) << "Vector ulong2 left shift failed.";
-    EXPECT_EQ(32ul >> 2ul, mem[8].x) << "Vector ulong2 right shift failed.";
-    EXPECT_EQ(64ul >> 4ul, mem[8].y) << "Vector ulong2 right shift failed.";
-    EXPECT_EQ(32ul >> 2ul, mem[9].x) << "Vector ulong2 right shift failed.";
-    EXPECT_EQ(64ul >> 2ul, mem[9].y) << "Vector ulong2 right shift failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[0].x) << "Vector uint2 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask03, mem[0].y) << "Vector uint2 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[1].x) << "Vector uint2 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[1].y) << "Vector uint2 bitwise AND failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[2].x) << "Vector uint2 bitwise OR failed.";
+    EXPECT_EQ(mask03 bitor mask05, mem[2].y) << "Vector uint2 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[3].x) << "Vector uint2 bitwise OR failed.";
+    EXPECT_EQ(mask03 bitor mask04, mem[3].y) << "Vector uint2 bitwise OR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[4].x) << "Vector uint2 bitwise XOR failed.";
+    EXPECT_EQ(mask03 xor mask05, mem[4].y) << "Vector uint2 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[5].x) << "Vector uint2 bitwise XOR failed.";
+    EXPECT_EQ(mask03 xor mask04, mem[5].y) << "Vector uint2 bitwise XOR failed.";
+    EXPECT_EQ(32u << 2u, mem[6].x) << "Vector uint2 left shift failed.";
+    EXPECT_EQ(64u << 4u, mem[6].y) << "Vector uint2 left shift failed.";
+    EXPECT_EQ(32u << 2u, mem[7].x) << "Vector uint2 left shift failed.";
+    EXPECT_EQ(64u << 2u, mem[7].y) << "Vector uint2 left shift failed.";
+    EXPECT_EQ(32u >> 2u, mem[8].x) << "Vector uint2 right shift failed.";
+    EXPECT_EQ(64u >> 4u, mem[8].y) << "Vector uint2 right shift failed.";
+    EXPECT_EQ(32u >> 2u, mem[9].x) << "Vector uint2 right shift failed.";
+    EXPECT_EQ(64u >> 2u, mem[9].y) << "Vector uint2 right shift failed.";
   }
   // output3
   {
-    auto buffer = device->makeBuffer<cl_ulong3>(zivc::BufferUsage::kHostOnly);
+    auto buffer = device->makeBuffer<cl_uint3>(zivc::BufferUsage::kHostOnly);
     ztest::copyBuffer(*buffer_out3, buffer.get());
     const auto mem = buffer->mapMemory();
-    EXPECT_EQ(mask01 bitand mask02, mem[0].x) << "Vector ulong3 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask03, mem[0].y) << "Vector ulong3 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask02, mem[0].z) << "Vector ulong3 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask02, mem[1].x) << "Vector ulong3 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask02, mem[1].y) << "Vector ulong3 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask02, mem[1].z) << "Vector ulong3 bitwise AND failed.";
-    EXPECT_EQ(mask02 bitor mask04, mem[2].x) << "Vector ulong3 bitwise OR failed.";
-    EXPECT_EQ(mask03 bitor mask05, mem[2].y) << "Vector ulong3 bitwise OR failed.";
-    EXPECT_EQ(mask02 bitor mask04, mem[2].z) << "Vector ulong3 bitwise OR failed.";
-    EXPECT_EQ(mask02 bitor mask04, mem[3].x) << "Vector ulong3 bitwise OR failed.";
-    EXPECT_EQ(mask03 bitor mask04, mem[3].y) << "Vector ulong3 bitwise OR failed.";
-    EXPECT_EQ(mask02 bitor mask04, mem[3].z) << "Vector ulong3 bitwise OR failed.";
-    EXPECT_EQ(mask02 xor mask04, mem[4].x) << "Vector ulong3 bitwise XOR failed.";
-    EXPECT_EQ(mask03 xor mask05, mem[4].y) << "Vector ulong3 bitwise XOR failed.";
-    EXPECT_EQ(mask02 xor mask04, mem[4].z) << "Vector ulong3 bitwise XOR failed.";
-    EXPECT_EQ(mask02 xor mask04, mem[5].x) << "Vector ulong3 bitwise XOR failed.";
-    EXPECT_EQ(mask03 xor mask04, mem[5].y) << "Vector ulong3 bitwise XOR failed.";
-    EXPECT_EQ(mask02 xor mask04, mem[5].z) << "Vector ulong3 bitwise XOR failed.";
-    EXPECT_EQ(32ul << 2ul, mem[6].x) << "Vector ulong3 left shift failed.";
-    EXPECT_EQ(64ul << 4ul, mem[6].y) << "Vector ulong3 left shift failed.";
-    EXPECT_EQ(128ul << 6ul, mem[6].z) << "Vector ulong3 left shift failed.";
-    EXPECT_EQ(32ul << 2ul, mem[7].x) << "Vector ulong3 left shift failed.";
-    EXPECT_EQ(64ul << 2ul, mem[7].y) << "Vector ulong3 left shift failed.";
-    EXPECT_EQ(128ul << 2ul, mem[7].z) << "Vector ulong3 left shift failed.";
-    EXPECT_EQ(32ul >> 2ul, mem[8].x) << "Vector ulong3 right shift failed.";
-    EXPECT_EQ(64ul >> 4ul, mem[8].y) << "Vector ulong3 right shift failed.";
-    EXPECT_EQ(128ul >> 6ul, mem[8].z) << "Vector ulong3 right shift failed.";
-    EXPECT_EQ(32ul >> 2ul, mem[9].x) << "Vector ulong3 right shift failed.";
-    EXPECT_EQ(64ul >> 2ul, mem[9].y) << "Vector ulong3 right shift failed.";
-    EXPECT_EQ(128ul >> 2ul, mem[9].z) << "Vector ulong3 right shift failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[0].x) << "Vector uint3 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask03, mem[0].y) << "Vector uint3 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[0].z) << "Vector uint3 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[1].x) << "Vector uint3 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[1].y) << "Vector uint3 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[1].z) << "Vector uint3 bitwise AND failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[2].x) << "Vector uint3 bitwise OR failed.";
+    EXPECT_EQ(mask03 bitor mask05, mem[2].y) << "Vector uint3 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[2].z) << "Vector uint3 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[3].x) << "Vector uint3 bitwise OR failed.";
+    EXPECT_EQ(mask03 bitor mask04, mem[3].y) << "Vector uint3 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[3].z) << "Vector uint3 bitwise OR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[4].x) << "Vector uint3 bitwise XOR failed.";
+    EXPECT_EQ(mask03 xor mask05, mem[4].y) << "Vector uint3 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[4].z) << "Vector uint3 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[5].x) << "Vector uint3 bitwise XOR failed.";
+    EXPECT_EQ(mask03 xor mask04, mem[5].y) << "Vector uint3 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[5].z) << "Vector uint3 bitwise XOR failed.";
+    EXPECT_EQ(32u << 2u, mem[6].x) << "Vector uint3 left shift failed.";
+    EXPECT_EQ(64u << 4u, mem[6].y) << "Vector uint3 left shift failed.";
+    EXPECT_EQ(128u << 6u, mem[6].z) << "Vector uint3 left shift failed.";
+    EXPECT_EQ(32u << 2u, mem[7].x) << "Vector uint3 left shift failed.";
+    EXPECT_EQ(64u << 2u, mem[7].y) << "Vector uint3 left shift failed.";
+    EXPECT_EQ(128u << 2u, mem[7].z) << "Vector uint3 left shift failed.";
+    EXPECT_EQ(32u >> 2u, mem[8].x) << "Vector uint3 right shift failed.";
+    EXPECT_EQ(64u >> 4u, mem[8].y) << "Vector uint3 right shift failed.";
+    EXPECT_EQ(128u >> 6u, mem[8].z) << "Vector uint3 right shift failed.";
+    EXPECT_EQ(32u >> 2u, mem[9].x) << "Vector uint3 right shift failed.";
+    EXPECT_EQ(64u >> 2u, mem[9].y) << "Vector uint3 right shift failed.";
+    EXPECT_EQ(128u >> 2u, mem[9].z) << "Vector uint3 right shift failed.";
   }
   // output4
   {
-    auto buffer = device->makeBuffer<cl_ulong4>(zivc::BufferUsage::kHostOnly);
+    auto buffer = device->makeBuffer<cl_uint4>(zivc::BufferUsage::kHostOnly);
     ztest::copyBuffer(*buffer_out4, buffer.get());
     const auto mem = buffer->mapMemory();
-    EXPECT_EQ(mask01 bitand mask02, mem[0].x) << "Vector ulong4 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask03, mem[0].y) << "Vector ulong4 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask02, mem[0].z) << "Vector ulong4 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask03, mem[0].w) << "Vector ulong4 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask02, mem[1].x) << "Vector ulong4 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask02, mem[1].y) << "Vector ulong4 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask02, mem[1].z) << "Vector ulong4 bitwise AND failed.";
-    EXPECT_EQ(mask01 bitand mask02, mem[1].w) << "Vector ulong4 bitwise AND failed.";
-    EXPECT_EQ(mask02 bitor mask04, mem[2].x) << "Vector ulong4 bitwise OR failed.";
-    EXPECT_EQ(mask03 bitor mask05, mem[2].y) << "Vector ulong4 bitwise OR failed.";
-    EXPECT_EQ(mask02 bitor mask04, mem[2].z) << "Vector ulong4 bitwise OR failed.";
-    EXPECT_EQ(mask03 bitor mask05, mem[2].w) << "Vector ulong4 bitwise OR failed.";
-    EXPECT_EQ(mask02 bitor mask04, mem[3].x) << "Vector ulong4 bitwise OR failed.";
-    EXPECT_EQ(mask03 bitor mask04, mem[3].y) << "Vector ulong4 bitwise OR failed.";
-    EXPECT_EQ(mask02 bitor mask04, mem[3].z) << "Vector ulong4 bitwise OR failed.";
-    EXPECT_EQ(mask03 bitor mask04, mem[3].w) << "Vector ulong4 bitwise OR failed.";
-    EXPECT_EQ(mask02 xor mask04, mem[4].x) << "Vector ulong4 bitwise XOR failed.";
-    EXPECT_EQ(mask03 xor mask05, mem[4].y) << "Vector ulong4 bitwise XOR failed.";
-    EXPECT_EQ(mask02 xor mask04, mem[4].z) << "Vector ulong4 bitwise XOR failed.";
-    EXPECT_EQ(mask03 xor mask05, mem[4].w) << "Vector ulong4 bitwise XOR failed.";
-    EXPECT_EQ(mask02 xor mask04, mem[5].x) << "Vector ulong4 bitwise XOR failed.";
-    EXPECT_EQ(mask03 xor mask04, mem[5].y) << "Vector ulong4 bitwise XOR failed.";
-    EXPECT_EQ(mask02 xor mask04, mem[5].z) << "Vector ulong4 bitwise XOR failed.";
-    EXPECT_EQ(mask03 xor mask04, mem[5].w) << "Vector ulong4 bitwise XOR failed.";
-    EXPECT_EQ(32ul << 2ul, mem[6].x) << "Vector ulong4 left shift failed.";
-    EXPECT_EQ(64ul << 4ul, mem[6].y) << "Vector ulong4 left shift failed.";
-    EXPECT_EQ(128ul << 6ul, mem[6].z) << "Vector ulong4 left shift failed.";
-    EXPECT_EQ(256ul << 8ul, mem[6].w) << "Vector ulong4 left shift failed.";
-    EXPECT_EQ(32ul << 2ul, mem[7].x) << "Vector ulong4 left shift failed.";
-    EXPECT_EQ(64ul << 2ul, mem[7].y) << "Vector ulong4 left shift failed.";
-    EXPECT_EQ(128ul << 2ul, mem[7].z) << "Vector ulong4 left shift failed.";
-    EXPECT_EQ(256ul << 2ul, mem[7].w) << "Vector ulong4 left shift failed.";
-    EXPECT_EQ(32ul >> 2ul, mem[8].x) << "Vector ulong4 right shift failed.";
-    EXPECT_EQ(64ul >> 4ul, mem[8].y) << "Vector ulong4 right shift failed.";
-    EXPECT_EQ(128ul >> 6ul, mem[8].z) << "Vector ulong4 right shift failed.";
-    EXPECT_EQ(256ul >> 8ul, mem[8].w) << "Vector ulong4 right shift failed.";
-    EXPECT_EQ(32ul >> 2ul, mem[9].x) << "Vector ulong4 right shift failed.";
-    EXPECT_EQ(64ul >> 2ul, mem[9].y) << "Vector ulong4 right shift failed.";
-    EXPECT_EQ(128ul >> 2ul, mem[9].z) << "Vector ulong4 right shift failed.";
-    EXPECT_EQ(256ul >> 2ul, mem[9].w) << "Vector ulong4 right shift failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[0].x) << "Vector uint4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask03, mem[0].y) << "Vector uint4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[0].z) << "Vector uint4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask03, mem[0].w) << "Vector uint4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[1].x) << "Vector uint4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[1].y) << "Vector uint4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[1].z) << "Vector uint4 bitwise AND failed.";
+    EXPECT_EQ(mask01 bitand mask02, mem[1].w) << "Vector uint4 bitwise AND failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[2].x) << "Vector uint4 bitwise OR failed.";
+    EXPECT_EQ(mask03 bitor mask05, mem[2].y) << "Vector uint4 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[2].z) << "Vector uint4 bitwise OR failed.";
+    EXPECT_EQ(mask03 bitor mask05, mem[2].w) << "Vector uint4 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[3].x) << "Vector uint4 bitwise OR failed.";
+    EXPECT_EQ(mask03 bitor mask04, mem[3].y) << "Vector uint4 bitwise OR failed.";
+    EXPECT_EQ(mask02 bitor mask04, mem[3].z) << "Vector uint4 bitwise OR failed.";
+    EXPECT_EQ(mask03 bitor mask04, mem[3].w) << "Vector uint4 bitwise OR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[4].x) << "Vector uint4 bitwise XOR failed.";
+    EXPECT_EQ(mask03 xor mask05, mem[4].y) << "Vector uint4 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[4].z) << "Vector uint4 bitwise XOR failed.";
+    EXPECT_EQ(mask03 xor mask05, mem[4].w) << "Vector uint4 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[5].x) << "Vector uint4 bitwise XOR failed.";
+    EXPECT_EQ(mask03 xor mask04, mem[5].y) << "Vector uint4 bitwise XOR failed.";
+    EXPECT_EQ(mask02 xor mask04, mem[5].z) << "Vector uint4 bitwise XOR failed.";
+    EXPECT_EQ(mask03 xor mask04, mem[5].w) << "Vector uint4 bitwise XOR failed.";
+    EXPECT_EQ(32u << 2u, mem[6].x) << "Vector uint4 left shift failed.";
+    EXPECT_EQ(64u << 4u, mem[6].y) << "Vector uint4 left shift failed.";
+    EXPECT_EQ(128u << 6u, mem[6].z) << "Vector uint4 left shift failed.";
+    EXPECT_EQ(256u << 8u, mem[6].w) << "Vector uint4 left shift failed.";
+    EXPECT_EQ(32u << 2u, mem[7].x) << "Vector uint4 left shift failed.";
+    EXPECT_EQ(64u << 2u, mem[7].y) << "Vector uint4 left shift failed.";
+    EXPECT_EQ(128u << 2u, mem[7].z) << "Vector uint4 left shift failed.";
+    EXPECT_EQ(256u << 2u, mem[7].w) << "Vector uint4 left shift failed.";
+    EXPECT_EQ(32u >> 2u, mem[8].x) << "Vector uint4 right shift failed.";
+    EXPECT_EQ(64u >> 4u, mem[8].y) << "Vector uint4 right shift failed.";
+    EXPECT_EQ(128u >> 6u, mem[8].z) << "Vector uint4 right shift failed.";
+    EXPECT_EQ(256u >> 8u, mem[8].w) << "Vector uint4 right shift failed.";
+    EXPECT_EQ(32u >> 2u, mem[9].x) << "Vector uint4 right shift failed.";
+    EXPECT_EQ(64u >> 2u, mem[9].y) << "Vector uint4 right shift failed.";
+    EXPECT_EQ(128u >> 2u, mem[9].z) << "Vector uint4 right shift failed.";
+    EXPECT_EQ(256u >> 2u, mem[9].w) << "Vector uint4 right shift failed.";
   }
 }
 
@@ -1539,20 +1539,6 @@ TEST(ClCppTest, VectorComparisonOperatorTest)
   auto result = kernel->run(*buffer_in4, *buffer_out, launch_options);
   device->waitForCompletion(result.fence());
 
-  // output4
-  {
-    auto buffer = device->makeBuffer<cl_int4>(zivc::BufferUsage::kHostOnly);
-    ztest::copyBuffer(*buffer_in4, buffer.get());
-    const auto mem = buffer->mapMemory();
-    EXPECT_EQ( 1, mem[3].x) << "Vector int4 conditional operator failed.";
-    EXPECT_EQ( 2, mem[3].y) << "Vector int4 conditional operator failed.";
-    EXPECT_EQ( 3, mem[3].z) << "Vector int4 conditional operator failed.";
-    EXPECT_EQ( 4, mem[3].w) << "Vector int4 conditional operator failed.";
-    EXPECT_EQ(-1, mem[4].x) << "Vector int4 conditional operator failed.";
-    EXPECT_EQ(-2, mem[4].y) << "Vector int4 conditional operator failed.";
-    EXPECT_EQ(-3, mem[4].z) << "Vector int4 conditional operator failed.";
-    EXPECT_EQ(-4, mem[4].w) << "Vector int4 conditional operator failed.";
-  }
   // output
   {
     auto buffer = device->makeBuffer<cl_Boolean>(zivc::BufferUsage::kHostOnly);

@@ -864,12 +864,12 @@ __kernel void vectorArithmeticAssignmentOperatorTest(
 }
 
 __kernel void vectorBitwiseOperatorTest(
-    zivc::ConstGlobalPtr<ulong2> in_ulong2,
-    zivc::ConstGlobalPtr<ulong3> in_ulong3,
-    zivc::ConstGlobalPtr<ulong4> in_ulong4,
-    zivc::GlobalPtr<ulong2> out_ulong2,
-    zivc::GlobalPtr<ulong3> out_ulong3,
-    zivc::GlobalPtr<ulong4> out_ulong4)
+    zivc::ConstGlobalPtr<uint2> in_uint2,
+    zivc::ConstGlobalPtr<uint3> in_uint3,
+    zivc::ConstGlobalPtr<uint4> in_uint4,
+    zivc::GlobalPtr<uint2> out_uint2,
+    zivc::GlobalPtr<uint3> out_uint3,
+    zivc::GlobalPtr<uint4> out_uint4)
 {
   const size_t global_index = zivc::getGlobalIdX();
   if (global_index != 0)
@@ -879,137 +879,137 @@ __kernel void vectorBitwiseOperatorTest(
   size_t oindex = 0;
   // bitwise NOT
   {
-    const ulong2 v = in_ulong2[iindex + 1];
-    out_ulong2[oindex] = ~v;
+    const uint2 v = in_uint2[iindex + 1];
+    out_uint2[oindex] = ~v;
   }
   {
-    const ulong3 v = in_ulong3[iindex + 1];
-    out_ulong3[oindex] = ~v;
+    const uint3 v = in_uint3[iindex + 1];
+    out_uint3[oindex] = ~v;
   }
   {
-    const ulong4 v = in_ulong4[iindex + 1];
-    out_ulong4[oindex] = ~v;
+    const uint4 v = in_uint4[iindex + 1];
+    out_uint4[oindex] = ~v;
   }
   ++oindex;
   // bitwise AND
   {
-    const ulong2 v0 = in_ulong2[iindex];
-    const ulong2 v1 = in_ulong2[iindex + 1];
-    out_ulong2[oindex] = v0 & v1;
-    out_ulong2[oindex + 1] = v0.x & v1;
-    out_ulong2[oindex + 2] = v0 & v1.x;
+    const uint2 v0 = in_uint2[iindex];
+    const uint2 v1 = in_uint2[iindex + 1];
+    out_uint2[oindex] = v0 & v1;
+    out_uint2[oindex + 1] = v0.x & v1;
+    out_uint2[oindex + 2] = v0 & v1.x;
   }
   {
-    const ulong3 v0 = in_ulong3[iindex];
-    const ulong3 v1 = in_ulong3[iindex + 1];
-    out_ulong3[oindex] = v0 & v1;
-    out_ulong3[oindex + 1] = v0.x & v1;
-    out_ulong3[oindex + 2] = v0 & v1.x;
+    const uint3 v0 = in_uint3[iindex];
+    const uint3 v1 = in_uint3[iindex + 1];
+    out_uint3[oindex] = v0 & v1;
+    out_uint3[oindex + 1] = v0.x & v1;
+    out_uint3[oindex + 2] = v0 & v1.x;
   }
   {
-    const ulong4 v0 = in_ulong4[iindex];
-    const ulong4 v1 = in_ulong4[iindex + 1];
-    out_ulong4[oindex] = v0 & v1;
-    out_ulong4[oindex + 1] = v0.x & v1;
-    out_ulong4[oindex + 2] = v0 & v1.x;
+    const uint4 v0 = in_uint4[iindex];
+    const uint4 v1 = in_uint4[iindex + 1];
+    out_uint4[oindex] = v0 & v1;
+    out_uint4[oindex + 1] = v0.x & v1;
+    out_uint4[oindex + 2] = v0 & v1.x;
   }
   ++iindex;
   oindex += 3;
   // bitwise OR
   {
-    const ulong2 v0 = in_ulong2[iindex];
-    const ulong2 v1 = in_ulong2[iindex + 1];
-    out_ulong2[oindex] = v0 | v1;
-    out_ulong2[oindex + 1] = v0.x | v1;
-    out_ulong2[oindex + 2] = v0 | v1.x;
+    const uint2 v0 = in_uint2[iindex];
+    const uint2 v1 = in_uint2[iindex + 1];
+    out_uint2[oindex] = v0 | v1;
+    out_uint2[oindex + 1] = v0.x | v1;
+    out_uint2[oindex + 2] = v0 | v1.x;
   }
   {
-    const ulong3 v0 = in_ulong3[iindex];
-    const ulong3 v1 = in_ulong3[iindex + 1];
-    out_ulong3[oindex] = v0 | v1;
-    out_ulong3[oindex + 1] = v0.x | v1;
-    out_ulong3[oindex + 2] = v0 | v1.x;
+    const uint3 v0 = in_uint3[iindex];
+    const uint3 v1 = in_uint3[iindex + 1];
+    out_uint3[oindex] = v0 | v1;
+    out_uint3[oindex + 1] = v0.x | v1;
+    out_uint3[oindex + 2] = v0 | v1.x;
   }
   {
-    const ulong4 v0 = in_ulong4[iindex];
-    const ulong4 v1 = in_ulong4[iindex + 1];
-    out_ulong4[oindex] = v0 | v1;
-    out_ulong4[oindex + 1] = v0.x | v1;
-    out_ulong4[oindex + 2] = v0 | v1.x;
+    const uint4 v0 = in_uint4[iindex];
+    const uint4 v1 = in_uint4[iindex + 1];
+    out_uint4[oindex] = v0 | v1;
+    out_uint4[oindex + 1] = v0.x | v1;
+    out_uint4[oindex + 2] = v0 | v1.x;
   }
   oindex += 3;
   // bitwise XOR
   {
-    const ulong2 v0 = in_ulong2[iindex];
-    const ulong2 v1 = in_ulong2[iindex + 1];
-    out_ulong2[oindex] = v0 ^ v1;
-    out_ulong2[oindex + 1] = v0.x ^ v1;
-    out_ulong2[oindex + 2] = v0 ^ v1.x;
+    const uint2 v0 = in_uint2[iindex];
+    const uint2 v1 = in_uint2[iindex + 1];
+    out_uint2[oindex] = v0 ^ v1;
+    out_uint2[oindex + 1] = v0.x ^ v1;
+    out_uint2[oindex + 2] = v0 ^ v1.x;
   }
   {
-    const ulong3 v0 = in_ulong3[iindex];
-    const ulong3 v1 = in_ulong3[iindex + 1];
-    out_ulong3[oindex] = v0 ^ v1;
-    out_ulong3[oindex + 1] = v0.x ^ v1;
-    out_ulong3[oindex + 2] = v0 ^ v1.x;
+    const uint3 v0 = in_uint3[iindex];
+    const uint3 v1 = in_uint3[iindex + 1];
+    out_uint3[oindex] = v0 ^ v1;
+    out_uint3[oindex + 1] = v0.x ^ v1;
+    out_uint3[oindex + 2] = v0 ^ v1.x;
   }
   {
-    const ulong4 v0 = in_ulong4[iindex];
-    const ulong4 v1 = in_ulong4[iindex + 1];
-    out_ulong4[oindex] = v0 ^ v1;
-    out_ulong4[oindex + 1] = v0.x ^ v1;
-    out_ulong4[oindex + 2] = v0 ^ v1.x;
+    const uint4 v0 = in_uint4[iindex];
+    const uint4 v1 = in_uint4[iindex + 1];
+    out_uint4[oindex] = v0 ^ v1;
+    out_uint4[oindex + 1] = v0.x ^ v1;
+    out_uint4[oindex + 2] = v0 ^ v1.x;
   }
   iindex += 2;
   oindex += 3;
   // Left shift
   {
-    const ulong2 v0 = in_ulong2[iindex];
-    const ulong2 v1 = in_ulong2[iindex + 1];
-    out_ulong2[oindex] = v0 << v1;
-    out_ulong2[oindex + 1] = v0 << v1.x;
+    const uint2 v0 = in_uint2[iindex];
+    const uint2 v1 = in_uint2[iindex + 1];
+    out_uint2[oindex] = v0 << v1;
+    out_uint2[oindex + 1] = v0 << v1.x;
   }
   {
-    const ulong3 v0 = in_ulong3[iindex];
-    const ulong3 v1 = in_ulong3[iindex + 1];
-    out_ulong3[oindex] = v0 << v1;
-    out_ulong3[oindex + 1] = v0 << v1.x;
+    const uint3 v0 = in_uint3[iindex];
+    const uint3 v1 = in_uint3[iindex + 1];
+    out_uint3[oindex] = v0 << v1;
+    out_uint3[oindex + 1] = v0 << v1.x;
   }
   {
-    const ulong4 v0 = in_ulong4[iindex];
-    const ulong4 v1 = in_ulong4[iindex + 1];
-    out_ulong4[oindex] = v0 << v1;
-    out_ulong4[oindex + 1] = v0 << v1.x;
+    const uint4 v0 = in_uint4[iindex];
+    const uint4 v1 = in_uint4[iindex + 1];
+    out_uint4[oindex] = v0 << v1;
+    out_uint4[oindex + 1] = v0 << v1.x;
   }
   oindex += 2;
   // Right shift
   {
-    const ulong2 v0 = in_ulong2[iindex];
-    const ulong2 v1 = in_ulong2[iindex + 1];
-    out_ulong2[oindex] = v0 >> v1;
-    out_ulong2[oindex + 1] = v0 >> v1.x;
+    const uint2 v0 = in_uint2[iindex];
+    const uint2 v1 = in_uint2[iindex + 1];
+    out_uint2[oindex] = v0 >> v1;
+    out_uint2[oindex + 1] = v0 >> v1.x;
   }
   {
-    const ulong3 v0 = in_ulong3[iindex];
-    const ulong3 v1 = in_ulong3[iindex + 1];
-    out_ulong3[oindex] = v0 >> v1;
-    out_ulong3[oindex + 1] = v0 >> v1.x;
+    const uint3 v0 = in_uint3[iindex];
+    const uint3 v1 = in_uint3[iindex + 1];
+    out_uint3[oindex] = v0 >> v1;
+    out_uint3[oindex + 1] = v0 >> v1.x;
   }
   {
-    const ulong4 v0 = in_ulong4[iindex];
-    const ulong4 v1 = in_ulong4[iindex + 1];
-    out_ulong4[oindex] = v0 >> v1;
-    out_ulong4[oindex + 1] = v0 >> v1.x;
+    const uint4 v0 = in_uint4[iindex];
+    const uint4 v1 = in_uint4[iindex + 1];
+    out_uint4[oindex] = v0 >> v1;
+    out_uint4[oindex + 1] = v0 >> v1.x;
   }
 }
 
 __kernel void vectorBitwiseAssignmentOperatorTest(
-    zivc::ConstGlobalPtr<ulong2> in_ulong2,
-    zivc::ConstGlobalPtr<ulong3> in_ulong3,
-    zivc::ConstGlobalPtr<ulong4> in_ulong4,
-    zivc::GlobalPtr<ulong2> out_ulong2,
-    zivc::GlobalPtr<ulong3> out_ulong3,
-    zivc::GlobalPtr<ulong4> out_ulong4)
+    zivc::ConstGlobalPtr<uint2> in_uint2,
+    zivc::ConstGlobalPtr<uint3> in_uint3,
+    zivc::ConstGlobalPtr<uint4> in_uint4,
+    zivc::GlobalPtr<uint2> out_uint2,
+    zivc::GlobalPtr<uint3> out_uint3,
+    zivc::GlobalPtr<uint4> out_uint4)
 {
   const size_t global_index = zivc::getGlobalIdX();
   if (global_index != 0)
@@ -1019,134 +1019,134 @@ __kernel void vectorBitwiseAssignmentOperatorTest(
   size_t oindex = 0;
   // bitwise AND
   {
-    const ulong2 v0 = in_ulong2[iindex];
-    const ulong2 v1 = in_ulong2[iindex + 1];
-    out_ulong2[oindex] = v0;
-    out_ulong2[oindex] &= v1;
-    out_ulong2[oindex + 1] = v0;
-    out_ulong2[oindex + 1] &= v1.x;
+    const uint2 v0 = in_uint2[iindex];
+    const uint2 v1 = in_uint2[iindex + 1];
+    out_uint2[oindex] = v0;
+    out_uint2[oindex] &= v1;
+    out_uint2[oindex + 1] = v0;
+    out_uint2[oindex + 1] &= v1.x;
   }
   {
-    const ulong3 v0 = in_ulong3[iindex];
-    const ulong3 v1 = in_ulong3[iindex + 1];
-    out_ulong3[oindex] = v0;
-    out_ulong3[oindex] &= v1;
-    out_ulong3[oindex + 1] = v0;
-    out_ulong3[oindex + 1] &= v1.x;
+    const uint3 v0 = in_uint3[iindex];
+    const uint3 v1 = in_uint3[iindex + 1];
+    out_uint3[oindex] = v0;
+    out_uint3[oindex] &= v1;
+    out_uint3[oindex + 1] = v0;
+    out_uint3[oindex + 1] &= v1.x;
   }
   {
-    const ulong4 v0 = in_ulong4[iindex];
-    const ulong4 v1 = in_ulong4[iindex + 1];
-    out_ulong4[oindex] = v0;
-    out_ulong4[oindex] &= v1;
-    out_ulong4[oindex + 1] = v0;
-    out_ulong4[oindex + 1] &= v1.x;
+    const uint4 v0 = in_uint4[iindex];
+    const uint4 v1 = in_uint4[iindex + 1];
+    out_uint4[oindex] = v0;
+    out_uint4[oindex] &= v1;
+    out_uint4[oindex + 1] = v0;
+    out_uint4[oindex + 1] &= v1.x;
   }
   ++iindex;
   oindex += 2;
   // bitwise OR
   {
-    const ulong2 v0 = in_ulong2[iindex];
-    const ulong2 v1 = in_ulong2[iindex + 1];
-    out_ulong2[oindex] = v0;
-    out_ulong2[oindex] |= v1;
-    out_ulong2[oindex + 1] = v0;
-    out_ulong2[oindex + 1] |= v1.x;
+    const uint2 v0 = in_uint2[iindex];
+    const uint2 v1 = in_uint2[iindex + 1];
+    out_uint2[oindex] = v0;
+    out_uint2[oindex] |= v1;
+    out_uint2[oindex + 1] = v0;
+    out_uint2[oindex + 1] |= v1.x;
   }
   {
-    const ulong3 v0 = in_ulong3[iindex];
-    const ulong3 v1 = in_ulong3[iindex + 1];
-    out_ulong3[oindex] = v0;
-    out_ulong3[oindex] |= v1;
-    out_ulong3[oindex + 1] = v0;
-    out_ulong3[oindex + 1] |= v1.x;
+    const uint3 v0 = in_uint3[iindex];
+    const uint3 v1 = in_uint3[iindex + 1];
+    out_uint3[oindex] = v0;
+    out_uint3[oindex] |= v1;
+    out_uint3[oindex + 1] = v0;
+    out_uint3[oindex + 1] |= v1.x;
   }
   {
-    const ulong4 v0 = in_ulong4[iindex];
-    const ulong4 v1 = in_ulong4[iindex + 1];
-    out_ulong4[oindex] = v0;
-    out_ulong4[oindex] |= v1;
-    out_ulong4[oindex + 1] = v0;
-    out_ulong4[oindex + 1] |= v1.x;
+    const uint4 v0 = in_uint4[iindex];
+    const uint4 v1 = in_uint4[iindex + 1];
+    out_uint4[oindex] = v0;
+    out_uint4[oindex] |= v1;
+    out_uint4[oindex + 1] = v0;
+    out_uint4[oindex + 1] |= v1.x;
   }
   oindex += 2;
   // bitwise XOR
   {
-    const ulong2 v0 = in_ulong2[iindex];
-    const ulong2 v1 = in_ulong2[iindex + 1];
-    out_ulong2[oindex] = v0;
-    out_ulong2[oindex] ^= v1;
-    out_ulong2[oindex + 1] = v0;
-    out_ulong2[oindex + 1] ^= v1.x;
+    const uint2 v0 = in_uint2[iindex];
+    const uint2 v1 = in_uint2[iindex + 1];
+    out_uint2[oindex] = v0;
+    out_uint2[oindex] ^= v1;
+    out_uint2[oindex + 1] = v0;
+    out_uint2[oindex + 1] ^= v1.x;
   }
   {
-    const ulong3 v0 = in_ulong3[iindex];
-    const ulong3 v1 = in_ulong3[iindex + 1];
-    out_ulong3[oindex] = v0;
-    out_ulong3[oindex] ^= v1;
-    out_ulong3[oindex + 1] = v0;
-    out_ulong3[oindex + 1] ^= v1.x;
+    const uint3 v0 = in_uint3[iindex];
+    const uint3 v1 = in_uint3[iindex + 1];
+    out_uint3[oindex] = v0;
+    out_uint3[oindex] ^= v1;
+    out_uint3[oindex + 1] = v0;
+    out_uint3[oindex + 1] ^= v1.x;
   }
   {
-    const ulong4 v0 = in_ulong4[iindex];
-    const ulong4 v1 = in_ulong4[iindex + 1];
-    out_ulong4[oindex] = v0;
-    out_ulong4[oindex] ^= v1;
-    out_ulong4[oindex + 1] = v0;
-    out_ulong4[oindex + 1] ^= v1.x;
+    const uint4 v0 = in_uint4[iindex];
+    const uint4 v1 = in_uint4[iindex + 1];
+    out_uint4[oindex] = v0;
+    out_uint4[oindex] ^= v1;
+    out_uint4[oindex + 1] = v0;
+    out_uint4[oindex + 1] ^= v1.x;
   }
   iindex += 2;
   oindex += 2;
   // Left shift
   {
-    const ulong2 v0 = in_ulong2[iindex];
-    const ulong2 v1 = in_ulong2[iindex + 1];
-    out_ulong2[oindex] = v0;
-    out_ulong2[oindex] <<= v1;
-    out_ulong2[oindex + 1] = v0;
-    out_ulong2[oindex + 1] <<= v1.x;
+    const uint2 v0 = in_uint2[iindex];
+    const uint2 v1 = in_uint2[iindex + 1];
+    out_uint2[oindex] = v0;
+    out_uint2[oindex] <<= v1;
+    out_uint2[oindex + 1] = v0;
+    out_uint2[oindex + 1] <<= v1.x;
   }
   {
-    const ulong3 v0 = in_ulong3[iindex];
-    const ulong3 v1 = in_ulong3[iindex + 1];
-    out_ulong3[oindex] = v0;
-    out_ulong3[oindex] <<= v1;
-    out_ulong3[oindex + 1] = v0;
-    out_ulong3[oindex + 1] <<= v1.x;
+    const uint3 v0 = in_uint3[iindex];
+    const uint3 v1 = in_uint3[iindex + 1];
+    out_uint3[oindex] = v0;
+    out_uint3[oindex] <<= v1;
+    out_uint3[oindex + 1] = v0;
+    out_uint3[oindex + 1] <<= v1.x;
   }
   {
-    const ulong4 v0 = in_ulong4[iindex];
-    const ulong4 v1 = in_ulong4[iindex + 1];
-    out_ulong4[oindex] = v0;
-    out_ulong4[oindex] <<= v1;
-    out_ulong4[oindex + 1] = v0;
-    out_ulong4[oindex + 1] <<= v1.x;
+    const uint4 v0 = in_uint4[iindex];
+    const uint4 v1 = in_uint4[iindex + 1];
+    out_uint4[oindex] = v0;
+    out_uint4[oindex] <<= v1;
+    out_uint4[oindex + 1] = v0;
+    out_uint4[oindex + 1] <<= v1.x;
   }
   oindex += 2;
   // Right shift
   {
-    const ulong2 v0 = in_ulong2[iindex];
-    const ulong2 v1 = in_ulong2[iindex + 1];
-    out_ulong2[oindex] = v0;
-    out_ulong2[oindex] >>= v1;
-    out_ulong2[oindex + 1] = v0;
-    out_ulong2[oindex + 1] >>= v1.x;
+    const uint2 v0 = in_uint2[iindex];
+    const uint2 v1 = in_uint2[iindex + 1];
+    out_uint2[oindex] = v0;
+    out_uint2[oindex] >>= v1;
+    out_uint2[oindex + 1] = v0;
+    out_uint2[oindex + 1] >>= v1.x;
   }
   {
-    const ulong3 v0 = in_ulong3[iindex];
-    const ulong3 v1 = in_ulong3[iindex + 1];
-    out_ulong3[oindex] = v0;
-    out_ulong3[oindex] >>= v1;
-    out_ulong3[oindex + 1] = v0;
-    out_ulong3[oindex + 1] >>= v1.x;
+    const uint3 v0 = in_uint3[iindex];
+    const uint3 v1 = in_uint3[iindex + 1];
+    out_uint3[oindex] = v0;
+    out_uint3[oindex] >>= v1;
+    out_uint3[oindex + 1] = v0;
+    out_uint3[oindex + 1] >>= v1.x;
   }
   {
-    const ulong4 v0 = in_ulong4[iindex];
-    const ulong4 v1 = in_ulong4[iindex + 1];
-    out_ulong4[oindex] = v0;
-    out_ulong4[oindex] >>= v1;
-    out_ulong4[oindex + 1] = v0;
-    out_ulong4[oindex + 1] >>= v1.x;
+    const uint4 v0 = in_uint4[iindex];
+    const uint4 v1 = in_uint4[iindex + 1];
+    out_uint4[oindex] = v0;
+    out_uint4[oindex] >>= v1;
+    out_uint4[oindex + 1] = v0;
+    out_uint4[oindex + 1] >>= v1.x;
   }
 }
 

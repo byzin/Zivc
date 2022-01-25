@@ -1239,4 +1239,38 @@ __kernel void vectorComparisonOperatorTest(zivc::ConstGlobalPtr<int4> in_int4,
   }
 }
 
+__kernel void vectorLogicalOperatorTest(zivc::ConstGlobalPtr<int4> in_int4,
+                                        zivc::GlobalPtr<zivc::Boolean> out)
+{
+  const size_t global_index = zivc::getGlobalIdX();
+  if (global_index != 0)
+    return;
+
+  size_t iindex = 0;
+  size_t oindex = 0;
+  {
+    const int4 v0 = in_int4[iindex];
+    const int4 v1 = in_int4[iindex + 1];
+    const int4 v2 = in_int4[iindex + 2];
+
+    const auto result1 = v0 == v1;
+    const auto result2 = v1 == v2;
+
+    test::setBoolResult(!result1, out + oindex);
+    oindex += 4;
+    test::setBoolResult(result1 && result2, out + oindex);
+    oindex += 4;
+    test::setBoolResult(result1.x && result2, out + oindex);
+    oindex += 4;
+    test::setBoolResult(result1 && result2.x, out + oindex);
+    oindex += 4;
+    test::setBoolResult(result1 || result2, out + oindex);
+    oindex += 4;
+    test::setBoolResult(result1.x || result2, out + oindex);
+    oindex += 4;
+    test::setBoolResult(result1 || result2.x, out + oindex);
+    oindex += 4;
+  }
+}
+
 #endif /* ZIVC_TEST_OPENCL_CPP_TEST_VECTOR_CL */

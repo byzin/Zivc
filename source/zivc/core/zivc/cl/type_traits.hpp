@@ -15,6 +15,65 @@
 
 namespace zivc {
 
+// Helper classes
+
+//! brief Compile-time constant of specified type with specified value
+template <typename T, T v>
+struct IntegralConstant;
+
+//! Helper alias template of IntegralConstant
+template <bool value>
+using BoolConstant = IntegralConstant<bool, value>;
+
+//!
+using TrueType = BoolConstant<true>;
+
+//!
+using FalseType = BoolConstant<false>;
+
+
+// Primary type categories
+
+////! Check if a type is void
+//template <typename T>
+//struct IsVoid;
+//
+////! Helper variable template of IsVoid
+//template <typename T>
+//inline constexpr bool kIsVoid = IsVoid<T>::kValue;
+//
+////! Check if a type is an integral type
+//template <typename T>
+//struct IsIntegral;
+//
+////! Helper variable template of IsIntegral
+//template <typename T>
+//inline constexpr bool kIsIntegral = IsIntegral<T>::kValue;
+//
+////! Check if a type is a floating point type
+//template <typename T>
+//struct IsFloatingPoint;
+//
+////! Helper variable template of IsFloatingPoint
+//template <typename T>
+//inline constexpr bool kIsFloatingPoint = IsFloatingPoint<T>::kValue;
+//
+////! Check if a type is an array type
+//template <typename T>
+//struct IsArray;
+//
+////! Helper variable template of IsArray
+//template <typename T>
+//inline constexpr bool kIsArray = IsArray<T>::kValue;
+
+
+// Type relationship
+
+//! brief Check if two types are same
+template <typename T, typename U>
+struct IsSame;
+
+
 //! Make a signed integer type from byte size
 template <size_t kBytes>
 struct IntegerFromBytes
@@ -207,13 +266,6 @@ template <typename T> struct IsRValueReference;
 
 template <typename T>
 constexpr Constant<int32b> kIsRValueReference = IsRValueReference<T>::kValue;
-
-//! Check if two types are same
-template <typename T1, typename T2> struct IsSame;
-
-//! Check if two types are same
-template <typename T1, typename T2>
-constexpr int32b kIsSame = IsSame<T1, T2>::kValue;
 
 // Miscellaneous transformations
 

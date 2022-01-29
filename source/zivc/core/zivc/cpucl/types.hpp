@@ -43,6 +43,29 @@ concept Half = zisc::SameAs<half, std::remove_cvref_t<Type>>;
 template <typename Type>
 concept Arithmetic = zisc::Arithmetic<Type> || Half<Type>;
 
+//! Specify OpenCL built-in scalar types
+template <typename Type>
+concept Scalar = zisc::SameAs<bool, std::remove_cvref_t<Type>> ||
+                 zisc::SameAs<char, std::remove_cvref_t<Type>> ||
+                 zisc::SameAs<uchar, std::remove_cvref_t<Type>> ||
+                 zisc::SameAs<short, std::remove_cvref_t<Type>> ||
+                 zisc::SameAs<ushort, std::remove_cvref_t<Type>> ||
+                 zisc::SameAs<int, std::remove_cvref_t<Type>> ||
+                 zisc::SameAs<uint, std::remove_cvref_t<Type>> ||
+                 zisc::SameAs<long, std::remove_cvref_t<Type>> ||
+                 zisc::SameAs<ulong, std::remove_cvref_t<Type>> ||
+                 zisc::SameAs<float, std::remove_cvref_t<Type>> ||
+                 zisc::SameAs<double, std::remove_cvref_t<Type>> ||
+                 zisc::SameAs<half, std::remove_cvref_t<Type>> ||
+                 zisc::SameAs<size_t, std::remove_cvref_t<Type>> ||
+                 zisc::SameAs<ptrdiff_t, std::remove_cvref_t<Type>> ||
+                 zisc::SameAs<intptr_t, std::remove_cvref_t<Type>> ||
+                 zisc::SameAs<uintptr_t, std::remove_cvref_t<Type>>;
+
+//! Specify a type is the same size as another type
+template <typename T, typename U>
+concept SameSizeAs = sizeof(T) == sizeof(U);
+
 } // namespace zivc::cl
 
 #include "types-inl.hpp"

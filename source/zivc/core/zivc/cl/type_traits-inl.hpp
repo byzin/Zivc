@@ -16,6 +16,57 @@
 
 namespace zivc {
 
+/*!
+  No detailed description.
+
+  \tparam T No description.
+  \tparam v No description.
+  */
+template <typename T, T v>
+struct IntegralConstant
+{
+  // Type aliases
+  using ValueType = T;
+  using Type = IntegralConstant;
+
+
+  static constexpr ValueType kValue = v; //!< Static constant of type T with value v
+
+
+  //! Return the wrapped value
+  constexpr operator ValueType() const noexcept
+  {
+    return kValue;
+  }
+
+  //! Return the wrapped value
+  constexpr ValueType operator()() const noexcept
+  {
+    return kValue;
+  }
+};
+
+/*!
+  No detailed description.
+
+  \tparam T No description.
+  \tparam U No description.
+  */
+template <typename T, typename U>
+struct IsSame : public FalseType
+{
+};
+
+/*!
+  No detailed description.
+
+  \tparam T No description.
+  */
+template <typename T>
+struct IsSame<T, T> : public TrueType
+{
+};
+
 #define ZIVC_SINTEGER_FROM_BYTES_TEMPLATE_SPECIALIZATION_IMPL(IType, bytes) \
   template <> \
   struct IntegerFromBytes< bytes > \
@@ -524,18 +575,6 @@ template <typename T>
 struct IsRValueReference<T&&>
 {
   static constexpr int32b kValue = kResultTrue<int32b>;
-};
-
-template <typename T1, typename T2>
-struct IsSame
-{
-  static constexpr int32b kValue = kSFalse;
-};
-
-template <typename T>
-struct IsSame<T, T>
-{
-  static constexpr int32b kValue = kSTrue;
 };
 
 template <typename T>

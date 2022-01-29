@@ -570,19 +570,21 @@ double4 makeDouble4(const double3 v0, const double v1) noexcept;
 //! Make a double4 value
 double4 makeDouble4(const double v0, const double3 v1) noexcept;
 
-//
+// Conversion functions
 
 //! Convert type from T to Type
 template <typename Type, typename T>
-Type cast(T value) noexcept;
-
-//! Check if the given two values are equal
-template <typename Type1, typename Type2>
-bool equal(const Type1& lhs, const Type2& rhs) noexcept;
+Type cast(T&& value) noexcept;
 
 //! Treat T* as Type*
 template <typename Type, typename T>
 Type treatAs(T object) noexcept;
+
+//
+
+//! Check if the given two values are equal
+template <typename Type1, typename Type2>
+bool equal(const Type1& lhs, const Type2& rhs) noexcept;
 
 //!
 template <typename Type>

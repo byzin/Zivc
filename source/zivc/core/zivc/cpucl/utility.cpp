@@ -22,11 +22,7 @@
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/error.hpp"
 
-namespace zivc {
-
-namespace cl {
-
-namespace inner {
+namespace zivc::cl::inner {
 
 /*!
   \details No detailed description
@@ -131,8 +127,4 @@ thread_local std::array<::zivc::uint32b, 3> WorkItem::global_id_offset_;
 thread_local std::array<::zivc::uint32b, 3> WorkItem::num_of_work_groups_;
 thread_local std::array<::zivc::uint32b, 3> WorkItem::work_group_id_;
 
-} // namespace inner
-
-} // namespace cl
-
-} // namespace zivc
+} // namespace zivc::cl::inner

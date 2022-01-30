@@ -719,90 +719,97 @@ ZIVC_MAKING_VECTOR_SPECIALIZATION_IMPL(double, double, Double)
 namespace inner {
 
 /*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam Type No description.
   */
 template <typename Type>
 struct TypeConverter
 {
   template <typename T>
-  static Type cast(T value) noexcept
+  static Type cast(T&& value) noexcept
   {
-    auto result = static_cast<Type>(value);
-    return result;
-  }
-
-  template <typename T>
-  static Type treatAs(T object) noexcept
-  {
-    auto result = reinterpret_cast<Type>(object);
-    return result;
+    return static_cast<Type>(forward<T>(value));
   }
 };
 
-#define ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(Type) \
-    ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL2(Type, Type); \
-    ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL2(const Type, Type)
+#if defined(Z_GCC) || defined(Z_CLANG)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wimplicit-int-float-conversion"
+#endif // Z_GCC || Z_CLANG
 
-#define ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL2(Type, name) \
+/*!
+  \def ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL
+  \brief No brief description
+
+  No detailed description.
+
+  \param [in] type No description.
+  */
+#define ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(type) \
   template <> \
-  struct TypeConverter< Type > \
+  struct TypeConverter< type > \
   { \
-    using DstType = RemoveCvType< Type >; \
+    static constexpr size_t kDestVectorN = kVectorSize< type >; \
+    using ScalarT = ScalarTypeT< type >; \
     template <typename T> \
-    static DstType cast(const T value) noexcept \
+    static type cast(T&& value) noexcept \
     { \
-      auto result = convert_ ## name (value); \
-      return result; \
-    } \
-    template <typename T> \
-    static DstType treatAs(const T object) noexcept \
-    { \
-      static_assert(sizeof(T) == sizeof(Type), \
-                    "The size of T doesn't match the size of Type."); \
-      const DstType* result = reinterpret_cast<const DstType*>(&object); \
-      return *result; \
+      using SourceType = RemoveCvRefAddressT<T>; \
+      constexpr size_t kSourceVectorN = kVectorSize<SourceType>; \
+      if constexpr (kSourceVectorN == kDestVectorN) \
+        return convert_ ## type (value); \
+      else \
+        return static_cast< type >(static_cast<ScalarT>(forward<T>(value))); \
     } \
   }
 
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL2(int8b, char);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(char2);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(char3);
-//ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(char4);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL2(uint8b, uchar);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(uchar2);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(uchar3);
-//ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(uchar4);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL2(int16b, short);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(short2);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(short3);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(short4);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL2(uint16b, ushort);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(ushort2);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(ushort3);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(ushort4);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL2(int32b, int);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(int2);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(int3);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(int4);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL2(uint32b, uint);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(uint2);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(uint3);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(uint4);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL2(int64b, long);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(long2);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(long3);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(long4);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL2(uint64b, ulong);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(ulong2);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(ulong3);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(ulong4);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(float);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(float2);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(float3);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(float4);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(double);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(double2);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(double3);
-ZIVC_TYPE_CONVERTER_TEMPLATE_SPECIALIZATION_IMPL(double4);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(char);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(char2);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(char3);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(char4);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(uchar);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(uchar2);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(uchar3);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(uchar4);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(short);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(short2);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(short3);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(short4);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(ushort);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(ushort2);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(ushort3);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(ushort4);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(int);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(int2);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(int3);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(int4);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(uint);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(uint2);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(uint3);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(uint4);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(long);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(long2);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(long3);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(long4);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(ulong);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(ulong2);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(ulong3);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(ulong4);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(float);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(float2);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(float3);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(float4);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(double);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(double2);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(double3);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(double4);
+
+#if defined(Z_GCC) || defined(Z_CLANG)
+#pragma GCC diagnostic pop
+#endif // Z_GCC || Z_CLANG
 
 #if defined(ZIVC_CL_CPU)
 
@@ -830,12 +837,24 @@ struct TypeConverter<AddressSpacePointer<kASpaceType, Type>>
 } // namespace inner
 
 /*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam T No description.
+  \param [in] value No description.
+  \return No description
   */
 template <typename Type, typename T> inline
 Type cast(T&& value) noexcept
 {
-  auto result = inner::TypeConverter<RemoveVolatileType<Type>>::cast(value);
-  return result;
+  if constexpr (kIsSame<Type, T>) {
+    return forward<T>(value);
+  }
+  else {
+    using DstType = RemoveAddressSpaceT<RemoveCvT<Type>>;
+    auto result = inner::TypeConverter<DstType>::cast(forward<T>(value));
+    return result;
+  }
 }
 
 template <typename Type1, typename Type2> inline

@@ -1291,7 +1291,6 @@ __kernel void scalarCastTest(zivc::ConstGlobalPtr<int32b> in_int,
                              zivc::GlobalPtr<int32b> out_int32b,
                              zivc::GlobalPtr<uint32b> out_uint32b,
                              zivc::GlobalPtr<float> out_float,
-                             zivc::GlobalPtr<zivc::Boolean> out_bool,
                              const uint32b int_n,
                              const uint32b float_n)
 {
@@ -1318,6 +1317,17 @@ __kernel void scalarCastTest(zivc::ConstGlobalPtr<int32b> in_int,
   test_scalar(in_int, in_float, out_int32b);
   test_scalar(in_int, in_float, out_uint32b);
   test_scalar(in_int, in_float, out_float);
+}
+
+__kernel void scalarBoolCastTest(zivc::ConstGlobalPtr<int32b> in_int,
+                                 zivc::ConstGlobalPtr<float> in_float,
+                                 zivc::GlobalPtr<zivc::Boolean> out_bool,
+                                 const uint32b int_n,
+                                 const uint32b float_n)
+{
+  const size_t global_index = zivc::getGlobalIdX();
+  if (global_index != 0)
+    return;
 
   // bool
   {
@@ -1357,10 +1367,10 @@ __kernel void vector2CastTest(zivc::ConstGlobalPtr<int32b> in_int,
   {
     size_t index = 0;
     using Type = zivc::RemoveCvRefAddressT<decltype(out[0])>;
-//    for (size_t i = 0; i < int_n; ++i)
-//      out[index++] = zivc::cast<Type>(in0[i]);
-//    for (size_t i = 0; i < float_n; ++i)
-//      out[index++] = zivc::cast<Type>(in1[i]);
+    for (size_t i = 0; i < int_n; ++i)
+      out[index++] = zivc::cast<Type>(in0[i]);
+    for (size_t i = 0; i < float_n; ++i)
+      out[index++] = zivc::cast<Type>(in1[i]);
     for (size_t i = 0; i < int2_n; ++i)
       out[index++] = zivc::cast<Type>(in2[i]);
     for (size_t i = 0; i < float2_n; ++i)
@@ -1374,6 +1384,100 @@ __kernel void vector2CastTest(zivc::ConstGlobalPtr<int32b> in_int,
   test_vec2(in_int, in_float, in_int2, in_float2, out_int2);
   test_vec2(in_int, in_float, in_int2, in_float2, out_uint2);
   test_vec2(in_int, in_float, in_int2, in_float2, out_float2);
+}
+
+__kernel void vector3CastTest(zivc::ConstGlobalPtr<int32b> in_int,
+                              zivc::ConstGlobalPtr<float> in_float,
+                              zivc::ConstGlobalPtr<int3> in_int3,
+                              zivc::ConstGlobalPtr<float3> in_float3,
+                              zivc::GlobalPtr<char3> out_char3,
+                              zivc::GlobalPtr<uchar3> out_uchar3,
+                              zivc::GlobalPtr<short3> out_short3,
+                              zivc::GlobalPtr<ushort3> out_ushort3,
+                              zivc::GlobalPtr<int3> out_int3,
+                              zivc::GlobalPtr<uint3> out_uint3,
+                              zivc::GlobalPtr<float3> out_float3,
+                              const uint32b int_n,
+                              const uint32b float_n,
+                              const uint32b int3_n,
+                              const uint32b float3_n)
+{
+  const size_t global_index = zivc::getGlobalIdX();
+  if (global_index != 0)
+    return;
+
+  auto test_vec3 = [int_n, float_n, int3_n, float3_n](zivc::ConstGlobalPtr<int32b> in0,
+                                                      zivc::ConstGlobalPtr<float> in1,
+                                                      zivc::ConstGlobalPtr<int3> in2,
+                                                      zivc::ConstGlobalPtr<float3> in3,
+                                                      auto out) noexcept
+  {
+    size_t index = 0;
+    using Type = zivc::RemoveCvRefAddressT<decltype(out[0])>;
+    for (size_t i = 0; i < int_n; ++i)
+      out[index++] = zivc::cast<Type>(in0[i]);
+    for (size_t i = 0; i < float_n; ++i)
+      out[index++] = zivc::cast<Type>(in1[i]);
+    for (size_t i = 0; i < int3_n; ++i)
+      out[index++] = zivc::cast<Type>(in2[i]);
+    for (size_t i = 0; i < float3_n; ++i)
+      out[index++] = zivc::cast<Type>(in3[i]);
+  };
+
+  test_vec3(in_int, in_float, in_int3, in_float3, out_char3);
+  test_vec3(in_int, in_float, in_int3, in_float3, out_uchar3);
+  test_vec3(in_int, in_float, in_int3, in_float3, out_short3);
+  test_vec3(in_int, in_float, in_int3, in_float3, out_ushort3);
+  test_vec3(in_int, in_float, in_int3, in_float3, out_int3);
+  test_vec3(in_int, in_float, in_int3, in_float3, out_uint3);
+  test_vec3(in_int, in_float, in_int3, in_float3, out_float3);
+}
+
+__kernel void vector4CastTest(zivc::ConstGlobalPtr<int32b> in_int,
+                              zivc::ConstGlobalPtr<float> in_float,
+                              zivc::ConstGlobalPtr<int4> in_int4,
+                              zivc::ConstGlobalPtr<float4> in_float4,
+                              zivc::GlobalPtr<char4> out_char4,
+                              zivc::GlobalPtr<uchar4> out_uchar4,
+                              zivc::GlobalPtr<short4> out_short4,
+                              zivc::GlobalPtr<ushort4> out_ushort4,
+                              zivc::GlobalPtr<int4> out_int4,
+                              zivc::GlobalPtr<uint4> out_uint4,
+                              zivc::GlobalPtr<float4> out_float4,
+                              const uint32b int_n,
+                              const uint32b float_n,
+                              const uint32b int4_n,
+                              const uint32b float4_n)
+{
+  const size_t global_index = zivc::getGlobalIdX();
+  if (global_index != 0)
+    return;
+
+  auto test_vec4 = [int_n, float_n, int4_n, float4_n](zivc::ConstGlobalPtr<int32b> in0,
+                                                      zivc::ConstGlobalPtr<float> in1,
+                                                      zivc::ConstGlobalPtr<int4> in2,
+                                                      zivc::ConstGlobalPtr<float4> in3,
+                                                      auto out) noexcept
+  {
+    size_t index = 0;
+    using Type = zivc::RemoveCvRefAddressT<decltype(out[0])>;
+    for (size_t i = 0; i < int_n; ++i)
+      out[index++] = zivc::cast<Type>(in0[i]);
+    for (size_t i = 0; i < float_n; ++i)
+      out[index++] = zivc::cast<Type>(in1[i]);
+    for (size_t i = 0; i < int4_n; ++i)
+      out[index++] = zivc::cast<Type>(in2[i]);
+    for (size_t i = 0; i < float4_n; ++i)
+      out[index++] = zivc::cast<Type>(in3[i]);
+  };
+
+  test_vec4(in_int, in_float, in_int4, in_float4, out_char4);
+  test_vec4(in_int, in_float, in_int4, in_float4, out_uchar4);
+  test_vec4(in_int, in_float, in_int4, in_float4, out_short4);
+  test_vec4(in_int, in_float, in_int4, in_float4, out_ushort4);
+  test_vec4(in_int, in_float, in_int4, in_float4, out_int4);
+  test_vec4(in_int, in_float, in_int4, in_float4, out_uint4);
+  test_vec4(in_int, in_float, in_int4, in_float4, out_float4);
 }
 
 #endif /* ZIVC_TEST_OPENCL_CPP_TEST_VECTOR_CL */

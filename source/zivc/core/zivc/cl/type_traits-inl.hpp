@@ -719,6 +719,108 @@ struct TypeIdentity
 };
 
 /*!
+  \brief Provide the constant member variable value equal to the the number of elements of a vector T.
+
+  No detailed description.
+
+  \tparam T No description.
+  */
+template <typename T>
+struct VectorSize : public IntegralConstant<size_t, 0>
+{
+};
+
+template <> struct VectorSize<char2> : public IntegralConstant<size_t, 2> {};
+template <> struct VectorSize<char3> : public IntegralConstant<size_t, 3> {};
+template <> struct VectorSize<char4> : public IntegralConstant<size_t, 4> {};
+
+template <> struct VectorSize<uchar2> : public IntegralConstant<size_t, 2> {};
+template <> struct VectorSize<uchar3> : public IntegralConstant<size_t, 3> {};
+template <> struct VectorSize<uchar4> : public IntegralConstant<size_t, 4> {};
+
+template <> struct VectorSize<short2> : public IntegralConstant<size_t, 2> {};
+template <> struct VectorSize<short3> : public IntegralConstant<size_t, 3> {};
+template <> struct VectorSize<short4> : public IntegralConstant<size_t, 4> {};
+
+template <> struct VectorSize<ushort2> : public IntegralConstant<size_t, 2> {};
+template <> struct VectorSize<ushort3> : public IntegralConstant<size_t, 3> {};
+template <> struct VectorSize<ushort4> : public IntegralConstant<size_t, 4> {};
+
+template <> struct VectorSize<int2> : public IntegralConstant<size_t, 2> {};
+template <> struct VectorSize<int3> : public IntegralConstant<size_t, 3> {};
+template <> struct VectorSize<int4> : public IntegralConstant<size_t, 4> {};
+
+template <> struct VectorSize<uint2> : public IntegralConstant<size_t, 2> {};
+template <> struct VectorSize<uint3> : public IntegralConstant<size_t, 3> {};
+template <> struct VectorSize<uint4> : public IntegralConstant<size_t, 4> {};
+
+template <> struct VectorSize<long2> : public IntegralConstant<size_t, 2> {};
+template <> struct VectorSize<long3> : public IntegralConstant<size_t, 3> {};
+template <> struct VectorSize<long4> : public IntegralConstant<size_t, 4> {};
+
+template <> struct VectorSize<ulong2> : public IntegralConstant<size_t, 2> {};
+template <> struct VectorSize<ulong3> : public IntegralConstant<size_t, 3> {};
+template <> struct VectorSize<ulong4> : public IntegralConstant<size_t, 4> {};
+
+template <> struct VectorSize<half2> : public IntegralConstant<size_t, 2> {};
+template <> struct VectorSize<half3> : public IntegralConstant<size_t, 3> {};
+template <> struct VectorSize<half4> : public IntegralConstant<size_t, 4> {};
+
+template <> struct VectorSize<float2> : public IntegralConstant<size_t, 2> {};
+template <> struct VectorSize<float3> : public IntegralConstant<size_t, 3> {};
+template <> struct VectorSize<float4> : public IntegralConstant<size_t, 4> {};
+
+template <> struct VectorSize<double2> : public IntegralConstant<size_t, 2> {};
+template <> struct VectorSize<double3> : public IntegralConstant<size_t, 3> {};
+template <> struct VectorSize<double4> : public IntegralConstant<size_t, 4> {};
+
+
+/*!
+  \brief Provide the member variable type equal to the scalar type of a vector T
+
+  No detailed description.
+
+  \tparam T No description.
+  */
+template <typename T>
+struct ScalarType
+{
+  using Type = T;
+};
+
+template <> struct ScalarType<char2> {using Type = int8b;};
+template <> struct ScalarType<char3> {using Type = int8b;};
+template <> struct ScalarType<char4> {using Type = int8b;};
+
+template <> struct ScalarType<uchar2> {using Type = uint8b;};
+template <> struct ScalarType<uchar3> {using Type = uint8b;};
+template <> struct ScalarType<uchar4> {using Type = uint8b;};
+
+template <> struct ScalarType<short2> {using Type = int16b;};
+template <> struct ScalarType<short3> {using Type = int16b;};
+template <> struct ScalarType<short4> {using Type = int16b;};
+
+template <> struct ScalarType<ushort2> {using Type = uint16b;};
+template <> struct ScalarType<ushort3> {using Type = uint16b;};
+template <> struct ScalarType<ushort4> {using Type = uint16b;};
+
+template <> struct ScalarType<int2> {using Type = int32b;};
+template <> struct ScalarType<int3> {using Type = int32b;};
+template <> struct ScalarType<int4> {using Type = int32b;};
+
+template <> struct ScalarType<uint2> {using Type = uint32b;};
+template <> struct ScalarType<uint3> {using Type = uint32b;};
+template <> struct ScalarType<uint4> {using Type = uint32b;};
+
+template <> struct ScalarType<long2> {using Type = int64b;};
+template <> struct ScalarType<long3> {using Type = int64b;};
+template <> struct ScalarType<long4> {using Type = int64b;};
+
+template <> struct ScalarType<ulong2> {using Type = uint64b;};
+template <> struct ScalarType<ulong3> {using Type = uint64b;};
+template <> struct ScalarType<ulong4> {using Type = uint64b;};
+
+/*!
   \brief Provide the Type which is the same as T, except that its address space qualifier is removed
 
   No detailed description.

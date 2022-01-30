@@ -297,6 +297,10 @@ template <typename T> struct RemoveCv;
 template <typename T>
 using RemoveCvType = typename RemoveCv<T>::Type;
 
+//! Helper type template of RemoveCv
+template <typename T>
+using RemoveCvT = typename RemoveCv<T>::Type;
+
 //! Remove 'const' specifiers from the given type
 template <typename T> struct RemoveConst;
 
@@ -394,6 +398,24 @@ constexpr int32b kResultTrue = (VectorTypeInfo<Type>::size() == 1) ? kSTrue : kV
 //! Integer type that is used as a comparison result of the given type
 template <typename T>
 using ComparisonResultType = IntegerTypeFromVec<RemoveCvType<T>>;
+
+// Vector
+
+//! Provide the constant member variable value equal to the the number of elements of a vector T
+template <typename T>
+struct VectorSize;
+
+//! Helper variable template of VectorSize
+template <typename T>
+inline constexpr size_t kVectorSize = VectorSize<T>::kValue;
+
+//! Provide the member variable type equal to the scalar type of a vector T
+template <typename T>
+struct ScalarType;
+
+//! Helper type template of ScalarType
+template <typename T>
+using ScalarTypeT = typename ScalarType<T>::Type;
 
 // Address space
 

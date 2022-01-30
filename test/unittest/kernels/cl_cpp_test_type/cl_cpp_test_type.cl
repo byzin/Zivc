@@ -724,6 +724,45 @@ __kernel void vectorArithmeticOperatorTest(
     out_int4[oindex + 1] = v0.x % v1;
     out_int4[oindex + 2] = v0 % v1.x;
   }
+
+  // Constexpr test
+  {
+    constexpr float4 v = makeFloat4(0.0f, 1.0f, 2.0f, 3.0f);
+    constexpr float4 r0 = +v;
+    static_assert(zivc::equal(0.0f, r0.x));
+    static_assert(zivc::equal(1.0f, r0.y));
+    static_assert(zivc::equal(2.0f, r0.z));
+    static_assert(zivc::equal(3.0f, r0.w));
+    constexpr float4 r1 = -v;
+    static_assert(zivc::equal(-0.0f, r1.x));
+    static_assert(zivc::equal(-1.0f, r1.y));
+    static_assert(zivc::equal(-2.0f, r1.z));
+    static_assert(zivc::equal(-3.0f, r1.w));
+  }
+  {
+    constexpr float4 v0 = makeFloat4(0.0f, 1.0f, 2.0f, 3.0f);
+    constexpr float4 v1 = makeFloat4(4.0f, 5.0f, 6.0f, 7.0f);
+    constexpr float4 r0 = v0 + v1;
+    static_assert(zivc::equal(4.0f, r0.x));
+    static_assert(zivc::equal(6.0f, r0.y));
+    static_assert(zivc::equal(8.0f, r0.z));
+    static_assert(zivc::equal(10.0f, r0.w));
+    constexpr float4 r1 = v0 - v1;
+    static_assert(zivc::equal(-4.0f, r1.x));
+    static_assert(zivc::equal(-4.0f, r1.y));
+    static_assert(zivc::equal(-4.0f, r1.z));
+    static_assert(zivc::equal(-4.0f, r1.w));
+    constexpr float4 r2 = v0 * v1;
+    static_assert(zivc::equal(0.0f, r2.x));
+    static_assert(zivc::equal(5.0f, r2.y));
+    static_assert(zivc::equal(12.0f, r2.z));
+    static_assert(zivc::equal(21.0f, r2.w));
+    constexpr float4 r3 = v0 / v1;
+    static_assert(zivc::equal(0.0f, r3.x));
+    static_assert(zivc::equal(1.0f / 5.0f, r3.y));
+    static_assert(zivc::equal(1.0f / 3.0f, r3.z));
+    static_assert(zivc::equal(3.0f / 7.0f, r3.w));
+  }
 }
 
 __kernel void vectorArithmeticAssignmentOperatorTest(
@@ -870,6 +909,64 @@ __kernel void vectorArithmeticAssignmentOperatorTest(
     out_int4[oindex + 1] = v0;
     out_int4[oindex + 1] %= v1.x;
   }
+
+  // Constexpr test
+  {
+    constexpr auto get_add_f4 = []()
+    {
+      int4 v0 = makeInt4(0, 4, 8, 12);
+      int4 v1 = makeInt4(2, 3, 4, 5);
+      v0 += v1;
+      return v0;
+    };
+    constexpr int4 r = get_add_f4();
+    static_assert(2 == r.x);
+    static_assert(7 == r.y);
+    static_assert(12 == r.z);
+    static_assert(17 == r.w);
+  }
+  {
+    constexpr auto get_sub_f4 = []()
+    {
+      int4 v0 = makeInt4(0, 4, 8, 12);
+      int4 v1 = makeInt4(2, 3, 4, 5);
+      v0 -= v1;
+      return v0;
+    };
+    constexpr int4 r = get_sub_f4();
+    static_assert(-2 == r.x);
+    static_assert(1 == r.y);
+    static_assert(4 == r.z);
+    static_assert(7 == r.w);
+  }
+  {
+    constexpr auto get_mul_f4 = []()
+    {
+      int4 v0 = makeInt4(0, 4, 8, 12);
+      int4 v1 = makeInt4(2, 3, 4, 5);
+      v0 *= v1;
+      return v0;
+    };
+    constexpr int4 r = get_mul_f4();
+    static_assert(0 == r.x);
+    static_assert(12 == r.y);
+    static_assert(32 == r.z);
+    static_assert(60 == r.w);
+  }
+  {
+    constexpr auto get_div_f4 = []()
+    {
+      int4 v0 = makeInt4(0, 4, 8, 12);
+      int4 v1 = makeInt4(2, 3, 4, 5);
+      v0 /= v1;
+      return v0;
+    };
+    constexpr int4 r = get_div_f4();
+    static_assert(0 == r.x);
+    static_assert(1 == r.y);
+    static_assert(2 == r.z);
+    static_assert(2 == r.w);
+  }
 }
 
 __kernel void vectorBitwiseOperatorTest(
@@ -1009,6 +1106,30 @@ __kernel void vectorBitwiseOperatorTest(
     const uint4 v1 = in_uint4[iindex + 1];
     out_uint4[oindex] = v0 >> v1;
     out_uint4[oindex + 1] = v0 >> v1.x;
+  }
+
+  // Constexpr test
+  {
+    constexpr uint2 v0 = makeUInt2(1, 2);
+    constexpr uint2 v1 = makeUInt2(3, 3);
+    constexpr uint2 r0 = ~v0;
+    static_assert(~1u == r0.x);
+    static_assert(~2u == r0.y);
+    constexpr uint2 r1 = v0 & v1;
+    static_assert(1u == r1.x);
+    static_assert(2u == r1.y);
+    constexpr uint2 r2 = v0 | v1;
+    static_assert(3u == r2.x);
+    static_assert(3u == r2.y);
+    constexpr uint2 r3 = v0 ^ v1;
+    static_assert(1u ^ 3u == r3.x);
+    static_assert(2u ^ 3u == r3.y);
+    constexpr uint2 r4 = v0 << v1;
+    static_assert(8u == r4.x);
+    static_assert(16u == r4.y);
+    constexpr uint2 r5 = v1 >> v0;
+    static_assert(1u == r5.x);
+    static_assert(0u == r5.y);
   }
 }
 

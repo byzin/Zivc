@@ -29,7 +29,7 @@ namespace zivc::cl {
   \details No detailed description
   */
 template <Arithmetic T> inline
-Vector<T, 2>::Vector() noexcept : Vector(zisc::cast<Type>(0))
+constexpr Vector<T, 2>::Vector() noexcept : Vector(zisc::cast<Type>(0))
 {
 }
 
@@ -39,7 +39,7 @@ Vector<T, 2>::Vector() noexcept : Vector(zisc::cast<Type>(0))
   \param [in] v No description.
   */
 template <Arithmetic T> inline
-Vector<T, 2>::Vector(ConstReference v) noexcept : Vector(v, v)
+constexpr Vector<T, 2>::Vector(ConstReference v) noexcept : Vector(v, v)
 {
 }
 
@@ -50,7 +50,7 @@ Vector<T, 2>::Vector(ConstReference v) noexcept : Vector(v, v)
   \param [in] v1 No description.
   */
 template <Arithmetic T> inline
-Vector<T, 2>::Vector(ConstReference v0, ConstReference v1) noexcept :
+constexpr Vector<T, 2>::Vector(ConstReference v0, ConstReference v1) noexcept :
     x{v0},
     y{v1}
 {
@@ -63,7 +63,7 @@ Vector<T, 2>::Vector(ConstReference v0, ConstReference v1) noexcept :
   \return No description
   */
 template <Arithmetic T> inline
-auto Vector<T, 2>::operator[](const size_type index) noexcept -> Reference
+constexpr auto Vector<T, 2>::operator[](const size_type index) noexcept -> Reference
 {
   return get(index);
 }
@@ -75,7 +75,7 @@ auto Vector<T, 2>::operator[](const size_type index) noexcept -> Reference
   \return No description
   */
 template <Arithmetic T> inline
-auto Vector<T, 2>::operator[](const size_type index) const noexcept -> ConstReference
+constexpr auto Vector<T, 2>::operator[](const size_type index) const noexcept -> ConstReference
 {
   return get(index);
 }
@@ -86,7 +86,7 @@ auto Vector<T, 2>::operator[](const size_type index) const noexcept -> ConstRefe
   \return No description
   */
 template <Arithmetic T> inline
-Vector<T, 2>::operator bool() const noexcept
+constexpr Vector<T, 2>::operator bool() const noexcept
 {
   const bool result = zisc::cast<bool>(x) && zisc::cast<bool>(y);
   return result;
@@ -98,7 +98,7 @@ Vector<T, 2>::operator bool() const noexcept
   \return No description
   */
 template <Arithmetic T> inline
-auto Vector<T, 2>::begin() noexcept -> iterator
+constexpr auto Vector<T, 2>::begin() noexcept -> iterator
 {
   return data();
 }
@@ -109,7 +109,7 @@ auto Vector<T, 2>::begin() noexcept -> iterator
   \return No description
   */
 template <Arithmetic T> inline
-auto Vector<T, 2>::begin() const noexcept -> const_iterator
+constexpr auto Vector<T, 2>::begin() const noexcept -> const_iterator
 {
   return data();
 }
@@ -120,7 +120,7 @@ auto Vector<T, 2>::begin() const noexcept -> const_iterator
   \return No description
   */
 template <Arithmetic T> inline
-auto Vector<T, 2>::end() noexcept -> iterator
+constexpr auto Vector<T, 2>::end() noexcept -> iterator
 {
   constexpr size_type align_s = alignment();
   Pointer p = zisc::assume_aligned<align_s>(data() + size());
@@ -133,7 +133,7 @@ auto Vector<T, 2>::end() noexcept -> iterator
   \return No description
   */
 template <Arithmetic T> inline
-auto Vector<T, 2>::end() const noexcept -> const_iterator
+constexpr auto Vector<T, 2>::end() const noexcept -> const_iterator
 {
   constexpr size_type align_s = alignment();
   ConstPointer p = zisc::assume_aligned<align_s>(data() + size());
@@ -161,7 +161,7 @@ constexpr auto Vector<T, 2>::alignment() noexcept -> size_type
   \return No description
   */
 template <Arithmetic T> inline
-auto Vector<T, 2>::data() noexcept -> Pointer
+constexpr auto Vector<T, 2>::data() noexcept -> Pointer
 {
   constexpr size_type align_s = alignment();
   Pointer p = zisc::assume_aligned<align_s>(&x);
@@ -174,7 +174,7 @@ auto Vector<T, 2>::data() noexcept -> Pointer
   \return No description
   */
 template <Arithmetic T> inline
-auto Vector<T, 2>::data() const noexcept -> ConstPointer
+constexpr auto Vector<T, 2>::data() const noexcept -> ConstPointer
 {
   constexpr size_type align_s = alignment();
   ConstPointer p = zisc::assume_aligned<align_s>(&x);
@@ -188,7 +188,7 @@ auto Vector<T, 2>::data() const noexcept -> ConstPointer
   \return No description
   */
 template <Arithmetic T> inline
-auto Vector<T, 2>::get(const size_type index) noexcept -> Reference
+constexpr auto Vector<T, 2>::get(const size_type index) noexcept -> Reference
 {
   Pointer p = data();
   return p[index];
@@ -201,7 +201,7 @@ auto Vector<T, 2>::get(const size_type index) noexcept -> Reference
   \return No description
   */
 template <Arithmetic T> inline
-auto Vector<T, 2>::get(const size_type index) const noexcept -> ConstReference
+constexpr auto Vector<T, 2>::get(const size_type index) const noexcept -> ConstReference
 {
   ConstPointer p = data();
   return p[index];
@@ -222,7 +222,7 @@ constexpr auto Vector<T, 2>::size() noexcept -> size_type
   \details No detailed description
   */
 template <Arithmetic T> inline
-Vector<T, 3>::Vector() noexcept : Vector(zisc::cast<Type>(0))
+constexpr Vector<T, 3>::Vector() noexcept : Vector(zisc::cast<Type>(0))
 {
 }
 
@@ -232,7 +232,7 @@ Vector<T, 3>::Vector() noexcept : Vector(zisc::cast<Type>(0))
   \param [in] v No description.
   */
 template <Arithmetic T> inline
-Vector<T, 3>::Vector(ConstReference v) noexcept : Vector(v, v, v)
+constexpr Vector<T, 3>::Vector(ConstReference v) noexcept : Vector(v, v, v)
 {
 }
 
@@ -244,7 +244,7 @@ Vector<T, 3>::Vector(ConstReference v) noexcept : Vector(v, v, v)
   \param [in] v2 No description.
   */
 template <Arithmetic T> inline
-Vector<T, 3>::Vector(ConstReference v0, ConstReference v1, ConstReference v2) noexcept :
+constexpr Vector<T, 3>::Vector(ConstReference v0, ConstReference v1, ConstReference v2) noexcept :
     x{v0},
     y{v1},
     z{v2},
@@ -259,7 +259,7 @@ Vector<T, 3>::Vector(ConstReference v0, ConstReference v1, ConstReference v2) no
   \param [in] v1 No description.
   */
 template <Arithmetic T> inline
-Vector<T, 3>::Vector(const Vector2& v0, ConstReference v1) noexcept :
+constexpr Vector<T, 3>::Vector(const Vector2& v0, ConstReference v1) noexcept :
     Vector(v0.x, v0.y, v1)
 {
 }
@@ -271,7 +271,7 @@ Vector<T, 3>::Vector(const Vector2& v0, ConstReference v1) noexcept :
   \param [in] v1 No description.
   */
 template <Arithmetic T> inline
-Vector<T, 3>::Vector(ConstReference v0, const Vector2& v1) noexcept :
+constexpr Vector<T, 3>::Vector(ConstReference v0, const Vector2& v1) noexcept :
     Vector(v0, v1.x, v1.y)
 {
 }
@@ -283,7 +283,7 @@ Vector<T, 3>::Vector(ConstReference v0, const Vector2& v1) noexcept :
   \return No description
   */
 template <Arithmetic Type> inline
-auto Vector<Type, 3>::operator[](const size_type index) noexcept -> Reference
+constexpr auto Vector<Type, 3>::operator[](const size_type index) noexcept -> Reference
 {
   return get(index);
 }
@@ -295,7 +295,7 @@ auto Vector<Type, 3>::operator[](const size_type index) noexcept -> Reference
   \return No description
   */
 template <Arithmetic T> inline
-auto Vector<T, 3>::operator[](const size_type index) const noexcept -> ConstReference
+constexpr auto Vector<T, 3>::operator[](const size_type index) const noexcept -> ConstReference
 {
   return get(index);
 }
@@ -306,7 +306,7 @@ auto Vector<T, 3>::operator[](const size_type index) const noexcept -> ConstRefe
   \return No description
   */
 template <Arithmetic T> inline
-Vector<T, 3>::operator bool() const noexcept
+constexpr Vector<T, 3>::operator bool() const noexcept
 {
   const bool result = zisc::cast<bool>(x) && zisc::cast<bool>(y) &&
                       zisc::cast<bool>(z);
@@ -319,7 +319,7 @@ Vector<T, 3>::operator bool() const noexcept
   \return No description
   */
 template <Arithmetic T> inline
-auto Vector<T, 3>::begin() noexcept -> iterator
+constexpr auto Vector<T, 3>::begin() noexcept -> iterator
 {
   return data();
 }
@@ -330,7 +330,7 @@ auto Vector<T, 3>::begin() noexcept -> iterator
   \return No description
   */
 template <Arithmetic T> inline
-auto Vector<T, 3>::begin() const noexcept -> const_iterator
+constexpr auto Vector<T, 3>::begin() const noexcept -> const_iterator
 {
   return data();
 }
@@ -341,7 +341,7 @@ auto Vector<T, 3>::begin() const noexcept -> const_iterator
   \return No description
   */
 template <Arithmetic T> inline
-auto Vector<T, 3>::end() noexcept -> iterator
+constexpr auto Vector<T, 3>::end() noexcept -> iterator
 {
   Pointer p = data() + size();
   return p;
@@ -353,7 +353,7 @@ auto Vector<T, 3>::end() noexcept -> iterator
   \return No description
   */
 template <Arithmetic T> inline
-auto Vector<T, 3>::end() const noexcept -> const_iterator
+constexpr auto Vector<T, 3>::end() const noexcept -> const_iterator
 {
   ConstPointer p = data() + size();
   return p;
@@ -380,7 +380,7 @@ constexpr auto Vector<T, 3>::alignment() noexcept -> size_type
   \return No description
   */
 template <Arithmetic T> inline
-auto Vector<T, 3>::data() noexcept -> Pointer
+constexpr auto Vector<T, 3>::data() noexcept -> Pointer
 {
   constexpr size_type align_s = alignment();
   Pointer p = zisc::assume_aligned<align_s>(&x);
@@ -393,7 +393,7 @@ auto Vector<T, 3>::data() noexcept -> Pointer
   \return No description
   */
 template <Arithmetic T> inline
-auto Vector<T, 3>::data() const noexcept -> ConstPointer
+constexpr auto Vector<T, 3>::data() const noexcept -> ConstPointer
 {
   constexpr size_type align_s = alignment();
   ConstPointer p = zisc::assume_aligned<align_s>(&x);
@@ -407,7 +407,7 @@ auto Vector<T, 3>::data() const noexcept -> ConstPointer
   \return No description
   */
 template <Arithmetic T> inline
-auto Vector<T, 3>::get(const size_type index) noexcept -> Reference
+constexpr auto Vector<T, 3>::get(const size_type index) noexcept -> Reference
 {
   Pointer p = data();
   return p[index];
@@ -420,7 +420,7 @@ auto Vector<T, 3>::get(const size_type index) noexcept -> Reference
   \return No description
   */
 template <Arithmetic T> inline
-auto Vector<T, 3>::get(const size_type index) const noexcept -> ConstReference
+constexpr auto Vector<T, 3>::get(const size_type index) const noexcept -> ConstReference
 {
   ConstPointer p = data();
   return p[index];
@@ -441,7 +441,7 @@ constexpr auto Vector<T, 3>::size() noexcept -> size_type
   \details No detailed description
   */
 template <Arithmetic T> inline
-Vector<T, 4>::Vector() noexcept : Vector(zisc::cast<Type>(0))
+constexpr Vector<T, 4>::Vector() noexcept : Vector(zisc::cast<Type>(0))
 {
 }
 
@@ -451,7 +451,7 @@ Vector<T, 4>::Vector() noexcept : Vector(zisc::cast<Type>(0))
   \param [in] v No description.
   */
 template <Arithmetic T> inline
-Vector<T, 4>::Vector(ConstReference v) noexcept : Vector(v, v, v, v)
+constexpr Vector<T, 4>::Vector(ConstReference v) noexcept : Vector(v, v, v, v)
 {
 }
 
@@ -464,7 +464,7 @@ Vector<T, 4>::Vector(ConstReference v) noexcept : Vector(v, v, v, v)
   \param [in] v3 No description.
   */
 template <Arithmetic T> inline
-Vector<T, 4>::Vector(ConstReference v0, ConstReference v1, ConstReference v2, ConstReference v3) noexcept :
+constexpr Vector<T, 4>::Vector(ConstReference v0, ConstReference v1, ConstReference v2, ConstReference v3) noexcept :
     x{v0},
     y{v1},
     z{v2},
@@ -480,7 +480,7 @@ Vector<T, 4>::Vector(ConstReference v0, ConstReference v1, ConstReference v2, Co
   \param [in] v2 No description.
   */
 template <Arithmetic T> inline
-Vector<T, 4>::Vector(const Vector2& v0, ConstReference v1, ConstReference v2) noexcept :
+constexpr Vector<T, 4>::Vector(const Vector2& v0, ConstReference v1, ConstReference v2) noexcept :
     Vector(v0.x, v0.y, v1, v2)
 {
 }
@@ -493,7 +493,7 @@ Vector<T, 4>::Vector(const Vector2& v0, ConstReference v1, ConstReference v2) no
   \param [in] v2 No description.
   */
 template <Arithmetic T> inline
-Vector<T, 4>::Vector(ConstReference v0, const Vector2& v1, ConstReference v2) noexcept :
+constexpr Vector<T, 4>::Vector(ConstReference v0, const Vector2& v1, ConstReference v2) noexcept :
     Vector(v0, v1.x, v1.y, v2)
 {
 }
@@ -506,7 +506,7 @@ Vector<T, 4>::Vector(ConstReference v0, const Vector2& v1, ConstReference v2) no
   \param [in] v2 No description.
   */
 template <Arithmetic T> inline
-Vector<T, 4>::Vector(ConstReference v0, ConstReference v1, const Vector2& v2) noexcept :
+constexpr Vector<T, 4>::Vector(ConstReference v0, ConstReference v1, const Vector2& v2) noexcept :
     Vector(v0, v1, v2.x, v2.y)
 {
 }
@@ -518,7 +518,7 @@ Vector<T, 4>::Vector(ConstReference v0, ConstReference v1, const Vector2& v2) no
   \param [in] v1 No description.
   */
 template <Arithmetic T> inline
-Vector<T, 4>::Vector(const Vector2& v0, const Vector2& v1) noexcept :
+constexpr Vector<T, 4>::Vector(const Vector2& v0, const Vector2& v1) noexcept :
     Vector(v0.x, v0.y, v1.x, v1.y)
 {
 }
@@ -530,7 +530,7 @@ Vector<T, 4>::Vector(const Vector2& v0, const Vector2& v1) noexcept :
   \param [in] v1 No description.
   */
 template <Arithmetic T> inline
-Vector<T, 4>::Vector(const Vector3& v0, ConstReference v1) noexcept :
+constexpr Vector<T, 4>::Vector(const Vector3& v0, ConstReference v1) noexcept :
     Vector(v0.x, v0.y, v0.z, v1)
 {
 }
@@ -542,7 +542,7 @@ Vector<T, 4>::Vector(const Vector3& v0, ConstReference v1) noexcept :
   \param [in] v1 No description.
   */
 template <Arithmetic T> inline
-Vector<T, 4>::Vector(ConstReference v0, const Vector3& v1) noexcept :
+constexpr Vector<T, 4>::Vector(ConstReference v0, const Vector3& v1) noexcept :
     Vector(v0, v1.x, v1.y, v1.z)
 {
 }
@@ -554,7 +554,7 @@ Vector<T, 4>::Vector(ConstReference v0, const Vector3& v1) noexcept :
   \return No description
   */
 template <Arithmetic T> inline
-auto Vector<T, 4>::operator[](const size_type index) noexcept -> Reference
+constexpr auto Vector<T, 4>::operator[](const size_type index) noexcept -> Reference
 {
   return get(index);
 }
@@ -566,7 +566,7 @@ auto Vector<T, 4>::operator[](const size_type index) noexcept -> Reference
   \return No description
   */
 template <Arithmetic T> inline
-auto Vector<T, 4>::operator[](const size_type index) const noexcept -> ConstReference
+constexpr auto Vector<T, 4>::operator[](const size_type index) const noexcept -> ConstReference
 {
   return get(index);
 }
@@ -577,7 +577,7 @@ auto Vector<T, 4>::operator[](const size_type index) const noexcept -> ConstRefe
   \return No description
   */
 template <Arithmetic T> inline
-Vector<T, 4>::operator bool() const noexcept
+constexpr Vector<T, 4>::operator bool() const noexcept
 {
   const bool result = zisc::cast<bool>(x) && zisc::cast<bool>(y) &&
                       zisc::cast<bool>(z) && zisc::cast<bool>(z);
@@ -590,7 +590,7 @@ Vector<T, 4>::operator bool() const noexcept
   \return No description
   */
 template <Arithmetic T> inline
-auto Vector<T, 4>::begin() noexcept -> iterator
+constexpr auto Vector<T, 4>::begin() noexcept -> iterator
 {
   return data();
 }
@@ -601,7 +601,7 @@ auto Vector<T, 4>::begin() noexcept -> iterator
   \return No description
   */
 template <Arithmetic T> inline
-auto Vector<T, 4>::begin() const noexcept -> const_iterator
+constexpr auto Vector<T, 4>::begin() const noexcept -> const_iterator
 {
   return data();
 }
@@ -612,7 +612,7 @@ auto Vector<T, 4>::begin() const noexcept -> const_iterator
   \return No description
   */
 template <Arithmetic T> inline
-auto Vector<T, 4>::end() noexcept -> iterator
+constexpr auto Vector<T, 4>::end() noexcept -> iterator
 {
   constexpr size_type align_s = alignment();
   Pointer p = zisc::assume_aligned<align_s>(data() + size());
@@ -625,7 +625,7 @@ auto Vector<T, 4>::end() noexcept -> iterator
   \return No description
   */
 template <Arithmetic T> inline
-auto Vector<T, 4>::end() const noexcept -> const_iterator
+constexpr auto Vector<T, 4>::end() const noexcept -> const_iterator
 {
   constexpr size_type align_s = alignment();
   ConstPointer p = zisc::assume_aligned<align_s>(data() + size());
@@ -653,7 +653,7 @@ constexpr auto Vector<T, 4>::alignment() noexcept -> size_type
   \return No description
   */
 template <Arithmetic T> inline
-auto Vector<T, 4>::data() noexcept -> Pointer
+constexpr auto Vector<T, 4>::data() noexcept -> Pointer
 {
   constexpr size_type align_s = alignment();
   Pointer p = zisc::assume_aligned<align_s>(&x);
@@ -666,7 +666,7 @@ auto Vector<T, 4>::data() noexcept -> Pointer
   \return No description
   */
 template <Arithmetic T> inline
-auto Vector<T, 4>::data() const noexcept -> ConstPointer
+constexpr auto Vector<T, 4>::data() const noexcept -> ConstPointer
 {
   constexpr size_type align_s = alignment();
   ConstPointer p = zisc::assume_aligned<align_s>(&x);
@@ -680,7 +680,7 @@ auto Vector<T, 4>::data() const noexcept -> ConstPointer
   \return No description
   */
 template <Arithmetic T> inline
-auto Vector<T, 4>::get(const size_type index) noexcept -> Reference
+constexpr auto Vector<T, 4>::get(const size_type index) noexcept -> Reference
 {
   Pointer p = data();
   return p[index];
@@ -693,7 +693,7 @@ auto Vector<T, 4>::get(const size_type index) noexcept -> Reference
   \return No description
   */
 template <Arithmetic T> inline
-auto Vector<T, 4>::get(const size_type index) const noexcept -> ConstReference
+constexpr auto Vector<T, 4>::get(const size_type index) const noexcept -> ConstReference
 {
   ConstPointer p = data();
   return p[index];
@@ -720,8 +720,8 @@ constexpr auto Vector<T, 4>::size() noexcept -> size_type
   \return No description
   */
 template <Arithmetic Type, size_t kN> inline
-Vector<Type, kN>& operator+=(Vector<Type, kN>& lhs,
-                             const Vector<Type, kN>& rhs) noexcept
+constexpr Vector<Type, kN>& operator+=(Vector<Type, kN>& lhs,
+                                       const Vector<Type, kN>& rhs) noexcept
 {
   for (size_t index = 0; index < kN; ++index)
     lhs[index] += rhs[index];
@@ -739,8 +739,8 @@ Vector<Type, kN>& operator+=(Vector<Type, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-Vector<Type1, kN>& operator+=(Vector<Type1, kN>& lhs,
-                              const Type2& rhs) noexcept
+constexpr Vector<Type1, kN>& operator+=(Vector<Type1, kN>& lhs,
+                                        const Type2& rhs) noexcept
 {
   for (size_t index = 0; index < kN; ++index)
     lhs[index] += rhs;
@@ -757,8 +757,8 @@ Vector<Type1, kN>& operator+=(Vector<Type1, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type, size_t kN> inline
-Vector<Type, kN>& operator-=(Vector<Type, kN>& lhs,
-                             const Vector<Type, kN>& rhs) noexcept
+constexpr Vector<Type, kN>& operator-=(Vector<Type, kN>& lhs,
+                                       const Vector<Type, kN>& rhs) noexcept
 {
   for (size_t index = 0; index < kN; ++index)
     lhs[index] -= rhs[index];
@@ -776,8 +776,8 @@ Vector<Type, kN>& operator-=(Vector<Type, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-Vector<Type1, kN>& operator-=(Vector<Type1, kN>& lhs,
-                              const Type2& rhs) noexcept
+constexpr Vector<Type1, kN>& operator-=(Vector<Type1, kN>& lhs,
+                                        const Type2& rhs) noexcept
 {
   for (size_t index = 0; index < kN; ++index)
     lhs[index] -= rhs;
@@ -794,8 +794,8 @@ Vector<Type1, kN>& operator-=(Vector<Type1, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type, size_t kN> inline
-Vector<Type, kN>& operator*=(Vector<Type, kN>& lhs,
-                             const Vector<Type, kN>& rhs) noexcept
+constexpr Vector<Type, kN>& operator*=(Vector<Type, kN>& lhs,
+                                       const Vector<Type, kN>& rhs) noexcept
 {
   for (size_t index = 0; index < kN; ++index)
     lhs[index] *= rhs[index];
@@ -813,8 +813,8 @@ Vector<Type, kN>& operator*=(Vector<Type, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-Vector<Type1, kN>& operator*=(Vector<Type1, kN>& lhs,
-                              const Type2& rhs) noexcept
+constexpr Vector<Type1, kN>& operator*=(Vector<Type1, kN>& lhs,
+                                        const Type2& rhs) noexcept
 {
   for (size_t index = 0; index < kN; ++index)
     lhs[index] *= rhs;
@@ -831,8 +831,8 @@ Vector<Type1, kN>& operator*=(Vector<Type1, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type, size_t kN> inline
-Vector<Type, kN>& operator/=(Vector<Type, kN>& lhs,
-                             const Vector<Type, kN>& rhs) noexcept
+constexpr Vector<Type, kN>& operator/=(Vector<Type, kN>& lhs,
+                                       const Vector<Type, kN>& rhs) noexcept
 {
   for (size_t index = 0; index < kN; ++index)
     lhs[index] /= rhs[index];
@@ -850,8 +850,8 @@ Vector<Type, kN>& operator/=(Vector<Type, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-Vector<Type1, kN>& operator/=(Vector<Type1, kN>& lhs,
-                              const Type2& rhs) noexcept
+constexpr Vector<Type1, kN>& operator/=(Vector<Type1, kN>& lhs,
+                                        const Type2& rhs) noexcept
 {
   for (size_t index = 0; index < kN; ++index)
     lhs[index] /= rhs;
@@ -868,8 +868,8 @@ Vector<Type1, kN>& operator/=(Vector<Type1, kN>& lhs,
   \return No description
   */
 template <zisc::Integer Type, size_t kN> inline
-Vector<Type, kN>& operator%=(Vector<Type, kN>& lhs,
-                             const Vector<Type, kN>& rhs) noexcept
+constexpr Vector<Type, kN>& operator%=(Vector<Type, kN>& lhs,
+                                       const Vector<Type, kN>& rhs) noexcept
 {
   for (size_t index = 0; index < kN; ++index)
     lhs[index] %= rhs[index];
@@ -887,8 +887,8 @@ Vector<Type, kN>& operator%=(Vector<Type, kN>& lhs,
   \return No description
   */
 template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
-Vector<Type1, kN>& operator%=(Vector<Type1, kN>& lhs,
-                              const Type2& rhs) noexcept
+constexpr Vector<Type1, kN>& operator%=(Vector<Type1, kN>& lhs,
+                                        const Type2& rhs) noexcept
 {
   for (size_t index = 0; index < kN; ++index)
     lhs[index] %= rhs;
@@ -905,8 +905,8 @@ Vector<Type1, kN>& operator%=(Vector<Type1, kN>& lhs,
   \return No description
   */
 template <zisc::Integer Type, size_t kN> inline
-Vector<Type, kN>& operator&=(Vector<Type, kN>& lhs,
-                             const Vector<Type, kN>& rhs) noexcept
+constexpr Vector<Type, kN>& operator&=(Vector<Type, kN>& lhs,
+                                       const Vector<Type, kN>& rhs) noexcept
 {
   for (size_t index = 0; index < kN; ++index)
     lhs[index] &= rhs[index];
@@ -924,8 +924,8 @@ Vector<Type, kN>& operator&=(Vector<Type, kN>& lhs,
   \return No description
   */
 template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
-Vector<Type1, kN>& operator&=(Vector<Type1, kN>& lhs,
-                              const Type2& rhs) noexcept
+constexpr Vector<Type1, kN>& operator&=(Vector<Type1, kN>& lhs,
+                                        const Type2& rhs) noexcept
 {
   for (size_t index = 0; index < kN; ++index)
     lhs[index] &= rhs;
@@ -942,8 +942,8 @@ Vector<Type1, kN>& operator&=(Vector<Type1, kN>& lhs,
   \return No description
   */
 template <zisc::Integer Type, size_t kN> inline
-Vector<Type, kN>& operator|=(Vector<Type, kN>& lhs,
-                             const Vector<Type, kN>& rhs) noexcept
+constexpr Vector<Type, kN>& operator|=(Vector<Type, kN>& lhs,
+                                       const Vector<Type, kN>& rhs) noexcept
 {
   for (size_t index = 0; index < kN; ++index)
     lhs[index] |= rhs[index];
@@ -961,8 +961,8 @@ Vector<Type, kN>& operator|=(Vector<Type, kN>& lhs,
   \return No description
   */
 template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
-Vector<Type1, kN>& operator|=(Vector<Type1, kN>& lhs,
-                              const Type2& rhs) noexcept
+constexpr Vector<Type1, kN>& operator|=(Vector<Type1, kN>& lhs,
+                                        const Type2& rhs) noexcept
 {
   for (size_t index = 0; index < kN; ++index)
     lhs[index] |= rhs;
@@ -979,8 +979,8 @@ Vector<Type1, kN>& operator|=(Vector<Type1, kN>& lhs,
   \return No description
   */
 template <zisc::Integer Type, size_t kN> inline
-Vector<Type, kN>& operator^=(Vector<Type, kN>& lhs,
-                             const Vector<Type, kN>& rhs) noexcept
+constexpr Vector<Type, kN>& operator^=(Vector<Type, kN>& lhs,
+                                       const Vector<Type, kN>& rhs) noexcept
 {
   for (size_t index = 0; index < kN; ++index)
     lhs[index] ^= rhs[index];
@@ -998,8 +998,8 @@ Vector<Type, kN>& operator^=(Vector<Type, kN>& lhs,
   \return No description
   */
 template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
-Vector<Type1, kN>& operator^=(Vector<Type1, kN>& lhs,
-                              const Type2& rhs) noexcept
+constexpr Vector<Type1, kN>& operator^=(Vector<Type1, kN>& lhs,
+                                        const Type2& rhs) noexcept
 {
   for (size_t index = 0; index < kN; ++index)
     lhs[index] ^= rhs;
@@ -1017,8 +1017,8 @@ Vector<Type1, kN>& operator^=(Vector<Type1, kN>& lhs,
   \return No description
   */
 template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
-Vector<Type1, kN>& operator<<=(Vector<Type1, kN>& lhs,
-                               const Vector<Type2, kN>& rhs) noexcept
+constexpr Vector<Type1, kN>& operator<<=(Vector<Type1, kN>& lhs,
+                                         const Vector<Type2, kN>& rhs) noexcept
 {
   for (size_t index = 0; index < kN; ++index)
     lhs[index] <<= rhs[index];
@@ -1036,8 +1036,8 @@ Vector<Type1, kN>& operator<<=(Vector<Type1, kN>& lhs,
   \return No description
   */
 template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
-Vector<Type1, kN>& operator<<=(Vector<Type1, kN>& lhs,
-                               const Type2& rhs) noexcept
+constexpr Vector<Type1, kN>& operator<<=(Vector<Type1, kN>& lhs,
+                                         const Type2& rhs) noexcept
 {
   for (size_t index = 0; index < kN; ++index)
     lhs[index] <<= rhs;
@@ -1055,8 +1055,8 @@ Vector<Type1, kN>& operator<<=(Vector<Type1, kN>& lhs,
   \return No description
   */
 template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
-Vector<Type1, kN>& operator>>=(Vector<Type1, kN>& lhs,
-                               const Vector<Type2, kN>& rhs) noexcept
+constexpr Vector<Type1, kN>& operator>>=(Vector<Type1, kN>& lhs,
+                                         const Vector<Type2, kN>& rhs) noexcept
 {
   for (size_t index = 0; index < kN; ++index)
     lhs[index] >>= rhs[index];
@@ -1074,8 +1074,8 @@ Vector<Type1, kN>& operator>>=(Vector<Type1, kN>& lhs,
   \return No description
   */
 template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
-Vector<Type1, kN>& operator>>=(Vector<Type1, kN>& lhs,
-                               const Type2& rhs) noexcept
+constexpr Vector<Type1, kN>& operator>>=(Vector<Type1, kN>& lhs,
+                                         const Type2& rhs) noexcept
 {
   for (size_t index = 0; index < kN; ++index)
     lhs[index] >>= rhs;
@@ -1091,7 +1091,7 @@ Vector<Type1, kN>& operator>>=(Vector<Type1, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type, size_t kN> inline
-Vector<Type, kN>& operator++(Vector<Type, kN>& value) noexcept
+constexpr Vector<Type, kN>& operator++(Vector<Type, kN>& value) noexcept
 {
   constexpr auto one = zisc::cast<Type>(1);
   value += one;
@@ -1107,7 +1107,7 @@ Vector<Type, kN>& operator++(Vector<Type, kN>& value) noexcept
   \return No description
   */
 template <Arithmetic Type, size_t kN> inline
-Vector<Type, kN>& operator--(Vector<Type, kN>& value) noexcept
+constexpr Vector<Type, kN>& operator--(Vector<Type, kN>& value) noexcept
 {
   constexpr auto one = zisc::cast<Type>(1);
   value -= one;
@@ -1123,7 +1123,7 @@ Vector<Type, kN>& operator--(Vector<Type, kN>& value) noexcept
   \return No description
   */
 template <Arithmetic Type, size_t kN> inline
-Vector<Type, kN> operator++(Vector<Type, kN>& value, int) noexcept
+constexpr Vector<Type, kN> operator++(Vector<Type, kN>& value, int) noexcept
 {
   constexpr auto one = zisc::cast<Type>(1);
   const auto old = value;
@@ -1140,7 +1140,7 @@ Vector<Type, kN> operator++(Vector<Type, kN>& value, int) noexcept
   \return No description
   */
 template <Arithmetic Type, size_t kN> inline
-Vector<Type, kN> operator--(Vector<Type, kN>& value, int) noexcept
+constexpr Vector<Type, kN> operator--(Vector<Type, kN>& value, int) noexcept
 {
   constexpr auto one = zisc::cast<Type>(1);
   const auto old = value;
@@ -1157,7 +1157,7 @@ Vector<Type, kN> operator--(Vector<Type, kN>& value, int) noexcept
   \return No description
   */
 template <Arithmetic Type, size_t kN> inline
-Vector<Type, kN> operator+(const Vector<Type, kN>& value) noexcept
+constexpr Vector<Type, kN> operator+(const Vector<Type, kN>& value) noexcept
 {
   return value;
 }
@@ -1171,7 +1171,7 @@ Vector<Type, kN> operator+(const Vector<Type, kN>& value) noexcept
   \return No description
   */
 template <Arithmetic Type, size_t kN> inline
-Vector<Type, kN> operator-(const Vector<Type, kN>& value) noexcept
+constexpr Vector<Type, kN> operator-(const Vector<Type, kN>& value) noexcept
 {
   Vector<Type, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -1189,8 +1189,8 @@ Vector<Type, kN> operator-(const Vector<Type, kN>& value) noexcept
   \return No description
   */
 template <Arithmetic Type, size_t kN> inline
-Vector<Type, kN> operator+(const Vector<Type, kN>& lhs,
-                           const Vector<Type, kN>& rhs) noexcept
+constexpr Vector<Type, kN> operator+(const Vector<Type, kN>& lhs,
+                                     const Vector<Type, kN>& rhs) noexcept
 {
   Vector<Type, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -1209,8 +1209,8 @@ Vector<Type, kN> operator+(const Vector<Type, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-Vector<Type2, kN> operator+(const Type1& lhs,
-                            const Vector<Type2, kN>& rhs) noexcept
+constexpr Vector<Type2, kN> operator+(const Type1& lhs,
+                                      const Vector<Type2, kN>& rhs) noexcept
 {
   Vector<Type2, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -1229,8 +1229,8 @@ Vector<Type2, kN> operator+(const Type1& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-Vector<Type1, kN> operator+(const Vector<Type1, kN>& lhs,
-                            const Type2& rhs) noexcept
+constexpr Vector<Type1, kN> operator+(const Vector<Type1, kN>& lhs,
+                                      const Type2& rhs) noexcept
 {
   return (rhs + lhs);
 }
@@ -1245,8 +1245,8 @@ Vector<Type1, kN> operator+(const Vector<Type1, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type, size_t kN> inline
-Vector<Type, kN> operator-(const Vector<Type, kN>& lhs,
-                           const Vector<Type, kN>& rhs) noexcept
+constexpr Vector<Type, kN> operator-(const Vector<Type, kN>& lhs,
+                                     const Vector<Type, kN>& rhs) noexcept
 {
   Vector<Type, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -1265,8 +1265,8 @@ Vector<Type, kN> operator-(const Vector<Type, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-Vector<Type2, kN> operator-(const Type1& lhs,
-                            const Vector<Type2, kN>& rhs) noexcept
+constexpr Vector<Type2, kN> operator-(const Type1& lhs,
+                                      const Vector<Type2, kN>& rhs) noexcept
 {
   Vector<Type2, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -1285,8 +1285,8 @@ Vector<Type2, kN> operator-(const Type1& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-Vector<Type1, kN> operator-(const Vector<Type1, kN>& lhs,
-                            const Type2& rhs) noexcept
+constexpr Vector<Type1, kN> operator-(const Vector<Type1, kN>& lhs,
+                                      const Type2& rhs) noexcept
 {
   Vector<Type2, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -1304,8 +1304,8 @@ Vector<Type1, kN> operator-(const Vector<Type1, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type, size_t kN> inline
-Vector<Type, kN> operator*(const Vector<Type, kN>& lhs,
-                           const Vector<Type, kN>& rhs) noexcept
+constexpr Vector<Type, kN> operator*(const Vector<Type, kN>& lhs,
+                                     const Vector<Type, kN>& rhs) noexcept
 {
   Vector<Type, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -1324,8 +1324,8 @@ Vector<Type, kN> operator*(const Vector<Type, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-Vector<Type2, kN> operator*(const Type1& lhs,
-                            const Vector<Type2, kN>& rhs) noexcept
+constexpr Vector<Type2, kN> operator*(const Type1& lhs,
+                                      const Vector<Type2, kN>& rhs) noexcept
 {
   Vector<Type2, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -1344,8 +1344,8 @@ Vector<Type2, kN> operator*(const Type1& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-Vector<Type1, kN> operator*(const Vector<Type1, kN>& lhs,
-                            const Type2& rhs) noexcept
+constexpr Vector<Type1, kN> operator*(const Vector<Type1, kN>& lhs,
+                                      const Type2& rhs) noexcept
 {
   return (rhs * lhs);
 }
@@ -1360,8 +1360,8 @@ Vector<Type1, kN> operator*(const Vector<Type1, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type, size_t kN> inline
-Vector<Type, kN> operator/(const Vector<Type, kN>& lhs,
-                           const Vector<Type, kN>& rhs) noexcept
+constexpr Vector<Type, kN> operator/(const Vector<Type, kN>& lhs,
+                                     const Vector<Type, kN>& rhs) noexcept
 {
   Vector<Type, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -1380,8 +1380,8 @@ Vector<Type, kN> operator/(const Vector<Type, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-Vector<Type2, kN> operator/(const Type1& lhs,
-                            const Vector<Type2, kN>& rhs) noexcept
+constexpr Vector<Type2, kN> operator/(const Type1& lhs,
+                                      const Vector<Type2, kN>& rhs) noexcept
 {
   Vector<Type2, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -1400,8 +1400,8 @@ Vector<Type2, kN> operator/(const Type1& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-Vector<Type1, kN> operator/(const Vector<Type1, kN>& lhs,
-                            const Type2& rhs) noexcept
+constexpr Vector<Type1, kN> operator/(const Vector<Type1, kN>& lhs,
+                                      const Type2& rhs) noexcept
 {
   Vector<Type1, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -1419,8 +1419,8 @@ Vector<Type1, kN> operator/(const Vector<Type1, kN>& lhs,
   \return No description
   */
 template <zisc::Integer Type, size_t kN> inline
-Vector<Type, kN> operator%(const Vector<Type, kN>& lhs,
-                           const Vector<Type, kN>& rhs) noexcept
+constexpr Vector<Type, kN> operator%(const Vector<Type, kN>& lhs,
+                                     const Vector<Type, kN>& rhs) noexcept
 {
   Vector<Type, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -1439,8 +1439,8 @@ Vector<Type, kN> operator%(const Vector<Type, kN>& lhs,
   \return No description
   */
 template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
-Vector<Type2, kN> operator%(const Type1& lhs,
-                            const Vector<Type2, kN>& rhs) noexcept
+constexpr Vector<Type2, kN> operator%(const Type1& lhs,
+                                      const Vector<Type2, kN>& rhs) noexcept
 {
   Vector<Type2, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -1459,8 +1459,8 @@ Vector<Type2, kN> operator%(const Type1& lhs,
   \return No description
   */
 template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
-Vector<Type1, kN> operator%(const Vector<Type1, kN>& lhs,
-                            const Type2& rhs) noexcept
+constexpr Vector<Type1, kN> operator%(const Vector<Type1, kN>& lhs,
+                                      const Type2& rhs) noexcept
 {
   Vector<Type1, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -1477,7 +1477,7 @@ Vector<Type1, kN> operator%(const Vector<Type1, kN>& lhs,
   \return No description
   */
 template <zisc::Integer Type, size_t kN> inline
-Vector<Type, kN> operator~(const Vector<Type, kN>& value) noexcept
+constexpr Vector<Type, kN> operator~(const Vector<Type, kN>& value) noexcept
 {
   Vector<Type, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -1495,8 +1495,8 @@ Vector<Type, kN> operator~(const Vector<Type, kN>& value) noexcept
   \return No description
   */
 template <zisc::Integer Type, size_t kN> inline
-Vector<Type, kN> operator&(const Vector<Type, kN>& lhs,
-                           const Vector<Type, kN>& rhs) noexcept
+constexpr Vector<Type, kN> operator&(const Vector<Type, kN>& lhs,
+                                     const Vector<Type, kN>& rhs) noexcept
 {
   Vector<Type, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -1515,8 +1515,8 @@ Vector<Type, kN> operator&(const Vector<Type, kN>& lhs,
   \return No description
   */
 template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
-Vector<Type2, kN> operator&(const Type1& lhs,
-                            const Vector<Type2, kN>& rhs) noexcept
+constexpr Vector<Type2, kN> operator&(const Type1& lhs,
+                                      const Vector<Type2, kN>& rhs) noexcept
 {
   Vector<Type2, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -1535,8 +1535,8 @@ Vector<Type2, kN> operator&(const Type1& lhs,
   \return No description
   */
 template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
-Vector<Type1, kN> operator&(const Vector<Type1, kN>& lhs,
-                            const Type2& rhs) noexcept
+constexpr Vector<Type1, kN> operator&(const Vector<Type1, kN>& lhs,
+                                      const Type2& rhs) noexcept
 {
   return (rhs & lhs);
 }
@@ -1551,8 +1551,8 @@ Vector<Type1, kN> operator&(const Vector<Type1, kN>& lhs,
   \return No description
   */
 template <zisc::Integer Type, size_t kN> inline
-Vector<Type, kN> operator|(const Vector<Type, kN>& lhs,
-                           const Vector<Type, kN>& rhs) noexcept
+constexpr Vector<Type, kN> operator|(const Vector<Type, kN>& lhs,
+                                     const Vector<Type, kN>& rhs) noexcept
 {
   Vector<Type, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -1571,8 +1571,8 @@ Vector<Type, kN> operator|(const Vector<Type, kN>& lhs,
   \return No description
   */
 template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
-Vector<Type2, kN> operator|(const Type1& lhs,
-                            const Vector<Type2, kN>& rhs) noexcept
+constexpr Vector<Type2, kN> operator|(const Type1& lhs,
+                                      const Vector<Type2, kN>& rhs) noexcept
 {
   Vector<Type2, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -1591,8 +1591,8 @@ Vector<Type2, kN> operator|(const Type1& lhs,
   \return No description
   */
 template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
-Vector<Type1, kN> operator|(const Vector<Type1, kN>& lhs,
-                            const Type2& rhs) noexcept
+constexpr Vector<Type1, kN> operator|(const Vector<Type1, kN>& lhs,
+                                      const Type2& rhs) noexcept
 {
   return (rhs | lhs);
 }
@@ -1607,8 +1607,8 @@ Vector<Type1, kN> operator|(const Vector<Type1, kN>& lhs,
   \return No description
   */
 template <zisc::Integer Type, size_t kN> inline
-Vector<Type, kN> operator^(const Vector<Type, kN>& lhs,
-                           const Vector<Type, kN>& rhs) noexcept
+constexpr Vector<Type, kN> operator^(const Vector<Type, kN>& lhs,
+                                     const Vector<Type, kN>& rhs) noexcept
 {
   Vector<Type, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -1627,8 +1627,8 @@ Vector<Type, kN> operator^(const Vector<Type, kN>& lhs,
   \return No description
   */
 template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
-Vector<Type2, kN> operator^(const Type1& lhs,
-                            const Vector<Type2, kN>& rhs) noexcept
+constexpr Vector<Type2, kN> operator^(const Type1& lhs,
+                                      const Vector<Type2, kN>& rhs) noexcept
 {
   Vector<Type2, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -1647,8 +1647,8 @@ Vector<Type2, kN> operator^(const Type1& lhs,
   \return No description
   */
 template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
-Vector<Type1, kN> operator^(const Vector<Type1, kN>& lhs,
-                            const Type2& rhs) noexcept
+constexpr Vector<Type1, kN> operator^(const Vector<Type1, kN>& lhs,
+                                      const Type2& rhs) noexcept
 {
   return (rhs ^ lhs);
 }
@@ -1664,8 +1664,8 @@ Vector<Type1, kN> operator^(const Vector<Type1, kN>& lhs,
   \return No description
   */
 template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
-Vector<Type1, kN> operator<<(const Vector<Type1, kN>& lhs,
-                             const Vector<Type2, kN>& rhs) noexcept
+constexpr Vector<Type1, kN> operator<<(const Vector<Type1, kN>& lhs,
+                                       const Vector<Type2, kN>& rhs) noexcept
 {
   Vector<Type1, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -1684,8 +1684,8 @@ Vector<Type1, kN> operator<<(const Vector<Type1, kN>& lhs,
   \return No description
   */
 template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
-Vector<Type1, kN> operator<<(const Vector<Type1, kN>& lhs,
-                             const Type2& rhs) noexcept
+constexpr Vector<Type1, kN> operator<<(const Vector<Type1, kN>& lhs,
+                                       const Type2& rhs) noexcept
 {
   Vector<Type1, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -1704,8 +1704,8 @@ Vector<Type1, kN> operator<<(const Vector<Type1, kN>& lhs,
   \return No description
   */
 template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
-Vector<Type1, kN> operator>>(const Vector<Type1, kN>& lhs,
-                             const Vector<Type2, kN>& rhs) noexcept
+constexpr Vector<Type1, kN> operator>>(const Vector<Type1, kN>& lhs,
+                                       const Vector<Type2, kN>& rhs) noexcept
 {
   Vector<Type1, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -1724,8 +1724,8 @@ Vector<Type1, kN> operator>>(const Vector<Type1, kN>& lhs,
   \return No description
   */
 template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
-Vector<Type1, kN> operator>>(const Vector<Type1, kN>& lhs,
-                             const Type2& rhs) noexcept
+constexpr Vector<Type1, kN> operator>>(const Vector<Type1, kN>& lhs,
+                                       const Type2& rhs) noexcept
 {
   Vector<Type1, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -1742,7 +1742,7 @@ Vector<Type1, kN> operator>>(const Vector<Type1, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type, size_t kN> inline
-Vector<bool, kN> operator!(const Vector<Type, kN>& value) noexcept
+constexpr Vector<bool, kN> operator!(const Vector<Type, kN>& value) noexcept
 {
   Vector<bool, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -1760,8 +1760,8 @@ Vector<bool, kN> operator!(const Vector<Type, kN>& value) noexcept
   \return No description
   */
 template <Arithmetic Type, size_t kN> inline
-Vector<bool, kN> operator&&(const Vector<Type, kN>& lhs,
-                            const Vector<Type, kN>& rhs) noexcept
+constexpr Vector<bool, kN> operator&&(const Vector<Type, kN>& lhs,
+                                      const Vector<Type, kN>& rhs) noexcept
 {
   Vector<bool, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -1780,8 +1780,8 @@ Vector<bool, kN> operator&&(const Vector<Type, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-Vector<bool, kN> operator&&(const Type1& lhs,
-                            const Vector<Type2, kN>& rhs) noexcept
+constexpr Vector<bool, kN> operator&&(const Type1& lhs,
+                                      const Vector<Type2, kN>& rhs) noexcept
 {
   Vector<bool, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -1800,8 +1800,8 @@ Vector<bool, kN> operator&&(const Type1& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-Vector<bool, kN> operator&&(const Vector<Type1, kN>& lhs,
-                            const Type2& rhs) noexcept
+constexpr Vector<bool, kN> operator&&(const Vector<Type1, kN>& lhs,
+                                      const Type2& rhs) noexcept
 {
   return (rhs && lhs);
 }
@@ -1816,8 +1816,8 @@ Vector<bool, kN> operator&&(const Vector<Type1, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type, size_t kN> inline
-Vector<bool, kN> operator||(const Vector<Type, kN>& lhs,
-                            const Vector<Type, kN>& rhs) noexcept
+constexpr Vector<bool, kN> operator||(const Vector<Type, kN>& lhs,
+                                      const Vector<Type, kN>& rhs) noexcept
 {
   Vector<bool, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -1836,8 +1836,8 @@ Vector<bool, kN> operator||(const Vector<Type, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-Vector<bool, kN> operator||(const Type1& lhs,
-                            const Vector<Type2, kN>& rhs) noexcept
+constexpr Vector<bool, kN> operator||(const Type1& lhs,
+                                      const Vector<Type2, kN>& rhs) noexcept
 {
   Vector<bool, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -1856,8 +1856,8 @@ Vector<bool, kN> operator||(const Type1& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-Vector<bool, kN> operator||(const Vector<Type1, kN>& lhs,
-                            const Type2& rhs) noexcept
+constexpr Vector<bool, kN> operator||(const Vector<Type1, kN>& lhs,
+                                      const Type2& rhs) noexcept
 {
   return (rhs || lhs);
 }
@@ -1872,8 +1872,8 @@ Vector<bool, kN> operator||(const Vector<Type1, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type, size_t kN> inline
-Vector<bool, kN> operator==(const Vector<Type, kN>& lhs,
-                            const Vector<Type, kN>& rhs) noexcept
+constexpr Vector<bool, kN> operator==(const Vector<Type, kN>& lhs,
+                                      const Vector<Type, kN>& rhs) noexcept
 {
   Vector<bool, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -1892,8 +1892,8 @@ Vector<bool, kN> operator==(const Vector<Type, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-Vector<bool, kN> operator==(const Type1& lhs,
-                            const Vector<Type2, kN>& rhs) noexcept
+constexpr Vector<bool, kN> operator==(const Type1& lhs,
+                                      const Vector<Type2, kN>& rhs) noexcept
 {
   Vector<bool, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -1912,8 +1912,8 @@ Vector<bool, kN> operator==(const Type1& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-Vector<bool, kN> operator==(const Vector<Type1, kN>& lhs,
-                            const Type2& rhs) noexcept
+constexpr Vector<bool, kN> operator==(const Vector<Type1, kN>& lhs,
+                                      const Type2& rhs) noexcept
 {
   return (rhs == lhs);
 }
@@ -1928,8 +1928,8 @@ Vector<bool, kN> operator==(const Vector<Type1, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type, size_t kN> inline
-Vector<bool, kN> operator!=(const Vector<Type, kN>& lhs,
-                            const Vector<Type, kN>& rhs) noexcept
+constexpr Vector<bool, kN> operator!=(const Vector<Type, kN>& lhs,
+                                      const Vector<Type, kN>& rhs) noexcept
 {
   Vector<bool, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -1948,8 +1948,8 @@ Vector<bool, kN> operator!=(const Vector<Type, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-Vector<bool, kN> operator!=(const Type1& lhs,
-                            const Vector<Type2, kN>& rhs) noexcept
+constexpr Vector<bool, kN> operator!=(const Type1& lhs,
+                                      const Vector<Type2, kN>& rhs) noexcept
 {
   Vector<bool, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -1968,8 +1968,8 @@ Vector<bool, kN> operator!=(const Type1& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-Vector<bool, kN> operator!=(const Vector<Type1, kN>& lhs,
-                            const Type2& rhs) noexcept
+constexpr Vector<bool, kN> operator!=(const Vector<Type1, kN>& lhs,
+                                      const Type2& rhs) noexcept
 {
   return (rhs != lhs);
 }
@@ -1984,8 +1984,8 @@ Vector<bool, kN> operator!=(const Vector<Type1, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type, size_t kN> inline
-Vector<bool, kN> operator<(const Vector<Type, kN>& lhs,
-                           const Vector<Type, kN>& rhs) noexcept
+constexpr Vector<bool, kN> operator<(const Vector<Type, kN>& lhs,
+                                     const Vector<Type, kN>& rhs) noexcept
 {
   Vector<bool, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -2004,8 +2004,8 @@ Vector<bool, kN> operator<(const Vector<Type, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-Vector<bool, kN> operator<(const Type1& lhs,
-                           const Vector<Type2, kN>& rhs) noexcept
+constexpr Vector<bool, kN> operator<(const Type1& lhs,
+                                     const Vector<Type2, kN>& rhs) noexcept
 {
   Vector<bool, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -2024,8 +2024,8 @@ Vector<bool, kN> operator<(const Type1& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-Vector<bool, kN> operator<(const Vector<Type1, kN>& lhs,
-                           const Type2& rhs) noexcept
+constexpr Vector<bool, kN> operator<(const Vector<Type1, kN>& lhs,
+                                     const Type2& rhs) noexcept
 {
   return (rhs > lhs);
 }
@@ -2040,8 +2040,8 @@ Vector<bool, kN> operator<(const Vector<Type1, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type, size_t kN> inline
-Vector<bool, kN> operator<=(const Vector<Type, kN>& lhs,
-                            const Vector<Type, kN>& rhs) noexcept
+constexpr Vector<bool, kN> operator<=(const Vector<Type, kN>& lhs,
+                                      const Vector<Type, kN>& rhs) noexcept
 {
   Vector<bool, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -2060,8 +2060,8 @@ Vector<bool, kN> operator<=(const Vector<Type, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-Vector<bool, kN> operator<=(const Type1& lhs,
-                            const Vector<Type2, kN>& rhs) noexcept
+constexpr Vector<bool, kN> operator<=(const Type1& lhs,
+                                      const Vector<Type2, kN>& rhs) noexcept
 {
   Vector<bool, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -2080,8 +2080,8 @@ Vector<bool, kN> operator<=(const Type1& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-Vector<bool, kN> operator<=(const Vector<Type1, kN>& lhs,
-                            const Type2& rhs) noexcept
+constexpr Vector<bool, kN> operator<=(const Vector<Type1, kN>& lhs,
+                                      const Type2& rhs) noexcept
 {
   return (rhs >= lhs);
 }
@@ -2096,8 +2096,8 @@ Vector<bool, kN> operator<=(const Vector<Type1, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type, size_t kN> inline
-Vector<bool, kN> operator>(const Vector<Type, kN>& lhs,
-                           const Vector<Type, kN>& rhs) noexcept
+constexpr Vector<bool, kN> operator>(const Vector<Type, kN>& lhs,
+                                     const Vector<Type, kN>& rhs) noexcept
 {
   Vector<bool, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -2116,8 +2116,8 @@ Vector<bool, kN> operator>(const Vector<Type, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-Vector<bool, kN> operator>(const Type1& lhs,
-                           const Vector<Type2, kN>& rhs) noexcept
+constexpr Vector<bool, kN> operator>(const Type1& lhs,
+                                     const Vector<Type2, kN>& rhs) noexcept
 {
   Vector<bool, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -2136,8 +2136,8 @@ Vector<bool, kN> operator>(const Type1& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-Vector<bool, kN> operator>(const Vector<Type1, kN>& lhs,
-                           const Type2& rhs) noexcept
+constexpr Vector<bool, kN> operator>(const Vector<Type1, kN>& lhs,
+                                     const Type2& rhs) noexcept
 {
   return (rhs < lhs);
 }
@@ -2152,8 +2152,8 @@ Vector<bool, kN> operator>(const Vector<Type1, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type, size_t kN> inline
-Vector<bool, kN> operator>=(const Vector<Type, kN>& lhs,
-                            const Vector<Type, kN>& rhs) noexcept
+constexpr Vector<bool, kN> operator>=(const Vector<Type, kN>& lhs,
+                                      const Vector<Type, kN>& rhs) noexcept
 {
   Vector<bool, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -2172,8 +2172,8 @@ Vector<bool, kN> operator>=(const Vector<Type, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-Vector<bool, kN> operator>=(const Type1& lhs,
-                            const Vector<Type2, kN>& rhs) noexcept
+constexpr Vector<bool, kN> operator>=(const Type1& lhs,
+                                      const Vector<Type2, kN>& rhs) noexcept
 {
   Vector<bool, kN> result;
   for (size_t index = 0; index < kN; ++index)
@@ -2192,8 +2192,8 @@ Vector<bool, kN> operator>=(const Type1& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-Vector<bool, kN> operator>=(const Vector<Type1, kN>& lhs,
-                            const Type2& rhs) noexcept
+constexpr Vector<bool, kN> operator>=(const Vector<Type1, kN>& lhs,
+                                      const Type2& rhs) noexcept
 {
   return (rhs <= lhs);
 }

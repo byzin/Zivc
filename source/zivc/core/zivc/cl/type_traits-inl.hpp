@@ -718,6 +718,105 @@ struct TypeIdentity
   using Type = T;
 };
 
+/*!
+  \brief Provide the Type which is the same as T, except that its address space qualifier is removed
+
+  No detailed description.
+
+  \tparam T No description.
+  */
+template <typename T>
+struct RemoveAddressSpace
+{
+  using Type = T;
+};
+
+#if defined(ZIVC_CL_VULKAN)
+
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
+template <typename T>
+struct RemoveAddressSpace<Global<T>>
+{
+  using Type = T;
+};
+
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
+template <typename T>
+struct RemoveAddressSpace<Local<T>>
+{
+  using Type = T;
+};
+
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
+template <typename T>
+struct RemoveAddressSpace<Constant<T>>
+{
+  using Type = T;
+};
+
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
+template <typename T>
+struct RemoveAddressSpace<Private<T>>
+{
+  using Type = T;
+};
+
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
+template <typename T>
+struct RemoveAddressSpace<Generic<T>>
+{
+  using Type = T;
+};
+
+#endif /* ZIVC_CL_VULKAN */
+
+/*!
+  \brief Combine RemoveCvRef and RemoveAddressSpace
+
+  No detailed description.
+
+  \tparam T No description.
+
+  \note No notation.
+  \attention No attention.
+  */
+template <typename T>
+struct RemoveCvRefAddress
+{
+//  using Type = RemoveCvRefT<RemoveAddressSpaceT<T>>;
+  using Type = RemoveAddressSpaceT<RemoveCvRefT<T>>;
+};
+
 } // namespace zivc
 
 #endif /* ZIVC_CL_TYPE_TRAITS_INL_HPP */

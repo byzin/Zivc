@@ -32,28 +32,12 @@ namespace inner {
   \details No detailed description
 
   \tparam T No description.
-  \tparam kN No description.
-  \tparam Type No description.
-  \param [in] from No description.
-  \return No description
-  */
-template <Scalar T, size_t kN, Scalar Type> inline
-Vector<T, kN> convertToVector(const Type& from) noexcept
-{
-  const auto f = zisc::cast<T>(from);
-  return Vector<T, kN>{f};
-}
-
-/*!
-  \details No detailed description
-
-  \tparam T No description.
   \tparam Type No description.
   \param [in] from No description.
   \return No description
   */
 template <Scalar T, Scalar Type> inline
-Vector<T, 2> convertToVectorImpl(const Vector<Type, 2>& from) noexcept
+Vector<T, 2> convertToVector(const Vector<Type, 2>& from) noexcept
 {
   using zisc::cast;
   if constexpr (std::is_same_v<T, Type>)
@@ -71,7 +55,7 @@ Vector<T, 2> convertToVectorImpl(const Vector<Type, 2>& from) noexcept
   \return No description
   */
 template <Scalar T, Scalar Type> inline
-Vector<T, 3> convertToVectorImpl(const Vector<Type, 3>& from) noexcept
+Vector<T, 3> convertToVector(const Vector<Type, 3>& from) noexcept
 {
   using zisc::cast;
   if constexpr (std::is_same_v<T, Type>)
@@ -89,7 +73,7 @@ Vector<T, 3> convertToVectorImpl(const Vector<Type, 3>& from) noexcept
   \return No description
   */
 template <Scalar T, Scalar Type> inline
-Vector<T, 4> convertToVectorImpl(const Vector<Type, 4>& from) noexcept
+Vector<T, 4> convertToVector(const Vector<Type, 4>& from) noexcept
 {
   using zisc::cast;
   if constexpr (std::is_same_v<T, Type>)
@@ -97,21 +81,6 @@ Vector<T, 4> convertToVectorImpl(const Vector<Type, 4>& from) noexcept
   else
     return Vector<T, 4>{cast<T>(from.x), cast<T>(from.y),
                         cast<T>(from.z), cast<T>(from.w)};
-}
-
-/*!
-  \details No detailed description
-
-  \tparam T No description.
-  \tparam kN No description.
-  \tparam Type No description.
-  \param [in] from No description.
-  \return No description
-  */
-template <Scalar T, size_t kN, Scalar Type> inline
-Vector<T, kN> convertToVector(const Vector<Type, kN>& from) noexcept
-{
-  return convertToVectorImpl<T, Type>(from);
 }
 
 } // namespace inner
@@ -137,35 +106,9 @@ int8b convert_char(const Type& from) noexcept
   \return No description
   */
 template <Scalar Type> inline
-char2 convert_char2(const Type& from) noexcept
-{
-  return inner::convertToVector<int8b, 2>(from);
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \param [in] from No description.
-  \return No description
-  */
-template <Scalar Type> inline
 char2 convert_char2(const Vector<Type, 2>& from) noexcept
 {
-  return inner::convertToVector<int8b, 2>(from);
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \param [in] from No description.
-  \return No description
-  */
-template <Scalar Type> inline
-char3 convert_char3(const Type& from) noexcept
-{
-  return inner::convertToVector<int8b, 3>(from);
+  return inner::convertToVector<int8b, Type>(from);
 }
 
 /*!
@@ -178,20 +121,7 @@ char3 convert_char3(const Type& from) noexcept
 template <Scalar Type> inline
 char3 convert_char3(const Vector<Type, 3>& from) noexcept
 {
-  return inner::convertToVector<int8b, 3>(from);
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \param [in] from No description.
-  \return No description
-  */
-template <Scalar Type> inline
-char4 convert_char4(const Type& from) noexcept
-{
-  return inner::convertToVector<int8b, 4>(from);
+  return inner::convertToVector<int8b, Type>(from);
 }
 
 /*!
@@ -204,7 +134,7 @@ char4 convert_char4(const Type& from) noexcept
 template <Scalar Type> inline
 char4 convert_char4(const Vector<Type, 4>& from) noexcept
 {
-  return inner::convertToVector<int8b, 4>(from);
+  return inner::convertToVector<int8b, Type>(from);
 }
 
 /*!
@@ -228,35 +158,9 @@ uint8b convert_uchar(const Type& from) noexcept
   \return No description
   */
 template <Scalar Type> inline
-uchar2 convert_uchar2(const Type& from) noexcept
-{
-  return inner::convertToVector<uint8b, 2>(from);
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \param [in] from No description.
-  \return No description
-  */
-template <Scalar Type> inline
 uchar2 convert_uchar2(const Vector<Type, 2>& from) noexcept
 {
-  return inner::convertToVector<uint8b, 2>(from);
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \param [in] from No description.
-  \return No description
-  */
-template <Scalar Type> inline
-uchar3 convert_uchar3(const Type& from) noexcept
-{
-  return inner::convertToVector<uint8b, 3>(from);
+  return inner::convertToVector<uint8b, Type>(from);
 }
 
 /*!
@@ -269,20 +173,7 @@ uchar3 convert_uchar3(const Type& from) noexcept
 template <Scalar Type> inline
 uchar3 convert_uchar3(const Vector<Type, 3>& from) noexcept
 {
-  return inner::convertToVector<uint8b, 3>(from);
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \param [in] from No description.
-  \return No description
-  */
-template <Scalar Type> inline
-uchar4 convert_uchar4(const Type& from) noexcept
-{
-  return inner::convertToVector<uint8b, 4>(from);
+  return inner::convertToVector<uint8b, Type>(from);
 }
 
 /*!
@@ -295,7 +186,7 @@ uchar4 convert_uchar4(const Type& from) noexcept
 template <Scalar Type> inline
 uchar4 convert_uchar4(const Vector<Type, 4>& from) noexcept
 {
-  return inner::convertToVector<uint8b, 4>(from);
+  return inner::convertToVector<uint8b, Type>(from);
 }
 
 /*!
@@ -319,35 +210,9 @@ int16b convert_short(const Type& from) noexcept
   \return No description
   */
 template <Scalar Type> inline
-short2 convert_short2(const Type& from) noexcept
-{
-  return inner::convertToVector<int16b, 2>(from);
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \param [in] from No description.
-  \return No description
-  */
-template <Scalar Type> inline
 short2 convert_short2(const Vector<Type, 2>& from) noexcept
 {
-  return inner::convertToVector<int16b, 2>(from);
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \param [in] from No description.
-  \return No description
-  */
-template <Scalar Type> inline
-short3 convert_short3(const Type& from) noexcept
-{
-  return inner::convertToVector<int16b, 3>(from);
+  return inner::convertToVector<int16b, Type>(from);
 }
 
 /*!
@@ -360,20 +225,7 @@ short3 convert_short3(const Type& from) noexcept
 template <Scalar Type> inline
 short3 convert_short3(const Vector<Type, 3>& from) noexcept
 {
-  return inner::convertToVector<int16b, 3>(from);
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \param [in] from No description.
-  \return No description
-  */
-template <Scalar Type> inline
-short4 convert_short4(const Type& from) noexcept
-{
-  return inner::convertToVector<int16b, 4>(from);
+  return inner::convertToVector<int16b, Type>(from);
 }
 
 /*!
@@ -386,7 +238,7 @@ short4 convert_short4(const Type& from) noexcept
 template <Scalar Type> inline
 short4 convert_short4(const Vector<Type, 4>& from) noexcept
 {
-  return inner::convertToVector<int16b, 4>(from);
+  return inner::convertToVector<int16b, Type>(from);
 }
 
 /*!
@@ -410,35 +262,9 @@ uint16b convert_ushort(const Type& from) noexcept
   \return No description
   */
 template <Scalar Type> inline
-ushort2 convert_ushort2(const Type& from) noexcept
-{
-  return inner::convertToVector<uint16b, 2>(from);
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \param [in] from No description.
-  \return No description
-  */
-template <Scalar Type> inline
 ushort2 convert_ushort2(const Vector<Type, 2>& from) noexcept
 {
-  return inner::convertToVector<uint16b, 2>(from);
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \param [in] from No description.
-  \return No description
-  */
-template <Scalar Type> inline
-ushort3 convert_ushort3(const Type& from) noexcept
-{
-  return inner::convertToVector<uint16b, 3>(from);
+  return inner::convertToVector<uint16b, Type>(from);
 }
 
 /*!
@@ -451,20 +277,7 @@ ushort3 convert_ushort3(const Type& from) noexcept
 template <Scalar Type> inline
 ushort3 convert_ushort3(const Vector<Type, 3>& from) noexcept
 {
-  return inner::convertToVector<uint16b, 3>(from);
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \param [in] from No description.
-  \return No description
-  */
-template <Scalar Type> inline
-ushort4 convert_ushort4(const Type& from) noexcept
-{
-  return inner::convertToVector<uint16b, 4>(from);
+  return inner::convertToVector<uint16b, Type>(from);
 }
 
 /*!
@@ -477,7 +290,7 @@ ushort4 convert_ushort4(const Type& from) noexcept
 template <Scalar Type> inline
 ushort4 convert_ushort4(const Vector<Type, 4>& from) noexcept
 {
-  return inner::convertToVector<uint16b, 4>(from);
+  return inner::convertToVector<uint16b, Type>(from);
 }
 
 /*!
@@ -501,35 +314,9 @@ int32b convert_int(const Type& from) noexcept
   \return No description
   */
 template <Scalar Type> inline
-int2 convert_int2(const Type& from) noexcept
-{
-  return inner::convertToVector<int32b, 2>(from);
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \param [in] from No description.
-  \return No description
-  */
-template <Scalar Type> inline
 int2 convert_int2(const Vector<Type, 2>& from) noexcept
 {
-  return inner::convertToVector<int32b, 2>(from);
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \param [in] from No description.
-  \return No description
-  */
-template <Scalar Type> inline
-int3 convert_int3(const Type& from) noexcept
-{
-  return inner::convertToVector<int32b, 3>(from);
+  return inner::convertToVector<int32b, Type>(from);
 }
 
 /*!
@@ -542,20 +329,7 @@ int3 convert_int3(const Type& from) noexcept
 template <Scalar Type> inline
 int3 convert_int3(const Vector<Type, 3>& from) noexcept
 {
-  return inner::convertToVector<int32b, 3>(from);
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \param [in] from No description.
-  \return No description
-  */
-template <Scalar Type> inline
-int4 convert_int4(const Type& from) noexcept
-{
-  return inner::convertToVector<int32b, 4>(from);
+  return inner::convertToVector<int32b, Type>(from);
 }
 
 /*!
@@ -568,7 +342,7 @@ int4 convert_int4(const Type& from) noexcept
 template <Scalar Type> inline
 int4 convert_int4(const Vector<Type, 4>& from) noexcept
 {
-  return inner::convertToVector<int32b, 4>(from);
+  return inner::convertToVector<int32b, Type>(from);
 }
 
 /*!
@@ -592,35 +366,9 @@ uint32b convert_uint(const Type& from) noexcept
   \return No description
   */
 template <Scalar Type> inline
-uint2 convert_uint2(const Type& from) noexcept
-{
-  return inner::convertToVector<uint32b, 2>(from);
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \param [in] from No description.
-  \return No description
-  */
-template <Scalar Type> inline
 uint2 convert_uint2(const Vector<Type, 2>& from) noexcept
 {
-  return inner::convertToVector<uint32b, 2>(from);
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \param [in] from No description.
-  \return No description
-  */
-template <Scalar Type> inline
-uint3 convert_uint3(const Type& from) noexcept
-{
-  return inner::convertToVector<uint32b, 3>(from);
+  return inner::convertToVector<uint32b, Type>(from);
 }
 
 /*!
@@ -633,20 +381,7 @@ uint3 convert_uint3(const Type& from) noexcept
 template <Scalar Type> inline
 uint3 convert_uint3(const Vector<Type, 3>& from) noexcept
 {
-  return inner::convertToVector<uint32b, 3>(from);
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \param [in] from No description.
-  \return No description
-  */
-template <Scalar Type> inline
-uint4 convert_uint4(const Type& from) noexcept
-{
-  return inner::convertToVector<uint32b, 4>(from);
+  return inner::convertToVector<uint32b, Type>(from);
 }
 
 /*!
@@ -659,7 +394,7 @@ uint4 convert_uint4(const Type& from) noexcept
 template <Scalar Type> inline
 uint4 convert_uint4(const Vector<Type, 4>& from) noexcept
 {
-  return inner::convertToVector<uint32b, 4>(from);
+  return inner::convertToVector<uint32b, Type>(from);
 }
 
 /*!
@@ -683,35 +418,9 @@ int64b convert_long(const Type& from) noexcept
   \return No description
   */
 template <Scalar Type> inline
-long2 convert_long2(const Type& from) noexcept
-{
-  return inner::convertToVector<int64b, 2>(from);
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \param [in] from No description.
-  \return No description
-  */
-template <Scalar Type> inline
 long2 convert_long2(const Vector<Type, 2>& from) noexcept
 {
-  return inner::convertToVector<int64b, 2>(from);
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \param [in] from No description.
-  \return No description
-  */
-template <Scalar Type> inline
-long3 convert_long3(const Type& from) noexcept
-{
-  return inner::convertToVector<int64b, 3>(from);
+  return inner::convertToVector<int64b, Type>(from);
 }
 
 /*!
@@ -724,20 +433,7 @@ long3 convert_long3(const Type& from) noexcept
 template <Scalar Type> inline
 long3 convert_long3(const Vector<Type, 3>& from) noexcept
 {
-  return inner::convertToVector<int64b, 3>(from);
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \param [in] from No description.
-  \return No description
-  */
-template <Scalar Type> inline
-long4 convert_long4(const Type& from) noexcept
-{
-  return inner::convertToVector<int64b, 4>(from);
+  return inner::convertToVector<int64b, Type>(from);
 }
 
 /*!
@@ -750,7 +446,7 @@ long4 convert_long4(const Type& from) noexcept
 template <Scalar Type> inline
 long4 convert_long4(const Vector<Type, 4>& from) noexcept
 {
-  return inner::convertToVector<int64b, 4>(from);
+  return inner::convertToVector<int64b, Type>(from);
 }
 
 /*!
@@ -774,35 +470,9 @@ uint64b convert_ulong(const Type& from) noexcept
   \return No description
   */
 template <Scalar Type> inline
-ulong2 convert_ulong2(const Type& from) noexcept
-{
-  return inner::convertToVector<uint64b, 2>(from);
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \param [in] from No description.
-  \return No description
-  */
-template <Scalar Type> inline
 ulong2 convert_ulong2(const Vector<Type, 2>& from) noexcept
 {
-  return inner::convertToVector<uint64b, 2>(from);
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \param [in] from No description.
-  \return No description
-  */
-template <Scalar Type> inline
-ulong3 convert_ulong3(const Type& from) noexcept
-{
-  return inner::convertToVector<uint64b, 3>(from);
+  return inner::convertToVector<uint64b, Type>(from);
 }
 
 /*!
@@ -815,20 +485,7 @@ ulong3 convert_ulong3(const Type& from) noexcept
 template <Scalar Type> inline
 ulong3 convert_ulong3(const Vector<Type, 3>& from) noexcept
 {
-  return inner::convertToVector<uint64b, 3>(from);
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \param [in] from No description.
-  \return No description
-  */
-template <Scalar Type> inline
-ulong4 convert_ulong4(const Type& from) noexcept
-{
-  return inner::convertToVector<uint64b, 4>(from);
+  return inner::convertToVector<uint64b, Type>(from);
 }
 
 /*!
@@ -841,7 +498,7 @@ ulong4 convert_ulong4(const Type& from) noexcept
 template <Scalar Type> inline
 ulong4 convert_ulong4(const Vector<Type, 4>& from) noexcept
 {
-  return inner::convertToVector<uint64b, 4>(from);
+  return inner::convertToVector<uint64b, Type>(from);
 }
 
 /*!
@@ -864,35 +521,9 @@ float convert_float(const Type& from) noexcept
   \return No description
   */
 template <Scalar Type> inline
-float2 convert_float2(const Type& from) noexcept
-{
-  return inner::convertToVector<float, 2>(from);
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \param [in] from No description.
-  \return No description
-  */
-template <Scalar Type> inline
 float2 convert_float2(const Vector<Type, 2>& from) noexcept
 {
-  return inner::convertToVector<float, 2>(from);
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \param [in] from No description.
-  \return No description
-  */
-template <Scalar Type> inline
-float3 convert_float3(const Type& from) noexcept
-{
-  return inner::convertToVector<float, 3>(from);
+  return inner::convertToVector<float, Type>(from);
 }
 
 /*!
@@ -905,20 +536,7 @@ float3 convert_float3(const Type& from) noexcept
 template <Scalar Type> inline
 float3 convert_float3(const Vector<Type, 3>& from) noexcept
 {
-  return inner::convertToVector<float, 3>(from);
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \param [in] from No description.
-  \return No description
-  */
-template <Scalar Type> inline
-float4 convert_float4(const Type& from) noexcept
-{
-  return inner::convertToVector<float, 4>(from);
+  return inner::convertToVector<float, Type>(from);
 }
 
 /*!
@@ -931,7 +549,7 @@ float4 convert_float4(const Type& from) noexcept
 template <Scalar Type> inline
 float4 convert_float4(const Vector<Type, 4>& from) noexcept
 {
-  return inner::convertToVector<float, 4>(from);
+  return inner::convertToVector<float, Type>(from);
 }
 
 /*!
@@ -955,35 +573,9 @@ double convert_double(const Type& from) noexcept
   \return No description
   */
 template <Scalar Type> inline
-double2 convert_double2(const Type& from) noexcept
-{
-  return inner::convertToVector<double, 2>(from);
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \param [in] from No description.
-  \return No description
-  */
-template <Scalar Type> inline
 double2 convert_double2(const Vector<Type, 2>& from) noexcept
 {
-  return inner::convertToVector<double, 2>(from);
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \param [in] from No description.
-  \return No description
-  */
-template <Scalar Type> inline
-double3 convert_double3(const Type& from) noexcept
-{
-  return inner::convertToVector<double, 3>(from);
+  return inner::convertToVector<double, Type>(from);
 }
 
 /*!
@@ -996,20 +588,7 @@ double3 convert_double3(const Type& from) noexcept
 template <Scalar Type> inline
 double3 convert_double3(const Vector<Type, 3>& from) noexcept
 {
-  return inner::convertToVector<double, 3>(from);
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \param [in] from No description.
-  \return No description
-  */
-template <Scalar Type> inline
-double4 convert_double4(const Type& from) noexcept
-{
-  return inner::convertToVector<double, 4>(from);
+  return inner::convertToVector<double, Type>(from);
 }
 
 /*!
@@ -1022,7 +601,7 @@ double4 convert_double4(const Type& from) noexcept
 template <Scalar Type> inline
 double4 convert_double4(const Vector<Type, 4>& from) noexcept
 {
-  return inner::convertToVector<double, 4>(from);
+  return inner::convertToVector<double, Type>(from);
 }
 
 /*!

@@ -832,7 +832,7 @@ struct TypeConverter<AddressSpacePointer<kASpaceType, Type>>
 /*!
   */
 template <typename Type, typename T> inline
-Type cast(T value) noexcept
+Type cast(T&& value) noexcept
 {
   auto result = inner::TypeConverter<RemoveVolatileType<Type>>::cast(value);
   return result;

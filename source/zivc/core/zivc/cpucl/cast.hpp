@@ -25,23 +25,11 @@ int8b convert_char(const Type& from) noexcept;
 
 //! Convert to a char2 from
 template <Scalar Type>
-char2 convert_char2(const Type& from) noexcept;
-
-//! Convert to a char2 from
-template <Scalar Type>
 char2 convert_char2(const Vector<Type, 2>& from) noexcept;
 
 //! Convert to a char3 from
 template <Scalar Type>
-char3 convert_char3(const Type& from) noexcept;
-
-//! Convert to a char3 from
-template <Scalar Type>
 char3 convert_char3(const Vector<Type, 3>& from) noexcept;
-
-//! Convert to a char4 from
-template <Scalar Type>
-char4 convert_char4(const Type& from) noexcept;
 
 //! Convert to a char4 from
 template <Scalar Type>
@@ -53,23 +41,11 @@ uint8b convert_uchar(const Type& from) noexcept;
 
 //! Convert to a uchar2 from
 template <Scalar Type>
-uchar2 convert_uchar2(const Type& from) noexcept;
-
-//! Convert to a uchar2 from
-template <Scalar Type>
 uchar2 convert_uchar2(const Vector<Type, 2>& from) noexcept;
 
 //! Convert to a uchar3 from
 template <Scalar Type>
-uchar3 convert_uchar3(const Type& from) noexcept;
-
-//! Convert to a uchar3 from
-template <Scalar Type>
 uchar3 convert_uchar3(const Vector<Type, 3>& from) noexcept;
-
-//! Convert to a uchar4 from
-template <Scalar Type>
-uchar4 convert_uchar4(const Type& from) noexcept;
 
 //! Convert to a uchar4 from
 template <Scalar Type>
@@ -81,23 +57,11 @@ int16b convert_short(const Type& from) noexcept;
 
 //! Convert to a short2 from
 template <Scalar Type>
-short2 convert_short2(const Type& from) noexcept;
-
-//! Convert to a short2 from
-template <Scalar Type>
 short2 convert_short2(const Vector<Type, 2>& from) noexcept;
 
 //! Convert to a short3 from
 template <Scalar Type>
-short3 convert_short3(const Type& from) noexcept;
-
-//! Convert to a short3 from
-template <Scalar Type>
 short3 convert_short3(const Vector<Type, 3>& from) noexcept;
-
-//! Convert to a short4 from
-template <Scalar Type>
-short4 convert_short4(const Type& from) noexcept;
 
 //! Convert to a short4 from
 template <Scalar Type>
@@ -109,23 +73,11 @@ uint16b convert_ushort(const Type& from) noexcept;
 
 //! Convert to a ushort2 from
 template <Scalar Type>
-ushort2 convert_ushort2(const Type& from) noexcept;
-
-//! Convert to a ushort2 from
-template <Scalar Type>
 ushort2 convert_ushort2(const Vector<Type, 2>& from) noexcept;
 
 //! Convert to a ushort3 from
 template <Scalar Type>
-ushort3 convert_ushort3(const Type& from) noexcept;
-
-//! Convert to a ushort3 from
-template <Scalar Type>
 ushort3 convert_ushort3(const Vector<Type, 3>& from) noexcept;
-
-//! Convert to a ushort4 from
-template <Scalar Type>
-ushort4 convert_ushort4(const Type& from) noexcept;
 
 //! Convert to a ushort4 from
 template <Scalar Type>
@@ -137,23 +89,11 @@ int32b convert_int(const Type& from) noexcept;
 
 //! Convert to a int2 from
 template <Scalar Type>
-int2 convert_int2(const Type& from) noexcept;
-
-//! Convert to a int2 from
-template <Scalar Type>
 int2 convert_int2(const Vector<Type, 2>& from) noexcept;
 
 //! Convert to a int3 from
 template <Scalar Type>
-int3 convert_int3(const Type& from) noexcept;
-
-//! Convert to a int3 from
-template <Scalar Type>
 int3 convert_int3(const Vector<Type, 3>& from) noexcept;
-
-//! Convert to a int4 from
-template <Scalar Type>
-int4 convert_int4(const Type& from) noexcept;
 
 //! Convert to a int4 from
 template <Scalar Type>
@@ -165,23 +105,11 @@ uint32b convert_uint(const Type& from) noexcept;
 
 //! Convert to a uint2 from
 template <Scalar Type>
-uint2 convert_uint2(const Type& from) noexcept;
-
-//! Convert to a uint2 from
-template <Scalar Type>
 uint2 convert_uint2(const Vector<Type, 2>& from) noexcept;
 
 //! Convert to a uint3 from
 template <Scalar Type>
-uint3 convert_uint3(const Type& from) noexcept;
-
-//! Convert to a uint3 from
-template <Scalar Type>
 uint3 convert_uint3(const Vector<Type, 3>& from) noexcept;
-
-//! Convert to a uint4 from
-template <Scalar Type>
-uint4 convert_uint4(const Type& from) noexcept;
 
 //! Convert to a uint4 from
 template <Scalar Type>
@@ -193,23 +121,11 @@ int64b convert_long(const Type& from) noexcept;
 
 //! Convert to a long2 from
 template <Scalar Type>
-long2 convert_long2(const Type& from) noexcept;
-
-//! Convert to a long2 from
-template <Scalar Type>
 long2 convert_long2(const Vector<Type, 2>& from) noexcept;
 
 //! Convert to a long3 from
 template <Scalar Type>
-long3 convert_long3(const Type& from) noexcept;
-
-//! Convert to a long3 from
-template <Scalar Type>
 long3 convert_long3(const Vector<Type, 3>& from) noexcept;
-
-//! Convert to a long4 from
-template <Scalar Type>
-long4 convert_long4(const Type& from) noexcept;
 
 //! Convert to a long4 from
 template <Scalar Type>
@@ -221,23 +137,11 @@ uint64b convert_ulong(const Type& from) noexcept;
 
 //! Convert to a ulong2 from
 template <Scalar Type>
-ulong2 convert_ulong2(const Type& from) noexcept;
-
-//! Convert to a ulong2 from
-template <Scalar Type>
 ulong2 convert_ulong2(const Vector<Type, 2>& from) noexcept;
 
 //! Convert to a ulong3 from
 template <Scalar Type>
-ulong3 convert_ulong3(const Type& from) noexcept;
-
-//! Convert to a ulong3 from
-template <Scalar Type>
 ulong3 convert_ulong3(const Vector<Type, 3>& from) noexcept;
-
-//! Convert to a ulong4 from
-template <Scalar Type>
-ulong4 convert_ulong4(const Type& from) noexcept;
 
 //! Convert to a ulong4 from
 template <Scalar Type>
@@ -249,23 +153,11 @@ float convert_float(const Type& from) noexcept;
 
 //! Convert to a float2 from
 template <Scalar Type>
-float2 convert_float2(const Type& from) noexcept;
-
-//! Convert to a float2 from
-template <Scalar Type>
 float2 convert_float2(const Vector<Type, 2>& from) noexcept;
 
 //! Convert to a float3 from
 template <Scalar Type>
-float3 convert_float3(const Type& from) noexcept;
-
-//! Convert to a float3 from
-template <Scalar Type>
 float3 convert_float3(const Vector<Type, 3>& from) noexcept;
-
-//! Convert to a float4 from
-template <Scalar Type>
-float4 convert_float4(const Type& from) noexcept;
 
 //! Convert to a float4 from
 template <Scalar Type>
@@ -277,23 +169,11 @@ double convert_double(const Type& from) noexcept;
 
 //! Convert to a double2 from
 template <Scalar Type>
-double2 convert_double2(const Type& from) noexcept;
-
-//! Convert to a double2 from
-template <Scalar Type>
 double2 convert_double2(const Vector<Type, 2>& from) noexcept;
 
 //! Convert to a double3 from
 template <Scalar Type>
-double3 convert_double3(const Type& from) noexcept;
-
-//! Convert to a double3 from
-template <Scalar Type>
 double3 convert_double3(const Vector<Type, 3>& from) noexcept;
-
-//! Convert to a double4 from
-template <Scalar Type>
-double4 convert_double4(const Type& from) noexcept;
 
 //! Convert to a double4 from
 template <Scalar Type>

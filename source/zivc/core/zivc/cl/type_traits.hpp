@@ -73,6 +73,10 @@ using FalseType = BoolConstant<false>;
 template <typename T, typename U>
 struct IsSame;
 
+//! Helper variable template of IsSame
+template <typename T, typename U>
+inline constexpr bool kIsSame = IsSame<T, U>::kValue;
+
 
 //! Make a signed integer type from byte size
 template <size_t kBytes>
@@ -329,6 +333,10 @@ template <typename T> struct RemoveCvref;
 template <typename T>
 using RemoveCvrefType = typename RemoveCvref<T>::Type;
 
+//! Helper type of RemoveCvRef
+template <typename T>
+using RemoveCvRefT = typename RemoveCvref<T>::Type;
+
 //! Add a pointer to the given type
 template <typename T> struct AddPointer;
 
@@ -386,6 +394,24 @@ constexpr int32b kResultTrue = (VectorTypeInfo<Type>::size() == 1) ? kSTrue : kV
 //! Integer type that is used as a comparison result of the given type
 template <typename T>
 using ComparisonResultType = IntegerTypeFromVec<RemoveCvType<T>>;
+
+// Address space
+
+//! Provide the Type which is the same as T, except that its address space qualifier is removed
+template <typename T>
+struct RemoveAddressSpace;
+
+//! Helper type template of RemoveAddressSpace
+template <typename T>
+using RemoveAddressSpaceT = typename RemoveAddressSpace<T>::Type;
+
+//! Combine RemoveCvRef and RemoveAddressSpace
+template <typename T>
+struct RemoveCvRefAddress;
+
+//! Helper type template of RemoveCvRefAddress
+template <typename T>
+using RemoveCvRefAddressT = typename RemoveCvRefAddress<T>::Type;
 
 } // namespace zivc
 

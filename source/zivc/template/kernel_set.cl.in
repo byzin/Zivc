@@ -89,7 +89,8 @@ __kernel void zivcClspvInitKernel(__global uint* outputs)
 
 static_assert(ZIVC_KERNEL_SET_@kernel_set_name@_CL == 0x@kernel_set_number@u,
               "The ID number of the kernel set isn't valid.");
-static_assert(__OPENCL_CPP_VERSION__ == 100, "OpenCL version isn't 1.0.");
+static_assert(__OPENCL_VERSION__ == CL_VERSION_1_2, "OpenCL version isn't 2.0.");
+static_assert(__OPENCL_CPP_VERSION__ == 100, "OpenCL C++ version isn't 1.0.");
 
 //#pragma clang diagnostic pop
 #pragma clang diagnostic pop

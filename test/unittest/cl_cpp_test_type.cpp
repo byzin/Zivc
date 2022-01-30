@@ -1703,3 +1703,696 @@ TEST(ClCppTest, VectorLogicalOperatorTest)
     EXPECT_FALSE(mem[index++]) << "Vector int4 OR failed.";
   }
 }
+
+TEST(ClCppTest, ScalarCastTest)
+{
+  auto platform = ztest::makePlatform();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  zivc::SharedDevice device = platform->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_char;
+  using zivc::cl_uchar;
+  using zivc::cl_short;
+  using zivc::cl_ushort;
+  using zivc::cl_int;
+  using zivc::cl_uint;
+  using zivc::cl_float;
+
+  auto buffer_in0 = device->makeBuffer<cl_int>(zivc::BufferUsage::kDeviceOnly);
+  {
+    constexpr cl_int vmax = (std::numeric_limits<cl_int>::max)();
+    constexpr cl_int vmin = (std::numeric_limits<cl_int>::min)();
+    std::initializer_list<cl_int> v = {0, 100, -100, vmax, vmin};
+    ztest::setDeviceBuffer(*device, v, buffer_in0.get());
+  }
+  auto buffer_in1 = device->makeBuffer<cl_float>(zivc::BufferUsage::kDeviceOnly);
+  {
+    std::initializer_list<cl_float> v = {0.0f, 100.0f, -100.0f, 3.14f};
+    ztest::setDeviceBuffer(*device, v, buffer_in1.get());
+  }
+
+  const auto int_n = zisc::cast<zivc::uint32b>(buffer_in0->size());
+  const auto float_n = zisc::cast<zivc::uint32b>(buffer_in1->size());
+  const std::size_t n = int_n + float_n;
+
+  auto buffer_out0 = device->makeBuffer<cl_char>(zivc::BufferUsage::kDeviceOnly);
+  buffer_out0->setSize(n);
+  {
+    const cl_char v = 0;
+    ztest::fillDeviceBuffer(v, buffer_out0.get());
+  }
+  auto buffer_out1 = device->makeBuffer<cl_uchar>(zivc::BufferUsage::kDeviceOnly);
+  buffer_out1->setSize(n);
+  {
+    const cl_uchar v = 0;
+    ztest::fillDeviceBuffer(v, buffer_out1.get());
+  }
+  auto buffer_out2 = device->makeBuffer<cl_short>(zivc::BufferUsage::kDeviceOnly);
+  buffer_out2->setSize(n);
+  {
+    const cl_short v = 0;
+    ztest::fillDeviceBuffer(v, buffer_out2.get());
+  }
+  auto buffer_out3 = device->makeBuffer<cl_ushort>(zivc::BufferUsage::kDeviceOnly);
+  buffer_out3->setSize(n);
+  {
+    const cl_ushort v = 0;
+    ztest::fillDeviceBuffer(v, buffer_out3.get());
+  }
+  auto buffer_out4 = device->makeBuffer<cl_int>(zivc::BufferUsage::kDeviceOnly);
+  buffer_out4->setSize(n);
+  {
+    const cl_int v = 0;
+    ztest::fillDeviceBuffer(v, buffer_out4.get());
+  }
+  auto buffer_out5 = device->makeBuffer<cl_uint>(zivc::BufferUsage::kDeviceOnly);
+  buffer_out5->setSize(n);
+  {
+    const cl_uint v = 0;
+    ztest::fillDeviceBuffer(v, buffer_out5.get());
+  }
+  auto buffer_out6 = device->makeBuffer<cl_float>(zivc::BufferUsage::kDeviceOnly);
+  buffer_out6->setSize(n);
+  {
+    const cl_float v = 0.0f;
+    ztest::fillDeviceBuffer(v, buffer_out6.get());
+  }
+  auto buffer_out7 = device->makeBuffer<zivc::cl_Boolean>(zivc::BufferUsage::kDeviceOnly);
+  buffer_out7->setSize(n);
+  {
+    zivc::cl_Boolean v;
+    v.set(false);
+    ztest::fillDeviceBuffer(v, buffer_out7.get());
+  }
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(cl_cpp_test_type, scalarCastTest, 1);
+  auto kernel = device->makeKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(12, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  auto launch_options = kernel->makeOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({1});
+  launch_options.requestFence(true);
+  launch_options.setLabel("ScalarCastTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(12, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  auto result = kernel->run(*buffer_in0, *buffer_in1,
+                            *buffer_out0, *buffer_out1, *buffer_out2,
+                            *buffer_out3, *buffer_out4, *buffer_out5,
+                            *buffer_out6, *buffer_out7,
+                            int_n, float_n, launch_options);
+  device->waitForCompletion(result.fence());
+
+  // output
+  {
+    auto buffer = device->makeBuffer<cl_char>(zivc::BufferUsage::kHostOnly);
+    ztest::copyBuffer(*buffer_out0, buffer.get());
+    const auto mem = buffer->mapMemory();
+    std::size_t index = 0;
+    EXPECT_EQ(0, mem[index++]) << "int8b cast failed";
+    EXPECT_EQ(100, mem[index++]) << "int8b cast failed";
+    EXPECT_EQ(-100, mem[index++]) << "int8b cast failed";
+    EXPECT_EQ(-1, mem[index++]) << "int8b cast failed";
+    EXPECT_EQ(0, mem[index++]) << "int8b cast failed";
+    EXPECT_EQ(0, mem[index++]) << "int8b cast failed";
+    EXPECT_EQ(100, mem[index++]) << "int8b cast failed";
+    EXPECT_EQ(-100, mem[index++]) << "int8b cast failed";
+    EXPECT_EQ(3, mem[index++]) << "int8b cast failed";
+  }
+  {
+    auto buffer = device->makeBuffer<cl_uchar>(zivc::BufferUsage::kHostOnly);
+    ztest::copyBuffer(*buffer_out1, buffer.get());
+    const auto mem = buffer->mapMemory();
+    std::size_t index = 0;
+    const cl_uchar vmax = (std::numeric_limits<cl_uchar>::max)();
+    const cl_uchar vmin = (std::numeric_limits<cl_uchar>::min)();
+    EXPECT_EQ(0, mem[index++]) << "uint8b cast failed";
+    EXPECT_EQ(100, mem[index++]) << "uint8b cast failed";
+    //EXPECT_EQ(0, mem[index++]) << "uint8b cast failed";
+    index++;
+    EXPECT_EQ(vmax, mem[index++]) << "uint8b cast failed";
+    EXPECT_EQ(vmin, mem[index++]) << "uint8b cast failed";
+    EXPECT_EQ(0, mem[index++]) << "uint8b cast failed";
+    EXPECT_EQ(100, mem[index++]) << "uint8b cast failed";
+    //EXPECT_EQ(0, mem[index++]) << "uint8b cast failed";
+    index++;
+    EXPECT_EQ(3, mem[index++]) << "uint8b cast failed";
+  }
+  {
+    auto buffer = device->makeBuffer<cl_short>(zivc::BufferUsage::kHostOnly);
+    ztest::copyBuffer(*buffer_out2, buffer.get());
+    const auto mem = buffer->mapMemory();
+    std::size_t index = 0;
+    EXPECT_EQ(0, mem[index++]) << "int16b cast failed";
+    EXPECT_EQ(100, mem[index++]) << "int16b cast failed";
+    EXPECT_EQ(-100, mem[index++]) << "int16b cast failed";
+    EXPECT_EQ(-1, mem[index++]) << "int16b cast failed";
+    EXPECT_EQ(0, mem[index++]) << "int16b cast failed";
+    EXPECT_EQ(0, mem[index++]) << "int16b cast failed";
+    EXPECT_EQ(100, mem[index++]) << "int16b cast failed";
+    EXPECT_EQ(-100, mem[index++]) << "int16b cast failed";
+    EXPECT_EQ(3, mem[index++]) << "int16b cast failed";
+  }
+  {
+    auto buffer = device->makeBuffer<cl_ushort>(zivc::BufferUsage::kHostOnly);
+    ztest::copyBuffer(*buffer_out3, buffer.get());
+    const auto mem = buffer->mapMemory();
+    std::size_t index = 0;
+    const cl_ushort vmax = (std::numeric_limits<cl_ushort>::max)();
+    const cl_ushort vmin = (std::numeric_limits<cl_ushort>::min)();
+    EXPECT_EQ(0, mem[index++]) << "uint16b cast failed";
+    EXPECT_EQ(100, mem[index++]) << "uint16b cast failed";
+    //EXPECT_EQ(0, mem[index++]) << "uint16b cast failed";
+    index++;
+    EXPECT_EQ(vmax, mem[index++]) << "uint16b cast failed";
+    EXPECT_EQ(vmin, mem[index++]) << "uint16b cast failed";
+    EXPECT_EQ(0, mem[index++]) << "uint16b cast failed";
+    EXPECT_EQ(100, mem[index++]) << "uint16b cast failed";
+    //EXPECT_EQ(0, mem[index++]) << "uint16b cast failed";
+    index++;
+    EXPECT_EQ(3, mem[index++]) << "uint16b cast failed";
+  }
+  {
+    auto buffer = device->makeBuffer<cl_int>(zivc::BufferUsage::kHostOnly);
+    ztest::copyBuffer(*buffer_out4, buffer.get());
+    const auto mem = buffer->mapMemory();
+    std::size_t index = 0;
+    const cl_int vmax = (std::numeric_limits<cl_int>::max)();
+    const cl_int vmin = (std::numeric_limits<cl_int>::min)();
+    EXPECT_EQ(0, mem[index++]) << "int32b cast failed";
+    EXPECT_EQ(100, mem[index++]) << "int32b cast failed";
+    EXPECT_EQ(-100, mem[index++]) << "int32b cast failed";
+    EXPECT_EQ(vmax, mem[index++]) << "int32b cast failed";
+    EXPECT_EQ(vmin, mem[index++]) << "int32b cast failed";
+    EXPECT_EQ(0, mem[index++]) << "int32b cast failed";
+    EXPECT_EQ(100, mem[index++]) << "int32b cast failed";
+    EXPECT_EQ(-100, mem[index++]) << "int32b cast failed";
+    EXPECT_EQ(3, mem[index++]) << "int32b cast failed";
+  }
+  {
+    auto buffer = device->makeBuffer<cl_uint>(zivc::BufferUsage::kHostOnly);
+    ztest::copyBuffer(*buffer_out5, buffer.get());
+    const auto mem = buffer->mapMemory();
+    std::size_t index = 0;
+    const cl_uint vmax = (std::numeric_limits<cl_uint>::max)();
+    //const cl_uint vmin = (std::numeric_limits<cl_uint>::min)();
+    EXPECT_EQ(0, mem[index++]) << "uint32b cast failed";
+    EXPECT_EQ(100, mem[index++]) << "uint32b cast failed";
+    //EXPECT_EQ(0, mem[index++]) << "uint32b cast failed";
+    index++;
+    EXPECT_EQ(vmax / 2, mem[index++]) << "uint32b cast failed";
+    EXPECT_EQ(vmax / 2 + 1, mem[index++]) << "uint32b cast failed";
+    EXPECT_EQ(0, mem[index++]) << "uint32b cast failed";
+    EXPECT_EQ(100, mem[index++]) << "uint32b cast failed";
+    //EXPECT_EQ(0, mem[index++]) << "uint32b cast failed";
+    index++;
+    EXPECT_EQ(3, mem[index++]) << "uint32b cast failed";
+  }
+  {
+    auto buffer = device->makeBuffer<cl_float>(zivc::BufferUsage::kHostOnly);
+    ztest::copyBuffer(*buffer_out6, buffer.get());
+    const auto mem = buffer->mapMemory();
+    std::size_t index = 0;
+    const auto vmax = static_cast<cl_float>((std::numeric_limits<cl_int>::max)());
+    const auto vmin = static_cast<cl_float>((std::numeric_limits<cl_int>::min)());
+    EXPECT_FLOAT_EQ(0.0f, mem[index++]) << "float cast failed";
+    EXPECT_FLOAT_EQ(100.0f, mem[index++]) << "float cast failed";
+    EXPECT_FLOAT_EQ(-100.0f, mem[index++]) << "float cast failed";
+    EXPECT_FLOAT_EQ(vmax, mem[index++]) << "float cast failed";
+    EXPECT_FLOAT_EQ(vmin, mem[index++]) << "float cast failed";
+    EXPECT_FLOAT_EQ(0.0f, mem[index++]) << "float cast failed";
+    EXPECT_FLOAT_EQ(100.0f, mem[index++]) << "float cast failed";
+    EXPECT_FLOAT_EQ(-100.0f, mem[index++]) << "float cast failed";
+    EXPECT_FLOAT_EQ(3.14f, mem[index++]) << "float cast failed";
+  }
+  {
+    auto buffer = device->makeBuffer<zivc::cl_Boolean>(zivc::BufferUsage::kHostOnly);
+    ztest::copyBuffer(*buffer_out7, buffer.get());
+    const auto mem = buffer->mapMemory();
+    std::size_t index = 0;
+    EXPECT_FALSE(mem[index++]) << "bool cast failed";
+    EXPECT_TRUE(mem[index++]) << "bool cast failed";
+    EXPECT_TRUE(mem[index++]) << "bool cast failed";
+    EXPECT_TRUE(mem[index++]) << "bool cast failed";
+    EXPECT_TRUE(mem[index++]) << "bool cast failed";
+    EXPECT_FALSE(mem[index++]) << "bool cast failed";
+    EXPECT_TRUE(mem[index++]) << "bool cast failed";
+    EXPECT_TRUE(mem[index++]) << "bool cast failed";
+    EXPECT_TRUE(mem[index++]) << "bool cast failed";
+  }
+}
+
+TEST(ClCppTest, Vector2CastTest)
+{
+  auto platform = ztest::makePlatform();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  zivc::SharedDevice device = platform->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_char;
+  using zivc::cl_uchar;
+  using zivc::cl_short;
+  using zivc::cl_ushort;
+  using zivc::cl_int;
+  using zivc::cl_uint;
+  using zivc::cl_float;
+  using zivc::cl_char2;
+  using zivc::cl_uchar2;
+  using zivc::cl_short2;
+  using zivc::cl_ushort2;
+  using zivc::cl_int2;
+  using zivc::cl_uint2;
+  using zivc::cl_float2;
+
+  auto buffer_in0 = device->makeBuffer<cl_int>(zivc::BufferUsage::kDeviceOnly);
+  {
+    constexpr cl_int vmax = (std::numeric_limits<cl_int>::max)();
+    constexpr cl_int vmin = (std::numeric_limits<cl_int>::min)();
+    std::initializer_list<cl_int> v = {0, 100, -100, vmax, vmin};
+    ztest::setDeviceBuffer(*device, v, buffer_in0.get());
+  }
+  auto buffer_in1 = device->makeBuffer<cl_float>(zivc::BufferUsage::kDeviceOnly);
+  {
+    std::initializer_list<cl_float> v = {0.0f, 100.0f, -100.0f, 3.14f};
+    ztest::setDeviceBuffer(*device, v, buffer_in1.get());
+  }
+  auto buffer_in2 = device->makeBuffer<cl_int2>(zivc::BufferUsage::kDeviceOnly);
+  {
+    constexpr cl_int vmax = (std::numeric_limits<cl_int>::max)();
+    constexpr cl_int vmin = (std::numeric_limits<cl_int>::min)();
+    std::initializer_list<cl_int2> v = {cl_int2{0, 100},
+                                        cl_int2{vmax, vmin}};
+    ztest::setDeviceBuffer(*device, v, buffer_in2.get());
+  }
+  auto buffer_in3 = device->makeBuffer<cl_float2>(zivc::BufferUsage::kDeviceOnly);
+  {
+    std::initializer_list<cl_float2> v = {cl_float2{0.0f, 100.0f},
+                                          cl_float2{-100.0f, 3.14f}};
+    ztest::setDeviceBuffer(*device, v, buffer_in3.get());
+  }
+
+  const auto int_n = zisc::cast<zivc::uint32b>(buffer_in0->size());
+  const auto float_n = zisc::cast<zivc::uint32b>(buffer_in1->size());
+  const auto int2_n = zisc::cast<zivc::uint32b>(buffer_in2->size());
+  const auto float2_n = zisc::cast<zivc::uint32b>(buffer_in3->size());
+  const std::size_t n = int_n + float_n + int2_n + float2_n;
+
+  auto buffer_out0 = device->makeBuffer<cl_char2>(zivc::BufferUsage::kDeviceOnly);
+  buffer_out0->setSize(n);
+  {
+    const cl_char2 v = 0;
+    ztest::fillDeviceBuffer(v, buffer_out0.get());
+  }
+  auto buffer_out1 = device->makeBuffer<cl_uchar2>(zivc::BufferUsage::kDeviceOnly);
+  buffer_out1->setSize(n);
+  {
+    const cl_uchar2 v = 0;
+    ztest::fillDeviceBuffer(v, buffer_out1.get());
+  }
+  auto buffer_out2 = device->makeBuffer<cl_short2>(zivc::BufferUsage::kDeviceOnly);
+  buffer_out2->setSize(n);
+  {
+    const cl_short2 v = 0;
+    ztest::fillDeviceBuffer(v, buffer_out2.get());
+  }
+  auto buffer_out3 = device->makeBuffer<cl_ushort2>(zivc::BufferUsage::kDeviceOnly);
+  buffer_out3->setSize(n);
+  {
+    const cl_ushort2 v = 0;
+    ztest::fillDeviceBuffer(v, buffer_out3.get());
+  }
+  auto buffer_out4 = device->makeBuffer<cl_int2>(zivc::BufferUsage::kDeviceOnly);
+  buffer_out4->setSize(n);
+  {
+    const cl_int2 v = 0;
+    ztest::fillDeviceBuffer(v, buffer_out4.get());
+  }
+  auto buffer_out5 = device->makeBuffer<cl_uint2>(zivc::BufferUsage::kDeviceOnly);
+  buffer_out5->setSize(n);
+  {
+    const cl_uint2 v = 0;
+    ztest::fillDeviceBuffer(v, buffer_out5.get());
+  }
+  auto buffer_out6 = device->makeBuffer<cl_float2>(zivc::BufferUsage::kDeviceOnly);
+  buffer_out6->setSize(n);
+  {
+    const cl_float2 v = 0.0f;
+    ztest::fillDeviceBuffer(v, buffer_out6.get());
+  }
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vector2CastTest, 1);
+  auto kernel = device->makeKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(15, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  auto launch_options = kernel->makeOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({1});
+  launch_options.requestFence(true);
+  launch_options.setLabel("Vector2CastTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(15, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  auto result = kernel->run(*buffer_in0, *buffer_in1, *buffer_in2, *buffer_in3,
+                            *buffer_out0, *buffer_out1, *buffer_out2,
+                            *buffer_out3, *buffer_out4, *buffer_out5,
+                            *buffer_out6, 
+                            int_n, float_n, int2_n, float2_n, launch_options);
+  device->waitForCompletion(result.fence());
+
+  // output
+  {
+    auto buffer = device->makeBuffer<cl_char2>(zivc::BufferUsage::kHostOnly);
+    ztest::copyBuffer(*buffer_out0, buffer.get());
+    const auto mem = buffer->mapMemory();
+    std::size_t index = 0;
+    EXPECT_EQ(0, mem[index].x) << "char2 cast failed";
+    EXPECT_EQ(0, mem[index].y) << "char2 cast failed";
+    ++index;
+    EXPECT_EQ(100, mem[index].x) << "char2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "char2 cast failed";
+    ++index;
+    EXPECT_EQ(-100, mem[index].x) << "char2 cast failed";
+    EXPECT_EQ(-100, mem[index].y) << "char2 cast failed";
+    ++index;
+    EXPECT_EQ(-1, mem[index].x) << "char2 cast failed";
+    EXPECT_EQ(-1, mem[index].y) << "char2 cast failed";
+    ++index;
+    EXPECT_EQ(0, mem[index].x) << "char2 cast failed";
+    EXPECT_EQ(0, mem[index].y) << "char2 cast failed";
+    ++index;
+    EXPECT_EQ(0, mem[index].x) << "char2 cast failed";
+    EXPECT_EQ(0, mem[index].y) << "char2 cast failed";
+    ++index;
+    EXPECT_EQ(100, mem[index].x) << "char2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "char2 cast failed";
+    ++index;
+    EXPECT_EQ(-100, mem[index].x) << "char2 cast failed";
+    EXPECT_EQ(-100, mem[index].y) << "char2 cast failed";
+    ++index;
+    EXPECT_EQ(3, mem[index].x) << "char2 cast failed";
+    EXPECT_EQ(3, mem[index].y) << "char2 cast failed";
+    ++index;
+    EXPECT_EQ(0, mem[index].x) << "char2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "char2 cast failed";
+    ++index;
+    EXPECT_EQ(-1, mem[index].x) << "char2 cast failed";
+    EXPECT_EQ(0, mem[index].y) << "char2 cast failed";
+    ++index;
+    EXPECT_EQ(0, mem[index].x) << "char2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "char2 cast failed";
+    ++index;
+    EXPECT_EQ(-100, mem[index].x) << "char2 cast failed";
+    EXPECT_EQ(3, mem[index].y) << "char2 cast failed";
+  }
+  {
+    auto buffer = device->makeBuffer<cl_uchar2>(zivc::BufferUsage::kHostOnly);
+    ztest::copyBuffer(*buffer_out1, buffer.get());
+    const auto mem = buffer->mapMemory();
+    std::size_t index = 0;
+    const cl_uchar vmax = (std::numeric_limits<cl_uchar>::max)();
+    const cl_uchar vmin = (std::numeric_limits<cl_uchar>::min)();
+    EXPECT_EQ(0, mem[index].x) << "uchar2 cast failed";
+    EXPECT_EQ(0, mem[index].y) << "uchar2 cast failed";
+    index++;
+    EXPECT_EQ(100, mem[index].x) << "uchar2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "uchar2 cast failed";
+    index++;
+    //EXPECT_EQ(0, mem[index].x) << "uchar2 cast failed";
+    //EXPECT_EQ(0, mem[index].y) << "uchar2 cast failed";
+    index++;
+    EXPECT_EQ(vmax, mem[index].x) << "uchar2 cast failed";
+    EXPECT_EQ(vmax, mem[index].y) << "uchar2 cast failed";
+    index++;
+    EXPECT_EQ(vmin, mem[index].x) << "uchar2 cast failed";
+    EXPECT_EQ(vmin, mem[index].y) << "uchar2 cast failed";
+    index++;
+    EXPECT_EQ(0, mem[index].x) << "uchar2 cast failed";
+    EXPECT_EQ(0, mem[index].y) << "uchar2 cast failed";
+    index++;
+    EXPECT_EQ(100, mem[index].x) << "uchar2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "uchar2 cast failed";
+    index++;
+    //EXPECT_EQ(0, mem[index].x) << "uchar2 cast failed";
+    //EXPECT_EQ(0, mem[index].y) << "uchar2 cast failed";
+    index++;
+    EXPECT_EQ(3, mem[index].x) << "uchar2 cast failed";
+    EXPECT_EQ(3, mem[index].y) << "uchar2 cast failed";
+    index++;
+    EXPECT_EQ(0, mem[index].x) << "uchar2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "uchar2 cast failed";
+    index++;
+    EXPECT_EQ(vmax, mem[index].x) << "uchar2 cast failed";
+    EXPECT_EQ(vmin, mem[index].y) << "uchar2 cast failed";
+    index++;
+    EXPECT_EQ(0, mem[index].x) << "uchar2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "uchar2 cast failed";
+    index++;
+    //EXPECT_EQ(0, mem[index].x) << "uchar2 cast failed";
+    EXPECT_EQ(3, mem[index].y) << "uchar2 cast failed";
+    index++;
+  }
+  {
+    auto buffer = device->makeBuffer<cl_short2>(zivc::BufferUsage::kHostOnly);
+    ztest::copyBuffer(*buffer_out2, buffer.get());
+    const auto mem = buffer->mapMemory();
+    std::size_t index = 0;
+    EXPECT_EQ(0, mem[index].x) << "short2 cast failed";
+    EXPECT_EQ(0, mem[index].y) << "short2 cast failed";
+    ++index;
+    EXPECT_EQ(100, mem[index].x) << "short2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "short2 cast failed";
+    ++index;
+    EXPECT_EQ(-100, mem[index].x) << "short2 cast failed";
+    EXPECT_EQ(-100, mem[index].y) << "short2 cast failed";
+    ++index;
+    EXPECT_EQ(-1, mem[index].x) << "short2 cast failed";
+    EXPECT_EQ(-1, mem[index].y) << "short2 cast failed";
+    ++index;
+    EXPECT_EQ(0, mem[index].x) << "short2 cast failed";
+    EXPECT_EQ(0, mem[index].y) << "short2 cast failed";
+    ++index;
+    EXPECT_EQ(0, mem[index].x) << "short2 cast failed";
+    EXPECT_EQ(0, mem[index].y) << "short2 cast failed";
+    ++index;
+    EXPECT_EQ(100, mem[index].x) << "short2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "short2 cast failed";
+    ++index;
+    EXPECT_EQ(-100, mem[index].x) << "short2 cast failed";
+    EXPECT_EQ(-100, mem[index].y) << "short2 cast failed";
+    ++index;
+    EXPECT_EQ(3, mem[index].x) << "short2 cast failed";
+    EXPECT_EQ(3, mem[index].y) << "short2 cast failed";
+    ++index;
+    EXPECT_EQ(0, mem[index].x) << "short2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "short2 cast failed";
+    ++index;
+    EXPECT_EQ(-1, mem[index].x) << "short2 cast failed";
+    EXPECT_EQ(0, mem[index].y) << "short2 cast failed";
+    ++index;
+    EXPECT_EQ(0, mem[index].x) << "short2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "short2 cast failed";
+    ++index;
+    EXPECT_EQ(-100, mem[index].x) << "short2 cast failed";
+    EXPECT_EQ(3, mem[index].y) << "short2 cast failed";
+  }
+  {
+    auto buffer = device->makeBuffer<cl_ushort2>(zivc::BufferUsage::kHostOnly);
+    ztest::copyBuffer(*buffer_out3, buffer.get());
+    const auto mem = buffer->mapMemory();
+    std::size_t index = 0;
+    const cl_ushort vmax = (std::numeric_limits<cl_ushort>::max)();
+    const cl_ushort vmin = (std::numeric_limits<cl_ushort>::min)();
+    EXPECT_EQ(0, mem[index].x) << "ushort2 cast failed";
+    EXPECT_EQ(0, mem[index].y) << "ushort2 cast failed";
+    index++;
+    EXPECT_EQ(100, mem[index].x) << "ushort2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "ushort2 cast failed";
+    index++;
+    //EXPECT_EQ(0, mem[index].x) << "ushort2 cast failed";
+    //EXPECT_EQ(0, mem[index].y) << "ushort2 cast failed";
+    index++;
+    EXPECT_EQ(vmax, mem[index].x) << "ushort2 cast failed";
+    EXPECT_EQ(vmax, mem[index].y) << "ushort2 cast failed";
+    index++;
+    EXPECT_EQ(vmin, mem[index].x) << "ushort2 cast failed";
+    EXPECT_EQ(vmin, mem[index].y) << "ushort2 cast failed";
+    index++;
+    EXPECT_EQ(0, mem[index].x) << "ushort2 cast failed";
+    EXPECT_EQ(0, mem[index].y) << "ushort2 cast failed";
+    index++;
+    EXPECT_EQ(100, mem[index].x) << "ushort2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "ushort2 cast failed";
+    index++;
+    //EXPECT_EQ(0, mem[index].x) << "ushort2 cast failed";
+    //EXPECT_EQ(0, mem[index].y) << "ushort2 cast failed";
+    index++;
+    EXPECT_EQ(3, mem[index].x) << "ushort2 cast failed";
+    EXPECT_EQ(3, mem[index].y) << "ushort2 cast failed";
+    index++;
+    EXPECT_EQ(0, mem[index].x) << "ushort2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "ushort2 cast failed";
+    index++;
+    EXPECT_EQ(vmax, mem[index].x) << "ushort2 cast failed";
+    EXPECT_EQ(vmin, mem[index].y) << "ushort2 cast failed";
+    index++;
+    EXPECT_EQ(0, mem[index].x) << "ushort2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "ushort2 cast failed";
+    index++;
+    //EXPECT_EQ(0, mem[index].x) << "ushort2 cast failed";
+    EXPECT_EQ(3, mem[index].y) << "ushort2 cast failed";
+  }
+  {
+    auto buffer = device->makeBuffer<cl_int2>(zivc::BufferUsage::kHostOnly);
+    ztest::copyBuffer(*buffer_out4, buffer.get());
+    const auto mem = buffer->mapMemory();
+    std::size_t index = 0;
+    const cl_int vmax = (std::numeric_limits<cl_int>::max)();
+    const cl_int vmin = (std::numeric_limits<cl_int>::min)();
+    EXPECT_EQ(0, mem[index].x) << "int2 cast failed";
+    EXPECT_EQ(0, mem[index].y) << "int2 cast failed";
+    ++index;
+    EXPECT_EQ(100, mem[index].x) << "int2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "int2 cast failed";
+    ++index;
+    EXPECT_EQ(-100, mem[index].x) << "int2 cast failed";
+    EXPECT_EQ(-100, mem[index].y) << "int2 cast failed";
+    ++index;
+    EXPECT_EQ(vmax, mem[index].x) << "int2 cast failed";
+    EXPECT_EQ(vmax, mem[index].y) << "int2 cast failed";
+    ++index;
+    EXPECT_EQ(vmin, mem[index].x) << "int2 cast failed";
+    EXPECT_EQ(vmin, mem[index].y) << "int2 cast failed";
+    ++index;
+    EXPECT_EQ(0, mem[index].x) << "int2 cast failed";
+    EXPECT_EQ(0, mem[index].y) << "int2 cast failed";
+    ++index;
+    EXPECT_EQ(100, mem[index].x) << "int2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "int2 cast failed";
+    ++index;
+    EXPECT_EQ(-100, mem[index].x) << "int2 cast failed";
+    EXPECT_EQ(-100, mem[index].y) << "int2 cast failed";
+    ++index;
+    EXPECT_EQ(3, mem[index].x) << "int2 cast failed";
+    EXPECT_EQ(3, mem[index].y) << "int2 cast failed";
+    ++index;
+    EXPECT_EQ(0, mem[index].x) << "int2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "int2 cast failed";
+    ++index;
+    EXPECT_EQ(vmax, mem[index].x) << "int2 cast failed";
+    EXPECT_EQ(vmin, mem[index].y) << "int2 cast failed";
+    ++index;
+    EXPECT_EQ(0, mem[index].x) << "int2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "int2 cast failed";
+    ++index;
+    EXPECT_EQ(-100, mem[index].x) << "int2 cast failed";
+    EXPECT_EQ(3, mem[index].y) << "int2 cast failed";
+  }
+  {
+    auto buffer = device->makeBuffer<cl_uint2>(zivc::BufferUsage::kHostOnly);
+    ztest::copyBuffer(*buffer_out5, buffer.get());
+    const auto mem = buffer->mapMemory();
+    std::size_t index = 0;
+    const cl_uint vmax = (std::numeric_limits<cl_uint>::max)();
+    //const cl_uint vmin = (std::numeric_limits<cl_uint>::min)();
+    EXPECT_EQ(0, mem[index].x) << "uint2 cast failed";
+    EXPECT_EQ(0, mem[index].y) << "uint2 cast failed";
+    ++index;
+    EXPECT_EQ(100, mem[index].x) << "uint2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "uint2 cast failed";
+    ++index;
+    //EXPECT_EQ(0, mem[index].x) << "uint2 cast failed";
+    //EXPECT_EQ(0, mem[index].y) << "uint2 cast failed";
+    index++;
+    EXPECT_EQ(vmax / 2, mem[index].x) << "uint2 cast failed";
+    EXPECT_EQ(vmax / 2, mem[index].y) << "uint2 cast failed";
+    index++;
+    EXPECT_EQ(vmax / 2 + 1, mem[index].x) << "uint2 cast failed";
+    EXPECT_EQ(vmax / 2 + 1, mem[index].y) << "uint2 cast failed";
+    index++;
+    EXPECT_EQ(0, mem[index].x) << "uint2 cast failed";
+    EXPECT_EQ(0, mem[index].y) << "uint2 cast failed";
+    index++;
+    EXPECT_EQ(100, mem[index].x) << "uint2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "uint2 cast failed";
+    index++;
+    //EXPECT_EQ(0, mem[index].x) << "uint2 cast failed";
+    //EXPECT_EQ(0, mem[index]) << "uint2 cast failed";
+    index++;
+    EXPECT_EQ(3, mem[index].x) << "uint2 cast failed";
+    EXPECT_EQ(3, mem[index].y) << "uint2 cast failed";
+    index++;
+    EXPECT_EQ(0, mem[index].x) << "uint2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "uint2 cast failed";
+    ++index;
+    EXPECT_EQ(vmax / 2, mem[index].x) << "uint2 cast failed";
+    EXPECT_EQ(vmax / 2 + 1, mem[index].y) << "uint2 cast failed";
+    index++;
+    EXPECT_EQ(0, mem[index].x) << "uint2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "uint2 cast failed";
+    index++;
+    //EXPECT_EQ(0, mem[index].x) << "uint2 cast failed";
+    EXPECT_EQ(3, mem[index].y) << "uint2 cast failed";
+  }
+  {
+    auto buffer = device->makeBuffer<cl_float2>(zivc::BufferUsage::kHostOnly);
+    ztest::copyBuffer(*buffer_out6, buffer.get());
+    const auto mem = buffer->mapMemory();
+    std::size_t index = 0;
+    const auto vmax = static_cast<cl_float>((std::numeric_limits<cl_int>::max)());
+    const auto vmin = static_cast<cl_float>((std::numeric_limits<cl_int>::min)());
+    EXPECT_FLOAT_EQ(0.0f, mem[index].x) << "float2 cast failed";
+    EXPECT_FLOAT_EQ(0.0f, mem[index].y) << "float2 cast failed";
+    ++index;
+    EXPECT_FLOAT_EQ(100.0f, mem[index].x) << "float2 cast failed";
+    EXPECT_FLOAT_EQ(100.0f, mem[index].y) << "float2 cast failed";
+    ++index;
+    EXPECT_FLOAT_EQ(-100.0f, mem[index].x) << "float2 cast failed";
+    EXPECT_FLOAT_EQ(-100.0f, mem[index].y) << "float2 cast failed";
+    ++index;
+    EXPECT_FLOAT_EQ(vmax, mem[index].x) << "float2 cast failed";
+    EXPECT_FLOAT_EQ(vmax, mem[index].y) << "float2 cast failed";
+    ++index;
+    EXPECT_FLOAT_EQ(vmin, mem[index].x) << "float2 cast failed";
+    EXPECT_FLOAT_EQ(vmin, mem[index].y) << "float2 cast failed";
+    ++index;
+    EXPECT_FLOAT_EQ(0.0f, mem[index].x) << "float2 cast failed";
+    EXPECT_FLOAT_EQ(0.0f, mem[index].y) << "float2 cast failed";
+    ++index;
+    EXPECT_FLOAT_EQ(100.0f, mem[index].x) << "float2 cast failed";
+    EXPECT_FLOAT_EQ(100.0f, mem[index].y) << "float2 cast failed";
+    ++index;
+    EXPECT_FLOAT_EQ(-100.0f, mem[index].x) << "float2 cast failed";
+    EXPECT_FLOAT_EQ(-100.0f, mem[index].y) << "float2 cast failed";
+    ++index;
+    EXPECT_FLOAT_EQ(3.14f, mem[index].x) << "float2 cast failed";
+    EXPECT_FLOAT_EQ(3.14f, mem[index].y) << "float2 cast failed";
+    ++index;
+    EXPECT_FLOAT_EQ(0.0f, mem[index].x) << "float2 cast failed";
+    EXPECT_FLOAT_EQ(100.0f, mem[index].y) << "float2 cast failed";
+    ++index;
+    EXPECT_FLOAT_EQ(vmax, mem[index].x) << "float2 cast failed";
+    EXPECT_FLOAT_EQ(vmin, mem[index].y) << "float2 cast failed";
+    ++index;
+    EXPECT_FLOAT_EQ(0.0f, mem[index].x) << "float2 cast failed";
+    EXPECT_FLOAT_EQ(100.0f, mem[index].y) << "float2 cast failed";
+    ++index;
+    EXPECT_FLOAT_EQ(-100.0f, mem[index].x) << "float2 cast failed";
+    EXPECT_FLOAT_EQ(3.14f, mem[index].y) << "float2 cast failed";
+  }
+}

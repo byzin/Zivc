@@ -21,6 +21,15 @@
 #include "zivc/cl/type_traits.hpp"
 #include "zivc/cl/utility.hpp"
 
+using zivc::int8b;
+using zivc::int16b;
+using zivc::int32b;
+using zivc::int64b;
+using zivc::uint8b;
+using zivc::uint16b;
+using zivc::uint32b;
+using zivc::uint64b;
+
 /*!
   \def ZIVC_CHECK_TYPE_SIZE
   \brief No brief description
@@ -1271,6 +1280,100 @@ __kernel void vectorLogicalOperatorTest(zivc::ConstGlobalPtr<int4> in_int4,
     test::setBoolResult(result1 || result2.x, out + oindex);
     oindex += 4;
   }
+}
+
+__kernel void scalarCastTest(zivc::ConstGlobalPtr<int32b> in_int,
+                             zivc::ConstGlobalPtr<float> in_float,
+                             zivc::GlobalPtr<int8b> out_int8b,
+                             zivc::GlobalPtr<uint8b> out_uint8b,
+                             zivc::GlobalPtr<int16b> out_int16b,
+                             zivc::GlobalPtr<uint16b> out_uint16b,
+                             zivc::GlobalPtr<int32b> out_int32b,
+                             zivc::GlobalPtr<uint32b> out_uint32b,
+                             zivc::GlobalPtr<float> out_float,
+                             zivc::GlobalPtr<zivc::Boolean> out_bool,
+                             const uint32b int_n,
+                             const uint32b float_n)
+{
+  const size_t global_index = zivc::getGlobalIdX();
+  if (global_index != 0)
+    return;
+
+  auto test_scalar = [int_n, float_n](zivc::ConstGlobalPtr<int32b> in0,
+                                      zivc::ConstGlobalPtr<float> in1,
+                                      auto out) noexcept
+  {
+    size_t index = 0;
+    using Type = zivc::RemoveCvRefAddressT<decltype(out[0])>;
+    for (size_t i = 0; i < int_n; ++i)
+      out[index++] = zivc::cast<Type>(in0[i]);
+    for (size_t i = 0; i < float_n; ++i)
+      out[index++] = zivc::cast<Type>(in1[i]);
+  };
+
+  test_scalar(in_int, in_float, out_int8b);
+  test_scalar(in_int, in_float, out_uint8b);
+  test_scalar(in_int, in_float, out_int16b);
+  test_scalar(in_int, in_float, out_uint16b);
+  test_scalar(in_int, in_float, out_int32b);
+  test_scalar(in_int, in_float, out_uint32b);
+  test_scalar(in_int, in_float, out_float);
+
+  // bool
+  {
+    size_t index = 0;
+    for (size_t i = 0; i < int_n; ++i)
+      out_bool[index++] = zivc::cast<bool>(in_int[i]);
+    for (size_t i = 0; i < float_n; ++i)
+      out_bool[index++] = zivc::cast<bool>(in_float[i]);
+  }
+}
+
+__kernel void vector2CastTest(zivc::ConstGlobalPtr<int32b> in_int,
+                              zivc::ConstGlobalPtr<float> in_float,
+                              zivc::ConstGlobalPtr<int2> in_int2,
+                              zivc::ConstGlobalPtr<float2> in_float2,
+                              zivc::GlobalPtr<char2> out_char2,
+                              zivc::GlobalPtr<uchar2> out_uchar2,
+                              zivc::GlobalPtr<short2> out_short2,
+                              zivc::GlobalPtr<ushort2> out_ushort2,
+                              zivc::GlobalPtr<int2> out_int2,
+                              zivc::GlobalPtr<uint2> out_uint2,
+                              zivc::GlobalPtr<float2> out_float2,
+                              const uint32b int_n,
+                              const uint32b float_n,
+                              const uint32b int2_n,
+                              const uint32b float2_n)
+{
+  const size_t global_index = zivc::getGlobalIdX();
+  if (global_index != 0)
+    return;
+
+  auto test_vec2 = [int_n, float_n, int2_n, float2_n](zivc::ConstGlobalPtr<int32b> in0,
+                                                      zivc::ConstGlobalPtr<float> in1,
+                                                      zivc::ConstGlobalPtr<int2> in2,
+                                                      zivc::ConstGlobalPtr<float2> in3,
+                                                      auto out) noexcept
+  {
+    size_t index = 0;
+    using Type = zivc::RemoveCvRefAddressT<decltype(out[0])>;
+//    for (size_t i = 0; i < int_n; ++i)
+//      out[index++] = zivc::cast<Type>(in0[i]);
+//    for (size_t i = 0; i < float_n; ++i)
+//      out[index++] = zivc::cast<Type>(in1[i]);
+    for (size_t i = 0; i < int2_n; ++i)
+      out[index++] = zivc::cast<Type>(in2[i]);
+    for (size_t i = 0; i < float2_n; ++i)
+      out[index++] = zivc::cast<Type>(in3[i]);
+  };
+
+  test_vec2(in_int, in_float, in_int2, in_float2, out_char2);
+  test_vec2(in_int, in_float, in_int2, in_float2, out_uchar2);
+  test_vec2(in_int, in_float, in_int2, in_float2, out_short2);
+  test_vec2(in_int, in_float, in_int2, in_float2, out_ushort2);
+  test_vec2(in_int, in_float, in_int2, in_float2, out_int2);
+  test_vec2(in_int, in_float, in_int2, in_float2, out_uint2);
+  test_vec2(in_int, in_float, in_int2, in_float2, out_float2);
 }
 
 #endif /* ZIVC_TEST_OPENCL_CPP_TEST_VECTOR_CL */

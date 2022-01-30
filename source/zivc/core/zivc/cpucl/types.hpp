@@ -47,13 +47,24 @@ concept Arithmetic = zisc::Arithmetic<Type> || Half<Type>;
 template <typename Type>
 concept Scalar = zisc::SameAs<bool, std::remove_cvref_t<Type>> ||
                  zisc::SameAs<char, std::remove_cvref_t<Type>> ||
+                 zisc::SameAs<signed char, std::remove_cvref_t<Type>> ||
+                 zisc::SameAs<unsigned char, std::remove_cvref_t<Type>> ||
                  zisc::SameAs<uchar, std::remove_cvref_t<Type>> ||
                  zisc::SameAs<short, std::remove_cvref_t<Type>> ||
+                 zisc::SameAs<signed short, std::remove_cvref_t<Type>> ||
+                 zisc::SameAs<unsigned short, std::remove_cvref_t<Type>> ||
                  zisc::SameAs<ushort, std::remove_cvref_t<Type>> ||
                  zisc::SameAs<int, std::remove_cvref_t<Type>> ||
+                 zisc::SameAs<signed int, std::remove_cvref_t<Type>> ||
+                 zisc::SameAs<unsigned int, std::remove_cvref_t<Type>> ||
                  zisc::SameAs<uint, std::remove_cvref_t<Type>> ||
                  zisc::SameAs<long, std::remove_cvref_t<Type>> ||
+                 zisc::SameAs<signed long, std::remove_cvref_t<Type>> ||
+                 zisc::SameAs<unsigned long, std::remove_cvref_t<Type>> ||
                  zisc::SameAs<ulong, std::remove_cvref_t<Type>> ||
+                 zisc::SameAs<long long, std::remove_cvref_t<Type>> ||
+                 zisc::SameAs<signed long long, std::remove_cvref_t<Type>> ||
+                 zisc::SameAs<unsigned long long, std::remove_cvref_t<Type>> ||
                  zisc::SameAs<float, std::remove_cvref_t<Type>> ||
                  zisc::SameAs<double, std::remove_cvref_t<Type>> ||
                  zisc::SameAs<half, std::remove_cvref_t<Type>> ||

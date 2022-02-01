@@ -383,7 +383,7 @@ TEST(ClCppTest, VectorArithmeticOperatorTest)
     ztest::fillDeviceBuffer(v, buffer_outf3.get());
   }
   auto buffer_outf4 = device->makeBuffer<cl_float4>(zivc::BufferUsage::kDeviceOnly);
-  buffer_outf4->setSize(n);
+  buffer_outf4->setSize(n + 6);
   {
     const cl_float4 v{0.0f, 0.0f, 0.0f, 0.0f};
     ztest::fillDeviceBuffer(v, buffer_outf4.get());
@@ -726,6 +726,32 @@ TEST(ClCppTest, VectorArithmeticOperatorTest)
     EXPECT_FLOAT_EQ(-0.1f, mem[13].y) << "Vector float4 division failed.";
     EXPECT_FLOAT_EQ(0.4f, mem[13].z) << "Vector float4 division failed.";
     EXPECT_FLOAT_EQ(1.2f, mem[13].w) << "Vector float4 division failed.";
+
+    // Constexpr test
+    EXPECT_FLOAT_EQ(0.0f, mem[14].x) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(1.0f, mem[14].y) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(2.0f, mem[14].z) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(3.0f, mem[14].w) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(-0.0f, mem[15].x) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(-1.0f, mem[15].y) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(-2.0f, mem[15].z) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(-3.0f, mem[15].w) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(4.0f, mem[16].x) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(6.0f, mem[16].y) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(8.0f, mem[16].z) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(10.0f, mem[16].w) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(-4.0f, mem[17].x) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(-4.0f, mem[17].y) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(-4.0f, mem[17].z) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(-4.0f, mem[17].w) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[18].x) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(5.0f, mem[18].y) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(12.0f, mem[18].z) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(21.0f, mem[18].w) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[19].x) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(0.2f, mem[19].y) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(1.0f / 3.0f, mem[19].z) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(3.0f / 7.0f, mem[19].w) << "Vector constexpr test failed.";
   }
 }
 
@@ -778,7 +804,7 @@ TEST(ClCppTest, VectorArithmeticAssignmentOperatorTest)
     ztest::fillDeviceBuffer(v, buffer_out3.get());
   }
   auto buffer_out4 = device->makeBuffer<cl_int4>(zivc::BufferUsage::kDeviceOnly);
-  buffer_out4->setSize(n + 3);
+  buffer_out4->setSize(n + 3 + 4);
   {
     const cl_int4 v{0, 0, 0, 0};
     ztest::fillDeviceBuffer(v, buffer_out4.get());
@@ -915,6 +941,24 @@ TEST(ClCppTest, VectorArithmeticAssignmentOperatorTest)
     EXPECT_EQ(5, mem[9].y) << "Vector int4 modulo failed.";
     EXPECT_EQ(4, mem[9].z) << "Vector int4 modulo failed.";
     EXPECT_EQ(2, mem[9].w) << "Vector int4 modulo failed.";
+
+    // Constexpr test
+    EXPECT_EQ(2, mem[10].x) << "Vector constexpr test failed.";
+    EXPECT_EQ(7, mem[10].y) << "Vector constexpr test failed.";
+    EXPECT_EQ(12, mem[10].z) << "Vector constexpr test failed.";
+    EXPECT_EQ(17, mem[10].w) << "Vector constexpr test failed.";
+    EXPECT_EQ(-2, mem[11].x) << "Vector constexpr test failed.";
+    EXPECT_EQ(1, mem[11].y) << "Vector constexpr test failed.";
+    EXPECT_EQ(4, mem[11].z) << "Vector constexpr test failed.";
+    EXPECT_EQ(7, mem[11].w) << "Vector constexpr test failed.";
+    EXPECT_EQ(0, mem[12].x) << "Vector constexpr test failed.";
+    EXPECT_EQ(12, mem[12].y) << "Vector constexpr test failed.";
+    EXPECT_EQ(32, mem[12].z) << "Vector constexpr test failed.";
+    EXPECT_EQ(60, mem[12].w) << "Vector constexpr test failed.";
+    EXPECT_EQ(0, mem[13].x) << "Vector constexpr test failed.";
+    EXPECT_EQ(1, mem[13].y) << "Vector constexpr test failed.";
+    EXPECT_EQ(2, mem[13].z) << "Vector constexpr test failed.";
+    EXPECT_EQ(2, mem[13].w) << "Vector constexpr test failed.";
   }
 }
 
@@ -965,7 +1009,7 @@ TEST(ClCppTest, VectorBitwiseOperatorTest)
   }
   const std::size_t n = 14;
   auto buffer_out2 = device->makeBuffer<cl_uint2>(zivc::BufferUsage::kDeviceOnly);
-  buffer_out2->setSize(n);
+  buffer_out2->setSize(n + 6);
   {
     const cl_uint2 v{0, 0};
     ztest::fillDeviceBuffer(v, buffer_out2.get());
@@ -1040,6 +1084,20 @@ TEST(ClCppTest, VectorBitwiseOperatorTest)
     EXPECT_EQ(64u >> 4u, mem[12].y) << "Vector uint2 right shift failed.";
     EXPECT_EQ(32u >> 2u, mem[13].x) << "Vector uint2 right shift failed.";
     EXPECT_EQ(64u >> 2u, mem[13].y) << "Vector uint2 right shift failed.";
+
+    // Constexpr test
+    EXPECT_EQ(~0b01u, mem[14].x) << "Vector constexpr test failed.";
+    EXPECT_EQ(~0b10u, mem[14].y) << "Vector constexpr test failed.";
+    EXPECT_EQ(0b01u, mem[15].x) << "Vector constexpr test failed.";
+    EXPECT_EQ(0b10u, mem[15].y) << "Vector constexpr test failed.";
+    EXPECT_EQ(0b11u, mem[16].x) << "Vector constexpr test failed.";
+    EXPECT_EQ(0b11u, mem[16].y) << "Vector constexpr test failed.";
+    EXPECT_EQ(0b10u, mem[17].x) << "Vector constexpr test failed.";
+    EXPECT_EQ(0b01u, mem[17].y) << "Vector constexpr test failed.";
+    EXPECT_EQ(0b01u << 3u, mem[18].x) << "Vector constexpr test failed.";
+    EXPECT_EQ(0b10u << 3u, mem[18].y) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u >> 0b01u, mem[19].x) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u >> 0b10u, mem[19].y) << "Vector constexpr test failed.";
   }
   // output3
   {
@@ -1200,7 +1258,7 @@ TEST(ClCppTest, VectorBitwiseAssignmentOperatorTest)
   }
   const std::size_t n = 14;
   auto buffer_out2 = device->makeBuffer<cl_uint2>(zivc::BufferUsage::kDeviceOnly);
-  buffer_out2->setSize(n);
+  buffer_out2->setSize(n + 5);
   {
     const cl_uint2 v{0, 0};
     ztest::fillDeviceBuffer(v, buffer_out2.get());
@@ -1267,6 +1325,18 @@ TEST(ClCppTest, VectorBitwiseAssignmentOperatorTest)
     EXPECT_EQ(64u >> 4u, mem[8].y) << "Vector uint2 right shift failed.";
     EXPECT_EQ(32u >> 2u, mem[9].x) << "Vector uint2 right shift failed.";
     EXPECT_EQ(64u >> 2u, mem[9].y) << "Vector uint2 right shift failed.";
+
+    // Constexpr test
+    EXPECT_EQ(0b01u, mem[10].x) << "Vector constexpr test failed.";
+    EXPECT_EQ(0b10u, mem[10].y) << "Vector constexpr test failed.";
+    EXPECT_EQ(0b11u, mem[11].x) << "Vector constexpr test failed.";
+    EXPECT_EQ(0b11u, mem[11].y) << "Vector constexpr test failed.";
+    EXPECT_EQ(0b10u, mem[12].x) << "Vector constexpr test failed.";
+    EXPECT_EQ(0b01u, mem[12].y) << "Vector constexpr test failed.";
+    EXPECT_EQ(0b01u << 3u, mem[13].x) << "Vector constexpr test failed.";
+    EXPECT_EQ(0b10u << 3u, mem[13].y) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u >> 0b01u, mem[14].x) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u >> 0b10u, mem[14].y) << "Vector constexpr test failed.";
   }
   // output3
   {
@@ -1510,7 +1580,7 @@ TEST(ClCppTest, VectorComparisonOperatorTest)
     ztest::setDeviceBuffer(*device, v, buffer_in4.get());
   }
   auto buffer_out = device->makeBuffer<cl_Boolean>(zivc::BufferUsage::kDeviceOnly);
-  buffer_out->setSize(72);
+  buffer_out->setSize(72 + 24);
   {
     cl_Boolean v;
     v.set(false);
@@ -1617,6 +1687,32 @@ TEST(ClCppTest, VectorComparisonOperatorTest)
     EXPECT_TRUE(mem[index++]) << "Vector int4 greater than or equal to failed.";
     EXPECT_TRUE(mem[index++]) << "Vector int4 greater than or equal to failed.";
     EXPECT_TRUE(mem[index++]) << "Vector int4 greater than or equal to failed.";
+
+    // Constexpr test
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
   }
 }
 
@@ -1638,7 +1734,7 @@ TEST(ClCppTest, VectorLogicalOperatorTest)
     ztest::setDeviceBuffer(*device, v, buffer_in4.get());
   }
   auto buffer_out = device->makeBuffer<cl_Boolean>(zivc::BufferUsage::kDeviceOnly);
-  buffer_out->setSize(28);
+  buffer_out->setSize(28 + 12);
   {
     cl_Boolean v;
     v.set(false);
@@ -1701,6 +1797,20 @@ TEST(ClCppTest, VectorLogicalOperatorTest)
     EXPECT_FALSE(mem[index++]) << "Vector int4 OR failed.";
     EXPECT_TRUE(mem[index++]) << "Vector int4 OR failed.";
     EXPECT_FALSE(mem[index++]) << "Vector int4 OR failed.";
+
+    // Constexpr test
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
   }
 }
 

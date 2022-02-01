@@ -565,13 +565,13 @@ struct MakingVectorImpl
 {
   //! Create a vector
   template <typename ...ArgTypes>
-  static Type make(const ArgTypes&... args) noexcept;
+  static constexpr Type make(const ArgTypes&... args) noexcept;
 };
 
 } /* namespace inner */
 
 template <typename Type, typename ...ArgTypes> inline
-Type make(const ArgTypes&... args) noexcept
+constexpr Type make(const ArgTypes&... args) noexcept
 {
   const Type v = inner::MakingVectorImpl<Type>::make(args...);
   return v;
@@ -593,7 +593,7 @@ Type make(const ArgTypes&... args) noexcept
     struct MakingVectorImpl< vector_type ## 2 > \
     { \
       template <typename ...ArgTypes> inline \
-      static vector_type ## 2 make(const ArgTypes&... args) noexcept \
+      static constexpr vector_type ## 2 make(const ArgTypes&... args) noexcept \
       { \
         return make ## vector_func ## 2(args...); \
       } \
@@ -602,7 +602,7 @@ Type make(const ArgTypes&... args) noexcept
     struct MakingVectorImpl< vector_type ## 3 > \
     { \
       template <typename ...ArgTypes> inline \
-      static vector_type ## 3 make(const ArgTypes&... args) noexcept \
+      static constexpr vector_type ## 3 make(const ArgTypes&... args) noexcept \
       { \
         return make ## vector_func ## 3(args...); \
       } \
@@ -611,96 +611,96 @@ Type make(const ArgTypes&... args) noexcept
     struct MakingVectorImpl< vector_type ## 4 > \
     { \
       template <typename ...ArgTypes> inline \
-      static vector_type ## 4 make(const ArgTypes&... args) noexcept \
+      static constexpr vector_type ## 4 make(const ArgTypes&... args) noexcept \
       { \
         return make ## vector_func ## 4(args...); \
       } \
     }; \
   } \
   inline \
-  vector_type ## 2 make ## vector_func ## 2(const scalar_type v) noexcept \
+  constexpr vector_type ## 2 make ## vector_func ## 2(const scalar_type v) noexcept \
   { \
     return vector_type ## 2{v, v}; \
   } \
   inline \
-  vector_type ## 2 make ## vector_func ## 2(const scalar_type v0, \
+  constexpr vector_type ## 2 make ## vector_func ## 2(const scalar_type v0, \
                                             const scalar_type v1) noexcept \
   { \
     return vector_type ## 2{v0, v1}; \
   } \
   inline \
-  vector_type ## 3 make ## vector_func ## 3(const scalar_type v) noexcept \
+  constexpr vector_type ## 3 make ## vector_func ## 3(const scalar_type v) noexcept \
   { \
     return vector_type ## 3{v, v, v}; \
   } \
   inline \
-  vector_type ## 3 make ## vector_func ## 3(const scalar_type v0, \
-                                            const scalar_type v1, \
-                                            const scalar_type v2) noexcept \
+  constexpr vector_type ## 3 make ## vector_func ## 3(const scalar_type v0, \
+                                                      const scalar_type v1, \
+                                                      const scalar_type v2) noexcept \
   { \
     return vector_type ## 3{v0, v1, v2}; \
   } \
   inline \
-  vector_type ## 3 make ## vector_func ## 3(const vector_type ## 2 v0, \
-                                            const scalar_type v1) noexcept \
+  constexpr vector_type ## 3 make ## vector_func ## 3(const vector_type ## 2 v0, \
+                                                      const scalar_type v1) noexcept \
   { \
     return vector_type ## 3{v0, v1}; \
   } \
   inline \
-  vector_type ## 3 make ## vector_func ## 3(const scalar_type v0, \
-                                            const vector_type ## 2 v1) noexcept \
+  constexpr vector_type ## 3 make ## vector_func ## 3(const scalar_type v0, \
+                                                      const vector_type ## 2 v1) noexcept \
   { \
     return vector_type ## 3{v0, v1}; \
   } \
   inline \
-  vector_type ## 4 make ## vector_func ## 4(const scalar_type v) noexcept \
+  constexpr vector_type ## 4 make ## vector_func ## 4(const scalar_type v) noexcept \
   { \
     return vector_type ## 4{v, v, v, v}; \
   } \
   inline \
-  vector_type ## 4 make ## vector_func ## 4(const scalar_type v0, \
-                                            const scalar_type v1, \
-                                            const scalar_type v2, \
-                                            const scalar_type v3) noexcept \
+  constexpr vector_type ## 4 make ## vector_func ## 4(const scalar_type v0, \
+                                                      const scalar_type v1, \
+                                                      const scalar_type v2, \
+                                                      const scalar_type v3) noexcept \
   { \
     return vector_type ## 4{v0, v1, v2, v3}; \
   } \
   inline \
-  vector_type ## 4 make ## vector_func ## 4(const vector_type ## 2 v0, \
-                                            const scalar_type v1, \
-                                            const scalar_type v2) noexcept \
+  constexpr vector_type ## 4 make ## vector_func ## 4(const vector_type ## 2 v0, \
+                                                      const scalar_type v1, \
+                                                      const scalar_type v2) noexcept \
   { \
     return vector_type ## 4{v0, v1, v2}; \
   } \
   inline \
-  vector_type ## 4 make ## vector_func ## 4(const scalar_type v0, \
-                                            const vector_type ## 2 v1, \
-                                            const scalar_type v2) noexcept \
+  constexpr vector_type ## 4 make ## vector_func ## 4(const scalar_type v0, \
+                                                      const vector_type ## 2 v1, \
+                                                      const scalar_type v2) noexcept \
   { \
     return vector_type ## 4{v0, v1, v2}; \
   } \
   inline \
-  vector_type ## 4 make ## vector_func ## 4(const scalar_type v0, \
-                                            const scalar_type v1, \
-                                            const vector_type ## 2 v2) noexcept \
+  constexpr vector_type ## 4 make ## vector_func ## 4(const scalar_type v0, \
+                                                      const scalar_type v1, \
+                                                      const vector_type ## 2 v2) noexcept \
   { \
     return vector_type ## 4{v0, v1, v2}; \
   } \
   inline \
-  vector_type ## 4 make ## vector_func ## 4(const vector_type ## 2 v0, \
-                                            const vector_type ## 2 v1) noexcept \
+  constexpr vector_type ## 4 make ## vector_func ## 4(const vector_type ## 2 v0, \
+                                                      const vector_type ## 2 v1) noexcept \
   { \
     return vector_type ## 4{v0, v1}; \
   } \
   inline \
-  vector_type ## 4 make ## vector_func ## 4(const vector_type ## 3 v0, \
-                                            const scalar_type v1) noexcept \
+  constexpr vector_type ## 4 make ## vector_func ## 4(const vector_type ## 3 v0, \
+                                                      const scalar_type v1) noexcept \
   { \
     return vector_type ## 4{v0, v1}; \
   } \
   inline \
-  vector_type ## 4 make ## vector_func ## 4(const scalar_type v0, \
-                                            const vector_type ## 3 v1) noexcept \
+  constexpr vector_type ## 4 make ## vector_func ## 4(const scalar_type v0, \
+                                                      const vector_type ## 3 v1) noexcept \
   { \
     return vector_type ## 4{v0, v1}; \
   }
@@ -857,8 +857,17 @@ Type cast(T&& value) noexcept
   }
 }
 
+/*!
+  \details No detailed description
+
+  \tparam Type1 No description.
+  \tparam Type2 No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
 template <typename Type1, typename Type2> inline
-bool equal(const Type1& lhs, const Type2& rhs) noexcept
+constexpr bool equal(const Type1& lhs, const Type2& rhs) noexcept
 {
 #if defined(Z_GCC) || defined(Z_CLANG)
 #pragma GCC diagnostic push

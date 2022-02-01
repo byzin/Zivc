@@ -137,438 +137,438 @@ size_t getLocalLinearId() noexcept;
 
 //! Make a value
 template <typename Type, typename ...ArgTypes>
-Type make(const ArgTypes&... args) noexcept;
+constexpr Type make(const ArgTypes&... args) noexcept;
 
 //! Make a char2 value
-char2 makeChar2(const int8b v) noexcept;
+constexpr char2 makeChar2(const int8b v) noexcept;
 
 //! Make a char2 value
-char2 makeChar2(const int8b v0, const int8b v1) noexcept;
+constexpr char2 makeChar2(const int8b v0, const int8b v1) noexcept;
 
 //! Make a char3 value
-char3 makeChar3(const int8b v) noexcept;
+constexpr char3 makeChar3(const int8b v) noexcept;
 
 //! Make a char3 value
-char3 makeChar3(const int8b v0, const int8b v1, const int8b v2) noexcept;
+constexpr char3 makeChar3(const int8b v0, const int8b v1, const int8b v2) noexcept;
 
 //! Make a char3 value
-char3 makeChar3(const char2 v0, const int8b v1) noexcept;
+constexpr char3 makeChar3(const char2 v0, const int8b v1) noexcept;
 
 //! Make a char3 value
-char3 makeChar3(const int8b v0, const char2 v1) noexcept;
+constexpr char3 makeChar3(const int8b v0, const char2 v1) noexcept;
 
 //! Make a char4 value
-char4 makeChar4(const int8b v) noexcept;
+constexpr char4 makeChar4(const int8b v) noexcept;
 
 //! Make a char4 value
-char4 makeChar4(const int8b v0, const int8b v1,
-                const int8b v2, const int8b v3) noexcept;
+constexpr char4 makeChar4(const int8b v0, const int8b v1,
+                          const int8b v2, const int8b v3) noexcept;
 
 //! Make a char4 value
-char4 makeChar4(const char2 v0, const int8b v1, const int8b v2) noexcept;
+constexpr char4 makeChar4(const char2 v0, const int8b v1, const int8b v2) noexcept;
 
 //! Make a char4 value
-char4 makeChar4(const int8b v0, const char2 v1, const int8b v2) noexcept;
+constexpr char4 makeChar4(const int8b v0, const char2 v1, const int8b v2) noexcept;
 
 //! Make a char4 value
-char4 makeChar4(const int8b v0, const int8b v1, const char2 v2) noexcept;
+constexpr char4 makeChar4(const int8b v0, const int8b v1, const char2 v2) noexcept;
 
 //! Make a char4 value
-char4 makeChar4(const char2 v0, const char2 v1) noexcept;
+constexpr char4 makeChar4(const char2 v0, const char2 v1) noexcept;
 
 //! Make a char4 value
-char4 makeChar4(const char3 v0, const int8b v1) noexcept;
+constexpr char4 makeChar4(const char3 v0, const int8b v1) noexcept;
 
 //! Make a char4 value
-char4 makeChar4(const int8b v0, const char3 v1) noexcept;
+constexpr char4 makeChar4(const int8b v0, const char3 v1) noexcept;
 
 
 //! Make a uchar2 value
-uchar2 makeUChar2(const uint8b v) noexcept;
+constexpr uchar2 makeUChar2(const uint8b v) noexcept;
 
 //! Make a uchar2 value
-uchar2 makeUChar2(const uint8b v0, const uint8b v1) noexcept;
+constexpr uchar2 makeUChar2(const uint8b v0, const uint8b v1) noexcept;
 
 //! Make a uchar3 value
-uchar3 makeUChar3(const uint8b v) noexcept;
+constexpr uchar3 makeUChar3(const uint8b v) noexcept;
 
 //! Make a uchar3 value
-uchar3 makeUChar3(const uint8b v0, const uint8b v1, const uint8b v2) noexcept;
+constexpr uchar3 makeUChar3(const uint8b v0, const uint8b v1, const uint8b v2) noexcept;
 
 //! Make a uchar3 value
-uchar3 makeUChar3(const uchar2 v0, const uint8b v1) noexcept;
+constexpr uchar3 makeUChar3(const uchar2 v0, const uint8b v1) noexcept;
 
 //! Make a uchar3 value
-uchar3 makeUChar3(const uint8b v0, const uchar2 v1) noexcept;
+constexpr uchar3 makeUChar3(const uint8b v0, const uchar2 v1) noexcept;
 
 //! Make a uchar4 value
-uchar4 makeUChar4(const uint8b v) noexcept;
+constexpr uchar4 makeUChar4(const uint8b v) noexcept;
 
 //! Make a uchar4 value
-uchar4 makeUChar4(const uint8b v0, const uint8b v1,
-                  const uint8b v2, const uint8b v3) noexcept;
+constexpr uchar4 makeUChar4(const uint8b v0, const uint8b v1,
+                            const uint8b v2, const uint8b v3) noexcept;
 
 //! Make a uchar4 value
-uchar4 makeUChar4(const uchar2 v0, const uint8b v1, const uint8b v2) noexcept;
+constexpr uchar4 makeUChar4(const uchar2 v0, const uint8b v1, const uint8b v2) noexcept;
 
 //! Make a uchar4 value
-uchar4 makeUChar4(const uint8b v0, const uchar2 v1, const uint8b v2) noexcept;
+constexpr uchar4 makeUChar4(const uint8b v0, const uchar2 v1, const uint8b v2) noexcept;
 
 //! Make a uchar4 value
-uchar4 makeUChar4(const uint8b v0, const uint8b v1, const uchar2 v2) noexcept;
+constexpr uchar4 makeUChar4(const uint8b v0, const uint8b v1, const uchar2 v2) noexcept;
 
 //! Make a uchar4 value
-uchar4 makeUChar4(const uchar2 v0, const uchar2 v1) noexcept;
+constexpr uchar4 makeUChar4(const uchar2 v0, const uchar2 v1) noexcept;
 
 //! Make a uchar4 value
-uchar4 makeUChar4(const uchar3 v0, const uint8b v1) noexcept;
+constexpr uchar4 makeUChar4(const uchar3 v0, const uint8b v1) noexcept;
 
 //! Make a uchar4 value
-uchar4 makeUChar4(const uint8b v0, const uchar3 v1) noexcept;
+constexpr uchar4 makeUChar4(const uint8b v0, const uchar3 v1) noexcept;
 
 //! Make a short2 value
-short2 makeShort2(const int16b v) noexcept;
+constexpr short2 makeShort2(const int16b v) noexcept;
 
 //! Make a short2 value
-short2 makeShort2(const int16b v0, const int16b v1) noexcept;
+constexpr short2 makeShort2(const int16b v0, const int16b v1) noexcept;
 
 //! Make a short3 value
-short3 makeShort3(const int16b v) noexcept;
+constexpr short3 makeShort3(const int16b v) noexcept;
 
 //! Make a short3 value
-short3 makeShort3(const int16b v0, const int16b v1, const int16b v2) noexcept;
+constexpr short3 makeShort3(const int16b v0, const int16b v1, const int16b v2) noexcept;
 
 //! Make a short3 value
-short3 makeShort3(const short2 v0, const int16b v1) noexcept;
+constexpr short3 makeShort3(const short2 v0, const int16b v1) noexcept;
 
 //! Make a short3 value
-short3 makeShort3(const int16b v0, const short2 v1) noexcept;
+constexpr short3 makeShort3(const int16b v0, const short2 v1) noexcept;
 
 //! Make a short4 value
-short4 makeShort4(const int16b v) noexcept;
+constexpr short4 makeShort4(const int16b v) noexcept;
 
 //! Make a short4 value
-short4 makeShort4(const int16b v0, const int16b v1,
-                  const int16b v2, const int16b v3) noexcept;
+constexpr short4 makeShort4(const int16b v0, const int16b v1,
+                            const int16b v2, const int16b v3) noexcept;
 
 //! Make a short4 value
-short4 makeShort4(const short2 v0, const int16b v1, const int16b v2) noexcept;
+constexpr short4 makeShort4(const short2 v0, const int16b v1, const int16b v2) noexcept;
 
 //! Make a short4 value
-short4 makeShort4(const int16b v0, const short2 v1, const int16b v2) noexcept;
+constexpr short4 makeShort4(const int16b v0, const short2 v1, const int16b v2) noexcept;
 
 //! Make a short4 value
-short4 makeShort4(const int16b v0, const int16b v1, const short2 v2) noexcept;
+constexpr short4 makeShort4(const int16b v0, const int16b v1, const short2 v2) noexcept;
 
 //! Make a short4 value
-short4 makeShort4(const short2 v0, const short2 v1) noexcept;
+constexpr short4 makeShort4(const short2 v0, const short2 v1) noexcept;
 
 //! Make a short4 value
-short4 makeShort4(const short3 v0, const int16b v1) noexcept;
+constexpr short4 makeShort4(const short3 v0, const int16b v1) noexcept;
 
 //! Make a short4 value
-short4 makeShort4(const int16b v0, const short3 v1) noexcept;
+constexpr short4 makeShort4(const int16b v0, const short3 v1) noexcept;
 
 //! Make a ushort2 value
-ushort2 makeUShort2(const uint16b v) noexcept;
+constexpr ushort2 makeUShort2(const uint16b v) noexcept;
 
 //! Make a ushort2 value
-ushort2 makeUShort2(const uint16b v0, const uint16b v1) noexcept;
+constexpr ushort2 makeUShort2(const uint16b v0, const uint16b v1) noexcept;
 
 //! Make a ushort3 value
-ushort3 makeUShort3(const uint16b v) noexcept;
+constexpr ushort3 makeUShort3(const uint16b v) noexcept;
 
 //! Make a ushort3 value
-ushort3 makeUShort3(const uint16b v0, const uint16b v1, const uint16b v2) noexcept;
+constexpr ushort3 makeUShort3(const uint16b v0, const uint16b v1, const uint16b v2) noexcept;
 
 //! Make a ushort3 value
-ushort3 makeUShort3(const ushort2 v0, const uint16b v1) noexcept;
+constexpr ushort3 makeUShort3(const ushort2 v0, const uint16b v1) noexcept;
 
 //! Make a ushort3 value
-ushort3 makeUShort3(const uint16b v0, const ushort2 v1) noexcept;
+constexpr ushort3 makeUShort3(const uint16b v0, const ushort2 v1) noexcept;
 
 //! Make a ushort4 value
-ushort4 makeUShort4(const uint16b v) noexcept;
+constexpr ushort4 makeUShort4(const uint16b v) noexcept;
 
 //! Make a ushort4 value
-ushort4 makeUShort4(const uint16b v0, const uint16b v1,
-                    const uint16b v2, const uint16b v3) noexcept;
+constexpr ushort4 makeUShort4(const uint16b v0, const uint16b v1,
+                              const uint16b v2, const uint16b v3) noexcept;
 
 //! Make a ushort4 value
-ushort4 makeUShort4(const ushort2 v0, const uint16b v1, const uint16b v2) noexcept;
+constexpr ushort4 makeUShort4(const ushort2 v0, const uint16b v1, const uint16b v2) noexcept;
 
 //! Make a ushort4 value
-ushort4 makeUShort4(const uint16b v0, const ushort2 v1, const uint16b v2) noexcept;
+constexpr ushort4 makeUShort4(const uint16b v0, const ushort2 v1, const uint16b v2) noexcept;
 
 //! Make a ushort4 value
-ushort4 makeUShort4(const uint16b v0, const uint16b v1, const ushort2 v2) noexcept;
+constexpr ushort4 makeUShort4(const uint16b v0, const uint16b v1, const ushort2 v2) noexcept;
 
 //! Make a ushort4 value
-ushort4 makeUShort4(const ushort2 v0, const ushort2 v1) noexcept;
+constexpr ushort4 makeUShort4(const ushort2 v0, const ushort2 v1) noexcept;
 
 //! Make a ushort4 value
-ushort4 makeUShort4(const ushort3 v0, const uint16b v1) noexcept;
+constexpr ushort4 makeUShort4(const ushort3 v0, const uint16b v1) noexcept;
 
 //! Make a ushort4 value
-ushort4 makeUShort4(const uint16b v0, const ushort3 v1) noexcept;
+constexpr ushort4 makeUShort4(const uint16b v0, const ushort3 v1) noexcept;
 
 //! Make a int2 value
-int2 makeInt2(const int32b v) noexcept;
+constexpr int2 makeInt2(const int32b v) noexcept;
 
 //! Make a int2 value
-int2 makeInt2(const int32b v0, const int32b v1) noexcept;
+constexpr int2 makeInt2(const int32b v0, const int32b v1) noexcept;
 
 //! Make a int3 value
-int3 makeInt3(const int32b v) noexcept;
+constexpr int3 makeInt3(const int32b v) noexcept;
 
 //! Make a int3 value
-int3 makeInt3(const int32b v0, const int32b v1, const int32b v2) noexcept;
+constexpr int3 makeInt3(const int32b v0, const int32b v1, const int32b v2) noexcept;
 
 //! Make a int3 value
-int3 makeInt3(const int2 v0, const int32b v1) noexcept;
+constexpr int3 makeInt3(const int2 v0, const int32b v1) noexcept;
 
 //! Make a int3 value
-int3 makeInt3(const int32b v0, const int2 v1) noexcept;
+constexpr int3 makeInt3(const int32b v0, const int2 v1) noexcept;
 
 //! Make a int4 value
-int4 makeInt4(const int32b v) noexcept;
+constexpr int4 makeInt4(const int32b v) noexcept;
 
 //! Make a int4 value
-int4 makeInt4(const int32b v0, const int32b v1,
-              const int32b v2, const int32b v3) noexcept;
+constexpr int4 makeInt4(const int32b v0, const int32b v1,
+                        const int32b v2, const int32b v3) noexcept;
 
 //! Make a int4 value
-int4 makeInt4(const int2 v0, const int32b v1, const int32b v2) noexcept;
+constexpr int4 makeInt4(const int2 v0, const int32b v1, const int32b v2) noexcept;
 
 //! Make a int4 value
-int4 makeInt4(const int32b v0, const int2 v1, const int32b v2) noexcept;
+constexpr int4 makeInt4(const int32b v0, const int2 v1, const int32b v2) noexcept;
 
 //! Make a int4 value
-int4 makeInt4(const int32b v0, const int32b v1, const int2 v2) noexcept;
+constexpr int4 makeInt4(const int32b v0, const int32b v1, const int2 v2) noexcept;
 
 //! Make a int4 value
-int4 makeInt4(const int2 v0, const int2 v1) noexcept;
+constexpr int4 makeInt4(const int2 v0, const int2 v1) noexcept;
 
 //! Make a int4 value
-int4 makeInt4(const int3 v0, const int32b v1) noexcept;
+constexpr int4 makeInt4(const int3 v0, const int32b v1) noexcept;
 
 //! Make a int4 value
-int4 makeInt4(const int32b v0, const int3 v1) noexcept;
+constexpr int4 makeInt4(const int32b v0, const int3 v1) noexcept;
 
 //! Make a uint2 value
-uint2 makeUInt2(const uint32b v) noexcept;
+constexpr uint2 makeUInt2(const uint32b v) noexcept;
 
 //! Make a uint2 value
-uint2 makeUInt2(const uint32b v0, const uint32b v1) noexcept;
+constexpr uint2 makeUInt2(const uint32b v0, const uint32b v1) noexcept;
 
 //! Make a uint3 value
-uint3 makeUInt3(const uint32b v) noexcept;
+constexpr uint3 makeUInt3(const uint32b v) noexcept;
 
 //! Make a uint3 value
-uint3 makeUInt3(const uint32b v0, const uint32b v1, const uint32b v2) noexcept;
+constexpr uint3 makeUInt3(const uint32b v0, const uint32b v1, const uint32b v2) noexcept;
 
 //! Make a uint3 value
-uint3 makeUInt3(const uint2 v0, const uint32b v1) noexcept;
+constexpr uint3 makeUInt3(const uint2 v0, const uint32b v1) noexcept;
 
 //! Make a uint3 value
-uint3 makeUInt3(const uint32b v0, const uint2 v1) noexcept;
+constexpr uint3 makeUInt3(const uint32b v0, const uint2 v1) noexcept;
 
 //! Make a uint4 value
-uint4 makeUInt4(const uint32b v) noexcept;
+constexpr uint4 makeUInt4(const uint32b v) noexcept;
 
 //! Make a uint4 value
-uint4 makeUInt4(const uint32b v0, const uint32b v1,
-                const uint32b v2, const uint32b v3) noexcept;
+constexpr uint4 makeUInt4(const uint32b v0, const uint32b v1,
+                          const uint32b v2, const uint32b v3) noexcept;
 
 //! Make a uint4 value
-uint4 makeUInt4(const uint2 v0, const uint32b v1, const uint32b v2) noexcept;
+constexpr uint4 makeUInt4(const uint2 v0, const uint32b v1, const uint32b v2) noexcept;
 
 //! Make a uint4 value
-uint4 makeUInt4(const uint32b v0, const uint2 v1, const uint32b v2) noexcept;
+constexpr uint4 makeUInt4(const uint32b v0, const uint2 v1, const uint32b v2) noexcept;
 
 //! Make a uint4 value
-uint4 makeUInt4(const uint32b v0, const uint32b v1, const uint2 v2) noexcept;
+constexpr uint4 makeUInt4(const uint32b v0, const uint32b v1, const uint2 v2) noexcept;
 
 //! Make a uint4 value
-uint4 makeUInt4(const uint2 v0, const uint2 v1) noexcept;
+constexpr uint4 makeUInt4(const uint2 v0, const uint2 v1) noexcept;
 
 //! Make a uint4 value
-uint4 makeUInt4(const uint3 v0, const uint32b v1) noexcept;
+constexpr uint4 makeUInt4(const uint3 v0, const uint32b v1) noexcept;
 
 //! Make a uint4 value
-uint4 makeUInt4(const uint32b v0, const uint3 v1) noexcept;
+constexpr uint4 makeUInt4(const uint32b v0, const uint3 v1) noexcept;
 
 //! Make a long2 value
-long2 makeLong2(const int64b v) noexcept;
+constexpr long2 makeLong2(const int64b v) noexcept;
 
 //! Make a long2 value
-long2 makeLong2(const int64b v0, const int64b v1) noexcept;
+constexpr long2 makeLong2(const int64b v0, const int64b v1) noexcept;
 
 //! Make a long3 value
-long3 makeLong3(const int64b v) noexcept;
+constexpr long3 makeLong3(const int64b v) noexcept;
 
 //! Make a long3 value
-long3 makeLong3(const int64b v0, const int64b v1, const int64b v2) noexcept;
+constexpr long3 makeLong3(const int64b v0, const int64b v1, const int64b v2) noexcept;
 
 //! Make a long3 value
-long3 makeLong3(const long2 v0, const int64b v1) noexcept;
+constexpr long3 makeLong3(const long2 v0, const int64b v1) noexcept;
 
 //! Make a long3 value
-long3 makeLong3(const int64b v0, const long2 v1) noexcept;
+constexpr long3 makeLong3(const int64b v0, const long2 v1) noexcept;
 
 //! Make a long4 value
-long4 makeLong4(const int64b v) noexcept;
+constexpr long4 makeLong4(const int64b v) noexcept;
 
 //! Make a long4 value
-long4 makeLong4(const int64b v0, const int64b v1,
-                const int64b v2, const int64b v3) noexcept;
+constexpr long4 makeLong4(const int64b v0, const int64b v1,
+                          const int64b v2, const int64b v3) noexcept;
 
 //! Make a long4 value
-long4 makeLong4(const long2 v0, const int64b v1, const int64b v2) noexcept;
+constexpr long4 makeLong4(const long2 v0, const int64b v1, const int64b v2) noexcept;
 
 //! Make a long4 value
-long4 makeLong4(const int64b v0, const long2 v1, const int64b v2) noexcept;
+constexpr long4 makeLong4(const int64b v0, const long2 v1, const int64b v2) noexcept;
 
 //! Make a long4 value
-long4 makeLong4(const int64b v0, const int64b v1, const long2 v2) noexcept;
+constexpr long4 makeLong4(const int64b v0, const int64b v1, const long2 v2) noexcept;
 
 //! Make a long4 value
-long4 makeLong4(const long2 v0, const long2 v1) noexcept;
+constexpr long4 makeLong4(const long2 v0, const long2 v1) noexcept;
 
 //! Make a long4 value
-long4 makeLong4(const long3 v0, const int64b v1) noexcept;
+constexpr long4 makeLong4(const long3 v0, const int64b v1) noexcept;
 
 //! Make a long4 value
-long4 makeLong4(const int64b v0, const long3 v1) noexcept;
+constexpr long4 makeLong4(const int64b v0, const long3 v1) noexcept;
 
 //! Make a ulong2 value
-ulong2 makeULong2(const uint64b v) noexcept;
+constexpr ulong2 makeULong2(const uint64b v) noexcept;
 
 //! Make a ulong2 value
-ulong2 makeULong2(const uint64b v0, const uint64b v1) noexcept;
+constexpr ulong2 makeULong2(const uint64b v0, const uint64b v1) noexcept;
 
 //! Make a ulong3 value
-ulong3 makeULong3(const uint64b v) noexcept;
+constexpr ulong3 makeULong3(const uint64b v) noexcept;
 
 //! Make a ulong3 value
-ulong3 makeULong3(const uint64b v0, const uint64b v1, const uint64b v2) noexcept;
+constexpr ulong3 makeULong3(const uint64b v0, const uint64b v1, const uint64b v2) noexcept;
 
 //! Make a ulong3 value
-ulong3 makeULong3(const ulong2 v0, const uint64b v1) noexcept;
+constexpr ulong3 makeULong3(const ulong2 v0, const uint64b v1) noexcept;
 
 //! Make a ulong3 value
-ulong3 makeULong3(const uint64b v0, const ulong2 v1) noexcept;
+constexpr ulong3 makeULong3(const uint64b v0, const ulong2 v1) noexcept;
 
 //! Make a ulong4 value
-ulong4 makeULong4(const uint64b v) noexcept;
+constexpr ulong4 makeULong4(const uint64b v) noexcept;
 
 //! Make a ulong4 value
-ulong4 makeULong4(const uint64b v0, const uint64b v1,
-                  const uint64b v2, const uint64b v3) noexcept;
+constexpr ulong4 makeULong4(const uint64b v0, const uint64b v1,
+                            const uint64b v2, const uint64b v3) noexcept;
 
 //! Make a ulong4 value
-ulong4 makeULong4(const ulong2 v0, const uint64b v1, const uint64b v2) noexcept;
+constexpr ulong4 makeULong4(const ulong2 v0, const uint64b v1, const uint64b v2) noexcept;
 
 //! Make a ulong4 value
-ulong4 makeULong4(const uint64b v0, const ulong2 v1, const uint64b v2) noexcept;
+constexpr ulong4 makeULong4(const uint64b v0, const ulong2 v1, const uint64b v2) noexcept;
 
 //! Make a ulong4 value
-ulong4 makeULong4(const uint64b v0, const uint64b v1, const ulong2 v2) noexcept;
+constexpr ulong4 makeULong4(const uint64b v0, const uint64b v1, const ulong2 v2) noexcept;
 
 //! Make a ulong4 value
-ulong4 makeULong4(const ulong2 v0, const ulong2 v1) noexcept;
+constexpr ulong4 makeULong4(const ulong2 v0, const ulong2 v1) noexcept;
 
 //! Make a ulong4 value
-ulong4 makeULong4(const ulong3 v0, const uint64b v1) noexcept;
+constexpr ulong4 makeULong4(const ulong3 v0, const uint64b v1) noexcept;
 
 //! Make a ulong4 value
-ulong4 makeULong4(const uint64b v0, const ulong3 v1) noexcept;
+constexpr ulong4 makeULong4(const uint64b v0, const ulong3 v1) noexcept;
 
 //! Make a float2 value
-float2 makeFloat2(const float v) noexcept;
+constexpr float2 makeFloat2(const float v) noexcept;
 
 //! Make a float2 value
-float2 makeFloat2(const float v0, const float v1) noexcept;
+constexpr float2 makeFloat2(const float v0, const float v1) noexcept;
 
 //! Make a float3 value
-float3 makeFloat3(const float v) noexcept;
+constexpr float3 makeFloat3(const float v) noexcept;
 
 //! Make a float3 value
-float3 makeFloat3(const float v0, const float v1, const float v2) noexcept;
+constexpr float3 makeFloat3(const float v0, const float v1, const float v2) noexcept;
 
 //! Make a float3 value
-float3 makeFloat3(const float2 v0, const float v1) noexcept;
+constexpr float3 makeFloat3(const float2 v0, const float v1) noexcept;
 
 //! Make a float3 value
-float3 makeFloat3(const float v0, const float2 v1) noexcept;
+constexpr float3 makeFloat3(const float v0, const float2 v1) noexcept;
 
 //! Make a float4 value
-float4 makeFloat4(const float v) noexcept;
+constexpr float4 makeFloat4(const float v) noexcept;
 
 //! Make a float4 value
-float4 makeFloat4(const float v0, const float v1,
-                  const float v2, const float v3) noexcept;
+constexpr float4 makeFloat4(const float v0, const float v1,
+                            const float v2, const float v3) noexcept;
 
 //! Make a float4 value
-float4 makeFloat4(const float2 v0, const float v1, const float v2) noexcept;
+constexpr float4 makeFloat4(const float2 v0, const float v1, const float v2) noexcept;
 
 //! Make a float4 value
-float4 makeFloat4(const float v0, const float2 v1, const float v2) noexcept;
+constexpr float4 makeFloat4(const float v0, const float2 v1, const float v2) noexcept;
 
 //! Make a float4 value
-float4 makeFloat4(const float v0, const float v1, const float2 v2) noexcept;
+constexpr float4 makeFloat4(const float v0, const float v1, const float2 v2) noexcept;
 
 //! Make a float4 value
-float4 makeFloat4(const float2 v0, const float2 v1) noexcept;
+constexpr float4 makeFloat4(const float2 v0, const float2 v1) noexcept;
 
 //! Make a float4 value
-float4 makeFloat4(const float3 v0, const float v1) noexcept;
+constexpr float4 makeFloat4(const float3 v0, const float v1) noexcept;
 
 //! Make a float4 value
-float4 makeFloat4(const float v0, const float3 v1) noexcept;
+constexpr float4 makeFloat4(const float v0, const float3 v1) noexcept;
 
 //! Make a double2 value
-double2 makeDouble2(const double v) noexcept;
+constexpr double2 makeDouble2(const double v) noexcept;
 
 //! Make a double2 value
-double2 makeDouble2(const double v0, const double v1) noexcept;
+constexpr double2 makeDouble2(const double v0, const double v1) noexcept;
 
 //! Make a double3 value
-double3 makeDouble3(const double v) noexcept;
+constexpr double3 makeDouble3(const double v) noexcept;
 
 //! Make a double3 value
-double3 makeDouble3(const double v0, const double v1, const double v2) noexcept;
+constexpr double3 makeDouble3(const double v0, const double v1, const double v2) noexcept;
 
 //! Make a double3 value
-double3 makeDouble3(const double2 v0, const double v1) noexcept;
+constexpr double3 makeDouble3(const double2 v0, const double v1) noexcept;
 
 //! Make a double3 value
-double3 makeDouble3(const double v0, const double2 v1) noexcept;
+constexpr double3 makeDouble3(const double v0, const double2 v1) noexcept;
 
 //! Make a double4 value
-double4 makeDouble4(const double v) noexcept;
+constexpr double4 makeDouble4(const double v) noexcept;
 
 //! Make a double4 value
-double4 makeDouble4(const double v0, const double v1,
-                    const double v2, const double v3) noexcept;
+constexpr double4 makeDouble4(const double v0, const double v1,
+                              const double v2, const double v3) noexcept;
 
 //! Make a double4 value
-double4 makeDouble4(const double2 v0, const double v1, const double v2) noexcept;
+constexpr double4 makeDouble4(const double2 v0, const double v1, const double v2) noexcept;
 
 //! Make a double4 value
-double4 makeDouble4(const double v0, const double2 v1, const double v2) noexcept;
+constexpr double4 makeDouble4(const double v0, const double2 v1, const double v2) noexcept;
 
 //! Make a double4 value
-double4 makeDouble4(const double v0, const double v1, const double2 v2) noexcept;
+constexpr double4 makeDouble4(const double v0, const double v1, const double2 v2) noexcept;
 
 //! Make a double4 value
-double4 makeDouble4(const double2 v0, const double2 v1) noexcept;
+constexpr double4 makeDouble4(const double2 v0, const double2 v1) noexcept;
 
 //! Make a double4 value
-double4 makeDouble4(const double3 v0, const double v1) noexcept;
+constexpr double4 makeDouble4(const double3 v0, const double v1) noexcept;
 
 //! Make a double4 value
-double4 makeDouble4(const double v0, const double3 v1) noexcept;
+constexpr double4 makeDouble4(const double v0, const double3 v1) noexcept;
 
 // Conversion functions
 
@@ -582,9 +582,9 @@ Type treatAs(T object) noexcept;
 
 //
 
-//! Check if the given two values are equal
+//! Check if the given two values are same
 template <typename Type1, typename Type2>
-bool equal(const Type1& lhs, const Type2& rhs) noexcept;
+constexpr bool equal(const Type1& lhs, const Type2& rhs) noexcept;
 
 //!
 template <typename Type>

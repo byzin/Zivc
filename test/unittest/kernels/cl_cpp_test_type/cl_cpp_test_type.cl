@@ -727,41 +727,23 @@ __kernel void vectorArithmeticOperatorTest(
 
   // Constexpr test
   {
-    constexpr float4 v = makeFloat4(0.0f, 1.0f, 2.0f, 3.0f);
+    constexpr float4 v = zivc::makeFloat4(0.0f, 1.0f, 2.0f, 3.0f);
     constexpr float4 r0 = +v;
-    static_assert(zivc::equal(0.0f, r0.x));
-    static_assert(zivc::equal(1.0f, r0.y));
-    static_assert(zivc::equal(2.0f, r0.z));
-    static_assert(zivc::equal(3.0f, r0.w));
+    out_float4[oindex++] = r0;
     constexpr float4 r1 = -v;
-    static_assert(zivc::equal(-0.0f, r1.x));
-    static_assert(zivc::equal(-1.0f, r1.y));
-    static_assert(zivc::equal(-2.0f, r1.z));
-    static_assert(zivc::equal(-3.0f, r1.w));
+    out_float4[oindex++] = r1;
   }
   {
-    constexpr float4 v0 = makeFloat4(0.0f, 1.0f, 2.0f, 3.0f);
-    constexpr float4 v1 = makeFloat4(4.0f, 5.0f, 6.0f, 7.0f);
+    constexpr float4 v0 = zivc::makeFloat4(0.0f, 1.0f, 2.0f, 3.0f);
+    constexpr float4 v1 = zivc::makeFloat4(4.0f, 5.0f, 6.0f, 7.0f);
     constexpr float4 r0 = v0 + v1;
-    static_assert(zivc::equal(4.0f, r0.x));
-    static_assert(zivc::equal(6.0f, r0.y));
-    static_assert(zivc::equal(8.0f, r0.z));
-    static_assert(zivc::equal(10.0f, r0.w));
+    out_float4[oindex++] = r0;
     constexpr float4 r1 = v0 - v1;
-    static_assert(zivc::equal(-4.0f, r1.x));
-    static_assert(zivc::equal(-4.0f, r1.y));
-    static_assert(zivc::equal(-4.0f, r1.z));
-    static_assert(zivc::equal(-4.0f, r1.w));
+    out_float4[oindex++] = r1;
     constexpr float4 r2 = v0 * v1;
-    static_assert(zivc::equal(0.0f, r2.x));
-    static_assert(zivc::equal(5.0f, r2.y));
-    static_assert(zivc::equal(12.0f, r2.z));
-    static_assert(zivc::equal(21.0f, r2.w));
+    out_float4[oindex++] = r2;
     constexpr float4 r3 = v0 / v1;
-    static_assert(zivc::equal(0.0f, r3.x));
-    static_assert(zivc::equal(1.0f / 5.0f, r3.y));
-    static_assert(zivc::equal(1.0f / 3.0f, r3.z));
-    static_assert(zivc::equal(3.0f / 7.0f, r3.w));
+    out_float4[oindex++] = r3;
   }
 }
 
@@ -910,62 +892,51 @@ __kernel void vectorArithmeticAssignmentOperatorTest(
     out_int4[oindex + 1] %= v1.x;
   }
 
+  oindex += 2;
   // Constexpr test
   {
-    constexpr auto get_add_f4 = []()
+    constexpr auto get_add_f4 = []() noexcept
     {
-      int4 v0 = makeInt4(0, 4, 8, 12);
-      int4 v1 = makeInt4(2, 3, 4, 5);
+      int4 v0 = zivc::makeInt4(0, 4, 8, 12);
+      int4 v1 = zivc::makeInt4(2, 3, 4, 5);
       v0 += v1;
       return v0;
     };
     constexpr int4 r = get_add_f4();
-    static_assert(2 == r.x);
-    static_assert(7 == r.y);
-    static_assert(12 == r.z);
-    static_assert(17 == r.w);
+    out_int4[oindex++] = r;
   }
   {
-    constexpr auto get_sub_f4 = []()
+    constexpr auto get_sub_f4 = []() noexcept
     {
-      int4 v0 = makeInt4(0, 4, 8, 12);
-      int4 v1 = makeInt4(2, 3, 4, 5);
+      int4 v0 = zivc::makeInt4(0, 4, 8, 12);
+      int4 v1 = zivc::makeInt4(2, 3, 4, 5);
       v0 -= v1;
       return v0;
     };
     constexpr int4 r = get_sub_f4();
-    static_assert(-2 == r.x);
-    static_assert(1 == r.y);
-    static_assert(4 == r.z);
-    static_assert(7 == r.w);
+    out_int4[oindex++] = r;
   }
   {
-    constexpr auto get_mul_f4 = []()
+    constexpr auto get_mul_f4 = []() noexcept
     {
-      int4 v0 = makeInt4(0, 4, 8, 12);
-      int4 v1 = makeInt4(2, 3, 4, 5);
+      int4 v0 = zivc::makeInt4(0, 4, 8, 12);
+      int4 v1 = zivc::makeInt4(2, 3, 4, 5);
       v0 *= v1;
       return v0;
     };
     constexpr int4 r = get_mul_f4();
-    static_assert(0 == r.x);
-    static_assert(12 == r.y);
-    static_assert(32 == r.z);
-    static_assert(60 == r.w);
+    out_int4[oindex++] = r;
   }
   {
-    constexpr auto get_div_f4 = []()
+    constexpr auto get_div_f4 = []() noexcept
     {
-      int4 v0 = makeInt4(0, 4, 8, 12);
-      int4 v1 = makeInt4(2, 3, 4, 5);
+      int4 v0 = zivc::makeInt4(0, 4, 8, 12);
+      int4 v1 = zivc::makeInt4(2, 3, 4, 5);
       v0 /= v1;
       return v0;
     };
     constexpr int4 r = get_div_f4();
-    static_assert(0 == r.x);
-    static_assert(1 == r.y);
-    static_assert(2 == r.z);
-    static_assert(2 == r.w);
+    out_int4[oindex++] = r;
   }
 }
 
@@ -1108,28 +1079,23 @@ __kernel void vectorBitwiseOperatorTest(
     out_uint4[oindex + 1] = v0 >> v1.x;
   }
 
+  oindex += 2;
   // Constexpr test
   {
-    constexpr uint2 v0 = makeUInt2(1, 2);
-    constexpr uint2 v1 = makeUInt2(3, 3);
+    constexpr uint2 v0 = zivc::makeUInt2(1, 2);
+    constexpr uint2 v1 = zivc::makeUInt2(3, 3);
     constexpr uint2 r0 = ~v0;
-    static_assert(~1u == r0.x);
-    static_assert(~2u == r0.y);
+    out_uint2[oindex++] = r0;
     constexpr uint2 r1 = v0 & v1;
-    static_assert(1u == r1.x);
-    static_assert(2u == r1.y);
+    out_uint2[oindex++] = r1;
     constexpr uint2 r2 = v0 | v1;
-    static_assert(3u == r2.x);
-    static_assert(3u == r2.y);
+    out_uint2[oindex++] = r2;
     constexpr uint2 r3 = v0 ^ v1;
-    static_assert(1u ^ 3u == r3.x);
-    static_assert(2u ^ 3u == r3.y);
+    out_uint2[oindex++] = r3;
     constexpr uint2 r4 = v0 << v1;
-    static_assert(8u == r4.x);
-    static_assert(16u == r4.y);
+    out_uint2[oindex++] = r4;
     constexpr uint2 r5 = v1 >> v0;
-    static_assert(1u == r5.x);
-    static_assert(0u == r5.y);
+    out_uint2[oindex++] = r5;
   }
 }
 
@@ -1278,6 +1244,64 @@ __kernel void vectorBitwiseAssignmentOperatorTest(
     out_uint4[oindex + 1] = v0;
     out_uint4[oindex + 1] >>= v1.x;
   }
+
+  oindex += 2;
+  // Constexpr test
+  {
+    constexpr auto get_and_u2 = []() noexcept
+    {
+      uint2 v0 = zivc::makeUInt2(1, 2);
+      uint2 v1 = zivc::makeUInt2(3, 3);
+      v0 &= v1;
+      return v0;
+    };
+    constexpr uint2 r = get_and_u2();
+    out_uint2[oindex++] = r;
+  }
+  {
+    constexpr auto get_or_u2 = []() noexcept
+    {
+      uint2 v0 = zivc::makeUInt2(1, 2);
+      uint2 v1 = zivc::makeUInt2(3, 3);
+      v0 |= v1;
+      return v0;
+    };
+    constexpr uint2 r = get_or_u2();
+    out_uint2[oindex++] = r;
+  }
+  {
+    constexpr auto get_xor_u2 = []() noexcept
+    {
+      uint2 v0 = zivc::makeUInt2(1, 2);
+      uint2 v1 = zivc::makeUInt2(3, 3);
+      v0 ^= v1;
+      return v0;
+    };
+    constexpr uint2 r = get_xor_u2();
+    out_uint2[oindex++] = r;
+  }
+  {
+    constexpr auto get_left_shift_u2 = []() noexcept
+    {
+      uint2 v0 = zivc::makeUInt2(1, 2);
+      uint2 v1 = zivc::makeUInt2(3, 3);
+      v0 <<= v1;
+      return v0;
+    };
+    constexpr uint2 r = get_left_shift_u2();
+    out_uint2[oindex++] = r;
+  }
+  {
+    constexpr auto get_right_shift_u2 = []() noexcept
+    {
+      uint2 v0 = zivc::makeUInt2(1, 2);
+      uint2 v1 = zivc::makeUInt2(3, 3);
+      v1 >>= v0;
+      return v1;
+    };
+    constexpr uint2 r = get_right_shift_u2();
+    out_uint2[oindex++] = r;
+  }
 }
 
 __kernel void vectorIncrementDecrementTest(zivc::GlobalPtr<int4> inout_int4)
@@ -1367,6 +1391,30 @@ __kernel void vectorComparisonOperatorTest(zivc::ConstGlobalPtr<int4> in_int4,
     test::setBoolResult(v0 >= v1.x, out + oindex);
     oindex += 4;
   }
+
+  // Constexpr test
+  {
+    constexpr int4 v0 = zivc::makeInt4(0, 1, 2, 3);
+    constexpr int4 v1 = zivc::makeInt4(0, 1, 5, 1);
+    constexpr auto r0 = v0 == v1;
+    test::setBoolResult(r0, out + oindex);
+    oindex += 4;
+    constexpr auto r1 = v0 != v1;
+    test::setBoolResult(r1, out + oindex);
+    oindex += 4;
+    constexpr auto r2 = v0 < v1;
+    test::setBoolResult(r2, out + oindex);
+    oindex += 4;
+    constexpr auto r3 = v0 > v1;
+    test::setBoolResult(r3, out + oindex);
+    oindex += 4;
+    constexpr auto r4 = v0 <= v1;
+    test::setBoolResult(r4, out + oindex);
+    oindex += 4;
+    constexpr auto r5 = v0 >= v1;
+    test::setBoolResult(r5, out + oindex);
+    oindex += 4;
+  }
 }
 
 __kernel void vectorLogicalOperatorTest(zivc::ConstGlobalPtr<int4> in_int4,
@@ -1399,6 +1447,25 @@ __kernel void vectorLogicalOperatorTest(zivc::ConstGlobalPtr<int4> in_int4,
     test::setBoolResult(result1.x || result2, out + oindex);
     oindex += 4;
     test::setBoolResult(result1 || result2.x, out + oindex);
+    oindex += 4;
+  }
+
+  // Constexpr test
+  {
+    constexpr int4 v0 = zivc::makeInt4(0, 1, 2, 3);
+    constexpr int4 v1 = zivc::makeInt4(0, 1, 5, 1);
+    constexpr int4 v2 = zivc::makeInt4(2, 2, 2, 2);
+    constexpr auto result1 = v0 == v1;
+    constexpr auto result2 = v1 == v2;
+
+    constexpr auto r0 = !result1;
+    test::setBoolResult(r0, out + oindex);
+    oindex += 4;
+    constexpr auto r1 = result1 && result2;
+    test::setBoolResult(r1, out + oindex);
+    oindex += 4;
+    constexpr auto r2 = result1 || result2;
+    test::setBoolResult(r2, out + oindex);
     oindex += 4;
   }
 }

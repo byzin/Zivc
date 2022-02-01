@@ -11,6 +11,7 @@
 #define ZIVC_CPUCL_VECTOR_HPP
 
 // Standard C++ library
+#include <array>
 #include <cstddef>
 #include <type_traits>
 // Zisc
@@ -32,6 +33,13 @@ namespace zivc::cl {
   \tparam kN No description.
   */
 template <Arithmetic Type, size_t kN> struct Vector;
+
+#if defined(Z_CLANG) || defined(Z_GCC)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wgnu-anonymous-struct"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wnested-anon-types"
+#endif // Z_CLANG || Z_GCC¬
 
 /*!
   \brief No brief description
@@ -118,8 +126,15 @@ struct alignas(2 * sizeof(T)) Vector<T, 2>
   static constexpr size_type size() noexcept;
 
 
-  Type x;
-  Type y;
+  union
+  {
+    struct
+    {
+      Type x;
+      Type y;
+    };
+    std::array<Type, 2> data_;
+  };
 };
 
 /*!
@@ -214,10 +229,17 @@ struct alignas(4 * sizeof(T)) Vector<T, 3>
   static constexpr size_type size() noexcept;
 
 
-  Type x;
-  Type y;
-  Type z;
-  [[maybe_unused]] Type pad_;
+  union
+  {
+    struct
+    {
+      Type x;
+      Type y;
+      Type z;
+      [[maybe_unused]] Type pad_;
+    };
+    std::array<Type, 4> data_;
+  };
 };
 
 /*!
@@ -326,11 +348,23 @@ struct alignas(4 * sizeof(T)) Vector<T, 4>
   static constexpr size_type size() noexcept;
 
 
-  Type x;
-  Type y;
-  Type z;
-  Type w;
+  union
+  {
+    struct
+    {
+      Type x;
+      Type y;
+      Type z;
+      Type w;
+    };
+    std::array<Type, 4> data_;
+  };
 };
+
+#if defined(Z_CLANG) || defined(Z_GCC)
+#pragma GCC diagnostic pop
+#pragma GCC diagnostic pop
+#endif // Z_CLANG || Z_GCC¬
 
 // Assignment
 
@@ -438,19 +472,19 @@ constexpr Vector<Type1, kN>& operator>>=(Vector<Type1, kN>& lhs,
 
 //! Pre-increment a vector
 template <Arithmetic Type, size_t kN>
-constexpr Vector<Type, kN>& operator++(Vector<Type, kN>& value) noexcept;
+Vector<Type, kN>& operator++(Vector<Type, kN>& value) noexcept;
 
 //! Pre-decrement a vector
 template <Arithmetic Type, size_t kN>
-constexpr Vector<Type, kN>& operator--(Vector<Type, kN>& value) noexcept;
+Vector<Type, kN>& operator--(Vector<Type, kN>& value) noexcept;
 
 //! Post-increment a vector
 template <Arithmetic Type, size_t kN>
-constexpr Vector<Type, kN> operator++(Vector<Type, kN>& value, int) noexcept;
+Vector<Type, kN> operator++(Vector<Type, kN>& value, int) noexcept;
 
 //! Post-decrement a vector
 template <Arithmetic Type, size_t kN>
-constexpr Vector<Type, kN> operator--(Vector<Type, kN>& value, int) noexcept;
+Vector<Type, kN> operator--(Vector<Type, kN>& value, int) noexcept;
 
 // Arithmetic
 

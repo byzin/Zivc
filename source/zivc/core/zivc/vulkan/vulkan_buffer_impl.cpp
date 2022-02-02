@@ -563,7 +563,7 @@ std::shared_ptr<KernelCommon> VulkanBufferImpl::makeFillU8Kernel(
     const VkCommandBuffer& command_buffer)
 {
   auto kernel = ::makeFillU8KernelImpl(std::addressof(device()), command_buffer);
-  return std::move(kernel);
+  return kernel;
 }
 
 /*!
@@ -576,7 +576,7 @@ std::shared_ptr<KernelCommon> VulkanBufferImpl::makeFillU16Kernel(
     const VkCommandBuffer& command_buffer)
 {
   auto kernel = ::makeFillU16KernelImpl(std::addressof(device()), command_buffer);
-  return std::move(kernel);
+  return kernel;
 }
 
 /*!
@@ -589,7 +589,7 @@ std::shared_ptr<KernelCommon> VulkanBufferImpl::makeFillU32Kernel(
     const VkCommandBuffer& command_buffer)
 {
   auto kernel = ::makeFillU32KernelImpl(std::addressof(device()), command_buffer);
-  return std::move(kernel);
+  return kernel;
 }
 
 /*!
@@ -602,7 +602,7 @@ std::shared_ptr<KernelCommon> VulkanBufferImpl::makeFillU64Kernel(
     const VkCommandBuffer& command_buffer)
 {
   auto kernel = ::makeFillU64KernelImpl(std::addressof(device()), command_buffer);
-  return std::move(kernel);
+  return kernel;
 }
 
 /*!
@@ -615,7 +615,7 @@ std::shared_ptr<KernelCommon> VulkanBufferImpl::makeFillU128Kernel(
     const VkCommandBuffer& command_buffer)
 {
   auto kernel = ::makeFillU128KernelImpl(std::addressof(device()), command_buffer);
-  return std::move(kernel);
+  return kernel;
 }
 
 /*!
@@ -645,6 +645,8 @@ constexpr VmaMemoryUsage VulkanBufferImpl::toVmaUsage(const BufferUsage usage) n
     mem_usage = VMA_MEMORY_USAGE_GPU_TO_CPU;
     break;
    }
+   default:
+    break;
   }
   return mem_usage;
 }

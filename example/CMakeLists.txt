@@ -27,6 +27,7 @@ function(getExampleWarningFlags example_warning_flags)
       endif()
     elseif(Z_GCC)
       list(APPEND warning_flags -Wno-attributes
+                                -Wno-noexcept
                                 -Wno-sign-conversion
                                 )
     elseif(Z_VISUAL_STUDIO)
@@ -80,6 +81,11 @@ function(addImgui imgui_path)
   target_link_libraries(imgui PRIVATE ${vulkan_target} PUBLIC glfw)
   target_compile_definitions(imgui PUBLIC IMGUI_IMPL_VULKAN_NO_PROTOTYPES)
   target_include_directories(imgui SYSTEM PUBLIC ${imgui_path})
+
+  # Warnings
+  if(Z_GCC)
+    target_compile_options(imgui PRIVATE -Wno-deprecated-enum-enum-conversion)
+  endif()
 endfunction(addImgui)
 
 

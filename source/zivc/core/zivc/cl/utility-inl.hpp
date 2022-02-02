@@ -735,10 +735,10 @@ struct TypeConverter
   }
 };
 
-#if defined(Z_GCC) || defined(Z_CLANG)
+#if defined(Z_CLANG)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wimplicit-int-float-conversion"
-#endif // Z_GCC || Z_CLANG
+#endif /* Z_CLANG */
 
 /*!
   \def ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL
@@ -807,9 +807,9 @@ ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(double2);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(double3);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(double4);
 
-#if defined(Z_GCC) || defined(Z_CLANG)
+#if defined(Z_CLANG)
 #pragma GCC diagnostic pop
-#endif // Z_GCC || Z_CLANG
+#endif /* Z_CLANG */
 
 #if defined(ZIVC_CL_CPU)
 

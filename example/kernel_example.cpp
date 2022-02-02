@@ -38,6 +38,8 @@ std::string getSubPlatformTypeString(const zivc::SubPlatformType type)
    case zivc::SubPlatformType::kVulkan:
     type_string = "Vulkan";
     break;
+   default:
+    break;
   }
   return type_string;
 }

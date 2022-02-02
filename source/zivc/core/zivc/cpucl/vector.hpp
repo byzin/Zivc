@@ -34,12 +34,17 @@ namespace zivc::cl {
   */
 template <Arithmetic Type, size_t kN> struct Vector;
 
-#if defined(Z_CLANG) || defined(Z_GCC)
+#if defined(Z_CLANG)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wgnu-anonymous-struct"
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wnested-anon-types"
-#endif // Z_CLANG || Z_GCC¬
+#endif /* Z_CLANG */
+
+#if defined(Z_GCC)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
+#endif /* Z_GCC */
 
 /*!
   \brief No brief description
@@ -361,10 +366,14 @@ struct alignas(4 * sizeof(T)) Vector<T, 4>
   };
 };
 
-#if defined(Z_CLANG) || defined(Z_GCC)
+#if defined(Z_CLANG)
 #pragma GCC diagnostic pop
 #pragma GCC diagnostic pop
-#endif // Z_CLANG || Z_GCC¬
+#endif /* Z_CLANG */
+
+#if defined(Z_GCC)
+#pragma GCC diagnostic pop
+#endif /* Z_GCC */
 
 // Assignment
 

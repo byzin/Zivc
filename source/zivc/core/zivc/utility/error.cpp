@@ -54,6 +54,8 @@ std::string getErrorCodeString(const ErrorCode code) noexcept
     ERROR_CODE_STRING_CASE(VulkanInitializationFailed, code_str)
     ERROR_CODE_STRING_CASE(VulkanLibraryNotFound, code_str)
     ERROR_CODE_STRING_CASE(VulkanWindowSurfaceNotFound, code_str)
+   default:
+    break;
   }
   return code_str;
 }

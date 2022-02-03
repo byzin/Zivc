@@ -2058,7 +2058,7 @@ TEST(ClCppTest, ScalarBoolCastTest)
   {
     constexpr cl_int vmax = (std::numeric_limits<cl_int>::max)();
     constexpr cl_int vmin = (std::numeric_limits<cl_int>::min)();
-    std::initializer_list<cl_int> v = {0, 100, -100, vmax, vmin};
+    std::initializer_list<cl_int> v = {0, 1, -1, 100, -100, vmax, vmin};
     ztest::setDeviceBuffer(*device, v, buffer_in0.get());
   }
   auto buffer_in1 = device->makeBuffer<cl_float>(zivc::BufferUsage::kDeviceOnly);
@@ -2109,6 +2109,8 @@ TEST(ClCppTest, ScalarBoolCastTest)
     const auto mem = buffer->mapMemory();
     std::size_t index = 0;
     EXPECT_FALSE(mem[index++]) << "bool cast failed";
+    EXPECT_TRUE(mem[index++]) << "bool cast failed";
+    EXPECT_TRUE(mem[index++]) << "bool cast failed";
     EXPECT_TRUE(mem[index++]) << "bool cast failed";
     EXPECT_TRUE(mem[index++]) << "bool cast failed";
     EXPECT_TRUE(mem[index++]) << "bool cast failed";

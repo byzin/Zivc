@@ -81,13 +81,13 @@ ZIVC_CHECK_TYPE_SIZE(zivc::uint32b, 4);
 ZIVC_CHECK_TYPE_SIZE(uint2, 8);
 ZIVC_CHECK_TYPE_SIZE(uint3, 16);
 ZIVC_CHECK_TYPE_SIZE(uint4, 16);
-ZIVC_CHECK_TYPE_SIZE(signed long, 8);
-ZIVC_CHECK_TYPE_SIZE(long, 8);
+//ZIVC_CHECK_TYPE_SIZE(signed long, 8); //!< \note long is 4 bytes in msvc
+//ZIVC_CHECK_TYPE_SIZE(long, 8); //!< \note long is 4 bytes in msvc
 ZIVC_CHECK_TYPE_SIZE(zivc::int64b, 8);
 ZIVC_CHECK_TYPE_SIZE(long2, 16);
 ZIVC_CHECK_TYPE_SIZE(long3, 32);
 ZIVC_CHECK_TYPE_SIZE(long4, 32);
-ZIVC_CHECK_TYPE_SIZE(unsigned long, 8);
+//ZIVC_CHECK_TYPE_SIZE(unsigned long, 8); //!< \note long is 4 bytes in msvc
 ZIVC_CHECK_TYPE_SIZE(ulong, 8);
 ZIVC_CHECK_TYPE_SIZE(zivc::uint64b, 8);
 ZIVC_CHECK_TYPE_SIZE(ulong2, 16);

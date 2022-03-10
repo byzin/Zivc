@@ -7,12 +7,12 @@
 #
 
 
-set(__zisc_platform_cmake_path
-    ${CMAKE_CURRENT_LIST_DIR}/../../dependencies/Zisc/source/zisc/cmake/platform.cmake)
+cmake_path(SET __zisc_platform_cmake_path NORMALIZE
+  "${CMAKE_CURRENT_LIST_DIR}/../../dependencies/Zisc/source/zisc/cmake/platform.cmake")
 
 
 function(Zivc_getPlatformFlags platform_definitions)
-  include(${__zisc_platform_cmake_path})
+  include("${__zisc_platform_cmake_path}")
   Zisc_getPlatformFlags(platform_defs)
 
   # Output

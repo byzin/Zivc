@@ -9,7 +9,7 @@
 cmake_minimum_required(VERSION 3.22)
 
 
-set(__zivc_dir__ ${CMAKE_SOURCE_DIR}/source/zivc)
+cmake_path(SET __zivc_dir__ "${CMAKE_SOURCE_DIR}/source/zivc")
 
 
 function(getExampleWarningFlags example_warning_flags)
@@ -18,23 +18,18 @@ function(getExampleWarningFlags example_warning_flags)
   # Suppress warnings
   if(ZIVC_SUPPRESS_EXCESSIVE_WARNING)
     if(Z_CLANG)
-      list(APPEND warning_flags -Wno-covered-switch-default
-                                # -Wno-padded
-                                -Wno-sign-conversion
-                                )
+      list(APPEND warning_flags
+                               )
       if(Z_VISUAL_STUDIO)
-        list(APPEND warning_flags -Wno-nonportable-system-include-path)
+        list(APPEND warning_flags
+                                 )
       endif()
     elseif(Z_GCC)
-      list(APPEND warning_flags -Wno-attributes
-                                -Wno-noexcept
-                                -Wno-sign-conversion
-                                )
+      list(APPEND warning_flags
+                               )
     elseif(Z_VISUAL_STUDIO)
-      list(APPEND warning_flags /wd4244 # conversion from '' to 'unsigned short', possible loss of data
-                                /wd4267 # conversion from 'size_t' to '', possible loss of data
-                                /wd4389 # '==': signed/unsigned mismatch
-                                )
+      list(APPEND warning_flags
+                               )
     endif()
   endif()
 
@@ -43,28 +38,28 @@ endfunction(getExampleWarningFlags)
 
 
 function(addGlfw glfw_path)
-  set(GLFW_INSTALL OFF)
-  set(GLFW_BUILD_DOCS OFF)
-  set(GLFW_BUILD_EXAMPLES OFF)
-  set(GLFW_BUILD_TESTS OFF)
-  add_subdirectory(${glfw_path} ${PROJECT_BINARY_DIR}/GLFW EXCLUDE_FROM_ALL)
+  set(GLFW_INSTALL OFF CACHE INTERNAL "" FORCE)
+  set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "" FORCE)
+  set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "" FORCE)
+  set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "" FORCE)
+  add_subdirectory("${glfw_path}" "${PROJECT_BINARY_DIR}/GLFW" EXCLUDE_FROM_ALL)
   Zivc_checkTarget(glfw)
-  include(${__zivc_dir__}/cmake/compiler.cmake)
+  include("${__zivc_dir__}/cmake/compiler.cmake")
   Zivc_setRequiredCxxFlagsToTarget(glfw)
+  target_include_directories(glfw SYSTEM INTERFACE "${glfw_path}/include")
   # Suppress warnings
   set(glfw_warning_flags "")
   if(Z_CLANG)
-    list(APPEND glfw_warning_flags -Wno-unused-command-line-argument
-                                   -Wno-unguarded-availability-new)
+    list(APPEND glfw_warning_flags
+                                  )
   endif()
   target_compile_options(glfw PRIVATE ${glfw_warning_flags})
-  target_include_directories(glfw SYSTEM INTERFACE ${glfw_path}/include)
 endfunction(addGlfw)
 
 
 function(addImgui imgui_path)
   file(GLOB imgui_source_files ${imgui_path}/*[.h|.cpp])
-  set(backend_dir ${imgui_path}/backends)
+  cmake_path(SET backend_dir "${imgui_path}/backends")
   list(APPEND imgui_source_files ${backend_dir}/imgui_impl_glfw.cpp
                                  ${backend_dir}/imgui_impl_glfw.h
                                  ${backend_dir}/imgui_impl_vulkan.cpp
@@ -73,19 +68,21 @@ function(addImgui imgui_path)
   source_group(${PROJECT_NAME}/imgui FILES ${imgui_source_files})
 
   # Compiler flags
-  include(${__zivc_dir__}/cmake/compiler.cmake)
+  include("${__zivc_dir__}/cmake/compiler.cmake")
   Zivc_checkTarget(glfw)
   Zivc_findVulkan(vulkan_target)
   Zivc_checkTarget(${vulkan_target})
   Zivc_setRequiredCxxFlagsToTarget(imgui)
   target_link_libraries(imgui PRIVATE ${vulkan_target} PUBLIC glfw)
   target_compile_definitions(imgui PUBLIC IMGUI_IMPL_VULKAN_NO_PROTOTYPES)
-  target_include_directories(imgui SYSTEM PUBLIC ${imgui_path})
-
-  # Warnings
+  target_include_directories(imgui SYSTEM PUBLIC "${imgui_path}")
+  # Suppress warnings
+  set(imgui_warning_flags "")
   if(Z_GCC)
-    target_compile_options(imgui PRIVATE -Wno-deprecated-enum-enum-conversion)
+    list(APPEND imgui_warning_flags
+                                   )
   endif()
+  target_compile_options(imgui PRIVATE ${imgui_warning_flags})
 endfunction(addImgui)
 
 
@@ -95,7 +92,7 @@ function(addGui gui_path)
   source_group(${PROJECT_NAME}/gui FILES ${gui_source_files})
 
   # Compiler flags
-  include(${__zivc_dir__}/cmake/compiler.cmake)
+  include("${__zivc_dir__}/cmake/compiler.cmake")
   Zivc_setRequiredCxxFlagsToTarget(gui)
   target_link_libraries(gui PRIVATE Zivc PUBLIC glfw imgui)
   target_include_directories(gui INTERFACE ${gui_path})
@@ -131,7 +128,7 @@ function(addExample target save_dependency_list)
   set_target_properties(${target} PROPERTIES CXX_STANDARD 20
                                              CXX_STANDARD_REQUIRED ON)
 
-  include(${__zivc_dir__}/cmake/compiler.cmake)
+  include("${__zivc_dir__}/cmake/compiler.cmake")
   Zivc_getCxxWarningFlags(cxx_compile_warning_flags)
   getExampleWarningFlags(example_warning_flags)
   target_compile_options(${target} PRIVATE ${cxx_compile_warning_flags}
@@ -158,12 +155,20 @@ function(addExample target save_dependency_list)
   Zivc_createLinkToTarget(${target} ${PROJECT_BINARY_DIR})
 
   # Installation settings
+  include("${__zivc_dir__}/cmake/packaging.cmake")
   # Save the dependency list
   if(save_dependency_list)
-    Zivc_getSaveDependencyCode(${target} ${PROJECT_BINARY_DIR} "" "" "" dependency_code)
-    install(CODE ${dependency_code} COMPONENT test)
+    Zivc_getSaveDependencyCode(${target} "${PROJECT_BINARY_DIR}" "" "" "" dependency_code)
+    install(CODE ${dependency_code}
+            COMPONENT example)
   endif()
-  install(TARGETS ${target} DESTINATION bin COMPONENT example)
+  # Install actual binary
+  install(TARGETS ${target}
+          DESTINATION "${CMAKE_INSTALL_BINDIR}"
+          COMPONENT example)
+  Zivc_getDeployingNonSystemDependencyCode(${target} "${CMAKE_INSTALL_LIBDIR}" "" "" "" deploy_code)
+  install(CODE ${deploy_code}
+          COMPONENT example)
 endfunction(addExample)
 
 
@@ -173,44 +178,44 @@ macro(setExampleProject)
   project(Examples VERSION 0.0.1 DESCRIPTION "${project_description}" LANGUAGES  CXX)
 
   # Initialize platform info
-  include(${__zivc_dir__}/cmake/general.cmake)
-  include(${__zivc_dir__}/cmake/platform.cmake)
+  include("${__zivc_dir__}/cmake/general.cmake")
+  include("${__zivc_dir__}/cmake/platform.cmake")
   Zivc_getPlatformFlags(platform_definitions)
   Zivc_setVariablesOnCMake(${platform_definitions})
 
   # Check dependencies
   Zivc_checkTarget(Zivc)
 
-  include(${CMAKE_SOURCE_DIR}/source/zivc/cmake/kernel.cmake)
+  include("${CMAKE_SOURCE_DIR}/source/zivc/cmake/kernel.cmake")
   # Build examples
   ## 1. platform example
   addExample(PlatformExample ON
-             SOURCE_FILES ${PROJECT_SOURCE_DIR}/platform_example.cpp)
+             SOURCE_FILES "${PROJECT_SOURCE_DIR}/platform_example.cpp")
   ## 2. device example
   addExample(DeviceExample OFF
-             SOURCE_FILES ${PROJECT_SOURCE_DIR}/device_example.cpp)
+             SOURCE_FILES "${PROJECT_SOURCE_DIR}/device_example.cpp")
   ## 3. kernel example
   addExample(KernelExample OFF
-             SOURCE_FILES ${PROJECT_SOURCE_DIR}/kernel_example.cpp)
+             SOURCE_FILES "${PROJECT_SOURCE_DIR}/kernel_example.cpp")
   Zivc_addKernelSet(example ${PROJECT_VERSION}
-      SOURCE_FILES kernels/example.cl
+      SOURCE_FILES "kernels/example.cl"
       INCLUDE_DIRS kernels)
   target_link_libraries(KernelExample PRIVATE KernelSet_example)
 
   # Demos using vulkan
   if(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
     # Build dependencies
-    addGlfw(${PROJECT_SOURCE_DIR}/dependencies/glfw)
-    addImgui(${PROJECT_SOURCE_DIR}/dependencies/imgui)
-    addGui(${PROJECT_SOURCE_DIR}/gui)
+    addGlfw("${PROJECT_SOURCE_DIR}/dependencies/glfw")
+    addImgui("${PROJECT_SOURCE_DIR}/dependencies/imgui")
+    addGui("${PROJECT_SOURCE_DIR}/gui")
     target_link_libraries(gui PRIVATE KernelSet_example)
     ## 4. vulkan sub-platform example
     addExample(VulkanSubPlatformExample OFF
-               SOURCE_FILES ${PROJECT_SOURCE_DIR}/vulkan_sub_platform_example.cpp)
+               SOURCE_FILES "${PROJECT_SOURCE_DIR}/vulkan_sub_platform_example.cpp")
     ## 5. GUI example
     addExample(GuiExample ON
-               SOURCE_FILES ${PROJECT_SOURCE_DIR}/gui_example.cpp
-                            ${PROJECT_SOURCE_DIR}/cli.cpp
+               SOURCE_FILES "${PROJECT_SOURCE_DIR}/gui_example.cpp"
+                            "${PROJECT_SOURCE_DIR}/cli.cpp"
                DEPENDS CLI11::CLI11 gui)
   endif()
 

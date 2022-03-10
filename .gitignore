@@ -15,8 +15,8 @@
 # Documents
 !/README.md
 !/LICENSE.md
-!/Acknowledgement.md
 !/document/
+!/document/acknowledgement.md
 !/document/CMakeLists.txt
 
 # Project cmake file

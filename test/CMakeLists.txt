@@ -9,7 +9,7 @@
 cmake_minimum_required(VERSION 3.22)
 
 
-set(__zivc_dir__ ${CMAKE_SOURCE_DIR}/source/zivc)
+cmake_path(SET __zivc_dir__ "${CMAKE_SOURCE_DIR}/source/zivc")
 
 
 function(getTestCompileFlags test_compile_flags test_linker_flags test_definitions)
@@ -25,11 +25,11 @@ endfunction(getTestCompileFlags)
 
 
 function(addGoogleTest googletest_path)
-  set(source_dir ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/../source)
-  include(${source_dir}/zivc/cmake/general.cmake)
-  include(${source_dir}/zivc/cmake/compiler.cmake)
+  cmake_path(SET source_dir NORMALIZE "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/../source")
+  include("${source_dir}/zivc/cmake/general.cmake")
+  include("${source_dir}/zivc/cmake/compiler.cmake")
 
-  Zivc_addGoogleTest(${googletest_path} ${PROJECT_BINARY_DIR}/GoogleTest)
+  Zivc_addGoogleTest("${googletest_path}" "${PROJECT_BINARY_DIR}/GoogleTest")
   Zivc_populateTargetOptions(Zisc gtest)
   Zivc_populateTargetOptions(Zisc gtest_main)
 endfunction(addGoogleTest)
@@ -41,30 +41,18 @@ function(getTestWarningFlags test_warning_flags)
   # Suppress warnings
   if(ZIVC_SUPPRESS_EXCESSIVE_WARNING)
     if(Z_CLANG)
-      list(APPEND warning_flags -Wno-covered-switch-default
-                                -Wno-global-constructors
-                                -Wno-sign-conversion
-                                -Wno-suggest-override
-                                -Wno-used-but-marked-unused
-                                )
+      list(APPEND warning_flags
+                               )
       if(Z_VISUAL_STUDIO)
-        list(APPEND warning_flags -Wno-implicit-float-conversion
-                                  -Wno-nonportable-system-include-path
-                                  -Wno-unused-result
-                                  )
+        list(APPEND warning_flags
+                                 )
       endif()
     elseif(Z_GCC)
-      list(APPEND warning_flags -Wno-attributes
-                                -Wno-noexcept
-                                -Wno-sign-conversion
-                                -Wno-strict-overflow
-                                -Wno-unused-but-set-variable
-                                )
+      list(APPEND warning_flags
+                               )
     elseif(Z_VISUAL_STUDIO)
-      list(APPEND warning_flags /wd4244 # conversion from '' to 'unsigned short', possible loss of data
-                                /wd4267 # conversion from 'size_t' to '', possible loss of data
-                                /wd4389 # '==': signed/unsigned mismatch
-                                )
+      list(APPEND warning_flags
+                               )
     endif()
   endif()
 
@@ -80,15 +68,15 @@ macro(setTestProject)
 
 
   # Initialize platform info
-  include(${__zivc_dir__}/cmake/general.cmake)
-  include(${__zivc_dir__}/cmake/platform.cmake)
+  include("${__zivc_dir__}/cmake/general.cmake")
+  include("${__zivc_dir__}/cmake/platform.cmake")
   Zivc_getPlatformFlags(platform_definitions)
   Zivc_setVariablesOnCMake(${platform_definitions})
 
   # Check dependencies
   Zivc_checkTarget(Zivc)
   Zivc_checkTarget(CLI11::CLI11)
-  addGoogleTest(${PROJECT_SOURCE_DIR}/dependencies/googletest)
+  addGoogleTest("${PROJECT_SOURCE_DIR}/dependencies/googletest")
   Zivc_checkTarget(gtest_main)
 
   # Create a unit test
@@ -99,7 +87,7 @@ macro(setTestProject)
   set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20 
                                                    CXX_STANDARD_REQUIRED ON)
 
-  include(${__zivc_dir__}/cmake/compiler.cmake)
+  include("${__zivc_dir__}/cmake/compiler.cmake")
   Zivc_getCxxWarningFlags(cxx_compile_warning_flags)
   getTestCompileFlags(test_compile_flags test_linker_flags test_definitions)
   getTestWarningFlags(test_warning_flags)
@@ -110,7 +98,7 @@ macro(setTestProject)
                                                 gtest_main
                                                 Zivc
                                                 ${test_linker_flags})
-  target_include_directories(${PROJECT_NAME} PRIVATE ${PROJECT_SOURCE_DIR}/unittest)
+  target_include_directories(${PROJECT_NAME} PRIVATE "${PROJECT_SOURCE_DIR}/unittest")
   target_compile_definitions(${PROJECT_NAME} PRIVATE ${test_definitions})
   Zivc_enableIpo(${PROJECT_NAME})
 
@@ -135,55 +123,75 @@ macro(setTestProject)
                          CLANG_TIDY_EXCLUSION_CHECKS ${clang_tidy_exclusion_checks})
   Zivc_createLinkToTarget(${PROJECT_NAME} ${PROJECT_BINARY_DIR})
 
-  # Save the dependency list
-  Zivc_getSaveDependencyCode(${PROJECT_NAME} ${PROJECT_BINARY_DIR} "" "" "" dependency_code)
-  install(CODE ${dependency_code} COMPONENT test)
-  # Install actual binary
-  install(TARGETS ${PROJECT_NAME} DESTINATION bin COMPONENT test)
+  # Installation settings
+  include(${__zivc_dir__}/cmake/packaging.cmake)
+  ## Save the dependency list
+  Zivc_getSaveDependencyCode(${PROJECT_NAME} "${PROJECT_BINARY_DIR}" "" "" "" dependency_code)
+  install(CODE ${dependency_code}
+          COMPONENT test)
+  ## Install actual binary
+  install(TARGETS ${PROJECT_NAME}
+          DESTINATION "${CMAKE_INSTALL_BINDIR}"
+          COMPONENT test)
+  ## Dependencies
+  Zivc_getDeployingNonSystemDependencyCode(${PROJECT_NAME} "${CMAKE_INSTALL_LIBDIR}" "" "" "" deploy_code)
+  install(CODE ${deploy_code}
+          COMPONENT test)
+  Zivc_getDeployingVulkanDependencyCode("${CMAKE_INSTALL_LIBDIR}" share vulkan_dep_code vulkan_envs)
+  install(CODE ${vulkan_dep_code}
+          COMPONENT test)
+  ## Set vulkan installed directory
+  cmake_path(SET vulkan_sdk_dir "\\\${Z_SCRIPT_DIR}/..")
+  cmake_path(NATIVE_PATH vulkan_sdk_dir vulkan_sdk_dir)
+  list(INSERT vulkan_envs 0 "VULKAN_SDK=${vulkan_sdk_dir}")
+  ## Runner script
+  Zivc_getMakeSimpleRunScriptCode(${PROJECT_NAME} "../${CMAKE_INSTALL_BINDIR}" "../${CMAKE_INSTALL_LIBDIR}" "${vulkan_envs}" "runUnitTest" "${PROJECT_NAME}" run_script_code)
+  install(CODE ${run_script_code}
+          COMPONENT test)
 
   # Add kernel sets
-  include(${__zivc_dir__}/cmake/kernel.cmake)
+  include("${__zivc_dir__}/cmake/kernel.cmake")
   ## KernelTest1
-  set(kernel_set_kernel_test1_dir ${PROJECT_SOURCE_DIR}/unittest/kernels/kernel_test1)
+  cmake_path(SET kernel_set_kernel_test1_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/kernel_test1")
   file(GLOB_RECURSE kernel_test1_sources ${kernel_set_kernel_test1_dir}/*.cl)
   Zivc_addKernelSet(kernel_test1 ${PROJECT_VERSION}
       SOURCE_FILES ${kernel_test1_sources}
-      INCLUDE_DIRS ${kernel_set_kernel_test_dir})
+      INCLUDE_DIRS "${kernel_set_kernel_test_dir}")
   target_link_libraries(${PROJECT_NAME} PRIVATE KernelSet_kernel_test1)
   ## kernelTest2
-  set(kernel_set_kernel_test2_dir ${PROJECT_SOURCE_DIR}/unittest/kernels/kernel_test2)
+  cmake_path(SET kernel_set_kernel_test2_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/kernel_test2")
   file(GLOB_RECURSE kernel_test2_sources ${kernel_set_kernel_test2_dir}/*.cl)
   Zivc_addKernelSet(kernel_test2 ${PROJECT_VERSION}
       SOURCE_FILES ${kernel_test2_sources}
-      INCLUDE_DIRS ${kernel_set_kernel_test2_dir})
+      INCLUDE_DIRS "${kernel_set_kernel_test2_dir}")
   target_link_libraries(${PROJECT_NAME} PRIVATE KernelSet_kernel_test2)
   ## kernelTestParams
-  set(kernel_set_kernel_test_params_dir ${PROJECT_SOURCE_DIR}/unittest/kernels/kernel_test_params)
+  cmake_path(SET kernel_set_kernel_test_params_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/kernel_test_params")
   file(GLOB_RECURSE kernel_test_params_sources ${kernel_set_kernel_test_params_dir}/*.cl)
   Zivc_addKernelSet(kernel_test_params ${PROJECT_VERSION}
       SOURCE_FILES ${kernel_test_params_sources}
-      INCLUDE_DIRS ${kernel_set_kernel_test_params_dir})
+      INCLUDE_DIRS "${kernel_set_kernel_test_params_dir}")
   target_link_libraries(${PROJECT_NAME} PRIVATE KernelSet_kernel_test_params)
   ## kernelTestPod
-  set(kernel_set_kernel_test_pod_dir ${PROJECT_SOURCE_DIR}/unittest/kernels/kernel_test_pod)
+  cmake_path(SET kernel_set_kernel_test_pod_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/kernel_test_pod")
   file(GLOB_RECURSE kernel_test_pod_sources ${kernel_set_kernel_test_pod_dir}/*.cl)
   Zivc_addKernelSet(kernel_test_pod ${PROJECT_VERSION}
       SOURCE_FILES ${kernel_test_pod_sources}
-      INCLUDE_DIRS ${kernel_set_kernel_test_pod_dir})
+      INCLUDE_DIRS "${kernel_set_kernel_test_pod_dir}")
   target_link_libraries(${PROJECT_NAME} PRIVATE KernelSet_kernel_test_pod)
   ## opencl C++ test1
-  set(kernel_set_cl_cpp_test1_dir ${PROJECT_SOURCE_DIR}/unittest/kernels/cl_cpp_test1)
+  cmake_path(SET kernel_set_cl_cpp_test1_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/cl_cpp_test1")
   file(GLOB_RECURSE cl_cpp_test1_sources ${kernel_set_cl_cpp_test1_dir}/*.cl)
   Zivc_addKernelSet(cl_cpp_test1 ${PROJECT_VERSION}
       SOURCE_FILES ${cl_cpp_test1_sources}
-      INCLUDE_DIRS ${kernel_set_cl_cpp_test1_dir})
+      INCLUDE_DIRS "${kernel_set_cl_cpp_test1_dir}")
   target_link_libraries(${PROJECT_NAME} PRIVATE KernelSet_cl_cpp_test1)
   ## opencl C++ type test
-  set(kernel_set_cl_cpp_test_type_dir ${PROJECT_SOURCE_DIR}/unittest/kernels/cl_cpp_test_type)
+  cmake_path(SET kernel_set_cl_cpp_test_type_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/cl_cpp_test_type")
   file(GLOB_RECURSE cl_cpp_test_type_sources ${kernel_set_cl_cpp_test_type_dir}/*.cl)
   Zivc_addKernelSet(cl_cpp_test_type ${PROJECT_VERSION}
       SOURCE_FILES ${cl_cpp_test_type_sources}
-      INCLUDE_DIRS ${kernel_set_cl_cpp_test_type_dir})
+      INCLUDE_DIRS "${kernel_set_cl_cpp_test_type_dir}")
   target_link_libraries(${PROJECT_NAME} PRIVATE KernelSet_cl_cpp_test_type)
 
   # Add tests for CMake

@@ -10,8 +10,8 @@
 function(packageProject)
   include(InstallRequiredSystemLibraries)
 
-  set(package_directory ${PROJECT_BINARY_DIR}/Packaging)
-  set(CPACK_PACKAGE_DIRECTORY ${package_directory})
+  cmake_path(SET package_directory "${PROJECT_BINARY_DIR}/Packaging")
+  set(CPACK_PACKAGE_DIRECTORY "${package_directory}")
 
   # Set project info
   set(CPACK_PACKAGE_NAME "Zivc")

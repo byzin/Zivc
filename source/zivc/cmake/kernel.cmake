@@ -8,7 +8,7 @@
 
 
 function(Zivc_initZivcKernelOptions)
-  include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/general.cmake)
+  include("${CMAKE_CURRENT_FUNCTION_LIST_DIR}/general.cmake")
 
   set(option_description "Use built-in math funcs instead of the Zivc funcs.")
   Zivc_setBooleanOption(ZIVC_MATH_BUILTIN OFF ${option_description})
@@ -135,13 +135,13 @@ function(Zivc_addKernelSet kernel_set_name kernel_set_version)
 
   # Set kernel properties
   Zivc_issueKernelSetNumber("${kernel_set_name}" kernel_set_number)
-  set(zivc_path ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/..)
-  set(zivc_core_dir ${zivc_path}/core)
-  get_filename_component(zivc_path "${zivc_path}" REALPATH)
-  set(kernel_set_template_dir ${zivc_path}/template)
-  set(kernel_set_base_dir ${CMAKE_CURRENT_SOURCE_DIR})
+  cmake_path(SET zivc_path NORMALIZE "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/..")
+  cmake_path(SET zivc_core_dir "${zivc_path}/core")
+  file(REAL_PATH "${zivc_path}" zivc_path)
+  cmake_path(SET kernel_set_template_dir "${zivc_path}/template")
+  cmake_path(SET kernel_set_base_dir "${CMAKE_CURRENT_SOURCE_DIR}")
   set(kernel_set_source_files ${ZIVC_SOURCE_FILES})
-  set(kernel_set_include_dirs ${zivc_core_dir} ${ZIVC_INCLUDE_DIRS})
+  set(kernel_set_include_dirs "${zivc_core_dir}" "${ZIVC_INCLUDE_DIRS}")
   set(kernel_set_definitions ${ZIVC_DEFINITIONS})
   set(kernel_set_depends ${ZIVC_DEPENDS})
   # SPIR-V version
@@ -157,10 +157,10 @@ function(Zivc_addKernelSet kernel_set_name kernel_set_version)
   endif()
 
   # Make a CMakeLists.txt of the given kernel set
-  set(kernel_set_dir ${PROJECT_BINARY_DIR}/KernelSet/${kernel_set_name})
-  file(MAKE_DIRECTORY ${kernel_set_dir})
-  configure_file(${kernel_set_template_dir}/kernel_set.cmake.in
-                 ${kernel_set_dir}/CMakeLists.txt
+  cmake_path(SET kernel_set_dir "${PROJECT_BINARY_DIR}/KernelSet/${kernel_set_name}")
+  file(MAKE_DIRECTORY "${kernel_set_dir}")
+  configure_file("${kernel_set_template_dir}/kernel_set.cmake.in"
+                 "${kernel_set_dir}/CMakeLists.txt"
                  @ONLY)
-  add_subdirectory(${kernel_set_dir} ${kernel_set_dir}/build)
+  add_subdirectory("${kernel_set_dir}" "${kernel_set_dir}/build")
 endfunction(Zivc_addKernelSet)

@@ -7,11 +7,11 @@
 #
 
 
-set(__zisc_document_cmake_path
-    ${CMAKE_CURRENT_LIST_DIR}/../../dependencies/Zisc/source/zisc/cmake/document.cmake)
+cmake_path(SET __zisc_document_cmake_path NORMALIZE
+  "${CMAKE_CURRENT_LIST_DIR}/../../dependencies/Zisc/source/zisc/cmake/document.cmake")
 
 
 function(Zivc_addDoxygenDoc target destination)
-  include(${__zisc_document_cmake_path})
+  include("${__zisc_document_cmake_path}")
   Zisc_addDoxygenDoc(${target} "${destination}" ${ARGN})
 endfunction(Zivc_addDoxygenDoc)

@@ -15,19 +15,20 @@ macro(Zivc_setKernelBakerProject)
   project(KernelBaker VERSION 0.0.1 DESCRIPTION "${project_description}" LANGUAGES CXX)
   message(STATUS "${PROJECT_NAME} version: ${PROJECT_VERSION}")
 
-  set(dependencies_dir ${PROJECT_SOURCE_DIR}/../../dependencies)
+  cmake_path(SET dependencies_dir NORMALIZE "${PROJECT_SOURCE_DIR}/../../dependencies")
+  cmake_path(SET zivc_cmake_dir NORMALIZE "${PROJECT_SOURCE_DIR}/../cmake")
 
-  include(${PROJECT_SOURCE_DIR}/../cmake/general.cmake)
-  include(${PROJECT_SOURCE_DIR}/../cmake/platform.cmake)
+  include("${zivc_cmake_dir}/general.cmake")
+  include("${zivc_cmake_dir}/platform.cmake")
   Zivc_getPlatformFlags(platform_definitions)
   Zivc_setVariablesOnCMake(${platform_definitions})
 
-  set(source_files ${PROJECT_SOURCE_DIR}/kernel_baker.cpp)
+  set(source_files "${PROJECT_SOURCE_DIR}/kernel_baker.cpp")
   add_executable(${PROJECT_NAME} ${source_files})
   source_group(${PROJECT_NAME} FILES ${source_files})
 
   # Compiler flags
-  include(${PROJECT_SOURCE_DIR}/../cmake/compiler.cmake)
+  include("${zivc_cmake_dir}/compiler.cmake")
   set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20
                                         CXX_STANDARD_REQUIRED ON)
   Zivc_getCxxWarningFlags(cxx_compile_warning_flags)

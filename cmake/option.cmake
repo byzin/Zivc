@@ -14,7 +14,7 @@ endfunction(validateOptions)
 
 # Set command options
 function(initProjectOptions)
-  include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/../source/zivc/cmake/general.cmake)
+  include("${CMAKE_CURRENT_FUNCTION_LIST_DIR}/../source/zivc/cmake/general.cmake")
 
   set(option_description "Build examples.")
   Zivc_setBooleanOption(ZIVC_BUILD_EXAMPLES ON ${option_description})

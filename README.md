@@ -20,6 +20,8 @@ Version: 0.0.1
 
 ## Acknowledgement ##
 
+Please see the [document/acknowledgement.md](document/acknowledgement.md).
+
 ## License ##
 
 This software is released under the MIT License,

@@ -18,13 +18,17 @@ function(Zivc_getAbsoluteKernelPathes kernel_base_dir absolute_kernel_files)
   set(kernel_files ${ARGN})
   set(files "")
   foreach(kernel_file IN LISTS kernel_files)
-    get_filename_component(kernel_file_path ${kernel_file} ABSOLUTE BASE_DIR ${kernel_base_dir})
+    cmake_path(ABSOLUTE_PATH kernel_file
+               BASE_DIRECTORY "${kernel_base_dir}"
+               NORMALIZE
+               OUTPUT_VARIABLE kernel_file_path)
     list(APPEND files ${kernel_file_path})
   endforeach(kernel_file)
 
   # Output
   set(${absolute_kernel_files} ${files} PARENT_SCOPE)
 endfunction(Zivc_getAbsoluteKernelPathes)
+
 
 # Create a kernels inclusion string
 function(Zivc_makeKernelInclusionString kernel_inclusion_lines)
@@ -41,22 +45,22 @@ endfunction(Zivc_makeKernelInclusionString)
 
 function(Zivc_initCpuBackend target)
   # Make the output dir for C++ backend
-  set(output_dir ${PROJECT_BINARY_DIR}/cpp)
-  set(cpp_include_dir ${output_dir}/include)
-  set(include_dirs ${cpp_include_dir} ${kernel_set_include_dirs})
+  cmake_path(SET output_dir "${PROJECT_BINARY_DIR}/cpp")
+  cmake_path(SET cpp_include_dir "${output_dir}/include")
+  set(include_dirs "${cpp_include_dir}" "${kernel_set_include_dirs}")
 
   Zivc_makeKernelInclusionString(kernel_inclusion_lines ${kernel_set_source_files})
 
   # Hpp file
-  file(MAKE_DIRECTORY ${cpp_include_dir}/zivc/kernel_set)
-  set(hpp_file_path ${cpp_include_dir}/zivc/kernel_set/${set_name}.hpp)
-  configure_file(@kernel_set_template_dir@/kernel_set.hpp.in
-                 ${hpp_file_path}
+  file(MAKE_DIRECTORY "${cpp_include_dir}/zivc/kernel_set")
+  cmake_path(SET hpp_file_path "${cpp_include_dir}/zivc/kernel_set/${set_name}.hpp")
+  configure_file("@kernel_set_template_dir@/kernel_set.hpp.in"
+                 "${hpp_file_path}"
                  @ONLY)
   # Cpp file
-  set(cpp_file_path ${output_dir}/${set_name}.cpp)
-  configure_file(@kernel_set_template_dir@/kernel_set.cpp.in
-                 ${cpp_file_path}
+  cmake_path(SET cpp_file_path "${output_dir}/${set_name}.cpp")
+  configure_file("@kernel_set_template_dir@/kernel_set.cpp.in"
+                 "${cpp_file_path}"
                  @ONLY)
 
   set(cpp_source_files ${hpp_file_path} ${cpp_file_path} ${kernel_set_source_files})
@@ -64,7 +68,7 @@ function(Zivc_initCpuBackend target)
   source_group(${target} FILES ${cpp_source_files})
 
   # Compiler flags
-  include(@zivc_path@/cmake/compiler.cmake)
+  include("@zivc_path@/cmake/compiler.cmake")
   set_target_properties(${target} PROPERTIES CXX_STANDARD 20
                                              CXX_STANDARD_REQUIRED ON)
   Zivc_getCxxWarningFlags(cxx_compile_warning_flags)
@@ -88,14 +92,14 @@ function(Zivc_initCpuBackend target)
   Zivc_setStaticAnalyzer(${target})
 
   # For LSP
-  set(lsp_dir ${PROJECT_BINARY_DIR}/lsp)
-  file(MAKE_DIRECTORY ${lsp_dir})
+  cmake_path(SET lsp_dir "${PROJECT_BINARY_DIR}/lsp")
+  file(MAKE_DIRECTORY "${lsp_dir}")
   set(kernel_set_additional_options ${cxx_compile_warning_flags} ${zivc_warning_flags})
   set(kernel_set_target ${target})
-  configure_file(@kernel_set_template_dir@/kernel_set_lsp.cmake.in
-                 ${lsp_dir}/CMakeLists.txt
+  configure_file("@kernel_set_template_dir@/kernel_set_lsp.cmake.in"
+                 "${lsp_dir}/CMakeLists.txt"
                  @ONLY)
-  add_subdirectory(${lsp_dir} ${lsp_dir}/Binary EXCLUDE_FROM_ALL)
+  add_subdirectory("${lsp_dir}" "${lsp_dir}/Binary" EXCLUDE_FROM_ALL)
 endfunction(Zivc_initCpuBackend)
 
 
@@ -259,7 +263,7 @@ endfunction(Zivc_getSpirvOptOptions)
 
 
 function(Zivc_getKernelBakeCommand bake_command spv_file_path baked_spv_file_path)
-  include(@zivc_path@/cmake/general.cmake)
+  include("@zivc_path@/cmake/general.cmake")
   Zivc_checkTarget(KernelBaker)
 
   # Invoke KernelBaker
@@ -274,9 +278,9 @@ endfunction(Zivc_getKernelBakeCommand)
 
 
 function(Zivc_prepareSpirVAnalysis target spv_org_file_path spv_file_path)
-  get_filename_component(spv_dir "${spv_file_path}" DIRECTORY)
-  set(spv_analysis_dir ${spv_dir}/analysis)
-  file(MAKE_DIRECTORY ${spv_analysis_dir})
+  cmake_path(GET spv_file_path PARENT_PATH spv_dir)
+  cmake_path(SET spv_analysis_dir "${spv_dir}/analysis")
+  file(MAKE_DIRECTORY "${spv_analysis_dir}")
 
   set(sub_targets "")
 
@@ -284,16 +288,16 @@ function(Zivc_prepareSpirVAnalysis target spv_org_file_path spv_file_path)
   Zivc_findSpirvDis(spirv_dis_command)
   if(spirv_dis_command)
     set(dis_files "")
-    set(spv_files ${spv_org_file_path} ${spv_file_path})
+    set(spv_files "${spv_org_file_path}" "${spv_file_path}")
     foreach(spv_file IN LISTS spv_files)
-      get_filename_component(file_name "${spv_file}" NAME_WLE)
-      set(dis_file_path ${spv_analysis_dir}/${file_name}-dis.txt)
+      cmake_path(GET spv_file STEM LAST_ONLY file_name)
+      cmake_path(SET dis_file_path "${spv_analysis_dir}/${file_name}-dis.txt")
       set(options -o ${dis_file_path})
-      add_custom_command(OUTPUT ${dis_file_path}
-        COMMAND ${spirv_dis_command} ${options} ${spv_file}
-        DEPENDS ${spv_file}
+      add_custom_command(OUTPUT "${dis_file_path}"
+        COMMAND ${spirv_dis_command} ${options} "${spv_file}"
+        DEPENDS "${spv_file}"
         COMMENT "Disassemble SPIR-V binary '${spv_file}'")
-      list(APPEND dis_files ${dis_file_path})
+      list(APPEND dis_files "${dis_file_path}")
     endforeach(spv_file)
     add_custom_target(${target}_Dis DEPENDS ${dis_files})
     list(APPEND sub_targets ${target}_Dis)
@@ -308,17 +312,17 @@ endfunction(Zivc_prepareSpirVAnalysis)
 
 function(Zivc_initVulkanBackend target)
   # Make the output dir for Vulkan backend
-  set(output_dir ${PROJECT_BINARY_DIR}/spv)
+  cmake_path(SET output_dir "${PROJECT_BINARY_DIR}/spv")
   set(spv_version @kernel_set_spirv_version@)
 
   # Get kernel inclusion code
   Zivc_makeKernelInclusionString(kernel_inclusion_lines ${kernel_set_source_files})
 
   # OpenCL file
-  file(MAKE_DIRECTORY ${output_dir})
-  set(cl_file_path ${output_dir}/${set_name}.cl)
-  configure_file(@kernel_set_template_dir@/kernel_set.cl.in
-                 ${cl_file_path}
+  file(MAKE_DIRECTORY "${output_dir}")
+  cmake_path(SET cl_file_path "${output_dir}/${set_name}.cl")
+  configure_file("@kernel_set_template_dir@/kernel_set.cl.in"
+                 "${cl_file_path}"
                  @ONLY)
 
   set(sub_targets "")
@@ -326,35 +330,35 @@ function(Zivc_initVulkanBackend target)
   ## Set clspv build command
   Zivc_findClspv(clspv_command)
   Zivc_getClspvCompileFlags(clspv_options)
-  set(spv_org_file_path ${output_dir}/${set_name}-org.spv)
+  cmake_path(SET spv_org_file_path "${output_dir}/${set_name}-org.spv")
   list(APPEND clspv_options -o=${spv_org_file_path})
   set(build_commands
       COMMAND ${CMAKE_COMMAND} -E echo "-- clspv"
       COMMAND ${clspv_command} ${clspv_options} ${cl_file_path})
-  list(APPEND clspv_output_files ${spv_org_file_path})
+  list(APPEND clspv_output_files "${spv_org_file_path}")
   ## Clspv descriptor map
   Zivc_findClspvReflection(reflection_command)
   Zivc_getClspvReflectionFlags(reflection_options)
-  set(map_path ${output_dir}/${set_name}-org-descmap.csv)
+  cmake_path(SET map_path "${output_dir}/${set_name}-org-descmap.csv")
   list(APPEND reflection_options -o ${map_path})
   list(APPEND build_commands
       COMMAND ${CMAKE_COMMAND} -E echo "-- clspv-reflection"
       COMMAND ${reflection_command} ${reflection_options} ${spv_org_file_path})
-  list(APPEND clspv_output_files ${map_path})
+  list(APPEND clspv_output_files "${map_path}")
   ## Strip reflection info and optimize SPIR-V
   Zivc_findSpirvOpt(spirv_opt_command)
   Zivc_getSpirvOptOptions(opt_options)
   list(APPEND build_commands
       COMMAND ${CMAKE_COMMAND} -E echo "-- spirv-opt"
       COMMAND ${spirv_opt_command} ${opt_options} ${spv_org_file_path} -o ${spv_file_path})
-  list(APPEND clspv_output_files ${spv_file_path})
+  list(APPEND clspv_output_files "${spv_file_path}")
   ## Bake SPIR-V kernel into an executable
   if(ZIVC_BAKE_KERNELS)
-    Zivc_getKernelBakeCommand(bake_command ${spv_file_path} ${baked_spv_file_path})
+    Zivc_getKernelBakeCommand(bake_command "${spv_file_path}" "${baked_spv_file_path}")
     list(APPEND build_commands
         COMMAND ${CMAKE_COMMAND} -E echo "-- kernel-baker"
         COMMAND ${bake_command})
-    list(APPEND clspv_output_files ${baked_spv_file_path})
+    list(APPEND clspv_output_files "${baked_spv_file_path}")
   endif()
   ## Create a build command
   add_custom_command(OUTPUT ${clspv_output_files}
@@ -385,8 +389,8 @@ endfunction(Zivc_initVulkanBackend)
 macro(Zivc_setKernelSet_@kernel_set_name@Project)
   project(KernelSet_@kernel_set_name@ VERSION @kernel_set_version@ LANGUAGES CXX)
 
-  include(@zivc_path@/cmake/general.cmake)
-  include(@zivc_path@/cmake/platform.cmake)
+  include("@zivc_path@/cmake/general.cmake")
+  include("@zivc_path@/cmake/platform.cmake")
   Zivc_getPlatformFlags(platform_definitions)
   Zivc_setVariablesOnCMake(${platform_definitions})
 
@@ -400,11 +404,11 @@ macro(Zivc_setKernelSet_@kernel_set_name@Project)
 
   # SPIR-V pathes
   set(set_name ${kernel_set_prefix}-@kernel_set_name@)
-  set(spv_file_path ${PROJECT_BINARY_DIR}/spv/${set_name}.spv)
-  set(baked_spv_file_path ${PROJECT_BINARY_DIR}/cpp/${set_name}-bake.hpp)
+  cmake_path(SET spv_file_path "${PROJECT_BINARY_DIR}/spv/${set_name}.spv")
+  cmake_path(SET baked_spv_file_path "${PROJECT_BINARY_DIR}/cpp/${set_name}-bake.hpp")
 
   set(target ${PROJECT_NAME})
-  include(@zivc_path@/cmake/kernel.cmake)
+  include("@zivc_path@/cmake/kernel.cmake")
   # C++ backend
   Zivc_initCpuBackend(${target})
   # Vulkan backend

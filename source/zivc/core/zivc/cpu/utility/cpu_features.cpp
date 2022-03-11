@@ -74,14 +74,9 @@ void getCpuFeatures(char* cpu_name, char* vendor_name) noexcept
   namespace cpu = cpu_features;
 #if defined(CPU_FEATURES_ARCH_X86)
   {
-    constexpr std::size_t max_name_size = 49;
-    std::array<char, max_name_size> brand_string;
-    cpu::FillX86BrandString(brand_string.data());
-    set_cpu_name(brand_string.data());
-  }
-  {
     const cpu::X86Info info = cpu::GetX86Info();
     set_vendor_name(info.vendor);
+    set_cpu_name(info.brand_string);
   }
 #elif defined(CPU_FEATURES_ARCH_ARM)
   static_assert(false, "Not implemented yet.");

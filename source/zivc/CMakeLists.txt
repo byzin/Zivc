@@ -156,6 +156,12 @@ function(Zivc_addZivcKernels target version)
 endfunction(Zivc_addZivcKernels)
 
 
+function(addCpuFeatures cpu_features_path)
+  set(BUILD_TESTING OFF CACHE BOOL "")
+  add_subdirectory("${cpu_features_path}" "${PROJECT_BINARY_DIR}/CpuFeatures" EXCLUDE_FROM_ALL)
+endfunction(addCpuFeatures)
+
+
 #
 macro(Zivc_setZivcProject)
   set(project_description "Zivc.")
@@ -176,7 +182,7 @@ macro(Zivc_setZivcProject)
   add_subdirectory(${zisc_path} "${PROJECT_BINARY_DIR}/Zisc")
   ## cpu_features
   cmake_path(SET cpu_features_path "${dependencies_dir}/cpu_features")
-  add_subdirectory("${cpu_features_path}" "${PROJECT_BINARY_DIR}/CpuFeatures" EXCLUDE_FROM_ALL)
+  addCpuFeatures("${cpu_features_path}")
   Zivc_checkTarget(cpu_features)
 
   cmake_path(SET zivc_core_dir "${PROJECT_SOURCE_DIR}/core")

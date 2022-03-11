@@ -92,61 +92,26 @@ function(Zivc_getZivcWarningFlags zivc_warning_flags)
 endfunction(Zivc_getZivcWarningFlags)
 
 
-function(Zivc_addClspv clspv_path)
-  find_package(Python3 COMPONENTS Interpreter REQUIRED)
-  message(STATUS "Fetching clspv dependencies ... ")
-  execute_process(
-    COMMAND ${Python3_EXECUTABLE} "${clspv_path}/utils/fetch_sources.py"
-    RESULT_VARIABLE fetch_result
-    OUTPUT_VARIABLE fetch_output
-    ERROR_VARIABLE fetch_error)
-  if(${fetch_result} EQUAL 0)
-    message("        completed.")
-  else()
-    message(FATAL_ERROR "    failed.\n${fetch_error}")
-  endif()
-
-  # Add clspv
-  unset(CMAKE_CONFIGURATION_TYPES)
-  set(SKIP_CLSPV_TOOLS_INSTALL ON)
-  set(SKIP_SPIRV_TOOLS_INSTALL ON)
-  add_subdirectory("${clspv_path}" "${PROJECT_BINARY_DIR}/Clspv" EXCLUDE_FROM_ALL)
-  Zivc_checkTarget(clspv)
-endfunction(Zivc_addClspv)
-
-
-function(Zivc_addZstd zstd_path)
-  set(ZSTD_BUILD_SHARED OFF CACHE INTERNAL "" FORCE)
-  set(ZSTD_BUILD_PROGRAMS OFF CACHE INTERNAL "" FORCE)
-  set(ZSTD_MULTITHREAD_SUPPORT OFF CACHE INTERNAL "" FORCE)
-  cmake_path(SET zstd_dest_path "${PROJECT_BINARY_DIR}/Zstd")
-  add_subdirectory("${zstd_path}/build/cmake" "${zstd_dest_path}" EXCLUDE_FROM_ALL)
-  Zivc_checkTarget(libzstd_static)
-  Zivc_setRequiredCxxFlagsToTarget(libzstd_static)
-  # Supress warnings
-  set(zstd_warning_flags "")
-  if(Z_VISUAL_STUDIO)
-    list(APPEND zstd_warning_flags /w)
-  elseif(Z_CLANG AND NOT Z_APPLE_CLANG)
-    list(APPEND zstd_warning_flags -Wno-unused-command-line-argument
-                                   -Wno-unused-but-set-variable
-                                   )
-  endif()
-  target_compile_options(libzstd_static PRIVATE ${zstd_warning_flags})
-  # Headers
-  cmake_path(SET zstd_dest_inc_dir "${zstd_dest_path}/include")
-  file(MAKE_DIRECTORY "${zstd_dest_inc_dir}")
-  file(COPY "${zstd_path}/lib/zstd.h" "${zstd_path}/lib/zstd_errors.h"
-       DESTINATION "${zstd_dest_inc_dir}")
-  target_include_directories(libzstd_static SYSTEM INTERFACE $<BUILD_INTERFACE:${zstd_dest_inc_dir}>)
-endfunction(Zivc_addZstd)
+function(Zivc_addVulkanMemoryAllocator vma_target)
+  # Define target
+  add_library(VulkanMemoryAllocator INTERFACE)
+  #
+  cmake_path(SET vma_source_path "${dependencies_dir}/VulkanMemoryAllocator")
+  Zivc_checkSubmodule(${vma_source_path})
+  cmake_path(SET vma_include_dir "${vma_source_path}/include")
+  target_include_directories(VulkanMemoryAllocator SYSTEM INTERFACE "${vma_include_dir}")
+  # Define alias
+  add_library(Vma::VulkanMemoryAllocator ALIAS VulkanMemoryAllocator)
+  # Output variable
+  set(${vma_target} Vma::VulkanMemoryAllocator PARENT_SCOPE)
+endfunction(Zivc_addVulkanMemoryAllocator)
 
 
 function(Zivc_addZivcKernels target version)
-  cmake_path(SET kernel_project_dir ${CMAKE_CURRENT_FUNCTION_LIST_DIR})
-  include("${kernel_project_dir}/cmake/kernel.cmake")
+  cmake_path(SET zivc_path ${CMAKE_CURRENT_FUNCTION_LIST_DIR})
+  include("${zivc_path}/cmake/kernel.cmake")
 
-  cmake_path(SET kernel_set_dir "${kernel_project_dir}/internal_kernel/zivc")
+  cmake_path(SET kernel_set_dir "${zivc_path}/internal_kernel/zivc")
   file(GLOB_RECURSE kernel_sources ${kernel_set_dir}/kernel/*.cl)
   set(kernel_set_name "zivc_internal_kernel")
   Zivc_addKernelSet(${kernel_set_name} ${version}
@@ -154,12 +119,6 @@ function(Zivc_addZivcKernels target version)
       INCLUDE_DIRS "${kernel_set_dir}")
   target_link_libraries(${target} PRIVATE KernelSet_${kernel_set_name})
 endfunction(Zivc_addZivcKernels)
-
-
-function(addCpuFeatures cpu_features_path)
-  set(BUILD_TESTING OFF CACHE BOOL "")
-  add_subdirectory("${cpu_features_path}" "${PROJECT_BINARY_DIR}/CpuFeatures" EXCLUDE_FROM_ALL)
-endfunction(addCpuFeatures)
 
 
 #
@@ -177,13 +136,15 @@ macro(Zivc_setZivcProject)
   Zivc_initZivcOptions()
 
   # Check dependencies
+  include("${PROJECT_SOURCE_DIR}/cmake/compiler.cmake")
   ## Zisc
   cmake_path(SET zisc_path "${dependencies_dir}/Zisc")
+  Zivc_checkSubmodule("${zisc_path}")
   add_subdirectory(${zisc_path} "${PROJECT_BINARY_DIR}/Zisc")
+  Zivc_checkTarget(Zisc)
   ## cpu_features
-  cmake_path(SET cpu_features_path "${dependencies_dir}/cpu_features")
-  addCpuFeatures("${cpu_features_path}")
-  Zivc_checkTarget(cpu_features)
+  Zivc_checkTarget(CpuFeature::cpu_features)
+  Zivc_setRequiredCxxFlagsToTarget(cpu_features)
 
   cmake_path(SET zivc_core_dir "${PROJECT_SOURCE_DIR}/core")
   # Make zivc configuration header file
@@ -207,7 +168,6 @@ macro(Zivc_setZivcProject)
   source_group(${PROJECT_NAME} FILES ${zivc_source_files})
 
   # Compiler flags
-  include("${PROJECT_SOURCE_DIR}/cmake/compiler.cmake")
   set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20
                                                    CXX_STANDARD_REQUIRED ON)
 
@@ -218,37 +178,30 @@ macro(Zivc_setZivcProject)
                                          PRIVATE ${cxx_compile_warning_flags}
                                                  ${zivc_warning_flags})
   target_link_libraries(${PROJECT_NAME} PUBLIC Zisc
-                                        PRIVATE cpu_features)
+                                        PRIVATE CpuFeature::cpu_features)
   target_link_options(${PROJECT_NAME} PUBLIC ${zivc_linker_flags})
   target_compile_definitions(${PROJECT_NAME} PUBLIC ${zivc_definitions})
   target_include_directories(${PROJECT_NAME} PUBLIC "${zivc_core_dir}"
                                                     "${PROJECT_BINARY_DIR}/include")
   Zivc_enableIpo(${PROJECT_NAME})
 
-  # Vulkan
+  # Vulkan backend setup
   if(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
     # Find dependencies
     if(ZIVC_USES_OWN_CLSPV)
-      cmake_path(SET clspv_path "${dependencies_dir}/clspv")
-      Zivc_checkSubmodule(${clspv_path})
-      Zivc_addClspv(${clspv_path})
+      Zivc_addClspv("${PROJECT_BINARY_DIR}/Clspv")
     endif()
     if(ZIVC_BAKE_KERNELS)
-      cmake_path(SET zstd_path "${dependencies_dir}/zstd")
-      Zivc_checkSubmodule(${zstd_path})
-      Zivc_addZstd(${zstd_path})
-      add_subdirectory("${PROJECT_SOURCE_DIR}/kernel_baker" "${PROJECT_BINARY_DIR}/KernelBaker")
+      add_subdirectory("${PROJECT_SOURCE_DIR}/kernel_baker"
+                       "${PROJECT_BINARY_DIR}/KernelBaker")
     endif()
     # Vulkan
     Zivc_findVulkan(vulkan_target)
-    Zivc_checkTarget(${vulkan_target})
     target_link_libraries(${PROJECT_NAME} PUBLIC ${vulkan_target})
     # Vulkan Memory Allocator
-    cmake_path(SET vma_path "${dependencies_dir}/VulkanMemoryAllocator")
-    Zivc_checkSubmodule(${vma_path})
-    cmake_path(SET vma_include_dir "${vma_path}/include")
-    target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC "${vma_include_dir}")
-    #
+    Zivc_addVulkanMemoryAllocator(vma_target)
+    target_link_libraries(${PROJECT_NAME} PUBLIC ${vma_target})
+    # Internal kernels
     Zivc_addZivcKernels(${PROJECT_NAME} ${PROJECT_VERSION})
   endif()
 
@@ -260,6 +213,9 @@ macro(Zivc_setZivcProject)
                                   readability-uppercase-literal-suffix)
   Zivc_setStaticAnalyzer(${PROJECT_NAME}
                          CLANG_TIDY_EXCLUSION_CHECKS ${clang_tidy_exclusion_checks})
+
+  #
+  add_library(Zivc::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 endmacro(Zivc_setZivcProject)
 
 

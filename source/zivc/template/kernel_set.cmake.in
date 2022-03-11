@@ -81,6 +81,7 @@ function(Zivc_initCpuBackend target)
   Zivc_checkTarget(Zisc)
   target_link_libraries(${target} PUBLIC Zisc)
   if(ZIVC_BAKE_KERNELS)
+    Zivc_checkTarget(libzstd_static)
     target_link_libraries(${target} PRIVATE libzstd_static)
   endif()
   target_compile_definitions(${target} PUBLIC ${zivc_definitions}

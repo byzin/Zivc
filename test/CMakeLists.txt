@@ -24,14 +24,15 @@ function(getTestCompileFlags test_compile_flags test_linker_flags test_definitio
 endfunction(getTestCompileFlags)
 
 
-function(addGoogleTest googletest_path)
-  cmake_path(SET source_dir NORMALIZE "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/../source")
-  include("${source_dir}/zivc/cmake/general.cmake")
-  include("${source_dir}/zivc/cmake/compiler.cmake")
-
-  Zivc_addGoogleTest("${googletest_path}" "${PROJECT_BINARY_DIR}/GoogleTest")
-  Zivc_populateTargetOptions(Zisc gtest)
-  Zivc_populateTargetOptions(Zisc gtest_main)
+function(addGoogleTest binary_dir)
+  cmake_path(SET zivc_path "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/../source/zivc")
+  include("${zivc_path}/cmake/general.cmake")
+  include("${zivc_path}/cmake/compiler.cmake")
+  #
+  cmake_path(SET gtest_source_path "${PROJECT_SOURCE_DIR}/dependencies/googletest")
+  Zivc_addGoogleTest("${gtest_source_path}" "${binary_dir}")
+  Zivc_setRequiredCxxFlagsToTarget(gtest)
+  Zivc_setRequiredCxxFlagsToTarget(gtest_main)
 endfunction(addGoogleTest)
 
 
@@ -76,7 +77,7 @@ macro(setTestProject)
   # Check dependencies
   Zivc_checkTarget(Zivc)
   Zivc_checkTarget(CLI11::CLI11)
-  addGoogleTest("${PROJECT_SOURCE_DIR}/dependencies/googletest")
+  addGoogleTest("${PROJECT_BINARY_DIR}/GoogleTest")
   Zivc_checkTarget(gtest_main)
 
   # Create a unit test
@@ -96,7 +97,7 @@ macro(setTestProject)
                                                  ${test_warning_flags})
   target_link_libraries(${PROJECT_NAME} PRIVATE CLI11::CLI11
                                                 gtest_main
-                                                Zivc
+                                                Zivc::Zivc
                                                 ${test_linker_flags})
   target_include_directories(${PROJECT_NAME} PRIVATE "${PROJECT_SOURCE_DIR}/unittest")
   target_compile_definitions(${PROJECT_NAME} PRIVATE ${test_definitions})

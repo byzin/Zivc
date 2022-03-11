@@ -23,6 +23,11 @@ macro(Zivc_setStringOption variable value doc_string)
 endmacro(Zivc_setStringOption)
 
 
+macro(Zivc_setInternalValue variable value)
+  set("${variable}" ${value} CACHE INTERNAL "" FORCE)
+endmacro(Zivc_setInternalValue)
+
+
 function(Zivc_restrictBuildDirectory build_dir)
   include("${__zisc_general_cmake_path}")
   Zisc_restrictBUildDirectory("${build_dir}")

@@ -28,26 +28,25 @@ if(PROJECT_IS_TOP_LEVEL)
   include("${PROJECT_SOURCE_DIR}/cmake/option.cmake")
   initProjectOptions()
   Zivc_restrictBuildDirectory("${PROJECT_SOURCE_DIR}/build")
+
+  # Add dependencies
+  include("${zivc_path}/cmake/platform.cmake")
+  include("${PROJECT_SOURCE_DIR}/cmake/project.cmake")
+  Zivc_addCpuFeatures("${PROJECT_BINARY_DIR}/CpuFeatures")
+  Zivc_addZstd("${PROJECT_BINARY_DIR}/Zstd")
+  addCli11("${PROJECT_BINARY_DIR}/CLI11")
 endif()
 
 # Build Zivc
 add_subdirectory("${zivc_path}" "${PROJECT_BINARY_DIR}/Zivc")
 
-# Add dependencies used for both example and test
-if(ZIVC_BUILD_EXAMPLES OR ZIVC_BUILD_TESTS)
-  # CLI11
-  add_subdirectory("${PROJECT_SOURCE_DIR}/example/dependencies/CLI11"
-                   "${PROJECT_BINARY_DIR}/CLI11"
-                   EXCLUDE_FROM_ALL)
-endif()
-
 # Build examples
-if(ZIVC_BUILD_EXAMPLES)
+if(PROJECT_IS_TOP_LEVEL AND ZIVC_BUILD_EXAMPLES)
   add_subdirectory("${PROJECT_SOURCE_DIR}/example" "${PROJECT_BINARY_DIR}/Examples")
 endif()
 
 # Build unit test
-if(ZIVC_BUILD_TESTS)
+if(PROJECT_IS_TOP_LEVEL AND ZIVC_BUILD_TESTS)
   enable_testing()
   add_subdirectory("${PROJECT_SOURCE_DIR}/test" "${PROJECT_BINARY_DIR}/UnitTest")
 endif()

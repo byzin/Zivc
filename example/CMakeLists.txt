@@ -37,27 +37,41 @@ function(getExampleWarningFlags example_warning_flags)
 endfunction(getExampleWarningFlags)
 
 
-function(addGlfw glfw_path)
-  set(GLFW_INSTALL OFF CACHE INTERNAL "" FORCE)
-  set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "" FORCE)
-  set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "" FORCE)
-  set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "" FORCE)
-  add_subdirectory("${glfw_path}" "${PROJECT_BINARY_DIR}/GLFW" EXCLUDE_FROM_ALL)
+function(addGlfw binary_dir)
+  #
+  include("${__zivc_dir__}/cmake/general.cmake")
+  Zivc_setInternalValue(GLFW_BUILD_EXAMPLES OFF)
+  Zivc_setInternalValue(GLFW_BUILD_TESTS OFF)
+  Zivc_setInternalValue(GLFW_BUILD_DOCS OFF)
+  Zivc_setInternalValue(GLFW_INSTALL OFF)
+  Zivc_setInternalValue(GLFW_VULKAN_STATIC OFF)
+  Zivc_setInternalValue(GLFW_USE_OSMESA OFF)
+  Zivc_setInternalValue(GLFW_USE_HYBRID_HPG OFF)
+  Zivc_setInternalValue(GLFW_USE_WAYLAND OFF)
+  Zivc_setInternalValue(USE_MSVC_RUNTIME_LIBRARY_DLL ON)
+  cmake_path(SET glfw_path "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/dependencies/glfw")
+  Zivc_checkSubmodule("${glfw_path}")
+  add_subdirectory("${glfw_path}" "${binary_dir}" EXCLUDE_FROM_ALL)
   Zivc_checkTarget(glfw)
+  # Check target properties
   include("${__zivc_dir__}/cmake/compiler.cmake")
   Zivc_setRequiredCxxFlagsToTarget(glfw)
   target_include_directories(glfw SYSTEM INTERFACE "${glfw_path}/include")
   # Suppress warnings
   set(glfw_warning_flags "")
   if(Z_CLANG)
-    list(APPEND glfw_warning_flags
-                                  )
+    list(APPEND glfw_warning_flags -Wno-unused-command-line-argument
+                                   )
   endif()
   target_compile_options(glfw PRIVATE ${glfw_warning_flags})
 endfunction(addGlfw)
 
 
-function(addImgui imgui_path)
+function(addImgui)
+  include("${__zivc_dir__}/cmake/general.cmake")
+  cmake_path(SET imgui_path "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/dependencies/imgui")
+  Zivc_checkSubmodule("${imgui_path}")
+  #
   file(GLOB imgui_source_files ${imgui_path}/*[.h|.cpp])
   cmake_path(SET backend_dir "${imgui_path}/backends")
   list(APPEND imgui_source_files ${backend_dir}/imgui_impl_glfw.cpp
@@ -69,10 +83,10 @@ function(addImgui imgui_path)
 
   # Compiler flags
   include("${__zivc_dir__}/cmake/compiler.cmake")
+  Zivc_setRequiredCxxFlagsToTarget(imgui)
   Zivc_checkTarget(glfw)
   Zivc_findVulkan(vulkan_target)
   Zivc_checkTarget(${vulkan_target})
-  Zivc_setRequiredCxxFlagsToTarget(imgui)
   target_link_libraries(imgui PRIVATE ${vulkan_target} PUBLIC glfw)
   target_compile_definitions(imgui PUBLIC IMGUI_IMPL_VULKAN_NO_PROTOTYPES)
   target_include_directories(imgui SYSTEM PUBLIC "${imgui_path}")
@@ -83,10 +97,15 @@ function(addImgui imgui_path)
                                    )
   endif()
   target_compile_options(imgui PRIVATE ${imgui_warning_flags})
+
+  #
+  add_library(Imgui::imgui ALIAS imgui)
 endfunction(addImgui)
 
 
-function(addGui gui_path)
+function(addGui)
+  cmake_path(SET gui_path "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/gui")
+  #
   file(GLOB_RECURSE gui_source_files ${gui_path}/*[.hpp|.cpp])
   add_library(gui STATIC ${gui_source_files})
   source_group(${PROJECT_NAME}/gui FILES ${gui_source_files})
@@ -94,7 +113,7 @@ function(addGui gui_path)
   # Compiler flags
   include("${__zivc_dir__}/cmake/compiler.cmake")
   Zivc_setRequiredCxxFlagsToTarget(gui)
-  target_link_libraries(gui PRIVATE Zivc PUBLIC glfw imgui)
+  target_link_libraries(gui PRIVATE Zivc::Zivc PUBLIC glfw Imgui::imgui)
   target_include_directories(gui INTERFACE ${gui_path})
   Zivc_enableIpo(gui)
   set(clang_tidy_exclusion_checks bugprone-exception-escape
@@ -104,6 +123,9 @@ function(addGui gui_path)
                                   )
   Zivc_setStaticAnalyzer(gui
                          CLANG_TIDY_EXCLUSION_CHECKS ${clang_tidy_exclusion_checks})
+
+  #
+  add_library(Gui::gui ALIAS gui)
 endfunction(addGui)
 
 
@@ -133,7 +155,7 @@ function(addExample target save_dependency_list)
   getExampleWarningFlags(example_warning_flags)
   target_compile_options(${target} PRIVATE ${cxx_compile_warning_flags}
                                            ${example_warning_flags})
-  target_link_libraries(${target} PRIVATE Zivc ${ZIVC_DEPENDS})
+  target_link_libraries(${target} PRIVATE Zivc::Zivc ${ZIVC_DEPENDS})
   Zivc_enableIpo(${target})
 
   #
@@ -205,9 +227,9 @@ macro(setExampleProject)
   # Demos using vulkan
   if(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
     # Build dependencies
-    addGlfw("${PROJECT_SOURCE_DIR}/dependencies/glfw")
-    addImgui("${PROJECT_SOURCE_DIR}/dependencies/imgui")
-    addGui("${PROJECT_SOURCE_DIR}/gui")
+    addGlfw("${PROJECT_BINARY_DIR}/GLFW")
+    addImgui()
+    addGui()
     target_link_libraries(gui PRIVATE KernelSet_example)
     ## 4. vulkan sub-platform example
     addExample(VulkanSubPlatformExample OFF
@@ -216,7 +238,7 @@ macro(setExampleProject)
     addExample(GuiExample ON
                SOURCE_FILES "${PROJECT_SOURCE_DIR}/gui_example.cpp"
                             "${PROJECT_SOURCE_DIR}/cli.cpp"
-               DEPENDS CLI11::CLI11 gui)
+               DEPENDS CLI11::CLI11 Gui::gui)
   endif()
 
   # Kernel set

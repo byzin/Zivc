@@ -23,6 +23,11 @@ macro(Zivc_setKernelBakerProject)
   Zivc_getPlatformFlags(platform_definitions)
   Zivc_setVariablesOnCMake(${platform_definitions})
 
+  # Check dependencies
+  Zivc_checkTarget(Zisc)
+  Zivc_checkTarget(libzstd_static)
+  Zivc_setRequiredCxxFlagsToTarget(libzstd_static)
+
   set(source_files "${PROJECT_SOURCE_DIR}/kernel_baker.cpp")
   add_executable(${PROJECT_NAME} ${source_files})
   source_group(${PROJECT_NAME} FILES ${source_files})

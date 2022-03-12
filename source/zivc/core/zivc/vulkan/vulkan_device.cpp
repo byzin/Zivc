@@ -1140,6 +1140,8 @@ VmaVulkanFunctions VulkanDevice::getVmaVulkanFunctions() const noexcept
 {
   const auto& loader = dispatcher().loader();
   VmaVulkanFunctions functions;
+  functions.vkGetInstanceProcAddr = nullptr;
+  functions.vkGetDeviceProcAddr = nullptr;
   functions.vkGetPhysicalDeviceProperties = loader.vkGetPhysicalDeviceProperties;
   functions.vkGetPhysicalDeviceMemoryProperties = loader.vkGetPhysicalDeviceMemoryProperties;
   functions.vkAllocateMemory = loader.vkAllocateMemory;
@@ -1158,26 +1160,32 @@ VmaVulkanFunctions VulkanDevice::getVmaVulkanFunctions() const noexcept
   functions.vkDestroyImage = loader.vkDestroyImage;
   functions.vkCmdCopyBuffer = loader.vkCmdCopyBuffer;
 
-  if (loader.vkGetBufferMemoryRequirements2 != nullptr)
-    functions.vkGetBufferMemoryRequirements2KHR = loader.vkGetBufferMemoryRequirements2;
-  else
-    functions.vkGetBufferMemoryRequirements2KHR = loader.vkGetBufferMemoryRequirements2KHR;
-  if (loader.vkGetImageMemoryRequirements2 != nullptr)
-    functions.vkGetImageMemoryRequirements2KHR = loader.vkGetImageMemoryRequirements2;
-  else 
-    functions.vkGetImageMemoryRequirements2KHR = loader.vkGetImageMemoryRequirements2KHR;
-  if (loader.vkBindBufferMemory2 != nullptr)
-    functions.vkBindBufferMemory2KHR = loader.vkBindBufferMemory2;
-  else
-    functions.vkBindBufferMemory2KHR = loader.vkBindBufferMemory2KHR;
-  if (loader.vkBindImageMemory2 != nullptr)
-    functions.vkBindImageMemory2KHR = loader.vkBindImageMemory2;
-  else
-    functions.vkBindImageMemory2KHR = loader.vkBindImageMemory2KHR;
-  if (loader.vkGetPhysicalDeviceMemoryProperties2 != nullptr)
-    functions.vkGetPhysicalDeviceMemoryProperties2KHR = loader.vkGetPhysicalDeviceMemoryProperties2;
-  else
-    functions.vkGetPhysicalDeviceMemoryProperties2KHR = loader.vkGetPhysicalDeviceMemoryProperties2KHR;
+  auto select_func = [](auto func0, auto func1) noexcept
+  {
+    return (func0 != nullptr) ? func0 : func1;
+  };
+
+  functions.vkGetBufferMemoryRequirements2KHR = select_func(
+      loader.vkGetBufferMemoryRequirements2,
+      loader.vkGetBufferMemoryRequirements2KHR);
+  functions.vkGetImageMemoryRequirements2KHR = select_func(
+      loader.vkGetImageMemoryRequirements2,
+      loader.vkGetImageMemoryRequirements2KHR);
+  functions.vkBindBufferMemory2KHR = select_func(
+      loader.vkBindBufferMemory2,
+      loader.vkBindBufferMemory2KHR);
+  functions.vkBindImageMemory2KHR = select_func(
+      loader.vkBindImageMemory2,
+      loader.vkBindImageMemory2KHR);
+  functions.vkGetPhysicalDeviceMemoryProperties2KHR = select_func(
+      loader.vkGetPhysicalDeviceMemoryProperties2,
+      loader.vkGetPhysicalDeviceMemoryProperties2KHR);
+  functions.vkGetDeviceBufferMemoryRequirements = select_func(
+      loader.vkGetDeviceBufferMemoryRequirements,
+      loader.vkGetDeviceBufferMemoryRequirementsKHR);
+  functions.vkGetDeviceImageMemoryRequirements = select_func(
+      loader.vkGetDeviceImageMemoryRequirements,
+      loader.vkGetDeviceImageMemoryRequirementsKHR);
   return functions;
 }
 

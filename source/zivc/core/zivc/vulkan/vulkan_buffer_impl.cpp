@@ -516,7 +516,7 @@ VmaAllocationCreateInfo VulkanBufferImpl::makeAllocCreateInfo(
 {
   // VMA allocation create info
   VmaAllocationCreateInfo alloc_create_info;
-  alloc_create_info.flags = VMA_ALLOCATION_CREATE_STRATEGY_MIN_FRAGMENTATION_BIT;
+  alloc_create_info.flags = VMA_ALLOCATION_CREATE_STRATEGY_MIN_MEMORY_BIT;
   alloc_create_info.usage = toVmaUsage(buffer_usage);
   alloc_create_info.requiredFlags = 0;
   alloc_create_info.preferredFlags = 0;

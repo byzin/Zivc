@@ -72,7 +72,7 @@ constexpr uint32b vkGetVersionPatch(const uint32b version) noexcept
 inline
 constexpr uint32b vkGetVulkanApiVersion() noexcept
 {
-  return VK_API_VERSION_1_2;
+  return VK_API_VERSION_1_3;
 }
 
 /*!

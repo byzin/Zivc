@@ -19,10 +19,35 @@
 // Zisc
 #include "zisc/utility.hpp"
 // Zivc
-#include "zivc_config.hpp"
-#include "utility/mapped_memory.hpp"
+#include "mapped_memory.hpp"
+#include "zivc/zivc_config.hpp"
 
 namespace zivc {
+
+/*!
+  \details No detailed description
+
+  \tparam T No description.
+  \return No description
+  */
+template <KernelArg T> inline
+MappedMemory<T> BufferCommon::createMappedMemory() const
+{
+  const BufferCommon* p = isHostVisible() ? this : nullptr;
+  MappedMemory<T> memory{p};
+  return memory;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+BufferFlag BufferCommon::flag() const noexcept
+{
+  return buffer_flag_;
+}
 
 /*!
   \details No detailed description
@@ -48,20 +73,6 @@ std::size_t BufferCommon::getSize() const noexcept
 {
   const std::size_t s = calcSize<T>(sizeInBytes());
   return s;
-}
-
-/*!
-  \details No detailed description
-
-  \tparam T No description.
-  \return No description
-  */
-template <KernelArg T> inline
-MappedMemory<T> BufferCommon::makeMappedMemory() const
-{
-  const BufferCommon* p = isHostVisible() ? this : nullptr;
-  MappedMemory<T> memory{p};
-  return memory;
 }
 
 /*!
@@ -98,6 +109,17 @@ std::size_t BufferCommon::calcSize(const std::size_t s) const noexcept
 {
   const std::size_t n = s / sizeof(T);
   return n;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] flag No description.
+  */
+inline
+void BufferCommon::setFlag(const BufferFlag flag) noexcept
+{
+  buffer_flag_ = flag;
 }
 
 /*!

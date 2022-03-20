@@ -1,5 +1,5 @@
 /*!
-  \file vulkan_sub_platform.cpp
+  \file vulkan_backend.cpp
   \author Sho Ikeda
   \brief No brief description
 
@@ -12,7 +12,7 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#include "vulkan_sub_platform.hpp"
+#include "vulkan_backend.hpp"
 // Standard C++ library
 #include <algorithm>
 #include <array>
@@ -39,10 +39,10 @@
 #include "utility/vulkan_dispatch_loader.hpp"
 #include "utility/vulkan.hpp"
 #include "utility/vulkan_hpp.hpp"
+#include "zivc/backend.hpp"
+#include "zivc/context.hpp"
+#include "zivc/context_options.hpp"
 #include "zivc/device.hpp"
-#include "zivc/platform.hpp"
-#include "zivc/platform_options.hpp"
-#include "zivc/sub_platform.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/env_variable.hpp"
 #include "zivc/utility/error.hpp"
@@ -52,57 +52,17 @@ namespace zivc {
 /*!
   \details No detailed description
   */
-VulkanSubPlatform::VulkanSubPlatform(Platform* platform) noexcept :
-    SubPlatform(platform)
+VulkanBackend::VulkanBackend(Context* context) noexcept :
+    Backend(context)
 {
 }
 
 /*!
   \details No detailed description
   */
-VulkanSubPlatform::~VulkanSubPlatform() noexcept
+VulkanBackend::~VulkanBackend() noexcept
 {
   destroy();
-}
-
-/*!
-  \details No detailed description
-
-  \param [in,out] device_info_list No description.
-  */
-void VulkanSubPlatform::getDeviceInfoList(
-    zisc::pmr::vector<const DeviceInfo*>& device_info_list) const noexcept
-{
-  for (const auto& device_info : *device_info_list_)
-    device_info_list.emplace_back(std::addressof(device_info));
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-bool VulkanSubPlatform::isAvailable() const noexcept
-{
-  const auto& own = getOwnPtr();
-  const bool result = !own.expired() && (instance_ref_ != nullptr);
-  return result;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-VkAllocationCallbacks VulkanSubPlatform::makeAllocator() noexcept
-{
-  zivcvk::AllocationCallbacks alloc{allocator_data_.get(),
-                                    Callbacks::allocateMemory,
-                                    Callbacks::reallocateMemory,
-                                    Callbacks::deallocateMemory,
-                                    Callbacks::notifyOfMemoryAllocation,
-                                    Callbacks::notifyOfMemoryDeallocation};
-  return zisc::cast<VkAllocationCallbacks>(alloc);
 }
 
 /*!
@@ -111,7 +71,7 @@ VkAllocationCallbacks VulkanSubPlatform::makeAllocator() noexcept
   \param [in] device_info No description.
   \return No description
   */
-SharedDevice VulkanSubPlatform::makeDevice(const DeviceInfo& device_info)
+SharedDevice VulkanBackend::createDevice(const DeviceInfo& device_info)
 {
   // Check if the given device info is included in the info list
   {
@@ -150,7 +110,45 @@ SharedDevice VulkanSubPlatform::makeDevice(const DeviceInfo& device_info)
 
   \return No description
   */
-std::size_t VulkanSubPlatform::numOfDevices() const noexcept
+const DeviceInfo& VulkanBackend::deviceInfo(const std::size_t index) const noexcept
+{
+  return (*device_info_list_)[index];
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+bool VulkanBackend::isAvailable() const noexcept
+{
+  const auto& own = getOwnPtr();
+  const bool result = !own.expired() && (instance_ref_ != nullptr);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+VkAllocationCallbacks VulkanBackend::createAllocator() noexcept
+{
+  zivcvk::AllocationCallbacks alloc{allocator_data_.get(),
+                                    Callbacks::allocateMemory,
+                                    Callbacks::reallocateMemory,
+                                    Callbacks::deallocateMemory,
+                                    Callbacks::notifyOfMemoryAllocation,
+                                    Callbacks::notifyOfMemoryDeallocation};
+  return zisc::cast<VkAllocationCallbacks>(alloc);
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+std::size_t VulkanBackend::numOfDevices() const noexcept
 {
   const std::size_t n = device_list_->size();
   return n;
@@ -161,15 +159,15 @@ std::size_t VulkanSubPlatform::numOfDevices() const noexcept
 
   \return No description
   */
-SubPlatformType VulkanSubPlatform::type() const noexcept
+BackendType VulkanBackend::type() const noexcept
 {
-  return SubPlatformType::kVulkan;
+  return BackendType::kVulkan;
 }
 
 /*!
   \details No detailed description
   */
-void VulkanSubPlatform::updateDeviceInfoList()
+void VulkanBackend::updateDeviceInfo()
 {
   device_info_list_->clear();
   device_info_list_->reserve(numOfDevices());
@@ -186,7 +184,7 @@ void VulkanSubPlatform::updateDeviceInfoList()
 /*!
   \details No detailed description
   */
-void VulkanSubPlatform::destroyData() noexcept
+void VulkanBackend::destroyData() noexcept
 {
   window_surface_type_ = WindowSurfaceType::kNone;
   device_info_list_.reset();
@@ -196,7 +194,7 @@ void VulkanSubPlatform::destroyData() noexcept
 
   zivcvk::Instance ins{instance_};
   if (ins) {
-    zivcvk::AllocationCallbacks alloc{makeAllocator()};
+    zivcvk::AllocationCallbacks alloc{createAllocator()};
     ins.destroy(alloc, dispatcher().loader());
     instance_ = ZIVC_VK_NULL_HANDLE;
   }
@@ -210,7 +208,7 @@ void VulkanSubPlatform::destroyData() noexcept
 
   \param [in,out] options No description.
   */
-void VulkanSubPlatform::initData(PlatformOptions& options)
+void VulkanBackend::initData(ContextOptions& options)
 {
   initDispatcher(options);
   initAllocator();
@@ -223,7 +221,7 @@ void VulkanSubPlatform::initData(PlatformOptions& options)
 /*!
   \details No detailed description
   */
-void VulkanSubPlatform::updateDebugInfoImpl()
+void VulkanBackend::updateDebugInfoImpl()
 {
 }
 
@@ -232,7 +230,7 @@ void VulkanSubPlatform::updateDebugInfoImpl()
 
   \param [in,out] mem_resource No description.
   */
-VulkanSubPlatform::AllocatorData::AllocatorData(
+VulkanBackend::AllocatorData::AllocatorData(
     zisc::pmr::memory_resource* mem_resource) noexcept :
         mem_resource_{mem_resource},
         mem_map_{mem_resource},
@@ -244,7 +242,7 @@ VulkanSubPlatform::AllocatorData::AllocatorData(
 /*!
   \details No detailed description
   */
-VulkanSubPlatform::AllocatorData::~AllocatorData() noexcept
+VulkanBackend::AllocatorData::~AllocatorData() noexcept
 {
   //! \todo check memory leak
   auto& mem_map = memoryMap();
@@ -262,7 +260,7 @@ VulkanSubPlatform::AllocatorData::~AllocatorData() noexcept
 /*!
   \details No detailed description
   */
-void VulkanSubPlatform::AllocatorData::initialize()
+void VulkanBackend::AllocatorData::initialize()
 {
   auto& mem_map = memoryMap();
   mem_map.setCapacity(mapCapacity());
@@ -279,7 +277,7 @@ void VulkanSubPlatform::AllocatorData::initialize()
   \param [in] scope No description.
   \return No description
   */
-auto VulkanSubPlatform::Callbacks::allocateMemory(
+auto VulkanBackend::Callbacks::allocateMemory(
     void* user_data,
     size_t size,
     size_t alignment,
@@ -298,7 +296,7 @@ auto VulkanSubPlatform::Callbacks::allocateMemory(
     const auto index_result = mem_map.add(address);
     ZIVC_ASSERT(index_result.isSuccess(), "Adding the address into the map failed.");
     const std::size_t index = index_result.get().get();
-    auto& mem_list = alloc_data->memoryList();
+    auto mem_list = alloc_data->memoryList();
     const MemoryData data{size, alignment};
     mem_list[index] = data;
   }
@@ -312,7 +310,7 @@ auto VulkanSubPlatform::Callbacks::allocateMemory(
   \param [in,out] user_data No description.
   \param [in,out] memory No description.
   */
-void VulkanSubPlatform::Callbacks::deallocateMemory(
+void VulkanBackend::Callbacks::deallocateMemory(
     void* user_data,
     void* memory)
 {
@@ -348,7 +346,7 @@ void VulkanSubPlatform::Callbacks::deallocateMemory(
   \param [in] type No description.
   \param [in] scope No description.
   */
-void VulkanSubPlatform::Callbacks::notifyOfMemoryAllocation(
+void VulkanBackend::Callbacks::notifyOfMemoryAllocation(
     [[maybe_unused]] void* user_data,
     [[maybe_unused]] size_t size,
     [[maybe_unused]] VkInternalAllocationType type,
@@ -364,7 +362,7 @@ void VulkanSubPlatform::Callbacks::notifyOfMemoryAllocation(
   \param [in] type No description.
   \param [in] scope No description.
   */
-void VulkanSubPlatform::Callbacks::notifyOfMemoryDeallocation(
+void VulkanBackend::Callbacks::notifyOfMemoryDeallocation(
     [[maybe_unused]] void* user_data,
     [[maybe_unused]] size_t size,
     [[maybe_unused]] VkInternalAllocationType type,
@@ -381,7 +379,7 @@ void VulkanSubPlatform::Callbacks::notifyOfMemoryDeallocation(
   \param [in] user_data No description.
   \return No description
   */
-auto VulkanSubPlatform::Callbacks::printDebugMessage(
+auto VulkanBackend::Callbacks::printDebugMessage(
     VkDebugUtilsMessageSeverityFlagBitsEXT severity_flags,
     VkDebugUtilsMessageTypeFlagsEXT message_types,
     const VkDebugUtilsMessengerCallbackDataEXT* callback_data,
@@ -540,7 +538,7 @@ auto VulkanSubPlatform::Callbacks::printDebugMessage(
   \param [in] scope No description.
   \return No description
   */
-auto VulkanSubPlatform::Callbacks::reallocateMemory(
+auto VulkanBackend::Callbacks::reallocateMemory(
     void* user_data,
     void* original_memory,
     size_t size,
@@ -586,7 +584,7 @@ auto VulkanSubPlatform::Callbacks::reallocateMemory(
   \param [in] app_version_patch No description.
   \return No description
   */
-VkApplicationInfo VulkanSubPlatform::makeApplicationInfo(
+VkApplicationInfo VulkanBackend::createApplicationInfo(
     const std::string_view app_name,
     const uint32b app_version_major,
     const uint32b app_version_minor,
@@ -615,8 +613,8 @@ VkApplicationInfo VulkanSubPlatform::makeApplicationInfo(
   \param [in] rhs No description.
   \return No description
   */
-bool VulkanSubPlatform::compareProperties(const std::string_view lhs,
-                                          const std::string_view rhs) noexcept
+bool VulkanBackend::compareProperties(const std::string_view lhs,
+                                      const std::string_view rhs) noexcept
 {
   const bool result = lhs < rhs;
   return result;
@@ -625,7 +623,7 @@ bool VulkanSubPlatform::compareProperties(const std::string_view lhs,
 /*!
   \details No detailed description
   */
-void VulkanSubPlatform::initAllocator() noexcept
+void VulkanBackend::initAllocator() noexcept
 {
   auto* mem_resource = memoryResource();
   zisc::pmr::polymorphic_allocator<AllocatorData> alloc{mem_resource};
@@ -637,7 +635,7 @@ void VulkanSubPlatform::initAllocator() noexcept
 
   \param [in,out] options No description.
   */
-void VulkanSubPlatform::initInstance(PlatformOptions& options)
+void VulkanBackend::initInstance(ContextOptions& options)
 {
   using InstancePtr = std::add_pointer_t<VkInstance>;
   auto* ptr = zisc::cast<InstancePtr>(options.vulkanInstancePtr());
@@ -698,11 +696,11 @@ void VulkanSubPlatform::initInstance(PlatformOptions& options)
 
   initWindowSurface(options, &extensions);
 
-  const zivcvk::ApplicationInfo app_info{makeApplicationInfo(
-      options.platformName(),
-      options.platformVersionMajor(),
-      options.platformVersionMinor(),
-      options.platformVersionPatch())};
+  const zivcvk::ApplicationInfo app_info{createApplicationInfo(
+      options.contextName(),
+      options.contextVersionMajor(),
+      options.contextVersionMinor(),
+      options.contextVersionPatch())};
   zivcvk::InstanceCreateInfo create_info{zivcvk::InstanceCreateFlags{},
                                          std::addressof(app_info),
                                          zisc::cast<uint32b>(layers.size()),
@@ -714,7 +712,7 @@ void VulkanSubPlatform::initInstance(PlatformOptions& options)
     debug_utils_create_info.setPNext(std::addressof(validation_features));
   }
 
-  zivcvk::AllocationCallbacks alloc{makeAllocator()};
+  zivcvk::AllocationCallbacks alloc{createAllocator()};
   const auto& loader = dispatcher().loader();
   zivcvk::Instance ins = zivcvk::createInstance(create_info, alloc, loader);
   instance_ = zisc::cast<VkInstance>(ins);
@@ -725,7 +723,7 @@ void VulkanSubPlatform::initInstance(PlatformOptions& options)
 /*!
   \details No detailed description
   */
-void VulkanSubPlatform::initDeviceList()
+void VulkanBackend::initDeviceList()
 {
   const zivcvk::Instance ins{instance()};
 
@@ -744,7 +742,7 @@ void VulkanSubPlatform::initDeviceList()
 /*!
   \details No detailed description
   */
-void VulkanSubPlatform::initDeviceInfoList() noexcept
+void VulkanBackend::initDeviceInfoList() noexcept
 {
   auto* mem_resource = memoryResource();
   using DeviceInfoList = decltype(device_info_list_)::element_type;
@@ -760,7 +758,7 @@ void VulkanSubPlatform::initDeviceInfoList() noexcept
 
   \param [in] options No description.
   */
-void VulkanSubPlatform::initDispatcher(PlatformOptions& options)
+void VulkanBackend::initDispatcher(ContextOptions& options)
 {
   auto* mem_resource = memoryResource();
   zisc::pmr::polymorphic_allocator<VulkanDispatchLoader> alloc{mem_resource};
@@ -780,7 +778,7 @@ void VulkanSubPlatform::initDispatcher(PlatformOptions& options)
 /*!
   \details No detailed description
   */
-void VulkanSubPlatform::initProperties()
+void VulkanBackend::initProperties()
 {
   auto* mem_resource = memoryResource();
   const auto& loader = dispatcher().loader();
@@ -881,8 +879,8 @@ void VulkanSubPlatform::initProperties()
   \param [in] options No description.
   \param [out] extension_list No description.
   */
-void VulkanSubPlatform::initWindowSurface(
-    const PlatformOptions& options,
+void VulkanBackend::initWindowSurface(
+    const ContextOptions& options,
     zisc::pmr::vector<const char*>* extension_list)
 {
   window_surface_type_ = WindowSurfaceType::kNone;
@@ -936,7 +934,7 @@ void VulkanSubPlatform::initWindowSurface(
   \param [in] name No description.
   \return No description
   */
-bool VulkanSubPlatform::isExtensionSupported(const std::string_view name) const noexcept
+bool VulkanBackend::isExtensionSupported(const std::string_view name) const noexcept
 {
   const auto comp = [](const VkExtensionProperties& lhs,
                        const std::string_view rhs) noexcept
@@ -955,7 +953,7 @@ bool VulkanSubPlatform::isExtensionSupported(const std::string_view name) const 
   \param [in] name No description.
   \return No description
   */
-bool VulkanSubPlatform::isLayerSupported(const std::string_view name) const noexcept
+bool VulkanBackend::isLayerSupported(const std::string_view name) const noexcept
 {
   const auto comp = [](const VkLayerProperties& lhs,
                        const std::string_view rhs) noexcept

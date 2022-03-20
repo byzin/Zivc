@@ -64,6 +64,10 @@ class KernelSet_@kernel_set_name@ : public KernelSet<KernelSet_@kernel_set_name@
   static constexpr char kSetName[] = "@kernel_set_name@";
 
  public:
+  //! Initialize the kernel set
+  KernelSet_@kernel_set_name@(zisc::pmr::memory_resource* mem_resource) noexcept;
+
+
   //! Return the ID number of the kernel set
   static constexpr uint64b id() noexcept
   {

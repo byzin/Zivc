@@ -22,6 +22,7 @@
 #include <cstdio>
 #include <cstring>
 #include <memory>
+#include <span>
 #include <string_view>
 #include <tuple>
 #include <type_traits>
@@ -78,7 +79,7 @@ LaunchResult VulkanKernelHelper::run(VKernel* kernel,
   VkCommandBuffer command = kernel->commandBuffer();
   // Command recording
   {
-    const bool have_new_pod = kernel->updatePodCacheIfNeeded(args...);
+    const bool has_new_pod = kernel->updatePodCacheIfNeeded(args...);
     const auto work_size = kernel->calcDispatchWorkSize(launch_options.workSize());
 
     const auto flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
@@ -90,7 +91,7 @@ LaunchResult VulkanKernelHelper::run(VKernel* kernel,
       // Update global and region offsets
       kernel->updateModuleScopePushConstantsCmd(work_size, launch_options);
       // Update POD buffer
-      if (have_new_pod)
+      if (has_new_pod)
         kernel->updatePodBufferCmd();
       // Dispatch the kernel
       kernel->dispatchCmd(work_size);
@@ -122,7 +123,7 @@ LaunchResult VulkanKernelHelper::run(VKernel* kernel,
 template <typename VKernel, typename Type> inline
 void VulkanKernelHelper::updateModuleScopePushConstantsCmd(
     VKernel* kernel,
-    const std::array<uint32b, 3>& work_size,
+    const std::span<const uint32b, 3>& work_size,
     const Type& launch_options)
 {
   using KernelT = std::remove_cvref_t<VKernel>;
@@ -278,7 +279,7 @@ destroyData() noexcept
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-dispatchCmd(const std::array<uint32b, 3>& work_size)
+dispatchCmd(const std::span<const uint32b, 3> work_size)
 {
   VulkanKernelImpl impl{std::addressof(parentImpl())};
   VkCommandBuffer command = commandBuffer();
@@ -298,16 +299,16 @@ inline
 void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 initData(const Params& params)
 {
+  using zisc::cast;
   static_assert(hasGlobalArg(), "The kernel doesn't have global argument.");
   validateData();
   VulkanDevice& device = parentImpl();
 
   // Command buffer reference
-  const VkCommandBuffer* command_buffer_ref =
-      zisc::cast<const VkCommandBuffer*>(params.vulkanCommandBufferPtr());
-  setCommandBufferRef(command_buffer_ref);
+  const auto* command_p = cast<const VkCommandBuffer*>(params.vulkanCommandBufferPtr());
+  setCommandBufferRef(command_p);
   // Add a shader module
-  const auto& module_data = device.addShaderModule(KSet{});
+  const auto& module_data = device.addShaderModule(KSet{ZivcObject::memoryResource()});
   // Add a kernel data
   const std::size_t num_of_storage_buffers = BaseKernel::ArgParser::kNumOfBufferArgs;
   const std::size_t num_of_uniform_buffers = hasPodArg() ? 1 : 0;
@@ -385,7 +386,7 @@ updateDebugInfoImpl()
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 template <std::size_t kIndex, typename ...PodTypes> inline
 auto VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-makePodCacheType(const KernelArgCache<PodTypes...>& cache) noexcept
+createPodCacheType(const KernelArgCache<PodTypes...>& cache) noexcept
 {
   using ArgParser = typename BaseKernel::ArgParser;
   if constexpr (kIndex < ArgParser::kNumOfPodArgs) {
@@ -394,7 +395,7 @@ makePodCacheType(const KernelArgCache<PodTypes...>& cache) noexcept
     using ArgTuple = std::tuple<FuncArgs...>;
     using PodType = std::tuple_element_t<pod_index, ArgTuple>;
     auto precedence = concatArgCache<PodType>(cache);
-    return makePodCacheType<kIndex + 1>(precedence);
+    return createPodCacheType<kIndex + 1>(precedence);
   }
   else {
     return cache;
@@ -410,8 +411,9 @@ makePodCacheType(const KernelArgCache<PodTypes...>& cache) noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-std::array<uint32b, 3> VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-calcDispatchWorkSize(const std::array<uint32b, kDim>& work_size) const noexcept
+auto VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+calcDispatchWorkSize(const std::span<const uint32b, kDim> work_size) const noexcept
+    -> std::array<uint32b, 3>
 {
   const VulkanDevice& device = parentImpl();
   const auto& group_size = device.workGroupSizeDim(BaseKernel::dimension());
@@ -421,6 +423,23 @@ calcDispatchWorkSize(const std::array<uint32b, kDim>& work_size) const noexcept
     dispatch_size[i] = s;
   }
   return dispatch_size;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] args No description.
+  \return No description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+inline
+auto VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+createPodCache(Args... args) noexcept -> PodCacheT
+{
+  PodCacheT cache{};
+  if constexpr (hasPodArg())
+    initPodCache<0>(std::addressof(cache), args...);
+  return cache;
 }
 
 /*!
@@ -436,7 +455,7 @@ inline
 const VkBuffer& VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 getBufferHandle(const Buffer<Type>& buffer) noexcept
 {
-  ZIVC_ASSERT(buffer.type() == SubPlatformType::kVulkan, "The buffer isn't vulkan.");
+  ZIVC_ASSERT(buffer.type() == BackendType::kVulkan, "The buffer isn't vulkan.");
   using BufferT = VulkanBuffer<Type>;
   using BufferData = typename BufferT::BufferData;
   auto data = zisc::cast<const BufferData*>(buffer.rawBufferData());
@@ -481,17 +500,17 @@ initPodBuffer()
     auto& device = parentImpl();
     using BuffType = VulkanBuffer<PodCacheT>;
     {
-      BufferInitParams params{BufferUsage::kDeviceOnly};
+      BufferInitParams params{BufferUsage::kPreferDevice};
       params.setDescriptorType(BuffType::DescriptorType::kUniform);
       params.setInternalBufferFlag(true);
-      pod_buffer_ = device.template makeBuffer<PodCacheT>(params);
+      pod_buffer_ = device.template createBuffer<PodCacheT>(params);
       pod_buffer_->setSize(1);
     }
     {
-      BufferInitParams params{BufferUsage::kHostOnly};
+      BufferInitParams params{BufferUsage::kPreferHost, BufferFlag::kRandomAccessible};
       params.setDescriptorType(BuffType::DescriptorType::kUniform);
       params.setInternalBufferFlag(true);
-      pod_cache_ = device.template makeBuffer<PodCacheT>(params);
+      pod_cache_ = device.template createBuffer<PodCacheT>(params);
       pod_cache_->setSize(1);
     }
 
@@ -530,23 +549,6 @@ initPodCache(PodCacheT* cache, Type&& value, Types&&... rest) noexcept
     constexpr std::size_t next_index = ArgTypeInfo::kIsPod ? kIndex + 1 : kIndex;
     initPodCache<next_index>(cache, std::forward<Types>(rest)...);
   }
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] args No description.
-  \return No description
-  */
-template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-inline
-auto VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-makePodCache(Args... args) noexcept -> PodCacheT
-{
-  PodCacheT cache{};
-  if constexpr (hasPodArg())
-    initPodCache<0>(std::addressof(cache), args...);
-  return cache;
 }
 
 /*!
@@ -603,7 +605,7 @@ prepareCommandBuffer()
   VkCommandBuffer command = commandBuffer();
   if (command == ZIVC_VK_NULL_HANDLE) {
     VulkanDevice& device = parentImpl();
-    command_buffer_ = device.makeCommandBuffer();
+    command_buffer_ = device.createCommandBuffer();
     updateCommandBufferDebugInfo();
   }
 }
@@ -691,16 +693,16 @@ inline
 bool VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 updatePodCacheIfNeeded(Args... args) const noexcept
 {
-  bool have_new_pod = false;
+  bool has_new_pod = false;
   if constexpr (hasPodArg()) {
-    const PodCacheT data = makePodCache(args...);
+    const PodCacheT data = createPodCache(args...);
     ZIVC_ASSERT(pod_cache_->isHostVisible(), "The cache isn't host visible.");
     auto cache = pod_cache_->mapMemory();
-    have_new_pod = cache[0] != data;
-    if (have_new_pod)
+    has_new_pod = cache[0] != data;
+    if (has_new_pod)
       cache[0] = data;
   }
-  return have_new_pod;
+  return has_new_pod;
 }
 
 /*!

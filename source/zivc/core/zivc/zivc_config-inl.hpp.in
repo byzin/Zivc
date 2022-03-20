@@ -28,14 +28,14 @@ namespace zivc {
   \return No description
   */
 inline
-constexpr bool Config::isVulkanSubPlatformEnabled() noexcept
+constexpr bool Config::isVulkanBackendEnabled() noexcept
 {
   const bool is_enabled =
-#if defined(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
+#if defined(ZIVC_ENABLE_VULKAN_BACKEND)
       true;
-#else // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
+#else // ZIVC_ENABLE_VULKAN_BACKEND
       false;
-#endif // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
+#endif // ZIVC_ENABLE_VULKAN_BACKEND
   return is_enabled;
 }
 

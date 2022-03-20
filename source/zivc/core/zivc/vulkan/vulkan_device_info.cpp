@@ -226,9 +226,9 @@ std::string_view VulkanDeviceInfo::name() const noexcept
 
   \return No description
   */
-SubPlatformType VulkanDeviceInfo::type() const noexcept
+BackendType VulkanDeviceInfo::type() const noexcept
 {
-  return SubPlatformType::kVulkan;
+  return BackendType::kVulkan;
 }
 
 /*!
@@ -740,9 +740,8 @@ void VulkanDeviceInfo::fetchQueueFamilyProperties(
 void VulkanDeviceInfo::initHeapInfoList() noexcept
 {
   const auto& props = memoryProperties().properties1_;
-  auto& heap_info_list = DeviceInfo::heapInfoList();
-  heap_info_list.clear();
-  heap_info_list.resize(props.memoryHeapCount);
+  DeviceInfo::setHeapInfoListSize(props.memoryHeapCount);
+  auto heap_info_list = DeviceInfo::heapInfoList();
   for (std::size_t i = 0; i < heap_info_list.size(); ++i) {
     MemoryHeapInfo& info = heap_info_list[i];
     const zivcvk::MemoryHeap heap{props.memoryHeaps[i]};

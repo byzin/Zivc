@@ -16,7 +16,6 @@
 #define ZIVC_MEMORY_HEAP_INFO_HPP
 
 // Standard C++ library
-#include <array>
 #include <cstddef>
 #include <memory>
 // Zisc
@@ -68,7 +67,7 @@ class MemoryHeapInfo
   std::size_t available_size_ = 0;
   Usage used_size_for_buffer_;
   zisc::Boolean is_device_local_;
-  [[maybe_unused]] std::array<uint8b, std::alignment_of_v<std::size_t> - 1> padding_;
+  [[maybe_unused]] Padding<std::alignment_of_v<std::size_t> - 1> pad_;
 };
 
 } // namespace zivc

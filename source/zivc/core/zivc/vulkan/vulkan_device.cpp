@@ -38,8 +38,8 @@
 #include "zisc/memory/std_memory_resource.hpp"
 #include "zisc/utility.hpp"
 // Zivc
+#include "vulkan_backend.hpp"
 #include "vulkan_device_info.hpp"
-#include "vulkan_sub_platform.hpp"
 #include "utility/cmd_debug_label_region.hpp"
 #include "utility/cmd_record_region.hpp"
 #include "utility/queue_debug_label_region.hpp"
@@ -173,7 +173,7 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
   zivcvk::Device d{device()};
   const auto& loader = dispatcher().loader();
   auto* mem_resource = memoryResource();
-  zivcvk::AllocationCallbacks alloc{makeAllocator()};
+  zivcvk::AllocationCallbacks alloc{createAllocator()};
 
   // Initialize descriptor set layout
   zivcvk::DescriptorSetLayout desc_set_layout;
@@ -321,6 +321,49 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
 /*!
   \details No detailed description
 
+  \return No description
+  */
+VmaDeviceMemoryCallbacks VulkanDevice::createAllocationNotifier() noexcept
+{
+  VmaDeviceMemoryCallbacks notifier;
+  notifier.pfnAllocate = Callbacks::notifyOfDeviceMemoryAllocation;
+  notifier.pfnFree = Callbacks::notifyOfDeviceMemoryDeallocation;
+  notifier.pUserData = this;
+  return notifier;
+}
+
+/*!
+  \details No detailed description
+  */
+VkCommandBuffer VulkanDevice::createCommandBuffer()
+{
+  zivcvk::Device d{device()};
+  auto* mem_resource = memoryResource();
+
+  const zivcvk::CommandBufferAllocateInfo alloc_info{
+      commandPool(),
+      zivcvk::CommandBufferLevel::ePrimary,
+      1};
+  zisc::pmr::vector<zivcvk::CommandBuffer>::allocator_type alloc{mem_resource};
+  auto commands = d.allocateCommandBuffers(alloc_info, alloc, dispatcher().loader());
+  ZIVC_ASSERT(commands.size() == 1, "The size of command buffers isn't 1.");
+  return zisc::cast<VkCommandBuffer>(commands[0]);
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+VkAllocationCallbacks VulkanDevice::createAllocator() noexcept
+{
+  auto& backend_p = parentImpl();
+  return backend_p.createAllocator();
+}
+
+/*!
+  \details No detailed description
+
   \param [out] size No description.
   \return No description
   */
@@ -365,17 +408,6 @@ uint64b VulkanDevice::getKernelId(const std::string_view module_name,
 /*!
   \details No detailed description
 
-  \return No description
-  */
-VkAllocationCallbacks VulkanDevice::makeAllocator() noexcept
-{
-  auto& sub_platform = parentImpl();
-  return sub_platform.makeAllocator();
-}
-
-/*!
-  \details No detailed description
-
   \param [in] command_buffer No description.
   \param [in] label_name No description.
   \param [in] color No description.
@@ -384,7 +416,7 @@ VkAllocationCallbacks VulkanDevice::makeAllocator() noexcept
 CmdDebugLabelRegion VulkanDevice::makeCmdDebugLabel(
     const VkCommandBuffer& command_buffer,
     const std::string_view label_name,
-    const std::array<float, 4>& color) const noexcept
+    const std::span<const float, 4> color) const noexcept
 {
   const VkCommandBuffer& cmd = isDebugMode() ? command_buffer : ZIVC_VK_NULL_HANDLE;
   return CmdDebugLabelRegion{cmd, dispatcher(), label_name, color};
@@ -415,28 +447,10 @@ CmdRecordRegion VulkanDevice::makeCmdRecord(
 QueueDebugLabelRegion VulkanDevice::makeQueueDebugLabel(
     const VkQueue& q,
     const std::string_view label_name,
-    const std::array<float, 4>& color) const noexcept
+    const std::span<const float, 4> color) const noexcept
 {
   const VkQueue& que = isDebugMode() ? q : ZIVC_VK_NULL_HANDLE;
   return QueueDebugLabelRegion{que, dispatcher(), label_name, color};
-}
-
-/*!
-  \details No detailed description
-  */
-VkCommandBuffer VulkanDevice::makeCommandBuffer()
-{
-  zivcvk::Device d{device()};
-  auto* mem_resource = memoryResource();
-
-  const zivcvk::CommandBufferAllocateInfo alloc_info{
-      commandPool(),
-      zivcvk::CommandBufferLevel::ePrimary,
-      1};
-  zisc::pmr::vector<zivcvk::CommandBuffer>::allocator_type alloc{mem_resource};
-  auto commands = d.allocateCommandBuffers(alloc_info, alloc, dispatcher().loader());
-  ZIVC_ASSERT(commands.size() == 1, "The size of command buffers isn't 1.");
-  return zisc::cast<VkCommandBuffer>(commands[0]);
 }
 
 /*!
@@ -498,7 +512,7 @@ void VulkanDevice::returnFence(Fence* fence) noexcept
   std::size_t fence_index = invalid;
   {
     const zisc::pmr::vector<VkFence>& fence_list = *fence_list_;
-    const auto value = zisc::cast<VkFence>(*dest);
+    const auto* const value = zisc::cast<VkFence>(*dest);
     const auto ite = std::lower_bound(fence_list.begin(), fence_list.end(), value);
     if ((ite != fence_list.end()) && (*ite == value))
       fence_index = zisc::cast<std::size_t>(std::distance(fence_list.begin(), ite));
@@ -579,7 +593,7 @@ void VulkanDevice::setFenceSize(const std::size_t s)
 {
   zivcvk::Device d{device()};
   const auto& loader = dispatcher().loader();
-  zivcvk::AllocationCallbacks alloc{makeAllocator()};
+  zivcvk::AllocationCallbacks alloc{createAllocator()};
 
   IndexQueue& index_queue = fenceIndexQueue();
   index_queue.setCapacity(s);
@@ -620,7 +634,7 @@ void VulkanDevice::takeFence(Fence* fence)
 {
   IndexQueue& index_queue = fenceIndexQueue();
   const auto index_result = index_queue.dequeue();
-  if (not index_result.isSuccess()) {
+  if (not index_result.isSuccess()) [[unlikely]] {
     //! \todo Available fence isn't found. Raise an exception?
     const char* message = "Available fence not found.";
     throw SystemError{ErrorCode::kAvailableFenceNotFound, message};
@@ -710,7 +724,7 @@ void VulkanDevice::destroyData() noexcept
   }
 
   if (d) {
-    zivcvk::AllocationCallbacks alloc{makeAllocator()};
+    zivcvk::AllocationCallbacks alloc{createAllocator()};
     const auto& loader = dispatcher().loader();
 
     setFenceSize(0); // Destroy all fences
@@ -903,10 +917,10 @@ void VulkanDevice::Callbacks::notifyOfDeviceMemoryAllocation(
   const std::size_t heap_index = getHeapIndex(*device, memory_type);
   (*device->heap_usage_list_)[heap_index].add(size);
 
-  VulkanSubPlatform& sub_platform = device->parentImpl();
+  VulkanBackend& backend_p = device->parentImpl();
   const VulkanDeviceInfo& info = device->deviceInfoImpl();
   const std::size_t device_index = info.deviceIndex();
-  sub_platform.notifyOfDeviceMemoryAllocation(device_index, heap_index, size);
+  backend_p.notifyOfDeviceMemoryAllocation(device_index, heap_index, size);
 }
 
 /*!
@@ -929,10 +943,10 @@ void VulkanDevice::Callbacks::notifyOfDeviceMemoryDeallocation(
   const std::size_t heap_index = getHeapIndex(*device, memory_type);
   (*device->heap_usage_list_)[heap_index].release(size);
 
-  VulkanSubPlatform& sub_platform = device->parentImpl();
+  VulkanBackend& backend_p = device->parentImpl();
   const VulkanDeviceInfo& info = device->deviceInfoImpl();
   const std::size_t device_index = info.deviceIndex();
-  sub_platform.notifyOfDeviceMemoryDeallocation(device_index, heap_index, size);
+  backend_p.notifyOfDeviceMemoryDeallocation(device_index, heap_index, size);
 }
 
 /*!
@@ -942,16 +956,17 @@ void VulkanDevice::Callbacks::notifyOfDeviceMemoryDeallocation(
   \param [in] spirv_code No description.
   */
 auto VulkanDevice::addShaderModule(const uint64b id,
-                                   const zisc::pmr::vector<uint32b>& spirv_code,
+                                   const std::span<const uint32b> spirv_code,
                                    const std::string_view module_name)
     -> const ModuleData&
 {
   zivcvk::Device d{device()};
   const auto& loader = dispatcher().loader();
   auto* mem_resource = memoryResource();
-  zivcvk::AllocationCallbacks alloc{makeAllocator()};
+  zivcvk::AllocationCallbacks alloc{createAllocator()};
 
-  const std::size_t code_size = spirv_code.size() * sizeof(spirv_code[0]);
+  using SpirVCodeT = decltype(spirv_code);
+  const std::size_t code_size = spirv_code.size() * sizeof(SpirVCodeT::value_type);
   zivcvk::ShaderModuleCreateInfo create_info{zivcvk::ShaderModuleCreateFlags{},
                                              code_size,
                                              spirv_code.data()};
@@ -1008,7 +1023,7 @@ void VulkanDevice::destroyShaderKernel(KernelData* kernel) noexcept
 {
   zivcvk::Device d{device()};
   const auto& loader = dispatcher().loader();
-  zivcvk::AllocationCallbacks alloc{makeAllocator()};
+  zivcvk::AllocationCallbacks alloc{createAllocator()};
 
   {
     zivcvk::Pipeline pline{kernel->pipeline_};
@@ -1038,7 +1053,7 @@ void VulkanDevice::destroyShaderKernel(KernelData* kernel) noexcept
 void VulkanDevice::destroyShaderModule(ModuleData* module) noexcept
 {
   zivcvk::Device d{device()};
-  zivcvk::AllocationCallbacks alloc{makeAllocator()};
+  zivcvk::AllocationCallbacks alloc{createAllocator()};
   {
     zivcvk::ShaderModule m{module->module_};
     if (m)
@@ -1197,9 +1212,9 @@ void VulkanDevice::initCapability() noexcept
   constexpr uint32b compute_mask = 0b1u << zisc::cast<uint32b>(Capability::kCompute);
   capabilities_ = compute_mask;
 
-  auto& sub_platform = parentImpl();
-  using SurfaceType = VulkanSubPlatform::WindowSurfaceType;
-  if (sub_platform.windowSurfaceType() != SurfaceType::kNone) {
+  auto& backend_p = parentImpl();
+  using SurfaceType = VulkanBackend::WindowSurfaceType;
+  if (backend_p.windowSurfaceType() != SurfaceType::kNone) {
     constexpr uint32b gui_mask = 0b1u << zisc::cast<uint32b>(Capability::kGui);
     capabilities_ = capabilities_ | gui_mask;
   }
@@ -1212,7 +1227,7 @@ void VulkanDevice::initCommandPool()
 {
   zivcvk::Device d{device()};
   const auto& loader = dispatcher().loader();
-  zivcvk::AllocationCallbacks alloc{makeAllocator()};
+  zivcvk::AllocationCallbacks alloc{createAllocator()};
 
   const zivcvk::CommandPoolCreateInfo create_info{
       zivcvk::CommandPoolCreateFlagBits::eResetCommandBuffer,
@@ -1228,7 +1243,7 @@ void VulkanDevice::initCommandPool()
   */
 void VulkanDevice::initDevice()
 {
-  auto& sub_platform = parentImpl();
+  auto& backend_p = parentImpl();
   const auto& info = deviceInfoImpl();
 
   zisc::pmr::vector<const char*>::allocator_type layer_alloc{memoryResource()};
@@ -1261,7 +1276,7 @@ void VulkanDevice::initDevice()
       nullptr};
   device_create_info.setPNext(std::addressof(device_features));
 
-  zivcvk::AllocationCallbacks alloc{sub_platform.makeAllocator()};
+  zivcvk::AllocationCallbacks alloc{backend_p.createAllocator()};
   const auto pdevice = zisc::cast<zivcvk::PhysicalDevice>(info.device());
   auto d = pdevice.createDevice(device_create_info, alloc, dispatcher().loader());
   device_ = zisc::cast<VkDevice>(d);
@@ -1273,10 +1288,10 @@ void VulkanDevice::initDevice()
   */
 void VulkanDevice::initDispatcher()
 {
-  const auto& sub_platform = parentImpl();
+  const auto& backend_p = parentImpl();
   dispatcher_ = zisc::pmr::allocateUnique<VulkanDispatchLoader>(
       memoryResource(),
-      sub_platform.dispatcher());
+      backend_p.dispatcher());
   ZIVC_ASSERT(dispatcher().isDispatchableForInstance(), "Unexpected init.");
   ZIVC_ASSERT(dispatcher().isDispatchableForDevice(), "Unexpected init.");
 }
@@ -1290,7 +1305,7 @@ void VulkanDevice::initDispatcher()
 void VulkanDevice::initProperties(zisc::pmr::vector<const char*>* extensions,
                                   zisc::pmr::vector<const char*>* layers)
 {
-  auto& sub_platform = parentImpl();
+  auto& backend_p = parentImpl();
 
 #if defined(Z_MAC)
   *extensions = {VK_KHR_BIND_MEMORY_2_EXTENSION_NAME,
@@ -1308,7 +1323,7 @@ void VulkanDevice::initProperties(zisc::pmr::vector<const char*>* extensions,
     extensions->emplace_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
   }
 
-  if (sub_platform.isDebugMode()) {
+  if (backend_p.isDebugMode()) {
     layers->emplace_back("VK_LAYER_KHRONOS_validation");
   }
 
@@ -1516,11 +1531,11 @@ void VulkanDevice::initQueueList()
   */
 void VulkanDevice::initMemoryAllocator()
 {
-  auto& sub_platform = parentImpl();
+  auto& backend_p = parentImpl();
   const auto& info = deviceInfoImpl();
 
-  VkAllocationCallbacks alloc = sub_platform.makeAllocator();
-  VmaDeviceMemoryCallbacks notifier = makeAllocationNotifier();
+  VkAllocationCallbacks alloc = backend_p.createAllocator();
+  VmaDeviceMemoryCallbacks notifier = createAllocationNotifier();
   VmaVulkanFunctions functions = getVmaVulkanFunctions();
 
   VmaAllocatorCreateInfo create_info;
@@ -1532,7 +1547,7 @@ void VulkanDevice::initMemoryAllocator()
   create_info.pDeviceMemoryCallbacks = std::addressof(notifier);
   create_info.pHeapSizeLimit = nullptr;
   create_info.pVulkanFunctions = std::addressof(functions);
-  create_info.instance = sub_platform.instance();
+  create_info.instance = backend_p.instance();
   create_info.vulkanApiVersion = vkGetVulkanApiVersion();
   create_info.pTypeExternalMemoryHandleTypes = nullptr;
   VkResult result = vmaCreateAllocator(std::addressof(create_info),
@@ -1541,20 +1556,6 @@ void VulkanDevice::initMemoryAllocator()
     const char* message = "VM allocator creation failed.";
     zivcvk::throwResultException(zisc::cast<zivcvk::Result>(result), message);
   }
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-VmaDeviceMemoryCallbacks VulkanDevice::makeAllocationNotifier() noexcept
-{
-  VmaDeviceMemoryCallbacks notifier;
-  notifier.pfnAllocate = Callbacks::notifyOfDeviceMemoryAllocation;
-  notifier.pfnFree = Callbacks::notifyOfDeviceMemoryDeallocation;
-  notifier.pUserData = this;
-  return notifier;
 }
 
 /*!

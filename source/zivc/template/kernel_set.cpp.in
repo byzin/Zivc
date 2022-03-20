@@ -94,13 +94,25 @@ void loadBakedSpirvCode(zisc::pmr::vector<zivc::uint32b>* spirv_code_out) noexce
 
 namespace zivc::kernel_set {
 
+// Type alias
+using KernelSetT = KernelSet_@kernel_set_name@;
+
+/*!
+  \details No detailed description
+
+  \param [in,out] mem_resource No description.
+  */
+KernelSetT::KernelSet_@kernel_set_name@(zisc::pmr::memory_resource* mem_resource) noexcept :
+    KernelSet(mem_resource)
+{
+}
+
 /*!
   \details No detailed description
 
   \param [out] spirv_code_out No description.
   */
-void KernelSet_@kernel_set_name@::loadSpirVCode(
-    zisc::pmr::vector<uint32b>* spirv_code_out) noexcept
+void KernelSetT::loadSpirVCode(zisc::pmr::vector<uint32b>* spirv_code_out) noexcept
 {
   static_assert(sizeof(uint32b) == 4, "The size of the code element isn't 4.");
 #if defined(ZIVC_BAKE_KERNELS)

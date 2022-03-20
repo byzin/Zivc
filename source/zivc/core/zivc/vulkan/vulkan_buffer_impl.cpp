@@ -47,12 +47,12 @@ namespace {
   */
 template <typename Params>
 [[nodiscard]]
-auto makeFillKernelImpl(zivc::VulkanDevice* device,
-                        const VkCommandBuffer& command_buffer,
-                        Params& params)
+auto createFillKernelImpl(zivc::VulkanDevice* device,
+                          const VkCommandBuffer& command_buffer,
+                          Params& params)
 {
   params.setVulkanCommandBufferPtr(std::addressof(command_buffer));
-  auto kernel = device->makeKernel(params);
+  auto kernel = device->createKernel(params);
   return kernel;
 }
 
@@ -64,75 +64,75 @@ auto makeFillKernelImpl(zivc::VulkanDevice* device,
   \return No description
   */
 [[nodiscard]]
-auto makeFillU8KernelImpl(zivc::VulkanDevice* device,
-                          const VkCommandBuffer& command_buffer)
-{
-  auto p = ZIVC_MAKE_KERNEL_INIT_PARAMS(zivc_internal_kernel, Zivc_fillU8Kernel, 1);
-  auto kernel = makeFillKernelImpl(device, command_buffer, p);
-  return kernel;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] device No description.
-  \param [in] command_buffer No description.
-  \return No description
-  */
-[[nodiscard]]
-auto makeFillU16KernelImpl(zivc::VulkanDevice* device,
-                           const VkCommandBuffer& command_buffer)
-{
-  auto p = ZIVC_MAKE_KERNEL_INIT_PARAMS(zivc_internal_kernel, Zivc_fillU16Kernel, 1);
-  auto kernel = makeFillKernelImpl(device, command_buffer, p);
-  return kernel;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] device No description.
-  \param [in] command_buffer No description.
-  \return No description
-  */
-[[nodiscard]]
-auto makeFillU32KernelImpl(zivc::VulkanDevice* device,
-                           const VkCommandBuffer& command_buffer)
-{
-  auto p = ZIVC_MAKE_KERNEL_INIT_PARAMS(zivc_internal_kernel, Zivc_fillU32Kernel, 1);
-  auto kernel = makeFillKernelImpl(device, command_buffer, p);
-  return kernel;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] device No description.
-  \param [in] command_buffer No description.
-  \return No description
-  */
-[[nodiscard]]
-auto makeFillU64KernelImpl(zivc::VulkanDevice* device,
-                           const VkCommandBuffer& command_buffer)
-{
-  auto p = ZIVC_MAKE_KERNEL_INIT_PARAMS(zivc_internal_kernel, Zivc_fillU64Kernel, 1);
-  auto kernel = makeFillKernelImpl(device, command_buffer, p);
-  return kernel;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] device No description.
-  \param [in] command_buffer No description.
-  \return No description
-  */
-[[nodiscard]]
-auto makeFillU128KernelImpl(zivc::VulkanDevice* device,
+auto createFillU8KernelImpl(zivc::VulkanDevice* device,
                             const VkCommandBuffer& command_buffer)
 {
-  auto p = ZIVC_MAKE_KERNEL_INIT_PARAMS(zivc_internal_kernel, Zivc_fillU128Kernel, 1);
-  auto kernel = makeFillKernelImpl(device, command_buffer, p);
+  auto p = ZIVC_CREATE_KERNEL_INIT_PARAMS(zivc_internal_kernel, Zivc_fillU8Kernel, 1);
+  auto kernel = createFillKernelImpl(device, command_buffer, p);
+  return kernel;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] device No description.
+  \param [in] command_buffer No description.
+  \return No description
+  */
+[[nodiscard]]
+auto createFillU16KernelImpl(zivc::VulkanDevice* device,
+                             const VkCommandBuffer& command_buffer)
+{
+  auto p = ZIVC_CREATE_KERNEL_INIT_PARAMS(zivc_internal_kernel, Zivc_fillU16Kernel, 1);
+  auto kernel = createFillKernelImpl(device, command_buffer, p);
+  return kernel;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] device No description.
+  \param [in] command_buffer No description.
+  \return No description
+  */
+[[nodiscard]]
+auto createFillU32KernelImpl(zivc::VulkanDevice* device,
+                             const VkCommandBuffer& command_buffer)
+{
+  auto p = ZIVC_CREATE_KERNEL_INIT_PARAMS(zivc_internal_kernel, Zivc_fillU32Kernel, 1);
+  auto kernel = createFillKernelImpl(device, command_buffer, p);
+  return kernel;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] device No description.
+  \param [in] command_buffer No description.
+  \return No description
+  */
+[[nodiscard]]
+auto createFillU64KernelImpl(zivc::VulkanDevice* device,
+                             const VkCommandBuffer& command_buffer)
+{
+  auto p = ZIVC_CREATE_KERNEL_INIT_PARAMS(zivc_internal_kernel, Zivc_fillU64Kernel, 1);
+  auto kernel = createFillKernelImpl(device, command_buffer, p);
+  return kernel;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] device No description.
+  \param [in] command_buffer No description.
+  \return No description
+  */
+[[nodiscard]]
+auto createFillU128KernelImpl(zivc::VulkanDevice* device,
+                              const VkCommandBuffer& command_buffer)
+{
+  auto p = ZIVC_CREATE_KERNEL_INIT_PARAMS(zivc_internal_kernel, Zivc_fillU128Kernel, 1);
+  auto kernel = createFillKernelImpl(device, command_buffer, p);
   return kernel;
 }
 
@@ -161,6 +161,7 @@ VulkanBufferImpl::~VulkanBufferImpl() noexcept
 
   \param [in] size No description.
   \param [in] buffer_usage No description.
+  \param [in] buffer_flag No description.
   \param [in] desc_type No description.
   \param [in] user_data No description.
   \param [out] buffer No description.
@@ -169,6 +170,7 @@ VulkanBufferImpl::~VulkanBufferImpl() noexcept
   */
 void VulkanBufferImpl::allocateMemory(const std::size_t size,
                                       const BufferUsage buffer_usage,
+                                      const BufferFlag buffer_flag,
                                       const VkBufferUsageFlagBits desc_type,
                                       void* user_data,
                                       VkBuffer* buffer,
@@ -177,18 +179,20 @@ void VulkanBufferImpl::allocateMemory(const std::size_t size,
 {
   uint32b index_list_size = 0;
   const auto family_index_list = device().getQueueFamilyIndexList(&index_list_size);
-  VkBufferCreateInfo binfo = makeBufferCreateInfo(size, desc_type);
+  VkBufferCreateInfo binfo = createBufferCreateInfo(size, desc_type);
   binfo.queueFamilyIndexCount = index_list_size;
   binfo.pQueueFamilyIndices = family_index_list.data();
 
-  const auto alloc_create_info = makeAllocCreateInfo(buffer_usage, user_data);
+  const auto alloc_create_info = createAllocCreateInfo(buffer_usage,
+                                                       buffer_flag,
+                                                       user_data);
   const auto result = vmaCreateBuffer(device().memoryAllocator(),
                                       std::addressof(binfo),
                                       std::addressof(alloc_create_info),
                                       buffer,
                                       vm_allocation,
                                       alloc_info);
-  if (result != VK_SUCCESS) {
+  if (result != VK_SUCCESS) [[unlikely]] {
     const char* message = "Device memory allocation failed.";
     throwResultException(result, message);
   }
@@ -264,14 +268,14 @@ LaunchResult VulkanBufferImpl::fillImpl(KernelCommon* fill_kernel,
   using FillInfoT = zivc::cl::zivc::FillInfo;
   auto* kernel = zisc::cast<FillKernelP>(fill_kernel);
 
-  auto kernel_launch_options = kernel->makeOptions();
+  auto kernel_launch_options = kernel->createOptions();
   const std::size_t work_size = (size + FillInfoT::batchSize() - 1) /
                                 FillInfoT::batchSize();
 
   constexpr std::size_t type_size = sizeof(Type);
   const std::size_t adjustment = (type_size <= 2) ? data_buffer->size() : 1;
 
-  kernel_launch_options.setWorkSize({zisc::cast<uint32b>(work_size * adjustment)});
+  kernel_launch_options.setWorkSize({{zisc::cast<uint32b>(work_size * adjustment)}});
   kernel_launch_options.setQueueIndex(launch_options.queueIndex());
   kernel_launch_options.requestFence(launch_options.isFenceRequested());
   kernel_launch_options.setLabel(launch_options.label());
@@ -305,7 +309,7 @@ LaunchResult VulkanBufferImpl::fillU8(KernelCommon* fill_kernel,
                                       const std::size_t size) const
 {
   using FillKernelT =
-      std::remove_cvref_t<decltype(*::makeFillU8KernelImpl(nullptr, nullptr))>;
+      std::remove_cvref_t<decltype(*::createFillU8KernelImpl(nullptr, nullptr))>;
   auto result = fillImpl<uint8b, FillKernelT>(fill_kernel, data_buffer, buffer,
                                               launch_options, offset, size);
   return result;
@@ -330,7 +334,7 @@ LaunchResult VulkanBufferImpl::fillU16(KernelCommon* fill_kernel,
                                        const std::size_t size) const
 {
   using FillKernelT =
-      std::remove_cvref_t<decltype(*::makeFillU16KernelImpl(nullptr, nullptr))>;
+      std::remove_cvref_t<decltype(*::createFillU16KernelImpl(nullptr, nullptr))>;
   auto result = fillImpl<uint16b, FillKernelT>(fill_kernel, data_buffer, buffer,
                                                launch_options, offset, size);
   return result;
@@ -355,7 +359,7 @@ LaunchResult VulkanBufferImpl::fillU32(KernelCommon* fill_kernel,
                                        const std::size_t size) const
 {
   using FillKernelT =
-      std::remove_cvref_t<decltype(*::makeFillU32KernelImpl(nullptr, nullptr))>;
+      std::remove_cvref_t<decltype(*::createFillU32KernelImpl(nullptr, nullptr))>;
   auto result = fillImpl<uint32b, FillKernelT>(fill_kernel, data_buffer, buffer,
                                                launch_options, offset, size);
   return result;
@@ -380,7 +384,7 @@ LaunchResult VulkanBufferImpl::fillU64(KernelCommon* fill_kernel,
                                        const std::size_t size) const
 {
   using FillKernelT =
-      std::remove_cvref_t<decltype(*::makeFillU64KernelImpl(nullptr, nullptr))>;
+      std::remove_cvref_t<decltype(*::createFillU64KernelImpl(nullptr, nullptr))>;
   auto result = fillImpl<cl_uint2, FillKernelT>(fill_kernel, data_buffer, buffer,
                                                 launch_options, offset, size);
   return result;
@@ -405,7 +409,7 @@ LaunchResult VulkanBufferImpl::fillU128(KernelCommon* fill_kernel,
                                        const std::size_t size) const
 {
   using FillKernelT =
-      std::remove_cvref_t<decltype(*::makeFillU128KernelImpl(nullptr, nullptr))>;
+      std::remove_cvref_t<decltype(*::createFillU128KernelImpl(nullptr, nullptr))>;
   auto result = fillImpl<cl_uint4, FillKernelT>(fill_kernel, data_buffer, buffer,
                                                 launch_options, offset, size);
   return result;
@@ -437,10 +441,12 @@ void VulkanBufferImpl::fillFastCmd(const VkCommandBuffer& command_buffer,
   \details No detailed description
 
   \param [in] buffer_usage No description.
+  \param [in] buffer_flag No description.
   \param [in] desc_type No description.
   \param [out] alloc_info No description.
   */
 void VulkanBufferImpl::initAllocationInfo(const BufferUsage buffer_usage,
+                                          const BufferFlag buffer_flag,
                                           const VkBufferUsageFlagBits desc_type,
                                           VmaAllocationInfo* alloc_info) const
 {
@@ -450,13 +456,15 @@ void VulkanBufferImpl::initAllocationInfo(const BufferUsage buffer_usage,
     deallocateMemory(std::addressof(buffer), nullptr, alloc_info);
   }
 
-  VkBufferCreateInfo binfo = makeBufferCreateInfo(1, desc_type);
+  VkBufferCreateInfo binfo = createBufferCreateInfo(1, desc_type);
   uint32b index_list_size = 0;
   const auto family_index_list = device().getQueueFamilyIndexList(&index_list_size);
   binfo.queueFamilyIndexCount = index_list_size;
   binfo.pQueueFamilyIndices = family_index_list.data();
 
-  const auto alloc_create_info = makeAllocCreateInfo(buffer_usage, nullptr);
+  const auto alloc_create_info = createAllocCreateInfo(buffer_usage,
+                                                       buffer_flag,
+                                                       nullptr);
   const auto result = vmaFindMemoryTypeIndexForBufferInfo(
       device().memoryAllocator(),
       std::addressof(binfo),
@@ -478,6 +486,125 @@ void VulkanBufferImpl::throwResultException(const VkResult result, const char* m
 {
   const auto r = zisc::cast<zivcvk::Result>(result);
   zivcvk::throwResultException(r, message);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] buffer_usage No description.
+  \param [in] user_data No description.
+  \return No description
+
+  */
+VmaAllocationCreateInfo VulkanBufferImpl::createAllocCreateInfo(
+    const BufferUsage buffer_usage,
+    const BufferFlag buffer_flag,
+    void* user_data) noexcept
+{
+  // VMA allocation create info
+  VmaAllocationCreateInfo alloc_create_info;
+  alloc_create_info.flags = (buffer_flag == BufferFlag::kNone)
+      ? VMA_ALLOCATION_CREATE_STRATEGY_MIN_MEMORY_BIT
+      : VMA_ALLOCATION_CREATE_STRATEGY_MIN_MEMORY_BIT | toVmaFlag(buffer_flag);
+  alloc_create_info.usage = toVmaUsage(buffer_usage);
+  alloc_create_info.requiredFlags = 0;
+  alloc_create_info.preferredFlags = 0;
+  alloc_create_info.memoryTypeBits = 0;
+  alloc_create_info.pool = ZIVC_VK_NULL_HANDLE;
+  alloc_create_info.pUserData = user_data;
+  alloc_create_info.priority = 0.0f;
+
+  return alloc_create_info;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] size No description.
+  \param [in] desc_type No description.
+  \return No description
+  */
+VkBufferCreateInfo VulkanBufferImpl::createBufferCreateInfo(
+    const std::size_t size,
+    const VkBufferUsageFlagBits desc_type) noexcept
+{
+  // Buffer create info
+  zivcvk::BufferCreateInfo buffer_create_info;
+  buffer_create_info.size = size;
+  const auto descriptor_type = zisc::cast<zivcvk::BufferUsageFlagBits>(desc_type);
+  buffer_create_info.usage = zivcvk::BufferUsageFlagBits::eTransferSrc |
+                             zivcvk::BufferUsageFlagBits::eTransferDst |
+                             descriptor_type;
+  buffer_create_info.sharingMode = zivcvk::SharingMode::eExclusive;
+  buffer_create_info.queueFamilyIndexCount = 0;
+  buffer_create_info.pQueueFamilyIndices = nullptr;
+
+  return zisc::cast<VkBufferCreateInfo>(buffer_create_info);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] command_buffer No description.
+  \return No description
+  */
+std::shared_ptr<KernelCommon> VulkanBufferImpl::createFillU8Kernel(
+    const VkCommandBuffer& command_buffer)
+{
+  auto kernel = ::createFillU8KernelImpl(std::addressof(device()), command_buffer);
+  return std::move(kernel);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] command_buffer No description.
+  \return No description
+  */
+std::shared_ptr<KernelCommon> VulkanBufferImpl::createFillU16Kernel(
+    const VkCommandBuffer& command_buffer)
+{
+  auto kernel = ::createFillU16KernelImpl(std::addressof(device()), command_buffer);
+  return std::move(kernel);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] command_buffer No description.
+  \return No description
+  */
+std::shared_ptr<KernelCommon> VulkanBufferImpl::createFillU32Kernel(
+    const VkCommandBuffer& command_buffer)
+{
+  auto kernel = ::createFillU32KernelImpl(std::addressof(device()), command_buffer);
+  return std::move(kernel);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] command_buffer No description.
+  \return No description
+  */
+std::shared_ptr<KernelCommon> VulkanBufferImpl::createFillU64Kernel(
+    const VkCommandBuffer& command_buffer)
+{
+  auto kernel = ::createFillU64KernelImpl(std::addressof(device()), command_buffer);
+  return std::move(kernel);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] command_buffer No description.
+  \return No description
+  */
+std::shared_ptr<KernelCommon> VulkanBufferImpl::createFillU128Kernel(
+    const VkCommandBuffer& command_buffer)
+{
+  auto kernel = ::createFillU128KernelImpl(std::addressof(device()), command_buffer);
+  return std::move(kernel);
 }
 
 /*!
@@ -505,117 +632,26 @@ const VulkanDevice& VulkanBufferImpl::device() const noexcept
 /*!
   \details No detailed description
 
-  \param [in] buffer_usage No description.
-  \param [in] user_data No description.
-  \return No description
-
-  */
-VmaAllocationCreateInfo VulkanBufferImpl::makeAllocCreateInfo(
-    const BufferUsage buffer_usage,
-    void* user_data) noexcept
-{
-  // VMA allocation create info
-  VmaAllocationCreateInfo alloc_create_info;
-  alloc_create_info.flags = VMA_ALLOCATION_CREATE_STRATEGY_MIN_MEMORY_BIT;
-  alloc_create_info.usage = toVmaUsage(buffer_usage);
-  alloc_create_info.requiredFlags = 0;
-  alloc_create_info.preferredFlags = 0;
-  alloc_create_info.memoryTypeBits = 0;
-  alloc_create_info.pool = ZIVC_VK_NULL_HANDLE;
-  alloc_create_info.pUserData = user_data;
-  alloc_create_info.priority = 0.0f;
-
-  return alloc_create_info;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] size No description.
-  \param [in] desc_type No description.
+  \param [in] flag No description.
   \return No description
   */
-VkBufferCreateInfo VulkanBufferImpl::makeBufferCreateInfo(
-    const std::size_t size,
-    const VkBufferUsageFlagBits desc_type) noexcept
+inline
+constexpr VmaAllocationCreateFlagBits VulkanBufferImpl::toVmaFlag(const BufferFlag flag) noexcept
 {
-  // Buffer create info
-  zivcvk::BufferCreateInfo buffer_create_info;
-  buffer_create_info.size = size;
-  const auto descriptor_type = zisc::cast<zivcvk::BufferUsageFlagBits>(desc_type);
-  buffer_create_info.usage = zivcvk::BufferUsageFlagBits::eTransferSrc |
-                             zivcvk::BufferUsageFlagBits::eTransferDst |
-                             descriptor_type;
-  buffer_create_info.sharingMode = zivcvk::SharingMode::eExclusive;
-  buffer_create_info.queueFamilyIndexCount = 0;
-  buffer_create_info.pQueueFamilyIndices = nullptr;
-
-  return zisc::cast<VkBufferCreateInfo>(buffer_create_info);
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] command_buffer No description.
-  \return No description
-  */
-std::shared_ptr<KernelCommon> VulkanBufferImpl::makeFillU8Kernel(
-    const VkCommandBuffer& command_buffer)
-{
-  auto kernel = ::makeFillU8KernelImpl(std::addressof(device()), command_buffer);
-  return std::move(kernel);
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] command_buffer No description.
-  \return No description
-  */
-std::shared_ptr<KernelCommon> VulkanBufferImpl::makeFillU16Kernel(
-    const VkCommandBuffer& command_buffer)
-{
-  auto kernel = ::makeFillU16KernelImpl(std::addressof(device()), command_buffer);
-  return std::move(kernel);
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] command_buffer No description.
-  \return No description
-  */
-std::shared_ptr<KernelCommon> VulkanBufferImpl::makeFillU32Kernel(
-    const VkCommandBuffer& command_buffer)
-{
-  auto kernel = ::makeFillU32KernelImpl(std::addressof(device()), command_buffer);
-  return std::move(kernel);
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] command_buffer No description.
-  \return No description
-  */
-std::shared_ptr<KernelCommon> VulkanBufferImpl::makeFillU64Kernel(
-    const VkCommandBuffer& command_buffer)
-{
-  auto kernel = ::makeFillU64KernelImpl(std::addressof(device()), command_buffer);
-  return std::move(kernel);
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] command_buffer No description.
-  \return No description
-  */
-std::shared_ptr<KernelCommon> VulkanBufferImpl::makeFillU128Kernel(
-    const VkCommandBuffer& command_buffer)
-{
-  auto kernel = ::makeFillU128KernelImpl(std::addressof(device()), command_buffer);
-  return std::move(kernel);
+  VmaAllocationCreateFlagBits buf_flag = VMA_ALLOCATION_CREATE_FLAG_BITS_MAX_ENUM;
+  switch (flag) {
+   case BufferFlag::kSequentialWritable: {
+    buf_flag = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+    break;
+   }
+   case BufferFlag::kRandomAccessible: {
+    buf_flag = VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT;
+    break;
+   }
+   default:
+    break;
+  }
+  return buf_flag;
 }
 
 /*!
@@ -629,20 +665,16 @@ constexpr VmaMemoryUsage VulkanBufferImpl::toVmaUsage(const BufferUsage usage) n
 {
   VmaMemoryUsage mem_usage = VMA_MEMORY_USAGE_UNKNOWN;
   switch (usage) {
-   case BufferUsage::kDeviceOnly: {
-    mem_usage = VMA_MEMORY_USAGE_GPU_ONLY;
+   case BufferUsage::kAuto: {
+    mem_usage = VMA_MEMORY_USAGE_AUTO;
     break;
    }
-   case BufferUsage::kHostOnly: {
-    mem_usage = VMA_MEMORY_USAGE_CPU_ONLY;
+   case BufferUsage::kPreferDevice: {
+    mem_usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE;
     break;
    }
-   case BufferUsage::kHostToDevice: {
-    mem_usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
-    break;
-   }
-   case BufferUsage::kDeviceToHost: {
-    mem_usage = VMA_MEMORY_USAGE_GPU_TO_CPU;
+   case BufferUsage::kPreferHost: {
+    mem_usage = VMA_MEMORY_USAGE_AUTO_PREFER_HOST;
     break;
    }
    default:

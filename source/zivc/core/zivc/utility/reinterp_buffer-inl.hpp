@@ -316,7 +316,7 @@ std::size_t ReinterpBuffer<Derived, T>::sizeInBytes() const noexcept
   \return No description
   */
 template <DerivedBuffer Derived, KernelArg T> inline
-SubPlatformType ReinterpBuffer<Derived, T>::type() const noexcept
+BackendType ReinterpBuffer<Derived, T>::type() const noexcept
 {
   auto b = internalBuffer();
   return b->type();

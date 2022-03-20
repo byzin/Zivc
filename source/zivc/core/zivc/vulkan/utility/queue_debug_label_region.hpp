@@ -16,7 +16,7 @@
 #define ZIVC_QUEUE_DEBUG_LABEL_REGION_HPP
 
 // Standard C++ library
-#include <array>
+#include <span>
 #include <string_view>
 // Zisc
 #include "zisc/non_copyable.hpp"
@@ -41,7 +41,7 @@ class QueueDebugLabelRegion : private zisc::NonCopyable<QueueDebugLabelRegion>
   QueueDebugLabelRegion(const VkQueue& q,
                         const VulkanDispatchLoader& dispatcher,
                         const std::string_view label_name,
-                        const std::array<float, 4>& color) noexcept;
+                        const std::span<const float, 4> color) noexcept;
 
   //! Move data
   QueueDebugLabelRegion(QueueDebugLabelRegion&& other) noexcept;
@@ -60,7 +60,7 @@ class QueueDebugLabelRegion : private zisc::NonCopyable<QueueDebugLabelRegion>
  private:
   //! Open a debug label region
   void begin(const std::string_view label_name,
-             const std::array<float, 4>& color) noexcept;
+             const std::span<const float, 4> color) noexcept;
 
 
   VkQueue queue_ = ZIVC_VK_NULL_HANDLE;

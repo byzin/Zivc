@@ -1,5 +1,5 @@
 /*!
-  \file platform.cpp
+  \file context.cpp
   \author Sho Ikeda
   \brief No brief description
 
@@ -12,7 +12,7 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#include "platform.hpp"
+#include "context.hpp"
 // Standard C++ library
 #include <algorithm>
 #include <array>
@@ -28,14 +28,14 @@
 #include "zisc/memory/std_memory_resource.hpp"
 #include "zisc/thread/thread_manager.hpp"
 // Zivc
+#include "backend.hpp"
+#include "context_options.hpp"
 #include "device.hpp"
-#include "platform_options.hpp"
-#include "sub_platform.hpp"
 #include "zivc_config.hpp"
-#include "cpu/cpu_sub_platform.hpp"
-#if defined(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
-#include "vulkan/vulkan_sub_platform.hpp"
-#endif // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
+#include "cpu/cpu_backend.hpp"
+#if defined(ZIVC_ENABLE_VULKAN_BACKEND)
+#include "vulkan/vulkan_backend.hpp"
+#endif // ZIVC_ENABLE_VULKAN_BACKEND
 #include "utility/error.hpp"
 
 namespace zivc {
@@ -43,7 +43,7 @@ namespace zivc {
 /*!
   \details No detailed description
   */
-Platform::Platform() noexcept
+Context::Context() noexcept
 {
   setDebugMode(false);
 }
@@ -53,7 +53,7 @@ Platform::Platform() noexcept
 
   \param [in] other No description.
   */
-Platform::Platform(Platform&& other) noexcept :
+Context::Context(Context&& other) noexcept :
     default_mem_resource_{std::move(other.default_mem_resource_)},
     custom_mem_resource_{other.custom_mem_resource_},
     device_list_{std::move(other.device_list_)},
@@ -61,15 +61,15 @@ Platform::Platform(Platform&& other) noexcept :
     id_count_{other.id_count_.load(std::memory_order::acquire)},
     is_debug_mode_{other.is_debug_mode_}
 {
-  std::move(other.sub_platform_list_.begin(),
-            other.sub_platform_list_.end(),
-            sub_platform_list_.begin());
+  std::move(other.backend_list_.begin(),
+            other.backend_list_.end(),
+            backend_list_.begin());
 }
 
 /*!
   \details No detailed description
   */
-Platform::~Platform() noexcept
+Context::~Context() noexcept
 {
   destroy();
 }
@@ -80,7 +80,7 @@ Platform::~Platform() noexcept
   \param [in] other No description.
   \return No description
   */
-Platform& Platform::operator=(Platform&& other) noexcept
+Context& Context::operator=(Context&& other) noexcept
 {
   default_mem_resource_ = std::move(other.default_mem_resource_);
   custom_mem_resource_ = other.custom_mem_resource_;
@@ -88,21 +88,21 @@ Platform& Platform::operator=(Platform&& other) noexcept
   device_info_list_ = std::move(other.device_info_list_);
   id_count_ = other.id_count_.load(std::memory_order::acquire);
   is_debug_mode_ = other.is_debug_mode_;
-  std::move(other.sub_platform_list_.begin(),
-            other.sub_platform_list_.end(),
-            sub_platform_list_.begin());
+  std::move(other.backend_list_.begin(),
+            other.backend_list_.end(),
+            backend_list_.begin());
   return *this;
 }
 
 /*!
   \details No detailed description
   */
-void Platform::destroy() noexcept
+void Context::destroy() noexcept
 {
   device_info_list_.reset();
   device_list_.reset();
-  for (auto& sub_platform : sub_platform_list_)
-    sub_platform.reset();
+  for (auto& backend_p : backend_list_)
+    backend_p.reset();
   default_mem_resource_.reset();
   custom_mem_resource_ = nullptr;
 }
@@ -112,21 +112,21 @@ void Platform::destroy() noexcept
 
   \param [in,out] options No description.
   */
-void Platform::initialize(PlatformOptions& options)
+void Context::initialize(ContextOptions& options)
 {
-  // Clear the previous platform data first 
+  // Clear the previous context data first 
   destroy();
 
   setMemoryResource(options.memoryResource());
   setDebugMode(options.debugModeEnabled());
   id_count_.store(0, std::memory_order::release);
 
-  // Initialize sub-platforms
-  initSubPlatform<CpuSubPlatform>(options);
-#if defined(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
-  if (options.vulkanSubPlatformEnabled())
-    initSubPlatform<VulkanSubPlatform>(options);
-#endif // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
+  // Initialize backends
+  initBackend<CpuBackend>(options);
+#if defined(ZIVC_ENABLE_VULKAN_BACKEND)
+  if (options.vulkanBackendEnabled())
+    initBackend<VulkanBackend>(options);
+#endif // ZIVC_ENABLE_VULKAN_BACKEND
 
   // Device list
   using DeviceList = decltype(device_list_)::element_type;
@@ -141,7 +141,7 @@ void Platform::initialize(PlatformOptions& options)
   device_info_list_ = zisc::pmr::allocateUnique<DeviceInfoList>(
       memoryResource(),
       std::move(new_info_list));
-  updateDeviceInfoList();
+  updateDeviceInfo();
 }
 
 /*!
@@ -150,7 +150,7 @@ void Platform::initialize(PlatformOptions& options)
   \param [in] device_index No description.
   \return No description
   */
-SharedDevice Platform::queryDevice(const std::size_t device_index)
+SharedDevice Context::queryDevice(const std::size_t device_index)
 {
   if (device_list_->size() <= device_index) {
     const char* message = "The device index is out of range.";
@@ -163,7 +163,7 @@ SharedDevice Platform::queryDevice(const std::size_t device_index)
   }
   // If not, create a new device
   if (!device) {
-    device = makeDevice(device_index);
+    device = createDevice(device_index);
     (*device_list_)[device_index] = device;
   }
   return device;
@@ -174,11 +174,11 @@ SharedDevice Platform::queryDevice(const std::size_t device_index)
 
   \return No description
   */
-zisc::ThreadManager& Platform::threadManager() noexcept
+zisc::ThreadManager& Context::threadManager() noexcept
 {
-  auto* sub_Platform = subPlatform(SubPlatformType::kCpu);
-  auto* cpu_platform = zisc::cast<CpuSubPlatform*>(sub_Platform);
-  return cpu_platform->threadManager();
+  auto* backend_p = backend(BackendType::kCpu);
+  auto* cpu_backend = zisc::cast<CpuBackend*>(backend_p);
+  return cpu_backend->threadManager();
 }
 
 /*!
@@ -186,27 +186,27 @@ zisc::ThreadManager& Platform::threadManager() noexcept
 
   \return No description
   */
-const zisc::ThreadManager& Platform::threadManager() const noexcept
+const zisc::ThreadManager& Context::threadManager() const noexcept
 {
-  const auto* sub_Platform = subPlatform(SubPlatformType::kCpu);
-  const auto* cpu_platform = zisc::cast<const CpuSubPlatform*>(sub_Platform);
-  return cpu_platform->threadManager();
+  const auto* backend_p = backend(BackendType::kCpu);
+  const auto* cpu_backend = zisc::cast<const CpuBackend*>(backend_p);
+  return cpu_backend->threadManager();
 }
 
 /*!
   \details No detailed description
 
-  \tparam SubPlatformType No description.
+  \tparam BackendType No description.
   \param [in,out] options No description.
   */
-template <typename SubPlatformType>
-void Platform::initSubPlatform(PlatformOptions& options)
+template <typename BackendType>
+void Context::initBackend(ContextOptions& options)
 {
-  zisc::pmr::polymorphic_allocator<SubPlatformType> alloc{memoryResource()};
-  SharedSubPlatform sub_platform = std::allocate_shared<SubPlatformType>(alloc, this);
-  WeakSubPlatform own{sub_platform};
-  sub_platform->initialize(std::move(own), options);
-  setSubPlatform(std::move(sub_platform));
+  zisc::pmr::polymorphic_allocator<BackendType> alloc{memoryResource()};
+  SharedBackend backend_p = std::allocate_shared<BackendType>(alloc, this);
+  WeakBackend own{backend_p};
+  backend_p->initialize(std::move(own), options);
+  setBackend(std::move(backend_p));
 }
 
 /*!
@@ -215,7 +215,7 @@ void Platform::initSubPlatform(PlatformOptions& options)
   \param [in] device_index No description.
   \return No description
   */
-SharedDevice Platform::makeDevice(const std::size_t device_index)
+SharedDevice Context::createDevice(const std::size_t device_index)
 {
   const auto& info_list = deviceInfoList();
   if (info_list.size() <= device_index) {
@@ -223,9 +223,9 @@ SharedDevice Platform::makeDevice(const std::size_t device_index)
     throw SystemError{ErrorCode::kInitializationFailed, message};
   }
   const DeviceInfo* info = info_list[device_index];
-  SubPlatform* sub_platform = subPlatform(info->type());
-  ZIVC_ASSERT(sub_platform->isAvailable(), "The platform isn't available.");
-  auto device = sub_platform->makeDevice(*info);
+  Backend* backend_p = backend(info->type());
+  ZIVC_ASSERT(backend_p->isAvailable(), "The backend isn't available.");
+  auto device = backend_p->createDevice(*info);
   return device;
 }
 
@@ -234,7 +234,7 @@ SharedDevice Platform::makeDevice(const std::size_t device_index)
 
   \param [in] is_debug_mode No description.
   */
-void Platform::setDebugMode(const bool is_debug_mode) noexcept
+void Context::setDebugMode(const bool is_debug_mode) noexcept
 {
   is_debug_mode_ = is_debug_mode;
 }
@@ -244,7 +244,7 @@ void Platform::setDebugMode(const bool is_debug_mode) noexcept
 
   \param [in,out] mem_resource No description.
   */
-void Platform::setMemoryResource(zisc::pmr::memory_resource* mem_resource) noexcept
+void Context::setMemoryResource(zisc::pmr::memory_resource* mem_resource) noexcept
 {
   custom_mem_resource_ = mem_resource;
   if (mem_resource != nullptr)
@@ -256,22 +256,26 @@ void Platform::setMemoryResource(zisc::pmr::memory_resource* mem_resource) noexc
 /*!
   \details No detailed description
   */
-void Platform::updateDeviceInfoList()
+void Context::updateDeviceInfo()
 {
   device_info_list_->clear();
   std::size_t num_of_devices = 0;
   // 
-  for (auto& sub_platform : sub_platform_list_) {
-    if (sub_platform && sub_platform->isAvailable()) {
-      sub_platform->updateDeviceInfoList();
-      num_of_devices += sub_platform->numOfDevices();
+  for (auto& backend_p : backend_list_) {
+    if (backend_p && backend_p->isAvailable()) {
+      backend_p->updateDeviceInfo();
+      num_of_devices += backend_p->numOfDevices();
     }
   }
   //
   device_info_list_->reserve(num_of_devices);
-  for (const auto& sub_platform : sub_platform_list_) {
-    if (sub_platform && sub_platform->isAvailable())
-      sub_platform->getDeviceInfoList(*device_info_list_);
+  for (const auto& backend_p : backend_list_) {
+    if (backend_p && backend_p->isAvailable()) {
+      for (std::size_t i = 0; i < backend_p->numOfDevices(); ++i) {
+        const DeviceInfo& info = backend_p->deviceInfo(i);
+        device_info_list_->emplace_back(std::addressof(info));
+      }
+    }
   }
   device_list_->resize(num_of_devices);
 }
@@ -282,31 +286,31 @@ void Platform::updateDeviceInfoList()
   \param [in,out] options No description.
   \return No description
   */
-SharedPlatform makePlatform(PlatformOptions& options)
+SharedContext createContext(ContextOptions& options)
 {
-  SharedPlatform platform;
+  SharedContext context;
 
-  // Create a platform
+  // Create a context
   auto* mem_resource = options.memoryResource();
   if (mem_resource != nullptr) {
-    zisc::pmr::polymorphic_allocator<Platform> alloc{mem_resource};
-    platform = std::allocate_shared<Platform>(alloc);
+    zisc::pmr::polymorphic_allocator<Context> alloc{mem_resource};
+    context = std::allocate_shared<Context>(alloc);
   }
   else {
-    platform = std::make_shared<Platform>();
+    context = std::make_shared<Context>();
   }
 
-  // Initialize the platform
+  // Initialize the context
   try {
-    platform->initialize(options);
+    context->initialize(options);
   }
   catch (const std::runtime_error& error) {
-    platform->destroy();
-    platform.reset();
+    context->destroy();
+    context.reset();
     throw error;
   }
 
-  return platform;
+  return context;
 }
 
 } // namespace zivc

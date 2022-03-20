@@ -24,15 +24,52 @@
 // Zivc
 #include "utility/vulkan.hpp"
 #include "zivc/buffer.hpp"
-#include "zivc/kernel_common.hpp"
 #include "zivc/zivc_cl.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/buffer_launch_options.hpp"
+#include "zivc/utility/kernel_common.hpp"
 #include "zivc/utility/error.hpp"
 #include "zivc/utility/launch_result.hpp"
 #include "zivc/utility/launch_options.hpp"
 
 namespace zivc {
+
+/*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \param [in] command_buffer No description.
+  \return No description
+  */
+template <KernelArg Type> inline
+std::shared_ptr<KernelCommon> VulkanBufferImpl::createFillKernel(
+    const VkCommandBuffer& command_buffer)
+{
+  constexpr std::size_t data_size = sizeof(Type);
+  constexpr FillUnitSize unit_size = getFillUnitSize(data_size);
+  std::shared_ptr<KernelCommon> kernel;
+  switch (unit_size) {
+   case FillUnitSize::k8:
+    kernel = createFillU8Kernel(command_buffer);
+    break;
+   case FillUnitSize::k16:
+    kernel = createFillU16Kernel(command_buffer);
+    break;
+   case FillUnitSize::k32:
+    kernel = createFillU32Kernel(command_buffer);
+    break;
+   case FillUnitSize::k64:
+    kernel = createFillU64Kernel(command_buffer);
+    break;
+   case FillUnitSize::k128:
+    kernel = createFillU128Kernel(command_buffer);
+    break;
+   default:
+    ZIVC_ASSERT(false, "Unsupported fill size is specified: ", data_size);
+    break;
+  }
+  return kernel;
+}
 
 /*!
   \details No detailed description
@@ -91,43 +128,6 @@ LaunchResult VulkanBufferImpl::fill(KernelCommon* fill_kernel,
     break;
   }
   return result;
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \param [in] command_buffer No description.
-  \return No description
-  */
-template <KernelArg Type> inline
-std::shared_ptr<KernelCommon> VulkanBufferImpl::makeFillKernel(
-    const VkCommandBuffer& command_buffer)
-{
-  constexpr std::size_t data_size = sizeof(Type);
-  constexpr FillUnitSize unit_size = getFillUnitSize(data_size);
-  std::shared_ptr<KernelCommon> kernel;
-  switch (unit_size) {
-   case FillUnitSize::k8:
-    kernel = makeFillU8Kernel(command_buffer);
-    break;
-   case FillUnitSize::k16:
-    kernel = makeFillU16Kernel(command_buffer);
-    break;
-   case FillUnitSize::k32:
-    kernel = makeFillU32Kernel(command_buffer);
-    break;
-   case FillUnitSize::k64:
-    kernel = makeFillU64Kernel(command_buffer);
-    break;
-   case FillUnitSize::k128:
-    kernel = makeFillU128Kernel(command_buffer);
-    break;
-   default:
-    ZIVC_ASSERT(false, "Unsupported fill size is specified: ", data_size);
-    break;
-  }
-  return kernel;
 }
 
 /*!

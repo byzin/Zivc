@@ -21,6 +21,7 @@
 #include <cstddef>
 #include <iterator>
 #include <memory>
+#include <span>
 #include <type_traits>
 #include <vector>
 // Zisc
@@ -60,8 +61,8 @@ std::size_t VulkanDeviceInfo::deviceIndex() const noexcept
   \return No description
   */
 inline
-zisc::pmr::vector<VkExtensionProperties>&
-VulkanDeviceInfo::extensionPropertiesList() noexcept
+auto VulkanDeviceInfo::extensionPropertiesList() noexcept
+    -> std::span<VkExtensionProperties>
 {
   return extension_properties_list_;
 }
@@ -72,8 +73,8 @@ VulkanDeviceInfo::extensionPropertiesList() noexcept
   \return No description
   */
 inline
-const zisc::pmr::vector<VkExtensionProperties>&
-VulkanDeviceInfo::extensionPropertiesList() const noexcept
+auto VulkanDeviceInfo::extensionPropertiesList() const noexcept
+    -> std::span<const VkExtensionProperties>
 {
   return extension_properties_list_;
 }
@@ -125,7 +126,8 @@ CppType& VulkanDeviceInfo::initProp(CType& prop) noexcept
   \return No description
   */
 inline
-zisc::pmr::vector<VkLayerProperties>& VulkanDeviceInfo::layerPropertiesList() noexcept
+auto VulkanDeviceInfo::layerPropertiesList() noexcept
+    -> std::span<VkLayerProperties>
 {
   return layer_properties_list_;
 }
@@ -136,7 +138,8 @@ zisc::pmr::vector<VkLayerProperties>& VulkanDeviceInfo::layerPropertiesList() no
   \return No description
   */
 inline
-const zisc::pmr::vector<VkLayerProperties>& VulkanDeviceInfo::layerPropertiesList() const noexcept
+auto VulkanDeviceInfo::layerPropertiesList() const noexcept
+    -> std::span<const VkLayerProperties>
 {
   return layer_properties_list_;
 }
@@ -228,7 +231,7 @@ void VulkanDeviceInfo::setDeviceIndex(const std::size_t index) noexcept
   */
 inline
 auto VulkanDeviceInfo::toolPropertiesList() noexcept
-    -> zisc::pmr::vector<VkPhysicalDeviceToolPropertiesEXT>&
+    -> std::span<VkPhysicalDeviceToolPropertiesEXT>
 {
   return tool_properties_list_;
 }
@@ -240,7 +243,7 @@ auto VulkanDeviceInfo::toolPropertiesList() noexcept
   */
 inline
 auto VulkanDeviceInfo::toolPropertiesList() const noexcept
-    -> const zisc::pmr::vector<VkPhysicalDeviceToolPropertiesEXT>&
+    -> std::span<const VkPhysicalDeviceToolPropertiesEXT>
 {
   return tool_properties_list_;
 }
@@ -252,7 +255,7 @@ auto VulkanDeviceInfo::toolPropertiesList() const noexcept
   */
 inline
 auto VulkanDeviceInfo::queueFamilyPropertiesList() noexcept
-    -> zisc::pmr::vector<QueueFamilyProperties>&
+    -> std::span<QueueFamilyProperties>
 {
   return queue_family_properties_list_;
 }
@@ -264,7 +267,7 @@ auto VulkanDeviceInfo::queueFamilyPropertiesList() noexcept
   */
 inline
 auto VulkanDeviceInfo::queueFamilyPropertiesList() const noexcept
-    -> const zisc::pmr::vector<QueueFamilyProperties>&
+    -> std::span<const QueueFamilyProperties>
 {
   return queue_family_properties_list_;
 }

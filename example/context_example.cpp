@@ -1,10 +1,10 @@
 /*!
-  \file platform_example.cpp
+  \file context_example.cpp
   \author Sho Ikeda
   \brief No brief description
 
   \details
-  No detailed description.
+  Example usage of zivc::Context.
 
   \copyright
   Copyright (c) 2015-2022 Sho Ikeda
@@ -16,6 +16,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <memory>
+#include <span>
 #include <stdexcept>
 #include <string>
 // Zisc
@@ -27,14 +28,20 @@
 
 namespace {
 
-std::string getSubPlatformTypeString(const zivc::SubPlatformType type)
+/*!
+  \details No detailed description
+
+  \param [in] type No description.
+  \return No description
+  */
+std::string getBackendTypeString(const zivc::BackendType type)
 {
   std::string type_string;
   switch (type) {
-   case zivc::SubPlatformType::kCpu:
+   case zivc::BackendType::kCpu:
     type_string = "CPU";
     break;
-   case zivc::SubPlatformType::kVulkan:
+   case zivc::BackendType::kVulkan:
     type_string = "Vulkan";
     break;
    default:
@@ -43,44 +50,40 @@ std::string getSubPlatformTypeString(const zivc::SubPlatformType type)
   return type_string;
 }
 
+/*!
+  \details No detailed description
+
+  \param [in] bytes No description.
+  \return No description
+  */
 double toMegaBytes(const std::size_t bytes) noexcept
 {
   const double mb = zisc::cast<double>(bytes) / (1024.0 * 1024.0);
   return mb;
 }
 
-int showPlatformInfo(zivc::PlatformOptions& platform_options)
+int printContextInfo(const zivc::Context& context)
 {
-  // Make a platform
-  std::cout << "Create a platform." << std::endl;
-  zivc::SharedPlatform platform;
-  try {
-     platform = zivc::makePlatform(platform_options);
-  }
-  catch (const std::runtime_error& error) {
-    std::cerr << error.what() << std::endl;
-    return EXIT_FAILURE;
-  }
-
   const std::string indent1 = "    ";
   const std::string indent2 = indent1 + indent1;
-  // CPU sub-platform
-  bool has_subplatform = platform->hasSubPlatform(zivc::SubPlatformType::kCpu);
-  std::cout << indent1 << "CPU sub-platform: " << has_subplatform << std::endl;
 
-  // Vulkan sub-platform
-  has_subplatform = platform->hasSubPlatform(zivc::SubPlatformType::kVulkan);
-  std::cout << indent1 << "Vulkan sub-platform: " << has_subplatform << std::endl;
+  // CPU backend
+  bool has_backend = context.hasBackend(zivc::BackendType::kCpu);
+  std::cout << indent1 << "CPU backend: " << has_backend << std::endl;
 
-  // Show device info
+  // Vulkan backend
+  has_backend = context.hasBackend(zivc::BackendType::kVulkan);
+  std::cout << indent1 << "Vulkan backend: " << has_backend << std::endl;
+
+  // Print device info
   std::cout << std::endl;
-  const auto& device_info_list = platform->deviceInfoList();
+  const auto& device_info_list = context.deviceInfoList();
   for (std::size_t i = 0; i < device_info_list.size(); ++i) {
     std::cout << std::endl;
-    const auto* const info = device_info_list[i];
+    const zivc::DeviceInfo* const info = device_info_list[i];
     std::cout << indent1 << "## Device[" << i << "]" << std::endl;
     std::cout << indent2 << "Type                : "
-              << ::getSubPlatformTypeString(info->type()) << std::endl;
+              << ::getBackendTypeString(info->type()) << std::endl;
     std::cout << indent2 << "Name                : "
               << info->name() << std::endl;
     std::cout << indent2 << "Vendor name         : "
@@ -110,23 +113,13 @@ int showPlatformInfo(zivc::PlatformOptions& platform_options)
   return EXIT_SUCCESS;
 }
 
-} // namespace
+/*!
+  \details No detailed description
 
-int main(int /* argc */, char** /* argv */)
+  \param [in] mem_resource No description.
+  */
+void printMemoryUsage(const zisc::SimpleMemoryResource& mem_resource) noexcept
 {
-  zisc::SimpleMemoryResource mem_resource;
-
-  // Set platform options
-  zivc::PlatformOptions platform_options{&mem_resource};
-  platform_options.setPlatformName("PlatformExample");
-  platform_options.setPlatformVersionMajor(zivc::Config::versionMajor());
-  platform_options.setPlatformVersionMinor(zivc::Config::versionMinor());
-  platform_options.setPlatformVersionPatch(zivc::Config::versionPatch());
-  platform_options.enableVulkanSubPlatform(true);
-  platform_options.enableDebugMode(true);
-
-  const int result = ::showPlatformInfo(platform_options);
-
   const std::string indent1 = "    ";
   std::cout << std::endl;
   std::cout << indent1 << "Host memory usage     : "
@@ -135,6 +128,41 @@ int main(int /* argc */, char** /* argv */)
   std::cout << indent1 << "Host peak memory usage: "
             << ::toMegaBytes(mem_resource.peakMemoryUsage()) << " MB."
             << std::endl;
+}
 
-  return result;
+} // namespace
+
+int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
+{
+  // Any custom std::pmr::memory_resource can be speicified as zivc memory allcator
+  zisc::SimpleMemoryResource mem_resource;
+
+  // Create a zivc context and print backend information
+  int exec_result = EXIT_FAILURE;
+  {
+    // Set context options
+    zivc::ContextOptions context_options{&mem_resource};
+    context_options.setContextName("ContextExample");
+    context_options.setContextVersionMajor(zivc::Config::versionMajor());
+    context_options.setContextVersionMinor(zivc::Config::versionMinor());
+    context_options.setContextVersionPatch(zivc::Config::versionPatch());
+    context_options.enableVulkanBackend(true);
+    context_options.enableDebugMode(true);
+
+    // Create a zivc context
+    zivc::SharedContext context;
+    try {
+       context = zivc::createContext(context_options);
+    }
+    catch (const std::runtime_error& error) {
+      std::cerr << error.what() << std::endl;
+      return EXIT_FAILURE;
+    }
+
+    exec_result = ::printContextInfo(*context);
+  }
+
+  ::printMemoryUsage(mem_resource);
+
+  return exec_result;
 }

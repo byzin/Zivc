@@ -33,10 +33,10 @@
 namespace zivc {
 
 // Forward declaration
+class CpuBackend;
+class CpuDeviceInfo;
 class DeviceInfo;
 class Fence;
-class CpuDeviceInfo;
-class CpuSubPlatform;
 
 /*!
   \brief No brief description
@@ -136,11 +136,11 @@ class CpuDevice : public Device
   //! Issue new block ID
   static uint32b issue(std::atomic<uint32b>* counter) noexcept;
 
-  //! Return the sub-platform
-  CpuSubPlatform& parentImpl() noexcept;
+  //! Return the backend
+  CpuBackend& parentImpl() noexcept;
 
-  //! Return the sub-platform
-  const CpuSubPlatform& parentImpl() const noexcept;
+  //! Return the backend
+  const CpuBackend& parentImpl() const noexcept;
 
 
   zisc::Memory::Usage heap_usage_;

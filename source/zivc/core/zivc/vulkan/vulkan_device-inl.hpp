@@ -31,8 +31,8 @@
 #include "zisc/data_structure/queue.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
+#include "vulkan_backend.hpp"
 #include "vulkan_device_info.hpp"
-#include "vulkan_sub_platform.hpp"
 #include "utility/cmd_debug_label_region.hpp"
 #include "utility/cmd_record_region.hpp"
 #include "utility/queue_debug_label_region.hpp"
@@ -58,9 +58,7 @@ auto VulkanDevice::addShaderModule(const KernelSet<SetType>& kernel_set)
   if (hasShaderModule(id))
     return getShaderModule(id);
 
-  zisc::pmr::vector<uint32b>::allocator_type alloc{memoryResource()};
-  zisc::pmr::vector<uint32b> spirv_code{alloc};
-  kernel_set.loadSpirVCode(std::addressof(spirv_code));
+  const std::span<const uint32b> spirv_code = kernel_set.spirVCode();
   const std::string_view module_name = kernel_set.name();
   return addShaderModule(id, spirv_code, module_name);
 }
@@ -175,8 +173,7 @@ const VkQueue& VulkanDevice::getQueue(const Capability cap,
   \return No description
   */
 inline
-auto VulkanDevice::getShaderKernel(const uint64b id) const noexcept
-    -> const KernelData&
+auto VulkanDevice::getShaderKernel(const uint64b id) const noexcept -> const KernelData&
 {
   ZIVC_ASSERT(hasShaderKernel(id), "Kernel data not found. id = ", id);
   const KernelData* data = nullptr;
@@ -195,8 +192,7 @@ auto VulkanDevice::getShaderKernel(const uint64b id) const noexcept
   \return No description
   */
 inline
-auto VulkanDevice::getShaderModule(const uint64b id) const noexcept
-    -> const ModuleData&
+auto VulkanDevice::getShaderModule(const uint64b id) const noexcept -> const ModuleData&
 {
   ZIVC_ASSERT(hasShaderModule(id), "Shader module not found. id = ", id);
   const ModuleData* data = nullptr;
@@ -362,8 +358,7 @@ uint32b VulkanDevice::queueFamilyIndex(const Capability cap) const noexcept
   \return No description
   */
 inline
-const std::array<uint32b, 3>& VulkanDevice::workGroupSizeDim(const std::size_t dim)
-    const noexcept
+std::span<const uint32b, 3> VulkanDevice::workGroupSizeDim(const std::size_t dim) const noexcept
 {
   return work_group_size_list_[dim - 1];
 }
@@ -421,10 +416,10 @@ auto VulkanDevice::fenceIndexQueue() const noexcept -> const IndexQueue&
   \return No description
   */
 inline
-VulkanSubPlatform& VulkanDevice::parentImpl() noexcept
+VulkanBackend& VulkanDevice::parentImpl() noexcept
 {
   auto p = getParent();
-  return *zisc::cast<VulkanSubPlatform*>(p);
+  return *zisc::cast<VulkanBackend*>(p);
 }
 
 /*!
@@ -433,10 +428,10 @@ VulkanSubPlatform& VulkanDevice::parentImpl() noexcept
   \return No description
   */
 inline
-const VulkanSubPlatform& VulkanDevice::parentImpl() const noexcept
+const VulkanBackend& VulkanDevice::parentImpl() const noexcept
 {
   const auto p = getParent();
-  return *zisc::cast<const VulkanSubPlatform*>(p);
+  return *zisc::cast<const VulkanBackend*>(p);
 }
 
 /*!

@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <memory>
+#include <span>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -29,8 +30,8 @@
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "cpu_device.hpp"
+#include "zivc/backend.hpp"
 #include "zivc/buffer.hpp"
-#include "zivc/sub_platform.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/buffer_init_params.hpp"
 #include "zivc/utility/buffer_launch_options.hpp"
@@ -123,7 +124,7 @@ bool CpuBuffer<T>::isDeviceLocal() const noexcept
 template <KernelArg T> inline
 bool CpuBuffer<T>::isHostCached() const noexcept
 {
-  return false;
+  return true;
 }
 
 /*!
@@ -159,28 +160,6 @@ void* CpuBuffer<T>::mapMemoryData() const
   Pointer d = const_cast<Pointer>(data());
   ZIVC_ASSERT(d != nullptr, "The data is null.");
   return zisc::cast<void*>(d);
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <KernelArg T> inline
-auto CpuBuffer<T>::rawBuffer() noexcept -> zisc::pmr::vector<Type>&
-{
-  return *buffer_data_;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <KernelArg T> inline
-auto CpuBuffer<T>::rawBuffer() const noexcept -> const zisc::pmr::vector<Type>&
-{
-  return *buffer_data_;
 }
 
 /*!
@@ -364,6 +343,28 @@ void CpuBuffer<T>::prepareBuffer() noexcept
     buffer_data_ = zisc::pmr::allocateUnique<BufferImplType>(mem_resource,
                                                              std::move(buffer));
   }
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <KernelArg T> inline
+auto CpuBuffer<T>::rawBuffer() noexcept -> zisc::pmr::vector<Type>&
+{
+  return *buffer_data_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <KernelArg T> inline
+auto CpuBuffer<T>::rawBuffer() const noexcept -> const zisc::pmr::vector<Type>&
+{
+  return *buffer_data_;
 }
 
 } // namespace zivc

@@ -17,9 +17,11 @@
 
 #include "kernel_launch_options.hpp"
 // Standard C++ library
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstring>
+#include <span>
 #include <string_view>
 #include <type_traits>
 // Zivc
@@ -49,7 +51,7 @@ KernelLaunchOptions() noexcept
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-KernelLaunchOptions(const std::array<uint32b, kDim>& work_size) noexcept :
+KernelLaunchOptions(const std::span<const uint32b, kDim>& work_size) noexcept :
     work_size_{work_size}
 {
   initialize();
@@ -64,7 +66,7 @@ KernelLaunchOptions(const std::array<uint32b, kDim>& work_size) noexcept :
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-KernelLaunchOptions(const std::array<uint32b, kDim>& work_size,
+KernelLaunchOptions(const std::span<const uint32b, kDim>& work_size,
                     const uint32b queue_index) noexcept :
     LaunchOptions(queue_index),
     work_size_{work_size}
@@ -94,7 +96,7 @@ dimension() noexcept
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 auto KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-globalIdOffset() const noexcept -> const std::array<uint32b, kDim>&
+globalIdOffset() const noexcept -> std::span<const uint32b, kDim>
 {
   return global_id_offset_;
 }
@@ -135,9 +137,9 @@ setGlobalIdOffset(const uint32b offset, const std::size_t dim) noexcept
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 void KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-setGlobalIdOffset(const std::array<uint32b, kDim>& offset) noexcept
+setGlobalIdOffset(const std::span<const uint32b, kDim>& offset) noexcept
 {
-  global_id_offset_ = offset;
+  std::copy_n(offset.begin(), offset.size(), global_id_offset_.begin());
 }
 
 /*!
@@ -162,9 +164,9 @@ setWorkSize(const uint32b work_size, const std::size_t dim) noexcept
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 void KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-setWorkSize(const std::array<uint32b, kDim>& work_size) noexcept
+setWorkSize(const std::span<const uint32b, kDim>& work_size) noexcept
 {
-  work_size_ = work_size;
+  std::copy_n(work_size.begin(), work_size.size(), work_size_.begin());
 }
 
 /*!
@@ -175,7 +177,7 @@ setWorkSize(const std::array<uint32b, kDim>& work_size) noexcept
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 auto KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-workSize() const noexcept -> const std::array<uint32b, kDim>&
+workSize() const noexcept -> std::span<const uint32b, kDim>
 {
   return work_size_;
 }

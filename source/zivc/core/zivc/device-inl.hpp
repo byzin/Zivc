@@ -39,9 +39,9 @@ namespace zivc {
   \return No description
   */
 template <KernelArg T> inline
-SharedBuffer<T> Device::makeBuffer(const BufferInitParams& params)
+SharedBuffer<T> Device::createBuffer(const BufferInitParams& params)
 {
-  auto buffer = ::zivc::makeBuffer<T>(this, params);
+  auto buffer = ::zivc::createBuffer<T>(this, params);
   return buffer;
 }
 
@@ -55,10 +55,10 @@ SharedBuffer<T> Device::makeBuffer(const BufferInitParams& params)
   \return No description
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...Args> inline
-auto Device::makeKernel(const KernelInitParams<kDim, KSet, Args...>& params)
+auto Device::createKernel(const KernelInitParams<kDim, KSet, Args...>& params)
     -> SharedKernel<kDim, KSet, Args...>
 {
-  auto kernel = ::zivc::makeKernel<kDim, KSet, Args...>(this, params);
+  auto kernel = ::zivc::createKernel<kDim, KSet, Args...>(this, params);
   return kernel;
 }
 
@@ -82,7 +82,7 @@ const DeviceInfo& Device::deviceInfo() const noexcept
   \return No description
   */
 template <template<typename> typename Derived, KernelArg T> inline
-SharedBuffer<T> Device::makeDerivedBuffer(const BufferInitParams& params)
+SharedBuffer<T> Device::createDerivedBuffer(const BufferInitParams& params)
 {
   using BufferT = Derived<T>;
   zisc::pmr::polymorphic_allocator<BufferT> alloc{memoryResource()};
@@ -114,7 +114,7 @@ SharedBuffer<T> Device::makeDerivedBuffer(const BufferInitParams& params)
   */
 template <template<typename, typename...> typename Derived,
           std::size_t kDim, DerivedKSet KSet, typename ...Args> inline
-auto Device::makeDerivedKernel(const KernelInitParams<kDim, KSet, Args...>& params)
+auto Device::createDerivedKernel(const KernelInitParams<kDim, KSet, Args...>& params)
     -> SharedKernel<kDim, KSet, Args...>
 {
   using Parser = KernelArgParser<Args...>;

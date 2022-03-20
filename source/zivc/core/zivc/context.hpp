@@ -1,5 +1,5 @@
 /*!
-  \file platform.hpp
+  \file context.hpp
   \author Sho Ikeda
   \brief No brief description
 
@@ -12,14 +12,15 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_PLATFORM_HPP
-#define ZIVC_PLATFORM_HPP
+#ifndef ZIVC_CONTEXT_HPP
+#define ZIVC_CONTEXT_HPP
 
 // Standard C++ library
 #include <array>
 #include <atomic>
 #include <cstddef>
 #include <memory>
+#include <span>
 #include <vector>
 // Zisc
 #include "zisc/boolean.hpp"
@@ -27,9 +28,10 @@
 #include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
+#include "backend.hpp"
 #include "device.hpp"
-#include "sub_platform.hpp"
 #include "zivc_config.hpp"
+#include "utility/zivc_object.hpp"
 
 namespace zisc {
 
@@ -42,43 +44,43 @@ namespace zivc {
 
 // Forward declaration
 class DeviceInfo;
-class PlatformOptions;
+class ContextOptions;
 
 /*!
   \brief No brief description
 
   No detailed description.
   */
-class Platform : private zisc::NonCopyable<Platform>
+class Context : private zisc::NonCopyable<Context>
 {
  public:
-  //! Create an empty platform
-  Platform() noexcept;
+  //! Create an empty context
+  Context() noexcept;
 
   //! Move a data
-  Platform(Platform&& other) noexcept;
+  Context(Context&& other) noexcept;
 
-  //! Finalize the platform
-  ~Platform() noexcept;
+  //! Finalize the context
+  ~Context() noexcept;
 
 
   //! Move a data
-  Platform& operator=(Platform&& other) noexcept;
+  Context& operator=(Context&& other) noexcept;
 
 
-  //! Destroy the platform
+  //! Destroy the context
   void destroy() noexcept;
 
   //! Return the device info list
-  const zisc::pmr::vector<const DeviceInfo*>& deviceInfoList() const noexcept;
+  std::span<const DeviceInfo* const> deviceInfoList() const noexcept;
 
-  //! Check if the platform has the sub-platform of the given type
-  bool hasSubPlatform(const SubPlatformType type) const noexcept;
+  //! Check if the context has the backend of the given type
+  bool hasBackend(const BackendType type) const noexcept;
 
-  //! Initialize the platform
-  void initialize(PlatformOptions& options);
+  //! Initialize the context
+  void initialize(ContextOptions& options);
 
-  //! Check if the platform is in debug mode
+  //! Check if the context is in debug mode
   bool isDebugMode() const noexcept;
 
   //! Issue an ID of an object
@@ -95,11 +97,11 @@ class Platform : private zisc::NonCopyable<Platform>
   [[nodiscard]]
   SharedDevice queryDevice(const std::size_t device_index);
 
-  //! Return the sub-platform of the given type
-  SubPlatform* subPlatform(const SubPlatformType type) noexcept;
+  //! Return the backend of the given type
+  Backend* backend(const BackendType type) noexcept;
 
-  //! Return the sub-platform of the given type
-  const SubPlatform* subPlatform(const SubPlatformType type) const noexcept;
+  //! Return the backend of the given type
+  const Backend* backend(const BackendType type) const noexcept;
 
   //! Return the underlying thread manager which is used for cpu kernel exection
   zisc::ThreadManager& threadManager() noexcept;
@@ -108,16 +110,16 @@ class Platform : private zisc::NonCopyable<Platform>
   const zisc::ThreadManager& threadManager() const noexcept;
 
  private:
-  //! Create a sub-platform
-  template <typename SubPlatformType>
-  void initSubPlatform(PlatformOptions& options);
+  //! Create a backend
+  template <typename BackendType>
+  void initBackend(ContextOptions& options);
 
-  //! Make a unique device
+  //! Create a unique device
   [[nodiscard]]
-  SharedDevice makeDevice(const std::size_t device_index);
+  SharedDevice createDevice(const std::size_t device_index);
 
   //! Move memory resource data
-  void moveMemoryResource(Platform& other) noexcept;
+  void moveMemoryResource(Context& other) noexcept;
 
   //! Set debug mode
   void setDebugMode(const bool is_debug_mode) noexcept;
@@ -125,35 +127,35 @@ class Platform : private zisc::NonCopyable<Platform>
   //! Set memory resource for Zivc
   void setMemoryResource(zisc::pmr::memory_resource* mem_resource) noexcept;
 
-  //! Set a sub-platform of the given type
-  void setSubPlatform(SharedSubPlatform&& sub_platform) noexcept;
+  //! Set a backend of the given type
+  void setBackend(SharedBackend&& backend) noexcept;
 
-  //! Update the device info list
-  void updateDeviceInfoList();
+  //! Update the underlying device info
+  void updateDeviceInfo();
 
 
-  static constexpr std::size_t kNumOfSubPlatforms = 2;
+  static constexpr std::size_t kNumOfBackends = 2;
 
 
   std::unique_ptr<zisc::pmr::memory_resource> default_mem_resource_;
   zisc::pmr::memory_resource* custom_mem_resource_ = nullptr;
-  std::array<SharedSubPlatform, kNumOfSubPlatforms> sub_platform_list_;
-  zisc::pmr::unique_ptr<zisc::pmr::vector<WeakDevice>> device_list_;
-  zisc::pmr::unique_ptr<zisc::pmr::vector<const DeviceInfo*>> device_info_list_;
+  std::array<SharedBackend, kNumOfBackends> backend_list_;
+  ZivcObject::UniqueVector<WeakDevice> device_list_;
+  ZivcObject::UniqueVector<const DeviceInfo*> device_info_list_;
   std::atomic<int64b> id_count_ = 0;
   zisc::Boolean is_debug_mode_;
   [[maybe_unused]] Padding<7> pad_;
 };
 
 // Type aliases
-using SharedPlatform = std::shared_ptr<Platform>;
+using SharedContext = std::shared_ptr<Context>;
 
-//! Make a unique platform
+//! Create a unique context
 [[nodiscard]]
-SharedPlatform makePlatform(PlatformOptions& options);
+SharedContext createContext(ContextOptions& options);
 
 } // namespace zivc
 
-#include "platform-inl.hpp"
+#include "context-inl.hpp"
 
-#endif // ZIVC_PLATFORM_HPP
+#endif // ZIVC_CONTEXT_HPP

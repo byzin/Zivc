@@ -74,8 +74,8 @@ class CpuDeviceInfo : public DeviceInfo
   //! Return the device name
   std::string_view name() const noexcept override;
 
-  //! Return the sub-platform type
-  SubPlatformType type() const noexcept override;
+  //! Return the backend type
+  BackendType type() const noexcept override;
 
   //! Return the vendor name
   std::string_view vendorName() const noexcept override;

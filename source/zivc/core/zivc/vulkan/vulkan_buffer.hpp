@@ -26,10 +26,10 @@
 #include "utility/vulkan.hpp"
 #include "utility/vulkan_memory_allocator.hpp"
 #include "zivc/buffer.hpp"
-#include "zivc/kernel_common.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/buffer_init_params.hpp"
 #include "zivc/utility/buffer_launch_options.hpp"
+#include "zivc/utility/kernel_common.hpp"
 #include "zivc/utility/id_data.hpp"
 #include "zivc/utility/launch_result.hpp"
 
@@ -128,12 +128,6 @@ class VulkanBuffer : public Buffer<T>
   void* mapMemoryData() const override;
 
   //! Return the underlying buffer data
-  BufferData& rawBuffer() noexcept;
-
-  //! Return the underlying buffer data
-  const BufferData& rawBuffer() const noexcept;
-
-  //! Return the underlying buffer data
   void* rawBufferData() noexcept override;
 
   //! Return the underlying buffer data
@@ -185,6 +179,9 @@ class VulkanBuffer : public Buffer<T>
                                  BufferCommon* dest,
                                  const BufferLaunchOptions<D>& launch_options) noexcept;
 
+  //! Create a data for fast fill on device
+  static uint32b createDataForFillFast(ConstReference value) noexcept;
+
   //! Fill the buffer on device with specified value
   template <KernelArg D>
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
@@ -224,9 +221,6 @@ class VulkanBuffer : public Buffer<T>
   //! Check if the buffer is internal
   bool isInternal() const noexcept;
 
-  //! Make a data for fast fill on device
-  static uint32b makeDataForFillFast(ConstReference value) noexcept;
-
   //! Return the underlying memory type
   const VkMemoryType& memoryType() const noexcept;
 
@@ -235,6 +229,12 @@ class VulkanBuffer : public Buffer<T>
 
   //! Return the device
   const VulkanDevice& parentImpl() const noexcept;
+
+  //! Return the underlying buffer data
+  BufferData& rawBuffer() noexcept;
+
+  //! Return the underlying buffer data
+  const BufferData& rawBuffer() const noexcept;
 
 
   BufferData buffer_data_;

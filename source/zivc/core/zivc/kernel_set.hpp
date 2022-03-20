@@ -17,6 +17,7 @@
 
 // Standard C++ library
 #include <memory>
+#include <span>
 #include <string_view>
 #include <vector>
 // Zisc
@@ -38,14 +39,35 @@ template <typename SetType>
 class KernelSet
 {
  public:
+  //! Initialize the kernel set
+  KernelSet(zisc::pmr::memory_resource* mem_resource) noexcept;
+
+
   //! Return the ID number of the kernel set
   static constexpr uint64b id() noexcept;
+
+  //! Return the kernel set name
+  static constexpr std::string_view name() noexcept;
+
+  //! Return the SPIR-V code of the kernel set
+  std::span<const uint32b> spirVCode() const noexcept;
+
+ protected:
+  //! Return the underlying memory resource
+  zisc::pmr::memory_resource* memoryResource() noexcept;
+
+  //! Return the underlying memory resource
+  const zisc::pmr::memory_resource* memoryResource() const noexcept;
+
+ private:
+  //! Initialize the kernel set
+  void initialize() noexcept;
 
   //! Load the SPIR-V code
   static void loadSpirVCode(zisc::pmr::vector<uint32b>* spirv_code_out) noexcept;
 
-  //! Return the kernel set name
-  static constexpr std::string_view name() noexcept;
+
+  zisc::pmr::vector<uint32b> spirv_code_;
 };
 
 //! Specify a type is derived from KernelSet

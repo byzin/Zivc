@@ -1,5 +1,5 @@
 /*!
-  \file sub_platform.hpp
+  \file backend.hpp
   \author Sho Ikeda
   \brief No brief description
 
@@ -12,12 +12,13 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_SUB_PLATFORM_HPP
-#define ZIVC_SUB_PLATFORM_HPP
+#ifndef ZIVC_BACKEND_HPP
+#define ZIVC_BACKEND_HPP
 
 // Standard C++ library
 #include <atomic>
 #include <memory>
+#include <span>
 #include <vector>
 // Zisc
 #include "zisc/memory/std_memory_resource.hpp"
@@ -31,52 +32,51 @@
 namespace zivc {
 
 // Forward declaration
-class PlatformOptions;
-class Platform;
+class ContextOptions;
+class Context;
 
 /*!
   \brief No brief description
 
   No detailed description.
   */
-class SubPlatform : public ZivcObject
+class Backend : public ZivcObject
 {
  public:
   // Type aliases
-  using SharedPtr = std::shared_ptr<SubPlatform>;
-  using WeakPtr = std::weak_ptr<SubPlatform>;
+  using SharedPtr = std::shared_ptr<Backend>;
+  using WeakPtr = std::weak_ptr<Backend>;
 
 
-  //! Create an empty sub-platform
-  SubPlatform(Platform* platform) noexcept;
+  //! Create an empty backend
+  Backend(Context* context) noexcept;
 
-  //! Finalize the platform
-  ~SubPlatform() noexcept override;
+  //! Finalize the backend
+  ~Backend() noexcept override;
 
 
-  //! Destroy the sub-platform
+  //! Return the underlying device info
+  virtual const DeviceInfo& deviceInfo(const std::size_t index) const noexcept = 0;
+
+  //! Destroy the backend
   void destroy() noexcept;
 
-  //! Add the underlying device info into the given list
-  virtual void getDeviceInfoList(
-      zisc::pmr::vector<const DeviceInfo*>& device_info_list) const noexcept = 0;
+  //! Initialize the backend
+  void initialize(WeakPtr&& own, ContextOptions& options);
 
-  //! Initialize the sub-platform
-  void initialize(WeakPtr&& own, PlatformOptions& options);
-
-  //! Check if the sub-platform is available
+  //! Check if the backend is available
   virtual bool isAvailable() const noexcept = 0;
 
-  //! Check if the sub-platform is in debug mode
+  //! Check if the backend is in debug mode
   bool isDebugMode() const noexcept override;
 
   //! Issue an ID of an object
   [[nodiscard]]
   IdData issueId() noexcept override;
 
-  //! Make a unique device
+  //! Create a unique device
   [[nodiscard]]
-  virtual SharedDevice makeDevice(const DeviceInfo& device_info) = 0;
+  virtual SharedDevice createDevice(const DeviceInfo& device_info) = 0;
 
   //! Return the underlying memory resource
   zisc::pmr::memory_resource* memoryResource() noexcept override;
@@ -87,24 +87,24 @@ class SubPlatform : public ZivcObject
   //! Return the number of available devices 
   virtual std::size_t numOfDevices() const noexcept = 0;
 
-  //! Update the device info list
-  virtual void updateDeviceInfoList() = 0;
+  //! Update the underlying device info
+  virtual void updateDeviceInfo() = 0;
 
  protected:
-  //! Destroy the sub-platform
+  //! Destroy the backend
   virtual void destroyData() noexcept = 0;
 
-  //! Initialize the sub-platform
-  virtual void initData(PlatformOptions& options) = 0;
+  //! Initialize the backend
+  virtual void initData(ContextOptions& options) = 0;
 
  private:
-  Platform* platform_ = nullptr;
+  Context* context_ = nullptr;
 };
 
 // Type aliases
-using SharedSubPlatform = SubPlatform::SharedPtr;
-using WeakSubPlatform = SubPlatform::WeakPtr;
+using SharedBackend = Backend::SharedPtr;
+using WeakBackend = Backend::WeakPtr;
 
 } // namespace zivc
 
-#endif // ZIVC_SUB_PLATFORM_HPP
+#endif // ZIVC_BACKEND_HPP

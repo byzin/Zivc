@@ -21,11 +21,12 @@
 #include <cstddef>
 #include <cstring>
 #include <memory>
+#include <span>
 #include <string_view>
 #include <type_traits>
 // Zivc
-#include "kernel_common.hpp"
 #include "kernel_set.hpp"
+#include "utility/kernel_common.hpp"
 #include "utility/kernel_arg_parser.hpp"
 #include "utility/kernel_launch_options.hpp"
 #include "utility/id_data.hpp"
@@ -179,7 +180,7 @@ numOfPods() noexcept
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 std::array<uint32b, 3> Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-expandWorkSize(const std::array<uint32b, kDim>& work_size,
+expandWorkSize(const std::span<const uint32b, kDim>& work_size,
                const uint32b fill_value) noexcept
 {
   std::array<uint32b, 3> work_size_3d{{fill_value, fill_value, fill_value}};

@@ -17,9 +17,11 @@
 
 #include "launch_options.hpp"
 // Standard C++ library
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstring>
+#include <span>
 #include <type_traits>
 #include <utility>
 // Zisc
@@ -80,7 +82,7 @@ std::string_view LaunchOptions::label() const noexcept
   \return No description
   */
 inline
-const std::array<float, 4>& LaunchOptions::labelColor() const noexcept
+std::span<const float, 4> LaunchOptions::labelColor() const noexcept
 {
   return label_color_;
 }
@@ -124,9 +126,9 @@ void LaunchOptions::setLabel(const std::string_view launch_label) noexcept
   \param [in] label_color No description.
   */
 inline
-void LaunchOptions::setLabelColor(const std::array<float, 4>& label_color) noexcept
+void LaunchOptions::setLabelColor(const std::span<const float, 4>& label_color) noexcept
 {
-  label_color_ = label_color;
+  std::copy_n(label_color.begin(), label_color.size(), label_color_.begin());
 }
 
 /*!

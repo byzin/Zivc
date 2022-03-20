@@ -19,6 +19,7 @@
 // Standard C++ library
 #include <array>
 #include <cstddef>
+#include <span>
 // Zivc
 #include "utility/vulkan.hpp"
 #include "zivc/zivc_config.hpp"

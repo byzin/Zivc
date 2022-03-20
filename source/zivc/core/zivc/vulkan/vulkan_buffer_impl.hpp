@@ -24,10 +24,10 @@
 #include "utility/vulkan.hpp"
 #include "utility/vulkan_memory_allocator.hpp"
 #include "zivc/buffer.hpp"
-#include "zivc/kernel_common.hpp"
 #include "zivc/zivc_cl.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/buffer_launch_options.hpp"
+#include "zivc/utility/kernel_common.hpp"
 #include "zivc/utility/launch_result.hpp"
 #include "zivc/utility/launch_options.hpp"
 
@@ -54,6 +54,7 @@ class VulkanBufferImpl : private zisc::NonCopyable<VulkanBufferImpl>
   //! Allocate a memory for the device
   void allocateMemory(const std::size_t size,
                       const BufferUsage buffer_usage,
+                      const BufferFlag buffer_flag,
                       const VkBufferUsageFlagBits desc_type,
                       void* user_data,
                       VkBuffer* buffer,
@@ -65,6 +66,11 @@ class VulkanBufferImpl : private zisc::NonCopyable<VulkanBufferImpl>
                const VkBuffer& source_buffer,
                const VkBuffer& dest_buffer,
                const VkBufferCopy& region) const;
+
+  //!  a fill kernel instance
+  template <KernelArg Type>
+  [[nodiscard("The result will have a vulkan kernel.")]]
+  std::shared_ptr<KernelCommon> createFillKernel(const VkCommandBuffer& command_buffer);
 
   //! Deallocate a device memory
   void deallocateMemory(VkBuffer* buffer,
@@ -88,13 +94,9 @@ class VulkanBufferImpl : private zisc::NonCopyable<VulkanBufferImpl>
 
   //! Initialize allocation info
   void initAllocationInfo(const BufferUsage buffer_usage,
+                          const BufferFlag buffer_flag,
                           const VkBufferUsageFlagBits desc_type,
                           VmaAllocationInfo* alloc_info) const;
-
-  //! Make a fill8 kernel instance
-  template <KernelArg Type>
-  [[nodiscard("The result will have a vulkan kernel.")]]
-  std::shared_ptr<KernelCommon> makeFillKernel(const VkCommandBuffer& command_buffer);
 
   //!
   [[noreturn]] static void throwResultException(const VkResult result,
@@ -111,6 +113,37 @@ class VulkanBufferImpl : private zisc::NonCopyable<VulkanBufferImpl>
     k128 = sizeof(cl_uint4),
   };
 
+
+  //! Create a allocation create info
+  static VmaAllocationCreateInfo createAllocCreateInfo(
+      const BufferUsage buffer_usage,
+      const BufferFlag buffer_flag,
+      void* user_data) noexcept;
+
+  //! Create a buffer create info
+  static VkBufferCreateInfo createBufferCreateInfo(
+      const std::size_t size,
+      const VkBufferUsageFlagBits desc_type) noexcept;
+
+  //! Create a fill8 kernel instance
+  [[nodiscard("The result will have a vulkan kernel.")]]
+  std::shared_ptr<KernelCommon> createFillU8Kernel(const VkCommandBuffer& command_buffer);
+
+  //! Create a fill16 kernel instance
+  [[nodiscard("The result will have a vulkan kernel.")]]
+  std::shared_ptr<KernelCommon> createFillU16Kernel(const VkCommandBuffer& command_buffer);
+
+  //! Create a fill32 kernel instance
+  [[nodiscard("The result will have a vulkan kernel.")]]
+  std::shared_ptr<KernelCommon> createFillU32Kernel(const VkCommandBuffer& command_buffer);
+
+  //! Create a fill64 kernel instance
+  [[nodiscard("The result will have a vulkan kernel.")]]
+  std::shared_ptr<KernelCommon> createFillU64Kernel(const VkCommandBuffer& command_buffer);
+
+  //! Create a fill128 kernel instance
+  [[nodiscard("The result will have a vulkan kernel.")]]
+  std::shared_ptr<KernelCommon> createFillU128Kernel(const VkCommandBuffer& command_buffer);
 
   //! Return the underlying device object
   VulkanDevice& device() noexcept;
@@ -176,35 +209,8 @@ class VulkanBufferImpl : private zisc::NonCopyable<VulkanBufferImpl>
   //! Return the unit size used in fill kernel
   static constexpr FillUnitSize getFillUnitSize(const std::size_t size) noexcept;
 
-  //! Create a allocation create info
-  static VmaAllocationCreateInfo makeAllocCreateInfo(
-      const BufferUsage buffer_usage,
-      void* user_data) noexcept;
-
-  //! Create a buffer create info
-  static VkBufferCreateInfo makeBufferCreateInfo(
-      const std::size_t size,
-      const VkBufferUsageFlagBits desc_type) noexcept;
-
-  //! Make a fill8 kernel instance
-  [[nodiscard("The result will have a vulkan kernel.")]]
-  std::shared_ptr<KernelCommon> makeFillU8Kernel(const VkCommandBuffer& command_buffer);
-
-  //! Make a fill16 kernel instance
-  [[nodiscard("The result will have a vulkan kernel.")]]
-  std::shared_ptr<KernelCommon> makeFillU16Kernel(const VkCommandBuffer& command_buffer);
-
-  //! Make a fill32 kernel instance
-  [[nodiscard("The result will have a vulkan kernel.")]]
-  std::shared_ptr<KernelCommon> makeFillU32Kernel(const VkCommandBuffer& command_buffer);
-
-  //! Make a fill64 kernel instance
-  [[nodiscard("The result will have a vulkan kernel.")]]
-  std::shared_ptr<KernelCommon> makeFillU64Kernel(const VkCommandBuffer& command_buffer);
-
-  //! Make a fill128 kernel instance
-  [[nodiscard("The result will have a vulkan kernel.")]]
-  std::shared_ptr<KernelCommon> makeFillU128Kernel(const VkCommandBuffer& command_buffer);
+  //! Convert to VMA flags
+  static constexpr VmaAllocationCreateFlagBits toVmaFlag(const BufferFlag flag) noexcept;
 
   //! Convert to VMA usage flags
   static constexpr VmaMemoryUsage toVmaUsage(const BufferUsage usage) noexcept;

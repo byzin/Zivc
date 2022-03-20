@@ -34,9 +34,10 @@ namespace zivc {
   \param [in] ptr No description.
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...Args> inline
-KernelInitParams<kDim, KSet, Args...>::KernelInitParams(Function ptr,
-                                                        std::string_view kernel_name) noexcept
-    : function_{ptr}
+KernelInitParams<kDim, KSet, Args...>::KernelInitParams(
+    Function ptr,
+    std::string_view kernel_name) noexcept
+        : function_{ptr}
 {
   initialize(kernel_name);
 }

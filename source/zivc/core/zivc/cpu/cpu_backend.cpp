@@ -1,5 +1,5 @@
 /*!
-  \file cpu_sub_platform.cpp
+  \file cpu_backend.cpp
   \author Sho Ikeda
   \brief No brief description
 
@@ -12,11 +12,12 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#include "cpu_sub_platform.hpp"
+#include "cpu_backend.hpp"
 // Standard C++ library
 #include <cstddef>
 #include <iostream>
 #include <memory>
+#include <span>
 #include <stdexcept>
 #include <vector>
 // Zisc
@@ -26,10 +27,10 @@
 // Zivc
 #include "cpu_device.hpp"
 #include "cpu_device_info.hpp"
+#include "zivc/backend.hpp"
+#include "zivc/context.hpp"
+#include "zivc/context_options.hpp"
 #include "zivc/device.hpp"
-#include "zivc/platform.hpp"
-#include "zivc/platform_options.hpp"
-#include "zivc/sub_platform.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/error.hpp"
 
@@ -38,28 +39,17 @@ namespace zivc {
 /*!
   \details No detailed description
   */
-CpuSubPlatform::CpuSubPlatform(Platform* platform) noexcept :
-    SubPlatform(platform)
+CpuBackend::CpuBackend(Context* context) noexcept :
+    Backend(context)
 {
 }
 
 /*!
   \details No detailed description
   */
-CpuSubPlatform::~CpuSubPlatform() noexcept
+CpuBackend::~CpuBackend() noexcept
 {
   destroy();
-}
-
-/*!
-  \details No detailed description
-
-  \param [in,out] device_info_list No description.
-  */
-void CpuSubPlatform::getDeviceInfoList(
-    zisc::pmr::vector<const DeviceInfo*>& device_info_list) const noexcept
-{
-  device_info_list.emplace_back(device_info_.get());
 }
 
 /*!
@@ -68,7 +58,7 @@ void CpuSubPlatform::getDeviceInfoList(
   \param [in] device_info No description.
   \return No description
   */
-SharedDevice CpuSubPlatform::makeDevice(const DeviceInfo& device_info)
+SharedDevice CpuBackend::createDevice(const DeviceInfo& device_info)
 {
   const auto* info = zisc::cast<const CpuDeviceInfo*>(std::addressof(device_info));
   if (device_info_.get() != info) {
@@ -96,9 +86,20 @@ SharedDevice CpuSubPlatform::makeDevice(const DeviceInfo& device_info)
 /*!
   \details No detailed description
 
+  \param [in] index No description.
   \return No description
   */
-bool CpuSubPlatform::isAvailable() const noexcept
+const DeviceInfo& CpuBackend::deviceInfo([[maybe_unused]] const std::size_t index) const noexcept
+{
+  return *device_info_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+bool CpuBackend::isAvailable() const noexcept
 {
   const auto& own = getOwnPtr();
   const bool result = !own.expired();
@@ -110,7 +111,7 @@ bool CpuSubPlatform::isAvailable() const noexcept
 
   \return No description
   */
-std::size_t CpuSubPlatform::numOfDevices() const noexcept
+std::size_t CpuBackend::numOfDevices() const noexcept
 {
   return 1;
 }
@@ -120,15 +121,15 @@ std::size_t CpuSubPlatform::numOfDevices() const noexcept
 
   \return No description
   */
-SubPlatformType CpuSubPlatform::type() const noexcept
+BackendType CpuBackend::type() const noexcept
 {
-  return SubPlatformType::kCpu;
+  return BackendType::kCpu;
 }
 
 /*!
   \details No detailed description
   */
-void CpuSubPlatform::updateDeviceInfoList()
+void CpuBackend::updateDeviceInfo()
 {
   device_info_->fetch();
 }
@@ -136,7 +137,7 @@ void CpuSubPlatform::updateDeviceInfoList()
 /*!
   \details No detailed description
   */
-void CpuSubPlatform::destroyData() noexcept
+void CpuBackend::destroyData() noexcept
 {
   task_batch_size_ = 0;
   thread_manager_.reset();
@@ -148,7 +149,7 @@ void CpuSubPlatform::destroyData() noexcept
 
   \param [in,out] options No description.
   */
-void CpuSubPlatform::initData(PlatformOptions& options)
+void CpuBackend::initData(ContextOptions& options)
 {
   auto* mem_resource = memoryResource();
   // Init device info
@@ -174,7 +175,7 @@ void CpuSubPlatform::initData(PlatformOptions& options)
 /*!
   \details No detailed description
   */
-void CpuSubPlatform::updateDebugInfoImpl()
+void CpuBackend::updateDebugInfoImpl()
 {
 }
 

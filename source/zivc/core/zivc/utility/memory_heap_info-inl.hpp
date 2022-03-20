@@ -17,7 +17,6 @@
 
 #include "memory_heap_info.hpp"
 // Standard C++ library
-#include <array>
 #include <cstddef>
 // Zisc
 #include "zisc/boolean.hpp"

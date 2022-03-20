@@ -26,8 +26,8 @@
 #include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
-#include "buffer_common.hpp"
 #include "zivc_config.hpp"
+#include "utility/buffer_common.hpp"
 #include "utility/buffer_init_params.hpp"
 #include "utility/buffer_launch_options.hpp"
 #include "utility/error.hpp"
@@ -93,6 +93,18 @@ LaunchResult Buffer<T>::copyFrom(const Buffer& source,
 
 /*!
   \details No detailed description
+
+  \return No description
+  */
+template <KernelArg T> inline
+auto Buffer<T>::createOptions() const noexcept -> LaunchOptions
+{
+  LaunchOptions options{size()};
+  return options;
+}
+
+/*!
+  \details No detailed description
   */
 template <KernelArg T> inline
 void Buffer<T>::destroy() noexcept
@@ -132,7 +144,7 @@ void Buffer<T>::initialize(ZivcObject::SharedPtr&& parent,
   destroy();
 
   initObject(std::move(parent), std::move(own));
-  setUsage(params.bufferUsage());
+  setUsage(params.usage());
   setTypeSize(sizeof(Type));
   initData(params);
 
@@ -147,7 +159,7 @@ void Buffer<T>::initialize(ZivcObject::SharedPtr&& parent,
 template <KernelArg T> inline
 auto Buffer<T>::mapMemory() -> MappedMemory<Type>
 {
-  return makeMappedMemory<Type>();
+  return createMappedMemory<Type>();
 }
 
 /*!
@@ -158,19 +170,7 @@ auto Buffer<T>::mapMemory() -> MappedMemory<Type>
 template <KernelArg T> inline
 auto Buffer<T>::mapMemory() const -> MappedMemory<ConstType>
 {
-  return makeMappedMemory<ConstType>();
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <KernelArg T> inline
-auto Buffer<T>::makeOptions() const noexcept -> LaunchOptions
-{
-  LaunchOptions options{size()};
-  return options;
+  return createMappedMemory<ConstType>();
 }
 
 /*!

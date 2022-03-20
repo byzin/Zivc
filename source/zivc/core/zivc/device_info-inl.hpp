@@ -18,6 +18,7 @@
 #include "device_info.hpp"
 // Standard C++ library
 #include <cstddef>
+#include <span>
 #include <string_view>
 #include <vector>
 // Zisc
@@ -70,7 +71,7 @@ const MemoryHeapInfo& DeviceInfo::heapInfo(const std::size_t heap_index) const n
   \return No description
   */
 inline
-zisc::pmr::vector<MemoryHeapInfo>& DeviceInfo::heapInfoList() noexcept
+std::span<MemoryHeapInfo> DeviceInfo::heapInfoList() noexcept
 {
   return heap_info_list_;
 }
@@ -81,7 +82,7 @@ zisc::pmr::vector<MemoryHeapInfo>& DeviceInfo::heapInfoList() noexcept
   \return No description
   */
 inline
-const zisc::pmr::vector<MemoryHeapInfo>& DeviceInfo::heapInfoList() const noexcept
+std::span<const MemoryHeapInfo> DeviceInfo::heapInfoList() const noexcept
 {
   return heap_info_list_;
 }

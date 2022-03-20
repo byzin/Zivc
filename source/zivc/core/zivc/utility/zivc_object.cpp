@@ -199,7 +199,7 @@ void ZivcObject::setNameIfEmpty(const std::string_view object_name)
 
   \return No description
   */
-SubPlatformType ZivcObject::type() const noexcept
+BackendType ZivcObject::type() const noexcept
 {
   ZIVC_ASSERT(hasParent(), "Parent is null.");
   const auto* p = getParent();

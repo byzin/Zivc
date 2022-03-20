@@ -1,5 +1,5 @@
 /*!
-  \file sub_platform.cpp
+  \file backend.cpp
   \author Sho Ikeda
   \brief No brief description
 
@@ -12,7 +12,7 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#include "sub_platform.hpp"
+#include "backend.hpp"
 // Standard C++ library
 #include <atomic>
 #include <memory>
@@ -20,8 +20,8 @@
 // Zisc
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
-#include "platform.hpp"
-#include "platform_options.hpp"
+#include "context.hpp"
+#include "context_options.hpp"
 #include "zivc_config.hpp"
 #include "utility/id_data.hpp"
 
@@ -30,23 +30,23 @@ namespace zivc {
 /*!
   \details No detailed description
   */
-SubPlatform::SubPlatform(Platform* platform) noexcept :
-    ZivcObject(platform->issueId()),
-    platform_{platform}
+Backend::Backend(Context* context) noexcept :
+    ZivcObject(context->issueId()),
+    context_{context}
 {
 }
 
 /*!
   \details No detailed description
   */
-SubPlatform::~SubPlatform() noexcept
+Backend::~Backend() noexcept
 {
 }
 
 /*!
   \details No detailed description
   */
-void SubPlatform::destroy() noexcept
+void Backend::destroy() noexcept
 {
   destroyData();
   destroyObject();
@@ -58,15 +58,15 @@ void SubPlatform::destroy() noexcept
   \param [in,out] own No description.
   \param [in,out] options No description.
   */
-void SubPlatform::initialize(WeakPtr&& own, PlatformOptions& options)
+void Backend::initialize(WeakPtr&& own, ContextOptions& options)
 {
-  // Clear the previous sub-platform data first
+  // Clear the previous backend data first
   destroy();
 
   initObject(nullptr, std::move(own));
   initData(options);
 
-  setNameIfEmpty("SubPlatform");
+  setNameIfEmpty("Backend");
 }
 
 /*!
@@ -74,9 +74,9 @@ void SubPlatform::initialize(WeakPtr&& own, PlatformOptions& options)
 
   \return No description
   */
-bool SubPlatform::isDebugMode() const noexcept
+bool Backend::isDebugMode() const noexcept
 {
-  const bool mode = platform_->isDebugMode();
+  const bool mode = context_->isDebugMode();
   return mode;
 }
 
@@ -85,9 +85,9 @@ bool SubPlatform::isDebugMode() const noexcept
 
   \return No description
   */
-IdData SubPlatform::issueId() noexcept
+IdData Backend::issueId() noexcept
 {
-  IdData id = platform_->issueId();
+  IdData id = context_->issueId();
   return id;
 }
 
@@ -96,9 +96,9 @@ IdData SubPlatform::issueId() noexcept
 
   \return No description
   */
-zisc::pmr::memory_resource* SubPlatform::memoryResource() noexcept
+zisc::pmr::memory_resource* Backend::memoryResource() noexcept
 {
-  zisc::pmr::memory_resource* mem_resource = platform_->memoryResource();
+  zisc::pmr::memory_resource* mem_resource = context_->memoryResource();
   return mem_resource;
 }
 
@@ -107,9 +107,9 @@ zisc::pmr::memory_resource* SubPlatform::memoryResource() noexcept
 
   \return No description
   */
-const zisc::pmr::memory_resource* SubPlatform::memoryResource() const noexcept
+const zisc::pmr::memory_resource* Backend::memoryResource() const noexcept
 {
-  const zisc::pmr::memory_resource* mem_resource = platform_->memoryResource();
+  const zisc::pmr::memory_resource* mem_resource = context_->memoryResource();
   return mem_resource;
 }
 

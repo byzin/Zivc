@@ -121,8 +121,8 @@ class ReinterpBuffer : public Buffer<T>
   //! Return the size of the buffer in bytes
   std::size_t sizeInBytes() const noexcept override;
 
-  //! Return the sub-platform type
-  SubPlatformType type() const noexcept override;
+  //! Return the backend type
+  BackendType type() const noexcept override;
 
   //! Unmap a buffer memory
   void unmapMemoryData() const noexcept override;

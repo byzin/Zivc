@@ -19,6 +19,7 @@
 #include <array>
 #include <cstddef>
 #include <memory>
+#include <span>
 #include <string_view>
 #include <vector>
 // Zisc
@@ -226,14 +227,14 @@ class VulkanDeviceInfo : public DeviceInfo
   //! Return the underlying vulkan physical device
   const VkPhysicalDevice& device() const noexcept;
 
-  //! Return the device index in the sub-platform
+  //! Return the device index in the backend
   std::size_t deviceIndex() const noexcept;
 
   //! Return extension properties list of the device
-  zisc::pmr::vector<VkExtensionProperties>& extensionPropertiesList() noexcept;
+  std::span<VkExtensionProperties> extensionPropertiesList() noexcept;
 
   //! Return extension properties list of the device
-  const zisc::pmr::vector<VkExtensionProperties>& extensionPropertiesList() const noexcept;
+  std::span<const VkExtensionProperties> extensionPropertiesList() const noexcept;
 
   //! Return features of the device
   Features& features() noexcept;
@@ -256,10 +257,10 @@ class VulkanDeviceInfo : public DeviceInfo
   bool isLayerSupported(const std::string_view name) const noexcept;
 
   //! Return layer properties list of the device
-  zisc::pmr::vector<VkLayerProperties>& layerPropertiesList() noexcept;
+  std::span<VkLayerProperties> layerPropertiesList() noexcept;
 
   //! Return layer properties list of the device
-  const zisc::pmr::vector<VkLayerProperties>& layerPropertiesList() const noexcept;
+  std::span<const VkLayerProperties> layerPropertiesList() const noexcept;
 
   template <typename Type1, typename Type2, typename ...Types>
   static void link(Type1&& value1, Type2&& value2, Types&&... values) noexcept;
@@ -288,23 +289,23 @@ class VulkanDeviceInfo : public DeviceInfo
   //! Return properties of the device
   const Properties& properties() const noexcept;
 
-  //! Set the device index in the sub-platform
+  //! Set the device index in the backend
   void setDeviceIndex(const std::size_t index) noexcept;
 
   //! Return tool properties list of the device
-  zisc::pmr::vector<VkPhysicalDeviceToolPropertiesEXT>& toolPropertiesList() noexcept;
+  std::span<VkPhysicalDeviceToolPropertiesEXT> toolPropertiesList() noexcept;
 
   //! Return tool properties list of the device
-  const zisc::pmr::vector<VkPhysicalDeviceToolPropertiesEXT>& toolPropertiesList() const noexcept;
+  std::span<const VkPhysicalDeviceToolPropertiesEXT> toolPropertiesList() const noexcept;
 
-  //! Return the sub-platform type
-  SubPlatformType type() const noexcept override;
-
-  //! Return queue family properties list of the device
-  zisc::pmr::vector<QueueFamilyProperties>& queueFamilyPropertiesList() noexcept;
+  //! Return the backend type
+  BackendType type() const noexcept override;
 
   //! Return queue family properties list of the device
-  const zisc::pmr::vector<QueueFamilyProperties>& queueFamilyPropertiesList() const noexcept;
+  std::span<QueueFamilyProperties> queueFamilyPropertiesList() noexcept;
+
+  //! Return queue family properties list of the device
+  std::span<const QueueFamilyProperties> queueFamilyPropertiesList() const noexcept;
 
   //! Return the vendor ID
   VendorId vendorId() const noexcept;

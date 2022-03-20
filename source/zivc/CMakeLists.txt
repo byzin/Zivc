@@ -10,8 +10,8 @@ cmake_minimum_required(VERSION 3.22)
 
 
 function(Zivc_initZivcOptions)
-  set(option_description "Enable Vulkan sub-platform.")
-  Zivc_setBooleanOption(ZIVC_ENABLE_VULKAN_SUB_PLATFORM ON ${option_description})
+  set(option_description "Enable Vulkan backend.")
+  Zivc_setBooleanOption(ZIVC_ENABLE_VULKAN_BACKEND ON ${option_description})
 
   set(option_description "Load Vulkan library dynamically at runtime.")
   Zivc_setBooleanOption(ZIVC_DYNAMIC_VULKAN_LOADING ON ${option_description})
@@ -25,7 +25,7 @@ function(Zivc_initZivcOptions)
   set(option_description "Specify the default SPIR-V version used in Zivc.")
   Zivc_setStringOption(ZIVC_DEFAULT_SPIRV_VERSION "1.3" ${option_description})
 
-  set(option_description "Bake Vulkan SPIR-V kernels into the library.")
+  set(option_description "Bake Vulkan SPIR-V kernels into it's library.")
   Zivc_setBooleanOption(ZIVC_BAKE_KERNELS OFF ${option_description})
 
   set(option_description "Enable SPIR-V analysis.")
@@ -40,8 +40,8 @@ function(Zivc_getZivcFlags zivc_compile_flags zivc_linker_flags zivc_definitions
   include("${CMAKE_CURRENT_FUNCTION_LIST_DIR}/cmake/kernel.cmake")
   Zivc_getZivcKernelFlags(compile_flags definitions)
 
-  if(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
-    list(APPEND definitions ZIVC_ENABLE_VULKAN_SUB_PLATFORM=1)
+  if(ZIVC_ENABLE_VULKAN_BACKEND)
+    list(APPEND definitions ZIVC_ENABLE_VULKAN_BACKEND=1)
     # Dynamic vulkan loading
     if(ZIVC_DYNAMIC_VULKAN_LOADING)
       list(APPEND definitions ZIVC_DYNAMIC_VULKAN_LOADING=1)
@@ -156,7 +156,7 @@ macro(Zivc_setZivcProject)
 
   # Create Zivc library
   file(GLOB_RECURSE zivc_source_files ${zivc_core_dir}/zivc/*[.hpp|.cpp])
-  if(NOT ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
+  if(NOT ZIVC_ENABLE_VULKAN_BACKEND)
     foreach(source_file IN LISTS zivc_source_files)
       if(source_file MATCHES "${zivc_core_dir}/zivc/vulkan/.*")
         list(REMOVE_ITEM zivc_source_files "${source_file}")
@@ -186,7 +186,7 @@ macro(Zivc_setZivcProject)
   Zivc_enableIpo(${PROJECT_NAME})
 
   # Vulkan backend setup
-  if(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
+  if(ZIVC_ENABLE_VULKAN_BACKEND)
     # Find dependencies
     if(ZIVC_USES_OWN_CLSPV)
       Zivc_addClspv("${PROJECT_BINARY_DIR}/Clspv")

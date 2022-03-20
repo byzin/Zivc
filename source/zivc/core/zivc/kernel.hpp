@@ -20,14 +20,15 @@
 #include <atomic>
 #include <cstddef>
 #include <memory>
+#include <span>
 #include <string_view>
 #include <type_traits>
 // Zisc
 #include "zisc/concepts.hpp"
 #include "zisc/algorithm.hpp"
 // Zivc
-#include "kernel_common.hpp"
 #include "kernel_set.hpp"
+#include "utility/kernel_common.hpp"
 #include "utility/kernel_launch_options.hpp"
 #include "utility/id_data.hpp"
 #include "utility/launch_result.hpp"
@@ -55,9 +56,6 @@ template <typename, typename...> class Kernel;
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 class Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> : public KernelCommon
 {
-  static_assert(zisc::Algorithm::isInBounds(kDim, 1u, 4u),
-                "The kDim must be 1, 2 or 3.");
-
  public:
   // Type aliases
   using SharedPtr = std::shared_ptr<Kernel>;
@@ -78,6 +76,13 @@ class Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> : public Kernel
   //! Return the number of kernel arguments
   std::size_t argSize() const noexcept override;
 
+  //! Create launch options
+  LaunchOptions createOptions() const noexcept
+  {
+    //! \note Separate declaration and definition cause a build error on visual studio
+    return LaunchOptions{};
+  }
+
   //! Destroy the buffer
   void destroy() noexcept;
 
@@ -91,13 +96,6 @@ class Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> : public Kernel
   void initialize(ZivcObject::SharedPtr&& parent,
                   WeakPtr&& own,
                   const Params& params);
-
-  //! Make launch options
-  LaunchOptions makeOptions() const noexcept
-  {
-    //! \note Separate declaration and definition cause a build error on visual studio
-    return LaunchOptions{};
-  }
 
   //! Return the number of kernel arguments required
   static constexpr std::size_t numOfArgs() noexcept;
@@ -113,12 +111,16 @@ class Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> : public Kernel
   virtual LaunchResult run(Args... args, const LaunchOptions& launch_options) = 0;
 
  protected:
+  static_assert(zisc::Algorithm::isInBounds(kDim, 1u, 4u),
+                "The kDim must be 1, 2 or 3.");
+
+
   //! Clear the contents of the kernel
   virtual void destroyData() noexcept = 0;
 
   //! Expand the given work size to 3d work size array
   static std::array<uint32b, 3> expandWorkSize(
-      const std::array<uint32b, kDim>& work_size,
+      const std::span<const uint32b, kDim>& work_size,
       const uint32b fill_value) noexcept;
 
   //! Initialize the kernel 

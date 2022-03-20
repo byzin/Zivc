@@ -64,7 +64,7 @@ struct CliOption
 
   std::string device_name_ = "cpu";
   bool is_nodebug_ = false;
-  [[maybe_unused]] std::array<zivc::uint8b, 7> padding_;
+  [[maybe_unused]] zivc::Padding<7> padding_;
 };
 
 //! Get the device ID

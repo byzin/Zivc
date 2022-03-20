@@ -20,6 +20,7 @@
 #include <cstddef>
 #include <map>
 #include <memory>
+#include <span>
 #include <shared_mutex>
 #include <string_view>
 // Zisc
@@ -46,13 +47,13 @@ namespace zivc {
 // Forward declaration
 class DeviceInfo;
 class Fence;
+class VulkanBackend;
 class VulkanDeviceInfo;
-class VulkanSubPlatform;
 
 template <typename Type>
 concept LabelOptions = requires (const Type& o) {
-  {o.label()} -> zisc::SameAs<std::string_view>;
-  {o.labelColor()} -> zisc::SameAs<const std::template array<float, 4>&>;
+  {o.label()} -> zisc::ConvertibleTo<std::string_view>;
+  {o.labelColor()} -> zisc::ConvertibleTo<const std::template span<const float, 4>>;
 };
 
 /*!
@@ -118,6 +119,16 @@ class VulkanDevice : public Device
   //! Return the command pool for compute
   const VkCommandPool& commandPool() const noexcept;
 
+  //! Create a device memory allocation notifier
+  VmaDeviceMemoryCallbacks createAllocationNotifier() noexcept;
+
+  //! Create a command buffer
+  [[nodiscard]]
+  VkCommandBuffer createCommandBuffer();
+
+  //! Create a host memory allocator for Vulkan object
+  VkAllocationCallbacks createAllocator() noexcept;
+
   //! Return the underlying vulkan device
   VkDevice& device() noexcept;
 
@@ -161,9 +172,6 @@ class VulkanDevice : public Device
   //! Return the invalid queue index in queue families
   static constexpr uint32b invalidQueueIndex() noexcept;
 
-  //! Make a host memory allocator for Vulkan object
-  VkAllocationCallbacks makeAllocator() noexcept;
-
   //! Make a debug label for a commandbuffer
   template <LabelOptions Options>
   [[nodiscard]]
@@ -174,16 +182,12 @@ class VulkanDevice : public Device
   [[nodiscard]]
   CmdDebugLabelRegion makeCmdDebugLabel(const VkCommandBuffer& command_buffer,
                                         const std::string_view label_name,
-                                        const std::array<float, 4>& color) const noexcept;
+                                        const std::span<const float, 4> color) const noexcept;
 
   //! Make a record region for a commandbuffer
   [[nodiscard]]
   CmdRecordRegion makeCmdRecord(const VkCommandBuffer& command_buffer,
                                 const VkCommandBufferUsageFlags flags) const;
-
-  //! Make a command buffer
-  [[nodiscard]]
-  VkCommandBuffer makeCommandBuffer();
 
   //! Make a debug label for a queue
   template <LabelOptions Options>
@@ -195,7 +199,7 @@ class VulkanDevice : public Device
   [[nodiscard]]
   QueueDebugLabelRegion makeQueueDebugLabel(const VkQueue& q,
                                             const std::string_view label_name,
-                                            const std::array<float, 4>& color) const noexcept;
+                                            const std::span<const float, 4> color) const noexcept;
 
   //! Return the memory allocator of the device
   VmaAllocator& memoryAllocator() noexcept;
@@ -254,7 +258,7 @@ class VulkanDevice : public Device
   void waitForCompletion(const Fence& fence) const override;
 
   //! Return the work group size of the given dimension
-  const std::array<uint32b, 3>& workGroupSizeDim(const std::size_t dim) const noexcept;
+  std::span<const uint32b, 3> workGroupSizeDim(const std::size_t dim) const noexcept;
 
  protected:
   //! Destroy the device
@@ -305,7 +309,7 @@ class VulkanDevice : public Device
 
   //! Add a shader module of the given kernel set
   const ModuleData& addShaderModule(const uint64b id,
-                                    const zisc::pmr::vector<uint32b>& spirv_code,
+                                    const std::span<const uint32b> spirv_code,
                                     const std::string_view module_name);
 
   //! Return the capability of the index
@@ -371,17 +375,14 @@ class VulkanDevice : public Device
   //! Initialize a vulkan memory allocator
   void initMemoryAllocator();
 
-  //! Make a device memory allocation notifier
-  VmaDeviceMemoryCallbacks makeAllocationNotifier() noexcept;
-
   //! Return the number of supported capabilities
   static constexpr std::size_t numOfCapabilities() noexcept;
 
-  //! Return the sub-platform
-  VulkanSubPlatform& parentImpl() noexcept;
+  //! Return the backend
+  VulkanBackend& parentImpl() noexcept;
 
-  //! Return the sub-platform
-  const VulkanSubPlatform& parentImpl() const noexcept;
+  //! Return the backend
+  const VulkanBackend& parentImpl() const noexcept;
 
   //! Return the offset of queue list for the given capability
   std::size_t queueOffset(const Capability cap) const noexcept;
@@ -401,12 +402,12 @@ class VulkanDevice : public Device
   VmaAllocator vm_allocator_ = ZIVC_VK_NULL_HANDLE;
   VkCommandPool command_pool_ = ZIVC_VK_NULL_HANDLE;
   zisc::pmr::unique_ptr<IndexQueueImpl> fence_index_queue_;
-  zisc::pmr::unique_ptr<zisc::pmr::vector<VkFence>> fence_list_;
-  zisc::pmr::unique_ptr<zisc::pmr::vector<VkQueue>> queue_list_;
-  zisc::pmr::unique_ptr<zisc::pmr::vector<zisc::Memory::Usage>> heap_usage_list_;
+  ZivcObject::UniqueVector<VkFence> fence_list_;
+  ZivcObject::UniqueVector<VkQueue> queue_list_;
+  ZivcObject::UniqueVector<zisc::Memory::Usage> heap_usage_list_;
   zisc::pmr::unique_ptr<VulkanDispatchLoader> dispatcher_;
-  zisc::pmr::unique_ptr<zisc::pmr::map<uint64b, UniqueModuleData>> module_data_list_;
-  zisc::pmr::unique_ptr<zisc::pmr::map<uint64b, UniqueKernelData>> kernel_data_list_;
+  ZivcObject::UniqueMap<uint64b, UniqueModuleData> module_data_list_;
+  ZivcObject::UniqueMap<uint64b, UniqueKernelData> kernel_data_list_;
   std::array<uint32b, kNumOfCapabilities> queue_family_index_list_;
   std::array<uint32b, kNumOfCapabilities> queue_count_list_;
   std::array<uint32b, kNumOfCapabilities> queue_offset_list_;

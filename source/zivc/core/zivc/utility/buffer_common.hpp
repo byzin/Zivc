@@ -22,9 +22,9 @@
 // Zisc
 #include "zisc/concepts.hpp"
 // Zivc
-#include "zivc_config.hpp"
-#include "utility/id_data.hpp"
-#include "utility/zivc_object.hpp"
+#include "id_data.hpp"
+#include "zivc_object.hpp"
+#include "zivc/zivc_config.hpp"
 
 namespace zivc {
 
@@ -54,6 +54,14 @@ class BufferCommon : public ZivcObject
   //! Return the capacity of the buffer in bytes
   virtual std::size_t capacityInBytes() const noexcept = 0;
 
+  //! Map a buffer memory to a host
+  template <KernelArg T>
+  [[nodiscard]]
+  MappedMemory<T> createMappedMemory() const;
+
+  //! Return the buffer flag
+  BufferFlag flag() const noexcept;
+
   //! Return the capacity of the buffer
   template <KernelArg T>
   std::size_t getCapacity() const noexcept;
@@ -68,19 +76,14 @@ class BufferCommon : public ZivcObject
   //! Check if the buffer is the most efficient for the device access
   virtual bool isDeviceLocal() const noexcept = 0;
 
-  //! Check if the buffer is cached on the host
+  //! Check if the buffer is cached (readable) on the host
   virtual bool isHostCached() const noexcept = 0;
 
   //! Check if the buffer doesn't need to be unmapped
   virtual bool isHostCoherent() const noexcept = 0;
 
-  //! Check if the buffer can be mapped for the host access
+  //! Check if the buffer can be mapped (writable) for the host access
   virtual bool isHostVisible() const noexcept = 0;
-
-  //! Map a buffer memory to a host
-  template <KernelArg T>
-  [[nodiscard]]
-  MappedMemory<T> makeMappedMemory() const;
 
   //! Map a buffer memory to a host
   [[nodiscard]]
@@ -112,6 +115,9 @@ class BufferCommon : public ZivcObject
   template <KernelArg T>
   std::size_t calcSize(const std::size_t s) const noexcept;
 
+  //! Set buffer flag
+  void setFlag(const BufferFlag flag) noexcept;
+
   //! Set the type size
   void setTypeSize(const std::size_t s) noexcept;
 
@@ -119,7 +125,8 @@ class BufferCommon : public ZivcObject
   void setUsage(const BufferUsage flag) noexcept;
 
 
-  BufferUsage buffer_usage_;
+  BufferUsage buffer_usage_ = BufferUsage::kAuto;
+  BufferFlag buffer_flag_ = BufferFlag::kNone;
   uint32b type_size_ = 0;
 };
 

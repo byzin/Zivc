@@ -1,5 +1,5 @@
 /*!
-  \file platform-inl.hpp
+  \file context-inl.hpp
   \author Sho Ikeda
   \brief No brief description
 
@@ -12,14 +12,15 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_PLATFORM_INL_HPP
-#define ZIVC_PLATFORM_INL_HPP
+#ifndef ZIVC_CONTEXT_INL_HPP
+#define ZIVC_CONTEXT_INL_HPP
 
-#include "platform.hpp"
+#include "context.hpp"
 // Standard C++ library
 #include <array>
 #include <cstddef>
 #include <memory>
+#include <span>
 #include <utility>
 #include <vector>
 // Zisc
@@ -27,8 +28,8 @@
 #include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
+#include "backend.hpp"
 #include "device_info.hpp"
-#include "sub_platform.hpp"
 #include "zivc_config.hpp"
 #include "utility/error.hpp"
 #include "utility/id_data.hpp"
@@ -41,7 +42,7 @@ namespace zivc {
   \return No description
   */
 inline
-const zisc::pmr::vector<const DeviceInfo*>& Platform::deviceInfoList() const noexcept
+std::span<const DeviceInfo* const> Context::deviceInfoList() const noexcept
 {
   return *device_info_list_;
 }
@@ -53,12 +54,12 @@ const zisc::pmr::vector<const DeviceInfo*>& Platform::deviceInfoList() const noe
   \return No description
   */
 inline
-bool Platform::hasSubPlatform(const SubPlatformType type) const noexcept
+bool Context::hasBackend(const BackendType type) const noexcept
 {
   const std::size_t index = zisc::cast<std::size_t>(type);
-  ZIVC_ASSERT(index < kNumOfSubPlatforms, "The index is out of range.");
-  const auto sub_platform = subPlatform(type);
-  const bool result = (sub_platform != nullptr) && sub_platform->isAvailable();
+  ZIVC_ASSERT(index < kNumOfBackends, "The index is out of range.");
+  const auto* backend_p = backend(type);
+  const bool result = (backend_p != nullptr) && backend_p->isAvailable();
   return result;
 }
 
@@ -68,7 +69,7 @@ bool Platform::hasSubPlatform(const SubPlatformType type) const noexcept
   \return No description
   */
 inline
-bool Platform::isDebugMode() const noexcept
+bool Context::isDebugMode() const noexcept
 {
   return static_cast<bool>(is_debug_mode_);
 }
@@ -79,7 +80,7 @@ bool Platform::isDebugMode() const noexcept
   \return No description
   */
 inline
-IdData Platform::issueId() noexcept
+IdData Context::issueId() noexcept
 {
   const int64b id = id_count_.fetch_add(1, std::memory_order::acq_rel);
   constexpr int64b threshold = 0;
@@ -93,7 +94,7 @@ IdData Platform::issueId() noexcept
   \return No description
   */
 inline
-zisc::pmr::memory_resource* Platform::memoryResource() noexcept
+zisc::pmr::memory_resource* Context::memoryResource() noexcept
 {
   auto mem_resource = (custom_mem_resource_ != nullptr)
       ? custom_mem_resource_
@@ -107,7 +108,7 @@ zisc::pmr::memory_resource* Platform::memoryResource() noexcept
   \return No description
   */
 inline
-const zisc::pmr::memory_resource* Platform::memoryResource() const noexcept
+const zisc::pmr::memory_resource* Context::memoryResource() const noexcept
 {
   auto mem_resource = (custom_mem_resource_ != nullptr)
       ? custom_mem_resource_
@@ -122,12 +123,12 @@ const zisc::pmr::memory_resource* Platform::memoryResource() const noexcept
   \return No description
   */
 inline
-SubPlatform* Platform::subPlatform(const SubPlatformType type) noexcept
+Backend* Context::backend(const BackendType type) noexcept
 {
   const std::size_t index = zisc::cast<std::size_t>(type);
-  ZIVC_ASSERT(index < kNumOfSubPlatforms, "The index is out of range.");
-  SharedSubPlatform& sub_platform = sub_platform_list_[index];
-  return sub_platform.get();
+  ZIVC_ASSERT(index < kNumOfBackends, "The index is out of range.");
+  SharedBackend& backend_p = backend_list_[index];
+  return backend_p.get();
 }
 
 /*!
@@ -137,27 +138,27 @@ SubPlatform* Platform::subPlatform(const SubPlatformType type) noexcept
   \return No description
   */
 inline
-const SubPlatform* Platform::subPlatform(const SubPlatformType type) const noexcept
+const Backend* Context::backend(const BackendType type) const noexcept
 {
   const std::size_t index = zisc::cast<std::size_t>(type);
-  ZIVC_ASSERT(index < kNumOfSubPlatforms, "The index is out of range.");
-  const SharedSubPlatform& sub_platform = sub_platform_list_[index];
-  return sub_platform.get();
+  ZIVC_ASSERT(index < kNumOfBackends, "The index is out of range.");
+  const SharedBackend& backend_p = backend_list_[index];
+  return backend_p.get();
 }
 
 /*!
   \details No detailed description
 
-  \param [in] sub_platform No description.
+  \param [in] backend No description.
   */
 inline
-void Platform::setSubPlatform(SharedSubPlatform&& sub_platform) noexcept
+void Context::setBackend(SharedBackend&& backend) noexcept
 {
-  const std::size_t index = zisc::cast<std::size_t>(sub_platform->type());
-  ZIVC_ASSERT(index < kNumOfSubPlatforms, "The index is out of range.");
-  sub_platform_list_[index] = std::move(sub_platform);
+  const std::size_t index = zisc::cast<std::size_t>(backend->type());
+  ZIVC_ASSERT(index < kNumOfBackends, "The index is out of range.");
+  backend_list_[index] = std::move(backend);
 }
 
 } // namespace zivc
 
-#endif // ZIVC_PLATFORM_INL_HPP
+#endif // ZIVC_CONTEXT_INL_HPP

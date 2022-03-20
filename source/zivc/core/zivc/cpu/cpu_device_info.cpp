@@ -144,9 +144,9 @@ std::string_view CpuDeviceInfo::name() const noexcept
 
   \return No description
   */
-SubPlatformType CpuDeviceInfo::type() const noexcept
+BackendType CpuDeviceInfo::type() const noexcept
 {
-  return SubPlatformType::kCpu;
+  return BackendType::kCpu;
 }
 
 /*!
@@ -194,10 +194,9 @@ void CpuDeviceInfo::initHeapInfoList() noexcept
     const std::size_t size = memory_stats_.availablePhysicalMemory();
     info.setAvailableSize(size);
   }
-  auto& heap_info_list = DeviceInfo::heapInfoList();
-  heap_info_list.clear();
-  heap_info_list.resize(1);
-  heap_info_list[0] = info;
+  DeviceInfo::setHeapInfoListSize(1);
+  auto info_list = DeviceInfo::heapInfoList();
+  info_list[0] = info;
 }
 
 } // namespace zivc

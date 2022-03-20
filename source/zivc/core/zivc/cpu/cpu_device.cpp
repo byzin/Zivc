@@ -26,8 +26,8 @@
 #include "zisc/thread/future.hpp"
 #include "zisc/thread/thread_manager.hpp"
 // Zivc
+#include "cpu_backend.hpp"
 #include "cpu_device_info.hpp"
-#include "cpu_sub_platform.hpp"
 #include "zivc/device.hpp"
 #include "zivc/device_info.hpp"
 #include "zivc/zivc_config.hpp"
@@ -227,7 +227,7 @@ void CpuDevice::destroyData() noexcept
   */
 void CpuDevice::initData()
 {
-  [[maybe_unused]] auto& platform = parentImpl();
+  [[maybe_unused]] auto& backend_p = parentImpl();
 
   heap_usage_.setPeak(0);
   heap_usage_.setTotal(0);

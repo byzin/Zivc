@@ -86,7 +86,7 @@ void VulkanKernelImpl::destroyDescriptorSet(VkDescriptorPool* descriptor_pool) n
   auto& zdevice = device();
   zivcvk::Device d{zdevice.device()};
   if (d) {
-    zivcvk::AllocationCallbacks alloc{zdevice.makeAllocator()};
+    zivcvk::AllocationCallbacks alloc{zdevice.createAllocator()};
     {
       zivcvk::DescriptorPool desc_pool{*descriptor_pool};
       if (desc_pool)
@@ -107,7 +107,7 @@ void VulkanKernelImpl::destroyDescriptorSet(VkDescriptorPool* descriptor_pool) n
 void VulkanKernelImpl::dispatchCmd(const VkCommandBuffer& command_buffer,
                                    const void* kernel_data,
                                    const VkDescriptorSet& descriptor_set,
-                                   const std::array<uint32b, 3>& dispatch_size)
+                                   const std::span<const uint32b, 3>& dispatch_size)
 {
   const auto* kdata = zisc::cast<const VulkanDevice::KernelData*>(kernel_data);
   const auto& loader = device().dispatcher().loader();
@@ -147,7 +147,7 @@ void VulkanKernelImpl::initDescriptorSet(
   zivcvk::Device d{zdevice.device()};
   const auto& loader = zdevice.dispatcher().loader();
   auto* mem_resource = zdevice.memoryResource();
-  zivcvk::AllocationCallbacks alloc{zdevice.makeAllocator()};
+  zivcvk::AllocationCallbacks alloc{zdevice.createAllocator()};
 
   // Initialize descriptor pool
   zivcvk::DescriptorPool desc_pool;

@@ -1,5 +1,5 @@
 /*!
-  \file vulkan_sub_platform.hpp
+  \file vulkan_backend.hpp
   \author Sho Ikeda
   \brief No brief description
 
@@ -12,14 +12,15 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_VULKAN_SUB_PLATFORM_HPP
-#define ZIVC_VULKAN_SUB_PLATFORM_HPP
+#ifndef ZIVC_VULKAN_BACKEND_HPP
+#define ZIVC_VULKAN_BACKEND_HPP
 
 // Standard C++ library
 #include <cstddef>
 #include <map>
 #include <memory>
 #include <mutex>
+#include <span>
 #include <string_view>
 #include <type_traits>
 #include <vector>
@@ -32,22 +33,23 @@
 #include "vulkan_device_info.hpp"
 #include "utility/vulkan.hpp"
 #include "utility/vulkan_dispatch_loader.hpp"
+#include "zivc/backend.hpp"
 #include "zivc/device.hpp"
-#include "zivc/sub_platform.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/utility/zivc_object.hpp"
 
 namespace zivc {
 
 // Forward declaration
-class Platform;
-class PlatformOptions;
+class Context;
+class ContextOptions;
 
 /*!
   \brief No brief description
 
   No detailed description.
   */
-class VulkanSubPlatform : public SubPlatform
+class VulkanBackend : public Backend
 {
  public:
   /*!
@@ -67,18 +69,25 @@ class VulkanSubPlatform : public SubPlatform
   };
 
 
-  //! Create an empty vulkan sub-platform
-  VulkanSubPlatform(Platform* platform) noexcept;
+  //! Create an empty vulkan backend
+  VulkanBackend(Context* context) noexcept;
 
-  //! Finalize the sub-platform
-  ~VulkanSubPlatform() noexcept override;
+  //! Finalize the backend
+  ~VulkanBackend() noexcept override;
 
+
+  //! Create a unique device
+  [[nodiscard]]
+  SharedDevice createDevice(const DeviceInfo& device_info) override;
+
+  //! Return the underlyiing device info
+  const DeviceInfo& deviceInfo(const std::size_t index) const noexcept override;
+
+  //! Return the list of underlyiing device info
+  std::span<const VulkanDeviceInfo> deviceInfoList() const noexcept;
 
   //! Return the device list
-  const zisc::pmr::vector<VkPhysicalDevice>& deviceList() const noexcept;
-
-  //! Return the device info list
-  const zisc::pmr::vector<VulkanDeviceInfo>& deviceInfoList() const noexcept;
+  std::span<const VkPhysicalDevice> deviceList() const noexcept;
 
   //! Return the dispatcher of vulkan objects
   const VulkanDispatchLoader& dispatcher() const noexcept;
@@ -87,12 +96,9 @@ class VulkanSubPlatform : public SubPlatform
   std::string_view engineName() const noexcept;
 
   //! Return the list of extension properties supported in the instance
-  const zisc::pmr::vector<VkExtensionProperties>& extensionPropertiesList() const noexcept;
+  std::span<const VkExtensionProperties> extensionPropertiesList() const noexcept;
 
-  //! Add the underlying device info into the given list
-  void getDeviceInfoList(zisc::pmr::vector<const DeviceInfo*>& device_info_list) const noexcept override;
-
-  //! Check if the sub-platform has own VkInstance
+  //! Check if the backend has own VkInstance
   bool hasOwnInstance() const noexcept;
 
   //! Return the underlying Vulkan instance
@@ -101,18 +107,14 @@ class VulkanSubPlatform : public SubPlatform
   //! Return the underlying Vulkan instance
   const VkInstance& instance() const noexcept;
 
-  //! Check if the sub-platform is available
+  //! Check if the backend is available
   bool isAvailable() const noexcept override;
 
   //! Return the list of layer properties supported in the instance
-  const zisc::pmr::vector<VkLayerProperties>& layerPropertiesList() const noexcept;
+  std::span<const VkLayerProperties> layerPropertiesList() const noexcept;
 
-  //! Make a host memory allocator for Vulkan object
-  VkAllocationCallbacks makeAllocator() noexcept;
-
-  //! Make a unique device
-  [[nodiscard]]
-  SharedDevice makeDevice(const DeviceInfo& device_info) override;
+  //! Create a host memory allocator for Vulkan object
+  VkAllocationCallbacks createAllocator() noexcept;
 
   //! Notify of device memory allocation
   void notifyOfDeviceMemoryAllocation(const std::size_t device_index,
@@ -127,21 +129,21 @@ class VulkanSubPlatform : public SubPlatform
   //! Return the number of available devices
   std::size_t numOfDevices() const noexcept override;
 
-  //! Return the sub-platform type
-  SubPlatformType type() const noexcept override;
+  //! Return the backend type
+  BackendType type() const noexcept override;
 
-  //! Update the device info list
-  void updateDeviceInfoList() override;
+  //! Update the underlying device info
+  void updateDeviceInfo() override;
 
   //! Return the window surface type activated
   WindowSurfaceType windowSurfaceType() const noexcept;
 
  protected:
-  //! Destroy the sub-platform
+  //! Destroy the backend
   void destroyData() noexcept override;
 
-  //! Initialize the sub-platform
-  void initData(PlatformOptions& options) override;
+  //! Initialize the backend
+  void initData(ContextOptions& options) override;
 
   //! Update the debug info
   void updateDebugInfoImpl() override;
@@ -179,10 +181,10 @@ class VulkanSubPlatform : public SubPlatform
 
 
     //! Return the underlying memory list
-    zisc::pmr::vector<MemoryData>& memoryList() noexcept;
+    std::span<MemoryData> memoryList() noexcept;
 
     //! Return the underlying memory list
-    const zisc::pmr::vector<MemoryData>& memoryList() const noexcept;
+    std::span<const MemoryData> memoryList() const noexcept;
 
     //! Return the underlying memory map
     MemoryMap& memoryMap() noexcept;
@@ -279,18 +281,18 @@ class VulkanSubPlatform : public SubPlatform
   static bool compareProperties(const std::string_view lhs,
                                 const std::string_view rhs) noexcept;
 
-  //! Make an application info
-  VkApplicationInfo makeApplicationInfo(
+  //! Create an application info
+  VkApplicationInfo createApplicationInfo(
       const std::string_view app_name,
       const uint32b app_version_major,
       const uint32b app_version_minor,
       const uint32b app_version_patch) const noexcept;
 
-  //! Initialize an allocator which used in the sub-platform
+  //! Initialize an allocator which used in the backend
   void initAllocator() noexcept;
 
   //! Make a vulkan instance
-  void initInstance(PlatformOptions& options);
+  void initInstance(ContextOptions& options);
 
   //! Initialize the physical device list
   void initDeviceList();
@@ -299,13 +301,13 @@ class VulkanSubPlatform : public SubPlatform
   void initDeviceInfoList() noexcept;
 
   //! Initialize the vulkan dispatch loader
-  void initDispatcher(PlatformOptions& options);
+  void initDispatcher(ContextOptions& options);
 
-  //! Initialize the sub-platform properties
+  //! Initialize the backend properties
   void initProperties();
 
   //! Initialize window surface
-  void initWindowSurface(const PlatformOptions& options,
+  void initWindowSurface(const ContextOptions& options,
                          zisc::pmr::vector<const char*>* extension_list);
 
   //! Check if the given extension is supported in the instance
@@ -319,10 +321,10 @@ class VulkanSubPlatform : public SubPlatform
   std::add_pointer_t<VkInstance> instance_ref_ = nullptr;
   zisc::pmr::unique_ptr<VulkanDispatchLoader> dispatcher_;
   zisc::pmr::unique_ptr<AllocatorData> allocator_data_;
-  zisc::pmr::unique_ptr<zisc::pmr::vector<VkExtensionProperties>> extension_properties_list_;
-  zisc::pmr::unique_ptr<zisc::pmr::vector<VkLayerProperties>> layer_properties_list_;
-  zisc::pmr::unique_ptr<zisc::pmr::vector<VkPhysicalDevice>> device_list_;
-  zisc::pmr::unique_ptr<zisc::pmr::vector<VulkanDeviceInfo>> device_info_list_;
+  ZivcObject::UniqueVector<VkExtensionProperties> extension_properties_list_;
+  ZivcObject::UniqueVector<VkLayerProperties> layer_properties_list_;
+  ZivcObject::UniqueVector<VkPhysicalDevice> device_list_;
+  ZivcObject::UniqueVector<VulkanDeviceInfo> device_info_list_;
   WindowSurfaceType window_surface_type_ = WindowSurfaceType::kNone;
   [[maybe_unused]] Padding<4> pad_;
   char engine_name_[32] = "Zivc";
@@ -330,6 +332,6 @@ class VulkanSubPlatform : public SubPlatform
 
 } // namespace zivc
 
-#include "vulkan_sub_platform-inl.hpp"
+#include "vulkan_backend-inl.hpp"
 
-#endif // ZIVC_VULKAN_SUB_PLATFORM_HPP
+#endif // ZIVC_VULKAN_BACKEND_HPP

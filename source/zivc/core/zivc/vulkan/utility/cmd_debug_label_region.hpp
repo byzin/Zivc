@@ -16,7 +16,7 @@
 #define ZIVC_CMD_DEBUG_LABEL_REGION_HPP
 
 // Standard C++ library
-#include <array>
+#include <span>
 #include <string_view>
 // Zisc
 #include "zisc/non_copyable.hpp"
@@ -41,7 +41,7 @@ class CmdDebugLabelRegion : private zisc::NonCopyable<CmdDebugLabelRegion>
    CmdDebugLabelRegion(const VkCommandBuffer& command_buffer,
                        const VulkanDispatchLoader& dispatcher,
                        const std::string_view label_name,
-                       const std::array<float, 4>& color) noexcept;
+                       const std::span<const float, 4> color) noexcept;
 
    //! Move data
    CmdDebugLabelRegion(CmdDebugLabelRegion&& other) noexcept;
@@ -60,7 +60,7 @@ class CmdDebugLabelRegion : private zisc::NonCopyable<CmdDebugLabelRegion>
  private:
    //! Open a debug label region
    void begin(const std::string_view label_name,
-              const std::array<float, 4>& color) noexcept;
+              const std::span<const float, 4> color) noexcept;
 
 
    VkCommandBuffer command_buffer_ = ZIVC_VK_NULL_HANDLE;

@@ -40,7 +40,7 @@ endfunction(Zivc_getMakeSimpleRunScriptCode)
 
 function(Zivc_getDeployingVulkanDependencyCode lib_dir share_dir code envs)
   set(${code} "" PARENT_SCOPE)
-  if((NOT ZIVC_ENABLE_VULKAN_SUB_PLATFORM) OR Z_WINDOWS)
+  if((NOT ZIVC_ENABLE_VULKAN_BACKEND) OR Z_WINDOWS)
     return()
   endif()
 

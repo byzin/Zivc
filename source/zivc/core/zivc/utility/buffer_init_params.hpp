@@ -47,20 +47,23 @@ class BufferInitParams
   BufferInitParams() noexcept;
 
   //! Initialize parameters
-  BufferInitParams(const BufferUsage flag) noexcept;
+  BufferInitParams(const BufferUsage usage) noexcept;
 
+  //! Initialize parameters
+  BufferInitParams(const BufferUsage usage, const BufferFlag flag) noexcept;
 
-  //! Return the buffer usage flag
-  BufferUsage bufferUsage() const noexcept;
 
   //! Return the descriptor type for Vulkan
   DescriptorType descriptorType() const noexcept;
 
+  //! Return the buffer flag
+  BufferFlag flag() const noexcept;
+
   //! Check if the buffer has internal flag
   bool internalBufferFlag() const noexcept;
 
-  //! Set the buffer usage
-  void setBufferUsage(const BufferUsage flag) noexcept;
+  //! Set the buffer flag
+  void setFlag(const BufferFlag flag) noexcept;
 
   //! Set descriptor type for Vulkan
   void setDescriptorType(const DescriptorType type) noexcept;
@@ -68,12 +71,19 @@ class BufferInitParams
   //! Set internal buffer flag
   void setInternalBufferFlag(const bool flag) noexcept;
 
+  //! Set the buffer usage
+  void setUsage(const BufferUsage usage) noexcept;
+
+  //! Return the buffer usage flag
+  BufferUsage usage() const noexcept;
+
  private:
   //! Initialize
   void initialize() noexcept;
 
 
-  BufferUsage flag_ = BufferUsage::kDeviceOnly;
+  BufferUsage usage_ = BufferUsage::kAuto;
+  BufferFlag flag_ = BufferFlag::kNone;
   DescriptorType descriptor_type_ = DescriptorType::kStorage;
   zisc::Boolean is_internal_buffer_;
   [[maybe_unused]] Padding<3> pad_;

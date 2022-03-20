@@ -14,8 +14,10 @@
 
 #include "queue_debug_label_region.hpp"
 // Standard C++ library
+#include <algorithm>
 #include <array>
 #include <memory>
+#include <span>
 #include <string_view>
 #include <utility>
 // Zisc
@@ -39,7 +41,7 @@ QueueDebugLabelRegion::QueueDebugLabelRegion(
     const VkQueue& q,
     const VulkanDispatchLoader& dispatcher,
     const std::string_view label_name,
-    const std::array<float, 4>& color) noexcept :
+    const std::span<const float, 4> color) noexcept :
         queue_{q},
         dispatcher_{std::addressof(dispatcher)}
 {
@@ -99,11 +101,13 @@ void QueueDebugLabelRegion::end() noexcept
   \param [in] color No description.
   */
 void QueueDebugLabelRegion::begin(const std::string_view label_name,
-                                  const std::array<float, 4>& color) noexcept
+                                  const std::span<const float, 4> color) noexcept
 {
   zivcvk::Queue q{queue_};
   if (q) {
-    const zivcvk::DebugUtilsLabelEXT info{label_name.data(), color};
+    std::array<float, 4> c{{0.0f, 0.0f, 0.0f, 0.0f}};
+    std::copy_n(color.begin(), color.size(), c.begin());
+    const zivcvk::DebugUtilsLabelEXT info{label_name.data(), c};
     q.beginDebugUtilsLabelEXT(&info, dispatcher_->loader());
   }
 }

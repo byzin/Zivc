@@ -16,8 +16,10 @@
 #define ZIVC_ZIVC_OBJECT_HPP
 
 // Standard C++ library
+#include <map>
 #include <memory>
 #include <string_view>
+#include <vector>
 // Zisc
 #include "zisc/non_copyable.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
@@ -38,6 +40,12 @@ class ZivcObject : private zisc::NonCopyable<ZivcObject>
   // Type aliases
   using SharedPtr = std::shared_ptr<ZivcObject>;
   using WeakPtr = std::weak_ptr<ZivcObject>;
+
+  // Types used in Zivc
+  template <typename Type>
+  using UniqueVector = zisc::pmr::unique_ptr<zisc::pmr::vector<Type>>;
+  template <typename Key, typename Type>
+  using UniqueMap = zisc::pmr::unique_ptr<zisc::pmr::map<Key, Type>>;
 
 
   //! Initialize the object
@@ -93,8 +101,8 @@ class ZivcObject : private zisc::NonCopyable<ZivcObject>
   //! Set the object name
   void setNameIfEmpty(const std::string_view object_name);
 
-  //! Return the sub-platform type
-  virtual SubPlatformType type() const noexcept;
+  //! Return the backend type
+  virtual BackendType type() const noexcept;
 
  protected:
   //! Return the own weak pointer

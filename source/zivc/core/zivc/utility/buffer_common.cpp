@@ -16,9 +16,9 @@
 // Zisc
 #include "zisc/utility.hpp"
 // Zivc
-#include "utility/id_data.hpp"
-#include "utility/zivc_object.hpp"
-#include "zivc_config.hpp"
+#include "id_data.hpp"
+#include "zivc_object.hpp"
+#include "zivc/zivc_config.hpp"
 
 namespace zivc {
 

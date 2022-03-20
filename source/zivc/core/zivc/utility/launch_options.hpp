@@ -18,6 +18,7 @@
 // Standard C++ library
 #include <array>
 #include <cstddef>
+#include <span>
 #include <string_view>
 #include <type_traits>
 // Zisc
@@ -50,7 +51,7 @@ class LaunchOptions
   std::string_view label() const noexcept;
 
   //! Return the color of the label
-  const std::array<float, 4>& labelColor() const noexcept;
+  std::span<const float, 4> labelColor() const noexcept;
 
   //! Return the queue index
   uint32b queueIndex() const noexcept;
@@ -65,7 +66,7 @@ class LaunchOptions
   void setLabel(const std::string_view launch_label) noexcept;
 
   //! Set the color of the label
-  void setLabelColor(const std::array<float, 4>& label_color) noexcept;
+  void setLabelColor(const std::span<const float, 4>& label_color) noexcept;
 
  private:
   //! Initialize the options

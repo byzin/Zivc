@@ -24,8 +24,8 @@
 #include "zisc/memory/memory.hpp"
 #include "zisc/thread/thread_manager.hpp"
 // Zivc
+#include "cpu_backend.hpp"
 #include "cpu_device_info.hpp"
-#include "cpu_sub_platform.hpp"
 #include "zivc/zivc_config.hpp"
 
 namespace zivc {
@@ -51,8 +51,8 @@ inline
 void CpuDevice::notifyAllocation(const std::size_t size) noexcept
 {
   heap_usage_.add(size);
-  CpuSubPlatform& sub_platform = parentImpl();
-  sub_platform.notifyOfDeviceMemoryAllocation(size);
+  CpuBackend& backend_p = parentImpl();
+  backend_p.notifyOfDeviceMemoryAllocation(size);
 }
 
 /*!
@@ -64,8 +64,8 @@ inline
 void CpuDevice::notifyDeallocation(const std::size_t size) noexcept
 {
   heap_usage_.release(size);
-  CpuSubPlatform& sub_platform = parentImpl();
-  sub_platform.notifyOfDeviceMemoryDeallocation(size);
+  CpuBackend& backend_p = parentImpl();
+  backend_p.notifyOfDeviceMemoryDeallocation(size);
 }
 
 /*!
@@ -88,8 +88,8 @@ std::size_t CpuDevice::numOfThreads() const noexcept
 inline
 std::size_t CpuDevice::taskBatchSize() const noexcept
 {
-  const auto& platform = parentImpl();
-  return platform.taskBatchSize();
+  const CpuBackend& backend_p = parentImpl();
+  return backend_p.taskBatchSize();
 }
 
 /*!
@@ -120,10 +120,10 @@ const zisc::ThreadManager& CpuDevice::threadManager() const noexcept
   \return No description
   */
 inline
-CpuSubPlatform& CpuDevice::parentImpl() noexcept
+CpuBackend& CpuDevice::parentImpl() noexcept
 {
   auto p = getParent();
-  return *zisc::cast<CpuSubPlatform*>(p);
+  return *zisc::cast<CpuBackend*>(p);
 }
 
 /*!
@@ -132,10 +132,10 @@ CpuSubPlatform& CpuDevice::parentImpl() noexcept
   \return No description
   */
 inline
-const CpuSubPlatform& CpuDevice::parentImpl() const noexcept
+const CpuBackend& CpuDevice::parentImpl() const noexcept
 {
   const auto p = getParent();
-  return *zisc::cast<const CpuSubPlatform*>(p);
+  return *zisc::cast<const CpuBackend*>(p);
 }
 
 } // namespace zivc

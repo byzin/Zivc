@@ -413,7 +413,7 @@ macro(Zivc_setKernelSet_@kernel_set_name@Project)
   # C++ backend
   Zivc_initCpuBackend(${target})
   # Vulkan backend
-  if(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
+  if(ZIVC_ENABLE_VULKAN_BACKEND)
     Zivc_initVulkanBackend(${target})
   endif()
 endmacro(Zivc_setKernelSet_@kernel_set_name@Project)

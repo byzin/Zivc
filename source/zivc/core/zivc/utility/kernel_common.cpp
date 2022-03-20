@@ -17,9 +17,9 @@
 #include <cstddef>
 #include <utility>
 // Zivc
-#include "zivc_config.hpp"
-#include "utility/id_data.hpp"
-#include "utility/zivc_object.hpp"
+#include "id_data.hpp"
+#include "zivc_object.hpp"
+#include "zivc/zivc_config.hpp"
 
 namespace zivc {
 

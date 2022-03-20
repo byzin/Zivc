@@ -49,7 +49,7 @@ using Padding = zisc::Padding<kSize>;
 
   No detailed description.
   */
-enum class SubPlatformType : uint32b
+enum class BackendType : uint32b
 {
   kCpu = 0,
   kVulkan
@@ -75,10 +75,21 @@ enum class VulkanDeviceCapability : uint32b
   */
 enum class BufferUsage : uint32b
 {
-  kDeviceOnly = 0b1u << 0,
-  kHostOnly = 0b1u << 1,
-  kHostToDevice = 0b1u << 2,
-  kDeviceToHost = 0b1u << 3,
+  kAuto = 0b1u << 0,
+  kPreferDevice = 0b1u << 1,
+  kPreferHost = 0b1u << 2,
+};
+
+/*!
+  \brief No brief description
+
+  No detailed description.
+  */
+enum class BufferFlag : uint32b
+{
+  kNone = 0b1u << 0,
+  kSequentialWritable = 0b1u << 1, //!< Declares that mapped memory will only be written sequentially
+  kRandomAccessible = 0b1u << 2, //!< Declares that mapped memory can be read, written, and accessed in random order
 };
 
 // Kernel
@@ -97,8 +108,8 @@ concept KernelArg = std::is_standard_layout_v<Type> &&
 class Config
 {
  public:
-  //! Check if vulkan sub-platform is enabled
-  static constexpr bool isVulkanSubPlatformEnabled() noexcept;
+  //! Check if vulkan backend is enabled
+  static constexpr bool isVulkanBackendEnabled() noexcept;
 
   //! Return the value of the major component of the Zivc version number
   static constexpr int versionMajor() noexcept;

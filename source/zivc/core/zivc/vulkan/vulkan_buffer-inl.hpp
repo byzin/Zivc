@@ -38,8 +38,8 @@
 #include "utility/vulkan.hpp"
 #include "utility/vulkan_memory_allocator.hpp"
 #include "utility/queue_debug_label_region.hpp"
+#include "zivc/backend.hpp"
 #include "zivc/buffer.hpp"
-#include "zivc/sub_platform.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/utility/buffer_init_params.hpp"
 #include "zivc/utility/buffer_launch_options.hpp"
@@ -263,33 +263,11 @@ void* VulkanBuffer<T>::mapMemoryData() const
   void* p = nullptr;
   const auto& device = parentImpl();
   const VkResult result = vmaMapMemory(device.memoryAllocator(), allocation(), &p);
-  if (result != VK_SUCCESS) {
+  if (result != VK_SUCCESS) [[unlikely]] {
     const char* message = "Memory mapping failed.";
     VulkanBufferImpl::throwResultException(result, message);
   }
   return p;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <KernelArg T> inline
-auto VulkanBuffer<T>::rawBuffer() noexcept -> BufferData&
-{
-  return buffer_data_;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <KernelArg T> inline
-auto VulkanBuffer<T>::rawBuffer() const noexcept -> const BufferData&
-{
-  return buffer_data_;
 }
 
 /*!
@@ -329,6 +307,7 @@ void VulkanBuffer<T>::setSize(const std::size_t s)
     const VulkanBufferImpl impl{std::addressof(parentImpl())};
     impl.allocateMemory(mem_size,
                         Buffer<T>::usage(),
+                        Buffer<T>::flag(),
                         descriptorTypeVk(),
                         std::addressof(Buffer<T>::id()),
                         std::addressof(buffer()),
@@ -402,6 +381,7 @@ void VulkanBuffer<T>::initData(const BufferInitParams& params)
   {
     const VulkanBufferImpl impl{std::addressof(device)};
     impl.initAllocationInfo(Buffer<T>::usage(),
+                            Buffer<T>::flag(),
                             descriptorTypeVk(),
                             std::addressof(rawBuffer().vm_alloc_info_));
   }
@@ -532,14 +512,38 @@ LaunchResult VulkanBuffer<T>::copyOnHost(
 {
   {
     using ConstD = std::add_const_t<D>;
-    auto src_data = source.makeMappedMemory<ConstD>();
+    auto src_data = source.createMappedMemory<ConstD>();
     auto* src = src_data.begin() + launch_options.sourceOffset();
-    auto dst_data = dest->makeMappedMemory<D>();
+    auto dst_data = dest->createMappedMemory<D>();
     auto* dst = dst_data.begin() + launch_options.destOffset();
     std::copy_n(src, launch_options.size(), dst);
   }
   LaunchResult result{};
   return result;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] value No description.
+  \return No description
+  */
+template <KernelArg T> inline
+uint32b VulkanBuffer<T>::createDataForFillFast(ConstReference value) noexcept
+{
+  using ValueT = std::conditional_t<sizeof(T) == 1, uint8b,
+                 std::conditional_t<sizeof(T) == 2, uint16b,
+                 std::conditional_t<sizeof(T) == 4, uint32b,
+                                                    void*>>>;
+  uint32b data = 0;
+  if constexpr (zisc::UnsignedInteger<ValueT>) {
+    data = zisc::cast<uint32b>(zisc::bit_cast<ValueT>(value));
+    if constexpr (sizeof(ValueT) == 1)
+      data = zisc::cast<uint32b>(data << 8) | data;
+    if constexpr (sizeof(ValueT) <= 2)
+      data = zisc::cast<uint32b>(data << 16) | data;
+  }
+  return data;
 }
 
 /*!
@@ -559,7 +563,7 @@ LaunchResult VulkanBuffer<T>::fillFastOnDevice(
   VulkanDevice& device = *zisc::cast<VulkanDevice*>(dest->getParent());
 
   // Create a data for fill
-  const uint32b data = makeDataForFillFast(value);
+  const uint32b data = createDataForFillFast(value);
   auto& dst_data = *zisc::cast<BufferData*>(dest->rawBufferData());
   VkCommandBuffer command = dst_data.command_buffer_;
   // Record commands
@@ -672,7 +676,7 @@ LaunchResult VulkanBuffer<T>::fillOnHost(
     const BufferLaunchOptions<D>& launch_options) noexcept
 {
   {
-    auto dst_data = dest->makeMappedMemory<D>();
+    auto dst_data = dest->createMappedMemory<D>();
     auto dst = dst_data.begin() + launch_options.destOffset();
     std::fill_n(dst, launch_options.size(), value);
   }
@@ -702,7 +706,7 @@ void VulkanBuffer<T>::initCommandBuffer()
 {
   if ((commandBuffer() == ZIVC_VK_NULL_HANDLE) && isDeviceLocal()) {
     auto& device = parentImpl();
-    rawBuffer().command_buffer_ = device.makeCommandBuffer();
+    rawBuffer().command_buffer_ = device.createCommandBuffer();
   }
 }
 
@@ -716,12 +720,13 @@ void VulkanBuffer<T>::initFillKernel()
   if (!rawBuffer().fill_kernel_ && isDeviceLocal()) {
     ZIVC_ASSERT(commandBuffer() != ZIVC_VK_NULL_HANDLE, "Command buffer is null.");
     VulkanBufferImpl impl{std::addressof(device)};
-    rawBuffer().fill_kernel_ = impl.makeFillKernel<T>(commandBuffer());
+    rawBuffer().fill_kernel_ = impl.createFillKernel<T>(commandBuffer());
   }
   if (!rawBuffer().fill_data_ && isDeviceLocal()) {
-    BufferInitParams params{BufferUsage::kDeviceToHost};
+    BufferInitParams params{BufferUsage::kPreferHost,
+                            BufferFlag::kSequentialWritable};
     params.setInternalBufferFlag(true);
-    rawBuffer().fill_data_ = device.makeBuffer<uint8b>(params);
+    rawBuffer().fill_data_ = device.createBuffer<uint8b>(params);
   }
 }
 
@@ -756,30 +761,6 @@ const VkMemoryType& VulkanBuffer<T>::memoryType() const noexcept
 /*!
   \details No detailed description
 
-  \param [in] value No description.
-  \return No description
-  */
-template <KernelArg T> inline
-uint32b VulkanBuffer<T>::makeDataForFillFast(ConstReference value) noexcept
-{
-  using ValueT = std::conditional_t<sizeof(T) == 1, uint8b,
-                 std::conditional_t<sizeof(T) == 2, uint16b,
-                 std::conditional_t<sizeof(T) == 4, uint32b,
-                                                    void*>>>;
-  uint32b data = 0;
-  if constexpr (zisc::UnsignedInteger<ValueT>) {
-    data = zisc::cast<uint32b>(zisc::bit_cast<ValueT>(value));
-    if constexpr (sizeof(ValueT) == 1)
-      data = zisc::cast<uint32b>(data << 8) | data;
-    if constexpr (sizeof(ValueT) <= 2)
-      data = zisc::cast<uint32b>(data << 16) | data;
-  }
-  return data;
-}
-
-/*!
-  \details No detailed description
-
   \return No description
   */
 template <KernelArg T> inline
@@ -799,6 +780,28 @@ const VulkanDevice& VulkanBuffer<T>::parentImpl() const noexcept
 {
   const auto p = Buffer<T>::getParent();
   return *zisc::cast<const VulkanDevice*>(p);
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <KernelArg T> inline
+auto VulkanBuffer<T>::rawBuffer() noexcept -> BufferData&
+{
+  return buffer_data_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <KernelArg T> inline
+auto VulkanBuffer<T>::rawBuffer() const noexcept -> const BufferData&
+{
+  return buffer_data_;
 }
 
 } // namespace zivc

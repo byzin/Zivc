@@ -18,6 +18,7 @@
 // Standard C++ library
 #include <array>
 #include <cstddef>
+#include <span>
 #include <string_view>
 #include <vector>
 // Zisc
@@ -58,10 +59,10 @@ class DeviceInfo : private zisc::NonCopyable<DeviceInfo>
   const MemoryHeapInfo& heapInfo(const std::size_t heap_index) const noexcept;
 
   //! Return the heap info list
-  zisc::pmr::vector<MemoryHeapInfo>& heapInfoList() noexcept;
+  std::span<MemoryHeapInfo> heapInfoList() noexcept;
 
   //! Return the heap info list
-  const zisc::pmr::vector<MemoryHeapInfo>& heapInfoList() const noexcept;
+  std::span<const MemoryHeapInfo> heapInfoList() const noexcept;
 
   //! Return invalid name string
   static std::string_view invalidName() noexcept;
@@ -78,8 +79,8 @@ class DeviceInfo : private zisc::NonCopyable<DeviceInfo>
   //! Return the device name
   virtual std::string_view name() const noexcept = 0;
 
-  //! Return the sub-platform type
-  virtual SubPlatformType type() const noexcept = 0;
+  //! Return the backend type
+  virtual BackendType type() const noexcept = 0;
 
   //! Return the vendor name
   virtual std::string_view vendorName() const noexcept = 0;
@@ -90,6 +91,9 @@ class DeviceInfo : private zisc::NonCopyable<DeviceInfo>
  protected:
   //! Return the maximum number of parameters for a function
   static constexpr std::size_t maxNumOfFunctionParameters() noexcept;
+
+  //! Set the size of heap info list
+  void setHeapInfoListSize(const std::size_t size) noexcept;
 
  private:
   static constexpr char kInvalidName[] = "N/A";

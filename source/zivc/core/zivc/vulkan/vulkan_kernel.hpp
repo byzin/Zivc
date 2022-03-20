@@ -18,6 +18,7 @@
 // Standard C++ library
 #include <array>
 #include <cstddef>
+#include <span>
 #include <type_traits>
 #include <utility>
 // Zisc
@@ -55,9 +56,10 @@ class VulkanKernelHelper
 
   //!
   template <typename VKernel, typename Type>
-  static void updateModuleScopePushConstantsCmd(VKernel* kernel,
-                                                const std::array<uint32b, 3>& work_size,
-                                                const Type& launch_options);
+  static void updateModuleScopePushConstantsCmd(
+      VKernel* kernel,
+      const std::span<const uint32b, 3>& work_size,
+      const Type& launch_options);
 };
 
 /*!
@@ -116,7 +118,7 @@ class VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   void destroyData() noexcept override;
 
   //! Record dispatching the kernel to the parent device
-  void dispatchCmd(const std::array<uint32b, 3>& work_size);
+  void dispatchCmd(const std::span<const uint32b, 3> work_size);
 
   //! Initialize the kernel
   void initData(const Params& params) override;
@@ -128,12 +130,12 @@ class VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   friend VulkanKernelHelper;
 
 
-  //! Make a struct of POD cache
+  //! Create a struct of POD cache
   template <std::size_t kIndex, typename ...PodTypes>
-  static auto makePodCacheType(const KernelArgCache<PodTypes...>& cache) noexcept;
+  static auto createPodCacheType(const KernelArgCache<PodTypes...>& cache) noexcept;
 
 
-  using PodCacheT = decltype(makePodCacheType<0>(KernelArgCache<void>{}));
+  using PodCacheT = decltype(createPodCacheType<0>(KernelArgCache<void>{}));
   static_assert(std::is_trivially_copyable_v<PodCacheT>,
                 "The POD values aren't trivially copyable.");
   static_assert(zisc::EqualityComparable<PodCacheT>,
@@ -141,7 +143,10 @@ class VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
 
 
   //! Calculate the dispatch work size
-  std::array<uint32b, 3> calcDispatchWorkSize(const std::array<uint32b, kDim>& work_size) const noexcept;
+  std::array<uint32b, 3> calcDispatchWorkSize(const std::span<const uint32b, kDim> work_size) const noexcept;
+
+  //! Create a POD data from the given POD parameters
+  static PodCacheT createPodCache(Args... args) noexcept;
 
   //! Get the underlying VkBuffer from the given buffer
   template <KernelArg Type>
@@ -159,9 +164,6 @@ class VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   //! Initialize a POD cache from the given arguments
   template <std::size_t kIndex, typename Type, typename ...Types>
   static void initPodCache(PodCacheT* cache, Type&& value, Types&&... rest) noexcept;
-
-  //! Make a POD data from the given POD parameters
-  static PodCacheT makePodCache(Args... args) noexcept;
 
   //! Return the number of buffers which is needed for the kernel (including pod)
   static constexpr std::size_t numOfAllBuffers() noexcept;
@@ -182,7 +184,7 @@ class VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   void updateDescriptorSet(Args... args);
 
   //! Update module scope push constans
-  void updateModuleScopePushConstantsCmd(const std::array<uint32b, 3>& work_size,
+  void updateModuleScopePushConstantsCmd(const std::span<const uint32b, 3> work_size,
                                          const LaunchOptions& launch_options)
   {
     //! \note Separate declaration and definition cause a build error on visual studio

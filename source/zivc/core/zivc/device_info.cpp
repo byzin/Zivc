@@ -58,4 +58,15 @@ DeviceInfo& DeviceInfo::operator=(DeviceInfo&& other) noexcept
   return *this;
 }
 
+/*!
+  \details No detailed description
+
+  \param [in] size No description.
+  */
+void DeviceInfo::setHeapInfoListSize(const std::size_t size) noexcept
+{
+  heap_info_list_.clear();
+  heap_info_list_.resize(size);
+}
+
 } // namespace zivc

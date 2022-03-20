@@ -24,8 +24,8 @@
 #include "zisc/non_copyable.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
-#include "buffer_common.hpp"
 #include "zivc_config.hpp"
+#include "utility/buffer_common.hpp"
 #include "utility/buffer_init_params.hpp"
 #include "utility/buffer_launch_options.hpp"
 #include "utility/id_data.hpp"
@@ -83,6 +83,9 @@ class Buffer : public BufferCommon
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
   LaunchResult copyFrom(const Buffer& source, const LaunchOptions& launch_options);
 
+  //! Create launch options
+  LaunchOptions createOptions() const noexcept;
+
   //! Destroy the buffer
   void destroy() noexcept;
 
@@ -102,9 +105,6 @@ class Buffer : public BufferCommon
   //! Map a buffer memory to a host
   [[nodiscard]]
   MappedMemory<ConstType> mapMemory() const;
-
-  //! Make launch options
-  LaunchOptions makeOptions() const noexcept;
 
   //! Convert a type of a buffer interface to NewType
   template <KernelArg NewType>

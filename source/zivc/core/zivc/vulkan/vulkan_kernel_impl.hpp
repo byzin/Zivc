@@ -18,6 +18,7 @@
 // Standard C++ library
 #include <array>
 #include <cstddef>
+#include <span>
 #include <string_view>
 // Zisc
 #include "zisc/non_copyable.hpp"
@@ -56,7 +57,7 @@ class VulkanKernelImpl : private zisc::NonCopyable<VulkanKernelImpl>
   void dispatchCmd(const VkCommandBuffer& command_buffer,
                    const void* kernel_data,
                    const VkDescriptorSet& descriptor_set,
-                   const std::array<uint32b, 3>& dispatch_size);
+                   const std::span<const uint32b, 3>& dispatch_size);
 
   //! Initialize a descriptor set of the kernel
   void initDescriptorSet(const std::size_t num_of_storage_buffers,

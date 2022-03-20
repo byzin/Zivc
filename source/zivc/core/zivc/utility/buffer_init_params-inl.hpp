@@ -37,20 +37,22 @@ BufferInitParams::BufferInitParams() noexcept
   \param [in] flag No description.
   */
 inline
-BufferInitParams::BufferInitParams(const BufferUsage flag) noexcept :
-    flag_{flag}
+BufferInitParams::BufferInitParams(const BufferUsage usage) noexcept :
+    usage_{usage}
 {
 }
 
 /*!
   \details No detailed description
 
-  \return No description
+  \param [in] flag No description.
   */
 inline
-BufferUsage BufferInitParams::bufferUsage() const noexcept
+BufferInitParams::BufferInitParams(const BufferUsage usage,
+                                   const BufferFlag flag) noexcept :
+    usage_{usage},
+    flag_{flag}
 {
-  return flag_;
 }
 
 /*!
@@ -70,6 +72,17 @@ auto BufferInitParams::descriptorType() const noexcept -> DescriptorType
   \return No description
   */
 inline
+BufferFlag BufferInitParams::flag() const noexcept
+{
+  return flag_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
 bool BufferInitParams::internalBufferFlag() const noexcept
 {
   return is_internal_buffer_;
@@ -81,7 +94,7 @@ bool BufferInitParams::internalBufferFlag() const noexcept
   \param [in] flag No description.
   */
 inline
-void BufferInitParams::setBufferUsage(const BufferUsage flag) noexcept
+void BufferInitParams::setFlag(const BufferFlag flag) noexcept
 {
   flag_ = flag;
 }
@@ -107,6 +120,28 @@ inline
 void BufferInitParams::setInternalBufferFlag(const bool flag) noexcept
 {
   is_internal_buffer_ = flag;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] flag No description.
+  */
+inline
+void BufferInitParams::setUsage(const BufferUsage usage) noexcept
+{
+  usage_ = usage;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+BufferUsage BufferInitParams::usage() const noexcept
+{
+  return usage_;
 }
 
 } // namespace zivc

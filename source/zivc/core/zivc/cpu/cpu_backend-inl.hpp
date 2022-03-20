@@ -1,5 +1,5 @@
 /*!
-  \file cpu_sub_platform-inl.hpp
+  \file cpu_backend-inl.hpp
   \author Sho Ikeda
   \brief No brief description
 
@@ -12,10 +12,10 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_CPU_SUB_PLATFORM_INL_HPP
-#define ZIVC_CPU_SUB_PLATFORM_INL_HPP
+#ifndef ZIVC_CPU_BACKEND_INL_HPP
+#define ZIVC_CPU_BACKEND_INL_HPP
 
-#include "cpu_sub_platform.hpp"
+#include "cpu_backend.hpp"
 // Standard C++ library
 #include <cstddef>
 // Zisc
@@ -35,7 +35,7 @@ namespace zivc {
   \return No description
   */
 inline
-constexpr uint32b CpuSubPlatform::maxTaskBatchSize() noexcept
+constexpr uint32b CpuBackend::maxTaskBatchSize() noexcept
 {
   return 1024;
 }
@@ -46,7 +46,7 @@ constexpr uint32b CpuSubPlatform::maxTaskBatchSize() noexcept
   \param [in] size No description.
   */
 inline
-void CpuSubPlatform::notifyOfDeviceMemoryAllocation(const std::size_t size) noexcept
+void CpuBackend::notifyOfDeviceMemoryAllocation(const std::size_t size) noexcept
 {
   MemoryHeapInfo& heap_info = device_info_->heapInfo(0);
   zisc::Memory::Usage& usage = heap_info.usedSizeForBuffer();
@@ -59,7 +59,7 @@ void CpuSubPlatform::notifyOfDeviceMemoryAllocation(const std::size_t size) noex
   \param [in] size No description.
   */
 inline
-void CpuSubPlatform::notifyOfDeviceMemoryDeallocation(const std::size_t size) noexcept
+void CpuBackend::notifyOfDeviceMemoryDeallocation(const std::size_t size) noexcept
 {
   MemoryHeapInfo& heap_info = device_info_->heapInfo(0);
   zisc::Memory::Usage& usage = heap_info.usedSizeForBuffer();
@@ -72,7 +72,7 @@ void CpuSubPlatform::notifyOfDeviceMemoryDeallocation(const std::size_t size) no
   \return No description
   */
 inline
-std::size_t CpuSubPlatform::taskBatchSize() const noexcept
+std::size_t CpuBackend::taskBatchSize() const noexcept
 {
   return zisc::cast<std::size_t>(task_batch_size_);
 }
@@ -83,7 +83,7 @@ std::size_t CpuSubPlatform::taskBatchSize() const noexcept
   \return No description
   */
 inline
-zisc::ThreadManager& CpuSubPlatform::threadManager() noexcept
+zisc::ThreadManager& CpuBackend::threadManager() noexcept
 {
   return *thread_manager_;
 }
@@ -94,11 +94,11 @@ zisc::ThreadManager& CpuSubPlatform::threadManager() noexcept
   \return No description
   */
 inline
-const zisc::ThreadManager& CpuSubPlatform::threadManager() const noexcept
+const zisc::ThreadManager& CpuBackend::threadManager() const noexcept
 {
   return *thread_manager_;
 }
 
 } // namespace zivc
 
-#endif // ZIVC_CPU_SUB_PLATFORM_INL_HPP
+#endif // ZIVC_CPU_BACKEND_INL_HPP

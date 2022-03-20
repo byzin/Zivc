@@ -14,8 +14,10 @@
 
 #include "cmd_debug_label_region.hpp"
 // Standard C++ library
+#include <algorithm>
 #include <array>
 #include <memory>
+#include <span>
 #include <string_view>
 #include <utility>
 // Zisc
@@ -38,7 +40,7 @@ namespace zivc {
 CmdDebugLabelRegion::CmdDebugLabelRegion(const VkCommandBuffer& command_buffer,
                                          const VulkanDispatchLoader& dispatcher,
                                          const std::string_view label_name,
-                                         const std::array<float, 4>& color) noexcept
+                                         const std::span<const float, 4> color) noexcept
     : command_buffer_{command_buffer},
       dispatcher_{std::addressof(dispatcher)}
 {
@@ -97,11 +99,13 @@ void CmdDebugLabelRegion::end() noexcept
   \param [in] color No description.
   */
 void CmdDebugLabelRegion::begin(const std::string_view label_name,
-                                const std::array<float, 4>& color) noexcept
+                                const std::span<const float, 4> color) noexcept
 {
   zivcvk::CommandBuffer command_buffer{command_buffer_};
   if (command_buffer) {
-    const zivcvk::DebugUtilsLabelEXT info{label_name.data(), color};
+    std::array<float, 4> c{{0.0f, 0.0f, 0.0f, 0.0f}};
+    std::copy_n(color.begin(), color.size(), c.begin());
+    const zivcvk::DebugUtilsLabelEXT info{label_name.data(), c};
     command_buffer.beginDebugUtilsLabelEXT(&info, dispatcher_->loader());
   }
 }

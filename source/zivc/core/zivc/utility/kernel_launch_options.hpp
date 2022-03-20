@@ -18,6 +18,7 @@
 // Standard C++ library
 #include <array>
 #include <cstddef>
+#include <span>
 #include <string_view>
 #include <type_traits>
 // Zisc
@@ -49,18 +50,15 @@ template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...
 class KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
     public LaunchOptions
 {
-  static_assert(zisc::Algorithm::isInBounds(kDim, 1u, 4u),
-                "The kDim must be 1, 2 or 3.");
-
  public:
   //! Initialize the launch info
   KernelLaunchOptions() noexcept;
 
   //! Initialize the launch info
-  KernelLaunchOptions(const std::array<uint32b, kDim>& work_size) noexcept;
+  KernelLaunchOptions(const std::span<const uint32b, kDim>& work_size) noexcept;
 
   //! Initialize the launch info
-  KernelLaunchOptions(const std::array<uint32b, kDim>& work_size,
+  KernelLaunchOptions(const std::span<const uint32b, kDim>& work_size,
                       const uint32b queue_index) noexcept;
 
 
@@ -68,7 +66,7 @@ class KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   static constexpr std::size_t dimension() noexcept;
 
   //! Return the 3d global offset used in global id calculations
-  const std::array<uint32b, kDim>& globalIdOffset() const noexcept;
+  std::span<const uint32b, kDim> globalIdOffset() const noexcept;
 
   //! Return the number of kernel arguments
   static constexpr std::size_t numOfArgs() noexcept;
@@ -77,18 +75,22 @@ class KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   void setGlobalIdOffset(const uint32b offset, const std::size_t dim) noexcept;
 
   //! Set the 3d global offset used in global id calculations
-  void setGlobalIdOffset(const std::array<uint32b, kDim>& offset) noexcept;
+  void setGlobalIdOffset(const std::span<const uint32b, kDim>& offset) noexcept;
 
   //! Set the work item size at the give dimension
   void setWorkSize(const uint32b work_size, const std::size_t dim) noexcept;
 
   //! Set the work item size
-  void setWorkSize(const std::array<uint32b, kDim>& work_size) noexcept;
+  void setWorkSize(const std::span<const uint32b, kDim>& work_size) noexcept;
 
   //! Return the work item size
-  const std::array<uint32b, kDim>& workSize() const noexcept;
+  std::span<const uint32b, kDim> workSize() const noexcept;
 
  private:
+  static_assert(zisc::Algorithm::isInBounds(kDim, 1u, 4u),
+                "The kDim must be 1, 2 or 3.");
+
+
   //! Initialize the options
   void initialize() noexcept;
 

@@ -210,35 +210,35 @@ macro(setExampleProject)
 
   include("${CMAKE_SOURCE_DIR}/source/zivc/cmake/kernel.cmake")
   # Build examples
-  ## 1. platform example
-  addExample(PlatformExample ON
-             SOURCE_FILES "${PROJECT_SOURCE_DIR}/platform_example.cpp")
-  ## 2. device example
-  addExample(DeviceExample OFF
-             SOURCE_FILES "${PROJECT_SOURCE_DIR}/device_example.cpp")
+  ## 1. context example
+  addExample(ContextExample ON
+             SOURCE_FILES "${PROJECT_SOURCE_DIR}/context_example.cpp")
+  ## 2. buffer example
+  addExample(BufferExample OFF
+             SOURCE_FILES "${PROJECT_SOURCE_DIR}/buffer_example.cpp")
   ## 3. kernel example
-  addExample(KernelExample OFF
-             SOURCE_FILES "${PROJECT_SOURCE_DIR}/kernel_example.cpp")
-  Zivc_addKernelSet(example ${PROJECT_VERSION}
-      SOURCE_FILES "kernels/example.cl"
-      INCLUDE_DIRS kernels)
-  target_link_libraries(KernelExample PRIVATE KernelSet_example)
+  #  addExample(KernelExample OFF
+  #             SOURCE_FILES "${PROJECT_SOURCE_DIR}/kernel_example.cpp")
+  # Zivc_addKernelSet(example ${PROJECT_VERSION}
+  #     SOURCE_FILES "kernels/example.cl"
+  #     INCLUDE_DIRS kernels)
+  # target_link_libraries(KernelExample PRIVATE KernelSet_example)
 
   # Demos using vulkan
-  if(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
+  if(ZIVC_ENABLE_VULKAN_BACKEND)
     # Build dependencies
-    addGlfw("${PROJECT_BINARY_DIR}/GLFW")
-    addImgui()
-    addGui()
-    target_link_libraries(gui PRIVATE KernelSet_example)
-    ## 4. vulkan sub-platform example
-    addExample(VulkanSubPlatformExample OFF
-               SOURCE_FILES "${PROJECT_SOURCE_DIR}/vulkan_sub_platform_example.cpp")
+    #addGlfw("${PROJECT_BINARY_DIR}/GLFW")
+    #addImgui()
+    #addGui()
+    #target_link_libraries(gui PRIVATE KernelSet_example)
+    ## 4. vulkan backend example
+    addExample(VulkanBackendExample OFF
+               SOURCE_FILES "${PROJECT_SOURCE_DIR}/vulkan_backend_example.cpp")
     ## 5. GUI example
-    addExample(GuiExample ON
-               SOURCE_FILES "${PROJECT_SOURCE_DIR}/gui_example.cpp"
-                            "${PROJECT_SOURCE_DIR}/cli.cpp"
-               DEPENDS CLI11::CLI11 Gui::gui)
+    #addExample(GuiExample ON
+    #           SOURCE_FILES "${PROJECT_SOURCE_DIR}/gui_example.cpp"
+    #                        "${PROJECT_SOURCE_DIR}/cli.cpp"
+    #           DEPENDS CLI11::CLI11 Gui::gui)
   endif()
 
   # Kernel set

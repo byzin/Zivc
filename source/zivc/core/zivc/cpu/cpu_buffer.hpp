@@ -29,6 +29,7 @@
 #include "zivc/utility/buffer_launch_options.hpp"
 #include "zivc/utility/id_data.hpp"
 #include "zivc/utility/launch_result.hpp"
+#include "zivc/utility/zivc_object.hpp"
 
 namespace zivc {
 
@@ -92,12 +93,6 @@ class CpuBuffer : public Buffer<T>
   void* mapMemoryData() const override;
 
   //! Return the underlying buffer data
-  zisc::pmr::vector<Type>& rawBuffer() noexcept;
-
-  //! Return the underlying buffer data
-  const zisc::pmr::vector<Type>& rawBuffer() const noexcept;
-
-  //! Return the underlying buffer data
   void* rawBufferData() noexcept override;
 
   //! Return the underlying buffer data
@@ -147,8 +142,14 @@ class CpuBuffer : public Buffer<T>
   //! Prepare a buffer for use
   void prepareBuffer() noexcept;
 
+  //! Return the underlying buffer data
+  zisc::pmr::vector<Type>& rawBuffer() noexcept;
 
-  zisc::pmr::unique_ptr<zisc::pmr::vector<Type>> buffer_data_;
+  //! Return the underlying buffer data
+  const zisc::pmr::vector<Type>& rawBuffer() const noexcept;
+
+
+  ZivcObject::UniqueVector<Type> buffer_data_;
 };
 
 } // namespace zivc

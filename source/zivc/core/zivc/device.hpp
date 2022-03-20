@@ -35,14 +35,16 @@
 namespace zivc {
 
 // Forward declaration
+class Backend;
 class DeviceInfo;
 class Fence;
-class SubPlatform;
 template <std::size_t, DerivedKSet, typename...> class KernelInitParams;
 template <KernelArg T>
-SharedBuffer<T> makeBuffer(Device* device, const BufferInitParams& params);
+SharedBuffer<T> createBuffer(
+    Device* device,
+    const BufferInitParams& params);
 template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
-SharedKernel<kDim, KSet, Args...> makeKernel(
+SharedKernel<kDim, KSet, Args...> createKernel(
     Device* device,
     const KernelInitParams<kDim, KSet, Args...>& params);
 
@@ -66,6 +68,17 @@ class Device : public ZivcObject
   ~Device() noexcept override;
 
 
+  //! Create a buffer
+  template <KernelArg T>
+  [[nodiscard]]
+  SharedBuffer<T> createBuffer(const BufferInitParams& params);
+
+  //! Create a kernel from the given parameters
+  template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
+  [[nodiscard]]
+  SharedKernel<kDim, KSet, Args...> createKernel(
+      const KernelInitParams<kDim, KSet, Args...>& params);
+
   //! Destroy the data
   void destroy() noexcept;
 
@@ -76,17 +89,6 @@ class Device : public ZivcObject
   void initialize(ZivcObject::SharedPtr&& parent,
                   WeakPtr&& own,
                   const DeviceInfo& device_info);
-
-  //! Make a buffer
-  template <KernelArg T>
-  [[nodiscard]]
-  SharedBuffer<T> makeBuffer(const BufferInitParams& params);
-
-  //! Make a kernel from the given parameters
-  template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
-  [[nodiscard]]
-  SharedKernel<kDim, KSet, Args...> makeKernel(
-      const KernelInitParams<kDim, KSet, Args...>& params);
 
   //! Return the memory usage by the given heap index
   virtual zisc::Memory::Usage& memoryUsage(const std::size_t heap_index) noexcept = 0;
@@ -126,22 +128,28 @@ class Device : public ZivcObject
   virtual void initData() = 0;
 
  private:
+  //
   template <KernelArg T>
-  friend SharedBuffer<T> makeBuffer(Device*, const BufferInitParams&);
+  friend SharedBuffer<T> createBuffer(
+      Device*,
+      const BufferInitParams&);
+  //
   template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
-  friend SharedKernel<kDim, KSet, Args...> makeKernel(Device*, const KernelInitParams<kDim, KSet, Args...>&);
+  friend SharedKernel<kDim, KSet, Args...> createKernel(
+      Device*,
+      const KernelInitParams<kDim, KSet, Args...>&);
 
 
-  //! Make a buffer
+  //! Create a buffer
   template <template<typename> typename Derived, KernelArg T>
   [[nodiscard]]
-  SharedBuffer<T> makeDerivedBuffer(const BufferInitParams& params);
+  SharedBuffer<T> createDerivedBuffer(const BufferInitParams& params);
 
-  //! Make a kernel from the given parameters
+  //! Create a kernel from the given parameters
   template <template<typename, typename...> typename Derived,
             std::size_t kDim, DerivedKSet KSet, typename ...Args>
   [[nodiscard]]
-  SharedKernel<kDim, KSet, Args...> makeDerivedKernel(
+  SharedKernel<kDim, KSet, Args...> createDerivedKernel(
       const KernelInitParams<kDim, KSet, Args...>& params);
 
 

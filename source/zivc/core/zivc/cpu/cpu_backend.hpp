@@ -1,5 +1,5 @@
 /*!
-  \file cpu_sub_platform.hpp
+  \file cpu_backend.hpp
   \author Sho Ikeda
   \brief No brief description
 
@@ -12,52 +12,53 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_CPU_SUB_PLATFORM_HPP
-#define ZIVC_CPU_SUB_PLATFORM_HPP
+#ifndef ZIVC_CPU_BACKEND_HPP
+#define ZIVC_CPU_BACKEND_HPP
 
 // Standard C++ library
 #include <cstddef>
 #include <memory>
+#include <span>
 #include <vector>
 // Zisc
 #include "zisc/memory/std_memory_resource.hpp"
 #include "zisc/thread/thread_manager.hpp"
 // Zivc
 #include "cpu_device_info.hpp"
+#include "zivc/backend.hpp"
 #include "zivc/device.hpp"
-#include "zivc/sub_platform.hpp"
 #include "zivc/zivc_config.hpp"
 
 namespace zivc {
 
 // Forward declaration
-class Platform;
-class PlatformOptions;
+class Context;
+class ContextOptions;
 
 /*!
   \brief No brief description
 
   No detailed description.
   */
-class CpuSubPlatform : public SubPlatform
+class CpuBackend : public Backend
 {
  public:
-  //! Create an empty cpu sub-platform
-  CpuSubPlatform(Platform* platform) noexcept;
+  //! Create an empty cpu backend
+  CpuBackend(Context* context) noexcept;
 
-  //! Finalize the sub-platform
-  ~CpuSubPlatform() noexcept override;
+  //! Finalize the backend
+  ~CpuBackend() noexcept override;
 
 
-  //! Add the underlying device info into the given list
-  void getDeviceInfoList(zisc::pmr::vector<const DeviceInfo*>& device_info_list) const noexcept override;
-
-  //! Check if the sub-platform is available
-  bool isAvailable() const noexcept override;
-
-  //! Make a unique device
+  //! Create a unique device
   [[nodiscard]]
-  SharedDevice makeDevice(const DeviceInfo& device_info) override;
+  SharedDevice createDevice(const DeviceInfo& device_info) override;
+
+  //! Return the underlying device info
+  const DeviceInfo& deviceInfo(const std::size_t index) const noexcept override;
+
+  //! Check if the backend is available
+  bool isAvailable() const noexcept override;
 
   //! Return the maximum task batch size per thread
   static constexpr uint32b maxTaskBatchSize() noexcept;
@@ -80,18 +81,18 @@ class CpuSubPlatform : public SubPlatform
   //! Return the underlying thread manager which is used for kernel exection
   const zisc::ThreadManager& threadManager() const noexcept;
 
-  //! Return the sub-platform type
-  SubPlatformType type() const noexcept override;
+  //! Return the backend type
+  BackendType type() const noexcept override;
 
-  //! Update the device info list
-  void updateDeviceInfoList() override;
+  //! Update the underlying device info
+  void updateDeviceInfo() override;
 
  protected:
-  //! Destroy the sub-platform
+  //! Destroy the backend
   void destroyData() noexcept override;
 
-  //! Initialize the sub-platform
-  void initData(PlatformOptions& options) override;
+  //! Initialize the backend
+  void initData(ContextOptions& options) override;
 
   //! Update debug info
   void updateDebugInfoImpl() override;
@@ -105,6 +106,6 @@ class CpuSubPlatform : public SubPlatform
 
 } // namespace zivc
 
-#include "cpu_sub_platform-inl.hpp"
+#include "cpu_backend-inl.hpp"
 
-#endif // ZIVC_CPU_SUB_PLATFORM_HPP
+#endif // ZIVC_CPU_BACKEND_HPP

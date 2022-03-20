@@ -22,8 +22,8 @@
 // Zisc
 #include "zisc/utility.hpp"
 // Zivc
+#include "buffer_common.hpp"
 #include "error.hpp"
-#include "zivc/buffer_common.hpp"
 #include "zivc/zivc_config.hpp"
 
 namespace zivc {

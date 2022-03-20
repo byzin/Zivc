@@ -1,5 +1,5 @@
 /*!
-  \file platform_options.hpp
+  \file context_options.hpp
   \author Sho Ikeda
   \brief No brief description
 
@@ -12,8 +12,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_PLATFORM_OPTIONS_HPP
-#define ZIVC_PLATFORM_OPTIONS_HPP
+#ifndef ZIVC_CONTEXT_OPTIONS_HPP
+#define ZIVC_CONTEXT_OPTIONS_HPP
 
 // Standard C++ library
 #include <string_view>
@@ -33,21 +33,21 @@ namespace zivc {
 
   No detailed description.
   */
-class PlatformOptions : private zisc::NonCopyable<PlatformOptions>
+class ContextOptions : private zisc::NonCopyable<ContextOptions>
 {
  public:
-  //! Create a platform options
-  PlatformOptions() noexcept;
+  //! Create a context options
+  ContextOptions() noexcept;
 
-  //! Create a platform options with the given memory resource
-  PlatformOptions(zisc::pmr::memory_resource* mem_resource) noexcept;
-
-  //! Move option data
-  PlatformOptions(PlatformOptions&& other) noexcept;
-
+  //! Create a context options with the given memory resource
+  ContextOptions(zisc::pmr::memory_resource* mem_resource) noexcept;
 
   //! Move option data
-  PlatformOptions& operator=(PlatformOptions&& other) noexcept;
+  ContextOptions(ContextOptions&& other) noexcept;
+
+
+  //! Move option data
+  ContextOptions& operator=(ContextOptions&& other) noexcept;
 
 
   //! Return the number of thread for kernel execution
@@ -59,8 +59,8 @@ class PlatformOptions : private zisc::NonCopyable<PlatformOptions>
   //! Enable the debug mode
   void enableDebugMode(const bool debug_mode_enabled) noexcept;
 
-  //! Enable the vulkan sub-platform
-  void enableVulkanSubPlatform(const bool sub_platform_enabled) noexcept;
+  //! Enable the vulkan backend
+  void enableVulkanBackend(const bool backend_enabled) noexcept;
 
   //! Enable WSI (Window System Integration) extension on Vulkan
   void enableVulkanWSIExtension(const bool extension_enabled) noexcept;
@@ -71,17 +71,17 @@ class PlatformOptions : private zisc::NonCopyable<PlatformOptions>
   //! Return the underlying memory resource
   const zisc::pmr::memory_resource* memoryResource() const noexcept;
 
-  //! Return the platform name
-  std::string_view platformName() const noexcept;
+  //! Return the context name
+  std::string_view contextName() const noexcept;
 
-  //! Return the value of the major component of the platform version number
-  uint32b platformVersionMajor() const noexcept;
+  //! Return the value of the major component of the context version number
+  uint32b contextVersionMajor() const noexcept;
 
-  //! Return the value of the minor component of the platform version number
-  uint32b platformVersionMinor() const noexcept;
+  //! Return the value of the minor component of the context version number
+  uint32b contextVersionMinor() const noexcept;
 
-  //! Return the value of the patch component of the platform version number
-  uint32b platformVersionPatch() const noexcept;
+  //! Return the value of the patch component of the context version number
+  uint32b contextVersionPatch() const noexcept;
 
   //! Check whether the debug mode is enabled
   bool debugModeEnabled() const noexcept;
@@ -95,17 +95,17 @@ class PlatformOptions : private zisc::NonCopyable<PlatformOptions>
   //! Set memory resource for Zivc
   void setMemoryResource(zisc::pmr::memory_resource* mem_resource) noexcept;
 
-  //! Set the platform name
-  void setPlatformName(std::string_view name) noexcept;
+  //! Set the context name
+  void setContextName(std::string_view name) noexcept;
 
-  //! Set the value of the major component of the platform version number
-  void setPlatformVersionMajor(const uint32b major) noexcept;
+  //! Set the value of the major component of the context version number
+  void setContextVersionMajor(const uint32b major) noexcept;
 
-  //! Set the value of the minor component of the platform version number
-  void setPlatformVersionMinor(const uint32b minor) noexcept;
+  //! Set the value of the minor component of the context version number
+  void setContextVersionMinor(const uint32b minor) noexcept;
 
-  //! Set the value of the patch component of the platform version number
-  void setPlatformVersionPatch(const uint32b patch) noexcept;
+  //! Set the value of the patch component of the context version number
+  void setContextVersionPatch(const uint32b patch) noexcept;
 
   //! Set a ptr of a VkInstance object which is used instead of internal instance
   void setVulkanInstancePtr(void* instance_ptr) noexcept;
@@ -125,8 +125,8 @@ class PlatformOptions : private zisc::NonCopyable<PlatformOptions>
   //! Return a ptr of a PFN_vkGetInstanceProcAddr
   void* vulkanGetProcAddrPtr() noexcept;
 
-  //! Check whether the vulkan sub-platform is enabled
-  bool vulkanSubPlatformEnabled() const noexcept;
+  //! Check whether the vulkan backend is enabled
+  bool vulkanBackendEnabled() const noexcept;
 
   //! Check whether WSI (Window System Integration) extension is enabled
   bool vulkanWSIExtensionEnabled() const noexcept;
@@ -136,16 +136,16 @@ class PlatformOptions : private zisc::NonCopyable<PlatformOptions>
   void initialize() noexcept;
 
 
-  IdData::NameType platform_name_;
+  IdData::NameType context_name_;
   IdData::NameType vulkan_library_name_;
   zisc::pmr::memory_resource* mem_resource_;
-  uint32b platform_version_major_;
-  uint32b platform_version_minor_;
-  uint32b platform_version_patch_;
+  uint32b context_version_major_;
+  uint32b context_version_minor_;
+  uint32b context_version_patch_;
   uint32b cpu_num_of_threads_ = 0;
   uint32b cpu_task_batch_size_ = 32;
   zisc::Boolean debug_mode_enabled_; //!< Enable debugging in Zivc
-  zisc::Boolean vulkan_sub_platform_enabled_;
+  zisc::Boolean vulkan_backend_enabled_;
   zisc::Boolean vulkan_wsi_extension_enabled_;
   [[maybe_unused]] Padding<1> pad_;
   void* vulkan_instance_ptr_ = nullptr;
@@ -154,6 +154,6 @@ class PlatformOptions : private zisc::NonCopyable<PlatformOptions>
 
 } // namespace zivc
 
-#include "platform_options-inl.hpp"
+#include "context_options-inl.hpp"
 
-#endif // ZIVC_PLATFORM_OPTIONS_HPP
+#endif // ZIVC_CONTEXT_OPTIONS_HPP

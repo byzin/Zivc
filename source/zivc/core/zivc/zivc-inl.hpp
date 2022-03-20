@@ -37,11 +37,11 @@
 #include "utility/kernel_arg_parser.hpp"
 #include "utility/kernel_init_params.hpp"
 #include "utility/launch_result.hpp"
-#if defined(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
+#if defined(ZIVC_ENABLE_VULKAN_BACKEND)
 #include "vulkan/vulkan_buffer.hpp"
 #include "vulkan/vulkan_device.hpp"
 #include "vulkan/vulkan_kernel.hpp"
-#endif // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
+#endif // ZIVC_ENABLE_VULKAN_BACKEND
 #include "zivc/zivc_config.hpp"
 
 namespace zivc {
@@ -63,17 +63,17 @@ LaunchResult copy(const Buffer<SrcType>& source,
 {
   LaunchResult result;
   switch (dest->type()) {
-   case SubPlatformType::kCpu: {
+   case BackendType::kCpu: {
     result = dest->template copyFromDerived<CpuBuffer>(source, launch_options);
     break;
    }
-   case SubPlatformType::kVulkan: {
-#if defined(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
+   case BackendType::kVulkan: {
+#if defined(ZIVC_ENABLE_VULKAN_BACKEND)
     result = dest->template copyFromDerived<VulkanBuffer>(source, launch_options);
     break;
-#else // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
+#else // ZIVC_ENABLE_VULKAN_BACKEND
     [[fallthrough]];
-#endif // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
+#endif // ZIVC_ENABLE_VULKAN_BACKEND
    }
    default: {
     ZIVC_ASSERT(false, "Error: Unsupported device type is specified.");
@@ -99,17 +99,17 @@ LaunchResult fill(typename Buffer<Type>::ConstReference value,
 {
   LaunchResult result;
   switch (buffer->type()) {
-   case SubPlatformType::kCpu: {
+   case BackendType::kCpu: {
     result = buffer->template fillDerived<CpuBuffer>(value, launch_options);
     break;
    }
-   case SubPlatformType::kVulkan: {
-#if defined(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
+   case BackendType::kVulkan: {
+#if defined(ZIVC_ENABLE_VULKAN_BACKEND)
     result = buffer->template fillDerived<VulkanBuffer>(value, launch_options);
     break;
-#else // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
+#else // ZIVC_ENABLE_VULKAN_BACKEND
     [[fallthrough]];
-#endif // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
+#endif // ZIVC_ENABLE_VULKAN_BACKEND
    }
    default: {
     ZIVC_ASSERT(false, "Error: Unsupported device type is specified.");
@@ -128,21 +128,21 @@ LaunchResult fill(typename Buffer<Type>::ConstReference value,
   \return No description
   */
 template <KernelArg Type> inline
-SharedBuffer<Type> makeBuffer(Device* device, const BufferInitParams& params)
+SharedBuffer<Type> createBuffer(Device* device, const BufferInitParams& params)
 {
   SharedBuffer<Type> buffer;
   switch (device->type()) {
-   case SubPlatformType::kCpu: {
-    buffer = device->makeDerivedBuffer<CpuBuffer, Type>(params);
+   case BackendType::kCpu: {
+    buffer = device->createDerivedBuffer<CpuBuffer, Type>(params);
     break;
    }
-   case SubPlatformType::kVulkan: {
-#if defined(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
-    buffer = device->makeDerivedBuffer<VulkanBuffer, Type>(params);
+   case BackendType::kVulkan: {
+#if defined(ZIVC_ENABLE_VULKAN_BACKEND)
+    buffer = device->createDerivedBuffer<VulkanBuffer, Type>(params);
     break;
-#else // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
+#else // ZIVC_ENABLE_VULKAN_BACKEND
     [[fallthrough]];
-#endif // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
+#endif // ZIVC_ENABLE_VULKAN_BACKEND
    }
    default: {
     ZIVC_ASSERT(false, "Error: Unsupported device type is specified.");
@@ -163,23 +163,23 @@ SharedBuffer<Type> makeBuffer(Device* device, const BufferInitParams& params)
   \return No description
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...Args> inline
-SharedKernel<kDim, KSet, Args...> makeKernel(
+SharedKernel<kDim, KSet, Args...> createKernel(
     Device* device,
     const KernelInitParams<kDim, KSet, Args...>& params)
 {
   SharedKernel<kDim, KSet, Args...> kernel;
   switch (device->type()) {
-   case SubPlatformType::kCpu: {
-    kernel = device->makeDerivedKernel<CpuKernel>(params);
+   case BackendType::kCpu: {
+    kernel = device->createDerivedKernel<CpuKernel>(params);
     break;
    }
-   case SubPlatformType::kVulkan: {
-#if defined(ZIVC_ENABLE_VULKAN_SUB_PLATFORM)
-    kernel = device->makeDerivedKernel<VulkanKernel>(params);
+   case BackendType::kVulkan: {
+#if defined(ZIVC_ENABLE_VULKAN_BACKEND)
+    kernel = device->createDerivedKernel<VulkanKernel>(params);
     break;
-#else // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
+#else // ZIVC_ENABLE_VULKAN_BACKEND
     [[fallthrough]];
-#endif // ZIVC_ENABLE_VULKAN_SUB_PLATFORM
+#endif // ZIVC_ENABLE_VULKAN_BACKEND
    }
    default: {
     ZIVC_ASSERT(false, "Error: Unsupported device type is specified.");
@@ -195,14 +195,12 @@ SharedKernel<kDim, KSet, Args...> makeKernel(
   \tparam kDim No description.
   \tparam KSet No description.
   \tparam Args No description.
-  \param [in] kernel_set No description.
   \param [in] func No description.
   \param [in] kernel_name No description.
   \return No description
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...Args> inline
-KernelInitParams<kDim, KSet, Args...> makeKernelInitParams(
-    [[maybe_unused]] const KernelSet<KSet>& kernel_set,
+KernelInitParams<kDim, KSet, Args...> createKernelInitParams(
     void (*func)(Args...),
     std::string_view kernel_name) noexcept
 {
@@ -210,12 +208,12 @@ KernelInitParams<kDim, KSet, Args...> makeKernelInitParams(
   return params;
 }
 
-#if defined(ZIVC_MAKE_KERNEL_INIT_PARAMS)
-#undef ZIVC_MAKE_KERNEL_INIT_PARAMS
-#endif // ZIVC_MAKE_KERNEL_INIT_PARAMS
+#if defined(ZIVC_CREATE_KERNEL_INIT_PARAMS)
+#undef ZIVC_CREATE_KERNEL_INIT_PARAMS
+#endif // ZIVC_CREATE_KERNEL_INIT_PARAMS
 
 /*!
-  \def ZIVC_MAKE_KERNEL_INIT_PARAMS
+  \def ZIVC_CREATE_KERNEL_INIT_PARAMS
   \brief No brief description
 
   No detailed description.
@@ -225,11 +223,12 @@ KernelInitParams<kDim, KSet, Args...> makeKernelInitParams(
   \param [in] dimension No description.
   \return No description
   */
-#define ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_set_name, kernel_name, dimension) \
-    ::zivc::makeKernelInitParams< dimension >( \
-        ::zivc::kernel_set::KernelSet_ ## kernel_set_name {}, \
-        ::zivc::cl:: kernel_name, \
-        #kernel_name )
+#define ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_set_name, kernel_name, dimension) \
+    ::zivc::createKernelInitParams< \
+        dimension, \
+        ::zivc::kernel_set::KernelSet_ ## kernel_set_name >( \
+            ::zivc::cl:: kernel_name, \
+            #kernel_name )
 
 } // namespace zivc
 

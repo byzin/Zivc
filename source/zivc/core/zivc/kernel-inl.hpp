@@ -63,10 +63,23 @@ Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::~Kernel() noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-std::size_t Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+constexpr std::size_t Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 argSize() const noexcept
 {
   return numOfArgs();
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+inline
+constexpr std::size_t Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+bufferSize() const noexcept
+{
+  return numOfBuffers();
 }
 
 /*!
@@ -100,7 +113,7 @@ dimension() noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-std::size_t Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+constexpr std::size_t Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 dimensionSize() const noexcept
 {
   return dimension();
@@ -169,6 +182,19 @@ numOfPods() noexcept
 {
   constexpr std::size_t size = ArgParser::kNumOfPodArgs;
   return size;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+inline
+constexpr std::size_t Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+podSize() const noexcept
+{
+  return numOfBuffers();
 }
 
 /*!

@@ -34,6 +34,7 @@
 namespace zivc {
 
 // Forward declaration
+class BufferCommon;
 class VulkanDevice;
 
 /*!
@@ -53,8 +54,7 @@ class VulkanBufferImpl : private zisc::NonCopyable<VulkanBufferImpl>
 
   //! Allocate a memory for the device
   void allocateMemory(const std::size_t size,
-                      const BufferUsage buffer_usage,
-                      const BufferFlag buffer_flag,
+                      const BufferCommon& object,
                       const VkBufferUsageFlagBits desc_type,
                       void* user_data,
                       VkBuffer* buffer,
@@ -93,8 +93,7 @@ class VulkanBufferImpl : private zisc::NonCopyable<VulkanBufferImpl>
                    const uint32b data) const noexcept;
 
   //! Initialize allocation info
-  void initAllocationInfo(const BufferUsage buffer_usage,
-                          const BufferFlag buffer_flag,
+  void initAllocationInfo(const BufferCommon& object,
                           const VkBufferUsageFlagBits desc_type,
                           VmaAllocationInfo* alloc_info) const;
 

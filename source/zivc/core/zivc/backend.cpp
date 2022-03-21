@@ -96,7 +96,7 @@ IdData Backend::issueId() noexcept
 
   \return No description
   */
-zisc::pmr::memory_resource* Backend::memoryResource() noexcept
+zisc::pmr::memory_resource* Backend::memoryResource()
 {
   zisc::pmr::memory_resource* mem_resource = context_->memoryResource();
   return mem_resource;

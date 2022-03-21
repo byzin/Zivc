@@ -18,6 +18,7 @@
 #include "reinterp_buffer.hpp"
 // Standard C++ library
 #include <cstddef>
+#include <string>
 #include <type_traits>
 #include <utility>
 // Zisc
@@ -67,11 +68,14 @@ ReinterpBuffer<Derived, T>::~ReinterpBuffer() noexcept
   \return No description
   */
 template <DerivedBuffer Derived, KernelArg T> inline
-ZivcObject* ReinterpBuffer<Derived, T>::getParent() noexcept
+ZivcObject* ReinterpBuffer<Derived, T>::getParent()
 {
   ZivcObject* data = nullptr;
   if constexpr (std::is_const_v<BufferT>) {
-    ZIVC_ASSERT(false, "'getParent' cannot be called with const qualified buffer.");
+    const std::string message = createErrorMessage(
+        *this,
+        "'getParent' cannot be called with const qualified buffer.");
+    throw SystemError{ErrorCode::kInvalidInstruction, message};
   }
   else {
     auto b = internalBuffer();
@@ -98,11 +102,14 @@ const ZivcObject* ReinterpBuffer<Derived, T>::getParent() const noexcept
   \return No description
   */
 template <DerivedBuffer Derived, KernelArg T> inline
-ZivcObject* ReinterpBuffer<Derived, T>::getOwn() noexcept
+ZivcObject* ReinterpBuffer<Derived, T>::getOwn()
 {
   ZivcObject* data = nullptr;
   if constexpr (std::is_const_v<BufferT>) {
-    ZIVC_ASSERT(false, "'getOwn' cannot be called with const qualified buffer.");
+    const std::string message = createErrorMessage(
+        *this,
+        "'getOwn' cannot be called with const qualified buffer.");
+    throw SystemError{ErrorCode::kInvalidInstruction, message};
   }
   else {
     auto b = internalBuffer();
@@ -225,11 +232,14 @@ void* ReinterpBuffer<Derived, T>::mapMemoryData() const
   \return No description
   */
 template <DerivedBuffer Derived, KernelArg T> inline
-zisc::pmr::memory_resource* ReinterpBuffer<Derived, T>::memoryResource() noexcept
+zisc::pmr::memory_resource* ReinterpBuffer<Derived, T>::memoryResource()
 {
   zisc::pmr::memory_resource* mem_resource = nullptr;
   if constexpr (std::is_const_v<BufferT>) {
-    ZIVC_ASSERT(false, "'memoryResource' cannot be called with const qualified buffer.");
+    const std::string message = createErrorMessage(
+        *this,
+        "'memoryResource' cannot be called with const qualified buffer.");
+    throw SystemError{ErrorCode::kInvalidInstruction, message};
   }
   else {
     auto b = internalBuffer();
@@ -257,11 +267,14 @@ const zisc::pmr::memory_resource* ReinterpBuffer<Derived, T>::memoryResource() c
   \return No description
   */
 template <DerivedBuffer Derived, KernelArg T> inline
-void* ReinterpBuffer<Derived, T>::rawBufferData() noexcept
+void* ReinterpBuffer<Derived, T>::rawBufferData()
 {
   void* data = nullptr;
   if constexpr (std::is_const_v<BufferT>) {
-    ZIVC_ASSERT(false, "'rawBufferData' cannot be called with const qualified buffer.");
+    const std::string message = createErrorMessage(
+        *this,
+        "'rawBufferData' cannot be called with const qualified buffer.");
+    throw SystemError{ErrorCode::kInvalidInstruction, message};
   }
   else {
     auto b = internalBuffer();
@@ -289,11 +302,14 @@ template <DerivedBuffer Derived, KernelArg T> inline
 void ReinterpBuffer<Derived, T>::setSize(const std::size_t s)
 {
   if constexpr (std::is_const_v<BufferT>) {
-    ZIVC_ASSERT(false, "'setSize' cannot be called with const qualified buffer.");
+    const std::string message = createErrorMessage(
+        *this,
+        "'setSize' cannot be called with const qualified buffer.");
+    throw SystemError{ErrorCode::kInvalidInstruction, message};
   }
   else {
     auto b = internalBuffer();
-    const std::size_t new_size = (sizeof(Type) * s) / b->typeSize();
+    const std::size_t new_size = (sizeof(Type) * s) / b->typeSizeInBytes();
     b->setSize(new_size);
   }
 }

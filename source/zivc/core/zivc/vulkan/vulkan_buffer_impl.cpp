@@ -16,6 +16,7 @@
 // Standard C++ library
 #include <cstddef>
 #include <memory>
+#include <string>
 #include <type_traits>
 #include <utility>
 // Zisc
@@ -30,6 +31,7 @@
 #include "zivc/zivc_cl.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/kernel_set/kernel_set-zivc_internal_kernel.hpp"
+#include "zivc/utility/buffer_common.hpp"
 #include "zivc/utility/error.hpp"
 #include "zivc/utility/launch_result.hpp"
 #include "zivc/utility/launch_options.hpp"
@@ -160,8 +162,7 @@ VulkanBufferImpl::~VulkanBufferImpl() noexcept
   \details No detailed description
 
   \param [in] size No description.
-  \param [in] buffer_usage No description.
-  \param [in] buffer_flag No description.
+  \param [in] object No description.
   \param [in] desc_type No description.
   \param [in] user_data No description.
   \param [out] buffer No description.
@@ -169,8 +170,7 @@ VulkanBufferImpl::~VulkanBufferImpl() noexcept
   \param [out] alloc_info No description.
   */
 void VulkanBufferImpl::allocateMemory(const std::size_t size,
-                                      const BufferUsage buffer_usage,
-                                      const BufferFlag buffer_flag,
+                                      const BufferCommon& object,
                                       const VkBufferUsageFlagBits desc_type,
                                       void* user_data,
                                       VkBuffer* buffer,
@@ -183,8 +183,8 @@ void VulkanBufferImpl::allocateMemory(const std::size_t size,
   binfo.queueFamilyIndexCount = index_list_size;
   binfo.pQueueFamilyIndices = family_index_list.data();
 
-  const auto alloc_create_info = createAllocCreateInfo(buffer_usage,
-                                                       buffer_flag,
+  const auto alloc_create_info = createAllocCreateInfo(object.usage(),
+                                                       object.flag(),
                                                        user_data);
   const auto result = vmaCreateBuffer(device().memoryAllocator(),
                                       std::addressof(binfo),
@@ -193,8 +193,10 @@ void VulkanBufferImpl::allocateMemory(const std::size_t size,
                                       vm_allocation,
                                       alloc_info);
   if (result != VK_SUCCESS) [[unlikely]] {
-    const char* message = "Device memory allocation failed.";
-    throwResultException(result, message);
+    const std::string message = createErrorMessage(
+        object,
+        "Device memory allocation failed.");
+    throwResultException(result, message.data());
   }
 }
 
@@ -440,13 +442,11 @@ void VulkanBufferImpl::fillFastCmd(const VkCommandBuffer& command_buffer,
 /*!
   \details No detailed description
 
-  \param [in] buffer_usage No description.
-  \param [in] buffer_flag No description.
+  \param [in] object No description.
   \param [in] desc_type No description.
   \param [out] alloc_info No description.
   */
-void VulkanBufferImpl::initAllocationInfo(const BufferUsage buffer_usage,
-                                          const BufferFlag buffer_flag,
+void VulkanBufferImpl::initAllocationInfo(const BufferCommon& object,
                                           const VkBufferUsageFlagBits desc_type,
                                           VmaAllocationInfo* alloc_info) const
 {
@@ -462,8 +462,8 @@ void VulkanBufferImpl::initAllocationInfo(const BufferUsage buffer_usage,
   binfo.queueFamilyIndexCount = index_list_size;
   binfo.pQueueFamilyIndices = family_index_list.data();
 
-  const auto alloc_create_info = createAllocCreateInfo(buffer_usage,
-                                                       buffer_flag,
+  const auto alloc_create_info = createAllocCreateInfo(object.usage(),
+                                                       object.flag(),
                                                        nullptr);
   const auto result = vmaFindMemoryTypeIndexForBufferInfo(
       device().memoryAllocator(),
@@ -471,8 +471,10 @@ void VulkanBufferImpl::initAllocationInfo(const BufferUsage buffer_usage,
       std::addressof(alloc_create_info),
       std::addressof(alloc_info->memoryType));
   if (result != VK_SUCCESS) {
-    const char* message = "Device memory allocation failed.";
-    throwResultException(result, message);
+    const std::string message = createErrorMessage(
+        object,
+        "Device memory allocation failed.");
+    throwResultException(result, message.data());
   }
 }
 

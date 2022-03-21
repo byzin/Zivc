@@ -29,7 +29,6 @@
 namespace zivc {
 
 // Forward declaration
-template <KernelArg> class MappedMemory;
 class BufferCommon;
 
 // Concepts
@@ -51,24 +50,20 @@ class BufferCommon : public ZivcObject
   ~BufferCommon() noexcept override;
 
 
+  //! Return the capacity of the buffer
+  std::size_t capacity() const noexcept;
+
   //! Return the capacity of the buffer in bytes
   virtual std::size_t capacityInBytes() const noexcept = 0;
 
-  //! Map a buffer memory to a host
-  template <KernelArg T>
-  [[nodiscard]]
-  MappedMemory<T> createMappedMemory() const;
+  //! Clear the contents of the buffer
+  virtual void clear() noexcept = 0;
+
+  //! Destroy the buffer
+  virtual void destroy() noexcept = 0;
 
   //! Return the buffer flag
   BufferFlag flag() const noexcept;
-
-  //! Return the capacity of the buffer
-  template <KernelArg T>
-  std::size_t getCapacity() const noexcept;
-
-  //! Return the number of elements of the buffer
-  template <KernelArg T>
-  std::size_t getSize() const noexcept;
 
   //! Return the index of used heap
   virtual std::size_t heapIndex() const noexcept = 0;
@@ -82,15 +77,21 @@ class BufferCommon : public ZivcObject
   //! Check if the buffer doesn't need to be unmapped
   virtual bool isHostCoherent() const noexcept = 0;
 
+  //! Check if the buffer is host readable
+  bool isHostReadable() const noexcept;
+
   //! Check if the buffer can be mapped (writable) for the host access
   virtual bool isHostVisible() const noexcept = 0;
+
+  //! Check if the buffer is host writable
+  bool isHostWritable() const noexcept;
 
   //! Map a buffer memory to a host
   [[nodiscard]]
   virtual void* mapMemoryData() const = 0;
 
   //! Return the underlying buffer data
-  virtual void* rawBufferData() noexcept = 0;
+  virtual void* rawBufferData() = 0;
 
   //! Return the underlying buffer data
   virtual const void* rawBufferData() const noexcept = 0;
@@ -98,11 +99,14 @@ class BufferCommon : public ZivcObject
   //! Change the number of elements
   virtual void setSize(const std::size_t s) = 0;
 
+  //! Return the number of elements of the buffer
+  std::size_t size() const noexcept;
+
   //! Return the size of the buffer in bytes
   virtual std::size_t sizeInBytes() const noexcept = 0;
 
-  //! Return the type size
-  std::size_t typeSize() const noexcept;
+  //! Return the size of the element type in bytes
+  virtual std::size_t typeSizeInBytes() const noexcept = 0;
 
   //! Unmap a buffer memory
   virtual void unmapMemoryData() const noexcept = 0;
@@ -111,15 +115,11 @@ class BufferCommon : public ZivcObject
   BufferUsage usage() const noexcept;
 
  protected:
-  //! Calculate the number of elements from the given size
-  template <KernelArg T>
-  std::size_t calcSize(const std::size_t s) const noexcept;
+ //! Calculate the number of elements from the given size in bytes
+  std::size_t calcNumOfElements(const std::size_t size) const noexcept;
 
   //! Set buffer flag
   void setFlag(const BufferFlag flag) noexcept;
-
-  //! Set the type size
-  void setTypeSize(const std::size_t s) noexcept;
 
   //! Set buffer usage flag
   void setUsage(const BufferUsage flag) noexcept;
@@ -127,7 +127,6 @@ class BufferCommon : public ZivcObject
 
   BufferUsage buffer_usage_ = BufferUsage::kAuto;
   BufferFlag buffer_flag_ = BufferFlag::kNone;
-  uint32b type_size_ = 0;
 };
 
 // Type aliases

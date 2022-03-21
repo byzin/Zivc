@@ -30,6 +30,12 @@
 
 namespace {
 
+/*!
+  \details No detailed description
+
+  \param [in] options No description.
+  \return No description
+  */
 std::unique_ptr<CLI::App> makeCommandLineParser(example::CliOption* options) noexcept
 {
   auto parser = std::make_unique<CLI::App>("GUI example.");
@@ -59,25 +65,43 @@ std::unique_ptr<CLI::App> makeCommandLineParser(example::CliOption* options) noe
   return parser;
 }
 
+/*!
+  \details No detailed description
+
+  \param [in] cli_options No description.
+  \param [in,out] context_options No description.
+  */
 void processCommandLineArgs(const example::CliOption& cli_options,
-                            zivc::PlatformOptions* platform_options) noexcept
+                            zivc::ContextOptions* context_options) noexcept
 {
-  platform_options->enableDebugMode(!cli_options.is_nodebug_);
+  context_options->enableDebugMode(!cli_options.is_nodebug_);
 }
 
+/*!
+  \details No detailed description
+
+  \param [in] bytes No description.
+  \return No description
+  */
 double toMegaBytes(const std::size_t bytes) noexcept
 {
   const double mb = zisc::cast<double>(bytes) / (1024.0 * 1024.0);
   return mb;
 }
 
-void printWindowSurfaceType(const zivc::Platform& platform)
+/*!
+  \details No detailed description
+
+  \param [in] context No description.
+  \return No description
+  */
+void printWindowSurfaceType(const zivc::Context& context)
 {
-  const auto* vulkan_platform = zisc::reinterp<const zivc::VulkanSubPlatform*>(
-    platform.subPlatform(zivc::SubPlatformType::kVulkan));
-  using WSType = zivc::VulkanSubPlatform::WindowSurfaceType;
+  const auto* vulkan_backend = zisc::reinterp<const zivc::VulkanBackend*>(
+    context.backend(zivc::BackendType::kVulkan));
+  using WSType = zivc::VulkanBackend::WindowSurfaceType;
   const char* ws_name = nullptr;
-  switch (vulkan_platform->windowSurfaceType()) {
+  switch (vulkan_backend->windowSurfaceType()) {
    case WSType::kWin32: {
     ws_name = "Win32";
     break;
@@ -110,34 +134,28 @@ void printWindowSurfaceType(const zivc::Platform& platform)
   std::cout << "## Vulkan window surface type: " << ws_name << std::endl;
 }
 
-int execGuiApp(zivc::PlatformOptions& platform_options,
+/*!
+  \details No detailed description
+
+  \param [in] context_options No description.
+  \param [in] gui_options No description.
+  \return No description
+  */
+int execGuiApp(zivc::Context* context,
                example::GuiApplicationOptions& gui_options)
 {
-  zivc::SharedPlatform platform;
-  // Create a zivc platform
-  try {
-    platform = zivc::makePlatform(platform_options);
-  }
-  catch (const std::runtime_error& error) {
-    std::cerr << error.what() << std::endl;
-    return EXIT_FAILURE;
-  }
-  if (!platform->hasSubPlatform(zivc::SubPlatformType::kVulkan)) {
-    std::cerr << "Vulkan sub-platform not found." << std::endl;
-    return EXIT_FAILURE;
-  }
-
-  printWindowSurfaceType(*platform);
+  printWindowSurfaceType(*context);
 
   example::SharedGuiApp app;
   int result = EXIT_FAILURE;
   // Create an app
   try {
-    app = example::makeGuiApp(*platform, gui_options);
+    app = example::createGuiApp(*context, gui_options);
   }
   catch (const std::runtime_error& error) {
     std::cerr << error.what() << std::endl;
   }
+
   // Execute the app
   if (app) {
     result = app->run();
@@ -145,6 +163,23 @@ int execGuiApp(zivc::PlatformOptions& platform_options,
   }
 
   return result;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] mem_resource No description.
+  */
+void printMemoryUsage(const zisc::SimpleMemoryResource& mem_resource) noexcept
+{
+  const std::string indent1 = "    ";
+  std::cout << std::endl;
+  std::cout << indent1 << "Host memory usage     : "
+            << ::toMegaBytes(mem_resource.totalMemoryUsage()) << " MB."
+            << std::endl;
+  std::cout << indent1 << "Host peak memory usage: "
+            << ::toMegaBytes(mem_resource.peakMemoryUsage()) << " MB."
+            << std::endl;
 }
 
 } // namespace
@@ -158,38 +193,49 @@ int execGuiApp(zivc::PlatformOptions& platform_options,
   */
 int main(int argc, char** argv)
 {
+  // Any custom std::pmr::memory_resource can be speicified as zivc memory allcator
   zisc::SimpleMemoryResource mem_resource;
-  zivc::PlatformOptions platform_options{&mem_resource};
+
+  // Context options
+  zivc::ContextOptions context_options{&mem_resource};
 
   // Process command line arguments
   {
     example::CliOption cli_options;
     auto cli_parser = ::makeCommandLineParser(std::addressof(cli_options));
     CLI11_PARSE(*cli_parser, argc, argv)
-    ::processCommandLineArgs(cli_options, &platform_options);
+    ::processCommandLineArgs(cli_options, &context_options);
   }
 
   // Zivc options
-  platform_options.setPlatformName("GuiExample");
-  platform_options.setPlatformVersionMajor(zivc::Config::versionMajor());
-  platform_options.setPlatformVersionMinor(zivc::Config::versionMinor());
-  platform_options.setPlatformVersionPatch(zivc::Config::versionPatch());
-  platform_options.enableVulkanSubPlatform(true);
-  platform_options.enableVulkanWSIExtension(true);
+  context_options.setContextName("GuiExample");
+  context_options.setContextVersionMajor(zivc::Config::versionMajor());
+  context_options.setContextVersionMinor(zivc::Config::versionMinor());
+  context_options.setContextVersionPatch(zivc::Config::versionPatch());
+  context_options.enableVulkanBackend(true);
+  context_options.enableVulkanWSIExtension(true);
+
+  zivc::SharedContext context;
+  // Create a zivc context
+  try {
+    context = zivc::createContext(context_options);
+  }
+  catch (const std::runtime_error& error) {
+    std::cerr << error.what() << std::endl;
+    return EXIT_FAILURE;
+  }
+  if (!context->hasBackend(zivc::BackendType::kVulkan)) {
+    std::cerr << "Vulkan backend not found." << std::endl;
+    return EXIT_FAILURE;
+  }
+
   // Gui options
   example::GuiApplicationOptions gui_options{&mem_resource};
   gui_options.setWindowTitle("Zivc gui example");
 
-  const int result = ::execGuiApp(platform_options, gui_options);
+  const int exec_result = ::execGuiApp(context.get(), gui_options);
 
-  const std::string indent1 = "    ";
-  std::cout << std::endl;
-  std::cout << indent1 << "Host memory usage     : "
-            << ::toMegaBytes(mem_resource.totalMemoryUsage()) << " MB."
-            << std::endl;
-  std::cout << indent1 << "Host peak memory usage: "
-            << ::toMegaBytes(mem_resource.peakMemoryUsage()) << " MB."
-            << std::endl;
+  ::printMemoryUsage(mem_resource);
 
-  return result;
+  return exec_result;
 }

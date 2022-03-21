@@ -19,6 +19,7 @@
 // Standard C++ library
 #include <cstring>
 #include <memory>
+#include <string>
 #include <type_traits>
 #include <utility>
 // Zisc
@@ -53,18 +54,6 @@ Buffer<T>::Buffer(IdData&& id) noexcept : BufferCommon(std::move(id))
 template <KernelArg T> inline
 Buffer<T>::~Buffer() noexcept
 {
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <KernelArg T> inline
-std::size_t Buffer<T>::capacity() const noexcept
-{
-  const std::size_t c = getCapacity<Type>();
-  return c;
 }
 
 /*!
@@ -144,8 +133,7 @@ void Buffer<T>::initialize(ZivcObject::SharedPtr&& parent,
   destroy();
 
   initObject(std::move(parent), std::move(own));
-  setUsage(params.usage());
-  setTypeSize(sizeof(Type));
+  initCommon(params);
   initData(params);
 
   ZivcObject::setNameIfEmpty("Buffer");
@@ -159,7 +147,14 @@ void Buffer<T>::initialize(ZivcObject::SharedPtr&& parent,
 template <KernelArg T> inline
 auto Buffer<T>::mapMemory() -> MappedMemory<Type>
 {
-  return createMappedMemory<Type>();
+  if (!isHostVisible()) [[unlikely]] {
+    const std::string message = createErrorMessage(
+        *this,
+        "isHostVisible()==false buffer cannot be mapped to host address space.");
+    throw SystemError{ErrorCode::kInvalidInstruction, message};
+  }
+  MappedMemory<Type> memory{this};
+  return memory;
 }
 
 /*!
@@ -170,7 +165,14 @@ auto Buffer<T>::mapMemory() -> MappedMemory<Type>
 template <KernelArg T> inline
 auto Buffer<T>::mapMemory() const -> MappedMemory<ConstType>
 {
-  return createMappedMemory<ConstType>();
+  if (!isHostVisible()) [[unlikely]] {
+    const std::string message = createErrorMessage(
+        *this,
+        "isHostVisible()==false buffer cannot be mapped to host address space.");
+    throw SystemError{ErrorCode::kInvalidInstruction, message};
+  }
+  MappedMemory<ConstType> memory{this};
+  return memory;
 }
 
 /*!
@@ -207,10 +209,10 @@ auto Buffer<T>::reinterp() const noexcept -> ConstReinterpBufferT<NewType>
   \return No description
   */
 template <KernelArg T> inline
-std::size_t Buffer<T>::size() const noexcept
+constexpr std::size_t Buffer<T>::typeSizeInBytes() const noexcept
 {
-  const std::size_t s = getSize<Type>();
-  return s;
+  const std::size_t size = sizeof(Type);
+  return size;
 }
 
 /*!
@@ -243,6 +245,18 @@ LaunchResult Buffer<T>::fillDerived(ConstReference value,
 {
   auto result = Derived<T>::fillImpl(value, this, launch_options);
   return result;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <KernelArg T> inline
+void Buffer<T>::initCommon(const BufferInitParams& params) noexcept
+{
+  setUsage(params.usage());
+  setFlag(params.flag());
 }
 
 } // namespace zivc

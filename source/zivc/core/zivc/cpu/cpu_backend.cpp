@@ -19,6 +19,7 @@
 #include <memory>
 #include <span>
 #include <stdexcept>
+#include <string>
 #include <vector>
 // Zisc
 #include "zisc/utility.hpp"
@@ -62,7 +63,9 @@ SharedDevice CpuBackend::createDevice(const DeviceInfo& device_info)
 {
   const auto* info = zisc::cast<const CpuDeviceInfo*>(std::addressof(device_info));
   if (device_info_.get() != info) {
-    const char* message = "Invalid cpu device info is passed.";
+    const std::string message = createErrorMessage(
+        *this,
+        "Invalid cpu device info is passed.");
     throw SystemError{ErrorCode::kInitializationFailed, message};
   }
 

@@ -291,9 +291,7 @@ void MappedMemory<T>::set(const std::size_t index, ConstReference value) noexcep
 template <KernelArg T> inline
 std::size_t MappedMemory<T>::size() const noexcept
 {
-  const std::size_t s = hasMemory()
-      ? internalBuffer()->template getSize<Type>()
-      : 0;
+  const std::size_t s = hasMemory() ? internalBuffer()->size() : 0;
   return s;
 }
 

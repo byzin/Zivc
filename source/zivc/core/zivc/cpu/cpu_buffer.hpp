@@ -93,7 +93,7 @@ class CpuBuffer : public Buffer<T>
   void* mapMemoryData() const override;
 
   //! Return the underlying buffer data
-  void* rawBufferData() noexcept override;
+  void* rawBufferData() override;
 
   //! Return the underlying buffer data
   const void* rawBufferData() const noexcept override;

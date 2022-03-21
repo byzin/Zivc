@@ -19,7 +19,7 @@
 // Zisc
 #include "zisc/utility.hpp"
 // Zivc
-#include "mapped_memory.hpp"
+#include "error.hpp"
 #include "zivc/zivc_config.hpp"
 
 namespace zivc {
@@ -27,15 +27,13 @@ namespace zivc {
 /*!
   \details No detailed description
 
-  \tparam T No description.
   \return No description
   */
-template <KernelArg T> inline
-MappedMemory<T> BufferCommon::createMappedMemory() const
+inline
+std::size_t BufferCommon::capacity() const noexcept
 {
-  const BufferCommon* p = isHostVisible() ? this : nullptr;
-  MappedMemory<T> memory{p};
-  return memory;
+  const std::size_t cap = calcNumOfElements(capacityInBytes());
+  return cap;
 }
 
 /*!
@@ -52,27 +50,13 @@ BufferFlag BufferCommon::flag() const noexcept
 /*!
   \details No detailed description
 
-  \tparam T No description.
   \return No description
   */
-template <KernelArg T> inline
-std::size_t BufferCommon::getCapacity() const noexcept
+inline
+bool BufferCommon::isHostReadable() const noexcept
 {
-  const std::size_t c = calcSize<T>(capacityInBytes());
-  return c;
-}
-
-/*!
-  \details No detailed description
-
-  \tparam T No description.
-  \return No description
-  */
-template <KernelArg T> inline
-std::size_t BufferCommon::getSize() const noexcept
-{
-  const std::size_t s = calcSize<T>(sizeInBytes());
-  return s;
+  const bool result = isHostCoherent() && isHostCached();
+  return result;
 }
 
 /*!
@@ -81,9 +65,22 @@ std::size_t BufferCommon::getSize() const noexcept
   \return No description
   */
 inline
-std::size_t BufferCommon::typeSize() const noexcept
+bool BufferCommon::isHostWritable() const noexcept
 {
-  return zisc::cast<std::size_t>(type_size_);
+  const bool result = isHostVisible();
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+std::size_t BufferCommon::size() const noexcept
+{
+  const std::size_t s = calcNumOfElements(sizeInBytes());
+  return s;
 }
 
 /*!
@@ -100,14 +97,15 @@ BufferUsage BufferCommon::usage() const noexcept
 /*!
   \details No detailed description
 
-  \tparam T No description.
   \param [in] s No description.
   \return No description
   */
-template <KernelArg T> inline
-std::size_t BufferCommon::calcSize(const std::size_t s) const noexcept
+inline
+std::size_t BufferCommon::calcNumOfElements(const std::size_t size) const noexcept
 {
-  const std::size_t n = s / sizeof(T);
+  [[maybe_unused]] const std::size_t remainder = size % typeSizeInBytes();
+  ZIVC_ASSERT(remainder == 0, "The size cannot be divided by the type size.");
+  const std::size_t n = size / typeSizeInBytes();
   return n;
 }
 
@@ -120,17 +118,6 @@ inline
 void BufferCommon::setFlag(const BufferFlag flag) noexcept
 {
   buffer_flag_ = flag;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] s No description.
-  */
-inline
-void BufferCommon::setTypeSize(const std::size_t s) noexcept
-{
-  type_size_ = zisc::cast<uint32b>(s);
 }
 
 /*!

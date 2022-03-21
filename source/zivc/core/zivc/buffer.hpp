@@ -73,11 +73,8 @@ class Buffer : public BufferCommon
   ~Buffer() noexcept override;
 
 
-  //! Return the capacity of the buffer
-  std::size_t capacity() const noexcept;
-
   //! Clear the contents of the buffer
-  void clear() noexcept;
+  void clear() noexcept override;
 
   //! Copy from the given buffer
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
@@ -87,7 +84,7 @@ class Buffer : public BufferCommon
   LaunchOptions createOptions() const noexcept;
 
   //! Destroy the buffer
-  void destroy() noexcept;
+  void destroy() noexcept override;
 
   //! Fill the buffer with specified value
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
@@ -116,8 +113,8 @@ class Buffer : public BufferCommon
   [[nodiscard]]
   ConstReinterpBufferT<NewType> reinterp() const noexcept;
 
-  //! Return the number of elements of the buffer
-  std::size_t size() const noexcept;
+  //! Return the size of the element type in bytes
+  constexpr std::size_t typeSizeInBytes() const noexcept override;
 
  protected:
   template <KernelArg SrcType, zisc::SameAs<std::remove_const_t<SrcType>> DstType>
@@ -144,6 +141,9 @@ class Buffer : public BufferCommon
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
   LaunchResult fillDerived(ConstReference value,
                            const LaunchOptions& launch_options);
+
+  //! Initialize the buffer common data
+  void initCommon(const BufferInitParams& params) noexcept;
 
   //! Initialize the buffer
   virtual void initData(const BufferInitParams& params) = 0;

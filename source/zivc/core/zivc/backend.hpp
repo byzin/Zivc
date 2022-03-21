@@ -79,7 +79,7 @@ class Backend : public ZivcObject
   virtual SharedDevice createDevice(const DeviceInfo& device_info) = 0;
 
   //! Return the underlying memory resource
-  zisc::pmr::memory_resource* memoryResource() noexcept override;
+  zisc::pmr::memory_resource* memoryResource() override;
 
   //! Return the underlying memory resource
   const zisc::pmr::memory_resource* memoryResource() const noexcept override;

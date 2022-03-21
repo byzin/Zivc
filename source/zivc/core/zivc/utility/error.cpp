@@ -20,6 +20,8 @@
 #include <string_view>
 // Zisc
 #include "zisc/utility.hpp"
+// Zivc
+#include "zivc_object.hpp"
 
 /*!
   \def ERROR_CODE_STRING_CASE
@@ -49,6 +51,7 @@ std::string getErrorCodeString(const ErrorCode code) noexcept
   std::string code_str;
   switch (code) {
     ERROR_CODE_STRING_CASE(InitializationFailed, code_str)
+    ERROR_CODE_STRING_CASE(InvalidInstruction, code_str)
     ERROR_CODE_STRING_CASE(AvailableFenceNotFound, code_str)
     ERROR_CODE_STRING_CASE(NumOfParametersLimitExceeded, code_str)
     ERROR_CODE_STRING_CASE(VulkanInitializationFailed, code_str)
@@ -143,6 +146,19 @@ SystemError& SystemError::operator=(SystemError&& other) noexcept
 {
   std::system_error::operator=(other);
   return *this;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] object No description.
+  \param [in] what_arg No description.
+  \return No description
+  */
+std::string createErrorMessage(const ZivcObject& object,
+                               const std::string_view what_arg) noexcept
+{
+  return what_arg.data();
 }
 
 } // namespace zivc

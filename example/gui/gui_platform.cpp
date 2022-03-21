@@ -94,14 +94,14 @@ const zivc::VulkanDevice& GuiPlatform::device() const noexcept
   */
 void GuiPlatform::initialize(SharedPtr&& parent,
                              WeakPtr&& own,
-                             zivc::Platform& zplatform,
+                             zivc::Context& context,
                              const GuiApplicationOptions& options)
 {
   // Clear the previous platform data first
   destroy();
 
   initObject(std::move(parent), std::move(own));
-  initVulkan(zplatform);
+  initVulkan(context);
   initGlfw(options);
   initVulkanWindow(options);
   initImGui(options);
@@ -251,7 +251,7 @@ void GuiPlatform::initGlfw(const GuiApplicationOptions& options)
 {
   // Check type
   {
-    using WSurfaceType = zivc::VulkanSubPlatform::WindowSurfaceType;
+    using WSurfaceType = zivc::VulkanBackend::WindowSurfaceType;
     using GSurfaceType = GlfwSurfaceType;
     constexpr auto is_equal = [](WSurfaceType lhs, GlfwSurfaceType rhs) noexcept
     {
@@ -394,12 +394,12 @@ void GuiPlatform::initImGui([[maybe_unused]] const GuiApplicationOptions& option
 /*!
   \details No detailed description
 
-  \param [in] zplatform No description.
+  \param [in] context No description.
   */
-void GuiPlatform::initVulkan(zivc::Platform& zplatform)
+void GuiPlatform::initVulkan(zivc::Context& context)
 {
-  initVulkanDevice(zplatform);
-  initVulkanDescriptorPool(zplatform);
+  initVulkanDevice(context);
+  initVulkanDescriptorPool(context);
 }
 
 /*!
@@ -487,13 +487,13 @@ void GuiPlatform::initVulkanWindow(const GuiApplicationOptions& options)
 /*!
   \details No detailed description
 
-  \param [in] zplatform No description.
+  \param [in] context No description.
   */
-void GuiPlatform::initVulkanDescriptorPool(zivc::Platform& zplatform)
+void GuiPlatform::initVulkanDescriptorPool(zivc::Context& context)
 {
-  auto* vulkan_platform = zisc::reinterp<zivc::VulkanSubPlatform*>(
-      zplatform.subPlatform(zivc::SubPlatformType::kVulkan));
-  vk_allocator_ = vulkan_platform->makeAllocator();
+  auto* vulkan_platform = zisc::reinterp<zivc::VulkanBackend*>(
+      context.backend(zivc::BackendType::kVulkan));
+  vk_allocator_ = vulkan_platform->createAllocator();
 
   constexpr zivc::uint32b pool_list_size = 11;
   constexpr zivc::uint32b max_pool_size = 1000;
@@ -528,13 +528,13 @@ void GuiPlatform::initVulkanDescriptorPool(zivc::Platform& zplatform)
 /*!
   \details No detailed description
 
-  \param [in] zplatform No description.
+  \param [in] context No description.
   */
-void GuiPlatform::initVulkanDevice(zivc::Platform& zplatform)
+void GuiPlatform::initVulkanDevice(zivc::Context& context)
 {
   // Create a device
-  const std::size_t device_index = selectDevice(zplatform);
-  device_ = zplatform.queryDevice(device_index);
+  const std::size_t device_index = selectDevice(context);
+  device_ = context.queryDevice(device_index);
 }
 
 /*!
@@ -545,7 +545,7 @@ void GuiPlatform::initVulkanDevice(zivc::Platform& zplatform)
 VkInstance GuiPlatform::instance() const noexcept
 {
   const auto* platform =
-      zisc::cast<const zivc::VulkanSubPlatform*>(device().getParent());
+      zisc::cast<const zivc::VulkanBackend*>(device().getParent());
   return platform->instance();
 }
 
@@ -771,18 +771,18 @@ void GuiPlatform::resizeSwapChain() noexcept
 /*!
   \details No detailed description
 
-  \param [in] zplatform No description.
+  \param [in] context No description.
   \return No description
   */
-std::size_t GuiPlatform::selectDevice(const zivc::Platform& zplatform) noexcept
+std::size_t GuiPlatform::selectDevice(const zivc::Context& context) noexcept
 {
   // Find first discrete gpu
-  const auto& device_info_list = zplatform.deviceInfoList();
+  const auto& device_info_list = context.deviceInfoList();
   bool is_device_found = false;
   std::size_t device_index = 0;
   for (device_index = 0; device_index < device_info_list.size(); ++device_index) {
     const zivc::DeviceInfo* info = device_info_list[device_index];
-    if (info->type() != zivc::SubPlatformType::kVulkan)
+    if (info->type() != zivc::BackendType::kVulkan)
       continue;
     const auto* device_info = zisc::cast<const zivc::VulkanDeviceInfo*>(info);
     const VkPhysicalDeviceProperties& prop = device_info->properties().properties1_;
@@ -824,10 +824,10 @@ void GuiPlatform::setSwapChainRebuild(const bool is_rebuilt) noexcept
 
   \return No description
   */
-zivc::VulkanSubPlatform::WindowSurfaceType GuiPlatform::surfaceType() const noexcept
+zivc::VulkanBackend::WindowSurfaceType GuiPlatform::surfaceType() const noexcept
 {
   const auto* platform =
-      zisc::cast<const zivc::VulkanSubPlatform*>(device().getParent());
+      zisc::cast<const zivc::VulkanBackend*>(device().getParent());
   return platform->windowSurfaceType();
 }
 

@@ -57,7 +57,7 @@ void ZivcObject::destroyObject() noexcept
 
   \return No description
   */
-ZivcObject* ZivcObject::getParent() noexcept
+ZivcObject* ZivcObject::getParent()
 {
   auto* p = parent_.get();
   return p;
@@ -79,7 +79,7 @@ const ZivcObject* ZivcObject::getParent() const noexcept
 
   \return No description
   */
-ZivcObject* ZivcObject::getOwn() noexcept
+ZivcObject* ZivcObject::getOwn()
 {
   return this;
 }
@@ -148,7 +148,7 @@ IdData ZivcObject::issueId() noexcept
 
   \return No description
   */
-zisc::pmr::memory_resource* ZivcObject::memoryResource() noexcept
+zisc::pmr::memory_resource* ZivcObject::memoryResource()
 {
   ZIVC_ASSERT(hasParent(), "Parent is null.");
   auto* p = getParent();

@@ -168,7 +168,7 @@ void* CpuBuffer<T>::mapMemoryData() const
   \return No description
   */
 template <KernelArg T> inline
-void* CpuBuffer<T>::rawBufferData() noexcept
+void* CpuBuffer<T>::rawBufferData()
 {
   void* p = zisc::cast<void*>(data());
   return p;
@@ -274,11 +274,14 @@ LaunchResult CpuBuffer<T>::copyFromImpl(const BufferCommon& source,
                                         BufferCommon* dest,
                                         const BufferLaunchOptions<D>& launch_options)
 {
-  const auto src_data = zisc::cast<const D*>(source.rawBufferData());
-  const auto src = src_data + launch_options.sourceOffset();
-  auto dst_data = zisc::cast<D*>(dest->rawBufferData());
-  auto dst = dst_data + launch_options.destOffset();
-  std::copy_n(src, launch_options.size(), dst);
+  using DataT = std::remove_cvref_t<D>;
+  using DataPtr = std::add_pointer_t<DataT>;
+  using ConstDataPtr = std::add_pointer_t<std::add_const_t<DataT>>;
+  const auto* src_ptr = zisc::cast<ConstDataPtr>(source.rawBufferData());
+  src_ptr = src_ptr + launch_options.sourceOffset();
+  auto* dst_ptr = zisc::cast<DataPtr>(dest->rawBufferData());
+  dst_ptr = dst_ptr + launch_options.destOffset();
+  std::copy_n(src_ptr, launch_options.size(), dst_ptr);
 
   LaunchResult result{};
   return result;
@@ -297,9 +300,11 @@ LaunchResult CpuBuffer<T>::fillImpl(typename Buffer<D>::ConstReference value,
                                     BufferCommon* dest,
                                     const BufferLaunchOptions<D>& launch_options)
 {
-  auto dst_data = zisc::cast<D*>(dest->rawBufferData());
-  auto dst = dst_data + launch_options.destOffset();
-  std::fill_n(dst, launch_options.size(), value);
+  using DataT = std::remove_cvref_t<D>;
+  using DataPtr = std::add_pointer_t<DataT>;
+  auto* dst_ptr = zisc::cast<DataPtr>(dest->rawBufferData());
+  dst_ptr = dst_ptr + launch_options.destOffset();
+  std::fill_n(dst_ptr, launch_options.size(), value);
 
   LaunchResult result{};
   return result;

@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <cstring>
 #include <memory>
+#include <string>
 #include <string_view>
 #include <type_traits>
 #include <utility>
@@ -47,7 +48,6 @@
 #include "zivc/utility/error.hpp"
 #include "zivc/utility/fence.hpp"
 #include "zivc/utility/launch_result.hpp"
-#include "zivc/utility/mapped_memory.hpp"
 #include "zivc/utility/zivc_object.hpp"
 
 namespace zivc {
@@ -264,8 +264,10 @@ void* VulkanBuffer<T>::mapMemoryData() const
   const auto& device = parentImpl();
   const VkResult result = vmaMapMemory(device.memoryAllocator(), allocation(), &p);
   if (result != VK_SUCCESS) [[unlikely]] {
-    const char* message = "Memory mapping failed.";
-    VulkanBufferImpl::throwResultException(result, message);
+    const std::string message = createErrorMessage(
+        *this,
+        "Memory mapping failed.");
+    VulkanBufferImpl::throwResultException(result, message.data());
   }
   return p;
 }
@@ -276,7 +278,7 @@ void* VulkanBuffer<T>::mapMemoryData() const
   \return No description
   */
 template <KernelArg T> inline
-void* VulkanBuffer<T>::rawBufferData() noexcept
+void* VulkanBuffer<T>::rawBufferData()
 {
   return std::addressof(rawBuffer());
 }
@@ -306,8 +308,7 @@ void VulkanBuffer<T>::setSize(const std::size_t s)
     const std::size_t mem_size = sizeof(Type) * s;
     const VulkanBufferImpl impl{std::addressof(parentImpl())};
     impl.allocateMemory(mem_size,
-                        Buffer<T>::usage(),
-                        Buffer<T>::flag(),
+                        *this,
                         descriptorTypeVk(),
                         std::addressof(Buffer<T>::id()),
                         std::addressof(buffer()),
@@ -380,8 +381,7 @@ void VulkanBuffer<T>::initData(const BufferInitParams& params)
   }
   {
     const VulkanBufferImpl impl{std::addressof(device)};
-    impl.initAllocationInfo(Buffer<T>::usage(),
-                            Buffer<T>::flag(),
+    impl.initAllocationInfo(*this,
                             descriptorTypeVk(),
                             std::addressof(rawBuffer().vm_alloc_info_));
   }
@@ -424,6 +424,23 @@ void VulkanBuffer<T>::updateDebugInfoImpl() noexcept
 }
 
 /*!
+  \details According to the vkCmdFillBuffer specification: https://www.khronos.org/registry/vulkan/specs/1.3-extensions/man/html/vkCmdFillBuffer.html
+  size and offset must be multiple of 4
+
+  \param [in] size_bytes No description.
+  \param [in] offset_bytes No description.
+  \return No description
+  */
+template <KernelArg T> inline
+bool VulkanBuffer<T>::canFillFast(const std::size_t offset_bytes,
+                                  const std::size_t size_bytes) noexcept
+{
+  constexpr bool is_t_mul_of_4 = (sizeof(T) <= 4) && zisc::has_single_bit(sizeof(T));
+  const bool result = is_t_mul_of_4 && (offset_bytes % 4 == 0) && (size_bytes % 4 == 0);
+  return result;
+}
+
+/*!
   \details No detailed description
 
   \param [in] source No description.
@@ -438,7 +455,9 @@ LaunchResult VulkanBuffer<T>::copyFromImpl(
     const BufferLaunchOptions<D>& launch_options)
 {
   LaunchResult result{};
-  if (source.isDeviceLocal() || dest->isDeviceLocal())
+  const bool has_device_local = source.isDeviceLocal() || dest->isDeviceLocal();
+  const bool is_host_copyable = source.isHostReadable() && dest->isHostWritable();
+  if (has_device_local || !is_host_copyable)
     result = copyOnDevice(source, dest, launch_options);
   else
     result = copyOnHost(source, dest, launch_options);
@@ -511,12 +530,14 @@ LaunchResult VulkanBuffer<T>::copyOnHost(
     const BufferLaunchOptions<D>& launch_options) noexcept
 {
   {
-    using ConstD = std::add_const_t<D>;
-    auto src_data = source.createMappedMemory<ConstD>();
-    auto* src = src_data.begin() + launch_options.sourceOffset();
-    auto dst_data = dest->createMappedMemory<D>();
-    auto* dst = dst_data.begin() + launch_options.destOffset();
-    std::copy_n(src, launch_options.size(), dst);
+    using DataT = std::remove_cvref_t<D>;
+    using DataPtr = std::add_pointer_t<DataT>;
+    using ConstDataPtr = std::add_pointer_t<std::add_const_t<DataT>>;
+    const auto* src_ptr = zisc::cast<ConstDataPtr>(source.mapMemoryData());
+    src_ptr = src_ptr + launch_options.sourceOffset();
+    auto* dst_ptr = zisc::cast<DataPtr>(dest->mapMemoryData());
+    dst_ptr = dst_ptr + launch_options.destOffset();
+    std::copy_n(src_ptr, launch_options.size(), dst_ptr);
   }
   LaunchResult result{};
   return result;
@@ -576,9 +597,9 @@ LaunchResult VulkanBuffer<T>::fillFastOnDevice(
       auto debug_region = device.makeCmdDebugLabel(command, launch_options);
       // Record buffer filling operation
       const VulkanBufferImpl impl{std::addressof(device)};
-      const std::size_t offsetBytes = launch_options.destOffsetInBytes();
-      const std::size_t sizeBytes = launch_options.sizeInBytes();
-      impl.fillFastCmd(command, dst_data.buffer_, offsetBytes, sizeBytes, data);
+      const std::size_t offset_bytes = launch_options.destOffsetInBytes();
+      const std::size_t size_bytes = launch_options.sizeInBytes();
+      impl.fillFastCmd(command, dst_data.buffer_, offset_bytes, size_bytes, data);
     }
   }
   LaunchResult result{};
@@ -611,12 +632,8 @@ LaunchResult VulkanBuffer<T>::fillImpl(
     const BufferLaunchOptions<D>& launch_options)
 {
   LaunchResult result{};
-  if (dest->isDeviceLocal()) {
-    constexpr bool vsize_is_factor_of_4 = (sizeof(T) <= 4) &&
-                                          zisc::has_single_bit(sizeof(T));
-    const std::size_t offsetBytes = launch_options.destOffsetInBytes();
-    const std::size_t sizeBytes = launch_options.sizeInBytes();
-    if (vsize_is_factor_of_4 && (offsetBytes % 4 == 0) && (sizeBytes % 4 == 0))
+  if (dest->isDeviceLocal() || !dest->isHostWritable()) {
+    if (canFillFast(launch_options.destOffsetInBytes(), launch_options.sizeInBytes()))
       result = fillFastOnDevice(value, dest, launch_options);
     else
       result = fillOnDevice(value, dest, launch_options);
@@ -676,9 +693,11 @@ LaunchResult VulkanBuffer<T>::fillOnHost(
     const BufferLaunchOptions<D>& launch_options) noexcept
 {
   {
-    auto dst_data = dest->createMappedMemory<D>();
-    auto dst = dst_data.begin() + launch_options.destOffset();
-    std::fill_n(dst, launch_options.size(), value);
+    using DataT = std::remove_cvref_t<D>;
+    using DataPtr = std::add_pointer_t<DataT>;
+    auto* dst_ptr = zisc::cast<DataPtr>(dest->mapMemoryData());
+    dst_ptr = dst_ptr + launch_options.destOffset();
+    std::fill_n(dst_ptr, launch_options.size(), value);
   }
   LaunchResult result{};
   return result;

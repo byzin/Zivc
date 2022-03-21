@@ -69,36 +69,36 @@ void GuiApplication::draw() noexcept
     ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
 //    ImGui::ColorEdit3("clear color", (float*)
     if (ImGui::Button("Button")) {
-      [[maybe_unused]] auto make_kernel = [this]() noexcept
-      {
-        auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(example, testKernel, 1);
-        return zdevice_->makeKernel(kernel_params);
-      };
-      using KernelT = decltype(make_kernel())::element_type;
-      auto run_kernel = [this]()
-      {
-        {
-          auto* kernel = zisc::cast<KernelT*>(zkernel_.get());
-          auto launch_options = kernel->makeOptions();
-          launch_options.setWorkSize({1});
-          launch_options.requestFence(true);
-          launch_options.setLabel("ExampleKernel");
-          auto result = kernel->run(*zbuffer1_, *zbuffer2_, 1, launch_options);
-          zdevice_->waitForCompletion(result.fence());
-        }
-        {
-          auto options = zbuffer2_->makeOptions();
-          options.setSize(1);
-          options.requestFence(true);
-          auto result = zivc::copy(*zbuffer2_, zbuffer_host_.get(), options);
-          zdevice_->waitForCompletion(result.fence());
-          const auto& mem = zbuffer_host_->mapMemory();
-          counter += mem[0];
-        }
-      };
-      if (kernel_thread_ && kernel_thread_->joinable())
-        kernel_thread_->join();
-      kernel_thread_ = std::make_unique<std::thread>(run_kernel);
+//      [[maybe_unused]] auto make_kernel = [this]() noexcept
+//      {
+//        auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(example, testKernel, 1);
+//        return zdevice_->makeKernel(kernel_params);
+//      };
+//      using KernelT = decltype(make_kernel())::element_type;
+//      auto run_kernel = [this]()
+//      {
+//        {
+//          auto* kernel = zisc::cast<KernelT*>(zkernel_.get());
+//          auto launch_options = kernel->makeOptions();
+//          launch_options.setWorkSize({1});
+//          launch_options.requestFence(true);
+//          launch_options.setLabel("ExampleKernel");
+//          auto result = kernel->run(*zbuffer1_, *zbuffer2_, 1, launch_options);
+//          zdevice_->waitForCompletion(result.fence());
+//        }
+//        {
+//          auto options = zbuffer2_->makeOptions();
+//          options.setSize(1);
+//          options.requestFence(true);
+//          auto result = zivc::copy(*zbuffer2_, zbuffer_host_.get(), options);
+//          zdevice_->waitForCompletion(result.fence());
+//          const auto& mem = zbuffer_host_->mapMemory();
+//          counter += mem[0];
+//        }
+//      };
+//      if (kernel_thread_ && kernel_thread_->joinable())
+//        kernel_thread_->join();
+//      kernel_thread_ = std::make_unique<std::thread>(run_kernel);
 //      counter++;
     }
     ImGui::SameLine();
@@ -183,7 +183,7 @@ const GuiPlatform* GuiApplication::platform() const noexcept
   \details No detailed description
   */
 void GuiApplication::initialize(WeakPtr&& own,
-                                zivc::Platform& zplatform,
+                                zivc::Context& context,
                                 GuiApplicationOptions& options)
 {
   // Clear the previous platform data first
@@ -198,52 +198,53 @@ void GuiApplication::initialize(WeakPtr&& own,
     platform_ = std::allocate_shared<GuiPlatform>(alloc);
     SharedObject parent{getOwnPtr()};
     WeakObject own{platform_};
-    platform()->initialize(std::move(parent), std::move(own), zplatform, options);
+    platform()->initialize(std::move(parent), std::move(own), context, options);
   }
 
-  // Kernel
-  {
-    // Create a device
-    const auto& device_info_list = zplatform.deviceInfoList();
-    std::size_t device_index = 0;
-    for (std::size_t i = 0; i < device_info_list.size(); ++i) {
-      const zivc::DeviceInfo& info = *device_info_list[i];
-      if (info.type() == zivc::SubPlatformType::kVulkan) {
-        device_index = i;
-        break;
-      }
-    }
-    try {
-      zdevice_ = zplatform.queryDevice(device_index);
-    }
-    catch (const std::runtime_error& error) {
-      std::cerr << error.what() << std::endl;
-    }
-  }
-  {
-    zbuffer_host_ = zdevice_->makeBuffer<zivc::int32b>(zivc::BufferUsage::kHostOnly);
-    zbuffer_host_->setSize(1);
-    auto mem = zbuffer_host_->mapMemory();
-    constexpr int value = 10;
-    mem[0] = value;
-  }
-  {
-    zbuffer1_ = zdevice_->makeBuffer<zivc::int32b>(zivc::BufferUsage::kDeviceOnly);
-    zbuffer1_->setSize(1);
-    auto options = zbuffer_host_->makeOptions();
-    options.setSize(1);
-    options.requestFence(true);
-    auto result = zivc::copy(*zbuffer_host_, zbuffer1_.get(), options);
-    zdevice_->waitForCompletion(result.fence());
-  }
-  {
-    zbuffer2_ = zdevice_->makeBuffer<zivc::int32b>(zivc::BufferUsage::kDeviceOnly);
-    zbuffer2_->setSize(1);
-  }
-  {
-    auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(example, testKernel, 1);
-    zkernel_ = zdevice_->makeKernel(kernel_params);
-  }
+//  // Kernel
+//  {
+//    // Create a device
+//    const auto& device_info_list = context.deviceInfoList();
+//    std::size_t device_index = 0;
+//    for (std::size_t i = 0; i < device_info_list.size(); ++i) {
+//      const zivc::DeviceInfo& info = *device_info_list[i];
+//      if (info.type() == zivc::BackendType::kVulkan) {
+//        device_index = i;
+//        break;
+//      }
+//    }
+//    try {
+//      zdevice_ = context.queryDevice(device_index);
+//    }
+//    catch (const std::runtime_error& error) {
+//      std::cerr << error.what() << std::endl;
+//    }
+//  }
+//  {
+//    zbuffer_host_ = zdevice_->createBuffer<zivc::int32b>(
+//        {zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+//    zbuffer_host_->setSize(1);
+//    auto mem = zbuffer_host_->mapMemory();
+//    constexpr int value = 10;
+//    mem[0] = value;
+//  }
+//  {
+//    zbuffer1_ = zdevice_->createBuffer<zivc::int32b>(zivc::BufferUsage::kPreferDevice);
+//    zbuffer1_->setSize(1);
+//    auto options = zbuffer_host_->createOptions();
+//    options.setSize(1);
+//    options.requestFence(true);
+//    auto result = zivc::copy(*zbuffer_host_, zbuffer1_.get(), options);
+//    zdevice_->waitForCompletion(result.fence());
+//  }
+//  {
+//    zbuffer2_ = zdevice_->createBuffer<zivc::int32b>(zivc::BufferUsage::kPreferDevice);
+//    zbuffer2_->setSize(1);
+//  }
+//  {
+//    auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(example, testKernel, 1);
+//    zkernel_ = zdevice_->makeKernel(kernel_params);
+//  }
 
   is_demo_window_active_ = true;
 }
@@ -290,8 +291,8 @@ void GuiApplication::setMemoryResource(zisc::pmr::memory_resource* mem_resource)
   \param [in] options No description.
   \return No description
   */
-SharedGuiApp makeGuiApp(zivc::Platform& zplatform,
-                        GuiApplicationOptions& options)
+SharedGuiApp createGuiApp(zivc::Context& context,
+                          GuiApplicationOptions& options)
 {
   SharedGuiApp app;
 
@@ -308,7 +309,7 @@ SharedGuiApp makeGuiApp(zivc::Platform& zplatform,
   // Initialize the app
   WeakObject own{app};
   try {
-    app->initialize(std::move(own), zplatform, options);
+    app->initialize(std::move(own), context, options);
   }
   catch (const std::runtime_error& error) {
     app->destroy();

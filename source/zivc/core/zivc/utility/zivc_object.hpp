@@ -59,13 +59,13 @@ class ZivcObject : private zisc::NonCopyable<ZivcObject>
   void destroyObject() noexcept;
 
   //! Return the parent pointer
-  virtual ZivcObject* getParent() noexcept;
+  virtual ZivcObject* getParent();
 
   //! Return the parent pointer
   virtual const ZivcObject* getParent() const noexcept;
 
   //! Return the own pointer
-  virtual ZivcObject* getOwn() noexcept;
+  virtual ZivcObject* getOwn();
 
   //! Return the own pointer
   virtual const ZivcObject* getOwn() const noexcept;
@@ -90,7 +90,7 @@ class ZivcObject : private zisc::NonCopyable<ZivcObject>
   virtual IdData issueId() noexcept;
 
   //! Return the underlying memory resource
-  virtual zisc::pmr::memory_resource* memoryResource() noexcept;
+  virtual zisc::pmr::memory_resource* memoryResource();
 
   //! Return the underlying memory resource
   virtual const zisc::pmr::memory_resource* memoryResource() const noexcept;

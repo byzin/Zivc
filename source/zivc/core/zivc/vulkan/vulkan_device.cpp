@@ -26,6 +26,7 @@
 #include <mutex>
 #include <numeric>
 #include <shared_mutex>
+#include <string>
 #include <string_view>
 #include <tuple>
 #include <utility>
@@ -293,8 +294,10 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
                                           alloc,
                                           loader);
     if (result.result != zivcvk::Result::eSuccess) {
-      const char* message = "Compute pipeline creation failed.";
-      zivcvk::throwResultException(result.result, message);
+      const std::string message = createErrorMessage(
+          *this,
+          "Compute pipeline creation failed.");
+      zivcvk::throwResultException(result.result, message.data());
     }
     pline = zisc::cast<zivcvk::Pipeline>(result.value);
   }
@@ -636,7 +639,9 @@ void VulkanDevice::takeFence(Fence* fence)
   const auto index_result = index_queue.dequeue();
   if (not index_result.isSuccess()) [[unlikely]] {
     //! \todo Available fence isn't found. Raise an exception?
-    const char* message = "Available fence not found.";
+    const std::string message = createErrorMessage(
+        *this,
+        "Available fence not found.");
     throw SystemError{ErrorCode::kAvailableFenceNotFound, message};
   }
 
@@ -1328,15 +1333,16 @@ void VulkanDevice::initProperties(zisc::pmr::vector<const char*>* extensions,
   }
 
   // Check if properties are supported
-  const auto throw_exception = [](const char* type, const char* name)
+  const auto throw_exception = [this](const char* type, const char* name)
   {
     constexpr std::size_t max_message_size = 256;
-    std::array<char, max_message_size> message;
-    std::sprintf(message.data(),
+    std::array<char, max_message_size> m;
+    std::sprintf(m.data(),
                  "%s property '%s' isn't supported in the device.",
                  type,
                  name);
-    throw SystemError{ErrorCode::kVulkanInitializationFailed, message.data()};
+    const std::string message = createErrorMessage(*this, m.data());
+    throw SystemError{ErrorCode::kVulkanInitializationFailed, message};
   };
   const auto& info = deviceInfoImpl();
   for (const char* prop : *extensions) {
@@ -1464,7 +1470,9 @@ void VulkanDevice::initQueueFamilyIndexList()
     uint32b& queue_count = queue_count_list_[i];
     queue_family_index = findQueueFamily(cap, &queue_count);
     if (queue_family_index == invalidQueueIndex()) {
-      const char* message = "Appropriate device queue not found.";
+      const std::string message = createErrorMessage(
+          *this,
+          "Appropriate device queue not found.");
       throw SystemError{ErrorCode::kVulkanInitializationFailed, message};
     }
   }
@@ -1472,7 +1480,9 @@ void VulkanDevice::initQueueFamilyIndexList()
   // Check overlap of queue family index
   if (queueFamilyIndex(Capability::kCompute) == queueFamilyIndex(Capability::kGui)) {
     if (numOfQueues(Capability::kCompute) <= 1) {
-      const char* message = "The device doesn't have enough queue.";
+      const std::string message = createErrorMessage(
+          *this,
+          "The device doesn't have enough queue.");
       throw SystemError{ErrorCode::kVulkanInitializationFailed, message};
     }
     const std::size_t compute_index = getCapabilityIndex(Capability::kCompute);
@@ -1553,8 +1563,10 @@ void VulkanDevice::initMemoryAllocator()
   VkResult result = vmaCreateAllocator(std::addressof(create_info),
                                        std::addressof(vm_allocator_));
   if (result != VK_SUCCESS) {
-    const char* message = "VM allocator creation failed.";
-    zivcvk::throwResultException(zisc::cast<zivcvk::Result>(result), message);
+    const std::string message = createErrorMessage(
+        *this,
+        "VM allocator creation failed.");
+    zivcvk::throwResultException(zisc::cast<zivcvk::Result>(result), message.data());
   }
 }
 

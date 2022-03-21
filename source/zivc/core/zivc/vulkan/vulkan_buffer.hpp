@@ -128,7 +128,7 @@ class VulkanBuffer : public Buffer<T>
   void* mapMemoryData() const override;
 
   //! Return the underlying buffer data
-  void* rawBufferData() noexcept override;
+  void* rawBufferData() override;
 
   //! Return the underlying buffer data
   const void* rawBufferData() const noexcept override;
@@ -158,6 +158,10 @@ class VulkanBuffer : public Buffer<T>
  private:
   friend Buffer<T>;
 
+
+  //! Check if the buffer can call fillFastOnDevice with the given launch option 
+  static bool canFillFast(const std::size_t offset_bytes,
+                          const std::size_t size_bytes) noexcept;
 
   //! Copy from the given buffer
   template <KernelArg D>

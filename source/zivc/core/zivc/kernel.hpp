@@ -73,8 +73,11 @@ class Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> : public Kernel
   ~Kernel() noexcept override;
 
 
-  //! Return the number of kernel arguments
-  std::size_t argSize() const noexcept override;
+  //! Return the number of kernel arguments required
+  constexpr std::size_t argSize() const noexcept override;
+
+  //! Return the number of buffer arguments required
+  constexpr std::size_t bufferSize() const noexcept override;
 
   //! Create launch options
   LaunchOptions createOptions() const noexcept
@@ -90,7 +93,7 @@ class Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> : public Kernel
   static constexpr std::size_t dimension() noexcept;
 
   //! Return the work-group dimension
-  std::size_t dimensionSize() const noexcept override;
+  constexpr std::size_t dimensionSize() const noexcept override;
 
   //! Initialize the kernel
   void initialize(ZivcObject::SharedPtr&& parent,
@@ -105,6 +108,9 @@ class Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> : public Kernel
 
   //! Return the number of pod arguments required
   static constexpr std::size_t numOfPods() noexcept;
+
+  //! Return the number of pod arguments required
+  constexpr std::size_t podSize() const noexcept override;
 
   //! Execute a kernel
   [[nodiscard("The result can have a fence when external sync mode is on.")]]

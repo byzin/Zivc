@@ -16,6 +16,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <memory>
+#include <numeric>
 #include <stdexcept>
 #include <string>
 // Zisc
@@ -65,6 +66,21 @@ double toMegaBytes(const std::size_t bytes) noexcept
 /*!
   \details No detailed description
 
+  \tparam Type No description.
+  \param [in] indent No description.
+  \param [in] buffer No description.
+  */
+template <typename Type>
+void printBufferInfo(const std::string_view indent, const zivc::Buffer<Type>& buffer)
+{
+  const std::size_t s = buffer.sizeInBytes();
+  std::cout << indent << "n = " << buffer.size()
+            << " (" << ::toMegaBytes(s) << " MB)." << std::endl;
+}
+
+/*!
+  \details No detailed description
+
   \param [in] context No description.
   \return No description
   */
@@ -85,8 +101,6 @@ int doBufferExample(zivc::Context& context)
   std::cout << std::endl;
   const auto& device_info_list = context.deviceInfoList();
   for (std::size_t i = 0; i < device_info_list.size(); ++i) {
-    if (i == 1 || i == 2)
-      continue;
     std::cout << std::endl;
     const auto* info = device_info_list[i];
     std::cout << indent1 << "## Device[" << i << "]" << std::endl;
@@ -111,15 +125,13 @@ int doBufferExample(zivc::Context& context)
               << device->numOfQueues() << std::endl;
 
     // Print buffer info
-    using zivc::int32b;
+    using zivc::int64b;
     std::cout << std::endl;
     const std::string indent3 = indent2 + indent1;
-    auto print_buffer_info = [&indent3](const zivc::Buffer<int32b>& buffer)
+    auto print_memory_type = [&indent3](const zivc::Buffer<int64b>& buffer)
     {
-      using Type = zivc::Buffer<int32b>::Type; // The alias of the element type
-      const std::size_t s = sizeof(Type) * buffer.size();
-      std::cout << indent3 << "n = " << buffer.size()
-                << " (" << ::toMegaBytes(s) << " MB)." << std::endl;
+      std::cout << indent3
+                << "Heap index  : " << buffer.heapIndex() << std::endl;
       std::cout << indent3
                 // Device local memory is most efficient for device access
                 << "DeviceLocal : " << buffer.isDeviceLocal() << ", "
@@ -134,52 +146,142 @@ int doBufferExample(zivc::Context& context)
     std::cout << indent2
               << "Create a buffer (preference device memory): "
               << std::endl;
-    auto buffer1 = device->createBuffer<int32b>({zivc::BufferUsage::kPreferDevice});
-    buffer1->setSize(1);
-    print_buffer_info(*buffer1);
+    auto buffer1 = device->createBuffer<int64b>({zivc::BufferUsage::kPreferDevice});
+    print_memory_type(*buffer1);
 
     std::cout << indent2
               << "Create a buffer (preference device memory, host writable): "
               << std::endl;
-    auto buffer2 = device->createBuffer<int32b>({zivc::BufferUsage::kPreferDevice,
+    auto buffer2 = device->createBuffer<int64b>({zivc::BufferUsage::kPreferDevice,
                                                  zivc::BufferFlag::kSequentialWritable});
-    buffer2->setSize(1);
-    print_buffer_info(*buffer2);
+    print_memory_type(*buffer2);
 
     std::cout << indent2
               << "Create a buffer (preference device memory, host random accessible: "
               << std::endl;
-    auto buffer3 = device->createBuffer<int32b>({zivc::BufferUsage::kPreferDevice,
+    auto buffer3 = device->createBuffer<int64b>({zivc::BufferUsage::kPreferDevice,
                                                  zivc::BufferFlag::kRandomAccessible});
-    buffer3->setSize(1);
-    print_buffer_info(*buffer3);
+    print_memory_type(*buffer3);
 
     std::cout << indent2
               << "Create a buffer (preference host memory): "
               << std::endl;
-    auto buffer4 = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost});
-    buffer4->setSize(1);
-    print_buffer_info(*buffer4);
+    auto buffer4 = device->createBuffer<int64b>({zivc::BufferUsage::kPreferHost});
+    print_memory_type(*buffer4);
 
     std::cout << indent2
               << "Create a buffer (preference host memory, host writable): "
               << std::endl;
-    auto buffer5 = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost,
+    auto buffer5 = device->createBuffer<int64b>({zivc::BufferUsage::kPreferHost,
                                                  zivc::BufferFlag::kSequentialWritable});
-    buffer5->setSize(1);
-    print_buffer_info(*buffer5);
+    print_memory_type(*buffer5);
 
     std::cout << indent2
               << "Create a buffer (preference host memory, host writable): "
               << std::endl;
-    auto buffer6 = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost,
+    auto buffer6 = device->createBuffer<int64b>({zivc::BufferUsage::kPreferHost,
                                                  zivc::BufferFlag::kRandomAccessible});
-    buffer6->setSize(1);
-    print_buffer_info(*buffer6);
+    print_memory_type(*buffer6);
 
-    //! \todo Buffer examples
-    constexpr std::size_t size = 128 * 1024 * 1024;
-    constexpr std::size_t n = size / sizeof(int32b);
+    // Allocate buffer memory
+    {
+      constexpr std::size_t size = 128 * 1024 * 1024;
+      constexpr std::size_t n = size / sizeof(int64b);
+      std::cout << indent2 << "Allocate 'sizeof(int) * n(" << n << "') bytes memory."
+                << std::endl;
+      buffer1->setSize(n);
+      printBufferInfo(indent3, *buffer1);
+    }
+
+    // Fill buffer
+    {
+      constexpr int64b v = 99;
+      std::cout << indent2 << "Fill integer buffer with '" << v << "'." << std::endl;
+      // First create a launch options
+      auto options = buffer1->createOptions();
+      options.requestFence(true); // Request a fence because the fill can be async
+      // Launch the fill command
+      auto result = zivc::fill(v, buffer1.get(), options);
+      // Wait this thread until the fill command done
+      device->waitForCompletion(result.fence());
+    }
+
+    // Clear buffer memory
+    {
+      std::cout << indent2 << "Clear buffer memory." << std::endl;
+      buffer1->clear();
+      printBufferInfo(indent3, *buffer1);
+    }
+
+    // Mapping buffer memory
+    constexpr std::size_t n_int64 = 10;
+    buffer1->setSize(n_int64);
+    buffer4->setSize(buffer1->size());
+    buffer6->setSize(buffer1->size());
+    {
+      std::cout << indent2 << "Map buffer memory into host address space." << std::endl;
+      printBufferInfo(indent3, *buffer4);
+      // Map the buffer memory to host address space and write values into the mapped pointer
+      // The buffer must be host visible
+      auto mem = buffer4->mapMemory();
+      std::iota(mem.begin(), mem.end(), 0);
+    }
+    // Copy buffer
+    {
+      std::cout << indent3 << "Copy the memory to the device local buffer." << std::endl;
+      // Host to device copy
+      // First create a launch options
+      auto options = buffer4->createOptions();
+      options.requestFence(false); // Only last command has to synchronize with host
+      // Launch the copy command
+      [[maybe_unused]] auto result = zivc::copy(*buffer4, buffer1.get(), options);
+    }
+    {
+      // Device to host copy
+      auto options = buffer1->createOptions();
+      options.requestFence(true); // Request a fence because the copy can be async
+      // Launch the copy command
+      auto result = zivc::copy(*buffer1, buffer6.get(), options);
+      // Wait this thread until the copy command done
+      device->waitForCompletion(result.fence());
+    }
+    // Print mapped buffer memory
+    {
+      // Map the buffer memory to host address space and print the values
+      // The buffer must be host visible and host cached
+      auto mem = buffer6->mapMemory();
+      for (std::size_t i = 0; i < mem.size(); ++i)
+        std::cout << indent3 << "buffer6[" << i << "] = " << mem[i] << std::endl;
+    }
+
+    // Reinterpret cast of buffer
+    {
+      std::cout << indent2 << "Reinterpret cast from 'zivc::Buffer<int32b>' to 'zivc::Buffer<float>'." << std::endl;
+      auto fp4 = buffer4->reinterp<float>();
+      printBufferInfo(indent3, fp4);
+      // buffer4->sizeInBytes() == sizeof(float) * fp4->size()
+      [[maybe_unused]] const std::size_t n_float = fp4.size(); // 20
+      // Map the buffer memory
+      {
+        auto mem = fp4.mapMemory();
+        std::iota(mem.begin(), mem.end(), 0.5f);
+      }
+      // Host to device copy
+      auto fp1 = buffer1->reinterp<float>();
+      [[maybe_unused]] auto result1 = zivc::copy(fp4, &fp1, {});
+      // Device to host copy
+      auto fp6 = buffer6->reinterp<float>();
+      auto options = fp1.createOptions();
+      options.requestFence(true);
+      auto result2 = zivc::copy(fp1, &fp6, options);
+      device->waitForCompletion(result2.fence());
+      // Print mapped buffer memory
+      {
+        auto mem = fp6.mapMemory();
+        for (std::size_t i = 0; i < mem.size(); ++i)
+          std::cout << indent3 << "fp6[" << i << "] = " << mem[i] << std::endl;
+      }
+    }
 
     // Print device memory usage
     std::cout << std::endl;
@@ -195,6 +297,11 @@ int doBufferExample(zivc::Context& context)
   return EXIT_SUCCESS;
 }
 
+/*!
+  \details No detailed description
+
+  \param [in] mem_resource No description.
+  */
 void printMemoryUsage(const zisc::SimpleMemoryResource& mem_resource) noexcept
 {
   const std::string indent1 = "    ";
@@ -211,6 +318,7 @@ void printMemoryUsage(const zisc::SimpleMemoryResource& mem_resource) noexcept
 
 int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 {
+  // Any custom std::pmr::memory_resource can be speicified as zivc memory allcator
   zisc::SimpleMemoryResource mem_resource;
 
   // Do buffer operations
@@ -225,7 +333,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
     context_options.enableVulkanBackend(true);
     context_options.enableDebugMode(true);
 
-    // Create zivc context
+    // Create a zivc context
     zivc::SharedContext context;
     try {
       context = zivc::createContext(context_options);

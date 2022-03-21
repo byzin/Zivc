@@ -24,6 +24,7 @@
 #include <memory>
 #include <mutex>
 #include <stdexcept>
+#include <string>
 #include <string_view>
 #include <type_traits>
 #include <utility>
@@ -83,7 +84,9 @@ SharedDevice VulkanBackend::createDevice(const DeviceInfo& device_info)
     };
     auto it = std::find_if(info_list.begin(), info_list.end(), pred);
     if (it == info_list.end()) {
-      const char* message = "Invalid vulkan device info is passed.";
+      const std::string message = createErrorMessage(
+          *this,
+          "Invalid vulkan device info is passed.");
       throw SystemError{ErrorCode::kInitializationFailed, message};
     }
   }
@@ -803,7 +806,9 @@ void VulkanBackend::initProperties()
                                                                        nullptr,
                                                                        loader);
       if (result != zivcvk::Result::eSuccess) {
-        const char* message = "Enumerating instance extension properties failed.";
+        const std::string message = createErrorMessage(
+            *this,
+            "Enumerating instance extension properties failed.");
         throw SystemError{ErrorCode::kInitializationFailed, message};
       }
     }
@@ -815,7 +820,9 @@ void VulkanBackend::initProperties()
                                                                        props,
                                                                        loader);
       if (result != zivcvk::Result::eSuccess) {
-        const char* message = "Enumerating instance extension properties failed.";
+        const std::string message = createErrorMessage(
+            *this,
+            "Enumerating instance extension properties failed.");
         throw SystemError{ErrorCode::kInitializationFailed, message};
       }
     }
@@ -846,7 +853,9 @@ void VulkanBackend::initProperties()
                                                                    nullptr,
                                                                    loader);
       if (result != zivcvk::Result::eSuccess) {
-        const char* message = "Enumerating instance layer properties failed.";
+        const std::string message = createErrorMessage(
+            *this,
+            "Enumerating instance layer properties failed.");
         throw SystemError{ErrorCode::kInitializationFailed, message};
       }
     }
@@ -857,7 +866,9 @@ void VulkanBackend::initProperties()
                                                                    props,
                                                                    loader);
       if (result != zivcvk::Result::eSuccess) {
-        const char* message = "Enumerating instance layer properties failed.";
+        const std::string message = createErrorMessage(
+            *this,
+            "Enumerating instance layer properties failed.");
         throw SystemError{ErrorCode::kInitializationFailed, message};
       }
     }
@@ -923,7 +934,9 @@ void VulkanBackend::initWindowSurface(
   }
   else {
     // We go this code path when no platform is found
-    const char* message = "No platform of window surface found.";
+    const std::string message = createErrorMessage(
+        *this,
+        "No platform of window surface found.");
     throw SystemError{ErrorCode::kVulkanWindowSurfaceNotFound, message};
   }
 }

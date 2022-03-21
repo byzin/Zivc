@@ -40,11 +40,17 @@ class KernelCommon : public ZivcObject
   ~KernelCommon() noexcept override;
 
 
-  //! Return the number of kernel arguments
+  //! Return the number of kernel arguments required
   virtual std::size_t argSize() const noexcept = 0;
+
+  //! Return the number of buffer arguments required
+  virtual std::size_t bufferSize() const noexcept = 0;
 
   //! Return the work-group dimension
   virtual std::size_t dimensionSize() const noexcept = 0;
+
+  //! Return the number of pod arguments required
+  virtual std::size_t podSize() const noexcept = 0;
 };
 
 // Type aliases

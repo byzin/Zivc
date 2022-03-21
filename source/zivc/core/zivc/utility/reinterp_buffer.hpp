@@ -70,13 +70,13 @@ class ReinterpBuffer : public Buffer<T>
   std::size_t capacityInBytes() const noexcept override;
 
   //! Return the parent pointer
-  ZivcObject* getParent() noexcept override;
+  ZivcObject* getParent() override;
 
   //! Return the parent pointer
   const ZivcObject* getParent() const noexcept override;
 
   //! Return the own pointer
-  ZivcObject* getOwn() noexcept override;
+  ZivcObject* getOwn() override;
 
   //! Return the own pointer
   const ZivcObject* getOwn() const noexcept override;
@@ -104,13 +104,13 @@ class ReinterpBuffer : public Buffer<T>
   void* mapMemoryData() const override;
 
   //! Return the underlying memory resource
-  zisc::pmr::memory_resource* memoryResource() noexcept override;
+  zisc::pmr::memory_resource* memoryResource() override;
 
   //! Return the underlying memory resource
   const zisc::pmr::memory_resource* memoryResource() const noexcept override;
 
   //! Return the underlying buffer data
-  void* rawBufferData() noexcept override;
+  void* rawBufferData() override;
 
   //! Return the underlying buffer data
   const void* rawBufferData() const noexcept override;

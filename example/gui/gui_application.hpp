@@ -28,7 +28,7 @@
 
 // Forward declaration
 namespace zivc {
-class Platform;
+class Context;
 } // namespace zivc
 
 namespace example {
@@ -58,7 +58,7 @@ class GuiApplication : public GuiWidget
 
   //! Initialize the application
   void initialize(WeakPtr&& own,
-                  zivc::Platform& zplatform,
+                  zivc::Context& context,
                   GuiApplicationOptions& options);
 
   //! Return the underlying memory resource
@@ -99,8 +99,8 @@ class GuiApplication : public GuiWidget
 using SharedGuiApp = std::shared_ptr<GuiApplication>;
 
 //! Make a gui application
-SharedGuiApp makeGuiApp(zivc::Platform& zplatform,
-                        GuiApplicationOptions& options);
+SharedGuiApp createGuiApp(zivc::Context& context,
+                          GuiApplicationOptions& options);
 
 } // namespace example
 

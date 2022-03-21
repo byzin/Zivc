@@ -36,7 +36,7 @@ struct ImGuiContext;
 struct ImGui_ImplVulkanH_Window;
 //
 namespace zivc {
-class Platform;
+class Context;
 } // namespace zivc
 
 namespace example {
@@ -69,7 +69,7 @@ class GuiPlatform : public GuiObject
   //! Initialize the gui instance
   void initialize(SharedPtr&& parent,
                   WeakPtr&& own,
-                  zivc::Platform& zplatform,
+                  zivc::Context& context,
                   const GuiApplicationOptions& options);
 
   //! Show main window
@@ -108,16 +108,16 @@ class GuiPlatform : public GuiObject
   void initImGui(const GuiApplicationOptions& options);
 
   //! Initialize vulkan
-  void initVulkan(zivc::Platform& zplatform);
+  void initVulkan(zivc::Context& context);
 
   //! Initialize vulkan window
   void initVulkanWindow(const GuiApplicationOptions& options);
 
   //! Initialize vulkan descriptor pool
-  void initVulkanDescriptorPool(zivc::Platform& zplatform);
+  void initVulkanDescriptorPool(zivc::Context& context);
 
   //! Initialize vulkan device
-  void initVulkanDevice(zivc::Platform& zplatform);
+  void initVulkanDevice(zivc::Context& context);
 
   //! Return the instance used for the gui
   VkInstance instance() const noexcept;
@@ -150,7 +150,7 @@ class GuiPlatform : public GuiObject
   void resizeSwapChain() noexcept;
 
   //! Select a vulkan device for the gui
-  static std::size_t selectDevice(const zivc::Platform& zplatform) noexcept;
+  static std::size_t selectDevice(const zivc::Context& context) noexcept;
 
   //! Set minimum image count
   void setMinImageCount(const int image_count) noexcept;
@@ -159,7 +159,7 @@ class GuiPlatform : public GuiObject
   void setSwapChainRebuild(const bool is_rebuilt) noexcept;
 
   //! Return the window surface type
-  zivc::VulkanSubPlatform::WindowSurfaceType surfaceType() const noexcept;
+  zivc::VulkanBackend::WindowSurfaceType surfaceType() const noexcept;
 
   //! Return the underlying window data
   ImGui_ImplVulkanH_Window& windowData() noexcept;

@@ -86,4 +86,20 @@ __kernel void invocation3Kernel(zivc::GlobalPtr<uint32b> values,
   values[index] = v;
 }
 
+/*!
+  \details No detailed description
+
+  \param [in,out] inout No description.
+  \param [in] resolution No description.
+  */
+__kernel void reinterpTestKernel(zivc::GlobalPtr<float> inout,
+                                 const uint32b resolution)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (resolution <= index)
+    return;
+
+  inout[index] *= 3.0f;
+}
+
 #endif // ZIVC_TEST_KERNEL_TEST2_CL

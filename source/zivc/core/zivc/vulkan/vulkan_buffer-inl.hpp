@@ -723,7 +723,7 @@ bool VulkanBuffer<T>::hasMemoryProperty(const VkMemoryPropertyFlagBits flag) con
 template <KernelArg T> inline
 void VulkanBuffer<T>::initCommandBuffer()
 {
-  if ((commandBuffer() == ZIVC_VK_NULL_HANDLE) && isDeviceLocal()) {
+  if (commandBuffer() == ZIVC_VK_NULL_HANDLE) {
     auto& device = parentImpl();
     rawBuffer().command_buffer_ = device.createCommandBuffer();
   }

@@ -596,7 +596,7 @@ TEST(BufferTest, HostWritableDeviceBufferMemoryMappingTest)
   using zisc::cast;
   {
     const auto& info = device->deviceInfo();
-    constexpr std::size_t max_alloc = 1ull * 1024ull * 1024ull * 1024ull;
+    constexpr std::size_t max_alloc = 128ull * 1024ull * 1024ull;
     const std::size_t alloc_size = (std::min)(info.maxAllocationSize(), max_alloc);
     const std::size_t s = alloc_size / sizeof(float);
     buffer->setSize(s);

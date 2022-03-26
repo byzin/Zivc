@@ -602,3 +602,77 @@ TEST(KernelTest, KernelFenceTest)
   }
 }
 
+TEST(KernelTest, KernelReinterpBufferTest)
+{
+  using zivc::int32b;
+  using zivc::uint32b;
+  using zivc::uint64b;
+
+  auto create = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  [[maybe_unused]] const auto& info = device->deviceInfo();
+
+  constexpr std::size_t w = 2560;
+  constexpr std::size_t h = 1440;
+
+  // Allocate buffers
+  auto buff_h = device->createBuffer<float>({zivc::BufferUsage::kPreferHost,
+                                             zivc::BufferFlag::kRandomAccessible});
+  auto buff_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferDevice});
+
+  // Allocate memories
+  {
+    constexpr std::size_t alloc_size = w * h;
+    const std::size_t s = alloc_size / sizeof(uint64b);
+    buff_h->setSize(s);
+    buff_d->setSize(s);
+  }
+
+  // Initialize buffer
+  {
+    zivc::MappedMemory<float> mem = buff_h->mapMemory();
+    for (std::size_t i = 0; i < mem.size(); ++i)
+      mem[i] = zisc::cast<float>(i + 1);
+  }
+  auto reinterp_d = buff_d->reinterp<float>();
+  {
+    auto options = buff_h->createOptions();
+    options.requestFence(true);
+    auto result = zivc::copy(*buff_h, &reinterp_d, options);
+    device->waitForCompletion(result.fence());
+  }
+
+  // Make a kernels
+  auto kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, reinterpTestKernel, 1);
+  auto kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(2, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernels
+  {
+    const auto n = zisc::cast<uint32b>(reinterp_d.size());
+    auto launch_options = kernel->createOptions();
+    launch_options.setWorkSize({{n}});
+    launch_options.requestFence(true);
+    launch_options.setLabel("reinterpTestKernel");
+    auto result = kernel->run(reinterp_d, n, launch_options);
+    device->waitForCompletion(result.fence());
+  }
+
+  {
+    auto options = buff_h->createOptions();
+    options.requestFence(true);
+    auto result = zivc::copy(reinterp_d, buff_h.get(), options);
+    device->waitForCompletion(result.fence());
+  }
+
+  // Check the result
+  {
+    const zivc::MappedMemory<float> mem = buff_h->mapMemory();
+    for (std::size_t i = 0; i < mem.size(); ++i) {
+      const float expected = 3.0f * zisc::cast<float>(i + 1);
+      ASSERT_FLOAT_EQ(expected, mem[i]) << "Reinterp kernel failed. mem[" << i << "].";
+    }
+  }
+}

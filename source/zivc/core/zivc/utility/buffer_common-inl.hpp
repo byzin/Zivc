@@ -67,7 +67,7 @@ bool BufferCommon::isHostReadable() const noexcept
 inline
 bool BufferCommon::isHostWritable() const noexcept
 {
-  const bool result = isHostVisible();
+  const bool result = isHostVisible() && isHostCoherent();
   return result;
 }
 

@@ -35,9 +35,9 @@ Config::~Config() noexcept
 /*!
   \details No detailed description
   */
-void Config::destroyPlatform() noexcept
+void Config::destroyContext() noexcept
 {
-  platform_.reset();
+  context_.reset();
 }
 
 /*!
@@ -58,6 +58,16 @@ zivc::uint32b Config::deviceId() const noexcept
 void Config::enableDebugMode(const bool flag) noexcept
 {
   is_debug_mode_ = flag;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] flag No description.
+  */
+void Config::enableGlobalContext(const bool flag) noexcept
+{
+  is_global_context_enabled_ = flag;
 }
 
 /*!
@@ -86,6 +96,16 @@ bool Config::isDebugMode() const noexcept
 
   \return No description
   */
+bool Config::isGlobalContextEnabled() const noexcept
+{
+  return is_global_context_enabled_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
 zisc::pmr::memory_resource* Config::memoryResource() noexcept
 {
   return mem_resource_.get();
@@ -106,20 +126,20 @@ const zisc::pmr::memory_resource* Config::memoryResource() const noexcept
 
   \return No description
   */
-zivc::SharedPlatform Config::platform() noexcept
+zivc::SharedContext Config::queryContext() noexcept
 {
-  if (!platform_) {
-    zisc::pmr::polymorphic_allocator<zivc::Platform> alloc{memoryResource()};
-    zivc::PlatformOptions options{memoryResource()};
-    options.setPlatformName("UnitTest");
-    options.setPlatformVersionMajor(zivc::Config::versionMajor());
-    options.setPlatformVersionMinor(zivc::Config::versionMinor());
-    options.setPlatformVersionPatch(zivc::Config::versionPatch());
-    options.enableVulkanSubPlatform(0 < deviceId());
+  if (!context_) {
+    zisc::pmr::polymorphic_allocator<zivc::Context> alloc{memoryResource()};
+    zivc::ContextOptions options{memoryResource()};
+    options.setContextName("UnitTest");
+    options.setContextVersionMajor(zivc::Config::versionMajor());
+    options.setContextVersionMinor(zivc::Config::versionMinor());
+    options.setContextVersionPatch(zivc::Config::versionPatch());
+    options.enableVulkanBackend(0 < deviceId());
     options.enableDebugMode(isDebugMode());
-    platform_ = zivc::makePlatform(options);
+    context_ = zivc::createContext(options);
   }
-  return platform_;
+  return context_;
 }
 
 /*!
@@ -135,31 +155,11 @@ void Config::setDeviceId(const zivc::uint32b id) noexcept
 /*!
   \details No detailed description
 
-  \param [in] flag No description.
-  */
-void Config::setUseGlobalPlatform(const bool flag) noexcept
-{
-  use_global_platform_ = flag;
-}
-
-/*!
-  \details No detailed description
-
   \return No description
   */
 std::size_t Config::testKernelWorkSize1d() noexcept
 {
   return 1920 * 1080;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-bool Config::useGlobalPlatform() const noexcept
-{
-  return use_global_platform_;
 }
 
 /*!

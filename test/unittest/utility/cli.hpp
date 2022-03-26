@@ -58,7 +58,7 @@ struct CliOption
 {
   std::string device_name_ = "cpu";
   bool is_nodebug_ = false;
-  bool disable_global_platform_ = false;
+  bool disable_global_context_ = false;
   [[maybe_unused]] zivc::Padding<6> padd_;
 };
 

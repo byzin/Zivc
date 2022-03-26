@@ -28,13 +28,13 @@ namespace ztest {
 
   \return No description
   */
-zivc::SharedPlatform makePlatform()
+zivc::SharedContext createContext()
 {
   auto& config = Config::globalConfig();
-  if (!config.useGlobalPlatform())
-    config.destroyPlatform();
-  zivc::SharedPlatform platform = config.platform();
-  return platform;
+  if (!config.isGlobalContextEnabled())
+    config.destroyContext();
+  zivc::SharedContext context = config.queryContext();
+  return context;
 }
 
 } // namespace ztest

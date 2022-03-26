@@ -42,6 +42,7 @@ ReinterpBuffer<Derived, T>::ReinterpBuffer(BufferP buffer, IdData&& id) noexcept
     Buffer<T>(std::move(id)),
     buffer_{buffer}
 {
+  initCommon(buffer_);
 }
 
 /*!
@@ -52,6 +53,7 @@ ReinterpBuffer<Derived, T>::ReinterpBuffer(ReinterpBuffer&& other) noexcept :
     Buffer<T>(std::move(other.id().copy())),
     buffer_{other.internalBuffer()}
 {
+  initCommon(buffer_);
 }
 
 /*!
@@ -370,6 +372,20 @@ void ReinterpBuffer<Derived, T>::initData([[maybe_unused]] const BufferInitParam
 template <DerivedBuffer Derived, KernelArg T> inline
 void ReinterpBuffer<Derived, T>::updateDebugInfoImpl() noexcept
 {
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <DerivedBuffer Derived, KernelArg T> inline
+void ReinterpBuffer<Derived, T>::initCommon(const ConstBufferP buffer) noexcept
+{
+  if (buffer != nullptr) {
+    Buffer<T>::setUsage(buffer->usage());
+    Buffer<T>::setFlag(buffer->flag());
+  }
 }
 
 /*!

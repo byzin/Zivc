@@ -32,10 +32,10 @@ std::unique_ptr<CLI::App> makeCommandLineParser(ztest::CliOption* options) noexc
   auto parser = std::make_unique<CLI::App>("Zivc unit test.");
   parser->allow_extras();
 
-  // Platform option
+  // Context option
   {
-    const char* desc = "Use each test's zivc platform instead of global platform.";
-    [[maybe_unused]] auto* option = parser->add_flag("--disable-global-platform", options->disable_global_platform_, desc);
+    const char* desc = "Use each test's zivc context instead of global context.";
+    [[maybe_unused]] auto* option = parser->add_flag("--disable-global-context", options->disable_global_context_, desc);
   }
   // Device option
   {
@@ -66,18 +66,18 @@ void processCommandLineArgs(const ztest::CliOption& options) noexcept
   auto& config = ztest::Config::globalConfig();
   config.setDeviceId(ztest::getDeviceId(options.device_name_));
   config.enableDebugMode(!options.is_nodebug_);
-  config.setUseGlobalPlatform(!options.disable_global_platform_);
+  config.enableGlobalContext(!options.disable_global_context_);
 }
 
 bool checkIfDeviceIsAvailable()
 {
-  zivc::SharedPlatform platform = ztest::makePlatform();
-  if (!platform) {
-    std::cerr << "[Error] Platform isn't available." << std::endl;
+  zivc::SharedContext context = ztest::createContext();
+  if (!context) {
+    std::cerr << "[Error] Context isn't available." << std::endl;
     return false;
   }
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = platform->queryDevice(config.deviceId());
+  zivc::SharedDevice device = context->queryDevice(config.deviceId());
   if (!device) {
     std::cerr << "[Error] Device isn't available." << std::endl;
     return false;
@@ -111,7 +111,7 @@ int main(int argc, char** argv)
   // Destroy resources
   {
     auto& config = ztest::Config::globalConfig();
-    config.destroyPlatform();
+    config.destroyContext();
   }
   return result;
 }

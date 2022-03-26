@@ -138,6 +138,9 @@ class ReinterpBuffer : public Buffer<T>
   void updateDebugInfoImpl() noexcept override;
 
  private:
+  //! Initialize the buffer common data
+  void initCommon(const ConstBufferP buffer) noexcept;
+
   //! Return the internal buffer pointer
   BufferP internalBuffer() noexcept;
 

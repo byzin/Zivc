@@ -25,8 +25,8 @@
 
 namespace ztest {
 
-//! Make a platform for unit test
-zivc::SharedPlatform makePlatform();
+//! Create a zivc platform for unit test
+zivc::SharedContext createContext();
 
 //! Fill a device buffer with the give value
 template <typename Type>
@@ -35,7 +35,7 @@ void fillDeviceBuffer(const Type& value, zivc::Buffer<Type>* buffer);
 //! Initialize a device buffer with the given initializer list
 template <typename Type>
 void setDeviceBuffer(zivc::Device& device,
-                     std::initializer_list<Type> init_list,
+                     const std::initializer_list<Type>& init_list,
                      zivc::Buffer<Type>* buffer);
 
 //! Copy buffer data

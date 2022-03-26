@@ -43,7 +43,7 @@ MappedMemory<T>::MappedMemory() noexcept
   */
 template <KernelArg T> inline
 MappedMemory<T>::MappedMemory(const BufferCommon* buffer) :
-    data_{buffer ? zisc::cast<Pointer>(buffer->mapMemoryData()) : nullptr},
+    data_{(buffer != nullptr) ? zisc::cast<Pointer>(buffer->mapMemoryData()) : nullptr},
     buffer_{buffer}
 {
 }

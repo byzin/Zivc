@@ -1,5 +1,5 @@
 /*!
-  \file platform_options_test.cpp
+  \file context_options_test.cpp
   \author Sho Ikeda
   \brief No brief description
 
@@ -15,26 +15,26 @@
 // Standard C++ library
 #include <string_view>
 // Zivc
-#include "zivc/platform_options.hpp"
+#include "zivc/context_options.hpp"
 #include "zivc/zivc_config.hpp"
 // Test
 #include "utility/googletest.hpp"
 
-TEST(PlatformOptionsTest, SetterGetterTest)
+TEST(ContextOptionsTest, SetterGetterTest)
 {
-  zivc::PlatformOptions options{nullptr};
+  zivc::ContextOptions options{nullptr};
 
-  // Platform name
-  const std::string_view platform_name{"ZivcUnitTest"};
-  options.setPlatformName(platform_name);
-  ASSERT_STREQ(platform_name.data(), options.platformName().data());
+  // Context name
+  const std::string_view context_name{"ZivcUnitTest"};
+  options.setContextName(context_name);
+  ASSERT_STREQ(context_name.data(), options.contextName().data());
   // Platfrom version
-  options.setPlatformVersionMajor(zivc::Config::versionMajor());
-  options.setPlatformVersionMinor(zivc::Config::versionMinor());
-  options.setPlatformVersionPatch(zivc::Config::versionPatch());
-  ASSERT_EQ(zivc::Config::versionMajor(), options.platformVersionMajor());
-  ASSERT_EQ(zivc::Config::versionMinor(), options.platformVersionMinor());
-  ASSERT_EQ(zivc::Config::versionPatch(), options.platformVersionPatch());
+  options.setContextVersionMajor(zivc::Config::versionMajor());
+  options.setContextVersionMinor(zivc::Config::versionMinor());
+  options.setContextVersionPatch(zivc::Config::versionPatch());
+  ASSERT_EQ(zivc::Config::versionMajor(), options.contextVersionMajor());
+  ASSERT_EQ(zivc::Config::versionMinor(), options.contextVersionMinor());
+  ASSERT_EQ(zivc::Config::versionPatch(), options.contextVersionPatch());
   // CPU params
   options.setCpuNumOfThreads(1);
   options.setCpuTaskBatchSize(1);

@@ -41,13 +41,10 @@ namespace {
 template <zisc::Scalar Scalar>
 void initScalarBuffer(const zivc::Device& device, zivc::Buffer<Scalar>& buffer)
 {
-  auto options = buffer.makeOptions();
+  auto options = buffer.createOptions();
   options.requestFence(true);
-  //! \todo remove me
-  if constexpr (sizeof(Scalar) == 4) { 
-    auto result = buffer.fill(zisc::cast<Scalar>(0), options);
-    device.waitForCompletion(result.fence());
-  }
+  auto result = buffer.fill(zisc::cast<Scalar>(0), options);
+  device.waitForCompletion(result.fence());
 }
 
 //! Check the value of scalar buffer
@@ -55,16 +52,17 @@ template <zisc::Scalar Scalar>
 testing::AssertionResult testScalarBuffer(zivc::Device& device,
                                           const zivc::Buffer<Scalar>& buffer)
 {
-  auto buff_host = device.makeBuffer<Scalar>(zivc::BufferUsage::kHostOnly);
+  auto buff_host = device.createBuffer<Scalar>({zivc::BufferUsage::kPreferHost,
+                                                zivc::BufferFlag::kRandomAccessible});
   buff_host->setSize(1);
   {
-    auto options = buffer.makeOptions();
+    auto options = buffer.createOptions();
     options.requestFence(true);
     auto result = zivc::copy(buffer, buff_host.get(), options);
     device.waitForCompletion(result.fence());
   }
   {
-    auto mem = buff_host->mapMemory();
+    zivc::MappedMemory<Scalar> mem = buff_host->mapMemory();
     auto result = zisc::equal(mem[0], zisc::cast<Scalar>(1))
         ? testing::AssertionSuccess()
         : testing::AssertionFailure();
@@ -76,9 +74,9 @@ testing::AssertionResult testScalarBuffer(zivc::Device& device,
 
 TEST(KernelTest, LargeNumOfParametersTest)
 {
-  auto platform = ztest::makePlatform();
+  auto create = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = platform->queryDevice(config.deviceId());
+  zivc::SharedDevice device = create->queryDevice(config.deviceId());
   [[maybe_unused]] const auto& info = device->deviceInfo();
 
   using zivc::int8b;
@@ -90,153 +88,154 @@ TEST(KernelTest, LargeNumOfParametersTest)
   using ParamTest = zivc::cl::ParamTest;
 
   // Allocate buffers
-  auto buff_device1 = device->makeBuffer<int8b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device1 = device->createBuffer<int8b>(zivc::BufferUsage::kPreferDevice);
   buff_device1->setSize(1);
-  auto buff_device2 = device->makeBuffer<int16b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device2 = device->createBuffer<int16b>(zivc::BufferUsage::kPreferDevice);
   buff_device2->setSize(1);
-  auto buff_device3 = device->makeBuffer<int32b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device3 = device->createBuffer<int32b>(zivc::BufferUsage::kPreferDevice);
   buff_device3->setSize(1);
-  auto buff_device4 = device->makeBuffer<uint8b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device4 = device->createBuffer<uint8b>(zivc::BufferUsage::kPreferDevice);
   buff_device4->setSize(1);
-  auto buff_device5 = device->makeBuffer<uint16b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device5 = device->createBuffer<uint16b>(zivc::BufferUsage::kPreferDevice);
   buff_device5->setSize(1);
-  auto buff_device6 = device->makeBuffer<uint32b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device6 = device->createBuffer<uint32b>(zivc::BufferUsage::kPreferDevice);
   buff_device6->setSize(1);
-  auto buff_device7 = device->makeBuffer<float>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device7 = device->createBuffer<float>(zivc::BufferUsage::kPreferDevice);
   buff_device7->setSize(1);
-  auto buff_device8 = device->makeBuffer<ParamTest>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device8 = device->createBuffer<ParamTest>(zivc::BufferUsage::kPreferDevice);
   buff_device8->setSize(1);
 
-  auto buff_device9 = device->makeBuffer<int8b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device9 = device->createBuffer<int8b>(zivc::BufferUsage::kPreferDevice);
   buff_device9->setSize(1);
-  auto buff_device10 = device->makeBuffer<int16b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device10 = device->createBuffer<int16b>(zivc::BufferUsage::kPreferDevice);
   buff_device10->setSize(1);
-  auto buff_device11 = device->makeBuffer<int32b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device11 = device->createBuffer<int32b>(zivc::BufferUsage::kPreferDevice);
   buff_device11->setSize(1);
-  auto buff_device12 = device->makeBuffer<uint8b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device12 = device->createBuffer<uint8b>(zivc::BufferUsage::kPreferDevice);
   buff_device12->setSize(1);
-  auto buff_device13 = device->makeBuffer<uint16b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device13 = device->createBuffer<uint16b>(zivc::BufferUsage::kPreferDevice);
   buff_device13->setSize(1);
-  auto buff_device14 = device->makeBuffer<uint32b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device14 = device->createBuffer<uint32b>(zivc::BufferUsage::kPreferDevice);
   buff_device14->setSize(1);
-  auto buff_device15 = device->makeBuffer<float>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device15 = device->createBuffer<float>(zivc::BufferUsage::kPreferDevice);
   buff_device15->setSize(1);
-  auto buff_device16 = device->makeBuffer<ParamTest>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device16 = device->createBuffer<ParamTest>(zivc::BufferUsage::kPreferDevice);
   buff_device16->setSize(1);
 
-  auto buff_device17 = device->makeBuffer<int8b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device17 = device->createBuffer<int8b>(zivc::BufferUsage::kPreferDevice);
   buff_device17->setSize(1);
-  auto buff_device18 = device->makeBuffer<int16b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device18 = device->createBuffer<int16b>(zivc::BufferUsage::kPreferDevice);
   buff_device18->setSize(1);
-  auto buff_device19 = device->makeBuffer<int32b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device19 = device->createBuffer<int32b>(zivc::BufferUsage::kPreferDevice);
   buff_device19->setSize(1);
-  auto buff_device20 = device->makeBuffer<uint8b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device20 = device->createBuffer<uint8b>(zivc::BufferUsage::kPreferDevice);
   buff_device20->setSize(1);
-  auto buff_device21 = device->makeBuffer<uint16b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device21 = device->createBuffer<uint16b>(zivc::BufferUsage::kPreferDevice);
   buff_device21->setSize(1);
-  auto buff_device22 = device->makeBuffer<uint32b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device22 = device->createBuffer<uint32b>(zivc::BufferUsage::kPreferDevice);
   buff_device22->setSize(1);
-  auto buff_device23 = device->makeBuffer<float>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device23 = device->createBuffer<float>(zivc::BufferUsage::kPreferDevice);
   buff_device23->setSize(1);
-  auto buff_device24 = device->makeBuffer<ParamTest>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device24 = device->createBuffer<ParamTest>(zivc::BufferUsage::kPreferDevice);
   buff_device24->setSize(1);
 
-  auto buff_device25 = device->makeBuffer<int8b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device25 = device->createBuffer<int8b>(zivc::BufferUsage::kPreferDevice);
   buff_device25->setSize(1);
-  auto buff_device26 = device->makeBuffer<int16b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device26 = device->createBuffer<int16b>(zivc::BufferUsage::kPreferDevice);
   buff_device26->setSize(1);
-  auto buff_device27 = device->makeBuffer<int32b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device27 = device->createBuffer<int32b>(zivc::BufferUsage::kPreferDevice);
   buff_device27->setSize(1);
-  auto buff_device28 = device->makeBuffer<uint8b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device28 = device->createBuffer<uint8b>(zivc::BufferUsage::kPreferDevice);
   buff_device28->setSize(1);
 #if !defined(Z_MAC)
-  auto buff_device29 = device->makeBuffer<uint16b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device29 = device->createBuffer<uint16b>(zivc::BufferUsage::kPreferDevice);
   buff_device29->setSize(1);
-  auto buff_device30 = device->makeBuffer<uint32b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device30 = device->createBuffer<uint32b>(zivc::BufferUsage::kPreferDevice);
   buff_device30->setSize(1);
-  auto buff_device31 = device->makeBuffer<float>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device31 = device->createBuffer<float>(zivc::BufferUsage::kPreferDevice);
   buff_device31->setSize(1);
-  auto buff_device32 = device->makeBuffer<ParamTest>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device32 = device->createBuffer<ParamTest>(zivc::BufferUsage::kPreferDevice);
   buff_device32->setSize(1);
 
-  auto buff_device33 = device->makeBuffer<int8b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device33 = device->createBuffer<int8b>(zivc::BufferUsage::kPreferDevice);
   buff_device33->setSize(1);
-  auto buff_device34 = device->makeBuffer<int16b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device34 = device->createBuffer<int16b>(zivc::BufferUsage::kPreferDevice);
   buff_device34->setSize(1);
-  auto buff_device35 = device->makeBuffer<int32b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device35 = device->createBuffer<int32b>(zivc::BufferUsage::kPreferDevice);
   buff_device35->setSize(1);
-  auto buff_device36 = device->makeBuffer<uint8b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device36 = device->createBuffer<uint8b>(zivc::BufferUsage::kPreferDevice);
   buff_device36->setSize(1);
-  auto buff_device37 = device->makeBuffer<uint16b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device37 = device->createBuffer<uint16b>(zivc::BufferUsage::kPreferDevice);
   buff_device37->setSize(1);
-  auto buff_device38 = device->makeBuffer<uint32b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device38 = device->createBuffer<uint32b>(zivc::BufferUsage::kPreferDevice);
   buff_device38->setSize(1);
-  auto buff_device39 = device->makeBuffer<float>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device39 = device->createBuffer<float>(zivc::BufferUsage::kPreferDevice);
   buff_device39->setSize(1);
-  auto buff_device40 = device->makeBuffer<ParamTest>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device40 = device->createBuffer<ParamTest>(zivc::BufferUsage::kPreferDevice);
   buff_device40->setSize(1);
 
-  auto buff_device41 = device->makeBuffer<int8b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device41 = device->createBuffer<int8b>(zivc::BufferUsage::kPreferDevice);
   buff_device41->setSize(1);
-  auto buff_device42 = device->makeBuffer<int16b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device42 = device->createBuffer<int16b>(zivc::BufferUsage::kPreferDevice);
   buff_device42->setSize(1);
-  auto buff_device43 = device->makeBuffer<int32b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device43 = device->createBuffer<int32b>(zivc::BufferUsage::kPreferDevice);
   buff_device43->setSize(1);
-  auto buff_device44 = device->makeBuffer<uint8b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device44 = device->createBuffer<uint8b>(zivc::BufferUsage::kPreferDevice);
   buff_device44->setSize(1);
-  auto buff_device45 = device->makeBuffer<uint16b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device45 = device->createBuffer<uint16b>(zivc::BufferUsage::kPreferDevice);
   buff_device45->setSize(1);
-  auto buff_device46 = device->makeBuffer<uint32b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device46 = device->createBuffer<uint32b>(zivc::BufferUsage::kPreferDevice);
   buff_device46->setSize(1);
-  auto buff_device47 = device->makeBuffer<float>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device47 = device->createBuffer<float>(zivc::BufferUsage::kPreferDevice);
   buff_device47->setSize(1);
-  auto buff_device48 = device->makeBuffer<ParamTest>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device48 = device->createBuffer<ParamTest>(zivc::BufferUsage::kPreferDevice);
   buff_device48->setSize(1);
 
-  auto buff_device49 = device->makeBuffer<int8b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device49 = device->createBuffer<int8b>(zivc::BufferUsage::kPreferDevice);
   buff_device49->setSize(1);
-  auto buff_device50 = device->makeBuffer<int16b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device50 = device->createBuffer<int16b>(zivc::BufferUsage::kPreferDevice);
   buff_device50->setSize(1);
-  auto buff_device51 = device->makeBuffer<int32b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device51 = device->createBuffer<int32b>(zivc::BufferUsage::kPreferDevice);
   buff_device51->setSize(1);
-  auto buff_device52 = device->makeBuffer<uint8b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device52 = device->createBuffer<uint8b>(zivc::BufferUsage::kPreferDevice);
   buff_device52->setSize(1);
-  auto buff_device53 = device->makeBuffer<uint16b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device53 = device->createBuffer<uint16b>(zivc::BufferUsage::kPreferDevice);
   buff_device53->setSize(1);
-  auto buff_device54 = device->makeBuffer<uint32b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device54 = device->createBuffer<uint32b>(zivc::BufferUsage::kPreferDevice);
   buff_device54->setSize(1);
-  auto buff_device55 = device->makeBuffer<float>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device55 = device->createBuffer<float>(zivc::BufferUsage::kPreferDevice);
   buff_device55->setSize(1);
-  auto buff_device56 = device->makeBuffer<ParamTest>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device56 = device->createBuffer<ParamTest>(zivc::BufferUsage::kPreferDevice);
   buff_device56->setSize(1);
 
-  auto buff_device57 = device->makeBuffer<int8b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device57 = device->createBuffer<int8b>(zivc::BufferUsage::kPreferDevice);
   buff_device57->setSize(1);
-  auto buff_device58 = device->makeBuffer<int16b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device58 = device->createBuffer<int16b>(zivc::BufferUsage::kPreferDevice);
   buff_device58->setSize(1);
-  auto buff_device59 = device->makeBuffer<int32b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device59 = device->createBuffer<int32b>(zivc::BufferUsage::kPreferDevice);
   buff_device59->setSize(1);
-  auto buff_device60 = device->makeBuffer<uint8b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device60 = device->createBuffer<uint8b>(zivc::BufferUsage::kPreferDevice);
   buff_device60->setSize(1);
-  auto buff_device61 = device->makeBuffer<uint16b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device61 = device->createBuffer<uint16b>(zivc::BufferUsage::kPreferDevice);
   buff_device61->setSize(1);
-  auto buff_device62 = device->makeBuffer<uint32b>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device62 = device->createBuffer<uint32b>(zivc::BufferUsage::kPreferDevice);
   buff_device62->setSize(1);
-  auto buff_device63 = device->makeBuffer<float>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device63 = device->createBuffer<float>(zivc::BufferUsage::kPreferDevice);
   buff_device63->setSize(1);
-  auto buff_device64 = device->makeBuffer<ParamTest>(zivc::BufferUsage::kDeviceOnly);
+  auto buff_device64 = device->createBuffer<ParamTest>(zivc::BufferUsage::kPreferDevice);
   buff_device64->setSize(1);
 #endif // Z_MAC
 
   auto init_test_buffer = [](zivc::Device& d, zivc::Buffer<ParamTest>& buffer)
   {
-    auto buff_host = d.makeBuffer<ParamTest>(zivc::BufferUsage::kHostOnly);
+    auto buff_host = d.createBuffer<ParamTest>({zivc::BufferUsage::kPreferHost,
+                                                zivc::BufferFlag::kSequentialWritable});
     buff_host->setSize(1);
     {
-      auto mem = buff_host->mapMemory();
+      zivc::MappedMemory<ParamTest> mem = buff_host->mapMemory();
       mem[0] = ParamTest{0, 0, 0.0f};
     }
-    auto options = buffer.makeOptions();
+    auto options = buffer.createOptions();
     options.requestFence(true);
     auto result = zivc::copy(*buff_host, std::addressof(buffer), options);
     d.waitForCompletion(result.fence());
@@ -311,8 +310,10 @@ TEST(KernelTest, LargeNumOfParametersTest)
 #endif // Z_MAC
 
   // Make a kernel
-  auto kernel_params = ZIVC_MAKE_KERNEL_INIT_PARAMS(kernel_test_params, largeNumOfParametersKernel, 1);
-  auto kernel = device->makeKernel(kernel_params);
+  auto kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test_params,
+                                                      largeNumOfParametersKernel,
+                                                      1);
+  auto kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   constexpr std::size_t num_of_args =
 #if !defined(Z_MAC)
@@ -324,8 +325,8 @@ TEST(KernelTest, LargeNumOfParametersTest)
 
   // Launch the kernel
   {
-    auto launch_options = kernel->makeOptions();
-    launch_options.setWorkSize({1});
+    auto launch_options = kernel->createOptions();
+    launch_options.setWorkSize({{1}});
     launch_options.requestFence(false);
     launch_options.setLabel("LargeNumOfParametersKernel");
     auto result = kernel->run(*buff_device1, *buff_device2, *buff_device3,
@@ -363,10 +364,11 @@ TEST(KernelTest, LargeNumOfParametersTest)
   // Check the outputs
   auto test_test_buffer = [](zivc::Device& d, const zivc::Buffer<ParamTest>& buffer)
   {
-    auto buff_host = d.makeBuffer<ParamTest>(zivc::BufferUsage::kHostOnly);
+    auto buff_host = d.createBuffer<ParamTest>({zivc::BufferUsage::kPreferHost,
+                                                zivc::BufferFlag::kRandomAccessible});
     buff_host->setSize(1);
     {
-      auto options = buffer.makeOptions();
+      auto options = buffer.createOptions();
       options.requestFence(true);
       auto result = zivc::copy(buffer, buff_host.get(), options);
       d.waitForCompletion(result.fence());

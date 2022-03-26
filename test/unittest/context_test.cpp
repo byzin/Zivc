@@ -1,5 +1,5 @@
 /*!
-  \file platform_test.cpp
+  \file context_test.cpp
   \author Sho Ikeda
   \brief No brief description
 
@@ -46,25 +46,25 @@ ZIVC_CHECK_TYPE_SIZE(zivc::uint32b, 4);
 ZIVC_CHECK_TYPE_SIZE(zivc::int64b, 8);
 ZIVC_CHECK_TYPE_SIZE(zivc::uint64b, 8);
 
-TEST(PlatformTest, InitializationTest)
+TEST(ContextTest, InitializationTest)
 {
-  auto platform = ztest::makePlatform();
-  ASSERT_TRUE(platform) << "Platform isn't available.";
-  // Check if platform has sub-platform
+  auto context = ztest::createContext();
+  ASSERT_TRUE(context) << "Context isn't available.";
+  // Check if context has backend
   const auto& config = ztest::Config::globalConfig();
-  const auto type = (config.deviceId() == 0) ? zivc::SubPlatformType::kCpu
-                                             : zivc::SubPlatformType::kVulkan;
-  ASSERT_TRUE(platform->hasSubPlatform(type)) << "Platform initialization failed.";
-  // Check if platform has the memory resource
-  ASSERT_EQ(config.memoryResource(), platform->memoryResource())
-      << "Platform doesn't have memory resource.";
+  const auto type = (config.deviceId() == 0) ? zivc::BackendType::kCpu
+                                             : zivc::BackendType::kVulkan;
+  ASSERT_TRUE(context->hasBackend(type)) << "Context initialization failed.";
+  // Check if context has the memory resource
+  ASSERT_EQ(config.memoryResource(), context->memoryResource())
+      << "Context doesn't have memory resource.";
 }
 
-TEST(PlatformTest, DeviceInfoTest)
+TEST(ContextTest, DeviceInfoTest)
 {
   const auto& config = ztest::Config::globalConfig();
-  auto platform = ztest::makePlatform();
-  const auto* const info = platform->deviceInfoList()[config.deviceId()];
+  auto context = ztest::createContext();
+  const auto* const info = context->deviceInfoList()[config.deviceId()];
   // Device name
   {
     const std::string_view name = info->name();
@@ -140,25 +140,25 @@ TEST(PlatformTest, DeviceInfoTest)
   }
 }
 
-TEST(PlatformTest, MakeDeviceExceptionTest)
+TEST(ContextTest, CreateDeviceExceptionTest)
 {
-  auto platform = ztest::makePlatform();
+  auto context = ztest::createContext();
   constexpr std::size_t device_index = (std::numeric_limits<std::size_t>::max)();
-  ASSERT_THROW(auto d = platform->queryDevice(device_index), zivc::SystemError)
+  ASSERT_THROW(auto d = context->queryDevice(device_index), zivc::SystemError)
       << "The bounds check of device index isn't performed.";
-  const auto& info_list = platform->deviceInfoList();
-  ASSERT_THROW(auto d = platform->queryDevice(info_list.size()), zivc::SystemError)
+  const auto& info_list = context->deviceInfoList();
+  ASSERT_THROW(auto d = context->queryDevice(info_list.size()), zivc::SystemError)
       << "The bounds check of device index isn't performed.";
 }
 
-TEST(PlatformTest, MakeDeviceTest)
+TEST(ContextTest, CreateDeviceTest)
 {
-  auto platform = ztest::makePlatform();
+  auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
 
-  zivc::SharedDevice device1 = platform->queryDevice(config.deviceId());
+  zivc::SharedDevice device1 = context->queryDevice(config.deviceId());
   ASSERT_TRUE(device1) << "Device creation failed.";
   // Second query should return the same device unless the first device is destroyed
-  zivc::SharedDevice device2 = platform->queryDevice(config.deviceId());
+  zivc::SharedDevice device2 = context->queryDevice(config.deviceId());
   ASSERT_EQ(device1.get(), device2.get()) << "The device query failed.";
 }

@@ -28,7 +28,7 @@
 
 namespace zivc {
 
-class Platform;
+class Context;
 
 } // namespace zivc
 
@@ -46,14 +46,17 @@ class Config : private zisc::NonCopyable<Config>
   ~Config() noexcept;
 
 
-  //! Destroy undering platform
-  void destroyPlatform() noexcept;
+  //! Destroy undering context
+  void destroyContext() noexcept;
 
   //! Return the device ID
   zivc::uint32b deviceId() const noexcept;
 
   //! Enable debug mode
   void enableDebugMode(const bool flag) noexcept;
+
+  //! Make test use global context instead of each test's context
+  void enableGlobalContext(const bool flag) noexcept;
 
   //! Return the global config
   static Config& globalConfig() noexcept;
@@ -67,26 +70,23 @@ class Config : private zisc::NonCopyable<Config>
   //! Check if debug mode is enabled
   bool isDebugMode() const noexcept;
 
+  //! Check if test uses global context instead of each test's context
+  bool isGlobalContextEnabled() const noexcept;
+
   //! Return the memory resource for unit test
   zisc::pmr::memory_resource* memoryResource() noexcept;
 
   //! Return the memory resource for unit test
   const zisc::pmr::memory_resource* memoryResource() const noexcept;
 
-  //! Return underlying platform
-  std::shared_ptr<zivc::Platform> platform() noexcept;
+  //! Query a zivc context
+  std::shared_ptr<zivc::Context> queryContext() noexcept;
 
   //! Return the device ID
   void setDeviceId(const zivc::uint32b id) noexcept;
 
-  //! Make test use global platform instead of each test's platform
-  void setUseGlobalPlatform(const bool flag) noexcept;
-
   //! Return the work size of test kernel
   static std::size_t testKernelWorkSize1d() noexcept;
-
-  //! Check if test uses global platform instead of each test's platform
-  bool useGlobalPlatform() const noexcept;
 
  private:
   //! Initialize a config
@@ -97,11 +97,11 @@ class Config : private zisc::NonCopyable<Config>
   void initialize() noexcept;
 
 
-  std::shared_ptr<zivc::Platform> platform_;
+  std::shared_ptr<zivc::Context> context_;
   std::unique_ptr<zisc::pmr::memory_resource> mem_resource_;
   zivc::uint32b device_id_ = invalidDeviceId();
   zisc::Boolean is_debug_mode_ = true;
-  zisc::Boolean use_global_platform_;
+  zisc::Boolean is_global_context_enabled_;
   [[maybe_unused]] zivc::Padding<2> padd_;
 };
 

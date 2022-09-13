@@ -80,11 +80,7 @@ class Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> : public Kernel
   constexpr std::size_t bufferSize() const noexcept override;
 
   //! Create launch options
-  LaunchOptions createOptions() const noexcept
-  {
-    //! \note Separate declaration and definition cause a build error on visual studio
-    return LaunchOptions{};
-  }
+  LaunchOptions createOptions() const noexcept;
 
   //! Destroy the buffer
   void destroy() noexcept;

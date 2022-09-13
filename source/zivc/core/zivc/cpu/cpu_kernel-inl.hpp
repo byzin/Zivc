@@ -24,6 +24,7 @@
 #include <memory>
 #include <tuple>
 #include <type_traits>
+#include <utility>
 // Zisc
 #include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
@@ -47,53 +48,12 @@ namespace zivc {
 /*!
   \details No detailed description
 
-  \param [in] kernel No description.
-  \param [in] launch_options No description.
-  \return No description
-  */
-template <typename CKernel, typename Type> inline
-LaunchResult CpuKernelHelper::run(CKernel* kernel, const Type& launch_options)
-{
-  using KernelT = std::remove_cvref_t<CKernel>;
-  // Command recording
-  auto c = [kernel]() noexcept
-  {
-    kernel->template runImpl<0, 0>();
-  };
-  using CommandT = decltype(c);
-  using CommandStorage = typename KernelT::CommandStorage;
-  static_assert(sizeof(CommandStorage) == sizeof(CommandT));
-  static_assert(std::alignment_of_v<CommandStorage> == std::alignment_of_v<CommandT>);
-  auto command_mem = zisc::cast<void*>(kernel->commandStorage());
-  CommandT* command = ::new (command_mem) CommandT{c};
-  // id counter
-  auto atomic_mem = zisc::cast<void*>(kernel->atomicStorage());
-  std::atomic<uint32b>* id = ::new (atomic_mem) std::atomic<uint32b>{0};
-
-  LaunchResult result{};
-  CpuDevice& device = kernel->parentImpl();
-  // Command submission
-  {
-    Fence& fence = result.fence();
-    fence.setDevice(launch_options.isFenceRequested() ? &device : nullptr);
-    constexpr uint32b dim = KernelT::dimension();
-    const auto work_size = KernelT::expandWorkSize(launch_options.workSize(), 1);
-    const auto id_offset = KernelT::expandWorkSize(launch_options.globalIdOffset(), 0);
-    device.submit(*command, dim, work_size, id_offset, id, std::addressof(fence));
-  }
-  result.setAsync(true);
-  return result;
-}
-
-/*!
-  \details No detailed description
-
   \param [in] id No description.
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-CpuKernel(IdData&& id) noexcept : BaseKernel(std::move(id))
+CpuKernel(IdData&& id) noexcept : BaseKernelT(std::move(id))
 {
 }
 
@@ -118,6 +78,50 @@ auto CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 kernel() const noexcept -> Function
 {
   return kernel_;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] args No description.
+  \param [in] launch_options No description.
+  \return No description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+inline
+LaunchResult CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+run(Args... args, const LaunchOptions& launch_options)
+{
+  updateArgCache<0>(args...);
+  // Command recording
+  auto c = [this]() noexcept
+  {
+    //runImpl<0, 0>();
+    constexpr std::size_t n = BaseKernelT::numOfArgs();
+    runImpl(std::make_index_sequence<n>{});
+  };
+  using CommandT = decltype(c);
+  static_assert(sizeof(CommandStorage) == sizeof(CommandT));
+  static_assert(std::alignment_of_v<CommandStorage> == std::alignment_of_v<CommandT>);
+  auto* command_mem = zisc::cast<void*>(commandStorage());
+  CommandT* command = ::new (command_mem) CommandT{c};
+  // id counter
+  auto atomic_mem = zisc::cast<void*>(atomicStorage());
+  std::atomic<uint32b>* id = ::new (atomic_mem) std::atomic<uint32b>{0};
+
+  LaunchResult result{};
+  CpuDevice& device = parentImpl();
+  // Command submission
+  {
+    Fence& fence = result.fence();
+    fence.setDevice(launch_options.isFenceRequested() ? &device : nullptr);
+    constexpr uint32b dim = BaseKernelT::dimension();
+    const auto work_size = BaseKernelT::expandWorkSize(launch_options.workSize(), 1);
+    const auto id_offset = BaseKernelT::expandWorkSize(launch_options.globalIdOffset(), 0);
+    device.submit(*command, dim, work_size, id_offset, id, std::addressof(fence));
+  }
+  result.setAsync(true);
+  return result;
 }
 
 /*!
@@ -217,7 +221,7 @@ CpuDevice&
 CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 parentImpl() noexcept
 {
-  auto p = BaseKernel::getParent();
+  auto p = BaseKernelT::getParent();
   return *zisc::cast<CpuDevice*>(p);
 }
 
@@ -232,7 +236,7 @@ const CpuDevice&
 CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 parentImpl() const noexcept
 {
-  const auto p = BaseKernel::getParent();
+  const auto p = BaseKernelT::getParent();
   return *zisc::cast<const CpuDevice*>(p);
 }
 
@@ -249,7 +253,7 @@ void
 CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 runImpl(Types&&... cl_args) noexcept
 {
-  using ArgParserT = typename BaseKernel::ArgParser;
+  using ArgParserT = typename BaseKernelT::ArgParser;
   if constexpr (kIndex < ArgParserT::kNumOfArgs) {
     using CacheType = typename ArgCache::template CacheType<kIndex>;
     using ArgType = std::remove_cv_t<std::remove_pointer_t<CacheType>>;
@@ -278,6 +282,13 @@ runImpl(Types&&... cl_args) noexcept
     Function func = kernel();
     std::invoke(func, std::forward<Types>(cl_args)...);
   }
+}
+
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+template <typename I, I... indices> inline
+void CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+runImpl(const std::integer_sequence<I, indices...> index_seq) noexcept
+{
 }
 
 /*!

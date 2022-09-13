@@ -58,120 +58,12 @@ namespace zivc {
 /*!
   \details No detailed description
 
-  \tparam VKernel No description.
-  \tparam Type No description.
-  \tparam Types No description.
-  \param [in] kernel No description.
-  \param [in] launch_options No description.
-  \param [in,out] args No description.
-  \return No description
-  */
-template <typename VKernel, typename Type, typename ...Types> inline
-LaunchResult VulkanKernelHelper::run(VKernel* kernel,
-                                     const Type& launch_options,
-                                     Types&& ...args)
-{
-  VulkanDevice& device = kernel->parentImpl();
-
-  kernel->updateDescriptorSet(args...);
-  // Prepare command buffer
-  kernel->prepareCommandBuffer();
-  VkCommandBuffer command = kernel->commandBuffer();
-  // Command recording
-  {
-    const bool has_new_pod = kernel->updatePodCacheIfNeeded(args...);
-    const auto work_size = kernel->calcDispatchWorkSize(launch_options.workSize());
-
-    const auto flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-    // Recording scope
-    auto record_region = device.makeCmdRecord(command, flags);
-    {
-      // Start labeling for debug until the end of the scope
-      auto debug_region = device.makeCmdDebugLabel(command, launch_options);
-      // Update global and region offsets
-      kernel->updateModuleScopePushConstantsCmd(work_size, launch_options);
-      // Update POD buffer
-      if (has_new_pod)
-        kernel->updatePodBufferCmd();
-      // Dispatch the kernel
-      kernel->dispatchCmd(work_size);
-    }
-  }
-  LaunchResult result{};
-  // Command submission
-  {
-    constexpr VulkanDeviceCapability cap = VulkanDeviceCapability::kCompute;
-    const VkQueue q = device.getQueue(cap, launch_options.queueIndex());
-    result.fence().setDevice(launch_options.isFenceRequested() ? &device : nullptr);
-    // Start labeling for debug until the end of the scope
-    auto debug_region = device.makeQueueDebugLabel(q, launch_options);
-    device.submit(command, q, result.fence());
-  }
-  result.setAsync(true);
-  return result;
-}
-
-/*!
-  \details No detailed description
-
-  \tparam VKernel No description.
-  \tparam Type No description.
-  \param [in] kernel No description.
-  \param [in] work_size No description.
-  \param [in] launch_options No description.
-  */
-template <typename VKernel, typename Type> inline
-void VulkanKernelHelper::updateModuleScopePushConstantsCmd(
-    VKernel* kernel,
-    const std::span<const uint32b, 3>& work_size,
-    const Type& launch_options)
-{
-  using KernelT = std::remove_cvref_t<VKernel>;
-  std::array<uint32b, 23> constans;
-  constans.fill(0);
-
-  const VulkanDevice& device = kernel->parentImpl();
-  const auto& group_size = device.workGroupSizeDim(KernelT::dimension());
-  // Global offset
-  {
-    const auto global_offset =
-        KernelT::expandWorkSize(launch_options.globalIdOffset(), 0);
-    constexpr std::size_t offset = 0;
-    for (std::size_t i = 0; i < global_offset.size(); ++i)
-      constans[offset + i] = global_offset[i];
-  }
-  // Enqueued local size
-  {
-    constexpr std::size_t offset = 4;
-    for (std::size_t i = 0; i < group_size.size(); ++i)
-      constans[offset + i] = group_size[i];
-  }
-  // Global size
-  {
-    constexpr std::size_t offset = 8;
-    for (std::size_t i = 0; i < work_size.size(); ++i)
-      constans[offset + i] = work_size[i] * group_size[i];
-  }
-  // Num of workgroups
-  {
-    constexpr std::size_t offset = 16;
-    for (std::size_t i = 0; i < work_size.size(); ++i)
-      constans[offset + i] = work_size[i];
-  }
-
-  VulkanKernelImpl impl{std::addressof(kernel->parentImpl())};
-  impl.pushConstantCmd(kernel->commandBuffer(), kernel->kernel_data_, 0, constans);
-}
-
-/*!
-  \details No detailed description
-
   \param [in] id No description.
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-VulkanKernel(IdData&& id) noexcept : BaseKernel(std::move(id))
+VulkanKernel(IdData&& id) noexcept : BaseKernelT(std::move(id))
 {
 }
 
@@ -183,7 +75,7 @@ inline
 VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 ~VulkanKernel() noexcept
 {
-  BaseKernel::destroy();
+  BaseKernelT::destroy();
 }
 
 /*!
@@ -200,6 +92,57 @@ commandBuffer() const noexcept
       ? *command_buffer_ref_
       : command_buffer_;
   return command;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in,out] args No description.
+  \param [in] launch_options No description.
+  \return No description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+inline
+LaunchResult VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+run(Args ...args, const LaunchOptions& launch_options)
+{
+  VulkanDevice& device = parentImpl();
+
+  updateDescriptorSet(args...);
+  // Prepare command buffer
+  prepareCommandBuffer();
+  VkCommandBuffer command = commandBuffer();
+  // Command recording
+  {
+    const bool has_new_pod = updatePodCacheIfNeeded(args...);
+    const auto work_size = calcDispatchWorkSize(launch_options.workSize());
+    // Recording scope
+    const auto flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    auto record_region = device.makeCmdRecord(command, flags);
+    {
+      // Start labeling for debug until the end of the scope
+      auto debug_region = device.makeCmdDebugLabel(command, launch_options);
+      // Update global and region offsets
+      updateModuleScopePushConstantsCmd(work_size, launch_options);
+      // Update POD buffer
+      if (has_new_pod)
+        updatePodBufferCmd();
+      // Dispatch the kernel
+      dispatchCmd(work_size);
+    }
+  }
+  LaunchResult result{};
+  // Command submission
+  {
+    constexpr VulkanDeviceCapability cap = VulkanDeviceCapability::kCompute;
+    const VkQueue q = device.getQueue(cap, launch_options.queueIndex());
+    result.fence().setDevice(launch_options.isFenceRequested() ? &device : nullptr);
+    // Start labeling for debug until the end of the scope
+    auto debug_region = device.makeQueueDebugLabel(q, launch_options);
+    device.submit(command, q, result.fence());
+  }
+  result.setAsync(true);
+  return result;
 }
 
 /*!
@@ -223,7 +166,7 @@ inline
 constexpr bool VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 hasGlobalArg() noexcept
 {
-  const bool result = 0 < BaseKernel::ArgParser::kNumOfGlobalArgs;
+  const bool result = 0 < BaseKernelT::ArgParser::kNumOfGlobalArgs;
   return result;
 }
 
@@ -236,7 +179,7 @@ inline
 constexpr bool VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 hasLocalArg() noexcept
 {
-  const bool result = 0 < BaseKernel::ArgParser::kNumOfLocalArgs;
+  const bool result = 0 < BaseKernelT::ArgParser::kNumOfLocalArgs;
   return result;
 }
 
@@ -249,7 +192,7 @@ inline
 constexpr bool VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 hasPodArg() noexcept
 {
-  const bool result = 0 < BaseKernel::ArgParser::kNumOfPodArgs;
+  const bool result = 0 < BaseKernelT::ArgParser::kNumOfPodArgs;
   return result;
 }
 
@@ -283,10 +226,7 @@ dispatchCmd(const std::span<const uint32b, 3> work_size)
 {
   VulkanKernelImpl impl{std::addressof(parentImpl())};
   VkCommandBuffer command = commandBuffer();
-  impl.dispatchCmd(command,
-                   kernel_data_,
-                   desc_set_,
-                   work_size);
+  impl.dispatchCmd(command, kernel_data_, desc_set_, work_size);
 }
 
 /*!
@@ -310,12 +250,12 @@ initData(const Params& params)
   // Add a shader module
   const auto& module_data = device.addShaderModule(KSet{ZivcObject::memoryResource()});
   // Add a kernel data
-  const std::size_t num_of_storage_buffers = BaseKernel::ArgParser::kNumOfBufferArgs;
+  const std::size_t num_of_storage_buffers = BaseKernelT::ArgParser::kNumOfBufferArgs;
   const std::size_t num_of_uniform_buffers = hasPodArg() ? 1 : 0;
-  const std::size_t num_of_local_args = BaseKernel::ArgParser::kNumOfLocalArgs;
+  const std::size_t num_of_local_args = BaseKernelT::ArgParser::kNumOfLocalArgs;
   const auto& kernel_data = device.addShaderKernel(module_data,
                                                    params.kernelName(),
-                                                   BaseKernel::dimension(),
+                                                   BaseKernelT::dimension(),
                                                    num_of_storage_buffers,
                                                    num_of_uniform_buffers,
                                                    num_of_local_args);
@@ -388,7 +328,7 @@ template <std::size_t kIndex, typename ...PodTypes> inline
 auto VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 createPodCacheType(const KernelArgCache<PodTypes...>& cache) noexcept
 {
-  using ArgParser = typename BaseKernel::ArgParser;
+  using ArgParser = typename BaseKernelT::ArgParser;
   if constexpr (kIndex < ArgParser::kNumOfPodArgs) {
     constexpr auto pod_arg_info = ArgParser::getPodArgInfoList();
     constexpr std::size_t pod_index = pod_arg_info[kIndex].index();
@@ -416,9 +356,9 @@ calcDispatchWorkSize(const std::span<const uint32b, kDim> work_size) const noexc
     -> std::array<uint32b, 3>
 {
   const VulkanDevice& device = parentImpl();
-  const auto& group_size = device.workGroupSizeDim(BaseKernel::dimension());
+  const auto& group_size = device.workGroupSizeDim(BaseKernelT::dimension());
   std::array<uint32b, 3> dispatch_size{{1, 1, 1}};
-  for (std::size_t i = 0; i < BaseKernel::dimension(); ++i) {
+  for (std::size_t i = 0; i < BaseKernelT::dimension(); ++i) {
     const uint32b s = (work_size[i] + group_size[i] - 1) / group_size[i];
     dispatch_size[i] = s;
   }
@@ -458,7 +398,7 @@ getBufferHandle(const Buffer<Type>& buffer) noexcept
   ZIVC_ASSERT(buffer.type() == BackendType::kVulkan, "The buffer isn't vulkan.");
   using BufferT = VulkanBuffer<Type>;
   using BufferData = typename BufferT::BufferData;
-  auto data = zisc::cast<const BufferData*>(buffer.rawBufferData());
+  const auto data = zisc::cast<const BufferData*>(buffer.rawBufferData());
   return data->buffer_;
 }
 
@@ -561,7 +501,7 @@ inline
 constexpr std::size_t VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 numOfAllBuffers() noexcept
 {
-  std::size_t n = BaseKernel::ArgParser::kNumOfBufferArgs;
+  std::size_t n = BaseKernelT::ArgParser::kNumOfBufferArgs;
   n += hasPodArg() ? 1 : 0;
   return n;
 }
@@ -576,7 +516,7 @@ inline
 VulkanDevice& VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 parentImpl() noexcept
 {
-  auto p = BaseKernel::getParent();
+  auto p = BaseKernelT::getParent();
   return *zisc::cast<VulkanDevice*>(p);
 }
 
@@ -590,7 +530,7 @@ inline
 const VulkanDevice& VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 parentImpl() const noexcept
 {
-  auto p = BaseKernel::getParent();
+  auto p = BaseKernelT::getParent();
   return *zisc::cast<const VulkanDevice*>(p);
 }
 
@@ -663,6 +603,53 @@ updateDescriptorSet(Args... args)
 
 /*!
   \details No detailed description
+
+  \param [in] work_size No description.
+  \param [in] launch_options No description.
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+inline
+void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+updateModuleScopePushConstantsCmd(const std::span<const uint32b, 3>& work_size,
+                                  const LaunchOptions& launch_options)
+{
+  std::array<uint32b, 23> constans = {0};
+  constans.fill(0);
+
+  const VulkanDevice& device = parentImpl();
+  const auto& group_size = device.workGroupSizeDim(BaseKernelT::dimension());
+  // Global offset
+  {
+    const auto global_offset = BaseKernelT::expandWorkSize(launch_options.globalIdOffset(), 0);
+    constexpr std::size_t offset = 0;
+    for (std::size_t i = 0; i < global_offset.size(); ++i)
+      constans[offset + i] = global_offset[i];
+  }
+  // Enqueued local size
+  {
+    constexpr std::size_t offset = 4;
+    for (std::size_t i = 0; i < group_size.size(); ++i)
+      constans[offset + i] = group_size[i];
+  }
+  // Global size
+  {
+    constexpr std::size_t offset = 8;
+    for (std::size_t i = 0; i < work_size.size(); ++i)
+      constans[offset + i] = work_size[i] * group_size[i];
+  }
+  // Num of workgroups
+  {
+    constexpr std::size_t offset = 16;
+    for (std::size_t i = 0; i < work_size.size(); ++i)
+      constans[offset + i] = work_size[i];
+  }
+
+  VulkanKernelImpl impl{std::addressof(parentImpl())};
+  impl.pushConstantCmd(commandBuffer(), kernel_data_, 0, constans);
+}
+
+/*!
+  \details No detailed description
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
@@ -697,7 +684,7 @@ updatePodCacheIfNeeded(Args... args) const noexcept
   if constexpr (hasPodArg()) {
     const PodCacheT data = createPodCache(args...);
     ZIVC_ASSERT(pod_cache_->isHostVisible(), "The cache isn't host visible.");
-    auto cache = pod_cache_->mapMemory();
+    MappedMemory<PodCacheT> cache = pod_cache_->mapMemory();
     has_new_pod = cache[0] != data;
     if (has_new_pod)
       cache[0] = data;
@@ -715,12 +702,12 @@ validateData()
 {
   const VulkanDevice& device = parentImpl();
   const DeviceInfo& info = device.deviceInfo();
-  if (info.maxNumOfBuffersPerKernel() < BaseKernel::numOfBuffers()) {
+  if (info.maxNumOfBuffersPerKernel() < BaseKernelT::numOfBuffers()) {
     char message[256] = "";
     std::sprintf(message,
         "The number of buffer arguments in the kernel exceeded the limit. limit=%d, buffers=%d",
         zisc::cast<int>(info.maxNumOfBuffersPerKernel()),
-        zisc::cast<int>(BaseKernel::numOfBuffers()));
+        zisc::cast<int>(BaseKernelT::numOfBuffers()));
     throw SystemError{ErrorCode::kNumOfParametersLimitExceeded, message};
   }
 }

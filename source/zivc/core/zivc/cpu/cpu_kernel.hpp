@@ -21,6 +21,7 @@
 #include <cstddef>
 #include <memory>
 #include <type_traits>
+#include <utility>
 // Zivc
 #include "zisc/concepts.hpp"
 // Zivc
@@ -44,18 +45,6 @@ template <typename, typename...> class CpuKernel;
   \brief No brief description
 
   No detailed description.
-  */
-class CpuKernelHelper
-{
- public:
-  template <typename CKernel, typename Type>
-  static LaunchResult run(CKernel* kernel, const Type& launch_options);
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
 
   \tparam kDim No description.
   \tparam KSet No description.
@@ -68,10 +57,10 @@ class CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
 {
  public:
   // Type aliases
-  using BaseKernel = Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>;
-  using Params = typename BaseKernel::Params;
+  using BaseKernelT = Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>;
+  using Params = typename BaseKernelT::Params;
   using Function = typename Params::Function;
-  using LaunchOptions = typename BaseKernel::LaunchOptions;
+  using LaunchOptions = typename BaseKernelT::LaunchOptions;
 
 
   //! Initialize the kernel
@@ -86,12 +75,7 @@ class CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
 
   //! Execute a kernel
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
-  LaunchResult run(Args... args, const LaunchOptions& launch_options) override
-  {
-    //! \note Separate declaration and definition cause a build error on visual studio
-    updateArgCache<0>(args...);
-    return CpuKernelHelper::run(this, launch_options);
-  }
+  LaunchResult run(Args... args, const LaunchOptions& launch_options) override;
 
  protected:
   //! Clear the contents of the kernel
@@ -104,9 +88,6 @@ class CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   void updateDebugInfoImpl() override;
 
  private:
-  friend CpuKernelHelper;
-
-
   //! Make a struct of arg cache
   template <typename Type, typename ...Types, typename ...ArgTypes>
   static auto makeArgCacheType(const KernelArgCache<ArgTypes...>& cache) noexcept;
@@ -137,6 +118,10 @@ class CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   //! Run the underlying kernel
   template <std::size_t kIndex, std::size_t kCacheIndex, typename ...Types>
   void runImpl(Types&&... cl_args) noexcept;
+
+  //! Run the underlying kernel
+  template <typename I, I... indices>
+  void runImpl(const std::integer_sequence<I, indices...> index_seq) noexcept;
 
   //! Update arg cache
   template <std::size_t kIndex, KernelArg Type, typename ...Types>

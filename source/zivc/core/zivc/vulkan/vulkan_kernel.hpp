@@ -44,28 +44,6 @@ template <typename, typename...> class VulkanKernel;
   \brief No brief description
 
   No detailed description.
-  */
-class VulkanKernelHelper
-{
- public:
-  //!
-  template <typename VKernel, typename Type, typename ...Types>
-  static LaunchResult run(VKernel* kernel,
-                          const Type& launch_options,
-                          Types&& ...args);
-
-  //!
-  template <typename VKernel, typename Type>
-  static void updateModuleScopePushConstantsCmd(
-      VKernel* kernel,
-      const std::span<const uint32b, 3>& work_size,
-      const Type& launch_options);
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
 
   \tparam kDim No description.
   \tparam KSet No description.
@@ -78,9 +56,9 @@ class VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
 {
  public:
   // Type aliases
-  using BaseKernel = Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>;
-  using Params = typename BaseKernel::Params;
-  using LaunchOptions = typename BaseKernel::LaunchOptions;
+  using BaseKernelT = Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>;
+  using Params = typename BaseKernelT::Params;
+  using LaunchOptions = typename BaseKernelT::LaunchOptions;
 
 
   //! Initialize the kernel
@@ -104,11 +82,7 @@ class VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
 
   //! Execute a kernel
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
-  LaunchResult run(Args... args, const LaunchOptions& launch_options) override
-  {
-    //! \note Separate declaration and definition cause a build error on visual studio
-    return VulkanKernelHelper::run(this, launch_options, std::forward<Args>(args)...);
-  }
+  LaunchResult run(Args... args, const LaunchOptions& launch_options) override;
 
   //! Set a command buffer reference
   void setCommandBufferRef(const VkCommandBuffer* command_ref) noexcept;
@@ -127,9 +101,6 @@ class VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   void updateDebugInfoImpl() override;
 
  private:
-  friend VulkanKernelHelper;
-
-
   //! Create a struct of POD cache
   template <std::size_t kIndex, typename ...PodTypes>
   static auto createPodCacheType(const KernelArgCache<PodTypes...>& cache) noexcept;
@@ -184,20 +155,14 @@ class VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   void updateDescriptorSet(Args... args);
 
   //! Update module scope push constans
-  void updateModuleScopePushConstantsCmd(const std::span<const uint32b, 3> work_size,
-                                         const LaunchOptions& launch_options)
-  {
-    //! \note Separate declaration and definition cause a build error on visual studio
-    VulkanKernelHelper::updateModuleScopePushConstantsCmd(this,
-                                                          work_size,
-                                                          launch_options);
-  }
-
-  //! Update pod cache with the given args if needed
-  bool updatePodCacheIfNeeded(Args... args) const noexcept;
+  void updateModuleScopePushConstantsCmd(const std::span<const uint32b, 3>& work_size,
+                                         const LaunchOptions& launch_options);
 
   //! Update POD buffer
   void updatePodBufferCmd();
+
+  //! Update pod cache with the given args if needed
+  bool updatePodCacheIfNeeded(Args... args) const noexcept;
 
   //! Validate kernel data
   void validateData();

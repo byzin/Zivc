@@ -52,8 +52,7 @@ class KernelArgParser
   template <typename ...KArgs>
   struct KernelTypeHelper<TypePack<KArgs...>>
   {
-    template <template<typename, typename...> typename KernelT,
-              std::size_t kDim, DerivedKSet KSet>
+    template <template<typename, typename...> typename KernelT, std::size_t kDim, DerivedKSet KSet>
     using Type = KernelT<KernelInitParams<kDim, KSet, Args...>, KArgs...>;
   };
 
@@ -66,8 +65,7 @@ class KernelArgParser
   // Type aliases
   template <std::size_t kSize>
   using ArgInfoList = std::array<KernelArgInfo, kSize>;
-  template <template<typename, typename...> typename KernelT,
-            std::size_t kDim, DerivedKSet KSet>
+  template <template<typename, typename...> typename KernelT, std::size_t kDim, DerivedKSet KSet>
   using KernelType = typename Helper::template Type<KernelT, kDim, KSet>;
 
 

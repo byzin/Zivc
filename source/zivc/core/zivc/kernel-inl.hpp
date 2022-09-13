@@ -84,6 +84,19 @@ bufferSize() const noexcept
 
 /*!
   \details No detailed description
+
+  \return No description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+inline
+auto Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+createOptions() const noexcept -> LaunchOptions
+{
+  return LaunchOptions{};
+}
+
+/*!
+  \details No detailed description
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline

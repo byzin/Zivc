@@ -64,8 +64,10 @@ function(Zivc_initCpuBackend target)
                  @ONLY)
 
   set(cpp_source_files ${hpp_file_path} ${cpp_file_path} ${kernel_set_source_files})
-  add_library(${target} STATIC ${cpp_source_files})
   source_group(${target} FILES ${cpp_source_files})
+
+  #
+  add_library(${target} STATIC ${cpp_source_files})
 
   # Compiler flags
   include("@zivc_path@/cmake/compiler.cmake")
@@ -78,15 +80,21 @@ function(Zivc_initCpuBackend target)
   target_compile_options(${target} PUBLIC ${zivc_compile_flags}
                                    PRIVATE ${cxx_compile_warning_flags}
                                            ${zivc_warning_flags})
-  Zivc_checkTarget(Zisc)
-  target_link_libraries(${target} PUBLIC Zisc)
-  if(ZIVC_BAKE_KERNELS)
-    Zivc_checkTarget(libzstd_static)
-    target_link_libraries(${target} PRIVATE libzstd_static)
-  endif()
   target_compile_definitions(${target} PUBLIC ${zivc_definitions}
                                               @kernel_set_definitions@) # TODO Should not populate the definitions with public?
   target_include_directories(${target} PUBLIC ${include_dirs})
+
+  # Dependencies
+  Zivc_getArchitectureName(FALSE arch_name_list)
+  list(GET arch_name_list 0 architecture)
+  Zivc_getArchitectureTargetName("Zisc" ${architecture} zisc_library_name)
+  Zivc_checkTarget(${zisc_library_name})
+  target_link_libraries(${target} PRIVATE ${zisc_library_name})
+  if(ZIVC_BAKE_KERNELS)
+    Zivc_checkTarget(Zstd::Zstd)
+    target_link_libraries(${target} PRIVATE Zstd::Zstd)
+  endif()
+
   Zivc_enableIpo(${target})
 
   #
@@ -105,17 +113,18 @@ endfunction(Zivc_initCpuBackend)
 
 
 function(Zivc_findClspv clspv_command)
-  if(ZIVC_USES_OWN_CLSPV)
-    if(NOT TARGET clspv)
-      message(FATAL_ERROR "'clspv' target not found.")
-    endif()
+  if(TARGET Zivc::Clspv)
+    return()
+  endif()
+
+  if(TARGET clspv)
     set(__clspv_command clspv)
   else()
     find_program(__clspv_command "clspv"
                  DOC "A compiler for a subset of OpenCL to Vulkan compute shaders.")
-    if(NOT __clspv_command)
-      message(FATAL_ERROR "'clspv' not found in PATH.") 
-    endif()
+  endif()
+  if(NOT __clspv_command)
+    message(FATAL_ERROR "'clspv' not found in PATH.")
   endif()
 
   # Output
@@ -124,17 +133,18 @@ endfunction(Zivc_findClspv)
 
 
 function(Zivc_findClspvReflection reflection_command)
-  if(ZIVC_USES_OWN_CLSPV)
-    if(NOT TARGET clspv-reflection)
-      message(FATAL_ERROR "'clspv-reflection' target not found.")
-    endif()
+  if(TARGET Zivc::ClspvReflection)
+    return()
+  endif()
+
+  if(TARGET clspv-reflection)
     set(__reflection_command clspv-reflection)
   else()
     find_program(__reflection_command "clspv-reflection"
                  DOC "A tool reports the descriptor set and bindings.")
-    if(NOT __reflection_command)
-      message(FATAL_ERROR "'clspv-reflection' not found in PATH.") 
-    endif()
+  endif()
+  if(NOT __reflection_command)
+    message(FATAL_ERROR "'clspv-reflection' not found in PATH.") 
   endif()
 
   # Output
@@ -143,8 +153,16 @@ endfunction(Zivc_findClspvReflection)
 
 
 function(Zivc_findSpirvOpt spirv_opt_command)
-  find_program(__spirv_opt_command "spirv-opt"
-               DOC "Optimize a SPIR-V binary file.")
+  if(TARGET Zivc::SpirvOpt)
+    return()
+  endif()
+
+  if(TARGET spirv-opt)
+    set(__spirv_opt_command spirv-opt)
+  else()
+    find_program(__spirv_opt_command "spirv-opt"
+                 DOC "Optimize a SPIR-V binary file.")
+  endif()
   if(NOT __spirv_opt_command)
     message(FATAL_ERROR "'spirv-opt' not found in PATH.") 
   endif()
@@ -155,8 +173,16 @@ endfunction(Zivc_findSpirvOpt)
 
 
 function(Zivc_findSpirvDis spirv_dis_command)
-  find_program(__spirv_dis_command "spirv-dis"
-               DOC "Disassemble a SPIR-V binary module.")
+  if(TARGET Zivc::SpirvDis)
+    return()
+  endif()
+
+  if(TARGET spirv-dis)
+    set(__spirv_dis_command spirv-dis)
+  else()
+    find_program(__spirv_dis_command "spirv-dis"
+                 DOC "Disassemble a SPIR-V binary module.")
+  endif()
   if(NOT __spirv_dis_command)
     message(WARNING "'spirv-dis' not found in PATH.") 
   endif()
@@ -167,33 +193,33 @@ endfunction(Zivc_findSpirvDis)
 
 
 function(Zivc_getClspvCompileFlags clspv_compile_flags)
-  set(options -D=ZIVC_CL_VULKAN=1)
+  set(options -D ZIVC_CL_VULKAN=1)
   ## include directories
   set(include_dirs ${kernel_set_include_dirs})
   foreach(include_dir IN LISTS include_dirs)
-    list(APPEND options -I=${include_dir})
+    list(APPEND options -I ${include_dir})
   endforeach(include_dir)
-  list(APPEND options -I=@zivc_path@)
+  list(APPEND options -I @zivc_path@)
   ## Definitions
   Zivc_getZivcKernelFlags(compile_flags definitions)
   list(APPEND options ${compile_flags})
   list(APPEND definitions @kernel_set_definitions@)
   foreach(definition IN LISTS definitions)
-    list(APPEND options -D=${definition})
+    list(APPEND options -D ${definition})
   endforeach(definition)
   if(Z_DEBUG_MODE)
-    list(APPEND options -D=Z_DEBUG_MODE=1)
+    list(APPEND options -D Z_DEBUG_MODE=1)
   elseif(Z_RELEASE_MODE)
-    list(APPEND options -D=Z_RELEASE_MODE=1)
+    list(APPEND options -D Z_RELEASE_MODE=1)
   endif()
   if(Z_WINDOWS)
-    list(APPEND options -D=Z_WINDOWS=1)
+    list(APPEND options -D Z_WINDOWS=1)
   elseif(Z_LINUX)
-    list(APPEND options -D=Z_LINUX=1)
+    list(APPEND options -D Z_LINUX=1)
   elseif(Z_MAC)
-    list(APPEND options -D=Z_MAC=1)
+    list(APPEND options -D Z_MAC=1)
   endif()
-  list(APPEND options -D=Z_CLANG=1) # clspv is based on clang
+  list(APPEND options -D Z_CLANG=1) # clspv is based on clang
   ## Clspv compile options
   list(APPEND options --color
                       --cl-std=CLC++
@@ -209,7 +235,7 @@ function(Zivc_getClspvCompileFlags clspv_compile_flags)
                       --work-dim
                       )
   # Optimization options
-  list(APPEND options -O=3
+  list(APPEND options -O 3
                       --cl-native-math
                       --cost-kind=throughput
                       --enable-gvn-hoist
@@ -332,7 +358,7 @@ function(Zivc_initVulkanBackend target)
   Zivc_findClspv(clspv_command)
   Zivc_getClspvCompileFlags(clspv_options)
   cmake_path(SET spv_org_file_path "${output_dir}/${set_name}-org.spv")
-  list(APPEND clspv_options -o=${spv_org_file_path})
+  list(APPEND clspv_options -o ${spv_org_file_path})
   set(build_commands
       COMMAND ${CMAKE_COMMAND} -E echo "-- clspv"
       COMMAND ${clspv_command} ${clspv_options} ${cl_file_path})

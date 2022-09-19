@@ -24,18 +24,6 @@ function(getTestCompileFlags test_compile_flags test_linker_flags test_definitio
 endfunction(getTestCompileFlags)
 
 
-function(addGoogleTest binary_dir)
-  cmake_path(SET zivc_path "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/../source/zivc")
-  include("${zivc_path}/cmake/general.cmake")
-  include("${zivc_path}/cmake/compiler.cmake")
-  #
-  cmake_path(SET gtest_source_path "${PROJECT_SOURCE_DIR}/dependencies/googletest")
-  Zivc_addGoogleTest("${gtest_source_path}" "${binary_dir}")
-  Zivc_setRequiredCxxFlagsToTarget(gtest)
-  Zivc_setRequiredCxxFlagsToTarget(gtest_main)
-endfunction(addGoogleTest)
-
-
 function(getTestWarningFlags test_warning_flags)
   set(warning_flags "")
 
@@ -65,7 +53,7 @@ endfunction(getTestWarningFlags)
 #
 macro(setTestProject)
   set(project_description "Zivc unit test.")
-  project(UnitTest VERSION 0.0.1 DESCRIPTION ${project_description} LANGUAGES CXX)
+  project(UnitTest VERSION ${ZivcProject_VERSION} DESCRIPTION ${project_description} LANGUAGES CXX)
 
 
   # Initialize platform info
@@ -75,19 +63,20 @@ macro(setTestProject)
   Zivc_setVariablesOnCMake(${platform_definitions})
 
   # Check dependencies
-  Zivc_checkTarget(Zivc)
+  Zivc_checkTarget(Zivc::Zivc)
   Zivc_checkTarget(CLI11::CLI11)
-  addGoogleTest("${PROJECT_BINARY_DIR}/GoogleTest")
-  Zivc_checkTarget(gtest_main)
+  Zivc_checkTarget(GTest::gtest)
 
   # Create a unit test
   file(GLOB_RECURSE unittest_source_files ${PROJECT_SOURCE_DIR}/unittest/*[.hpp|.cpp])
-  add_executable(${PROJECT_NAME} ${unittest_source_files})
   source_group(${PROJECT_NAME} FILES ${unittest_source_files})
 
+  #
+  add_executable(${PROJECT_NAME} ${unittest_source_files})
+
+  # Set properties
   set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20 
                                                    CXX_STANDARD_REQUIRED ON)
-
   include("${__zivc_dir__}/cmake/compiler.cmake")
   Zivc_getCxxWarningFlags(cxx_compile_warning_flags)
   getTestCompileFlags(test_compile_flags test_linker_flags test_definitions)
@@ -95,9 +84,9 @@ macro(setTestProject)
   target_compile_options(${PROJECT_NAME} PRIVATE ${test_compile_flags}
                                                  ${cxx_compile_warning_flags}
                                                  ${test_warning_flags})
-  target_link_libraries(${PROJECT_NAME} PRIVATE CLI11::CLI11
-                                                gtest_main
-                                                Zivc::Zivc
+  target_link_libraries(${PROJECT_NAME} PRIVATE Zivc::Zivc
+                                                CLI11::CLI11
+                                                GTest::gtest
                                                 ${test_linker_flags})
   target_include_directories(${PROJECT_NAME} PRIVATE "${PROJECT_SOURCE_DIR}/unittest")
   target_compile_definitions(${PROJECT_NAME} PRIVATE ${test_definitions})
@@ -155,45 +144,45 @@ macro(setTestProject)
   ## KernelTest1
   cmake_path(SET kernel_set_kernel_test1_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/kernel_test1")
   file(GLOB_RECURSE kernel_test1_sources ${kernel_set_kernel_test1_dir}/*.cl)
-  Zivc_addKernelSet(kernel_test1 ${PROJECT_VERSION}
+  Zivc_addKernelSet(kernel_test1 ${PROJECT_VERSION} kernel_name
       SOURCE_FILES ${kernel_test1_sources}
       INCLUDE_DIRS "${kernel_set_kernel_test_dir}")
-  target_link_libraries(${PROJECT_NAME} PRIVATE KernelSet_kernel_test1)
+  target_link_libraries(${PROJECT_NAME} PRIVATE ${kernel_name})
   ## kernelTest2
   cmake_path(SET kernel_set_kernel_test2_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/kernel_test2")
   file(GLOB_RECURSE kernel_test2_sources ${kernel_set_kernel_test2_dir}/*.cl)
-  Zivc_addKernelSet(kernel_test2 ${PROJECT_VERSION}
+  Zivc_addKernelSet(kernel_test2 ${PROJECT_VERSION} kernel_name
       SOURCE_FILES ${kernel_test2_sources}
       INCLUDE_DIRS "${kernel_set_kernel_test2_dir}")
-  target_link_libraries(${PROJECT_NAME} PRIVATE KernelSet_kernel_test2)
+  target_link_libraries(${PROJECT_NAME} PRIVATE ${kernel_name})
   ## kernelTestParams
   cmake_path(SET kernel_set_kernel_test_params_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/kernel_test_params")
   file(GLOB_RECURSE kernel_test_params_sources ${kernel_set_kernel_test_params_dir}/*.cl)
-  Zivc_addKernelSet(kernel_test_params ${PROJECT_VERSION}
+  Zivc_addKernelSet(kernel_test_params ${PROJECT_VERSION} kernel_name
       SOURCE_FILES ${kernel_test_params_sources}
       INCLUDE_DIRS "${kernel_set_kernel_test_params_dir}")
-  target_link_libraries(${PROJECT_NAME} PRIVATE KernelSet_kernel_test_params)
+  target_link_libraries(${PROJECT_NAME} PRIVATE ${kernel_name})
   ## kernelTestPod
   cmake_path(SET kernel_set_kernel_test_pod_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/kernel_test_pod")
   file(GLOB_RECURSE kernel_test_pod_sources ${kernel_set_kernel_test_pod_dir}/*.cl)
-  Zivc_addKernelSet(kernel_test_pod ${PROJECT_VERSION}
+  Zivc_addKernelSet(kernel_test_pod ${PROJECT_VERSION} kernel_name
       SOURCE_FILES ${kernel_test_pod_sources}
       INCLUDE_DIRS "${kernel_set_kernel_test_pod_dir}")
-  target_link_libraries(${PROJECT_NAME} PRIVATE KernelSet_kernel_test_pod)
+  target_link_libraries(${PROJECT_NAME} PRIVATE ${kernel_name})
   ## opencl C++ test1
   cmake_path(SET kernel_set_cl_cpp_test1_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/cl_cpp_test1")
   file(GLOB_RECURSE cl_cpp_test1_sources ${kernel_set_cl_cpp_test1_dir}/*.cl)
-  Zivc_addKernelSet(cl_cpp_test1 ${PROJECT_VERSION}
+  Zivc_addKernelSet(cl_cpp_test1 ${PROJECT_VERSION} kernel_name
       SOURCE_FILES ${cl_cpp_test1_sources}
       INCLUDE_DIRS "${kernel_set_cl_cpp_test1_dir}")
-  target_link_libraries(${PROJECT_NAME} PRIVATE KernelSet_cl_cpp_test1)
+  target_link_libraries(${PROJECT_NAME} PRIVATE ${kernel_name})
   ## opencl C++ type test
   cmake_path(SET kernel_set_cl_cpp_test_type_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/cl_cpp_test_type")
   file(GLOB_RECURSE cl_cpp_test_type_sources ${kernel_set_cl_cpp_test_type_dir}/*.cl)
-  Zivc_addKernelSet(cl_cpp_test_type ${PROJECT_VERSION}
+  Zivc_addKernelSet(cl_cpp_test_type ${PROJECT_VERSION} kernel_name
       SOURCE_FILES ${cl_cpp_test_type_sources}
       INCLUDE_DIRS "${kernel_set_cl_cpp_test_type_dir}")
-  target_link_libraries(${PROJECT_NAME} PRIVATE KernelSet_cl_cpp_test_type)
+  target_link_libraries(${PROJECT_NAME} PRIVATE ${kernel_name})
 
   # Add tests for CMake
   add_test(NAME ${PROJECT_NAME}-cpu COMMAND ${PROJECT_NAME} --device cpu

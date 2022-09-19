@@ -11,9 +11,9 @@ cmake_path(SET __zisc_compiler_cmake_path NORMALIZE
   "${CMAKE_CURRENT_LIST_DIR}/../../dependencies/Zisc/source/zisc/cmake/compiler.cmake")
 
 
-function(Zivc_getCxxCompilerFlags cxx_compiler_flags cxx_linker_flags cxx_definitions)
+function(Zivc_getCxxCompilerFlags architecture cxx_compiler_flags cxx_linker_flags cxx_definitions)
   include("${__zisc_compiler_cmake_path}")
-  Zisc_getCxxCompilerFlags(cxx_com_flags cxx_lin_flags cxx_defs)
+  Zisc_getCxxCompilerFlags(${architecture} cxx_com_flags cxx_lin_flags cxx_defs)
 
   # Output
   set(${cxx_compiler_flags} ${cxx_com_flags} PARENT_SCOPE)
@@ -31,16 +31,28 @@ function(Zivc_getCxxWarningFlags compile_warning_flags)
 endfunction(Zivc_getCxxWarningFlags)
 
 
+function(Zivc_getArchitectureName only_representative arch_name_list)
+  include("${__zisc_compiler_cmake_path}")
+  Zisc_getArchitectureName(${only_representative} name_list)
+
+  # Output
+  set(${arch_name_list} ${name_list} PARENT_SCOPE)
+endfunction(Zivc_getArchitectureName)
+
+
+function(Zivc_getArchitectureTargetName project_name arch_name target_name)
+  include("${__zisc_compiler_cmake_path}")
+  Zisc_getArchitectureTargetName(${project_name} ${arch_name} name)
+
+  # Output
+  set(${target_name} ${name} PARENT_SCOPE)
+endfunction(Zivc_getArchitectureTargetName)
+
+
 function(Zivc_setStaticAnalyzer target)
   include("${__zisc_compiler_cmake_path}")
   Zisc_setStaticAnalyzer(${target} ${ARGN})
 endfunction(Zivc_setStaticAnalyzer)
-
-
-#function(Zivc_createLinkToFiles output_dir)
-#  include("${__zisc_compiler_cmake_path}")
-#  Zisc_createLinkToFiles("${output_dir}" ${ARGN})
-#endfunction(Zivc_createLinkToFiles)
 
 
 function(Zivc_createLinkToTarget target output_dir)

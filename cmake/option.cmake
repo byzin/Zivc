@@ -25,5 +25,8 @@ function(initProjectOptions)
   set(option_description "Suppress excessive warnings.")
   Zivc_setBooleanOption(ZIVC_SUPPRESS_EXCESSIVE_WARNING ON ${option_description})
 
+  set(option_description "Enable Vulkan backend.")
+  Zivc_setBooleanOption(Z_ENABLE_VULKAN_BACKEND ON ${option_description})
+
   validateOptions()
 endfunction(initProjectOptions)

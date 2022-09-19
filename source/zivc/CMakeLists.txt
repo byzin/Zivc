@@ -92,42 +92,25 @@ function(Zivc_getZivcWarningFlags zivc_warning_flags)
 endfunction(Zivc_getZivcWarningFlags)
 
 
-function(Zivc_addVulkanMemoryAllocator vma_target)
-  # Define target
-  add_library(VulkanMemoryAllocator INTERFACE)
-  #
-  cmake_path(SET vma_source_path "${dependencies_dir}/VulkanMemoryAllocator")
-  Zivc_checkSubmodule(${vma_source_path})
-  cmake_path(SET vma_include_dir "${vma_source_path}/include")
-  target_include_directories(VulkanMemoryAllocator SYSTEM INTERFACE "${vma_include_dir}")
-  # Define alias
-  add_library(Vma::VulkanMemoryAllocator ALIAS VulkanMemoryAllocator)
-  # Output variable
-  set(${vma_target} Vma::VulkanMemoryAllocator PARENT_SCOPE)
-endfunction(Zivc_addVulkanMemoryAllocator)
-
-
-function(Zivc_addZivcKernels target version)
+function(Zivc_addZivcKernels)
   cmake_path(SET zivc_path ${CMAKE_CURRENT_FUNCTION_LIST_DIR})
   include("${zivc_path}/cmake/kernel.cmake")
 
   cmake_path(SET kernel_set_dir "${zivc_path}/internal_kernel/zivc")
   file(GLOB_RECURSE kernel_sources ${kernel_set_dir}/kernel/*.cl)
   set(kernel_set_name "zivc_internal_kernel")
-  Zivc_addKernelSet(${kernel_set_name} ${version}
+  Zivc_addKernelSet(${kernel_set_name} ${PROJECT_VERSION} target_base_name
       SOURCE_FILES ${kernel_sources}
       INCLUDE_DIRS "${kernel_set_dir}")
-  target_link_libraries(${target} PRIVATE KernelSet_${kernel_set_name})
+  add_library(Zivc::InternalKernel ALIAS ${target_base_name})
 endfunction(Zivc_addZivcKernels)
 
 
 #
 macro(Zivc_setZivcProject)
-  set(project_description "Zivc.")
-  project(Zivc VERSION 0.0.1 DESCRIPTION "${project_description}" LANGUAGES CXX)
+  set(project_description "Zivc is cross-platform heterogeneous compuling library.")
+  project(Zivc VERSION ${ZivcProject_VERSION} DESCRIPTION "${project_description}" LANGUAGES CXX)
   message(STATUS "${PROJECT_NAME} version: ${PROJECT_VERSION}")
-
-  cmake_path(SET dependencies_dir NORMALIZE "${PROJECT_SOURCE_DIR}/../dependencies")
 
   include("${PROJECT_SOURCE_DIR}/cmake/general.cmake")
   include("${PROJECT_SOURCE_DIR}/cmake/platform.cmake")
@@ -136,15 +119,7 @@ macro(Zivc_setZivcProject)
   Zivc_initZivcOptions()
 
   # Check dependencies
-  include("${PROJECT_SOURCE_DIR}/cmake/compiler.cmake")
-  ## Zisc
-  cmake_path(SET zisc_path "${dependencies_dir}/Zisc")
-  Zivc_checkSubmodule("${zisc_path}")
-  add_subdirectory(${zisc_path} "${PROJECT_BINARY_DIR}/Zisc")
-  Zivc_checkTarget(Zisc)
-  ## cpu_features
   Zivc_checkTarget(CpuFeature::cpu_features)
-  Zivc_setRequiredCxxFlagsToTarget(cpu_features)
 
   cmake_path(SET zivc_core_dir "${PROJECT_SOURCE_DIR}/core")
   # Make zivc configuration header file
@@ -164,58 +139,65 @@ macro(Zivc_setZivcProject)
     endforeach(source_file)
   endif()
   list(APPEND zivc_source_files "${zivc_config_dir}/zivc_config-inl.hpp")
-  add_library(${PROJECT_NAME} STATIC ${zivc_source_files})
   source_group(${PROJECT_NAME} FILES ${zivc_source_files})
-
-  # Compiler flags
-  set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20
-                                                   CXX_STANDARD_REQUIRED ON)
-
-  Zivc_getCxxWarningFlags(cxx_compile_warning_flags)
-  Zivc_getZivcFlags(zivc_compile_flags zivc_linker_flags zivc_definitions)
-  Zivc_getZivcWarningFlags(zivc_warning_flags)
-  target_compile_options(${PROJECT_NAME} PUBLIC ${zivc_compile_flags}
-                                         PRIVATE ${cxx_compile_warning_flags}
-                                                 ${zivc_warning_flags})
-  target_link_libraries(${PROJECT_NAME} PUBLIC Zisc
-                                        PRIVATE CpuFeature::cpu_features)
-  target_link_options(${PROJECT_NAME} PUBLIC ${zivc_linker_flags})
-  target_compile_definitions(${PROJECT_NAME} PUBLIC ${zivc_definitions})
-  target_include_directories(${PROJECT_NAME} PUBLIC "${zivc_core_dir}"
-                                                    "${PROJECT_BINARY_DIR}/include")
-  Zivc_enableIpo(${PROJECT_NAME})
 
   # Vulkan backend setup
   if(ZIVC_ENABLE_VULKAN_BACKEND)
     # Find dependencies
+    ## clspv
     if(ZIVC_USES_OWN_CLSPV)
       Zivc_addClspv("${PROJECT_BINARY_DIR}/Clspv")
     endif()
+    ## Kernel baker
     if(ZIVC_BAKE_KERNELS)
       add_subdirectory("${PROJECT_SOURCE_DIR}/kernel_baker"
                        "${PROJECT_BINARY_DIR}/KernelBaker")
     endif()
-    # Vulkan
-    Zivc_findVulkan(vulkan_target)
-    target_link_libraries(${PROJECT_NAME} PUBLIC ${vulkan_target})
-    # Vulkan Memory Allocator
-    Zivc_addVulkanMemoryAllocator(vma_target)
-    target_link_libraries(${PROJECT_NAME} PUBLIC ${vma_target})
-    # Internal kernels
-    Zivc_addZivcKernels(${PROJECT_NAME} ${PROJECT_VERSION})
+    ## Internal kernels
+    Zivc_addZivcKernels()
   endif()
 
-  #
-  set(clang_tidy_exclusion_checks bugprone-exception-escape
-                                  misc-misplaced-const
-                                  misc-no-recursion
-                                  readability-static-accessed-through-instance
-                                  readability-uppercase-literal-suffix)
-  Zivc_setStaticAnalyzer(${PROJECT_NAME}
-                         CLANG_TIDY_EXCLUSION_CHECKS ${clang_tidy_exclusion_checks})
+  # Compiler flags
+  include("${PROJECT_SOURCE_DIR}/cmake/compiler.cmake")
+  # Get architecture
+  Zivc_getArchitectureName(FALSE arch_name_list)
+  foreach(architecture IN LISTS arch_name_list)
+    # Check zisc dependency
+    Zivc_getArchitectureTargetName("Zisc" ${architecture} zisc_library_name)
+    Zivc_checkTarget(${zisc_library_name})
+    # Zivc
+    Zivc_getArchitectureTargetName(${PROJECT_NAME} ${architecture} library_name)
+    add_library(${library_name} STATIC "${zivc_source_files}")
+    set_target_properties(${library_name} PROPERTIES CXX_STANDARD 20
+                                                     CXX_STANDARD_REQUIRED ON)
+    Zivc_getCxxWarningFlags(cxx_compile_warning_flags)
+    Zivc_getZivcFlags(zivc_compile_flags zivc_linker_flags zivc_definitions)
+    Zivc_getZivcWarningFlags(zivc_warning_flags)
+    target_compile_options(${library_name} PUBLIC ${zivc_compile_flags}
+                                           PRIVATE ${cxx_compile_warning_flags}
+                                                   ${zivc_warning_flags})
+    target_link_libraries(${library_name} PUBLIC ${zisc_library_name}
+                                          PRIVATE CpuFeature::cpu_features)
+    target_link_options(${library_name} PUBLIC ${zivc_linker_flags})
+    target_compile_definitions(${library_name} PUBLIC ${zivc_definitions})
+    target_include_directories(${library_name} PUBLIC "${zivc_core_dir}"
+                                                      "${PROJECT_BINARY_DIR}/include")
+    # For vulkan backend
+    if(ZIVC_ENABLE_VULKAN_BACKEND)
+      target_link_libraries(${library_name} PUBLIC Zivc::Vulkan Zivc::InternalKernel)
+    endif()
 
-  #
-  add_library(Zivc::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+    Zivc_enableIpo(${library_name})
+
+    #
+    set(clang_tidy_exclusion_checks bugprone-exception-escape
+                                    misc-misplaced-const
+                                    misc-no-recursion
+                                    readability-static-accessed-through-instance
+                                    readability-uppercase-literal-suffix)
+    Zivc_setStaticAnalyzer(${library_name}
+                           CLANG_TIDY_EXCLUSION_CHECKS ${clang_tidy_exclusion_checks})
+  endforeach(architecture)
 endmacro(Zivc_setZivcProject)
 
 

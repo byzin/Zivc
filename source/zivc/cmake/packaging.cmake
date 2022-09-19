@@ -47,9 +47,7 @@ function(Zivc_getDeployingVulkanDependencyCode lib_dir share_dir code envs)
   set(env_variables "")
 
   # Find vulkan directory
-  include("${CMAKE_CURRENT_FUNCTION_LIST_DIR}/platform.cmake")
-  Zivc_findVulkan(vulkan_target)
-  if(NOT Vulkan_LIBRARY)
+  if((NOT TARGET Zivc::Vulkan) OR (NOT Vulkan_LIBRARY))
     message(WARNING "Vulkan directory not found.")
     return()
   endif()

@@ -121,7 +121,14 @@ function(Zivc_issueKernelSetNumber kernel_set_name number)
 endfunction(Zivc_issueKernelSetNumber)
 
 
-function(Zivc_addKernelSet kernel_set_name kernel_set_version)
+function(Zivc_addKernelSet kernel_set_name kernel_set_version target)
+  set(target_name KernelSet_${kernel_set_name})
+  if(TARGET ${target_name})
+    return()
+  else()
+    message(STATUS "Add a kernel set '${kernel_set_name}'.")
+  endif()
+
   # Parse arguments
   set(options "")
   set(one_value_args SPIRV_VERSION)
@@ -150,7 +157,7 @@ function(Zivc_addKernelSet kernel_set_name kernel_set_version)
   else()
     set(kernel_set_spirv_version ${ZIVC_DEFAULT_SPIRV_VERSION})
   endif()
-  set(supported_spirv_versions 1.0 1.3 1.4 1.5)
+  set(supported_spirv_versions 1.0 1.3 1.5)
   if(NOT (kernel_set_spirv_version IN_LIST supported_spirv_versions))
     message(WARNING "The specified SPIR-V version '${kernel_set_spirv_version}' isn't supported. Use '1.3' instead.")
     set(kernel_set_spirv_version 1.3)
@@ -163,4 +170,11 @@ function(Zivc_addKernelSet kernel_set_name kernel_set_version)
                  "${kernel_set_dir}/CMakeLists.txt"
                  @ONLY)
   add_subdirectory("${kernel_set_dir}" "${kernel_set_dir}/build")
+
+  # Check target
+  include(${CMAKE_CURRENT_FUNCTION_LIST_DIR}/general.cmake)
+  Zivc_checkTarget(${target_name})
+
+  # Output
+  set(${target} ${target_name} PARENT_SCOPE)
 endfunction(Zivc_addKernelSet)

@@ -9,25 +9,22 @@
 cmake_minimum_required(VERSION 3.22)
 
 
-cmake_path(SET __zisc_dir__ "${CMAKE_SOURCE_DIR}/source/dependencies/Zisc")
-cmake_path(SET __zivc_dir__ "${CMAKE_SOURCE_DIR}/source/zivc")
+cmake_path(SET __zivc_root_dir__ "${CMAKE_CURRENT_LIST_DIR}/..")
+cmake_path(SET __zisc_dir__ "${__zivc_root_dir__}/source/dependencies/Zisc")
+cmake_path(SET __zivc_dir__ "${__zivc_root_dir__}/source/zivc")
 
 
 macro(setDocumentProject)
   set(project_description "Zivc documents")
-  project(Document VERSION 0.0.1)
+  project(Document VERSION ${ZivcProject_VERSION})
   find_package(Doxygen)
   if(DOXYGEN_FOUND)
-    # Check dependencies
-    include("${__zivc_dir__}/cmake/general.cmake")
-    Zivc_checkTarget(Zivc)
-
     include("${__zivc_dir__}/cmake/document.cmake")
 
     # Doxygen custom properties
     # Project
     set(DOXYGEN_PROJECT_NAME Zivc)
-    set(DOXYGEN_PROJECT_NUMBER 0.0.1)
+    set(DOXYGEN_PROJECT_NUMBER ${PROJECT_VERSION})
     set(DOXYGEN_PROJECT_BRIEF "Zivc is cross-platform heterogeneous compuling library.")
 
     # HTML
@@ -43,12 +40,12 @@ macro(setDocumentProject)
     set(DOXYGEN_EXAMPLE_RECURSIVE YES)
 
     # Compile flags
-    get_target_property(zivc_definitions Zivc COMPILE_DEFINITIONS)
+    get_target_property(zivc_definitions Zivc::Zivc COMPILE_DEFINITIONS)
     if(zivc_definitions)
       set(DOXYGEN_PREDEFINED ${zivc_definitions})
     endif()
 
-    get_target_property(zivc_source_files Zivc SOURCES)
+    get_target_property(zivc_source_files Zivc::Zivc SOURCES)
     Zivc_addDoxygenDoc(document "${PROJECT_BINARY_DIR}"
       SOURCE_FILES_OR_DIRS "${CMAKE_SOURCE_DIR}/README.md"
                            "${CMAKE_SOURCE_DIR}/LICENSE.md"

@@ -30,23 +30,45 @@ if(PROJECT_IS_TOP_LEVEL)
   Zivc_restrictBuildDirectory("${PROJECT_SOURCE_DIR}/build")
 
   # Add dependencies
-  include("${zivc_path}/cmake/platform.cmake")
   include("${PROJECT_SOURCE_DIR}/cmake/project.cmake")
-  Zivc_addCpuFeatures("${PROJECT_BINARY_DIR}/CpuFeatures")
-  Zivc_addZstd("${PROJECT_BINARY_DIR}/Zstd")
+  Zivc_setInternalValue(BUILD_TESTING OFF)
+  Zivc_setInternalValue(BUILD_SHARED_LIBS OFF)
+  Zivc_setInternalValue(CMAKE_DEBUG_POSTFIX "")
+  if(NOT TARGET Threads::Threads)
+    set(THREADS_PREFER_PTHREAD_FLAG ON)
+    find_package(Threads REQUIRED)
+  endif()
+  addZisc("${PROJECT_BINARY_DIR}/Zisc")
+  addCpuFeatures("${PROJECT_BINARY_DIR}/CpuFeatures")
+  addZstd("${PROJECT_BINARY_DIR}/Zstd")
+  # Vulkan
+  Zivc_setInternalValue(ZIVC_ENABLE_VULKAN_BACKEND ${Z_ENABLE_VULKAN_BACKEND})
+  if(Z_ENABLE_VULKAN_BACKEND)
+    findVulkan()
+  endif()
+endif()
+
+if(PROJECT_IS_TOP_LEVEL OR ZIVC_BUILD_EXAMPLES OR ZIVC_BUILD_TESTS)
+  include("${PROJECT_SOURCE_DIR}/cmake/project.cmake")
   addCli11("${PROJECT_BINARY_DIR}/CLI11")
+  setZiscAlias()
 endif()
 
 # Build Zivc
 add_subdirectory("${zivc_path}" "${PROJECT_BINARY_DIR}/Zivc")
 
+if(PROJECT_IS_TOP_LEVEL OR ZIVC_BUILD_EXAMPLES OR ZIVC_BUILD_TESTS)
+  setZivcAlias()
+endif()
+
 # Build examples
-if(PROJECT_IS_TOP_LEVEL AND ZIVC_BUILD_EXAMPLES)
+if(ZIVC_BUILD_EXAMPLES)
   add_subdirectory("${PROJECT_SOURCE_DIR}/example" "${PROJECT_BINARY_DIR}/Examples")
 endif()
 
 # Build unit test
-if(PROJECT_IS_TOP_LEVEL AND ZIVC_BUILD_TESTS)
+if(ZIVC_BUILD_TESTS)
+  addGoogleTest("${PROJECT_BINARY_DIR}/GoogleTest")
   enable_testing()
   add_subdirectory("${PROJECT_SOURCE_DIR}/test" "${PROJECT_BINARY_DIR}/UnitTest")
 endif()

@@ -268,7 +268,7 @@ LaunchResult VulkanBufferImpl::fillImpl(KernelCommon* fill_kernel,
 {
   using FillKernelP = std::add_pointer_t<KernelType>;
   using FillInfoT = zivc::cl::zivc::FillInfo;
-  auto* kernel = zisc::cast<FillKernelP>(fill_kernel);
+  auto* kernel = static_cast<FillKernelP>(fill_kernel);
 
   auto kernel_launch_options = kernel->createOptions();
   const std::size_t work_size = (size + FillInfoT::batchSize() - 1) /
@@ -486,7 +486,7 @@ void VulkanBufferImpl::initAllocationInfo(const BufferCommon& object,
   */
 void VulkanBufferImpl::throwResultException(const VkResult result, const char* message)
 {
-  const auto r = zisc::cast<zivcvk::Result>(result);
+  const auto r = static_cast<zivcvk::Result>(result);
   zivcvk::throwResultException(r, message);
 }
 
@@ -533,7 +533,7 @@ VkBufferCreateInfo VulkanBufferImpl::createBufferCreateInfo(
   // Buffer create info
   zivcvk::BufferCreateInfo buffer_create_info;
   buffer_create_info.size = size;
-  const auto descriptor_type = zisc::cast<zivcvk::BufferUsageFlagBits>(desc_type);
+  const auto descriptor_type = static_cast<zivcvk::BufferUsageFlagBits>(desc_type);
   buffer_create_info.usage = zivcvk::BufferUsageFlagBits::eTransferSrc |
                              zivcvk::BufferUsageFlagBits::eTransferDst |
                              descriptor_type;

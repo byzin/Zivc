@@ -95,7 +95,7 @@ const char* ErrorCategory::name() const noexcept
   */
 std::string ErrorCategory::message(const int condition) const
 {
-  const auto code = zisc::cast<ErrorCode>(condition);
+  const auto code = static_cast<ErrorCode>(condition);
   std::string code_str = getErrorCodeString(code);
   return code_str;
 }
@@ -106,7 +106,7 @@ std::string ErrorCategory::message(const int condition) const
   \param [in] code No description.
   */
 SystemError::SystemError(const ErrorCode code) :
-    std::system_error(zisc::cast<int>(code), ErrorCategory{})
+    std::system_error(static_cast<int>(code), ErrorCategory{})
 {
 }
 
@@ -116,7 +116,7 @@ SystemError::SystemError(const ErrorCode code) :
   \param [in] code No description.
   */
 SystemError::SystemError(const ErrorCode code, const std::string_view what_arg) :
-    std::system_error(zisc::cast<int>(code), ErrorCategory{}, what_arg.data())
+    std::system_error(static_cast<int>(code), ErrorCategory{}, what_arg.data())
 {
 }
 

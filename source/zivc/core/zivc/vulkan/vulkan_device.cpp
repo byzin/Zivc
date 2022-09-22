@@ -524,7 +524,7 @@ void VulkanDevice::returnFence(Fence* fence) noexcept
   if (fence_index != invalid) {
     IndexQueue& index_queue = fenceIndexQueue();
     [[maybe_unused]] const auto result = index_queue.enqueue(fence_index);
-    ZIVC_ASSERT(result.isSuccess(), "Queueing fence index failed.");
+    ZIVC_ASSERT(result.has_value(), "Queueing fence index failed.");
     *dest = zivcvk::Fence{};
   }
 }
@@ -566,7 +566,7 @@ void VulkanDevice::setDebugInfo(const VkObjectType vk_object_type,
 {
   const auto& loader = dispatcher().loader();
   zivcvk::Device d{device()};
-  const auto object_type = zisc::cast<zivcvk::ObjectType>(vk_object_type);
+  const auto object_type = static_cast<zivcvk::ObjectType>(vk_object_type);
   const auto handle = zisc::cast<uint64b>(zisc::reinterp<std::size_t>(vk_handle));
   // Name
   {
@@ -604,7 +604,7 @@ void VulkanDevice::setFenceSize(const std::size_t s)
   const std::size_t fence_size = (0 < s) ? index_queue.capacity() : 0;
   for (std::size_t index = 0; index < fence_size; ++index) {
     [[maybe_unused]] const auto result = index_queue.enqueue(index);
-    ZIVC_ASSERT(result.isSuccess(), "Enqueing fence index failed: ", index);
+    ZIVC_ASSERT(result.has_value(), "Enqueing fence index failed: ", index);
   }
 
   auto& fence_list = *fence_list_;
@@ -637,7 +637,7 @@ void VulkanDevice::takeFence(Fence* fence)
 {
   IndexQueue& index_queue = fenceIndexQueue();
   const auto index_result = index_queue.dequeue();
-  if (not index_result.isSuccess()) [[unlikely]] {
+  if (not index_result.has_value()) [[unlikely]] {
     //! \todo Available fence isn't found. Raise an exception?
     const std::string message = createErrorMessage(
         *this,
@@ -649,7 +649,7 @@ void VulkanDevice::takeFence(Fence* fence)
   auto* dest = ::new (zisc::cast<void*>(memory)) zivcvk::Fence{};
   {
     zivcvk::Device d{device()};
-    const std::size_t fence_index = index_result.get().get();
+    const std::size_t fence_index = *index_result;
     auto f = zisc::cast<zivcvk::Fence>((*fence_list_)[fence_index]);
     d.resetFences(f, dispatcher().loader());
     *dest = f;
@@ -834,7 +834,7 @@ void VulkanDevice::updateDebugInfoImpl()
     const zivcvk::Device d{handle};
     const std::string_view name = id_data.name();
     if (d) {
-      setDebugInfo(zisc::cast<VkObjectType>(d.objectType), handle, name, this);
+      setDebugInfo(static_cast<VkObjectType>(d.objectType), handle, name, this);
     }
   }
   // Command pool
@@ -846,7 +846,7 @@ void VulkanDevice::updateDebugInfoImpl()
       copyStr(id_data.name(), obj_name.data());
       concatStr("_pool", obj_name.data());
       const std::string_view name = obj_name.data();
-      setDebugInfo(zisc::cast<VkObjectType>(p.objectType), handle, name, this);
+      setDebugInfo(static_cast<VkObjectType>(p.objectType), handle, name, this);
     }
   }
   // Queue
@@ -871,7 +871,7 @@ void VulkanDevice::updateDebugInfoImpl()
         *end = '\0';
         concatStr(idx.data(), obj_name.data());
         const std::string_view name = obj_name.data();
-        setDebugInfo(zisc::cast<VkObjectType>(q.objectType), handle, name, this);
+        setDebugInfo(static_cast<VkObjectType>(q.objectType), handle, name, this);
       }
     }
   }
@@ -918,7 +918,7 @@ void VulkanDevice::Callbacks::notifyOfDeviceMemoryAllocation(
     VkDeviceSize size,
     void* user_data)
 {
-  auto* device = zisc::cast<VulkanDevice*>(user_data);
+  auto* device = static_cast<VulkanDevice*>(user_data);
   const std::size_t heap_index = getHeapIndex(*device, memory_type);
   (*device->heap_usage_list_)[heap_index].add(size);
 
@@ -944,7 +944,7 @@ void VulkanDevice::Callbacks::notifyOfDeviceMemoryDeallocation(
     VkDeviceSize size,
     void* user_data)
 {
-  auto* device = zisc::cast<VulkanDevice*>(user_data);
+  auto* device = static_cast<VulkanDevice*>(user_data);
   const std::size_t heap_index = getHeapIndex(*device, memory_type);
   (*device->heap_usage_list_)[heap_index].release(size);
 
@@ -1214,13 +1214,13 @@ VmaVulkanFunctions VulkanDevice::getVmaVulkanFunctions() const noexcept
   */
 void VulkanDevice::initCapability() noexcept
 {
-  constexpr uint32b compute_mask = 0b1u << zisc::cast<uint32b>(Capability::kCompute);
+  constexpr uint32b compute_mask = 0b1u << static_cast<uint32b>(Capability::kCompute);
   capabilities_ = compute_mask;
 
   auto& backend_p = parentImpl();
   using SurfaceType = VulkanBackend::WindowSurfaceType;
   if (backend_p.windowSurfaceType() != SurfaceType::kNone) {
-    constexpr uint32b gui_mask = 0b1u << zisc::cast<uint32b>(Capability::kGui);
+    constexpr uint32b gui_mask = 0b1u << static_cast<uint32b>(Capability::kGui);
     capabilities_ = capabilities_ | gui_mask;
   }
 }
@@ -1566,7 +1566,7 @@ void VulkanDevice::initMemoryAllocator()
     const std::string message = createErrorMessage(
         *this,
         "VM allocator creation failed.");
-    zivcvk::throwResultException(zisc::cast<zivcvk::Result>(result), message.data());
+    zivcvk::throwResultException(static_cast<zivcvk::Result>(result), message.data());
   }
 }
 
@@ -1593,7 +1593,7 @@ void VulkanDevice::updateFenceDebugInfo(const std::size_t index)
       *end = '\0';
       concatStr(idx.data(), obj_name.data());
       const std::string_view name = obj_name.data();
-      setDebugInfo(zisc::cast<VkObjectType>(f.objectType), handle, name, this);
+      setDebugInfo(static_cast<VkObjectType>(f.objectType), handle, name, this);
     }
   }
 }
@@ -1619,7 +1619,7 @@ void VulkanDevice::updateKernelDataDebugInfo(const KernelData& kernel)
         concatStr(kernel.kernel_name_.data(), kernel_name.data());
         concatStr(suffix.data(), kernel_name.data());
         const std::string_view name = kernel_name.data();
-        setDebugInfo(zisc::cast<VkObjectType>(obj.objectType), handle, name, this);
+        setDebugInfo(static_cast<VkObjectType>(obj.objectType), handle, name, this);
       }
     };
     {
@@ -1658,7 +1658,7 @@ void VulkanDevice::updateShaderModuleDebugInfo(const ModuleData& module)
       concatStr("_", module_name.data());
       concatStr(module.name_.data(), module_name.data());
       const std::string_view name = module_name.data();
-      setDebugInfo(zisc::cast<VkObjectType>(m.objectType), handle, name, this);
+      setDebugInfo(static_cast<VkObjectType>(m.objectType), handle, name, this);
     }
   }
 }

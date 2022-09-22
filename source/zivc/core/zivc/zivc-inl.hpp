@@ -17,6 +17,7 @@
 
 #include "zivc.hpp"
 // Standard C++ library
+#include <concepts>
 #include <cstddef>
 #include <string_view>
 #include <utility>
@@ -56,7 +57,7 @@ namespace zivc {
   \param [in] launch_options No description.
   \return No description
   */
-template <KernelArg SrcType, zisc::SameAs<std::remove_const_t<SrcType>> DstType> inline
+template <KernelArg SrcType, std::same_as<std::remove_const_t<SrcType>> DstType> inline
 LaunchResult copy(const Buffer<SrcType>& source,
                   Buffer<DstType>* dest,
                   const BufferLaunchOptions<DstType>& launch_options)

@@ -16,6 +16,7 @@
 #define ZIVC_BUFFER_HPP
 
 // Standard C++ library
+#include <concepts>
 #include <cstddef>
 #include <memory>
 #include <type_traits>
@@ -117,7 +118,7 @@ class Buffer : public BufferCommon
   constexpr std::size_t typeSizeInBytes() const noexcept override;
 
  protected:
-  template <KernelArg SrcType, zisc::SameAs<std::remove_const_t<SrcType>> DstType>
+  template <KernelArg SrcType, std::same_as<std::remove_const_t<SrcType>> DstType>
   friend LaunchResult copy(const Buffer<SrcType>&,
                            Buffer<DstType>*,
                            const BufferLaunchOptions<DstType>&);
@@ -158,7 +159,7 @@ using WeakBuffer = typename Buffer<Type>::WeakPtr;
 
 
 //! Copy from the source to the dest
-template <KernelArg SrcType, zisc::SameAs<std::remove_const_t<SrcType>> DstType>
+template <KernelArg SrcType, std::same_as<std::remove_const_t<SrcType>> DstType>
 [[nodiscard("The result can have a fence when external sync mode is on.")]]
 LaunchResult copy(const Buffer<SrcType>& source,
                   Buffer<DstType>* dest,

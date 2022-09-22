@@ -19,6 +19,9 @@
 #include "vulkan.hpp"
 #include "zivc/zivc_config.hpp"
 
+// C++ configuratinos
+#undef _LIBCPP_HAS_NO_INCOMPLETE_FORMAT
+
 // Namespace
 #define VULKAN_HPP_NAMESPACE zivcvk
 // Disable the smart handler of the Vulkan-HPP

@@ -29,7 +29,6 @@
 #include <utility>
 // Zisc
 #include "zisc/concepts.hpp"
-#include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "vulkan_buffer.hpp"
@@ -239,13 +238,12 @@ inline
 void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 initData(const Params& params)
 {
-  using zisc::cast;
   static_assert(hasGlobalArg(), "The kernel doesn't have global argument.");
   validateData();
   VulkanDevice& device = parentImpl();
 
   // Command buffer reference
-  const auto* command_p = cast<const VkCommandBuffer*>(params.vulkanCommandBufferPtr());
+  const auto* command_p = static_cast<const VkCommandBuffer*>(params.vulkanCommandBufferPtr());
   setCommandBufferRef(command_p);
   // Add a shader module
   const auto& module_data = device.addShaderModule(KSet{ZivcObject::memoryResource()});
@@ -398,7 +396,7 @@ getBufferHandle(const Buffer<Type>& buffer) noexcept
   ZIVC_ASSERT(buffer.type() == BackendType::kVulkan, "The buffer isn't vulkan.");
   using BufferT = VulkanBuffer<Type>;
   using BufferData = typename BufferT::BufferData;
-  const auto data = zisc::cast<const BufferData*>(buffer.rawBufferData());
+  const auto data = static_cast<const BufferData*>(buffer.rawBufferData());
   return data->buffer_;
 }
 
@@ -517,7 +515,7 @@ VulkanDevice& VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 parentImpl() noexcept
 {
   auto p = BaseKernelT::getParent();
-  return *zisc::cast<VulkanDevice*>(p);
+  return *static_cast<VulkanDevice*>(p);
 }
 
 /*!
@@ -531,7 +529,7 @@ const VulkanDevice& VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args
 parentImpl() const noexcept
 {
   auto p = BaseKernelT::getParent();
-  return *zisc::cast<const VulkanDevice*>(p);
+  return *static_cast<const VulkanDevice*>(p);
 }
 
 /*!
@@ -706,8 +704,8 @@ validateData()
     char message[256] = "";
     std::sprintf(message,
         "The number of buffer arguments in the kernel exceeded the limit. limit=%d, buffers=%d",
-        zisc::cast<int>(info.maxNumOfBuffersPerKernel()),
-        zisc::cast<int>(BaseKernelT::numOfBuffers()));
+        static_cast<int>(info.maxNumOfBuffersPerKernel()),
+        static_cast<int>(BaseKernelT::numOfBuffers()));
     throw SystemError{ErrorCode::kNumOfParametersLimitExceeded, message};
   }
 }

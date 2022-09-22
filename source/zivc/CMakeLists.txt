@@ -193,6 +193,7 @@ macro(Zivc_setZivcProject)
     set(clang_tidy_exclusion_checks bugprone-exception-escape
                                     misc-misplaced-const
                                     misc-no-recursion
+                                    readability-identifier-length
                                     readability-static-accessed-through-instance
                                     readability-uppercase-literal-suffix)
     Zivc_setStaticAnalyzer(${library_name}

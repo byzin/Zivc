@@ -14,7 +14,7 @@
 // Standard C++ library
 #include <type_traits>
 // Zisc
-#include "zisc/thread/atomic.hpp"
+#include "zisc/concurrency/atomic.hpp"
 // Zivc
 #include "address_space_pointer.hpp"
 #include "types.hpp"

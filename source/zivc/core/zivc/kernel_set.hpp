@@ -16,12 +16,12 @@
 #define ZIVC_KERNEL_SET_HPP
 
 // Standard C++ library
+#include <concepts>
 #include <memory>
 #include <span>
 #include <string_view>
 #include <vector>
 // Zisc
-#include "zisc/concepts.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "zivc/zivc_config.hpp"
@@ -72,7 +72,7 @@ class KernelSet
 
 //! Specify a type is derived from KernelSet
 template <typename Type>
-concept DerivedKSet = zisc::DerivedFrom<Type, KernelSet<Type>>;
+concept DerivedKSet = std::derived_from<Type, KernelSet<Type>>;
 
 } // namespace zivc
 

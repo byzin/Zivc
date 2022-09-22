@@ -19,8 +19,6 @@
 // Standard C++ library
 #include <cstddef>
 #include <memory>
-// Zisc
-#include "zisc/utility.hpp"
 // Zivc
 #include "utility/vulkan.hpp"
 #include "zivc/buffer.hpp"
@@ -140,13 +138,12 @@ inline
 constexpr auto VulkanBufferImpl::getFillUnitSize(const std::size_t size) noexcept
     -> FillUnitSize
 {
-  using zisc::cast;
   const FillUnitSize unit_size = 
-      (size % cast<std::size_t>(FillUnitSize::k128) == 0) ? FillUnitSize::k128 :
-      (size % cast<std::size_t>(FillUnitSize::k64) == 0)  ? FillUnitSize::k64 :
-      (size % cast<std::size_t>(FillUnitSize::k32) == 0)  ? FillUnitSize::k32 :
-      (size % cast<std::size_t>(FillUnitSize::k16) == 0)  ? FillUnitSize::k16
-                                                          : FillUnitSize::k8;
+      (size % static_cast<std::size_t>(FillUnitSize::k128) == 0) ? FillUnitSize::k128 :
+      (size % static_cast<std::size_t>(FillUnitSize::k64) == 0)  ? FillUnitSize::k64 :
+      (size % static_cast<std::size_t>(FillUnitSize::k32) == 0)  ? FillUnitSize::k32 :
+      (size % static_cast<std::size_t>(FillUnitSize::k16) == 0)  ? FillUnitSize::k16
+                                                                 : FillUnitSize::k8;
   return unit_size;
 }
 

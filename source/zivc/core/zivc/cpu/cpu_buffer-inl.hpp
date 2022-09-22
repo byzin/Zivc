@@ -26,7 +26,6 @@
 #include <vector>
 // Zisc
 #include "zisc/concepts.hpp"
-#include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "cpu_device.hpp"
@@ -159,7 +158,7 @@ void* CpuBuffer<T>::mapMemoryData() const
 {
   Pointer d = const_cast<Pointer>(data());
   ZIVC_ASSERT(d != nullptr, "The data is null.");
-  return zisc::cast<void*>(d);
+  return static_cast<void*>(d);
 }
 
 /*!
@@ -170,7 +169,7 @@ void* CpuBuffer<T>::mapMemoryData() const
 template <KernelArg T> inline
 void* CpuBuffer<T>::rawBufferData()
 {
-  void* p = zisc::cast<void*>(data());
+  void* p = static_cast<void*>(data());
   return p;
 }
 
@@ -182,7 +181,7 @@ void* CpuBuffer<T>::rawBufferData()
 template <KernelArg T> inline
 const void* CpuBuffer<T>::rawBufferData() const noexcept
 {
-  const void* p = zisc::cast<const void*>(data());
+  const void* p = static_cast<const void*>(data());
   return p;
 }
 
@@ -277,9 +276,9 @@ LaunchResult CpuBuffer<T>::copyFromImpl(const BufferCommon& source,
   using DataT = std::remove_cvref_t<D>;
   using DataPtr = std::add_pointer_t<DataT>;
   using ConstDataPtr = std::add_pointer_t<std::add_const_t<DataT>>;
-  const auto* src_ptr = zisc::cast<ConstDataPtr>(source.rawBufferData());
+  const auto* src_ptr = static_cast<ConstDataPtr>(source.rawBufferData());
   src_ptr = src_ptr + launch_options.sourceOffset();
-  auto* dst_ptr = zisc::cast<DataPtr>(dest->rawBufferData());
+  auto* dst_ptr = static_cast<DataPtr>(dest->rawBufferData());
   dst_ptr = dst_ptr + launch_options.destOffset();
   std::copy_n(src_ptr, launch_options.size(), dst_ptr);
 
@@ -302,7 +301,7 @@ LaunchResult CpuBuffer<T>::fillImpl(typename Buffer<D>::ConstReference value,
 {
   using DataT = std::remove_cvref_t<D>;
   using DataPtr = std::add_pointer_t<DataT>;
-  auto* dst_ptr = zisc::cast<DataPtr>(dest->rawBufferData());
+  auto* dst_ptr = static_cast<DataPtr>(dest->rawBufferData());
   dst_ptr = dst_ptr + launch_options.destOffset();
   std::fill_n(dst_ptr, launch_options.size(), value);
 
@@ -319,7 +318,7 @@ template <KernelArg T> inline
 CpuDevice& CpuBuffer<T>::parentImpl() noexcept
 {
   auto p = Buffer<T>::getParent();
-  return *zisc::cast<CpuDevice*>(p);
+  return *static_cast<CpuDevice*>(p);
 }
 
 /*!
@@ -331,7 +330,7 @@ template <KernelArg T> inline
 const CpuDevice& CpuBuffer<T>::parentImpl() const noexcept
 {
   const auto p = Buffer<T>::getParent();
-  return *zisc::cast<const CpuDevice*>(p);
+  return *static_cast<const CpuDevice*>(p);
 }
 
 /*!

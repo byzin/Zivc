@@ -28,8 +28,8 @@
 #include <vector>
 // Zisc
 #include "zisc/utility.hpp"
-#include "zisc/data_structure/queue.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
+#include "zisc/structure/queue.hpp"
 // Zivc
 #include "vulkan_backend.hpp"
 #include "vulkan_device_info.hpp"
@@ -116,7 +116,7 @@ inline
 const VulkanDeviceInfo& VulkanDevice::deviceInfoImpl() const noexcept
 {
   const auto& info = deviceInfo();
-  return *zisc::cast<const VulkanDeviceInfo*>(std::addressof(info));
+  return *static_cast<const VulkanDeviceInfo*>(std::addressof(info));
 }
 
 /*!
@@ -213,7 +213,7 @@ auto VulkanDevice::getShaderModule(const uint64b id) const noexcept -> const Mod
 inline
 bool VulkanDevice::hasCapability(const VulkanDeviceCapability cap) const noexcept
 {
-  const uint32b mask = 0b01u << zisc::cast<uint32b>(cap);
+  const uint32b mask = 0b01u << static_cast<uint32b>(cap);
   const bool flag = ((capabilities_ & mask) == mask);
   return flag;
 }
@@ -373,7 +373,7 @@ inline
 constexpr auto VulkanDevice::getCapability(const std::size_t index) noexcept
     -> Capability
 {
-  return zisc::cast<Capability>(index);
+  return static_cast<Capability>(index);
 }
 
 /*!
@@ -385,7 +385,7 @@ constexpr auto VulkanDevice::getCapability(const std::size_t index) noexcept
 inline
 constexpr std::size_t VulkanDevice::getCapabilityIndex(const Capability cap) noexcept
 {
-  return zisc::cast<std::size_t>(cap);
+  return static_cast<std::size_t>(cap);
 }
 
 /*!
@@ -419,7 +419,7 @@ inline
 VulkanBackend& VulkanDevice::parentImpl() noexcept
 {
   auto p = getParent();
-  return *zisc::cast<VulkanBackend*>(p);
+  return *static_cast<VulkanBackend*>(p);
 }
 
 /*!
@@ -431,7 +431,7 @@ inline
 const VulkanBackend& VulkanDevice::parentImpl() const noexcept
 {
   const auto p = getParent();
-  return *zisc::cast<const VulkanBackend*>(p);
+  return *static_cast<const VulkanBackend*>(p);
 }
 
 /*!

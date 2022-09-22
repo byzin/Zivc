@@ -51,6 +51,7 @@ macro(Zivc_setKernelBakerProject)
 
   #
   set(clang_tidy_exclusion_checks bugprone-exception-escape
+                                  readability-identifier-length
                                   )
   Zivc_setStaticAnalyzer(${PROJECT_NAME}
                          CLANG_TIDY_EXCLUSION_CHECKS ${clang_tidy_exclusion_checks})

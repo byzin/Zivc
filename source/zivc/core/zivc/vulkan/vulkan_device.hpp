@@ -17,6 +17,7 @@
 
 // Standard C++ library
 #include <array>
+#include <concepts>
 #include <cstddef>
 #include <map>
 #include <memory>
@@ -24,12 +25,10 @@
 #include <shared_mutex>
 #include <string_view>
 // Zisc
-#include "zisc/concepts.hpp"
-#include "zisc/data_structure/query_value.hpp"
-#include "zisc/data_structure/queue.hpp"
-#include "zisc/data_structure/scalable_circular_queue.hpp"
 #include "zisc/memory/memory.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
+#include "zisc/structure/queue.hpp"
+#include "zisc/structure/scalable_circular_queue.hpp"
 // Zivc
 #include "utility/cmd_debug_label_region.hpp"
 #include "utility/cmd_record_region.hpp"
@@ -52,8 +51,8 @@ class VulkanDeviceInfo;
 
 template <typename Type>
 concept LabelOptions = requires (const Type& o) {
-  {o.label()} -> zisc::ConvertibleTo<std::string_view>;
-  {o.labelColor()} -> zisc::ConvertibleTo<const std::template span<const float, 4>>;
+  {o.label()} -> std::convertible_to<std::string_view>;
+  {o.labelColor()} -> std::convertible_to<const std::template span<const float, 4>>;
 };
 
 /*!
@@ -300,8 +299,8 @@ class VulkanDevice : public Device
         void* user_data);
   };
 
-  using IndexQueueImpl = zisc::ScalableCircularQueue<zisc::QueryValueU64>;
-  using IndexQueue = zisc::Queue<IndexQueueImpl, zisc::QueryValueU64>;
+  using IndexQueueImpl = zisc::ScalableCircularQueue<std::size_t>;
+  using IndexQueue = zisc::Queue<IndexQueueImpl, std::size_t>;
   static_assert(IndexQueue::isConcurrent(), "The queue must be concurrent.");
   using UniqueModuleData = zisc::pmr::unique_ptr<ModuleData>;
   using UniqueKernelData = zisc::pmr::unique_ptr<KernelData>;

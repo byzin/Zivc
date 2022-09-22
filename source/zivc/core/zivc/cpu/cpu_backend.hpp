@@ -21,8 +21,8 @@
 #include <span>
 #include <vector>
 // Zisc
+#include "zisc/concurrency/thread_manager.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
-#include "zisc/thread/thread_manager.hpp"
 // Zivc
 #include "cpu_device_info.hpp"
 #include "zivc/backend.hpp"

@@ -287,7 +287,7 @@ auto VulkanBackend::Callbacks::allocateMemory(
     [[maybe_unused]] VkSystemAllocationScope scope) -> AllocationReturnType
 {
   ZIVC_ASSERT(user_data != nullptr, "The user data is null.");
-  auto* alloc_data = zisc::cast<AllocatorData*>(user_data);
+  auto* alloc_data = static_cast<AllocatorData*>(user_data);
   void* memory = alloc_data->memoryResource()->allocate(size, alignment);
 
   // Store the allocation info
@@ -297,8 +297,8 @@ auto VulkanBackend::Callbacks::allocateMemory(
   auto& mem_map = alloc_data->memoryMap();
   {
     const auto index_result = mem_map.add(address);
-    ZIVC_ASSERT(index_result.isSuccess(), "Adding the address into the map failed.");
-    const std::size_t index = index_result.get().get();
+    ZIVC_ASSERT(index_result.has_value(), "Adding the address into the map failed.");
+    const std::size_t index = *index_result;
     auto mem_list = alloc_data->memoryList();
     const MemoryData data{size, alignment};
     mem_list[index] = data;
@@ -319,7 +319,7 @@ void VulkanBackend::Callbacks::deallocateMemory(
 {
   ZIVC_ASSERT(user_data != nullptr, "The user data is null.");
   if (memory != nullptr) {
-    auto* alloc_data = zisc::cast<AllocatorData*>(user_data);
+    auto* alloc_data = static_cast<AllocatorData*>(user_data);
 
     static_assert(sizeof(void*) == sizeof(double));
     const auto address = zisc::bit_cast<double>(memory);
@@ -328,14 +328,14 @@ void VulkanBackend::Callbacks::deallocateMemory(
     MemoryData data;
     {
       const auto index_result = mem_map.contain(address);
-      ZIVC_ASSERT(index_result.isSuccess(), "The address isn't in the map.");
-      const std::size_t index = index_result.get().get();
+      ZIVC_ASSERT(index_result.has_value(), "The address isn't in the map.");
+      const std::size_t index = *index_result;
       const auto& mem_list = alloc_data->memoryList();
       data = mem_list[index];
     }
     {
       const auto index_result = mem_map.remove(address);
-      ZIVC_ASSERT(index_result.isSuccess(), "The address isn't in the map.");
+      ZIVC_ASSERT(index_result.has_value(), "The address isn't in the map.");
     }
     alloc_data->memoryResource()->deallocate(memory, data.size_, data.alignment_);
   }
@@ -412,7 +412,7 @@ auto VulkanBackend::Callbacks::printDebugMessage(
 
   if (user_data != nullptr) {
     char* msg = tmp.data();
-    const auto* data = cast<const IdData*>(user_data);
+    const auto* data = static_cast<const IdData*>(user_data);
     std::sprintf(msg, "ID[%lld] -", cast<long long>(data->id()));
     if (data->hasName()) {
       std::sprintf(msg, "%s Name '%s'", msg, data->name().data());
@@ -513,7 +513,7 @@ auto VulkanBackend::Callbacks::printDebugMessage(
     for (std::size_t id = 0; id < callback_data->objectCount; ++id) {
       const auto& object = callback_data->pObjects[id];
       const auto obj_type_name = zivcvk::to_string(
-          cast<zivcvk::ObjectType>(object.objectType));
+          static_cast<zivcvk::ObjectType>(object.objectType));
       std::sprintf(msg, "%s%s  * Object[%d] - Type '%s', Value %llu, Name '%s'\n",
           msg,
           indent.data(),
@@ -555,7 +555,7 @@ auto VulkanBackend::Callbacks::reallocateMemory(
     memory = allocateMemory(user_data, size, alignment, scope);
   // Copy data
   if ((original_memory != nullptr) && (memory != nullptr)) {
-    auto* alloc_data = zisc::cast<AllocatorData*>(user_data);
+    auto* alloc_data = static_cast<AllocatorData*>(user_data);
 
     static_assert(sizeof(void*) == sizeof(double));
     const auto address = zisc::bit_cast<double>(original_memory);
@@ -564,8 +564,8 @@ auto VulkanBackend::Callbacks::reallocateMemory(
     MemoryData data;
     {
       const auto index_result = mem_map.contain(address);
-      ZIVC_ASSERT(index_result.isSuccess(), "The address isn't in the map.");
-      const std::size_t index = index_result.get().get();
+      ZIVC_ASSERT(index_result.has_value(), "The address isn't in the map.");
+      const std::size_t index = *index_result;
       const auto& mem_list = alloc_data->memoryList();
       data = mem_list[index];
     }
@@ -641,7 +641,7 @@ void VulkanBackend::initAllocator() noexcept
 void VulkanBackend::initInstance(ContextOptions& options)
 {
   using InstancePtr = std::add_pointer_t<VkInstance>;
-  auto* ptr = zisc::cast<InstancePtr>(options.vulkanInstancePtr());
+  auto* ptr = static_cast<InstancePtr>(options.vulkanInstancePtr());
   if (ptr != nullptr) {
     // Use the given instance instead of allocating new instance
     instance_ = ZIVC_VK_NULL_HANDLE;
@@ -733,13 +733,15 @@ void VulkanBackend::initDeviceList()
   using DeviceList = zisc::pmr::vector<zivcvk::PhysicalDevice>;
   DeviceList::allocator_type alloc{memoryResource()};
   const auto& loader = dispatcher().loader();
-  auto device_list = ins.enumeratePhysicalDevices(alloc, loader);
+  // The enumerate function causes undefined symbol error
+  // auto device_list = ins.enumeratePhysicalDevices(alloc, loader);
+  auto device_list = ins.enumeratePhysicalDevices(loader);
 
   using DstDeviceList = decltype(device_list_)::element_type;
-  auto* list_ptr = zisc::reinterp<DstDeviceList*>(std::addressof(device_list));
-  device_list_ = zisc::pmr::allocateUnique<DstDeviceList>(
-      memoryResource(),
-      std::move(*list_ptr));
+  using T = decltype(device_list_)::element_type;
+  device_list_ = zisc::pmr::allocateUnique<DstDeviceList>(memoryResource(), T{alloc});
+  device_list_->resize(device_list.size());
+  std::copy(device_list.begin(), device_list.end(), device_list_->begin());
 }
 
 /*!
@@ -767,7 +769,7 @@ void VulkanBackend::initDispatcher(ContextOptions& options)
   zisc::pmr::polymorphic_allocator<VulkanDispatchLoader> alloc{mem_resource};
 
   using FuncPtr = std::add_pointer_t<PFN_vkGetInstanceProcAddr>;
-  auto* ptr = zisc::cast<FuncPtr>(options.vulkanGetProcAddrPtr());
+  auto* ptr = static_cast<FuncPtr>(options.vulkanGetProcAddrPtr());
   std::string_view lib = options.vulkanLibraryName();
   dispatcher_ = zisc::pmr::allocateUnique<VulkanDispatchLoader>(alloc);
   if (ptr != nullptr)

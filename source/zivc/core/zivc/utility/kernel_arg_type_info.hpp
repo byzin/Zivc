@@ -16,10 +16,9 @@
 #define ZIVC_KERNEL_ARG_TYPE_INFO_HPP
 
 // Standard C++ library
+#include <concepts>
 #include <cstddef>
 #include <type_traits>
-// Zisc
-#include "zisc/concepts.hpp"
 // Zivc
 #include "zivc/zivc_config.hpp"
 
@@ -55,7 +54,7 @@ class KernelArgTypeInfo
                 "The POD type isn't standard layout type.");
   static_assert(std::is_trivially_copyable_v<ElementType>,
                 "The POD type isn't trivially copyable type.");
-  static_assert(zisc::EqualityComparable<ElementType>,
+  static_assert(std::equality_comparable<ElementType>,
                 "The POD type isn't equality comparable.");
 };
 

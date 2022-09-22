@@ -13,13 +13,13 @@
 #include "algorithm.hpp"
 // Standard C++ library
 #include <algorithm>
+#include <bit>
 #include <cmath>
 #include <cstddef>
 #include <limits>
 #include <type_traits>
 // Zisc
 #include "zisc/algorithm.hpp"
-#include "zisc/bit.hpp"
 #include "zisc/utility.hpp"
 #include "zisc/math/math.hpp"
 // Zivc
@@ -245,7 +245,7 @@ IntegerN Algorithm::popcount(const IntegerN& x) noexcept
   constexpr bool is_scalar_type = std::is_integral_v<IntegerN>;
   // Scalar
   if constexpr (is_scalar_type) {
-    const auto result = zisc::popcount(x);
+    const auto result = std::popcount(x);
     return result;
   }
   // Vector

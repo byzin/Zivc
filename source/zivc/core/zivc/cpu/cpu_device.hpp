@@ -22,9 +22,9 @@
 #include <memory>
 // Zisc
 #include "zisc/function_reference.hpp"
+#include "zisc/concurrency/thread_manager.hpp"
 #include "zisc/memory/memory.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
-#include "zisc/thread/thread_manager.hpp"
 // Zivc
 #include "zivc/device.hpp"
 #include "zivc/zivc_config.hpp"

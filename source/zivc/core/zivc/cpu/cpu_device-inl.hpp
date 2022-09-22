@@ -20,9 +20,8 @@
 #include <cstddef>
 #include <memory>
 // Zisc
-#include "zisc/utility.hpp"
+#include "zisc/concurrency/thread_manager.hpp"
 #include "zisc/memory/memory.hpp"
-#include "zisc/thread/thread_manager.hpp"
 // Zivc
 #include "cpu_backend.hpp"
 #include "cpu_device_info.hpp"
@@ -39,7 +38,7 @@ inline
 const CpuDeviceInfo& CpuDevice::deviceInfoImpl() const noexcept
 {
   const auto& info = deviceInfo();
-  return *zisc::cast<const CpuDeviceInfo*>(std::addressof(info));
+  return *static_cast<const CpuDeviceInfo*>(std::addressof(info));
 }
 
 /*!
@@ -123,7 +122,7 @@ inline
 CpuBackend& CpuDevice::parentImpl() noexcept
 {
   auto p = getParent();
-  return *zisc::cast<CpuBackend*>(p);
+  return *static_cast<CpuBackend*>(p);
 }
 
 /*!
@@ -135,7 +134,7 @@ inline
 const CpuBackend& CpuDevice::parentImpl() const noexcept
 {
   const auto p = getParent();
-  return *zisc::cast<const CpuBackend*>(p);
+  return *static_cast<const CpuBackend*>(p);
 }
 
 } // namespace zivc

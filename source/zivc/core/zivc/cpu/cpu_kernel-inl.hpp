@@ -222,7 +222,7 @@ CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 parentImpl() noexcept
 {
   auto p = BaseKernelT::getParent();
-  return *zisc::cast<CpuDevice*>(p);
+  return *static_cast<CpuDevice*>(p);
 }
 
 /*!

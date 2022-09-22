@@ -25,10 +25,10 @@
 #include <type_traits>
 #include <vector>
 // Zisc
-#include "zisc/data_structure/mutex_bst.hpp"
-#include "zisc/data_structure/search_tree.hpp"
 #include "zisc/non_copyable.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
+#include "zisc/structure/map.hpp"
+#include "zisc/structure/mutex_bst.hpp"
 // Zivc
 #include "vulkan_device_info.hpp"
 #include "utility/vulkan.hpp"
@@ -168,8 +168,8 @@ class VulkanBackend : public Backend
   class AllocatorData : private zisc::NonCopyable<AllocatorData>
   {
    public:
-    using MemoryMapImpl = zisc::MutexBst;
-    using MemoryMap = zisc::SearchTree<MemoryMapImpl>;
+    using MemoryMapImpl = zisc::MutexBst<double>;
+    using MemoryMap = zisc::Map<MemoryMapImpl, MemoryMapImpl::KeyT>;
     static_assert(MemoryMap::isConcurrent(), "The map must be concurrent.");
 
 

@@ -19,6 +19,7 @@
 // Standard C++ library
 #include <cstddef>
 #include <type_traits>
+#include <utility>
 // Zisc
 #include "zisc/utility.hpp"
 // Zivc
@@ -43,7 +44,7 @@ MappedMemory<T>::MappedMemory() noexcept
   */
 template <KernelArg T> inline
 MappedMemory<T>::MappedMemory(const BufferCommon* buffer) :
-    data_{(buffer != nullptr) ? zisc::cast<Pointer>(buffer->mapMemoryData()) : nullptr},
+    data_{(buffer != nullptr) ? static_cast<Pointer>(buffer->mapMemoryData()) : nullptr},
     buffer_{buffer}
 {
 }
@@ -56,8 +57,8 @@ MappedMemory<T>::MappedMemory(const BufferCommon* buffer) :
 template <KernelArg T> inline
 MappedMemory<T>::MappedMemory(MappedMemory&& other) noexcept
 {
-  zisc::swap(data_, other.data_);
-  zisc::swap(buffer_, other.buffer_);
+  std::swap(data_, other.data_);
+  std::swap(buffer_, other.buffer_);
 }
 
 /*!
@@ -159,8 +160,8 @@ auto MappedMemory<T>::cend() const noexcept -> ConstIterator
 template <KernelArg T> inline
 auto MappedMemory<T>::operator=(MappedMemory&& other) noexcept -> MappedMemory&
 {
-  zisc::swap(data_, other.data_);
-  zisc::swap(buffer_, other.buffer_);
+  std::swap(data_, other.data_);
+  std::swap(buffer_, other.buffer_);
   return *this;
 }
 

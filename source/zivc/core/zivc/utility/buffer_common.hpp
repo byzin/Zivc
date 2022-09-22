@@ -16,11 +16,10 @@
 #define ZIVC_BUFFER_COMMON_HPP
 
 // Standard C++ library
+#include <concepts>
 #include <cstddef>
 #include <memory>
 #include <type_traits>
-// Zisc
-#include "zisc/concepts.hpp"
 // Zivc
 #include "id_data.hpp"
 #include "zivc_object.hpp"
@@ -33,7 +32,7 @@ class BufferCommon;
 
 // Concepts
 template <typename Derived>
-concept DerivedBuffer = zisc::DerivedFrom<BufferCommon, std::remove_cv_t<Derived>>;
+concept DerivedBuffer = std::derived_from<BufferCommon, std::remove_cv_t<Derived>>;
 
 /*!
   \brief No brief description

@@ -32,12 +32,12 @@ namespace cl {
 //! Specity a type is implicitly convertible to another pointer of another type
 template <typename From, typename To>
 concept ConvertibleToPointer =
-    zisc::ConvertibleTo<From,
+    std::convertible_to<From,
                         std::add_pointer_t<std::remove_volatile_t<To>>>;
 //! Specity pointer of a type is implicitly convertible to pointer of another type
 template <typename From, typename To>
 concept ConvertiblePointerToPointer =
-    zisc::ConvertibleTo<std::add_pointer_t<std::remove_volatile_t<From>>,
+    std::convertible_to<std::add_pointer_t<std::remove_volatile_t<From>>,
                         std::add_pointer_t<std::remove_volatile_t<To>>>;
 
 /*!

@@ -24,9 +24,9 @@
 // Zisc
 #include "zisc/boolean.hpp"
 #include "zisc/utility.hpp"
-#include "zisc/memory/simple_memory_resource.hpp"
+#include "zisc/concurrency/thread_manager.hpp"
+#include "zisc/memory/alloc_free_resource.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
-#include "zisc/thread/thread_manager.hpp"
 // Zivc
 #include "backend.hpp"
 #include "context_options.hpp"
@@ -177,7 +177,7 @@ SharedDevice Context::queryDevice(const std::size_t device_index)
 zisc::ThreadManager& Context::threadManager() noexcept
 {
   auto* backend_p = backend(BackendType::kCpu);
-  auto* cpu_backend = zisc::cast<CpuBackend*>(backend_p);
+  auto* cpu_backend = static_cast<CpuBackend*>(backend_p);
   return cpu_backend->threadManager();
 }
 
@@ -189,7 +189,7 @@ zisc::ThreadManager& Context::threadManager() noexcept
 const zisc::ThreadManager& Context::threadManager() const noexcept
 {
   const auto* backend_p = backend(BackendType::kCpu);
-  const auto* cpu_backend = zisc::cast<const CpuBackend*>(backend_p);
+  const auto* cpu_backend = static_cast<const CpuBackend*>(backend_p);
   return cpu_backend->threadManager();
 }
 
@@ -250,7 +250,7 @@ void Context::setMemoryResource(zisc::pmr::memory_resource* mem_resource) noexce
   if (mem_resource != nullptr)
     default_mem_resource_.reset();
   else
-    default_mem_resource_ = std::make_unique<zisc::SimpleMemoryResource>();
+    default_mem_resource_ = std::make_unique<zisc::AllocFreeResource>();
 }
 
 /*!

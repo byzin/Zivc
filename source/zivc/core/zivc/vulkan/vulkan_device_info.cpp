@@ -788,32 +788,32 @@ void VulkanDeviceInfo::initVendorInfo() noexcept
   };
 
   switch (properties().properties1_.vendorID) {
-   case zisc::cast<uint32b>(VendorId::kAmd): {
+   case static_cast<uint32b>(VendorId::kAmd): {
     vendor_id_ = VendorId::kAmd;
     set_vendor_name("AMD");
     break;
    }
-   case zisc::cast<uint32b>(VendorId::kImgTec): {
+   case static_cast<uint32b>(VendorId::kImgTec): {
     vendor_id_ = VendorId::kImgTec;
     set_vendor_name("ImgTec");
     break;
    }
-   case zisc::cast<uint32b>(VendorId::kNvidia): {
+   case static_cast<uint32b>(VendorId::kNvidia): {
     vendor_id_ = VendorId::kNvidia;
     set_vendor_name("NVIDIA");
     break;
    }
-   case zisc::cast<uint32b>(VendorId::kArm): {
+   case static_cast<uint32b>(VendorId::kArm): {
     vendor_id_ = VendorId::kArm;
     set_vendor_name("ARM");
     break;
    }
-   case zisc::cast<uint32b>(VendorId::kQualcomm): {
+   case static_cast<uint32b>(VendorId::kQualcomm): {
     vendor_id_ = VendorId::kQualcomm;
     set_vendor_name("Qualcomm");
     break;
    }
-   case zisc::cast<uint32b>(VendorId::kIntel): {
+   case static_cast<uint32b>(VendorId::kIntel): {
     vendor_id_ = VendorId::kIntel;
     set_vendor_name("INTEL");
     break;

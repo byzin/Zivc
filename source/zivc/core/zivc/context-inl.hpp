@@ -56,7 +56,7 @@ std::span<const DeviceInfo* const> Context::deviceInfoList() const noexcept
 inline
 bool Context::hasBackend(const BackendType type) const noexcept
 {
-  const std::size_t index = zisc::cast<std::size_t>(type);
+  const std::size_t index = static_cast<std::size_t>(type);
   ZIVC_ASSERT(index < kNumOfBackends, "The index is out of range.");
   const auto* backend_p = backend(type);
   const bool result = (backend_p != nullptr) && backend_p->isAvailable();
@@ -125,7 +125,7 @@ const zisc::pmr::memory_resource* Context::memoryResource() const noexcept
 inline
 Backend* Context::backend(const BackendType type) noexcept
 {
-  const std::size_t index = zisc::cast<std::size_t>(type);
+  const std::size_t index = static_cast<std::size_t>(type);
   ZIVC_ASSERT(index < kNumOfBackends, "The index is out of range.");
   SharedBackend& backend_p = backend_list_[index];
   return backend_p.get();
@@ -140,7 +140,7 @@ Backend* Context::backend(const BackendType type) noexcept
 inline
 const Backend* Context::backend(const BackendType type) const noexcept
 {
-  const std::size_t index = zisc::cast<std::size_t>(type);
+  const std::size_t index = static_cast<std::size_t>(type);
   ZIVC_ASSERT(index < kNumOfBackends, "The index is out of range.");
   const SharedBackend& backend_p = backend_list_[index];
   return backend_p.get();
@@ -154,7 +154,7 @@ const Backend* Context::backend(const BackendType type) const noexcept
 inline
 void Context::setBackend(SharedBackend&& backend) noexcept
 {
-  const std::size_t index = zisc::cast<std::size_t>(backend->type());
+  const std::size_t index = static_cast<std::size_t>(backend->type());
   ZIVC_ASSERT(index < kNumOfBackends, "The index is out of range.");
   backend_list_[index] = std::move(backend);
 }

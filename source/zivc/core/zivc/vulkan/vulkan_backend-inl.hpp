@@ -23,9 +23,9 @@
 #include <string_view>
 #include <vector>
 // Zisc
-#include "zisc/data_structure/search_tree.hpp"
 #include "zisc/memory/memory.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
+#include "zisc/structure/map.hpp"
 // Zivc
 #include "vulkan_device_info.hpp"
 #include "utility/vulkan.hpp"

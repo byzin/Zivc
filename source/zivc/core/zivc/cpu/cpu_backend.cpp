@@ -23,8 +23,8 @@
 #include <vector>
 // Zisc
 #include "zisc/utility.hpp"
+#include "zisc/concurrency/thread_manager.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
-#include "zisc/thread/thread_manager.hpp"
 // Zivc
 #include "cpu_device.hpp"
 #include "cpu_device_info.hpp"
@@ -61,7 +61,7 @@ CpuBackend::~CpuBackend() noexcept
   */
 SharedDevice CpuBackend::createDevice(const DeviceInfo& device_info)
 {
-  const auto* info = zisc::cast<const CpuDeviceInfo*>(std::addressof(device_info));
+  const auto* info = static_cast<const CpuDeviceInfo*>(std::addressof(device_info));
   if (device_info_.get() != info) {
     const std::string message = createErrorMessage(
         *this,

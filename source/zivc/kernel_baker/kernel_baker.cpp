@@ -31,8 +31,8 @@
 #include <vector>
 // Zisc
 #include "zisc/binary_serializer.hpp"
+#include "zisc/memory/alloc_free_resource.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
-#include "zisc/memory/simple_memory_resource.hpp"
 // Zivc
 #include "zivc/utility/zstd.hpp"
 
@@ -90,7 +90,7 @@ zisc::pmr::vector<std::byte> loadSpirVFile(std::string_view file_path,
     std::abort();
   }
 
-  zisc::pmr::vector<std::byte>::allocator_type alloc{params.mem_resource_};
+  const zisc::pmr::vector<std::byte>::allocator_type alloc{params.mem_resource_};
   zisc::pmr::vector<std::byte> spv_data{alloc};
   spv_data.resize(static_cast<std::size_t>(spv_size));
   spv_file.read(reinterpret_cast<char*>(spv_data.data()), spv_size);
@@ -117,11 +117,11 @@ zisc::pmr::vector<std::byte> encodeSpirVData(
     const zisc::pmr::vector<std::byte>& data,
     Parameters& params) noexcept
 {
-  zisc::pmr::vector<std::byte>::allocator_type alloc{params.mem_resource_};
+  const zisc::pmr::vector<std::byte>::allocator_type alloc{params.mem_resource_};
   zisc::pmr::vector<std::byte> encoded_data{alloc};
   encoded_data.resize(ZSTD_compressBound(data.size()));
 
-  ZSTD_customMem mem{allocateMemory, deallocateMemory, params.mem_resource_};
+  const ZSTD_customMem mem{allocateMemory, deallocateMemory, params.mem_resource_};
   ZSTD_CCtx* context = ZSTD_createCCtx_advanced(mem);
   if (context == nullptr) {
     std::cerr << "ZSTD context creation failed." << std::endl;
@@ -178,6 +178,15 @@ void generateBakeCode(const zisc::pmr::vector<std::byte>& spv_data,
     (*bake_code) << line << std::endl;
   };
 
+  auto set_include_guard = [&params](const std::string_view prefix,
+                                     zisc::pmr::string* str) noexcept
+  {
+    (*str) = prefix;
+    (*str) += "ZIVC_KERNEL_SET_";
+    (*str) += params.kernel_set_name_.data();
+    (*str) += "_BAKE_HPP";
+  };
+
   add_line("/*!");
   add_line("  \\brief Baked Kernel set code.");
   add_line("");
@@ -185,13 +194,12 @@ void generateBakeCode(const zisc::pmr::vector<std::byte>& spv_data,
   add_line("  No detailed description.");
   add_line("  */");
   add_line("");
-  zisc::pmr::string::allocator_type alloc{params.mem_resource_};
+  const zisc::pmr::string::allocator_type alloc{params.mem_resource_};
   zisc::pmr::string include_guard_name{alloc};
-  include_guard_name = "ZIVC_KERNEL_SET_";
-  include_guard_name += params.kernel_set_name_.data();
-  include_guard_name += "_BAKE_HPP";
-  add_line("#ifndef " + include_guard_name);
-  add_line("#define " + include_guard_name);
+  set_include_guard("#ifndef ", &include_guard_name);
+  add_line(include_guard_name);
+  set_include_guard("#define ", &include_guard_name);
+  add_line(include_guard_name);
   add_line("");
   add_line("// Standard C++ library");
   add_line("// #include <array>");
@@ -248,7 +256,8 @@ void generateBakeCode(const zisc::pmr::vector<std::byte>& spv_data,
   add_line("};");
 
   add_line("");
-  add_line("#endif // " + include_guard_name);
+  set_include_guard("#endif // ", &include_guard_name);
+  add_line(include_guard_name);
 }
 
 //! Save the bake code
@@ -277,14 +286,14 @@ int main(int /* argc */, char** argv)
 {
   ::printDebugMessage("Bake a kernel set");
   // Input parameters
-  std::string_view exec_path{argv[0]};
-  std::string_view spv_file_path{argv[1]};
-  std::string_view baked_spv_file_path{argv[2]};
+  const std::string_view exec_path{argv[0]};
+  const std::string_view spv_file_path{argv[1]};
+  const std::string_view baked_spv_file_path{argv[2]};
   ::printDebugMessage("    Input parameters info");
   ::printDebugMessage("        Src SPIR-V file path: ", spv_file_path.data());
   ::printDebugMessage("        Dst baked file path: ", baked_spv_file_path.data());
   ::Parameters params;
-  zisc::SimpleMemoryResource mem_resource;
+  zisc::AllocFreeResource mem_resource;
   params.mem_resource_ = std::addressof(mem_resource);
   params.kernel_set_name_ = argv[3];
   ::printDebugMessage("        Kernel set name: '", params.kernel_set_name_.data(), "'");
@@ -309,8 +318,8 @@ int main(int /* argc */, char** argv)
 
   // Generate a hpp file of the bake code
   {
-    zisc::pmr::string::allocator_type alloc{params.mem_resource_};
-    zisc::pmr::string tmp{alloc};
+    const zisc::pmr::string::allocator_type alloc{params.mem_resource_};
+    const zisc::pmr::string tmp{alloc};
     zisc::pmr::stringstream bake_code{tmp};
     ::generateBakeCode(spv_data, encoded_data, params, std::addressof(bake_code));
     zisc::BSerializer::backToBegin(std::addressof(bake_code));

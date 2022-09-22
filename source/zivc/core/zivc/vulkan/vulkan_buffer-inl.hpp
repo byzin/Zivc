@@ -18,6 +18,7 @@
 #include "vulkan_buffer.hpp"
 // Standard C++ library
 #include <algorithm>
+#include <bit>
 #include <cstring>
 #include <memory>
 #include <string>
@@ -435,7 +436,7 @@ template <KernelArg T> inline
 bool VulkanBuffer<T>::canFillFast(const std::size_t offset_bytes,
                                   const std::size_t size_bytes) noexcept
 {
-  constexpr bool is_t_mul_of_4 = (sizeof(T) <= 4) && zisc::has_single_bit(sizeof(T));
+  constexpr bool is_t_mul_of_4 = (sizeof(T) <= 4) && std::has_single_bit(sizeof(T));
   const bool result = is_t_mul_of_4 && (offset_bytes % 4 == 0) && (size_bytes % 4 == 0);
   return result;
 }
@@ -478,7 +479,7 @@ LaunchResult VulkanBuffer<T>::copyOnDevice(
     BufferCommon* dest,
     const BufferLaunchOptions<D>& launch_options)
 {
-  VulkanDevice& device = *zisc::cast<VulkanDevice*>(dest->getParent());
+  VulkanDevice& device = *static_cast<VulkanDevice*>(dest->getParent());
 
   const auto& src_data = *zisc::cast<const BufferData*>(source.rawBufferData());
   auto& dst_data = *zisc::cast<BufferData*>(dest->rawBufferData());
@@ -581,7 +582,7 @@ LaunchResult VulkanBuffer<T>::fillFastOnDevice(
     BufferCommon* dest,
     const BufferLaunchOptions<D>& launch_options)
 {
-  VulkanDevice& device = *zisc::cast<VulkanDevice*>(dest->getParent());
+  VulkanDevice& device = *static_cast<VulkanDevice*>(dest->getParent());
 
   // Create a data for fill
   const uint32b data = createDataForFillFast(value);
@@ -669,7 +670,7 @@ LaunchResult VulkanBuffer<T>::fillOnDevice(
     std::memcpy(mem.data(), std::addressof(value), mem.size());
   }
   //
-  VulkanDevice& device = *zisc::cast<VulkanDevice*>(dest->getParent());
+  VulkanDevice& device = *static_cast<VulkanDevice*>(dest->getParent());
   const VulkanBufferImpl impl{std::addressof(device)};
   LaunchResult result = impl.fill(dest_data->fill_kernel_.get(),
                                   fill_data,
@@ -786,7 +787,7 @@ template <KernelArg T> inline
 VulkanDevice& VulkanBuffer<T>::parentImpl() noexcept
 {
   auto p = Buffer<T>::getParent();
-  return *zisc::cast<VulkanDevice*>(p);
+  return *static_cast<VulkanDevice*>(p);
 }
 
 /*!
@@ -798,7 +799,7 @@ template <KernelArg T> inline
 const VulkanDevice& VulkanBuffer<T>::parentImpl() const noexcept
 {
   const auto p = Buffer<T>::getParent();
-  return *zisc::cast<const VulkanDevice*>(p);
+  return *static_cast<const VulkanDevice*>(p);
 }
 
 /*!

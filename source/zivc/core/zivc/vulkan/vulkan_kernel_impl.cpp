@@ -109,7 +109,7 @@ void VulkanKernelImpl::dispatchCmd(const VkCommandBuffer& command_buffer,
                                    const VkDescriptorSet& descriptor_set,
                                    const std::span<const uint32b, 3>& dispatch_size)
 {
-  const auto* kdata = zisc::cast<const VulkanDevice::KernelData*>(kernel_data);
+  const auto* kdata = static_cast<const VulkanDevice::KernelData*>(kernel_data);
   const auto& loader = device().dispatcher().loader();
 
   const zivcvk::CommandBuffer command{command_buffer};
@@ -177,7 +177,7 @@ void VulkanKernelImpl::initDescriptorSet(
 
   // Initialize descriptor set
   {
-    const auto* kdata = zisc::cast<const VulkanDevice::KernelData*>(kernel_data);
+    const auto* kdata = static_cast<const VulkanDevice::KernelData*>(kernel_data);
     const zivcvk::DescriptorSetLayout desc_set_layout{kdata->desc_set_layout_};
     const zivcvk::DescriptorSetAllocateInfo alloc_info{desc_pool,
                                                        1,
@@ -229,7 +229,7 @@ void VulkanKernelImpl::pushConstantCmd(const VkCommandBuffer& command_buffer,
                                        const std::size_t size,
                                        const void* data)
 {
-  const auto* kdata = zisc::cast<const VulkanDevice::KernelData*>(kernel_data);
+  const auto* kdata = static_cast<const VulkanDevice::KernelData*>(kernel_data);
   const auto& loader = device().dispatcher().loader();
   const zivcvk::CommandBuffer command{command_buffer};
   const zivcvk::PipelineLayout pline_l{kdata->pipeline_layout_};
@@ -267,7 +267,7 @@ void VulkanKernelImpl::updateDescriptorSet(const VkDescriptorSet& descriptor_set
     write_desc->dstBinding = zisc::cast<uint32b>(i);
     write_desc->dstArrayElement = 0;
     write_desc->descriptorCount = 1;
-    const auto desc_type = zisc::cast<zivcvk::DescriptorType>(desc_type_list[i]);
+    const auto desc_type = static_cast<zivcvk::DescriptorType>(desc_type_list[i]);
     write_desc->descriptorType = desc_type;
     write_desc->pBufferInfo = desc_info;
   }

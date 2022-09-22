@@ -19,6 +19,7 @@
 // Standard C++ library
 #include <memory>
 #include <type_traits>
+#include <utility>
 // Zisc
 #include "zisc/non_copyable.hpp"
 #include "zisc/utility.hpp"
@@ -54,8 +55,8 @@ Fence::Fence(Device* device) : device_{nullptr}
 inline
 Fence::Fence(Fence&& other) noexcept : Fence(nullptr)
 {
-  zisc::swap(fence_, other.fence_);
-  zisc::swap(device_, other.device_);
+  std::swap(fence_, other.fence_);
+  std::swap(device_, other.device_);
 }
 
 /*!
@@ -76,8 +77,8 @@ Fence::~Fence() noexcept
 inline
 Fence& Fence::operator=(Fence&& other) noexcept
 {
-  zisc::swap(fence_, other.fence_);
-  zisc::swap(device_, other.device_);
+  std::swap(fence_, other.fence_);
+  std::swap(device_, other.device_);
   return *this;
 }
 

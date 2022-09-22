@@ -17,6 +17,7 @@
 
 // Standard C++ library
 #include <array>
+#include <concepts>
 #include <cstddef>
 #include <span>
 #include <type_traits>
@@ -109,7 +110,7 @@ class VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   using PodCacheT = decltype(createPodCacheType<0>(KernelArgCache<void>{}));
   static_assert(std::is_trivially_copyable_v<PodCacheT>,
                 "The POD values aren't trivially copyable.");
-  static_assert(zisc::EqualityComparable<PodCacheT>,
+  static_assert(std::equality_comparable<PodCacheT>,
                 "The POD values aren't equality comparable.");
 
 

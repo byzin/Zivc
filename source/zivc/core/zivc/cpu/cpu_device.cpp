@@ -21,10 +21,10 @@
 #include <memory>
 // Zisc
 #include "zisc/utility.hpp"
+#include "zisc/concurrency/future.hpp"
+#include "zisc/concurrency/thread_manager.hpp"
 #include "zisc/memory/memory.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
-#include "zisc/thread/future.hpp"
-#include "zisc/thread/thread_manager.hpp"
 // Zivc
 #include "cpu_backend.hpp"
 #include "cpu_device_info.hpp"

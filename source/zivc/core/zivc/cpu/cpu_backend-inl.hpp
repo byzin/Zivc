@@ -19,8 +19,8 @@
 // Standard C++ library
 #include <cstddef>
 // Zisc
+#include "zisc/concurrency/thread_manager.hpp"
 #include "zisc/memory/memory.hpp"
-#include "zisc/thread/thread_manager.hpp"
 #include "zisc/utility.hpp"
 // Zivc
 #include "cpu_device_info.hpp"

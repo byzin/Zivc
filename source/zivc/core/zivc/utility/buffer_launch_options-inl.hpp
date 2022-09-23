@@ -22,9 +22,6 @@
 #include <cstring>
 #include <type_traits>
 #include <utility>
-// Zisc
-#include "zisc/concepts.hpp"
-#include "zisc/utility.hpp"
 // Zivc
 #include "id_data.hpp"
 #include "zivc/zivc_config.hpp"

@@ -22,7 +22,6 @@
 #include <utility>
 // Zisc
 #include "zisc/non_copyable.hpp"
-#include "zisc/utility.hpp"
 // Zivc
 #include "zivc/zivc_config.hpp"
 
@@ -100,7 +99,7 @@ Fence::operator bool() const noexcept
   \return No description
   */
 inline
-auto Fence::data() noexcept -> Data&
+auto Fence::data() noexcept -> DataT&
 {
   return fence_;
 }
@@ -111,7 +110,7 @@ auto Fence::data() noexcept -> Data&
   \return No description
   */
 inline
-auto Fence::data() const noexcept -> const Data&
+auto Fence::data() const noexcept -> const DataT&
 {
   return fence_;
 }

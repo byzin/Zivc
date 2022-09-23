@@ -156,9 +156,9 @@ TEST(ContextTest, CreateDeviceTest)
   auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
 
-  zivc::SharedDevice device1 = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device1 = context->queryDevice(config.deviceId());
   ASSERT_TRUE(device1) << "Device creation failed.";
   // Second query should return the same device unless the first device is destroyed
-  zivc::SharedDevice device2 = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device2 = context->queryDevice(config.deviceId());
   ASSERT_EQ(device1.get(), device2.get()) << "The device query failed.";
 }

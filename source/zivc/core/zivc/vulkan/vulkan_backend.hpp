@@ -321,10 +321,10 @@ class VulkanBackend : public Backend
   std::add_pointer_t<VkInstance> instance_ref_ = nullptr;
   zisc::pmr::unique_ptr<VulkanDispatchLoader> dispatcher_;
   zisc::pmr::unique_ptr<AllocatorData> allocator_data_;
-  ZivcObject::UniqueVector<VkExtensionProperties> extension_properties_list_;
-  ZivcObject::UniqueVector<VkLayerProperties> layer_properties_list_;
-  ZivcObject::UniqueVector<VkPhysicalDevice> device_list_;
-  ZivcObject::UniqueVector<VulkanDeviceInfo> device_info_list_;
+  ZivcObject::UniqueVectorT<VkExtensionProperties> extension_properties_list_;
+  ZivcObject::UniqueVectorT<VkLayerProperties> layer_properties_list_;
+  ZivcObject::UniqueVectorT<VkPhysicalDevice> device_list_;
+  ZivcObject::UniqueVectorT<VulkanDeviceInfo> device_info_list_;
   WindowSurfaceType window_surface_type_ = WindowSurfaceType::kNone;
   [[maybe_unused]] Padding<4> pad_;
   char engine_name_[32] = "Zivc";

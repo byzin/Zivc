@@ -35,7 +35,7 @@ class MemoryHeapInfo
 {
  public:
   // Type alias
-  using Usage = zisc::Memory::Usage;
+  using UsageT = zisc::Memory::Usage;
 
 
   //! Return the available memory size in the heap
@@ -57,15 +57,15 @@ class MemoryHeapInfo
   std::size_t totalSize() const noexcept;
 
   //! Return the currently used size for buffers in the heap
-  Usage& usedSizeForBuffer() noexcept;
+  UsageT& usedSizeForBuffer() noexcept;
 
   //! Return the currently used size for buffers in the heap
-  const Usage& usedSizeForBuffer() const noexcept;
+  const UsageT& usedSizeForBuffer() const noexcept;
 
  private:
   std::size_t total_size_ = 0;
   std::size_t available_size_ = 0;
-  Usage used_size_for_buffer_;
+  UsageT used_size_for_buffer_;
   zisc::Boolean is_device_local_;
   [[maybe_unused]] Padding<std::alignment_of_v<std::size_t> - 1> pad_;
 };

@@ -16,7 +16,7 @@
 #define ZIVC_CONFIG_HPP
 
 // Standard C++ library
-#include <cstddef>
+#include <concepts>
 #include <limits>
 #include <string_view>
 #include <type_traits>

@@ -129,7 +129,7 @@ const zisc::pmr::memory_resource* Config::memoryResource() const noexcept
 zivc::SharedContext Config::queryContext() noexcept
 {
   if (!context_) {
-    zisc::pmr::polymorphic_allocator<zivc::Context> alloc{memoryResource()};
+    const zisc::pmr::polymorphic_allocator<zivc::Context> alloc{memoryResource()};
     zivc::ContextOptions options{memoryResource()};
     options.setContextName("UnitTest");
     options.setContextVersionMajor(zivc::Config::versionMajor());

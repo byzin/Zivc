@@ -39,19 +39,19 @@ class KernelInitParams
 {
  public:
   // Type aliases
-  using KernelSetType = KSet;
-  using Function = void (*)(Args...);
+  using KernelSetT = KSet;
+  using FunctionT = void (*)(Args...);
 
 
   //! Initialize parameters
-  KernelInitParams(Function ptr, std::string_view kernel_name) noexcept;
+  KernelInitParams(FunctionT ptr, std::string_view kernel_name) noexcept;
 
 
   //! Return the dimension of the kernel
   static constexpr std::size_t dimension() noexcept;
 
   //! Return the underlying function
-  Function func() const noexcept;
+  FunctionT func() const noexcept;
 
   //! Return the kernel name
   std::string_view kernelName() const noexcept;
@@ -60,7 +60,7 @@ class KernelInitParams
   static constexpr std::size_t maxKernelNameLength() noexcept;
 
   //! Set a function
-  void setFunc(Function ptr) noexcept;
+  void setFunc(FunctionT ptr) noexcept;
 
   //! Set a kernel name
   void setKernelName(std::string_view kernel_name) noexcept;
@@ -76,8 +76,8 @@ class KernelInitParams
   void initialize(std::string_view kernel_name) noexcept;
 
 
-  Function function_;
-  IdData::NameType kernel_name_;
+  FunctionT function_;
+  IdData::NameT kernel_name_;
   const void* command_buffer_ptr_ = nullptr;
 };
 

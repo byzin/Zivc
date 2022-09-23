@@ -94,7 +94,7 @@ int initGlfwVulkan(void* instance,
     auto* w = reinterpret_cast<_GLFWwindow*>(window);
     const auto* vk_alloc = reinterpret_cast<const VkAllocationCallbacks*>(alloc);
     auto* s = reinterpret_cast<VkSurfaceKHR*>(surface);
-    VkResult r = _glfwPlatformCreateWindowSurface(ins, w, vk_alloc, s);
+    const VkResult r = _glfwPlatformCreateWindowSurface(ins, w, vk_alloc, s);
     result = static_cast<int>(r);
   }
 

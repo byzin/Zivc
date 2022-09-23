@@ -55,8 +55,8 @@ namespace zivc {
   */
 void getCpuFeatures(char* cpu_name, char* vendor_name) noexcept
 {
-  IdData::NameType cpu_n;
-  IdData::NameType vendor_n;
+  IdData::NameT cpu_n;
+  IdData::NameT vendor_n;
   auto set_cpu_name = [&cpu_n](const std::string_view name)
   {
     copyStr(name, cpu_n.data());

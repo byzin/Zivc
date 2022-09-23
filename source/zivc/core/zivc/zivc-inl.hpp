@@ -21,9 +21,6 @@
 #include <cstddef>
 #include <string_view>
 #include <utility>
-// Zisc
-#include "zisc/concepts.hpp"
-#include "zisc/utility.hpp"
 // Zivc
 #include "buffer.hpp"
 #include "device.hpp"

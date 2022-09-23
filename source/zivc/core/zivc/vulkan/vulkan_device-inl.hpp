@@ -51,13 +51,14 @@ namespace zivc {
   \tparam SetType No description.
   */
 template <typename SetType> inline
-auto VulkanDevice::addShaderModule(const KernelSet<SetType>& kernel_set)
+auto VulkanDevice::addShaderModule(KernelSet<SetType>& kernel_set)
     -> const ModuleData&
 {
   const uint64b id = kernel_set.id();
   if (hasShaderModule(id))
     return getShaderModule(id);
 
+  kernel_set.initialize();
   const std::span<const uint32b> spirv_code = kernel_set.spirVCode();
   const std::string_view module_name = kernel_set.name();
   return addShaderModule(id, spirv_code, module_name);
@@ -138,7 +139,7 @@ const VulkanDispatchLoader& VulkanDevice::dispatcher() const noexcept
   \return No description
   */
 inline
-VkQueue& VulkanDevice::getQueue(const Capability cap,
+VkQueue& VulkanDevice::getQueue(const CapabilityT cap,
                                 const std::size_t index) noexcept
 {
   ZIVC_ASSERT(hasCapability(cap), "Unsupported capability is specified in getQueue.");
@@ -156,7 +157,7 @@ VkQueue& VulkanDevice::getQueue(const Capability cap,
   \return No description
   */
 inline
-const VkQueue& VulkanDevice::getQueue(const Capability cap,
+const VkQueue& VulkanDevice::getQueue(const CapabilityT cap,
                                       const std::size_t index) const noexcept
 {
   ZIVC_ASSERT(hasCapability(cap), "Unsupported capability is specified in getQueue.");
@@ -211,7 +212,7 @@ auto VulkanDevice::getShaderModule(const uint64b id) const noexcept -> const Mod
   \return No description
   */
 inline
-bool VulkanDevice::hasCapability(const VulkanDeviceCapability cap) const noexcept
+bool VulkanDevice::hasCapability(const CapabilityT cap) const noexcept
 {
   const uint32b mask = 0b01u << static_cast<uint32b>(cap);
   const bool flag = ((capabilities_ & mask) == mask);
@@ -332,7 +333,7 @@ const VmaAllocator& VulkanDevice::memoryAllocator() const noexcept
   \return No description
   */
 inline
-std::size_t VulkanDevice::numOfQueues(const Capability cap) const noexcept
+std::size_t VulkanDevice::numOfQueues(const CapabilityT cap) const noexcept
 {
   const std::size_t index = getCapabilityIndex(cap);
   const auto n = zisc::cast<std::size_t>(queue_count_list_[index]);
@@ -345,7 +346,7 @@ std::size_t VulkanDevice::numOfQueues(const Capability cap) const noexcept
   \return No description
   */
 inline
-uint32b VulkanDevice::queueFamilyIndex(const Capability cap) const noexcept
+uint32b VulkanDevice::queueFamilyIndex(const CapabilityT cap) const noexcept
 {
   const std::size_t index = getCapabilityIndex(cap);
   return queue_family_index_list_[index];
@@ -371,9 +372,9 @@ std::span<const uint32b, 3> VulkanDevice::workGroupSizeDim(const std::size_t dim
   */
 inline
 constexpr auto VulkanDevice::getCapability(const std::size_t index) noexcept
-    -> Capability
+    -> CapabilityT
 {
-  return static_cast<Capability>(index);
+  return static_cast<CapabilityT>(index);
 }
 
 /*!
@@ -383,7 +384,7 @@ constexpr auto VulkanDevice::getCapability(const std::size_t index) noexcept
   \return No description
   */
 inline
-constexpr std::size_t VulkanDevice::getCapabilityIndex(const Capability cap) noexcept
+constexpr std::size_t VulkanDevice::getCapabilityIndex(const CapabilityT cap) noexcept
 {
   return static_cast<std::size_t>(cap);
 }
@@ -394,7 +395,7 @@ constexpr std::size_t VulkanDevice::getCapabilityIndex(const Capability cap) noe
   \return No description
   */
 inline
-auto VulkanDevice::fenceIndexQueue() noexcept -> IndexQueue&
+auto VulkanDevice::fenceIndexQueue() noexcept -> IndexQueueT&
 {
   return *fence_index_queue_;
 }
@@ -405,7 +406,7 @@ auto VulkanDevice::fenceIndexQueue() noexcept -> IndexQueue&
   \return No description
   */
 inline
-auto VulkanDevice::fenceIndexQueue() const noexcept -> const IndexQueue&
+auto VulkanDevice::fenceIndexQueue() const noexcept -> const IndexQueueT&
 {
   return *fence_index_queue_;
 }
@@ -452,7 +453,7 @@ constexpr std::size_t VulkanDevice::numOfCapabilities() noexcept
   \return No description
   */
 inline
-std::size_t VulkanDevice::queueOffset(const Capability cap) const noexcept
+std::size_t VulkanDevice::queueOffset(const CapabilityT cap) const noexcept
 {
   const std::size_t index = getCapabilityIndex(cap);
   const auto offset = zisc::cast<std::size_t>(queue_offset_list_[index]);

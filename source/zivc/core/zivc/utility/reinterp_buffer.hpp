@@ -19,7 +19,6 @@
 #include <cstddef>
 #include <type_traits>
 // Zisc
-#include "zisc/concepts.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "buffer_init_params.hpp"
@@ -52,12 +51,12 @@ class ReinterpBuffer : public Buffer<T>
   using Pointer = typename Buffer<T>::Pointer;
   using ConstPointer = typename Buffer<T>::ConstPointer;
   using BufferT = std::remove_volatile_t<Derived>;
-  using BufferP = std::add_pointer_t<BufferT>;
-  using ConstBufferP = std::add_const_t<BufferP>;
+  using BufferPtr = std::add_pointer_t<BufferT>;
+  using ConstBufferPtr = std::add_const_t<BufferPtr>;
 
 
   //! Initialize the buffer
-  ReinterpBuffer(BufferP buffer, IdData&& id) noexcept;
+  ReinterpBuffer(BufferPtr buffer, IdData&& id) noexcept;
 
   //! Move data
   ReinterpBuffer(ReinterpBuffer&& other) noexcept;
@@ -139,16 +138,16 @@ class ReinterpBuffer : public Buffer<T>
 
  private:
   //! Initialize the buffer common data
-  void initCommon(const ConstBufferP buffer) noexcept;
+  void initCommon(const ConstBufferPtr buffer) noexcept;
 
   //! Return the internal buffer pointer
-  BufferP internalBuffer() noexcept;
+  BufferPtr internalBuffer() noexcept;
 
   //! Return the internal buffer pointer
-  ConstBufferP internalBuffer() const noexcept;
+  ConstBufferPtr internalBuffer() const noexcept;
 
 
-  BufferP buffer_ = nullptr;
+  BufferPtr buffer_ = nullptr;
 };
 
 } // namespace zivc

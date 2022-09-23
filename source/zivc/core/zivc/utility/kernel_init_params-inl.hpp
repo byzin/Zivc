@@ -35,7 +35,7 @@ namespace zivc {
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...Args> inline
 KernelInitParams<kDim, KSet, Args...>::KernelInitParams(
-    Function ptr,
+    FunctionT ptr,
     std::string_view kernel_name) noexcept
         : function_{ptr}
 {
@@ -59,7 +59,7 @@ constexpr std::size_t KernelInitParams<kDim, KSet, Args...>::dimension() noexcep
   \return No description
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...Args> inline
-auto KernelInitParams<kDim, KSet, Args...>::func() const noexcept -> Function
+auto KernelInitParams<kDim, KSet, Args...>::func() const noexcept -> FunctionT
 {
   return function_;
 }
@@ -93,7 +93,7 @@ constexpr std::size_t KernelInitParams<kDim, KSet, Args...>::maxKernelNameLength
   \param [in] ptr No description.
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...Args> inline
-void KernelInitParams<kDim, KSet, Args...>::setFunc(Function ptr) noexcept
+void KernelInitParams<kDim, KSet, Args...>::setFunc(FunctionT ptr) noexcept
 {
   function_ = ptr;
 }

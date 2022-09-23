@@ -66,7 +66,7 @@ void VulkanKernelImpl::addPodBarrierCmd(const VkCommandBuffer& command_buffer,
       buffer,
       0,
       VK_WHOLE_SIZE};
-  zivcvk::CommandBuffer command{command_buffer};
+  const zivcvk::CommandBuffer command{command_buffer};
   command.pipelineBarrier(zivcvk::PipelineStageFlagBits::eTransfer,
                           zivcvk::PipelineStageFlagBits::eComputeShader,
                           zivcvk::DependencyFlags{},
@@ -84,11 +84,11 @@ void VulkanKernelImpl::addPodBarrierCmd(const VkCommandBuffer& command_buffer,
 void VulkanKernelImpl::destroyDescriptorSet(VkDescriptorPool* descriptor_pool) noexcept
 {
   auto& zdevice = device();
-  zivcvk::Device d{zdevice.device()};
+  const zivcvk::Device d{zdevice.device()};
   if (d) {
-    zivcvk::AllocationCallbacks alloc{zdevice.createAllocator()};
+    const zivcvk::AllocationCallbacks alloc{zdevice.createAllocator()};
     {
-      zivcvk::DescriptorPool desc_pool{*descriptor_pool};
+      const zivcvk::DescriptorPool desc_pool{*descriptor_pool};
       if (desc_pool)
         d.destroyDescriptorPool(desc_pool, alloc, zdevice.dispatcher().loader());
       *descriptor_pool = ZIVC_VK_NULL_HANDLE;
@@ -144,16 +144,16 @@ void VulkanKernelImpl::initDescriptorSet(
 {
   auto& zdevice = device();
 
-  zivcvk::Device d{zdevice.device()};
+  const zivcvk::Device d{zdevice.device()};
   const auto& loader = zdevice.dispatcher().loader();
   auto* mem_resource = zdevice.memoryResource();
-  zivcvk::AllocationCallbacks alloc{zdevice.createAllocator()};
+  const zivcvk::AllocationCallbacks alloc{zdevice.createAllocator()};
 
   // Initialize descriptor pool
   zivcvk::DescriptorPool desc_pool;
   {
     using PoolSizeList = zisc::pmr::vector<zivcvk::DescriptorPoolSize>;
-    PoolSizeList::allocator_type pool_alloc{mem_resource};
+    const PoolSizeList::allocator_type pool_alloc{mem_resource};
     PoolSizeList pool_size_list{pool_alloc};
     pool_size_list.reserve(2);
     // Storage buffers
@@ -182,7 +182,7 @@ void VulkanKernelImpl::initDescriptorSet(
     const zivcvk::DescriptorSetAllocateInfo alloc_info{desc_pool,
                                                        1,
                                                        &desc_set_layout};
-    zisc::pmr::polymorphic_allocator<zivcvk::DescriptorSet> alloc{mem_resource};
+    const zisc::pmr::polymorphic_allocator<zivcvk::DescriptorSet> alloc{mem_resource};
     //! \todo Resolve the error
     // The allocate function causes undefined symbol error with custom allocator
     //auto desc_set = d.allocateDescriptorSets(alloc_info, alloc, loader);
@@ -275,7 +275,7 @@ void VulkanKernelImpl::updateDescriptorSet(const VkDescriptorSet& descriptor_set
     write_desc->pBufferInfo = desc_info;
   }
 
-  zivcvk::Device d{device().device()};
+  const zivcvk::Device d{device().device()};
   const auto& loader = device().dispatcher().loader();
   const auto* descs = zisc::reinterp<const zivcvk::WriteDescriptorSet*>(write_desc_list);
   d.updateDescriptorSets(zisc::cast<uint32b>(n), descs, 0, nullptr, loader);

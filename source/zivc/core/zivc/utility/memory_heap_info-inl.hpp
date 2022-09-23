@@ -98,7 +98,7 @@ std::size_t MemoryHeapInfo::totalSize() const noexcept
   \return No description
   */
 inline
-auto MemoryHeapInfo::usedSizeForBuffer() noexcept -> Usage&
+auto MemoryHeapInfo::usedSizeForBuffer() noexcept -> UsageT&
 {
   return used_size_for_buffer_;
 }
@@ -109,7 +109,7 @@ auto MemoryHeapInfo::usedSizeForBuffer() noexcept -> Usage&
   \return No description
   */
 inline
-auto MemoryHeapInfo::usedSizeForBuffer() const noexcept -> const Usage&
+auto MemoryHeapInfo::usedSizeForBuffer() const noexcept -> const UsageT&
 {
   return used_size_for_buffer_;
 }

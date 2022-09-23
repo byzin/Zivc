@@ -91,7 +91,7 @@ SharedDevice VulkanBackend::createDevice(const DeviceInfo& device_info)
     }
   }
 
-  zisc::pmr::polymorphic_allocator<VulkanDevice> alloc{memoryResource()};
+  const zisc::pmr::polymorphic_allocator<VulkanDevice> alloc{memoryResource()};
   SharedDevice device = std::allocate_shared<VulkanDevice>(alloc, issueId());
 
   ZivcObject::SharedPtr parent{getOwnPtr()};
@@ -195,9 +195,9 @@ void VulkanBackend::destroyData() noexcept
   layer_properties_list_.reset();
   extension_properties_list_.reset();
 
-  zivcvk::Instance ins{instance_};
+  const zivcvk::Instance ins{instance_};
   if (ins) {
-    zivcvk::AllocationCallbacks alloc{createAllocator()};
+    const zivcvk::AllocationCallbacks alloc{createAllocator()};
     ins.destroy(alloc, dispatcher().loader());
     instance_ = ZIVC_VK_NULL_HANDLE;
   }
@@ -298,7 +298,7 @@ auto VulkanBackend::Callbacks::allocateMemory(
   {
     const auto index_result = mem_map.add(address);
     ZIVC_ASSERT(index_result.has_value(), "Adding the address into the map failed.");
-    const std::size_t index = *index_result;
+    const std::size_t index = index_result.has_value() ? *index_result : 0;
     auto mem_list = alloc_data->memoryList();
     const MemoryData data{size, alignment};
     mem_list[index] = data;
@@ -329,7 +329,7 @@ void VulkanBackend::Callbacks::deallocateMemory(
     {
       const auto index_result = mem_map.contain(address);
       ZIVC_ASSERT(index_result.has_value(), "The address isn't in the map.");
-      const std::size_t index = *index_result;
+      const std::size_t index = index_result.has_value() ? *index_result : 0;
       const auto& mem_list = alloc_data->memoryList();
       data = mem_list[index];
     }
@@ -565,7 +565,7 @@ auto VulkanBackend::Callbacks::reallocateMemory(
     {
       const auto index_result = mem_map.contain(address);
       ZIVC_ASSERT(index_result.has_value(), "The address isn't in the map.");
-      const std::size_t index = *index_result;
+      const std::size_t index = index_result.has_value() ? *index_result : 0;
       const auto& mem_list = alloc_data->memoryList();
       data = mem_list[index];
     }
@@ -596,7 +596,7 @@ VkApplicationInfo VulkanBackend::createApplicationInfo(
   const uint32b app_version = vkMakeVersion(app_version_major,
                                             app_version_minor,
                                             app_version_patch);
-  std::string_view engine_name = engineName();
+  const std::string_view engine_name = engineName();
   constexpr uint32b engine_version = vkMakeVersion(Config::versionMajor(),
                                                    Config::versionMinor(),
                                                    Config::versionPatch());
@@ -629,7 +629,7 @@ bool VulkanBackend::compareProperties(const std::string_view lhs,
 void VulkanBackend::initAllocator() noexcept
 {
   auto* mem_resource = memoryResource();
-  zisc::pmr::polymorphic_allocator<AllocatorData> alloc{mem_resource};
+  const zisc::pmr::polymorphic_allocator<AllocatorData> alloc{mem_resource};
   allocator_data_ = zisc::pmr::allocateUnique<AllocatorData>(alloc, mem_resource);
 }
 
@@ -650,7 +650,7 @@ void VulkanBackend::initInstance(ContextOptions& options)
     return;
   }
 
-  zisc::pmr::vector<const char*>::allocator_type layer_alloc{memoryResource()};
+  const zisc::pmr::vector<const char*>::allocator_type layer_alloc{memoryResource()};
   zisc::pmr::vector<const char*> layers{layer_alloc};
   zisc::pmr::vector<const char*> extensions{layer_alloc};
 
@@ -677,7 +677,7 @@ void VulkanBackend::initInstance(ContextOptions& options)
 
   // Validation features
   using FeatureEnableList = zisc::pmr::vector<zivcvk::ValidationFeatureEnableEXT>;
-  FeatureEnableList::allocator_type feature_alloc{memoryResource()};
+  const FeatureEnableList::allocator_type feature_alloc{memoryResource()};
   FeatureEnableList validation_features_list{feature_alloc};
   validation_features_list.reserve(4);
   validation_features_list = {
@@ -715,9 +715,9 @@ void VulkanBackend::initInstance(ContextOptions& options)
     debug_utils_create_info.setPNext(std::addressof(validation_features));
   }
 
-  zivcvk::AllocationCallbacks alloc{createAllocator()};
+  const zivcvk::AllocationCallbacks alloc{createAllocator()};
   const auto& loader = dispatcher().loader();
-  zivcvk::Instance ins = zivcvk::createInstance(create_info, alloc, loader);
+  const zivcvk::Instance ins = zivcvk::createInstance(create_info, alloc, loader);
   instance_ = zisc::cast<VkInstance>(ins);
   instance_ref_ = std::addressof(instance_);
   dispatcher_->set(instance());
@@ -731,7 +731,7 @@ void VulkanBackend::initDeviceList()
   const zivcvk::Instance ins{instance()};
 
   using DeviceList = zisc::pmr::vector<zivcvk::PhysicalDevice>;
-  DeviceList::allocator_type alloc{memoryResource()};
+  const DeviceList::allocator_type alloc{memoryResource()};
   const auto& loader = dispatcher().loader();
   //! \todo Resolve the error
   // The enumerate function causes undefined symbol error with custom allocator
@@ -753,7 +753,7 @@ void VulkanBackend::initDeviceInfoList() noexcept
   auto* mem_resource = memoryResource();
   using DeviceInfoList = decltype(device_info_list_)::element_type;
   DeviceInfoList info_list{DeviceInfoList::allocator_type{mem_resource}};
-  zisc::pmr::polymorphic_allocator<DeviceInfoList> alloc{mem_resource};
+  const zisc::pmr::polymorphic_allocator<DeviceInfoList> alloc{mem_resource};
   device_info_list_ = zisc::pmr::allocateUnique<DeviceInfoList>(
       alloc,
       std::move(info_list));
@@ -767,11 +767,11 @@ void VulkanBackend::initDeviceInfoList() noexcept
 void VulkanBackend::initDispatcher(ContextOptions& options)
 {
   auto* mem_resource = memoryResource();
-  zisc::pmr::polymorphic_allocator<VulkanDispatchLoader> alloc{mem_resource};
+  const zisc::pmr::polymorphic_allocator<VulkanDispatchLoader> alloc{mem_resource};
 
   using FuncPtr = std::add_pointer_t<PFN_vkGetInstanceProcAddr>;
   auto* ptr = static_cast<FuncPtr>(options.vulkanGetProcAddrPtr());
-  std::string_view lib = options.vulkanLibraryName();
+  const std::string_view lib = options.vulkanLibraryName();
   dispatcher_ = zisc::pmr::allocateUnique<VulkanDispatchLoader>(alloc);
   if (ptr != nullptr)
     dispatcher_->set(mem_resource, *ptr);
@@ -795,7 +795,7 @@ void VulkanBackend::initProperties()
     {
       using PropertiesList = decltype(extension_properties_list_)::element_type;
       PropertiesList prop_list{PropertiesList::allocator_type{mem_resource}};
-      zisc::pmr::polymorphic_allocator<PropertiesList> alloc{mem_resource};
+      const zisc::pmr::polymorphic_allocator<PropertiesList> alloc{mem_resource};
       extension_properties_list_ = zisc::pmr::allocateUnique<PropertiesList>(
           alloc,
           std::move(prop_list));
@@ -843,7 +843,7 @@ void VulkanBackend::initProperties()
     {
       using PropertiesList = decltype(layer_properties_list_)::element_type;
       PropertiesList prop_list{PropertiesList::allocator_type{mem_resource}};
-      zisc::pmr::polymorphic_allocator<PropertiesList> alloc{mem_resource};
+      const zisc::pmr::polymorphic_allocator<PropertiesList> alloc{mem_resource};
       layer_properties_list_ = zisc::pmr::allocateUnique<PropertiesList>(
           alloc,
           std::move(prop_list));

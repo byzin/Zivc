@@ -17,6 +17,7 @@
 
 #include "cpu_backend.hpp"
 // Standard C++ library
+#include <bit>
 #include <cstddef>
 // Zisc
 #include "zisc/concurrency/thread_manager.hpp"
@@ -37,7 +38,22 @@ namespace zivc {
 inline
 constexpr uint32b CpuBackend::maxTaskBatchSize() noexcept
 {
-  return 1024;
+  constexpr uint32b size = 1024;
+  static_assert(std::has_single_bit(size));
+  return size;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+constexpr uint32b CpuBackend::maxWorkGroupSize() noexcept
+{
+  constexpr uint32b size = 64;
+  static_assert(std::has_single_bit(size));
+  return size;
 }
 
 /*!
@@ -98,6 +114,18 @@ const zisc::ThreadManager& CpuBackend::threadManager() const noexcept
 {
   return *thread_manager_;
 }
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+std::size_t CpuBackend::workGroupSize() const noexcept
+{
+  return zisc::cast<std::size_t>(work_group_size_);
+}
+
 
 } // namespace zivc
 

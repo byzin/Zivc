@@ -80,7 +80,7 @@ CmdRecordRegion& CmdRecordRegion::operator=(CmdRecordRegion&& other) noexcept
   */
 void CmdRecordRegion::end() noexcept
 {
-  zivcvk::CommandBuffer command_buffer{command_buffer_};
+  const zivcvk::CommandBuffer command_buffer{command_buffer_};
   if (command_buffer)
     command_buffer.end(dispatcher_->loader());
   command_buffer_ = ZIVC_VK_NULL_HANDLE;
@@ -94,7 +94,7 @@ void CmdRecordRegion::end() noexcept
   */
 void CmdRecordRegion::begin(const VkCommandBufferUsageFlags flags)
 {
-  zivcvk::CommandBuffer command_buffer{command_buffer_};
+  const zivcvk::CommandBuffer command_buffer{command_buffer_};
   if (command_buffer) {
     const zivcvk::CommandBufferBeginInfo info{
         zisc::cast<zivcvk::CommandBufferUsageFlags>(flags)};

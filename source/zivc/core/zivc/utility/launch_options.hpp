@@ -73,7 +73,7 @@ class LaunchOptions
   void initialize() noexcept;
 
 
-  IdData::NameType label_;
+  IdData::NameT label_;
   std::array<float, 4> label_color_{1.0f, 1.0f, 1.0f, 1.0f};
   uint32b queue_index_ = 0;
   zisc::Boolean is_fence_requested_;

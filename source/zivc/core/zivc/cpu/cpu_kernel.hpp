@@ -23,8 +23,6 @@
 #include <type_traits>
 #include <utility>
 // Zivc
-#include "zisc/concepts.hpp"
-// Zivc
 #include "zivc/kernel.hpp"
 #include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
@@ -58,9 +56,9 @@ class CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
  public:
   // Type aliases
   using BaseKernelT = Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>;
-  using Params = typename BaseKernelT::Params;
-  using Function = typename Params::Function;
-  using LaunchOptions = typename BaseKernelT::LaunchOptions;
+  using ParamsT = typename BaseKernelT::ParamsT;
+  using FunctionT = typename ParamsT::FunctionT;
+  using LaunchOptionsT = typename BaseKernelT::LaunchOptionsT;
 
 
   //! Initialize the kernel
@@ -71,18 +69,18 @@ class CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
 
 
   //! Return the underlying kernel function
-  Function kernel() const noexcept;
+  FunctionT kernel() const noexcept;
 
   //! Execute a kernel
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
-  LaunchResult run(Args... args, const LaunchOptions& launch_options) override;
+  LaunchResult run(Args... args, const LaunchOptionsT& launch_options) override;
 
  protected:
   //! Clear the contents of the kernel
   void destroyData() noexcept override;
 
   //! Initialize the kernel
-  void initData(const Params& params) override;
+  void initData(const ParamsT& params) override;
 
   //! Update debug info
   void updateDebugInfoImpl() override;
@@ -132,7 +130,7 @@ class CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   void updateArgCache(Buffer<Type>& value, Types&&... values) noexcept;
 
 
-  Function kernel_ = nullptr;
+  FunctionT kernel_ = nullptr;
   ArgCache arg_cache_;
   CommandStorage command_storage_;
   AtomicStorage atomic_storage_;

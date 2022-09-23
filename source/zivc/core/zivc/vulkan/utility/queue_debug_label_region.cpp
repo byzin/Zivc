@@ -86,7 +86,7 @@ QueueDebugLabelRegion& QueueDebugLabelRegion::operator=(QueueDebugLabelRegion&& 
   */
 void QueueDebugLabelRegion::end() noexcept
 {
-  zivcvk::Queue q{queue_};
+  const zivcvk::Queue q{queue_};
   if (q) {
     q.endDebugUtilsLabelEXT(dispatcher_->loader());
   }
@@ -103,7 +103,7 @@ void QueueDebugLabelRegion::end() noexcept
 void QueueDebugLabelRegion::begin(const std::string_view label_name,
                                   const std::span<const float, 4> color) noexcept
 {
-  zivcvk::Queue q{queue_};
+  const zivcvk::Queue q{queue_};
   if (q) {
     std::array<float, 4> c{{0.0f, 0.0f, 0.0f, 0.0f}};
     std::copy_n(color.begin(), color.size(), c.begin());

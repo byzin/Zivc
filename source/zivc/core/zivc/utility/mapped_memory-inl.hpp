@@ -20,8 +20,6 @@
 #include <cstddef>
 #include <type_traits>
 #include <utility>
-// Zisc
-#include "zisc/utility.hpp"
 // Zivc
 #include "buffer_common.hpp"
 #include "error.hpp"

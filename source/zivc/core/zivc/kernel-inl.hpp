@@ -90,9 +90,9 @@ bufferSize() const noexcept
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 auto Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-createOptions() const noexcept -> LaunchOptions
+createOptions() const noexcept -> LaunchOptionsT
 {
-  return LaunchOptions{};
+  return LaunchOptionsT{};
 }
 
 /*!
@@ -144,7 +144,7 @@ inline
 void Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 initialize(ZivcObject::SharedPtr&& parent,
            WeakPtr&& own,
-           const Params& params)
+           const ParamsT& params)
 {
   //! Clear the previous device data first
   destroy();
@@ -179,7 +179,7 @@ inline
 constexpr std::size_t Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 numOfBuffers() noexcept
 {
-  constexpr std::size_t size = ArgParser::kNumOfBufferArgs;
+  constexpr std::size_t size = ArgParserT::kNumOfBufferArgs;
   return size;
 }
 
@@ -193,7 +193,7 @@ inline
 constexpr std::size_t Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 numOfPods() noexcept
 {
-  constexpr std::size_t size = ArgParser::kNumOfPodArgs;
+  constexpr std::size_t size = ArgParserT::kNumOfPodArgs;
   return size;
 }
 

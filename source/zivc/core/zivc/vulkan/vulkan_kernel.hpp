@@ -58,8 +58,8 @@ class VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
  public:
   // Type aliases
   using BaseKernelT = Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>;
-  using Params = typename BaseKernelT::Params;
-  using LaunchOptions = typename BaseKernelT::LaunchOptions;
+  using ParamsT = typename BaseKernelT::ParamsT;
+  using LaunchOptionsT = typename BaseKernelT::LaunchOptionsT;
 
 
   //! Initialize the kernel
@@ -83,7 +83,7 @@ class VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
 
   //! Execute a kernel
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
-  LaunchResult run(Args... args, const LaunchOptions& launch_options) override;
+  LaunchResult run(Args... args, const LaunchOptionsT& launch_options) override;
 
   //! Set a command buffer reference
   void setCommandBufferRef(const VkCommandBuffer* command_ref) noexcept;
@@ -96,7 +96,7 @@ class VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   void dispatchCmd(const std::span<const uint32b, 3> work_size);
 
   //! Initialize the kernel
-  void initData(const Params& params) override;
+  void initData(const ParamsT& params) override;
 
   //! Update the debug info
   void updateDebugInfoImpl() override;
@@ -157,7 +157,7 @@ class VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
 
   //! Update module scope push constans
   void updateModuleScopePushConstantsCmd(const std::span<const uint32b, 3>& work_size,
-                                         const LaunchOptions& launch_options);
+                                         const LaunchOptionsT& launch_options);
 
   //! Update POD buffer
   void updatePodBufferCmd();

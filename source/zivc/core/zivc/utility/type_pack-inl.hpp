@@ -44,7 +44,7 @@ template <typename T, typename ...Types>
 struct TypePack<T, Types...>
 {
   //! Alias of type T
-  using Type = T;
+  using ValueT = T;
 
 
   //! Return the number of types

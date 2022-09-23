@@ -35,7 +35,7 @@ TEST(BufferTest, DeviceLocalBufferInitializationTest)
 {
   auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
   // Init test
   auto buffer = device->createBuffer<int>({zivc::BufferUsage::kPreferDevice});
   ASSERT_EQ(0, buffer->size()) << "Buffer initialization failed.";
@@ -96,7 +96,7 @@ TEST(BufferTest, HostWritableDeviceBufferInitializationTest)
 {
   auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
   // Init test
   auto buffer = device->createBuffer<int>({zivc::BufferUsage::kPreferDevice,
                                            zivc::BufferFlag::kSequentialWritable});
@@ -158,7 +158,7 @@ TEST(BufferTest, HostReadableDeviceBufferInitializationTest)
 {
   auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
   // Init test
   auto buffer = device->createBuffer<int>({zivc::BufferUsage::kPreferDevice,
                                            zivc::BufferFlag::kRandomAccessible});
@@ -220,7 +220,7 @@ TEST(BufferTest, HostBufferInitializationTest)
 {
   auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
   // Init test
   auto buffer = device->createBuffer<int>({zivc::BufferUsage::kPreferHost});
   ASSERT_EQ(0, buffer->size()) << "Buffer initialization failed.";
@@ -281,7 +281,7 @@ TEST(BufferTest, HostWritableHostBufferInitializationTest)
 {
   auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
   // Init test
   auto buffer = device->createBuffer<int>({zivc::BufferUsage::kPreferHost,
                                            zivc::BufferFlag::kSequentialWritable});
@@ -343,7 +343,7 @@ TEST(BufferTest, HostReadableHostBufferInitializationTest)
 {
   auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
   // Init test
   auto buffer = device->createBuffer<int>({zivc::BufferUsage::kPreferHost,
                                            zivc::BufferFlag::kRandomAccessible});
@@ -405,7 +405,7 @@ TEST(BufferTest, DeviceBufferMaxAllocationTest)
 {
   auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   auto buffer = device->createBuffer<int>({zivc::BufferUsage::kPreferDevice});
   EXPECT_TRUE(buffer->isDeviceLocal()) << "The buffer isn't device local.";
@@ -442,7 +442,7 @@ TEST(BufferTest, HostBufferMaxAllocationTest)
 {
   auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   auto buffer = device->createBuffer<int>({zivc::BufferUsage::kPreferHost});
   EXPECT_TRUE(buffer->isHostVisible()) << "The buffer isn't host visible.";
@@ -479,7 +479,7 @@ TEST(BufferTest, HostRandomAccessibleDeviceBufferMemoryMappingTest)
 {
   auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   auto buffer = device->createBuffer<int>({zivc::BufferUsage::kPreferDevice,
                                            zivc::BufferFlag::kRandomAccessible});
@@ -488,7 +488,7 @@ TEST(BufferTest, HostRandomAccessibleDeviceBufferMemoryMappingTest)
 
   // Empty mapped memory test
   {
-    zivc::MappedMemory<int> mapped_mem{nullptr};
+    const zivc::MappedMemory<int> mapped_mem{nullptr};
     ASSERT_FALSE(mapped_mem) << "Memory mapping initialization failed.";
     ASSERT_EQ(0, mapped_mem.size()) << "Memory mapping initialization failed.";
   }
@@ -503,7 +503,7 @@ TEST(BufferTest, HostRandomAccessibleDeviceBufferMemoryMappingTest)
     ASSERT_TRUE(buffer->isHostWritable()) << "The buffer isn't host writable.";
     ASSERT_TRUE(buffer->isHostReadable()) << "The buffer isn't host readable.";
     ASSERT_EQ(s, buffer->size()) << "Host buffer allocation failed.";
-    zivc::MappedMemory<int> mapped_mem = buffer->mapMemory();
+    const zivc::MappedMemory<int> mapped_mem = buffer->mapMemory();
     ASSERT_TRUE(mapped_mem) << "Memory mapping failed.";
     ASSERT_EQ(s, mapped_mem.size()) << "Memory mapping failed.";
   }
@@ -533,7 +533,7 @@ TEST(BufferTest, HostRandomAccessibleHostBufferMemoryMappingTest)
 {
   auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   auto buffer = device->createBuffer<int>({zivc::BufferUsage::kPreferHost,
                                            zivc::BufferFlag::kRandomAccessible});
@@ -542,7 +542,7 @@ TEST(BufferTest, HostRandomAccessibleHostBufferMemoryMappingTest)
 
   // Empty mapped memory test
   {
-    zivc::MappedMemory<int> mapped_mem{nullptr};
+    const zivc::MappedMemory<int> mapped_mem{nullptr};
     ASSERT_FALSE(mapped_mem) << "Memory mapping initialization failed.";
     ASSERT_EQ(0, mapped_mem.size()) << "Memory mapping initialization failed.";
   }
@@ -557,7 +557,7 @@ TEST(BufferTest, HostRandomAccessibleHostBufferMemoryMappingTest)
     ASSERT_TRUE(buffer->isHostWritable()) << "The buffer isn't host writable.";
     ASSERT_TRUE(buffer->isHostReadable()) << "The buffer isn't host readable.";
     ASSERT_EQ(s, buffer->size()) << "Host buffer allocation failed.";
-    zivc::MappedMemory<int> mapped_mem = buffer->mapMemory();
+    const zivc::MappedMemory<int> mapped_mem = buffer->mapMemory();
     ASSERT_TRUE(mapped_mem) << "Memory mapping failed.";
     ASSERT_EQ(s, mapped_mem.size()) << "Memory mapping failed.";
   }
@@ -587,7 +587,7 @@ TEST(BufferTest, HostWritableDeviceBufferMemoryMappingTest)
 {
   auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   auto buffer = device->createBuffer<float>({zivc::BufferUsage::kPreferDevice,
                                              zivc::BufferFlag::kSequentialWritable});
@@ -602,7 +602,7 @@ TEST(BufferTest, HostWritableDeviceBufferMemoryMappingTest)
     buffer->setSize(s);
     ASSERT_TRUE(buffer->isHostWritable()) << "The buffer isn't host writable.";
     ASSERT_EQ(s, buffer->size()) << "Host buffer allocation failed.";
-    zivc::MappedMemory<float> mapped_mem = buffer->mapMemory();
+    const zivc::MappedMemory<float> mapped_mem = buffer->mapMemory();
     ASSERT_TRUE(mapped_mem) << "Memory mapping failed.";
     ASSERT_EQ(s, mapped_mem.size()) << "Memory mapping failed.";
   }
@@ -635,7 +635,7 @@ TEST(BufferTest, HostWritableHostBufferMemoryMappingTest)
 {
   auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   auto buffer = device->createBuffer<float>({zivc::BufferUsage::kPreferHost,
                                              zivc::BufferFlag::kSequentialWritable});
@@ -650,7 +650,7 @@ TEST(BufferTest, HostWritableHostBufferMemoryMappingTest)
     buffer->setSize(s);
     ASSERT_TRUE(buffer->isHostWritable()) << "The buffer isn't host writable.";
     ASSERT_EQ(s, buffer->size()) << "Host buffer allocation failed.";
-    zivc::MappedMemory<float> mapped_mem = buffer->mapMemory();
+    const zivc::MappedMemory<float> mapped_mem = buffer->mapMemory();
     ASSERT_TRUE(mapped_mem) << "Memory mapping failed.";
     ASSERT_EQ(s, mapped_mem.size()) << "Memory mapping failed.";
   }
@@ -685,7 +685,7 @@ TEST(BufferTest, CopyBufferTest)
 
   auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   auto buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost,
                                                  zivc::BufferFlag::kSequentialWritable});
@@ -750,7 +750,7 @@ TEST(BufferTest, CopyMaxAllocBufferTest)
 
   auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   auto buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost,
                                                  zivc::BufferFlag::kRandomAccessible});
@@ -814,7 +814,7 @@ TEST(BufferTest, CopyBufferRangeTest)
 
   auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   auto buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost,
                                                  zivc::BufferFlag::kSequentialWritable});
@@ -894,7 +894,7 @@ TEST(BufferTest, CopyBufferRangeTest2)
 
   auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   auto buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost,
                                                  zivc::BufferFlag::kSequentialWritable});
@@ -969,7 +969,7 @@ TEST(BufferTest, CopyHostBufferTest)
 
   auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   auto buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost,
                                                  zivc::BufferFlag::kSequentialWritable});
@@ -1034,7 +1034,7 @@ TEST(BufferTest, CopyHostBufferRangeTest)
 
   auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   auto buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost,
                                                  zivc::BufferFlag::kSequentialWritable});
@@ -1114,7 +1114,7 @@ TEST(BufferTest, CopyHostBufferRangeTest2)
 
   auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   auto buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost,
                                                  zivc::BufferFlag::kSequentialWritable});
@@ -1189,7 +1189,7 @@ TEST(BufferTest, FillBufferFastInt8Test)
 
   auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   auto buffer_d = device->createBuffer<int8b>({zivc::BufferUsage::kPreferDevice});
   auto buffer_h = device->createBuffer<int8b>({zivc::BufferUsage::kPreferHost,
@@ -1242,7 +1242,7 @@ TEST(BufferTest, FillBufferFastInt16Test)
 
   auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   auto buffer_d = device->createBuffer<int16b>({zivc::BufferUsage::kPreferDevice});
   auto buffer_h = device->createBuffer<int16b>({zivc::BufferUsage::kPreferHost,
@@ -1295,7 +1295,7 @@ TEST(BufferTest, FillBufferFastInt32Test)
 
   auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   auto buffer_d = device->createBuffer<int32b>({zivc::BufferUsage::kPreferDevice});
   auto buffer_h = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost,
@@ -1348,7 +1348,7 @@ TEST(BufferTest, FillBufferFastRangeTest)
 
   auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   auto buffer_d = device->createBuffer<int32b>({zivc::BufferUsage::kPreferDevice});
   auto buffer_h = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost,
@@ -1421,7 +1421,7 @@ TEST(BufferTest, FillHostBufferTest)
 
   auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   auto buffer_d = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost});
   auto buffer_h = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost,
@@ -1474,7 +1474,7 @@ TEST(BufferTest, FillHostBufferRangeTest)
 
   auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   auto buffer_d = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost});
   auto buffer_h = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost,
@@ -1549,7 +1549,7 @@ TEST(BufferTest, CopyBufferReinterpTest)
 
   auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   auto buffer_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferDevice});
   auto buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost,
@@ -1693,7 +1693,7 @@ TEST(BufferTest, CopyBufferReinterpReinterpTest)
 
   auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   auto buffer_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferDevice});
   auto buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost,
@@ -1807,7 +1807,7 @@ TEST(BufferTest, CopyBufferRangeReinterpTest)
 
   auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   auto buffer_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferDevice});
   auto buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost,
@@ -1899,7 +1899,7 @@ TEST(BufferTest, FillBufferRangeReinterpTest)
 
   auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   auto buffer_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferDevice});
   auto buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost,
@@ -1984,7 +1984,7 @@ TEST(BufferTest, CopyHostBufferReinterpTest)
 
   auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   auto buffer_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost});
   auto buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost,
@@ -2057,7 +2057,7 @@ TEST(BufferTest, CopyHostBufferRangeReinterpTest)
 
   auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   auto buffer_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost});
   auto buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost,
@@ -2149,7 +2149,7 @@ TEST(BufferTest, FillHostBufferRangeReinterpTest)
 
   auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   auto buffer_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost});
   auto buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost,
@@ -2233,7 +2233,7 @@ TEST(BufferTest, ResizeBufferReinterpTest)
 
   auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   auto buffer_d = device->createBuffer<uint64b>(zivc::BufferUsage::kPreferDevice);
   {

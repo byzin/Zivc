@@ -118,7 +118,7 @@ auto Device::createDerivedKernel(const KernelInitParams<kDim, KSet, Args...>& pa
     -> SharedKernel<kDim, KSet, Args...>
 {
   using Parser = KernelArgParser<Args...>;
-  using KernelT = typename Parser::template KernelType<Derived, kDim, KSet>;
+  using KernelT = typename Parser::template KernelT<Derived, kDim, KSet>;
   using SharedKernelT = SharedKernel<kDim, KSet, Args...>;
   using WeakKernelT = WeakKernel<kDim, KSet, Args...>;
 

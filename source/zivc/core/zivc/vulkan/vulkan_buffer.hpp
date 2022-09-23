@@ -20,7 +20,6 @@
 #include <memory>
 // Zisc
 #include "zisc/boolean.hpp"
-#include "zisc/concepts.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "utility/vulkan.hpp"
@@ -49,8 +48,8 @@ class VulkanBuffer : public Buffer<T>
   using ConstReference = typename Buffer<T>::ConstReference;
   using Pointer = typename Buffer<T>::Pointer;
   using ConstPointer = typename Buffer<T>::ConstPointer;
-  using LaunchOptions = typename Buffer<T>::LaunchOptions;
-  using DescriptorType = BufferInitParams::DescriptorType;
+  using LaunchOptionsT = typename Buffer<T>::LaunchOptionsT;
+  using DescriptorT = BufferInitParams::DescriptorType;
 
 
   /*!
@@ -66,7 +65,7 @@ class VulkanBuffer : public Buffer<T>
     VkCommandBuffer command_buffer_ = ZIVC_VK_NULL_HANDLE;
     SharedKernelCommon fill_kernel_;
     SharedBuffer<uint8b> fill_data_;
-    DescriptorType desc_type_ = DescriptorType::kStorage;
+    DescriptorT desc_type_ = DescriptorT::kStorage;
     [[maybe_unused]] Padding<4> pad_;
   };
 
@@ -103,7 +102,7 @@ class VulkanBuffer : public Buffer<T>
   const VkCommandBuffer& commandBuffer() const noexcept;
 
   //! Return the underlying descriptor type
-  DescriptorType descriptorType() const noexcept;
+  DescriptorT descriptorType() const noexcept;
 
   //! Return the underlying descriptor type
   VkBufferUsageFlagBits descriptorTypeVk() const noexcept;
@@ -134,7 +133,7 @@ class VulkanBuffer : public Buffer<T>
   const void* rawBufferData() const noexcept override;
 
   //! Set the descriptor type
-  void setDescriptorType(const DescriptorType type) noexcept;
+  void setDescriptorType(const DescriptorT type) noexcept;
 
   //! Change the number of elements
   void setSize(const std::size_t s) override;

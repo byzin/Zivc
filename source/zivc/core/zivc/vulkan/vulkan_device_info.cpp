@@ -217,7 +217,7 @@ std::array<uint32b, 3> VulkanDeviceInfo::maxWorkGroupCount() const noexcept
 std::string_view VulkanDeviceInfo::name() const noexcept
 {
   const Properties& props = properties();
-  std::string_view n{props.properties1_.deviceName};
+  const std::string_view n{props.properties1_.deviceName};
   return n;
 }
 

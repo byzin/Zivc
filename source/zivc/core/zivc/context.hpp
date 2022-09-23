@@ -25,7 +25,6 @@
 // Zisc
 #include "zisc/boolean.hpp"
 #include "zisc/non_copyable.hpp"
-#include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "backend.hpp"
@@ -140,8 +139,8 @@ class Context : private zisc::NonCopyable<Context>
   std::unique_ptr<zisc::pmr::memory_resource> default_mem_resource_;
   zisc::pmr::memory_resource* custom_mem_resource_ = nullptr;
   std::array<SharedBackend, kNumOfBackends> backend_list_;
-  ZivcObject::UniqueVector<WeakDevice> device_list_;
-  ZivcObject::UniqueVector<const DeviceInfo*> device_info_list_;
+  ZivcObject::UniqueVectorT<WeakDevice> device_list_;
+  ZivcObject::UniqueVectorT<const DeviceInfo*> device_info_list_;
   std::atomic<int64b> id_count_ = 0;
   zisc::Boolean is_debug_mode_;
   [[maybe_unused]] Padding<7> pad_;

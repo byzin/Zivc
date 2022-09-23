@@ -61,7 +61,7 @@ void GuiApplication::draw() noexcept
   // 2. Show a simple window that we create ourselves.
   {
     static float f = 0.0f;
-    static int counter = 0;
+    static const int counter = 0;
 
     ImGui::Begin("Hello, World");
     ImGui::Text("This is some useful text.");
@@ -194,7 +194,7 @@ void GuiApplication::initialize(WeakPtr&& own,
 
   auto* mem_resource = memoryResource();
   {
-    zisc::pmr::polymorphic_allocator<GuiPlatform> alloc{mem_resource};
+    const zisc::pmr::polymorphic_allocator<GuiPlatform> alloc{mem_resource};
     platform_ = std::allocate_shared<GuiPlatform>(alloc);
     SharedObject parent{getOwnPtr()};
     WeakObject own{platform_};
@@ -299,7 +299,7 @@ SharedGuiApp createGuiApp(zivc::Context& context,
   // Create an application
   auto* mem_resource = options.memoryResource();
   if (mem_resource != nullptr) {
-    zisc::pmr::polymorphic_allocator<GuiApplication> alloc{mem_resource};
+    const zisc::pmr::polymorphic_allocator<GuiApplication> alloc{mem_resource};
     app = std::allocate_shared<GuiApplication>(alloc);
   }
   else {

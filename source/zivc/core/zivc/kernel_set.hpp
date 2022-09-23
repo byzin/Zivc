@@ -46,6 +46,9 @@ class KernelSet
   //! Return the ID number of the kernel set
   static constexpr uint64b id() noexcept;
 
+  //! Initialize the kernel set
+  void initialize();
+
   //! Return the kernel set name
   static constexpr std::string_view name() noexcept;
 
@@ -60,11 +63,8 @@ class KernelSet
   const zisc::pmr::memory_resource* memoryResource() const noexcept;
 
  private:
-  //! Initialize the kernel set
-  void initialize() noexcept;
-
   //! Load the SPIR-V code
-  static void loadSpirVCode(zisc::pmr::vector<uint32b>* spirv_code_out) noexcept;
+  static void loadSpirVCode(zisc::pmr::vector<uint32b>* spirv_code_out);
 
 
   zisc::pmr::vector<uint32b> spirv_code_;

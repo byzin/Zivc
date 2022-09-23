@@ -38,7 +38,7 @@ template <typename Type>
 class KernelArgTypeInfo
 {
  public:
-  using ElementType = std::remove_cv_t<Type>;
+  using ElementT = std::remove_cv_t<Type>;
 
 
   static constexpr bool kIsGlobal = false;
@@ -48,13 +48,13 @@ class KernelArgTypeInfo
   static constexpr bool kIsBuffer = false;
 
  private:
-  static_assert(!std::is_pointer_v<ElementType>, "The Type is pointer.");
-  static_assert(!std::is_reference_v<ElementType>, "The Type is reference.");
-  static_assert(std::is_standard_layout_v<ElementType>,
+  static_assert(!std::is_pointer_v<ElementT>, "The Type is pointer.");
+  static_assert(!std::is_reference_v<ElementT>, "The Type is reference.");
+  static_assert(std::is_standard_layout_v<ElementT>,
                 "The POD type isn't standard layout type.");
-  static_assert(std::is_trivially_copyable_v<ElementType>,
+  static_assert(std::is_trivially_copyable_v<ElementT>,
                 "The POD type isn't trivially copyable type.");
-  static_assert(std::equality_comparable<ElementType>,
+  static_assert(std::equality_comparable<ElementT>,
                 "The POD type isn't equality comparable.");
 };
 

@@ -43,9 +43,9 @@ using CpuFence = zisc::Future<void>;
 
 namespace zivc {
 
-static_assert(std::alignment_of_v<Fence::Data> %
+static_assert(std::alignment_of_v<Fence::DataT> %
               std::alignment_of_v<::CpuFence> == 0);
-static_assert(sizeof(::CpuFence) <= sizeof(Fence::Data));
+static_assert(sizeof(::CpuFence) <= sizeof(Fence::DataT));
 
 /*!
   \details No detailed description
@@ -137,7 +137,7 @@ void CpuDevice::setFenceSize([[maybe_unused]] const std::size_t s)
   \param [in] id No description.
   \param [out] fence No description.
   */
-void CpuDevice::submit(const Command& command,
+void CpuDevice::submit(const CommandT& command,
                        const uint32b dimension,
                        const std::array<uint32b, 3>& work_size,
                        const std::array<uint32b, 3>& global_id_offset,
@@ -249,7 +249,7 @@ void CpuDevice::updateDebugInfoImpl()
   \param [in] batch_size No description.
   */
 inline
-void CpuDevice::execBatchCommands(const Command& command,
+void CpuDevice::execBatchCommands(const CommandT& command,
                                   const uint32b block_id,
                                   const uint32b group_id_max,
                                   const uint32b batch_size) noexcept

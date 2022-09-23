@@ -37,7 +37,6 @@
 #include "zisc/hash/fnv_1a_hash_engine.hpp"
 #include "zisc/memory/memory.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
-#include "zisc/utility.hpp"
 // Zivc
 #include "vulkan_backend.hpp"
 #include "vulkan_device_info.hpp"
@@ -127,9 +126,9 @@ auto getDefaultFeatures(const zivc::VulkanDeviceInfo& info,
 
 namespace zivc {
 
-static_assert(std::alignment_of_v<Fence::Data> %
+static_assert(std::alignment_of_v<Fence::DataT> %
               std::alignment_of_v<zivcvk::Fence> == 0U);
-static_assert(sizeof(zivcvk::Fence) <= sizeof(Fence::Data));
+static_assert(sizeof(zivcvk::Fence) <= sizeof(Fence::DataT));
 
 /*!
   \details No detailed description
@@ -171,16 +170,16 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
   if (hasShaderKernel(id))
     return getShaderKernel(id);
 
-  zivcvk::Device d{device()};
+  const zivcvk::Device d{device()};
   const auto& loader = dispatcher().loader();
   auto* mem_resource = memoryResource();
-  zivcvk::AllocationCallbacks alloc{createAllocator()};
+  const zivcvk::AllocationCallbacks alloc{createAllocator()};
 
   // Initialize descriptor set layout
   zivcvk::DescriptorSetLayout desc_set_layout;
   {
     using BindingList = zisc::pmr::vector<zivcvk::DescriptorSetLayoutBinding>;
-    BindingList::allocator_type bindings_alloc{mem_resource};
+    const BindingList::allocator_type bindings_alloc{mem_resource};
     BindingList layout_bindings{bindings_alloc};
     layout_bindings.resize(num_of_storage_buffers + num_of_uniform_buffers);
     // Storage buffers
@@ -224,7 +223,7 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
   }
   // Specialization constants
   const auto& work_group_size = workGroupSizeDim(work_dimension);
-  zisc::pmr::vector<uint32b>::allocator_type spec_alloc{mem_resource};
+  const zisc::pmr::vector<uint32b>::allocator_type spec_alloc{mem_resource};
   zisc::pmr::vector<uint32b> spec_constants{spec_alloc};
   {
     spec_constants.reserve(work_group_size.size() + 2);
@@ -238,13 +237,13 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
     spec_constants.emplace_back(info.workGroupSize());
   }
   using MapEntryList = zisc::pmr::vector<zivcvk::SpecializationMapEntry>;
-  MapEntryList::allocator_type entry_alloc{mem_resource};
+  const MapEntryList::allocator_type entry_alloc{mem_resource};
   MapEntryList entries{entry_alloc};
   {
     entries.reserve(work_group_size.size() + 1 + num_of_local_args);
     // For clspv work group size
     for (std::size_t i = 0; i < work_group_size.size(); ++i) {
-      zivcvk::SpecializationMapEntry entry{
+      const zivcvk::SpecializationMapEntry entry{
           zisc::cast<uint32b>(i),
           zisc::cast<uint32b>(i * sizeof(uint32b)),
           sizeof(uint32b)};
@@ -253,7 +252,7 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
     // Work dimension
     {
       const auto work_dim_index = zisc::cast<uint32b>(entries.size());
-      zivcvk::SpecializationMapEntry entry{
+      const zivcvk::SpecializationMapEntry entry{
           work_dim_index,
           zisc::cast<uint32b>(work_dim_index * sizeof(uint32b)),
           sizeof(uint32b)};
@@ -262,7 +261,7 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
     // For clspv local element size
     for (std::size_t i = 0; i < num_of_local_args; ++i) {
       const auto local_size_index = zisc::cast<uint32b>(entries.size());
-      zivcvk::SpecializationMapEntry entry{
+      const zivcvk::SpecializationMapEntry entry{
           local_size_index,
           zisc::cast<uint32b>(local_size_index * sizeof(uint32b)),
           sizeof(uint32b)};
@@ -304,7 +303,7 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
 
   const KernelData* data = nullptr;
   {
-    zisc::pmr::polymorphic_allocator<KernelData> data_alloc{mem_resource};
+    const zisc::pmr::polymorphic_allocator<KernelData> data_alloc{mem_resource};
     auto kernel_data = zisc::pmr::allocateUnique(data_alloc);
     data = kernel_data.get();
     kernel_data->module_ = std::addressof(module);
@@ -314,7 +313,7 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
     kernel_data->pipeline_layout_ = zisc::cast<VkPipelineLayout>(pline_layout);
     kernel_data->pipeline_ = zisc::cast<VkPipeline>(pline);
 
-    std::unique_lock<std::shared_mutex> lock{shader_mutex_};
+    const std::unique_lock<std::shared_mutex> lock{shader_mutex_};
     kernel_data_list_->emplace(id, std::move(kernel_data));
   }
   updateKernelDataDebugInfo(*data);
@@ -340,14 +339,14 @@ VmaDeviceMemoryCallbacks VulkanDevice::createAllocationNotifier() noexcept
   */
 VkCommandBuffer VulkanDevice::createCommandBuffer()
 {
-  zivcvk::Device d{device()};
+  const zivcvk::Device d{device()};
   auto* mem_resource = memoryResource();
 
   const zivcvk::CommandBufferAllocateInfo alloc_info{
       commandPool(),
       zivcvk::CommandBufferLevel::ePrimary,
       1};
-  zisc::pmr::vector<zivcvk::CommandBuffer>::allocator_type alloc{mem_resource};
+  const zisc::pmr::vector<zivcvk::CommandBuffer>::allocator_type alloc{mem_resource};
   //! \todo Resolve the error
   // The create function causes undefined symbol error with custom allocator
   //auto commands = d.allocateCommandBuffers(alloc_info, alloc, dispatcher().loader());
@@ -380,12 +379,11 @@ auto VulkanDevice::getQueueFamilyIndexList(uint32b* size) const noexcept
   index_list.fill(invalidQueueIndex());
   uint32b s = 0;
   for (std::size_t i = 0; i < numOfCapabilities(); ++i) {
-    const Capability cap = getCapability(i);
+    const CapabilityT cap = getCapability(i);
     if (!hasCapability(cap))
       continue;
     const uint32b family_index = queueFamilyIndex(cap);
-    using Iterator = decltype(index_list)::const_iterator;
-    Iterator ite = std::find(index_list.begin(), index_list.end(), family_index);
+    auto* const ite = std::find(index_list.begin(), index_list.end(), family_index);
     if (ite == index_list.end())
       index_list[s++] = family_index;
   }
@@ -404,7 +402,7 @@ auto VulkanDevice::getQueueFamilyIndexList(uint32b* size) const noexcept
 uint64b VulkanDevice::getKernelId(const std::string_view module_name,
                                   const std::string_view kernel_name) noexcept
 {
-  IdData::NameType kernel_id_name{""};
+  IdData::NameT kernel_id_name{""};
   copyStr(module_name, kernel_id_name.data());
   concatStr(kernel_name, kernel_id_name.data());
   const uint64b kernel_id = zisc::Fnv1aHash64::hash(kernel_id_name.data());
@@ -479,7 +477,7 @@ zisc::Memory::Usage& VulkanDevice::memoryUsage(const std::size_t heap_index) noe
   */
 const zisc::Memory::Usage& VulkanDevice::memoryUsage(const std::size_t heap_index) const noexcept
 {
-  zisc::Memory::Usage& usage = (*heap_usage_list_)[heap_index];
+  const zisc::Memory::Usage& usage = (*heap_usage_list_)[heap_index];
   return usage;
 }
 
@@ -501,7 +499,7 @@ std::size_t VulkanDevice::numOfFences() const noexcept
   */
 std::size_t VulkanDevice::numOfQueues() const noexcept
 {
-  const std::size_t n = numOfQueues(Capability::kCompute);
+  const std::size_t n = numOfQueues(CapabilityT::kCompute);
   return n;
 }
 
@@ -525,7 +523,7 @@ void VulkanDevice::returnFence(Fence* fence) noexcept
   }
 
   if (fence_index != invalid) {
-    IndexQueue& index_queue = fenceIndexQueue();
+    IndexQueueT& index_queue = fenceIndexQueue();
     [[maybe_unused]] const auto result = index_queue.enqueue(fence_index);
     ZIVC_ASSERT(result.has_value(), "Queueing fence index failed.");
     *dest = zivcvk::Fence{};
@@ -545,7 +543,7 @@ void VulkanDevice::submit(const VkCommandBuffer& command_buffer,
 {
   const zivcvk::CommandBuffer command{command_buffer};
   const zivcvk::Queue que{q};
-  zivcvk::Fence fen = fence.isActive()
+  const zivcvk::Fence fen = fence.isActive()
       ? *zisc::reinterp<const zivcvk::Fence*>(std::addressof(fence.data()))
       : zivcvk::Fence{};
   zivcvk::SubmitInfo info{};
@@ -568,7 +566,7 @@ void VulkanDevice::setDebugInfo(const VkObjectType vk_object_type,
                                 const ZivcObject* zivc_object)
 {
   const auto& loader = dispatcher().loader();
-  zivcvk::Device d{device()};
+  const zivcvk::Device d{device()};
   const auto object_type = static_cast<zivcvk::ObjectType>(vk_object_type);
   const auto handle = zisc::cast<uint64b>(zisc::reinterp<std::size_t>(vk_handle));
   // Name
@@ -597,11 +595,11 @@ void VulkanDevice::setDebugInfo(const VkObjectType vk_object_type,
   */
 void VulkanDevice::setFenceSize(const std::size_t s)
 {
-  zivcvk::Device d{device()};
+  const zivcvk::Device d{device()};
   const auto& loader = dispatcher().loader();
-  zivcvk::AllocationCallbacks alloc{createAllocator()};
+  const zivcvk::AllocationCallbacks alloc{createAllocator()};
 
-  IndexQueue& index_queue = fenceIndexQueue();
+  IndexQueueT& index_queue = fenceIndexQueue();
   index_queue.setCapacity(s);
   index_queue.clear();
   const std::size_t fence_size = (0 < s) ? index_queue.capacity() : 0;
@@ -614,7 +612,7 @@ void VulkanDevice::setFenceSize(const std::size_t s)
   // Add new fences
   for (std::size_t index = fence_list.size(); index < fence_size; ++index) {
     const zivcvk::FenceCreateInfo info{};
-    zivcvk::Fence fence = d.createFence(info, alloc, loader);
+    const zivcvk::Fence fence = d.createFence(info, alloc, loader);
     fence_list.emplace_back(zisc::cast<VkFence>(fence));
     updateFenceDebugInfo(index);
   }
@@ -638,7 +636,7 @@ void VulkanDevice::setFenceSize(const std::size_t s)
   */
 void VulkanDevice::takeFence(Fence* fence)
 {
-  IndexQueue& index_queue = fenceIndexQueue();
+  IndexQueueT& index_queue = fenceIndexQueue();
   const auto index_result = index_queue.dequeue();
   if (not index_result.has_value()) [[unlikely]] {
     //! \todo Available fence isn't found. Raise an exception?
@@ -651,7 +649,7 @@ void VulkanDevice::takeFence(Fence* fence)
   auto* memory = std::addressof(fence->data());
   auto* dest = ::new (zisc::cast<void*>(memory)) zivcvk::Fence{};
   {
-    zivcvk::Device d{device()};
+    const zivcvk::Device d{device()};
     const std::size_t fence_index = *index_result;
     auto f = zisc::cast<zivcvk::Fence>((*fence_list_)[fence_index]);
     d.resetFences(f, dispatcher().loader());
@@ -675,7 +673,7 @@ void VulkanDevice::waitForCompletion() const
   */
 void VulkanDevice::waitForCompletion(const uint32b queue_index) const
 {
-  waitForCompletion(Capability::kCompute, queue_index);
+  waitForCompletion(CapabilityT::kCompute, queue_index);
 }
 
 /*!
@@ -684,7 +682,7 @@ void VulkanDevice::waitForCompletion(const uint32b queue_index) const
   \param [in] cap No description.
   \param [in] queue_index No description.
   */
-void VulkanDevice::waitForCompletion(const Capability cap, 
+void VulkanDevice::waitForCompletion(const CapabilityT cap, 
                                      const uint32b queue_index) const
 {
   ZIVC_ASSERT(hasCapability(cap), "Unsupported capability is specified in wait.");
@@ -717,7 +715,7 @@ void VulkanDevice::waitForCompletion(const Fence& fence) const
   */
 void VulkanDevice::destroyData() noexcept
 {
-  zivcvk::Device d{device()};
+  const zivcvk::Device d{device()};
   if (d)
     waitForCompletion();
 
@@ -732,7 +730,7 @@ void VulkanDevice::destroyData() noexcept
   }
 
   if (d) {
-    zivcvk::AllocationCallbacks alloc{createAllocator()};
+    const zivcvk::AllocationCallbacks alloc{createAllocator()};
     const auto& loader = dispatcher().loader();
 
     setFenceSize(0); // Destroy all fences
@@ -773,44 +771,44 @@ void VulkanDevice::initData()
 {
   auto* mem_resource = memoryResource();
   {
-    zisc::pmr::polymorphic_allocator<IndexQueueImpl> alloc{mem_resource};
+    const zisc::pmr::polymorphic_allocator<IndexQueueImplT> alloc{mem_resource};
     fence_index_queue_ = zisc::pmr::allocateUnique(alloc, mem_resource);
   }
   {
     using FenceList = decltype(fence_list_)::element_type;
-    FenceList::allocator_type allocs{mem_resource};
+    const FenceList::allocator_type allocs{mem_resource};
     FenceList fence_list{allocs};
-    zisc::pmr::polymorphic_allocator<FenceList> alloc{mem_resource};
+    const zisc::pmr::polymorphic_allocator<FenceList> alloc{mem_resource};
     fence_list_ = zisc::pmr::allocateUnique(alloc, std::move(fence_list));
   }
   {
     using QueueList = decltype(queue_list_)::element_type;
-    QueueList::allocator_type allocs{mem_resource};
+    const QueueList::allocator_type allocs{mem_resource};
     QueueList queue_list{allocs};
-    zisc::pmr::polymorphic_allocator<QueueList> alloc{mem_resource};
+    const zisc::pmr::polymorphic_allocator<QueueList> alloc{mem_resource};
     queue_list_ = zisc::pmr::allocateUnique(alloc, std::move(queue_list));
   }
   {
     using UsageList = decltype(heap_usage_list_)::element_type;
-    UsageList::allocator_type alloce{mem_resource};
+    const UsageList::allocator_type alloce{mem_resource};
     UsageList usage_list{alloce};
-    zisc::pmr::polymorphic_allocator<UsageList> alloc{mem_resource};
+    const zisc::pmr::polymorphic_allocator<UsageList> alloc{mem_resource};
     heap_usage_list_ = zisc::pmr::allocateUnique(alloc, std::move(usage_list));
     const auto& info = deviceInfoImpl();
     heap_usage_list_->resize(info.heapInfoList().size());
   }
   {
     using ShaderModuleList = decltype(module_data_list_)::element_type;
-    ShaderModuleList::allocator_type allocs{mem_resource};
+    const ShaderModuleList::allocator_type allocs{mem_resource};
     ShaderModuleList module_list{allocs};
-    zisc::pmr::polymorphic_allocator<ShaderModuleList> alloc{mem_resource};
+    const zisc::pmr::polymorphic_allocator<ShaderModuleList> alloc{mem_resource};
     module_data_list_ = zisc::pmr::allocateUnique(alloc, std::move(module_list));
   }
   {
     using KernelDataList = decltype(kernel_data_list_)::element_type;
-    KernelDataList::allocator_type allocs{mem_resource};
+    const KernelDataList::allocator_type allocs{mem_resource};
     KernelDataList module_list{allocs};
-    zisc::pmr::polymorphic_allocator<KernelDataList> alloc{mem_resource};
+    const zisc::pmr::polymorphic_allocator<KernelDataList> alloc{mem_resource};
     kernel_data_list_ = zisc::pmr::allocateUnique(alloc, std::move(module_list));
   }
 
@@ -845,7 +843,7 @@ void VulkanDevice::updateDebugInfoImpl()
     const VkCommandPool handle = commandPool();
     const zivcvk::CommandPool p{handle};
     if (p) {
-      IdData::NameType obj_name{""};
+      IdData::NameT obj_name{""};
       copyStr(id_data.name(), obj_name.data());
       concatStr("_pool", obj_name.data());
       const std::string_view name = obj_name.data();
@@ -856,18 +854,18 @@ void VulkanDevice::updateDebugInfoImpl()
   const std::array<std::string_view, numOfCapabilities()> cap_name_list{{"_compute",
                                                                          "_gui"}};
   for (std::size_t i = 0; i < numOfCapabilities(); ++i) {
-    const Capability cap = getCapability(i);
+    const CapabilityT cap = getCapability(i);
     if (!hasCapability(cap))
       continue;
     for (std::size_t q_index = 0; q_index < numOfQueues(cap); ++q_index) {
       const VkQueue handle = getQueue(cap, q_index);
       const zivcvk::Queue q{handle};
       if (q) {
-        IdData::NameType obj_name{""};
+        IdData::NameT obj_name{""};
         copyStr(id_data.name(), obj_name.data());
         concatStr(cap_name_list[i], obj_name.data());
         concatStr("_queue", obj_name.data());
-        IdData::NameType idx{""};
+        IdData::NameT idx{""};
         auto [end, result] = std::to_chars(idx.data(),
                                            idx.data() + idx.size(),
                                            q_index);
@@ -968,27 +966,27 @@ auto VulkanDevice::addShaderModule(const uint64b id,
                                    const std::string_view module_name)
     -> const ModuleData&
 {
-  zivcvk::Device d{device()};
+  const zivcvk::Device d{device()};
   const auto& loader = dispatcher().loader();
   auto* mem_resource = memoryResource();
-  zivcvk::AllocationCallbacks alloc{createAllocator()};
+  const zivcvk::AllocationCallbacks alloc{createAllocator()};
 
   using SpirVCodeT = decltype(spirv_code);
   const std::size_t code_size = spirv_code.size() * sizeof(SpirVCodeT::value_type);
-  zivcvk::ShaderModuleCreateInfo create_info{zivcvk::ShaderModuleCreateFlags{},
-                                             code_size,
-                                             spirv_code.data()};
+  const zivcvk::ShaderModuleCreateInfo create_info{zivcvk::ShaderModuleCreateFlags{},
+                                                   code_size,
+                                                   spirv_code.data()};
   auto module = d.createShaderModule(create_info, alloc, loader);
 
   const ModuleData* data = nullptr;
   {
-    zisc::pmr::polymorphic_allocator<ModuleData> data_alloc{mem_resource};
+    const zisc::pmr::polymorphic_allocator<ModuleData> data_alloc{mem_resource};
     auto module_data = zisc::pmr::allocateUnique(data_alloc);
     data = module_data.get();
     module_data->name_ = module_name;
     module_data->module_ = zisc::cast<VkShaderModule>(module);
 
-    std::unique_lock<std::shared_mutex> lock{shader_mutex_};
+    const std::unique_lock<std::shared_mutex> lock{shader_mutex_};
     module_data_list_->emplace(id, std::move(module_data));
   }
   updateShaderModuleDebugInfo(*data);
@@ -1029,24 +1027,24 @@ bool VulkanDevice::checkQueueFamilyFlags(const VkQueueFamilyProperties& props,
   */
 void VulkanDevice::destroyShaderKernel(KernelData* kernel) noexcept
 {
-  zivcvk::Device d{device()};
+  const zivcvk::Device d{device()};
   const auto& loader = dispatcher().loader();
-  zivcvk::AllocationCallbacks alloc{createAllocator()};
+  const zivcvk::AllocationCallbacks alloc{createAllocator()};
 
   {
-    zivcvk::Pipeline pline{kernel->pipeline_};
+    const zivcvk::Pipeline pline{kernel->pipeline_};
     if (pline)
       d.destroyPipeline(pline, alloc, loader);
     kernel->pipeline_ = ZIVC_VK_NULL_HANDLE;
   }
   {
-    zivcvk::PipelineLayout pline_layout{kernel->pipeline_layout_};
+    const zivcvk::PipelineLayout pline_layout{kernel->pipeline_layout_};
     if (pline_layout)
       d.destroyPipelineLayout(pline_layout, alloc, loader);
     kernel->pipeline_layout_ = ZIVC_VK_NULL_HANDLE;
   }
   {
-    zivcvk::DescriptorSetLayout desc_set_layout{kernel->desc_set_layout_};
+    const zivcvk::DescriptorSetLayout desc_set_layout{kernel->desc_set_layout_};
     if (desc_set_layout)
       d.destroyDescriptorSetLayout(desc_set_layout, alloc, loader);
     kernel->desc_set_layout_ = ZIVC_VK_NULL_HANDLE;
@@ -1060,10 +1058,10 @@ void VulkanDevice::destroyShaderKernel(KernelData* kernel) noexcept
   */
 void VulkanDevice::destroyShaderModule(ModuleData* module) noexcept
 {
-  zivcvk::Device d{device()};
-  zivcvk::AllocationCallbacks alloc{createAllocator()};
+  const zivcvk::Device d{device()};
+  const zivcvk::AllocationCallbacks alloc{createAllocator()};
   {
-    zivcvk::ShaderModule m{module->module_};
+    const zivcvk::ShaderModule m{module->module_};
     if (m)
       d.destroyShaderModule(m, alloc, dispatcher().loader());
     module->module_ = ZIVC_VK_NULL_HANDLE;
@@ -1073,9 +1071,11 @@ void VulkanDevice::destroyShaderModule(ModuleData* module) noexcept
 /*!
   \details No detailed description
 
+  \param [in] cap No description.
+  \param [out] queue_count No description.
   \return No description
   */
-uint32b VulkanDevice::findQueueFamily(const Capability cap,
+uint32b VulkanDevice::findQueueFamily(const CapabilityT cap,
                                       uint32b* queue_count) const noexcept
 {
   const auto find_queue_family = [this](const VulkanDeviceInfo& info,
@@ -1091,8 +1091,7 @@ uint32b VulkanDevice::findQueueFamily(const Capability cap,
     for (uint32b i = 0; i < queue_family_list.size(); ++i) {
       if (!allow_overlap) {
         const auto& index_list = queue_family_index_list_;
-        using Iterator = std::remove_cvref_t<decltype(index_list)>::const_iterator;
-        Iterator ite = std::find(index_list.begin(), index_list.end(), i);
+        const auto* const ite = std::find(index_list.begin(), index_list.end(), i);
         if (ite != index_list.end())
           continue;
       }
@@ -1117,7 +1116,7 @@ uint32b VulkanDevice::findQueueFamily(const Capability cap,
   uint32b q_count = 0;
 
   switch (cap) {
-   case Capability::kCompute: {
+   case CapabilityT::kCompute: {
     // It tries to find a queue family that has compute but doesn't have graphics
     // to avoid conflict with graphics use first
     find_queue_family(info, false, true, true, false, false, &index, &q_count);
@@ -1131,7 +1130,7 @@ uint32b VulkanDevice::findQueueFamily(const Capability cap,
     }
     break;
    }
-   case Capability::kGui: {
+   case CapabilityT::kGui: {
     // It tries to find a queue family that has graphics but doesn't have compute
     // to avoid conflict with compute use first
     find_queue_family(info, true, false, false, true, false, &index, &q_count);
@@ -1217,13 +1216,13 @@ VmaVulkanFunctions VulkanDevice::getVmaVulkanFunctions() const noexcept
   */
 void VulkanDevice::initCapability() noexcept
 {
-  constexpr uint32b compute_mask = 0b1u << static_cast<uint32b>(Capability::kCompute);
+  constexpr uint32b compute_mask = 0b1u << static_cast<uint32b>(CapabilityT::kCompute);
   capabilities_ = compute_mask;
 
   auto& backend_p = parentImpl();
   using SurfaceType = VulkanBackend::WindowSurfaceType;
   if (backend_p.windowSurfaceType() != SurfaceType::kNone) {
-    constexpr uint32b gui_mask = 0b1u << static_cast<uint32b>(Capability::kGui);
+    constexpr uint32b gui_mask = 0b1u << static_cast<uint32b>(CapabilityT::kGui);
     capabilities_ = capabilities_ | gui_mask;
   }
 }
@@ -1233,13 +1232,13 @@ void VulkanDevice::initCapability() noexcept
   */
 void VulkanDevice::initCommandPool()
 {
-  zivcvk::Device d{device()};
+  const zivcvk::Device d{device()};
   const auto& loader = dispatcher().loader();
-  zivcvk::AllocationCallbacks alloc{createAllocator()};
+  const zivcvk::AllocationCallbacks alloc{createAllocator()};
 
   const zivcvk::CommandPoolCreateInfo create_info{
       zivcvk::CommandPoolCreateFlagBits::eResetCommandBuffer,
-      queueFamilyIndex(Capability::kCompute)};
+      queueFamilyIndex(CapabilityT::kCompute)};
 
   //! \todo Fix me. AMD gpu won't work with custom allocator
   auto command_pool = d.createCommandPool(create_info, nullptr /* alloc */, loader);
@@ -1254,17 +1253,17 @@ void VulkanDevice::initDevice()
   auto& backend_p = parentImpl();
   const auto& info = deviceInfoImpl();
 
-  zisc::pmr::vector<const char*>::allocator_type layer_alloc{memoryResource()};
+  const zisc::pmr::vector<const char*>::allocator_type layer_alloc{memoryResource()};
   zisc::pmr::vector<const char*> layers{layer_alloc};
   zisc::pmr::vector<const char*> extensions{layer_alloc};
   initProperties(&extensions, &layers);
 
   // Queue create info
   using PriorityList = zisc::pmr::vector<float>;
-  PriorityList::allocator_type priority_alloc{memoryResource()};
+  const PriorityList::allocator_type priority_alloc{memoryResource()};
   PriorityList priority_list{priority_alloc};
   using QueueCreateInfoList = zisc::pmr::vector<zivcvk::DeviceQueueCreateInfo>;
-  QueueCreateInfoList::allocator_type q_info_alloc{memoryResource()};
+  const QueueCreateInfoList::allocator_type q_info_alloc{memoryResource()};
   QueueCreateInfoList q_create_info_list{q_info_alloc};
   initQueueCreateInfoList(
     zisc::reinterp<zisc::pmr::vector<VkDeviceQueueCreateInfo>*>(&q_create_info_list),
@@ -1284,7 +1283,7 @@ void VulkanDevice::initDevice()
       nullptr};
   device_create_info.setPNext(std::addressof(device_features));
 
-  zivcvk::AllocationCallbacks alloc{backend_p.createAllocator()};
+  const zivcvk::AllocationCallbacks alloc{backend_p.createAllocator()};
   const auto pdevice = zisc::cast<zivcvk::PhysicalDevice>(info.device());
   auto d = pdevice.createDevice(device_create_info, alloc, dispatcher().loader());
   device_ = zisc::cast<VkDevice>(d);
@@ -1322,12 +1321,12 @@ void VulkanDevice::initProperties(zisc::pmr::vector<const char*>* extensions,
                  VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME};
 #endif // Z_MAC
 
-  if (hasCapability(Capability::kCompute)) {
+  if (hasCapability(CapabilityT::kCompute)) {
     extensions->emplace_back(VK_EXT_MEMORY_BUDGET_EXTENSION_NAME);
                             //VK_EXT_EXTERNAL_MEMORY_HOST_EXTENSION_NAME,
     // extensions->emplace_back(VK_KHR_MAINTENANCE_4_EXTENSION_NAME);
   }
-  if (hasCapability(Capability::kGui)) {
+  if (hasCapability(CapabilityT::kGui)) {
     extensions->emplace_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
   }
 
@@ -1412,7 +1411,7 @@ void VulkanDevice::initQueueCreateInfoList(
   // Create info
   std::size_t total_queues = 0;
   for (std::size_t i = 0; i < numOfCapabilities(); ++i) {
-    const Capability cap = getCapability(i);
+    const CapabilityT cap = getCapability(i);
     if (!hasCapability(cap))
       continue;
     const uint32b family_index = queueFamilyIndex(cap);
@@ -1435,13 +1434,13 @@ void VulkanDevice::initQueueCreateInfoList(
   }
 
   // Set the priority for GUI to high
-  if (hasCapability(Capability::kGui)) {
-    const uint32b family_index = queueFamilyIndex(Capability::kGui);
+  if (hasCapability(CapabilityT::kGui)) {
+    const uint32b family_index = queueFamilyIndex(CapabilityT::kGui);
     zivcvk::DeviceQueueCreateInfo* create_info = find_create_info(family_index);
     ZIVC_ASSERT(create_info != nullptr, "Setting priority for GUI failed.");
     const float* p = nullptr;
     std::size_t n = 0;
-    if (queueFamilyIndex(Capability::kCompute) == queueFamilyIndex(Capability::kGui)) {
+    if (queueFamilyIndex(CapabilityT::kCompute) == queueFamilyIndex(CapabilityT::kGui)) {
       p = &create_info->pQueuePriorities[create_info->queueCount - 1];
       n = 1;
     }
@@ -1466,7 +1465,7 @@ void VulkanDevice::initQueueFamilyIndexList()
   queue_offset_list_.fill((std::numeric_limits<uint32b>::max)());
 
   for (std::size_t i = 0; i < numOfCapabilities(); ++i) {
-    const Capability cap = getCapability(i);
+    const CapabilityT cap = getCapability(i);
     if (!hasCapability(cap))
       continue;
     uint32b& queue_family_index = queue_family_index_list_[i];
@@ -1481,15 +1480,15 @@ void VulkanDevice::initQueueFamilyIndexList()
   }
 
   // Check overlap of queue family index
-  if (queueFamilyIndex(Capability::kCompute) == queueFamilyIndex(Capability::kGui)) {
-    if (numOfQueues(Capability::kCompute) <= 1) {
+  if (queueFamilyIndex(CapabilityT::kCompute) == queueFamilyIndex(CapabilityT::kGui)) {
+    if (numOfQueues(CapabilityT::kCompute) <= 1) {
       const std::string message = createErrorMessage(
           *this,
           "The device doesn't have enough queue.");
       throw SystemError{ErrorCode::kVulkanInitializationFailed, message};
     }
-    const std::size_t compute_index = getCapabilityIndex(Capability::kCompute);
-    const std::size_t gui_index = getCapabilityIndex(Capability::kGui);
+    const std::size_t compute_index = getCapabilityIndex(CapabilityT::kCompute);
+    const std::size_t gui_index = getCapabilityIndex(CapabilityT::kGui);
     queue_count_list_[compute_index] -= 1;
     queue_count_list_[gui_index] = 1;
   }
@@ -1510,15 +1509,15 @@ void VulkanDevice::initQueueList()
   // Calculate toal queues
   uint32b total_queues = 0;
   for (std::size_t i = 0; i < numOfCapabilities(); ++i) {
-    const Capability cap = getCapability(i);
+    const CapabilityT cap = getCapability(i);
     total_queues += numOfQueues(cap);
   }
 
   // Queue counter
-  zisc::pmr::map<uint32b, uint32b>::allocator_type alloc{memoryResource()};
+  const zisc::pmr::map<uint32b, uint32b>::allocator_type alloc{memoryResource()};
   zisc::pmr::map<uint32b, uint32b> q_counter{alloc};
   for (std::size_t i = 0; i < numOfCapabilities(); ++i) {
-    const Capability cap = getCapability(i);
+    const CapabilityT cap = getCapability(i);
     const uint32b family_index = queueFamilyIndex(cap);
     q_counter[family_index] = 0;
   }
@@ -1527,13 +1526,13 @@ void VulkanDevice::initQueueList()
   queue_list_->reserve(total_queues);
   const zivcvk::Device d{device()};
   for (std::size_t i = 0; i < numOfCapabilities(); ++i) {
-    const Capability cap = getCapability(i);
+    const CapabilityT cap = getCapability(i);
     if (!hasCapability(cap))
       continue;
     const uint32b family_index = queueFamilyIndex(cap);
     for (std::size_t j = 0; j < numOfQueues(cap); ++j) {
       const uint32b index = q_counter[family_index]++;
-      zivcvk::Queue q = d.getQueue(family_index, index, dispatcher().loader());
+      const zivcvk::Queue q = d.getQueue(family_index, index, dispatcher().loader());
       queue_list_->emplace_back(q);
     }
   }
@@ -1563,8 +1562,8 @@ void VulkanDevice::initMemoryAllocator()
   create_info.instance = backend_p.instance();
   create_info.vulkanApiVersion = vkGetVulkanApiVersion();
   create_info.pTypeExternalMemoryHandleTypes = nullptr;
-  VkResult result = vmaCreateAllocator(std::addressof(create_info),
-                                       std::addressof(vm_allocator_));
+  const VkResult result = vmaCreateAllocator(std::addressof(create_info),
+                                             std::addressof(vm_allocator_));
   if (result != VK_SUCCESS) {
     const std::string message = createErrorMessage(
         *this,
@@ -1586,10 +1585,10 @@ void VulkanDevice::updateFenceDebugInfo(const std::size_t index)
     const VkFence handle = (*fence_list_)[index];
     const zivcvk::Fence f{handle};
     if (f) {
-      IdData::NameType obj_name{""};
+      IdData::NameT obj_name{""};
       concatStr(id_data.name(), obj_name.data());
       concatStr("_fence", obj_name.data());
-      IdData::NameType idx{""};
+      IdData::NameT idx{""};
       auto [end, result] = std::to_chars(idx.data(),
                                          idx.data() + idx.size(),
                                          index);
@@ -1616,7 +1615,7 @@ void VulkanDevice::updateKernelDataDebugInfo(const KernelData& kernel)
     {
       const ModuleData& module = *kernel.module_;
       if (obj) {
-        IdData::NameType kernel_name{""};
+        IdData::NameT kernel_name{""};
         concatStr(module.name_, kernel_name.data());
         concatStr("_", kernel_name.data());
         concatStr(kernel.kernel_name_.data(), kernel_name.data());
@@ -1626,17 +1625,17 @@ void VulkanDevice::updateKernelDataDebugInfo(const KernelData& kernel)
       }
     };
     {
-      const auto handle = kernel.desc_set_layout_;
+      auto* const handle = kernel.desc_set_layout_;
       const zivcvk::DescriptorSetLayout l{handle};
       set_debug_info(handle, l, "_descsetlayout");
     }
     {
-      const auto handle = kernel.pipeline_layout_;
+      auto* const handle = kernel.pipeline_layout_;
       const zivcvk::PipelineLayout p{handle};
       set_debug_info(handle, p, "_pipelinelayout");
     }
     {
-      const auto handle = kernel.pipeline_;
+      auto* const handle = kernel.pipeline_;
       const zivcvk::Pipeline p{handle};
       set_debug_info(handle, p, "_pipeline");
     }
@@ -1656,7 +1655,7 @@ void VulkanDevice::updateShaderModuleDebugInfo(const ModuleData& module)
     const VkShaderModule handle = module.module_;
     const zivcvk::ShaderModule m{handle};
     if (m) {
-      IdData::NameType module_name{""};
+      IdData::NameT module_name{""};
       concatStr(id_data.name(), module_name.data());
       concatStr("_", module_name.data());
       concatStr(module.name_.data(), module_name.data());

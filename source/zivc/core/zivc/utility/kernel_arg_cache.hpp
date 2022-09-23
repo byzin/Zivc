@@ -87,7 +87,7 @@ class KernelArgCache<void>
 
   //! Return the type by the given index
   template <std::size_t>
-  using CacheType = void;
+  using CacheT = void;
 
 
   //! Check if the cache type is valid
@@ -120,13 +120,13 @@ template <typename ...ArgTypes, typename ...Types>
 class KernelArgCache<KernelArgCache<ArgTypes...>, Types...>
 {
   // Type aliases
-  using CacheT = KernelArgCache<ArgTypes...>;
+  using CurrentCacheT = KernelArgCache<ArgTypes...>;
   using PrecedenceCacheT = KernelArgCache<Types...>;
 
 
  public:
   //! The number of args the cache has
-  static constexpr std::size_t kSize = CacheT::kSize + PrecedenceCacheT::kSize;
+  static constexpr std::size_t kSize = CurrentCacheT::kSize + PrecedenceCacheT::kSize;
 
   //! Check if the cache has value 
   template <std::size_t kIndex>
@@ -136,19 +136,19 @@ class KernelArgCache<KernelArgCache<ArgTypes...>, Types...>
 
   //! Return the type by the given index
   template <std::size_t kIndex>
-  using CacheType = std::conditional_t<kHasValue<kIndex>,
-      typename CacheT::template CacheType<
+  using CacheT = std::conditional_t<kHasValue<kIndex>,
+      typename CurrentCacheT::template CacheT<
           kHasValue<kIndex> ? kIndex - PrecedenceCacheT::kSize : 0>,
-      typename PrecedenceCacheT::template CacheType<kIndex>>;
+      typename PrecedenceCacheT::template CacheT<kIndex>>;
 
 
   //! Return the value by the given index
   template <std::size_t kIndex>
-  CacheType<kIndex>& get() noexcept;
+  CacheT<kIndex>& get() noexcept;
 
   //! Return the value by the given index
   template <std::size_t kIndex>
-  const CacheType<kIndex>& get() const noexcept;
+  const CacheT<kIndex>& get() const noexcept;
 
   //! Check if two POD data are equal in values
   bool isEqual(const KernelArgCache& other) const noexcept;
@@ -166,17 +166,17 @@ class KernelArgCache<KernelArgCache<ArgTypes...>, Types...>
 
   //! Set the given value by the given index
   template <std::size_t kIndex>
-  void set(CacheType<kIndex> value) noexcept;
+  void set(CacheT<kIndex> value) noexcept;
 
   //! Return the size of tail padding of the cache
   static constexpr std::size_t tailPaddingSize() noexcept;
 
  private:
-  static_assert(0 < CacheT::size());
+  static_assert(0 < CurrentCacheT::size());
   static_assert(0 < PrecedenceCacheT::size());
 
   PrecedenceCacheT precedence_;
-  CacheT value_;
+  CurrentCacheT value_;
 };
 
 /*!
@@ -190,12 +190,12 @@ template <typename ...ArgTypes>
 class KernelArgCache<KernelArgCache<ArgTypes...>>
 {
   // Type aliases
-  using CacheT = KernelArgCache<ArgTypes...>;
+  using CurrentCacheT = KernelArgCache<ArgTypes...>;
 
 
  public:
   //! The number of args the cache has
-  static constexpr std::size_t kSize = CacheT::kSize;
+  static constexpr std::size_t kSize = CurrentCacheT::kSize;
 
   //! Check if the cache has value 
   template <std::size_t kIndex>
@@ -204,18 +204,18 @@ class KernelArgCache<KernelArgCache<ArgTypes...>>
 
   //! Return the type by the given index
   template <std::size_t kIndex>
-  using CacheType = std::conditional_t<kHasValue<kIndex>,
-      typename CacheT::template CacheType<kIndex>,
+  using CacheT = std::conditional_t<kHasValue<kIndex>,
+      typename CurrentCacheT::template CacheT<kIndex>,
       void>;
 
 
   //! Return the value by the given index
   template <std::size_t kIndex>
-  CacheType<kIndex>& get() noexcept;
+  CacheT<kIndex>& get() noexcept;
 
   //! Return the value by the given index
   template <std::size_t kIndex>
-  const CacheType<kIndex>& get() const noexcept;
+  const CacheT<kIndex>& get() const noexcept;
 
   //! Check if two POD data are equal in values
   bool isEqual(const KernelArgCache& other) const noexcept;
@@ -233,15 +233,15 @@ class KernelArgCache<KernelArgCache<ArgTypes...>>
 
   //! Set the given value by the given index
   template <std::size_t kIndex>
-  void set(CacheType<kIndex> value) noexcept;
+  void set(CacheT<kIndex> value) noexcept;
 
   //! Return the size of tail padding of the cache
   static constexpr std::size_t tailPaddingSize() noexcept;
 
  private:
-  static_assert(0 < CacheT::size());
+  static_assert(0 < CurrentCacheT::size());
 
-  CacheT value_;
+  CurrentCacheT value_;
 };
 
 /*!
@@ -256,8 +256,8 @@ template <KernelArg Type, typename ...Types>
 class KernelArgCache<Type, Types...>
 {
   // Type aliases
-  using PlainType = std::remove_cv_t<Type>;
-  using PlainCache = KernelArgCache<Type>;
+  using PlainT = std::remove_cv_t<Type>;
+  using PlainCacheT = KernelArgCache<Type>;
   using PrecedenceCacheT = KernelArgCache<Types...>;
 
  public:
@@ -267,18 +267,18 @@ class KernelArgCache<Type, Types...>
 
   //! Return the type by the given index
   template <std::size_t kIndex>
-  using CacheType = std::conditional_t<kIndex == (kSize - 1),
-      PlainType,
-      typename PrecedenceCacheT::template CacheType<kIndex>>;
+  using CacheT = std::conditional_t<kIndex == (kSize - 1),
+      PlainT,
+      typename PrecedenceCacheT::template CacheT<kIndex>>;
 
 
   //! Return the value by the given index
   template <std::size_t kIndex>
-  CacheType<kIndex>& get() noexcept;
+  CacheT<kIndex>& get() noexcept;
 
   //! Return the value by the given index
   template <std::size_t kIndex>
-  const CacheType<kIndex>& get() const noexcept;
+  const CacheT<kIndex>& get() const noexcept;
 
   //! Check if two POD data are equal in values
   bool isEqual(const KernelArgCache& other) const noexcept;
@@ -296,14 +296,14 @@ class KernelArgCache<Type, Types...>
 
   //! Set the given value by the given index
   template <std::size_t kIndex>
-  void set(CacheType<kIndex> value) noexcept;
+  void set(CacheT<kIndex> value) noexcept;
 
   //! Return the size of tail padding of the cache
   static constexpr std::size_t tailPaddingSize() noexcept;
 
  private:
   PrecedenceCacheT precedence_;
-  alignas(PlainCache::kAlignment) PlainType value_;
+  alignas(PlainCacheT::kAlignment) PlainT value_;
 };
 
 /*!
@@ -317,29 +317,29 @@ template <KernelArg Type>
 class KernelArgCache<Type>
 {
   // Type aliases
-  using PlainType = std::remove_cv_t<Type>;
-  using AlignmentInfo = KernelArgCache<void>::AlignmentInfo<PlainType>;
+  using PlainT = std::remove_cv_t<Type>;
+  using AlignmentInfoT = KernelArgCache<void>::AlignmentInfo<PlainT>;
 
  public:
   //! The number of args the cache has
   static constexpr std::size_t kSize = 1;
 
   //! Represent the required alignment to conform the extended alignment rule. \todo Consider vector alignment
-  static constexpr std::size_t kAlignment = AlignmentInfo::kValue;
+  static constexpr std::size_t kAlignment = AlignmentInfoT::kValue;
 
 
   //! Return the type by the given index
   template <std::size_t kIndex>
-  using CacheType = std::conditional_t<kIndex == (kSize - 1), PlainType, void>;
+  using CacheT = std::conditional_t<kIndex == (kSize - 1), PlainT, void>;
 
 
   //! Return the value by the given index
   template <std::size_t kIndex>
-  CacheType<kIndex>& get() noexcept;
+  CacheT<kIndex>& get() noexcept;
 
   //! Return the value by the given index
   template <std::size_t kIndex>
-  const CacheType<kIndex>& get() const noexcept;
+  const CacheT<kIndex>& get() const noexcept;
 
   //! Check if two POD data are equal in values
   bool isEqual(const KernelArgCache& other) const noexcept;
@@ -357,13 +357,13 @@ class KernelArgCache<Type>
 
   //! Set the given value by the given index
   template <std::size_t kIndex>
-  void set(CacheType<kIndex> value) noexcept;
+  void set(CacheT<kIndex> value) noexcept;
 
   //! Return the size of tail padding of the cache
   static constexpr std::size_t tailPaddingSize() noexcept;
 
  private:
-  alignas(kAlignment) PlainType value_;
+  alignas(kAlignment) PlainT value_;
 };
 
 /*!
@@ -378,7 +378,7 @@ template <KernelArg Type, typename ...Types>
 class KernelArgCache<Buffer<Type>&, Types...>
 {
   // Type aliases
-  using BufferP = std::add_pointer_t<Buffer<Type>>;
+  using BufferPtr = std::add_pointer_t<Buffer<Type>>;
   using PrecedenceCacheT = KernelArgCache<Types...>;
 
 
@@ -389,18 +389,18 @@ class KernelArgCache<Buffer<Type>&, Types...>
 
   //! Return the type by the given index
   template <std::size_t kIndex>
-  using CacheType = std::conditional_t<kIndex == (kSize - 1),
-      BufferP,
-      typename PrecedenceCacheT::template CacheType<kIndex>>;
+  using CacheT = std::conditional_t<kIndex == (kSize - 1),
+      BufferPtr,
+      typename PrecedenceCacheT::template CacheT<kIndex>>;
 
 
   //! Return the value by the given index
   template <std::size_t kIndex>
-  CacheType<kIndex>& get() noexcept;
+  CacheT<kIndex>& get() noexcept;
 
   //! Return the value by the given index
   template <std::size_t kIndex>
-  const CacheType<kIndex>& get() const noexcept;
+  const CacheT<kIndex>& get() const noexcept;
 
   //! Check if two POD data are equal in values
   bool isEqual(const KernelArgCache& other) const noexcept;
@@ -418,14 +418,14 @@ class KernelArgCache<Buffer<Type>&, Types...>
 
   //! Set the given value by the given index
   template <std::size_t kIndex>
-  void set(CacheType<kIndex> value) noexcept;
+  void set(CacheT<kIndex> value) noexcept;
 
   //! Return the size of tail padding of the cache
   static constexpr std::size_t tailPaddingSize() noexcept;
 
  private:
   PrecedenceCacheT precedence_;
-  BufferP value_ = nullptr;
+  BufferPtr value_ = nullptr;
 };
 
 /*!
@@ -439,7 +439,7 @@ template <KernelArg Type>
 class KernelArgCache<Buffer<Type>&>
 {
   // Type aliases
-  using BufferP = std::add_pointer_t<Buffer<Type>>;
+  using BufferPtr = std::add_pointer_t<Buffer<Type>>;
 
 
  public:
@@ -449,16 +449,16 @@ class KernelArgCache<Buffer<Type>&>
 
   //! Return the type by the given index
   template <std::size_t kIndex>
-  using CacheType = std::conditional_t<kIndex == (kSize - 1), BufferP, void>;
+  using CacheT = std::conditional_t<kIndex == (kSize - 1), BufferPtr, void>;
 
 
   //! Return the value by the given index
   template <std::size_t kIndex>
-  CacheType<kIndex>& get() noexcept;
+  CacheT<kIndex>& get() noexcept;
 
   //! Return the value by the given index
   template <std::size_t kIndex>
-  const CacheType<kIndex>& get() const noexcept;
+  const CacheT<kIndex>& get() const noexcept;
 
   //! Check if two POD data are equal in values
   bool isEqual(const KernelArgCache& other) const noexcept;
@@ -476,13 +476,13 @@ class KernelArgCache<Buffer<Type>&>
 
   //! Set the given value by the given index
   template <std::size_t kIndex>
-  void set(CacheType<kIndex> value) noexcept;
+  void set(CacheT<kIndex> value) noexcept;
 
   //! Return the size of tail padding of the cache
   static constexpr std::size_t tailPaddingSize() noexcept;
 
  private:
-  BufferP value_ = nullptr;
+  BufferPtr value_ = nullptr;
 };
 
 #if defined(Z_GCC) || defined(Z_CLANG)

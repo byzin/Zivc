@@ -30,7 +30,7 @@ class Device;
 class Fence : private zisc::NonCopyable<Fence>
 {
  public:
-  using Data = std::aligned_storage_t<28, 8>;
+  using DataT = std::aligned_storage_t<28, 8>;
 
 
   //! Create a deactive fence
@@ -57,10 +57,10 @@ class Fence : private zisc::NonCopyable<Fence>
   void clear() noexcept;
 
   //! Return the data
-  Data& data() noexcept;
+  DataT& data() noexcept;
 
   //! Return the data
-  const Data& data() const noexcept;
+  const DataT& data() const noexcept;
 
   //! Check whether the fence is active
   bool isActive() const noexcept;
@@ -72,7 +72,7 @@ class Fence : private zisc::NonCopyable<Fence>
   void wait() const noexcept;
 
  private:
-  Data fence_;
+  DataT fence_;
   Device* device_;
 };
 

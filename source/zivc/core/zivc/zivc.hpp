@@ -18,8 +18,6 @@
 // Standard C++ library
 #include <cstddef>
 #include <string_view>
-// Zisc
-#include "zisc/concepts.hpp"
 // Zivc
 #include "buffer.hpp"
 #include "context.hpp"

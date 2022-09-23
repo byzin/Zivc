@@ -82,14 +82,14 @@ class VulkanDevice : public Device
   struct KernelData
   {
     const ModuleData* module_ = nullptr;
-    IdData::NameType kernel_name_;
+    IdData::NameT kernel_name_;
     VkDescriptorSetLayout desc_set_layout_ = ZIVC_VK_NULL_HANDLE;
     VkPipelineLayout pipeline_layout_ = ZIVC_VK_NULL_HANDLE;
     VkPipeline pipeline_ = ZIVC_VK_NULL_HANDLE;
   };
 
   // Type aliases
-  using Capability = VulkanDeviceCapability;
+  using CapabilityT = VulkanDeviceCapability;
   static constexpr std::size_t kNumOfCapabilities = 2;
 
 
@@ -110,7 +110,7 @@ class VulkanDevice : public Device
 
   //! Add a shader module of the given kernel set
   template <typename SetType>
-  const ModuleData& addShaderModule(const KernelSet<SetType>& kernel_set);
+  const ModuleData& addShaderModule(KernelSet<SetType>& kernel_set);
 
   //! Return the command pool for compute
   VkCommandPool& commandPool() noexcept;
@@ -141,10 +141,10 @@ class VulkanDevice : public Device
   const VulkanDispatchLoader& dispatcher() const noexcept;
 
   //! Return the queue by the index
-  VkQueue& getQueue(const Capability cap, const std::size_t index) noexcept;
+  VkQueue& getQueue(const CapabilityT cap, const std::size_t index) noexcept;
 
   //! Return the queue by the index
-  const VkQueue& getQueue(const Capability cap, const std::size_t index) const noexcept;
+  const VkQueue& getQueue(const CapabilityT cap, const std::size_t index) const noexcept;
 
   //! Return the queue family index list
   std::array<uint32b, kNumOfCapabilities> getQueueFamilyIndexList(uint32b* size) const noexcept;
@@ -160,7 +160,7 @@ class VulkanDevice : public Device
   const ModuleData& getShaderModule(const uint64b id) const noexcept;
 
   //! Check if the device can be used for the given capability
-  bool hasCapability(const Capability cap) const noexcept;
+  bool hasCapability(const CapabilityT cap) const noexcept;
 
   //! Check if the device has the kernel of the give kernel id
   bool hasShaderKernel(const uint64b id) const noexcept;
@@ -219,10 +219,10 @@ class VulkanDevice : public Device
   std::size_t numOfQueues() const noexcept override;
 
   //! Return the number of underlying command queues for compute
-  std::size_t numOfQueues(const Capability cap) const noexcept;
+  std::size_t numOfQueues(const CapabilityT cap) const noexcept;
 
   //! Return an index of a queue family
-  uint32b queueFamilyIndex(const Capability cap) const noexcept;
+  uint32b queueFamilyIndex(const CapabilityT cap) const noexcept;
 
   //! Return the use of the given fence to the device
   void returnFence(Fence* fence) noexcept override;
@@ -251,7 +251,7 @@ class VulkanDevice : public Device
   void waitForCompletion(const uint32b queue_index) const override;
 
   //! Wait for a queue for compute to be idle
-  void waitForCompletion(const Capability cap,const uint32b queue_index) const;
+  void waitForCompletion(const CapabilityT cap,const uint32b queue_index) const;
 
   //! Wait for a fence to be signaled
   void waitForCompletion(const Fence& fence) const override;
@@ -299,11 +299,11 @@ class VulkanDevice : public Device
         void* user_data);
   };
 
-  using IndexQueueImpl = zisc::ScalableCircularQueue<std::size_t>;
-  using IndexQueue = zisc::Queue<IndexQueueImpl, std::size_t>;
-  static_assert(IndexQueue::isConcurrent(), "The queue must be concurrent.");
-  using UniqueModuleData = zisc::pmr::unique_ptr<ModuleData>;
-  using UniqueKernelData = zisc::pmr::unique_ptr<KernelData>;
+  using IndexQueueImplT = zisc::ScalableCircularQueue<std::size_t>;
+  using IndexQueueT = zisc::Queue<IndexQueueImplT, std::size_t>;
+  static_assert(IndexQueueT::isConcurrent(), "The queue must be concurrent.");
+  using UniqueModuleDataT = zisc::pmr::unique_ptr<ModuleData>;
+  using UniqueKernelDataT = zisc::pmr::unique_ptr<KernelData>;
 
 
   //! Add a shader module of the given kernel set
@@ -312,10 +312,10 @@ class VulkanDevice : public Device
                                     const std::string_view module_name);
 
   //! Return the capability of the index
-  static constexpr Capability getCapability(const std::size_t index) noexcept;
+  static constexpr CapabilityT getCapability(const std::size_t index) noexcept;
 
   //! Return the index of the give capability
-  static constexpr std::size_t getCapabilityIndex(const Capability cap) noexcept;
+  static constexpr std::size_t getCapabilityIndex(const CapabilityT cap) noexcept;
 
   //! Check if the give queue family property has required flags
   static bool checkQueueFamilyFlags(const VkQueueFamilyProperties& props,
@@ -330,13 +330,13 @@ class VulkanDevice : public Device
   void destroyShaderModule(ModuleData* module) noexcept;
 
   //! Return the underlying fence index queue
-  IndexQueue& fenceIndexQueue() noexcept;
+  IndexQueueT& fenceIndexQueue() noexcept;
 
   //! Return the underlying fence index queue
-  const IndexQueue& fenceIndexQueue() const noexcept;
+  const IndexQueueT& fenceIndexQueue() const noexcept;
 
   //! Find the index of the optimal queue familty
-  uint32b findQueueFamily(const Capability cap, uint32b* queue_count) const noexcept;
+  uint32b findQueueFamily(const CapabilityT cap, uint32b* queue_count) const noexcept;
 
   //! Get Vulkan function pointers used in VMA
   VmaVulkanFunctions getVmaVulkanFunctions() const noexcept;
@@ -384,7 +384,7 @@ class VulkanDevice : public Device
   const VulkanBackend& parentImpl() const noexcept;
 
   //! Return the offset of queue list for the given capability
-  std::size_t queueOffset(const Capability cap) const noexcept;
+  std::size_t queueOffset(const CapabilityT cap) const noexcept;
 
   //! Update the debug info of the fence by the given index
   void updateFenceDebugInfo(const std::size_t index);
@@ -400,13 +400,13 @@ class VulkanDevice : public Device
   VkDevice device_ = ZIVC_VK_NULL_HANDLE;
   VmaAllocator vm_allocator_ = ZIVC_VK_NULL_HANDLE;
   VkCommandPool command_pool_ = ZIVC_VK_NULL_HANDLE;
-  zisc::pmr::unique_ptr<IndexQueueImpl> fence_index_queue_;
-  ZivcObject::UniqueVector<VkFence> fence_list_;
-  ZivcObject::UniqueVector<VkQueue> queue_list_;
-  ZivcObject::UniqueVector<zisc::Memory::Usage> heap_usage_list_;
+  zisc::pmr::unique_ptr<IndexQueueImplT> fence_index_queue_;
+  ZivcObject::UniqueVectorT<VkFence> fence_list_;
+  ZivcObject::UniqueVectorT<VkQueue> queue_list_;
+  ZivcObject::UniqueVectorT<zisc::Memory::Usage> heap_usage_list_;
   zisc::pmr::unique_ptr<VulkanDispatchLoader> dispatcher_;
-  ZivcObject::UniqueMap<uint64b, UniqueModuleData> module_data_list_;
-  ZivcObject::UniqueMap<uint64b, UniqueKernelData> kernel_data_list_;
+  ZivcObject::UniqueMapT<uint64b, UniqueModuleDataT> module_data_list_;
+  ZivcObject::UniqueMapT<uint64b, UniqueKernelDataT> kernel_data_list_;
   std::array<uint32b, kNumOfCapabilities> queue_family_index_list_;
   std::array<uint32b, kNumOfCapabilities> queue_count_list_;
   std::array<uint32b, kNumOfCapabilities> queue_offset_list_;

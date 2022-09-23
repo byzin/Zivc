@@ -18,8 +18,6 @@
 #include <system_error>
 #include <string>
 #include <string_view>
-// Zisc
-#include "zisc/utility.hpp"
 // Zivc
 #include "zivc_object.hpp"
 
@@ -155,7 +153,7 @@ SystemError& SystemError::operator=(SystemError&& other) noexcept
   \param [in] what_arg No description.
   \return No description
   */
-std::string createErrorMessage(const ZivcObject& object,
+std::string createErrorMessage([[maybe_unused]] const ZivcObject& object,
                                const std::string_view what_arg) noexcept
 {
   return what_arg.data();

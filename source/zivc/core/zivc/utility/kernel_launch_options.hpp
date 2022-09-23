@@ -22,7 +22,6 @@
 #include <string_view>
 #include <type_traits>
 // Zisc
-#include "zisc/concepts.hpp"
 #include "zisc/algorithm.hpp"
 // Zivc
 #include "id_data.hpp"

@@ -85,7 +85,7 @@ CmdDebugLabelRegion& CmdDebugLabelRegion::operator=(CmdDebugLabelRegion&& other)
   */
 void CmdDebugLabelRegion::end() noexcept
 {
-  zivcvk::CommandBuffer command_buffer{command_buffer_};
+  const zivcvk::CommandBuffer command_buffer{command_buffer_};
   if (command_buffer)
     command_buffer.endDebugUtilsLabelEXT(dispatcher_->loader());
   command_buffer_ = ZIVC_VK_NULL_HANDLE;
@@ -101,7 +101,7 @@ void CmdDebugLabelRegion::end() noexcept
 void CmdDebugLabelRegion::begin(const std::string_view label_name,
                                 const std::span<const float, 4> color) noexcept
 {
-  zivcvk::CommandBuffer command_buffer{command_buffer_};
+  const zivcvk::CommandBuffer command_buffer{command_buffer_};
   if (command_buffer) {
     std::array<float, 4> c{{0.0f, 0.0f, 0.0f, 0.0f}};
     std::copy_n(color.begin(), color.size(), c.begin());

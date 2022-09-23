@@ -22,9 +22,6 @@
 #include <string>
 #include <type_traits>
 #include <utility>
-// Zisc
-#include "zisc/concepts.hpp"
-#include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "zivc_config.hpp"
 #include "utility/buffer_common.hpp"
@@ -73,7 +70,7 @@ void Buffer<T>::clear() noexcept
   */
 template <KernelArg T> inline
 LaunchResult Buffer<T>::copyFrom(const Buffer& source,
-                                 const LaunchOptions& launch_options)
+                                 const LaunchOptionsT& launch_options)
 {
   auto result = zivc::copy(source, this, launch_options);
   return result;
@@ -85,9 +82,9 @@ LaunchResult Buffer<T>::copyFrom(const Buffer& source,
   \return No description
   */
 template <KernelArg T> inline
-auto Buffer<T>::createOptions() const noexcept -> LaunchOptions
+auto Buffer<T>::createOptions() const noexcept -> LaunchOptionsT
 {
-  LaunchOptions options{size()};
+  LaunchOptionsT options{size()};
   return options;
 }
 
@@ -110,7 +107,7 @@ void Buffer<T>::destroy() noexcept
   */
 template <KernelArg T> inline
 LaunchResult Buffer<T>::fill(ConstReference value,
-                             const LaunchOptions& launch_options)
+                             const LaunchOptionsT& launch_options)
 {
   auto result = zivc::fill(value, this, launch_options);
   return result;
@@ -222,7 +219,7 @@ constexpr std::size_t Buffer<T>::typeSizeInBytes() const noexcept
 template <KernelArg T>
 template <template<typename> typename Derived, KernelArg SrcType> inline
 LaunchResult Buffer<T>::copyFromDerived(const Buffer<SrcType>& source,
-                                        const LaunchOptions& launch_options)
+                                        const LaunchOptionsT& launch_options)
 {
   //! \todo Remove me
   ZIVC_ASSERT(type() == source.type(), "Type mismatch found.");
@@ -240,7 +237,7 @@ LaunchResult Buffer<T>::copyFromDerived(const Buffer<SrcType>& source,
 template <KernelArg T>
 template <template<typename> typename Derived> inline
 LaunchResult Buffer<T>::fillDerived(ConstReference value,
-                                    const LaunchOptions& launch_options)
+                                    const LaunchOptionsT& launch_options)
 {
   auto result = Derived<T>::fillImpl(value, this, launch_options);
   return result;

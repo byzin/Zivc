@@ -39,7 +39,7 @@ class CpuDeviceInfo : public DeviceInfo
 {
  public:
   // Type aliases
-  using MemoryStats = zisc::Memory::SystemMemoryStats;
+  using MemoryStatsT = zisc::Memory::SystemMemoryStats;
 
 
   //! Initialize the device info
@@ -69,7 +69,7 @@ class CpuDeviceInfo : public DeviceInfo
   std::array<uint32b, 3> maxWorkGroupCount() const noexcept override;
 
   //! Return the memory stats of the device
-  const MemoryStats& memoryStats() const noexcept;
+  const MemoryStatsT& memoryStats() const noexcept;
 
   //! Return the device name
   std::string_view name() const noexcept override;
@@ -91,9 +91,9 @@ class CpuDeviceInfo : public DeviceInfo
   void initHeapInfoList() noexcept;
 
 
-  IdData::NameType name_;
-  IdData::NameType vendor_name_;
-  MemoryStats memory_stats_;
+  IdData::NameT name_;
+  IdData::NameT vendor_name_;
+  MemoryStatsT memory_stats_;
 };
 
 } // namespace zivc

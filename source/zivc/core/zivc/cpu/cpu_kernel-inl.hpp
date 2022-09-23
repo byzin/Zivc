@@ -75,7 +75,7 @@ CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 auto CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-kernel() const noexcept -> Function
+kernel() const noexcept -> FunctionT
 {
   return kernel_;
 }
@@ -90,7 +90,7 @@ kernel() const noexcept -> Function
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 LaunchResult CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-run(Args... args, const LaunchOptions& launch_options)
+run(Args... args, const LaunchOptionsT& launch_options)
 {
   updateArgCache<0>(args...);
   // Command recording
@@ -143,7 +143,7 @@ destroyData() noexcept
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 void CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-initData(const Params& params)
+initData(const ParamsT& params)
 {
   kernel_ = params.func();
 }
@@ -279,7 +279,7 @@ runImpl(Types&&... cl_args) noexcept
     }
   }
   else { // Launch the kernel
-    Function func = kernel();
+    FunctionT func = kernel();
     std::invoke(func, std::forward<Types>(cl_args)...);
   }
 }
@@ -287,7 +287,7 @@ runImpl(Types&&... cl_args) noexcept
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 template <typename I, I... indices> inline
 void CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-runImpl(const std::integer_sequence<I, indices...> index_seq) noexcept
+runImpl([[maybe_unused]] const std::integer_sequence<I, indices...> index_seq) noexcept
 {
 }
 

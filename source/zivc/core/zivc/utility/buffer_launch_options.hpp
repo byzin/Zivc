@@ -20,8 +20,6 @@
 #include <cstddef>
 #include <string_view>
 #include <type_traits>
-// Zisc
-#include "zisc/concepts.hpp"
 // Zivc
 #include "id_data.hpp"
 #include "launch_options.hpp"

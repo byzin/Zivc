@@ -21,8 +21,6 @@
 #include <cstddef>
 #include <memory>
 #include <type_traits>
-// Zisc
-#include "zisc/concepts.hpp"
 // Zivc
 #include "kernel_arg_info.hpp"
 #include "kernel_arg_type_info.hpp"
@@ -38,10 +36,10 @@ namespace zivc {
   */
 template <typename ...Args> inline
 constexpr auto KernelArgParser<Args...>::getArgInfoList() noexcept
-    -> ArgInfoList<kNumOfArgs>
+    -> ArgInfoListT<kNumOfArgs>
 {
-  ArgInfoList<kNumOfArgs> info_list{};
-  Impl::setArgInfo(0, 0, info_list.data());
+  ArgInfoListT<kNumOfArgs> info_list{};
+  ImplT::setArgInfo(0, 0, info_list.data());
   return info_list;
 }
 
@@ -52,10 +50,10 @@ constexpr auto KernelArgParser<Args...>::getArgInfoList() noexcept
   */
 template <typename ...Args> inline
 constexpr auto KernelArgParser<Args...>::getLocalArgInfoList() noexcept
-    -> ArgInfoList<kNumOfLocalArgs>
+    -> ArgInfoListT<kNumOfLocalArgs>
 {
-  ArgInfoList<kNumOfLocalArgs> info_list{};
-  Impl::setLocalArgInfo(0, 0, info_list.data());
+  ArgInfoListT<kNumOfLocalArgs> info_list{};
+  ImplT::setLocalArgInfo(0, 0, info_list.data());
   return info_list;
 }
 
@@ -66,10 +64,10 @@ constexpr auto KernelArgParser<Args...>::getLocalArgInfoList() noexcept
   */
 template <typename ...Args> inline
 constexpr auto KernelArgParser<Args...>::getPodArgInfoList() noexcept
-    -> ArgInfoList<kNumOfPodArgs>
+    -> ArgInfoListT<kNumOfPodArgs>
 {
-  ArgInfoList<kNumOfPodArgs> info_list{};
-  Impl::setPodArgInfo(0, 0, info_list.data());
+  ArgInfoListT<kNumOfPodArgs> info_list{};
+  ImplT::setPodArgInfo(0, 0, info_list.data());
   return info_list;
 }
 
@@ -80,10 +78,10 @@ constexpr auto KernelArgParser<Args...>::getPodArgInfoList() noexcept
   */
 template <typename ...Args> inline
 constexpr auto KernelArgParser<Args...>::getBufferArgInfoList() noexcept
-    -> ArgInfoList<kNumOfBufferArgs>
+    -> ArgInfoListT<kNumOfBufferArgs>
 {
-  ArgInfoList<kNumOfBufferArgs> info_list{};
-  Impl::setBufferArgInfo(0, 0, info_list.data());
+  ArgInfoListT<kNumOfBufferArgs> info_list{};
+  ImplT::setBufferArgInfo(0, 0, info_list.data());
   return info_list;
 }
 
@@ -101,7 +99,7 @@ class KernelArgParserImpl
   // The parsing results
 
   //!
-  using ArgTypePack = TypePack<>;
+  using ArgTypePackT = TypePack<>;
 
 
   static constexpr std::size_t kNumOfArgs = 0; //!< The number of arguments
@@ -124,20 +122,20 @@ template <typename Arg, typename ...RestArgs>
 class KernelArgParserImpl<Arg, RestArgs...>
 {
   // Type aliases
-  using ArgTypeInfo = KernelArgTypeInfo<Arg>;
-  using NextParser = KernelArgParserImpl<RestArgs...>;
+  using ArgTypeInfoT = KernelArgTypeInfo<Arg>;
+  using NextParserT = KernelArgParserImpl<RestArgs...>;
 
 
   //! Make a new kernel argument type pack
   template <typename ...Args>
   static constexpr auto makeArgTypePack(const TypePack<Args...>& pack)
   {
-    if constexpr (ArgTypeInfo::kIsLocal) {
+    if constexpr (ArgTypeInfoT::kIsLocal) {
       return pack;
     }
     else {
-      using ElementT = typename ArgTypeInfo::ElementType;
-      using ArgT = std::conditional_t<ArgTypeInfo::kIsPod,
+      using ElementT = typename ArgTypeInfoT::ElementT;
+      using ArgT = std::conditional_t<ArgTypeInfoT::kIsPod,
           std::add_const_t<ElementT>,
           std::add_lvalue_reference_t<Buffer<ElementT>>>;
       return TypePack<ArgT, Args...>{};
@@ -147,36 +145,36 @@ class KernelArgParserImpl<Arg, RestArgs...>
   //! Make an arg info
   static constexpr KernelArgInfo makeArgInfo() noexcept
   {
-    return KernelArgInfo{ArgTypeInfo::kIsGlobal,
-                         ArgTypeInfo::kIsLocal,
-                         ArgTypeInfo::kIsConstant,
-                         ArgTypeInfo::kIsPod,
-                         ArgTypeInfo::kIsBuffer};
+    return KernelArgInfo{ArgTypeInfoT::kIsGlobal,
+                         ArgTypeInfoT::kIsLocal,
+                         ArgTypeInfoT::kIsConstant,
+                         ArgTypeInfoT::kIsPod,
+                         ArgTypeInfoT::kIsBuffer};
   }
 
  public:
   // The parsing results
 
   //!
-  using ArgTypePack = decltype(makeArgTypePack(typename NextParser::ArgTypePack{}));
+  using ArgTypePackT = decltype(makeArgTypePack(typename NextParserT::ArgTypePackT{}));
 
 
-  static constexpr std::size_t kNumOfArgs = NextParser::kNumOfArgs + 1;
-  static constexpr std::size_t kNumOfGlobalArgs = ArgTypeInfo::kIsGlobal
-      ? NextParser::kNumOfGlobalArgs + 1
-      : NextParser::kNumOfGlobalArgs;
-  static constexpr std::size_t kNumOfLocalArgs = ArgTypeInfo::kIsLocal
-      ? NextParser::kNumOfLocalArgs + 1
-      : NextParser::kNumOfLocalArgs;
-  static constexpr std::size_t kNumOfConstantArgs = ArgTypeInfo::kIsConstant
-      ? NextParser::kNumOfConstantArgs + 1
-      : NextParser::kNumOfConstantArgs;
-  static constexpr std::size_t kNumOfPodArgs = ArgTypeInfo::kIsPod
-      ? NextParser::kNumOfPodArgs + 1
-      : NextParser::kNumOfPodArgs;
-  static constexpr std::size_t kNumOfBufferArgs = ArgTypeInfo::kIsBuffer
-      ? NextParser::kNumOfBufferArgs + 1
-      : NextParser::kNumOfBufferArgs;
+  static constexpr std::size_t kNumOfArgs = NextParserT::kNumOfArgs + 1;
+  static constexpr std::size_t kNumOfGlobalArgs = ArgTypeInfoT::kIsGlobal
+      ? NextParserT::kNumOfGlobalArgs + 1
+      : NextParserT::kNumOfGlobalArgs;
+  static constexpr std::size_t kNumOfLocalArgs = ArgTypeInfoT::kIsLocal
+      ? NextParserT::kNumOfLocalArgs + 1
+      : NextParserT::kNumOfLocalArgs;
+  static constexpr std::size_t kNumOfConstantArgs = ArgTypeInfoT::kIsConstant
+      ? NextParserT::kNumOfConstantArgs + 1
+      : NextParserT::kNumOfConstantArgs;
+  static constexpr std::size_t kNumOfPodArgs = ArgTypeInfoT::kIsPod
+      ? NextParserT::kNumOfPodArgs + 1
+      : NextParserT::kNumOfPodArgs;
+  static constexpr std::size_t kNumOfBufferArgs = ArgTypeInfoT::kIsBuffer
+      ? NextParserT::kNumOfBufferArgs + 1
+      : NextParserT::kNumOfBufferArgs;
 
 
   //! Set a kernel arg info by the given index
@@ -188,8 +186,8 @@ class KernelArgParserImpl<Arg, RestArgs...>
     info.setIndex(position);
     info_list[index] = info;
     index = index + 1;
-    if constexpr (1 <= NextParser::kNumOfArgs)
-      NextParser::setArgInfo(position + 1, index, info_list);
+    if constexpr (1 <= NextParserT::kNumOfArgs)
+      NextParserT::setArgInfo(position + 1, index, info_list);
   }
 
   //! Set a local kernel arg info by the given index
@@ -197,14 +195,14 @@ class KernelArgParserImpl<Arg, RestArgs...>
                                         std::size_t index,
                                         KernelArgInfo* info_list) noexcept
   {
-    if constexpr (ArgTypeInfo::kIsLocal) {
+    if constexpr (ArgTypeInfoT::kIsLocal) {
       KernelArgInfo info = makeArgInfo();
       info.setIndex(position);
       info_list[index] = info;
       index = index + 1;
     }
-    if constexpr (1 <= NextParser::kNumOfLocalArgs)
-      NextParser::setLocalArgInfo(position + 1, index, info_list);
+    if constexpr (1 <= NextParserT::kNumOfLocalArgs)
+      NextParserT::setLocalArgInfo(position + 1, index, info_list);
   }
 
   //! Set a POD kernel arg info by the given index
@@ -212,14 +210,14 @@ class KernelArgParserImpl<Arg, RestArgs...>
                                       std::size_t index,
                                       KernelArgInfo* info_list) noexcept
   {
-    if constexpr (ArgTypeInfo::kIsPod) {
+    if constexpr (ArgTypeInfoT::kIsPod) {
       KernelArgInfo info = makeArgInfo();
       info.setIndex(position);
       info_list[index] = info;
       index = index + 1;
     }
-    if constexpr (1 <= NextParser::kNumOfPodArgs)
-      NextParser::setPodArgInfo(position + 1, index, info_list);
+    if constexpr (1 <= NextParserT::kNumOfPodArgs)
+      NextParserT::setPodArgInfo(position + 1, index, info_list);
   }
 
   //! Set a buffer kernel arg info by the given index
@@ -227,14 +225,14 @@ class KernelArgParserImpl<Arg, RestArgs...>
                                          std::size_t index,
                                          KernelArgInfo* info_list) noexcept
   {
-    if constexpr (ArgTypeInfo::kIsBuffer) {
+    if constexpr (ArgTypeInfoT::kIsBuffer) {
       KernelArgInfo info = makeArgInfo();
       info.setIndex(position);
       info_list[index] = info;
       index = index + 1;
     }
-    if constexpr (1 <= NextParser::kNumOfBufferArgs)
-      NextParser::setBufferArgInfo(position + 1, index, info_list);
+    if constexpr (1 <= NextParserT::kNumOfBufferArgs)
+      NextParserT::setBufferArgInfo(position + 1, index, info_list);
   }
 };
 

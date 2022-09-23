@@ -119,9 +119,12 @@ function(addGui)
   target_link_libraries(gui PRIVATE Zivc::Zivc PUBLIC Glfw::glfw Imgui::imgui)
   target_include_directories(gui INTERFACE ${gui_path})
   Zivc_enableIpo(gui)
-  set(clang_tidy_exclusion_checks bugprone-exception-escape
+  set(clang_tidy_exclusion_checks bugprone-branch-clone
+                                  bugprone-exception-escape
+                                  bugprone-reserved-identifier
                                   misc-no-recursion
                                   readability-function-cognitive-complexity
+                                  readability-identifier-length
                                   readability-uppercase-literal-suffix
                                   )
   Zivc_setStaticAnalyzer(gui

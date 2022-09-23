@@ -28,7 +28,6 @@
 // Zisc
 #include "zisc/bit.hpp"
 #include "zisc/boolean.hpp"
-#include "zisc/concepts.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "vulkan_buffer_impl.hpp"
@@ -165,7 +164,7 @@ const VkCommandBuffer& VulkanBuffer<T>::commandBuffer() const noexcept
   \return No description
   */
 template <KernelArg T> inline
-auto VulkanBuffer<T>::descriptorType() const noexcept -> DescriptorType
+auto VulkanBuffer<T>::descriptorType() const noexcept -> DescriptorT
 {
   return rawBuffer().desc_type_;
 }
@@ -180,10 +179,10 @@ VkBufferUsageFlagBits VulkanBuffer<T>::descriptorTypeVk() const noexcept
 {
   VkBufferUsageFlagBits flag = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
   switch (descriptorType()) {
-   case DescriptorType::kUniform:
+   case DescriptorT::kUniform:
     flag = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
     break;
-   case DescriptorType::kStorage:
+   case DescriptorT::kStorage:
     flag = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
     break;
    default:
@@ -400,7 +399,7 @@ void VulkanBuffer<T>::updateDebugInfoImpl() noexcept
     device.setDebugInfo(VK_OBJECT_TYPE_BUFFER, buffer(), buffer_name, this);
   }
   if (rawBuffer().command_buffer_ != ZIVC_VK_NULL_HANDLE) {
-    IdData::NameType obj_name{""};
+    IdData::NameT obj_name{""};
     const std::string_view suffix{"_commandbuffer"};
     copyStr(buffer_name, obj_name.data());
     concatStr(suffix, obj_name.data());
@@ -408,14 +407,14 @@ void VulkanBuffer<T>::updateDebugInfoImpl() noexcept
     device.setDebugInfo(VK_OBJECT_TYPE_COMMAND_BUFFER, rawBuffer().command_buffer_, name, this);
   }
   if (rawBuffer().fill_kernel_) {
-    IdData::NameType obj_name{""};
+    IdData::NameT obj_name{""};
     const std::string_view suffix{"_fillkernel"};
     copyStr(buffer_name, obj_name.data());
     concatStr(suffix, obj_name.data());
     rawBuffer().fill_kernel_->setName(obj_name.data());
   }
   if (rawBuffer().fill_data_) {
-    IdData::NameType obj_name{""};
+    IdData::NameT obj_name{""};
     const std::string_view suffix{"_filldata"};
     copyStr(buffer_name, obj_name.data());
     concatStr(suffix, obj_name.data());

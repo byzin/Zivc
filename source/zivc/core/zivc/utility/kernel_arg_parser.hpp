@@ -20,8 +20,6 @@
 #include <cstddef>
 #include <memory>
 #include <type_traits>
-// Zisc
-#include "zisc/concepts.hpp"
 // Zivc
 #include "kernel_arg_info.hpp"
 #include "zivc/kernel_set.hpp"
@@ -53,51 +51,51 @@ class KernelArgParser
   struct KernelTypeHelper<TypePack<KArgs...>>
   {
     template <template<typename, typename...> typename KernelT, std::size_t kDim, DerivedKSet KSet>
-    using Type = KernelT<KernelInitParams<kDim, KSet, Args...>, KArgs...>;
+    using T = KernelT<KernelInitParams<kDim, KSet, Args...>, KArgs...>;
   };
 
 
   // Type aliases
-  using Impl = KernelArgParserImpl<Args...>;
-  using Helper = KernelTypeHelper<typename Impl::ArgTypePack>;
+  using ImplT = KernelArgParserImpl<Args...>;
+  using HelperT = KernelTypeHelper<typename ImplT::ArgTypePackT>;
 
  public:
   // Type aliases
   template <std::size_t kSize>
-  using ArgInfoList = std::array<KernelArgInfo, kSize>;
+  using ArgInfoListT = std::array<KernelArgInfo, kSize>;
   template <template<typename, typename...> typename KernelT, std::size_t kDim, DerivedKSet KSet>
-  using KernelType = typename Helper::template Type<KernelT, kDim, KSet>;
+  using KernelT = typename HelperT::template T<KernelT, kDim, KSet>;
 
 
   // The number of kernel arguments
-  static constexpr std::size_t kNumOfArgs = Impl::kNumOfArgs; //!< The number of arguments
-  static constexpr std::size_t kNumOfGlobalArgs = Impl::kNumOfGlobalArgs; //!< The number of globals
-  static constexpr std::size_t kNumOfLocalArgs = Impl::kNumOfLocalArgs; //!< The number of locals
-  static constexpr std::size_t kNumOfConstantArgs = Impl::kNumOfConstantArgs; //!< The number of constants
-  static constexpr std::size_t kNumOfPodArgs = Impl::kNumOfPodArgs; //!< The number of PODs
-  static constexpr std::size_t kNumOfBufferArgs = Impl::kNumOfBufferArgs; //!< The number of buffers
+  static constexpr std::size_t kNumOfArgs = ImplT::kNumOfArgs; //!< The number of arguments
+  static constexpr std::size_t kNumOfGlobalArgs = ImplT::kNumOfGlobalArgs; //!< The number of globals
+  static constexpr std::size_t kNumOfLocalArgs = ImplT::kNumOfLocalArgs; //!< The number of locals
+  static constexpr std::size_t kNumOfConstantArgs = ImplT::kNumOfConstantArgs; //!< The number of constants
+  static constexpr std::size_t kNumOfPodArgs = ImplT::kNumOfPodArgs; //!< The number of PODs
+  static constexpr std::size_t kNumOfBufferArgs = ImplT::kNumOfBufferArgs; //!< The number of buffers
 
 
   //! Return the info of arguments
-  static constexpr ArgInfoList<kNumOfArgs> getArgInfoList() noexcept;
+  static constexpr ArgInfoListT<kNumOfArgs> getArgInfoList() noexcept;
 
   //! Return the info of local arguments
-  static constexpr ArgInfoList<kNumOfLocalArgs> getLocalArgInfoList() noexcept;
+  static constexpr ArgInfoListT<kNumOfLocalArgs> getLocalArgInfoList() noexcept;
 
   //! Return the info of POD arguments
-  static constexpr ArgInfoList<kNumOfPodArgs> getPodArgInfoList() noexcept;
+  static constexpr ArgInfoListT<kNumOfPodArgs> getPodArgInfoList() noexcept;
 
   //! Return the info of buffer arguments
-  static constexpr ArgInfoList<kNumOfBufferArgs> getBufferArgInfoList() noexcept;
+  static constexpr ArgInfoListT<kNumOfBufferArgs> getBufferArgInfoList() noexcept;
 };
 
 // Type aliases
 template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
 using SharedKernel = std::shared_ptr<typename KernelArgParser<Args...>::
-                                         template KernelType<Kernel, kDim, KSet>>;
+                                         template KernelT<Kernel, kDim, KSet>>;
 template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
 using WeakKernel = std::weak_ptr<typename KernelArgParser<Args...>::
-                                     template KernelType<Kernel, kDim, KSet>>;
+                                     template KernelT<Kernel, kDim, KSet>>;
 
 } // namespace zivc
 

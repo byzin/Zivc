@@ -20,7 +20,6 @@
 #include <memory>
 #include <vector>
 // Zisc
-#include "zisc/concepts.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "zivc/buffer.hpp"
@@ -54,7 +53,7 @@ class CpuBuffer : public Buffer<T>
   using ConstReference = typename Buffer<T>::ConstReference;
   using Pointer = typename Buffer<T>::Pointer;
   using ConstPointer = typename Buffer<T>::ConstPointer;
-  using LaunchOptions = typename Buffer<T>::LaunchOptions;
+  using LaunchOptionsT = typename Buffer<T>::LaunchOptionsT;
 
 
   //! Initialize the buffer
@@ -149,7 +148,7 @@ class CpuBuffer : public Buffer<T>
   const zisc::pmr::vector<Type>& rawBuffer() const noexcept;
 
 
-  ZivcObject::UniqueVector<Type> buffer_data_;
+  ZivcObject::UniqueVectorT<Type> buffer_data_;
 };
 
 } // namespace zivc

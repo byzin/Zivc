@@ -15,14 +15,13 @@
 #ifndef ZIVC_ENV_VARIABLE_INL_HPP
 #define ZIVC_ENV_VARIABLE_INL_HPP
 
+#include "env_variable.hpp"
 // Standard C++ library
 #include <charconv>
 #include <cstdlib>
 #include <string_view>
 // Zivc
 #include "zivc/zivc_config.hpp"
-
-#include "env_variable.hpp"
 
 namespace zivc {
 

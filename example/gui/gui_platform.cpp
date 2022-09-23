@@ -198,8 +198,8 @@ void GuiPlatform::destroyVulkan() noexcept
 {
   if (descriptor_pool_ != ZIVC_VK_NULL_HANDLE) {
     auto d = static_cast<zivcvk::Device>(device().device());
-    zivcvk::AllocationCallbacks alloc{vk_allocator_};
-    zivcvk::DescriptorPool desc_pool{descriptor_pool_};
+    const zivcvk::AllocationCallbacks alloc{vk_allocator_};
+    const zivcvk::DescriptorPool desc_pool{descriptor_pool_};
     d.destroyDescriptorPool(desc_pool, alloc, dispatcher().loader());
     descriptor_pool_ = ZIVC_VK_NULL_HANDLE;
   }
@@ -299,7 +299,7 @@ void GuiPlatform::initGlfw(const GuiApplicationOptions& options)
   // 
   {
     auto* mem_resource = memoryResource();
-    zisc::pmr::polymorphic_allocator<ImGui_ImplVulkanH_Window> alloc{mem_resource};
+    const zisc::pmr::polymorphic_allocator<ImGui_ImplVulkanH_Window> alloc{mem_resource};
     window_data_ = std::allocate_shared<ImGui_ImplVulkanH_Window>(alloc);
     windowData().Surface = surface;
   }
@@ -513,7 +513,7 @@ void GuiPlatform::initVulkanDescriptorPool(zivc::Context& context)
 
   auto d = zisc::cast<zivcvk::Device>(device().device());
   const auto& loader = dispatcher().loader();
-  zivcvk::AllocationCallbacks alloc{vk_allocator_};
+  const zivcvk::AllocationCallbacks alloc{vk_allocator_};
 
   zivcvk::DescriptorPoolCreateInfo info;
   info.setFlags(zivcvk::DescriptorPoolCreateFlagBits::eFreeDescriptorSet);
@@ -521,7 +521,7 @@ void GuiPlatform::initVulkanDescriptorPool(zivc::Context& context)
   info.setMaxSets(max_set_size);
   info.setPoolSizeCount(pool_list_size);
   info.setPPoolSizes(pool_size_list.data());
-  zivcvk::DescriptorPool desc_pool = d.createDescriptorPool(info, alloc, loader);
+  const zivcvk::DescriptorPool desc_pool = d.createDescriptorPool(info, alloc, loader);
   descriptor_pool_ = zisc::cast<VkDescriptorPool>(desc_pool);
 }
 

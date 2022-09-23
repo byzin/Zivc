@@ -69,7 +69,7 @@ SharedDevice CpuBackend::createDevice(const DeviceInfo& device_info)
     throw SystemError{ErrorCode::kInitializationFailed, message};
   }
 
-  zisc::pmr::polymorphic_allocator<CpuDevice> alloc{memoryResource()};
+  const zisc::pmr::polymorphic_allocator<CpuDevice> alloc{memoryResource()};
   SharedDevice device = std::allocate_shared<CpuDevice>(alloc, issueId());
 
   ZivcObject::SharedPtr parent{getOwnPtr()};
@@ -143,6 +143,7 @@ void CpuBackend::updateDeviceInfo()
 void CpuBackend::destroyData() noexcept
 {
   task_batch_size_ = 0;
+  work_group_size_ = 0;
   thread_manager_.reset();
   device_info_.reset();
 }
@@ -157,12 +158,12 @@ void CpuBackend::initData(ContextOptions& options)
   auto* mem_resource = memoryResource();
   // Init device info
   {
-    zisc::pmr::polymorphic_allocator<CpuDeviceInfo> alloc{mem_resource};
+    const zisc::pmr::polymorphic_allocator<CpuDeviceInfo> alloc{mem_resource};
     device_info_ = zisc::pmr::allocateUnique<CpuDeviceInfo>(alloc, mem_resource);
   }
   // Init the thread manager
   {
-    zisc::pmr::polymorphic_allocator<zisc::ThreadManager> alloc{mem_resource};
+    const zisc::pmr::polymorphic_allocator<zisc::ThreadManager> alloc{mem_resource};
     thread_manager_ = zisc::pmr::allocateUnique(alloc,
                                                 options.cpuNumOfThreads(),
                                                 mem_resource);
@@ -170,8 +171,14 @@ void CpuBackend::initData(ContextOptions& options)
   // Init batch size
   {
     constexpr uint32b max_batch_size = maxTaskBatchSize();
-    task_batch_size_ = options.cpuTaskBatchSize();
+    task_batch_size_ = std::bit_ceil(options.cpuTaskBatchSize());
     task_batch_size_ = zisc::clamp(task_batch_size_, 1U, max_batch_size);
+  }
+  // Work group size
+  {
+    constexpr uint32b max_group_size = maxWorkGroupSize();
+    work_group_size_ = std::bit_ceil(options.cpuWorkGroupSize());
+    work_group_size_ = zisc::clamp(work_group_size_, 1U, max_group_size);
   }
 }
 

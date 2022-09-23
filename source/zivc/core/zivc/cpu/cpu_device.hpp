@@ -47,7 +47,7 @@ class CpuDevice : public Device
 {
  public:
   // Type aliases
-  using Command = zisc::FunctionReference<void ()>;
+  using CommandT = zisc::FunctionReference<void ()>;
 
 
   //! Initialize the cpu device
@@ -88,7 +88,7 @@ class CpuDevice : public Device
   void setFenceSize(const std::size_t s) override;
 
   //! Submit a kernel command
-  void submit(const Command& command,
+  void submit(const CommandT& command,
               const uint32b dimension,
               const std::array<uint32b, 3>& work_size,
               const std::array<uint32b, 3>& global_id_offset,
@@ -128,7 +128,7 @@ class CpuDevice : public Device
 
  private:
   //! Execute a command on a number of the given batch size
-  static void execBatchCommands(const Command& command,
+  static void execBatchCommands(const CommandT& command,
                                 const uint32b block_id,
                                 const uint32b group_id_max,
                                 const uint32b batch_size) noexcept;

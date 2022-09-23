@@ -16,11 +16,10 @@
 #define ZIVC_DEVICE_HPP
 
 // Standard C++ library
+#include <concepts>
 #include <cstddef>
 #include <memory>
 // Zisc
-#include "zisc/concepts.hpp"
-#include "zisc/non_copyable.hpp"
 #include "zisc/memory/memory.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc

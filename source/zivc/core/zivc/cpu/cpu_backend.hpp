@@ -63,6 +63,9 @@ class CpuBackend : public Backend
   //! Return the maximum task batch size per thread
   static constexpr uint32b maxTaskBatchSize() noexcept;
 
+  //! Return the maximum work group size
+  static constexpr uint32b maxWorkGroupSize() noexcept;
+
   //! Notify of device memory allocation
   void notifyOfDeviceMemoryAllocation(const std::size_t size) noexcept;
 
@@ -87,6 +90,9 @@ class CpuBackend : public Backend
   //! Update the underlying device info
   void updateDeviceInfo() override;
 
+  //! Return the work group size
+  std::size_t workGroupSize() const noexcept;
+
  protected:
   //! Destroy the backend
   void destroyData() noexcept override;
@@ -101,7 +107,7 @@ class CpuBackend : public Backend
   zisc::pmr::unique_ptr<CpuDeviceInfo> device_info_;
   zisc::pmr::unique_ptr<zisc::ThreadManager> thread_manager_;
   uint32b task_batch_size_ = 0;
-  [[maybe_unused]] Padding<4> pad_;
+  uint32b work_group_size_ = 0;
 };
 
 } // namespace zivc

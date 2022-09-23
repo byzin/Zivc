@@ -23,7 +23,6 @@
 #include <vector>
 // Zisc
 #include "zisc/boolean.hpp"
-#include "zisc/utility.hpp"
 #include "zisc/concurrency/thread_manager.hpp"
 #include "zisc/memory/alloc_free_resource.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
@@ -130,17 +129,15 @@ void Context::initialize(ContextOptions& options)
 
   // Device list
   using DeviceList = decltype(device_list_)::element_type;
-  DeviceList new_device_list{DeviceList::allocator_type{memoryResource()}};
   device_list_ = zisc::pmr::allocateUnique<DeviceList>(
     memoryResource(),
-    std::move(new_device_list));
+    DeviceList{DeviceList::allocator_type{memoryResource()}});
 
   // Get device info list
   using DeviceInfoList = decltype(device_info_list_)::element_type;
-  DeviceInfoList new_info_list{DeviceInfoList::allocator_type{memoryResource()}};
   device_info_list_ = zisc::pmr::allocateUnique<DeviceInfoList>(
       memoryResource(),
-      std::move(new_info_list));
+      DeviceInfoList{DeviceInfoList::allocator_type{memoryResource()}});
   updateDeviceInfo();
 }
 
@@ -158,7 +155,7 @@ SharedDevice Context::queryDevice(const std::size_t device_index)
   }
   SharedDevice device;
   // Check if the device is already created
-  if (WeakDevice d = (*device_list_)[device_index]; !d.expired()) {
+  if (const WeakDevice d = (*device_list_)[device_index]; !d.expired()) {
     device = d.lock();
   }
   // If not, create a new device
@@ -202,7 +199,7 @@ const zisc::ThreadManager& Context::threadManager() const noexcept
 template <typename BackendType>
 void Context::initBackend(ContextOptions& options)
 {
-  zisc::pmr::polymorphic_allocator<BackendType> alloc{memoryResource()};
+  const zisc::pmr::polymorphic_allocator<BackendType> alloc{memoryResource()};
   SharedBackend backend_p = std::allocate_shared<BackendType>(alloc, this);
   WeakBackend own{backend_p};
   backend_p->initialize(std::move(own), options);
@@ -293,7 +290,7 @@ SharedContext createContext(ContextOptions& options)
   // Create a context
   auto* mem_resource = options.memoryResource();
   if (mem_resource != nullptr) {
-    zisc::pmr::polymorphic_allocator<Context> alloc{mem_resource};
+    const zisc::pmr::polymorphic_allocator<Context> alloc{mem_resource};
     context = std::allocate_shared<Context>(alloc);
   }
   else {

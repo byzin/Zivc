@@ -196,7 +196,7 @@ void VulkanDispatchLoader::initialize(zisc::pmr::memory_resource* mem_resource,
   ZIVC_ASSERT(mem_resource != nullptr, "The memory resource is null.");
   {
     using Loader = zivcvk::DynamicLoader;
-    zisc::pmr::polymorphic_allocator<Loader> alloc{mem_resource};
+    const zisc::pmr::polymorphic_allocator<Loader> alloc{mem_resource};
     try {
       dynamic_loader_ = std::allocate_shared<Loader>(alloc, library_name.data());
     }
@@ -226,7 +226,7 @@ void VulkanDispatchLoader::initialize(zisc::pmr::memory_resource* mem_resource,
   ZIVC_ASSERT(mem_resource != nullptr, "The memory resource is null.");
   ZIVC_ASSERT(get_proc_addr != nullptr, "'get_proc_addr' is null.");
   {
-    zisc::pmr::polymorphic_allocator<LoaderType> alloc{mem_resource};
+    const zisc::pmr::polymorphic_allocator<LoaderType> alloc{mem_resource};
     loader_impl_ = std::allocate_shared<LoaderType>(alloc, get_proc_addr);
   }
 }

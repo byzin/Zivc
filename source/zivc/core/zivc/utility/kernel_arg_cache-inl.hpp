@@ -49,7 +49,7 @@ constexpr bool KernelArgCache<Types...>::isValid() noexcept
 template <typename ...ArgTypes, typename ...Types>
 template <std::size_t kIndex> inline
 auto KernelArgCache<KernelArgCache<ArgTypes...>, Types...>::get() noexcept
-    -> CacheType<kIndex>&
+    -> CacheT<kIndex>&
 {
   if constexpr (kHasValue<kIndex>)
     return value_.template get<kIndex - PrecedenceCacheT::kSize>();
@@ -66,7 +66,7 @@ auto KernelArgCache<KernelArgCache<ArgTypes...>, Types...>::get() noexcept
 template <typename ...ArgTypes, typename ...Types>
 template <std::size_t kIndex> inline
 auto KernelArgCache<KernelArgCache<ArgTypes...>, Types...>::get() const noexcept
-    -> const CacheType<kIndex>&
+    -> const CacheT<kIndex>&
 {
   if constexpr (kHasValue<kIndex>)
     return value_.template get<kIndex - PrecedenceCacheT::kSize>();
@@ -97,7 +97,7 @@ bool KernelArgCache<KernelArgCache<ArgTypes...>, Types...>::isEqual(
 template <typename ...ArgTypes, typename ...Types> inline
 constexpr bool KernelArgCache<KernelArgCache<ArgTypes...>, Types...>::isValid() noexcept
 {
-  return CacheT::isValid() && PrecedenceCacheT::isValid();
+  return CurrentCacheT::isValid() && PrecedenceCacheT::isValid();
 }
 
 #if defined(ZIVC_PRINT_CACHE_TREE)
@@ -115,10 +115,10 @@ void KernelArgCache<KernelArgCache<ArgTypes...>, Types...>::printTree(
   using VoidCache = KernelArgCache<void>;
   PrecedenceCacheT::printTree(indent, output);
 
-  VoidCache::printValue<CacheT>(indent, "ArgCache", output);
+  VoidCache::printValue<CurrentCacheT>(indent, "ArgCache", output);
   (*output) << " {" << std::endl;
 
-  CacheT::printTree(indent + 1, output);
+  CurrentCacheT::printTree(indent + 1, output);
 
   VoidCache::printIndent(indent, output);
   (*output) << "}" << std::endl;
@@ -145,7 +145,7 @@ constexpr std::size_t KernelArgCache<KernelArgCache<ArgTypes...>, Types...>::siz
 template <typename ...ArgTypes, typename ...Types>
 template <std::size_t kIndex> inline
 void KernelArgCache<KernelArgCache<ArgTypes...>, Types...>::set(
-    CacheType<kIndex> value) noexcept
+    CacheT<kIndex> value) noexcept
 {
   if constexpr (kHasValue<kIndex>)
     value_.template set<kIndex - PrecedenceCacheT::kSize>(value);
@@ -161,10 +161,10 @@ void KernelArgCache<KernelArgCache<ArgTypes...>, Types...>::set(
 template <typename ...ArgTypes, typename ...Types> inline
 constexpr std::size_t KernelArgCache<KernelArgCache<ArgTypes...>, Types...>::tailPaddingSize() noexcept
 {
-  const bool has_tail_padding = (std::alignment_of_v<CacheT> <
+  const bool has_tail_padding = (std::alignment_of_v<CurrentCacheT> <
                                  std::alignment_of_v<PrecedenceCacheT>);
   const std::size_t s = has_tail_padding
-      ? sizeof(KernelArgCache) - (sizeof(PrecedenceCacheT) + sizeof(CacheT))
+      ? sizeof(KernelArgCache) - (sizeof(PrecedenceCacheT) + sizeof(CurrentCacheT))
       : 0;
   return s;
 }
@@ -177,7 +177,7 @@ constexpr std::size_t KernelArgCache<KernelArgCache<ArgTypes...>, Types...>::tai
   */
 template <typename ...ArgTypes> template <std::size_t kIndex> inline
 auto KernelArgCache<KernelArgCache<ArgTypes...>>::get() noexcept
-    -> CacheType<kIndex>&
+    -> CacheT<kIndex>&
 {
   if constexpr (kHasValue<kIndex>)
     return value_.template get<kIndex>();
@@ -193,7 +193,7 @@ auto KernelArgCache<KernelArgCache<ArgTypes...>>::get() noexcept
   */
 template <typename ...ArgTypes> template <std::size_t kIndex> inline
 auto KernelArgCache<KernelArgCache<ArgTypes...>>::get() const noexcept
-    -> const CacheType<kIndex>&
+    -> const CacheT<kIndex>&
 {
   if constexpr (kHasValue<kIndex>)
     return value_.template get<kIndex>();
@@ -223,7 +223,7 @@ bool KernelArgCache<KernelArgCache<ArgTypes...>>::isEqual(
 template <typename ...ArgTypes> inline
 constexpr bool KernelArgCache<KernelArgCache<ArgTypes...>>::isValid() noexcept
 {
-  return CacheT::isValid();
+  return CurrentCacheT::isValid();
 }
 
 #if defined(ZIVC_PRINT_CACHE_TREE)
@@ -239,10 +239,10 @@ void KernelArgCache<KernelArgCache<ArgTypes...>>::printTree(
     std::ostream* output) noexcept
 {
   using VoidCache = KernelArgCache<void>;
-  VoidCache::printValue<CacheT>(indent, "ArgCache", output);
+  VoidCache::printValue<CurrentCacheT>(indent, "ArgCache", output);
   (*output) << " {" << std::endl;
 
-  CacheT::printTree(indent + 1, output);
+  CurrentCacheT::printTree(indent + 1, output);
 
   VoidCache::printIndent(indent, output);
   (*output) << "}" << std::endl;
@@ -267,7 +267,7 @@ constexpr std::size_t KernelArgCache<KernelArgCache<ArgTypes...>>::size() noexce
   \param [in] value No description.
   */
 template <typename ...ArgTypes> template <std::size_t kIndex> inline
-void KernelArgCache<KernelArgCache<ArgTypes...>>::set(CacheType<kIndex> value) noexcept
+void KernelArgCache<KernelArgCache<ArgTypes...>>::set(CacheT<kIndex> value) noexcept
 {
   if constexpr (kHasValue<kIndex>)
     value_.template set<kIndex>(value);
@@ -293,7 +293,7 @@ constexpr std::size_t KernelArgCache<KernelArgCache<ArgTypes...>>::tailPaddingSi
   \return No description
   */
 template <KernelArg Type, typename ...Types> template <std::size_t kIndex> inline
-auto KernelArgCache<Type, Types...>::get() noexcept -> CacheType<kIndex>&
+auto KernelArgCache<Type, Types...>::get() noexcept -> CacheT<kIndex>&
 {
   if constexpr (kIndex == (size() - 1))
     return value_;
@@ -308,7 +308,7 @@ auto KernelArgCache<Type, Types...>::get() noexcept -> CacheType<kIndex>&
   \return No description
   */
 template <KernelArg Type, typename ...Types> template <std::size_t kIndex> inline
-auto KernelArgCache<Type, Types...>::get() const noexcept -> const CacheType<kIndex>&
+auto KernelArgCache<Type, Types...>::get() const noexcept -> const CacheT<kIndex>&
 {
   if constexpr (kIndex == (size() - 1))
     return value_;
@@ -355,7 +355,7 @@ void KernelArgCache<Type, Types...>::printTree(
 {
   using VoidCache = KernelArgCache<void>;
   PrecedenceCacheT::printTree(indent, output);
-  VoidCache::printValue<PlainCache>(indent, "value", output);
+  VoidCache::printValue<PlainCacheT>(indent, "value", output);
   (*output) << std::endl;
 }
 #endif // ZIVC_PRINT_CACHE_TREE
@@ -378,7 +378,7 @@ constexpr std::size_t KernelArgCache<Type, Types...>::size() noexcept
   \param [in] value No description.
   */
 template <KernelArg Type, typename ...Types> template <std::size_t kIndex> inline
-void KernelArgCache<Type, Types...>::set(CacheType<kIndex> value) noexcept
+void KernelArgCache<Type, Types...>::set(CacheT<kIndex> value) noexcept
 {
   if constexpr (kIndex == (size() - 1))
     value_ = value;
@@ -394,10 +394,10 @@ void KernelArgCache<Type, Types...>::set(CacheType<kIndex> value) noexcept
 template <KernelArg Type, typename ...Types> inline
 constexpr std::size_t KernelArgCache<Type, Types...>::tailPaddingSize() noexcept
 {
-  const bool has_tail_padding = (PlainCache::kAlignment <
+  const bool has_tail_padding = (PlainCacheT::kAlignment <
                                  std::alignment_of_v<PrecedenceCacheT>);
   const std::size_t s = has_tail_padding
-      ? sizeof(KernelArgCache) - (sizeof(PrecedenceCacheT) + sizeof(PlainCache))
+      ? sizeof(KernelArgCache) - (sizeof(PrecedenceCacheT) + sizeof(PlainCacheT))
       : 0;
   return s;
 }
@@ -409,7 +409,7 @@ constexpr std::size_t KernelArgCache<Type, Types...>::tailPaddingSize() noexcept
   \return No description
   */
 template <KernelArg Type> template <std::size_t kIndex> inline
-auto KernelArgCache<Type>::get() noexcept -> CacheType<kIndex>&
+auto KernelArgCache<Type>::get() noexcept -> CacheT<kIndex>&
 {
   if constexpr (kIndex == 0)
     return value_;
@@ -424,7 +424,7 @@ auto KernelArgCache<Type>::get() noexcept -> CacheType<kIndex>&
   \return No description
   */
 template <KernelArg Type> template <std::size_t kIndex> inline
-auto KernelArgCache<Type>::get() const noexcept -> const CacheType<kIndex>&
+auto KernelArgCache<Type>::get() const noexcept -> const CacheT<kIndex>&
 {
   if constexpr (kIndex == 0)
     return value_;
@@ -492,7 +492,7 @@ constexpr std::size_t KernelArgCache<Type>::size() noexcept
   \param [in] value No description.
   */
 template <KernelArg Type> template <std::size_t kIndex> inline
-void KernelArgCache<Type>::set(CacheType<kIndex> value) noexcept
+void KernelArgCache<Type>::set(CacheT<kIndex> value) noexcept
 {
   if constexpr (kIndex == 0)
     value_ = value;
@@ -518,7 +518,7 @@ constexpr std::size_t KernelArgCache<Type>::tailPaddingSize() noexcept
   \return No description
   */
 template <KernelArg Type, typename ...Types> template <std::size_t kIndex> inline
-auto KernelArgCache<Buffer<Type>&, Types...>::get() noexcept -> CacheType<kIndex>&
+auto KernelArgCache<Buffer<Type>&, Types...>::get() noexcept -> CacheT<kIndex>&
 {
   if constexpr (kIndex == (size() - 1))
     return value_;
@@ -533,7 +533,7 @@ auto KernelArgCache<Buffer<Type>&, Types...>::get() noexcept -> CacheType<kIndex
   \return No description
   */
 template <KernelArg Type, typename ...Types> template <std::size_t kIndex> inline
-auto KernelArgCache<Buffer<Type>&, Types...>::get() const noexcept -> const CacheType<kIndex>&
+auto KernelArgCache<Buffer<Type>&, Types...>::get() const noexcept -> const CacheT<kIndex>&
 {
   if constexpr (kIndex == (size() - 1))
     return value_;
@@ -603,7 +603,7 @@ constexpr std::size_t KernelArgCache<Buffer<Type>&, Types...>::size() noexcept
   \param [in] value No description.
   */
 template <KernelArg Type, typename ...Types> template <std::size_t kIndex> inline
-void KernelArgCache<Buffer<Type>&, Types...>::set(CacheType<kIndex> value) noexcept
+void KernelArgCache<Buffer<Type>&, Types...>::set(CacheT<kIndex> value) noexcept
 {
   if constexpr (kIndex == (size() - 1))
     value_ = value;
@@ -619,10 +619,10 @@ void KernelArgCache<Buffer<Type>&, Types...>::set(CacheType<kIndex> value) noexc
 template <KernelArg Type, typename ...Types> inline
 constexpr std::size_t KernelArgCache<Buffer<Type>&, Types...>::tailPaddingSize() noexcept
 {
-  const bool has_tail_padding = (std::alignment_of_v<BufferP> <
+  const bool has_tail_padding = (std::alignment_of_v<BufferPtr> <
                                  std::alignment_of_v<PrecedenceCacheT>);
   const std::size_t s = has_tail_padding
-      ? sizeof(KernelArgCache) - (sizeof(PrecedenceCacheT) + sizeof(BufferP))
+      ? sizeof(KernelArgCache) - (sizeof(PrecedenceCacheT) + sizeof(BufferPtr))
       : 0;
   return s;
 }
@@ -634,7 +634,7 @@ constexpr std::size_t KernelArgCache<Buffer<Type>&, Types...>::tailPaddingSize()
   \return No description
   */
 template <KernelArg Type> template <std::size_t kIndex> inline
-auto KernelArgCache<Buffer<Type>&>::get() noexcept -> CacheType<kIndex>&
+auto KernelArgCache<Buffer<Type>&>::get() noexcept -> CacheT<kIndex>&
 {
   if constexpr (kIndex == 0)
     return value_;
@@ -649,7 +649,7 @@ auto KernelArgCache<Buffer<Type>&>::get() noexcept -> CacheType<kIndex>&
   \return No description
   */
 template <KernelArg Type> template <std::size_t kIndex> inline
-auto KernelArgCache<Buffer<Type>&>::get() const noexcept -> const CacheType<kIndex>&
+auto KernelArgCache<Buffer<Type>&>::get() const noexcept -> const CacheT<kIndex>&
 {
   if constexpr (kIndex == 0)
     return value_;
@@ -717,7 +717,7 @@ constexpr std::size_t KernelArgCache<Buffer<Type>&>::size() noexcept
   \param [in] value No description.
   */
 template <KernelArg Type> template <std::size_t kIndex> inline
-void KernelArgCache<Buffer<Type>&>::set(CacheType<kIndex> value) noexcept
+void KernelArgCache<Buffer<Type>&>::set(CacheT<kIndex> value) noexcept
 {
   if constexpr (kIndex == 0)
     value_ = value;
@@ -848,18 +848,18 @@ auto concatArgCache([[maybe_unused]] const KernelArgCache<KernelArgCache<ArgType
   constexpr std::size_t t_alignment = std::alignment_of_v<TypeCacheT>;
 
   constexpr std::size_t cache_padding_size = CacheT::tailPaddingSize();
-  constexpr bool is_cache_padding_resuable = (t_size <= cache_padding_size) &&
+  constexpr bool is_cache_padding_reusable = (t_size <= cache_padding_size) &&
                                              (t_alignment <= cache_padding_size);
-  if constexpr (is_cache_padding_resuable) {
+  if constexpr (is_cache_padding_reusable) {
     using NewCacheT = decltype(concatArgCache<Type>(CacheT{}));
     using NewArgCacheT = KernelArgCache<NewCacheT, Types...>;
     return NewArgCacheT{};
   }
   else {
     constexpr std::size_t padding_size = PrecedenceCacheT::tailPaddingSize();
-    constexpr bool is_padding_resuable = (t_size <= padding_size) &&
+    constexpr bool is_padding_reusable = (t_size <= padding_size) &&
                                          (t_alignment <= padding_size);
-    if constexpr (is_padding_resuable) {
+    if constexpr (is_padding_reusable) {
       using NewCacheT = KernelArgCache<Type, CacheT>;
       using NewArgCacheT = KernelArgCache<NewCacheT, Types...>;
       return NewArgCacheT{};
@@ -892,9 +892,9 @@ auto concatArgCache([[maybe_unused]] const KernelArgCache<Type2, Types...>& cach
     constexpr std::size_t t_alignment = std::alignment_of_v<TypeCacheT>;
 
     constexpr std::size_t padding_size = PrecedenceCacheT::tailPaddingSize();
-    constexpr bool is_padding_resuable = (t_size <= padding_size) &&
+    constexpr bool is_padding_reusable = (t_size <= padding_size) &&
                                          (t_alignment <= padding_size);
-    if constexpr (is_padding_resuable) {
+    if constexpr (is_padding_reusable) {
       using NewArgCacheT = KernelArgCache<KernelArgCache<Type1, Type2>, Types...>;
       return NewArgCacheT{};
     }

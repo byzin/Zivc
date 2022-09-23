@@ -24,8 +24,6 @@
 #include <span>
 #include <type_traits>
 #include <utility>
-// Zisc
-#include "zisc/utility.hpp"
 // Zivc
 #include "id_data.hpp"
 #include "zivc/zivc_config.hpp"

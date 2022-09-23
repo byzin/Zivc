@@ -32,7 +32,7 @@ TEST(ClCppTest, VectorComponentAccessTest)
 {
   auto create = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
 
   // Allocate buffers
   using zivc::cl_float;
@@ -41,20 +41,20 @@ TEST(ClCppTest, VectorComponentAccessTest)
   using zivc::cl_float4;
   auto buffer_invec2 = device->createBuffer<cl_float2>(zivc::BufferUsage::kPreferDevice);
   {
-    std::initializer_list<cl_float2> v = {cl_float2{1.0f, 2.0f},
-                                          cl_float2{3.0f, 4.0f}};
+    const std::initializer_list<cl_float2> v = {cl_float2{1.0f, 2.0f},
+                                                cl_float2{3.0f, 4.0f}};
     ztest::setDeviceBuffer(*device, v, buffer_invec2.get());
   }
   auto buffer_invec3 = device->createBuffer<cl_float3>(zivc::BufferUsage::kPreferDevice);
   {
-    std::initializer_list<cl_float3> v = {cl_float3{1.0f, 2.0f, 3.0f},
-                                          cl_float3{4.0f, 5.0f, 6.0f}};
+    const std::initializer_list<cl_float3> v = {cl_float3{1.0f, 2.0f, 3.0f},
+                                                cl_float3{4.0f, 5.0f, 6.0f}};
     ztest::setDeviceBuffer(*device, v, buffer_invec3.get());
   }
   auto buffer_invec4 = device->createBuffer<cl_float4>(zivc::BufferUsage::kPreferDevice);
   {
-    std::initializer_list<cl_float4> v = {cl_float4{1.0f, 2.0f, 3.0f, 4.0f},
-                                          cl_float4{5.0f, 6.0f, 7.0f, 8.0f}};
+    const std::initializer_list<cl_float4> v = {cl_float4{1.0f, 2.0f, 3.0f, 4.0f},
+                                                cl_float4{5.0f, 6.0f, 7.0f, 8.0f}};
     ztest::setDeviceBuffer(*device, v, buffer_invec4.get());
   }
   auto buffer_out1 = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
@@ -176,7 +176,7 @@ TEST(ClCppTest, VectorConstructionTest)
 {
   auto create = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
 
   // Allocate buffers
   using zivc::cl_int2;
@@ -306,7 +306,7 @@ TEST(ClCppTest, VectorArithmeticOperatorTest)
 {
   auto create = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
 
   // Allocate buffers
   using zivc::cl_int2;
@@ -318,44 +318,44 @@ TEST(ClCppTest, VectorArithmeticOperatorTest)
 
   auto buffer_in2 = device->createBuffer<cl_int2>(zivc::BufferUsage::kPreferDevice);
   {
-    std::initializer_list<cl_int2> v = {cl_int2{1, -1},
-                                        cl_int2{10, -10},
-                                        cl_int2{1, 5},
-                                        cl_int2{10, 2}};
+    const std::initializer_list<cl_int2> v = {cl_int2{1, -1},
+                                              cl_int2{10, -10},
+                                              cl_int2{1, 5},
+                                              cl_int2{10, 2}};
     ztest::setDeviceBuffer(*device, v, buffer_in2.get());
   }
   auto buffer_in3 = device->createBuffer<cl_int3>(zivc::BufferUsage::kPreferDevice);
   {
-    std::initializer_list<cl_int3> v = {cl_int3{1, -1, 4},
-                                        cl_int3{10, -10, -4},
-                                        cl_int3{1, 5, 4},
-                                        cl_int3{10, 2, 7}};
+    const std::initializer_list<cl_int3> v = {cl_int3{1, -1, 4},
+                                              cl_int3{10, -10, -4},
+                                              cl_int3{1, 5, 4},
+                                              cl_int3{10, 2, 7}};
     ztest::setDeviceBuffer(*device, v, buffer_in3.get());
   }
   auto buffer_in4 = device->createBuffer<cl_int4>(zivc::BufferUsage::kPreferDevice);
   {
-    std::initializer_list<cl_int4> v = {cl_int4{1, -1, 4, 12},
-                                        cl_int4{10, -10, -4, -8},
-                                        cl_int4{1, 5, 4, 12},
-                                        cl_int4{10, 2, 7, 8}};
+    const std::initializer_list<cl_int4> v = {cl_int4{1, -1, 4, 12},
+                                              cl_int4{10, -10, -4, -8},
+                                              cl_int4{1, 5, 4, 12},
+                                              cl_int4{10, 2, 7, 8}};
     ztest::setDeviceBuffer(*device, v, buffer_in4.get());
   }
   auto buffer_inf2 = device->createBuffer<cl_float2>(zivc::BufferUsage::kPreferDevice);
   {
-    std::initializer_list<cl_float2> v = {cl_float2{1.0f, -1.0f},
-                                          cl_float2{10.0f, -10.0f}};
+    const std::initializer_list<cl_float2> v = {cl_float2{1.0f, -1.0f},
+                                                cl_float2{10.0f, -10.0f}};
     ztest::setDeviceBuffer(*device, v, buffer_inf2.get());
   }
   auto buffer_inf3 = device->createBuffer<cl_float3>(zivc::BufferUsage::kPreferDevice);
   {
-    std::initializer_list<cl_float3> v = {cl_float3{1.0f, -1.0f, 4.0f},
-                                          cl_float3{10.0f, -10.0f, -4.0f}};
+    const std::initializer_list<cl_float3> v = {cl_float3{1.0f, -1.0f, 4.0f},
+                                                cl_float3{10.0f, -10.0f, -4.0f}};
     ztest::setDeviceBuffer(*device, v, buffer_inf3.get());
   }
   auto buffer_inf4 = device->createBuffer<cl_float4>(zivc::BufferUsage::kPreferDevice);
   {
-    std::initializer_list<cl_float4> v = {cl_float4{1.0f, -1.0f, 4.0f, 12.0f},
-                                          cl_float4{10.0f, -10.0f, -4.0f, -8.0f}};
+    const std::initializer_list<cl_float4> v = {cl_float4{1.0f, -1.0f, 4.0f, 12.0f},
+                                                cl_float4{10.0f, -10.0f, -4.0f, -8.0f}};
     ztest::setDeviceBuffer(*device, v, buffer_inf4.get());
   }
   const std::size_t n = 14;
@@ -772,7 +772,7 @@ TEST(ClCppTest, VectorArithmeticAssignmentOperatorTest)
 {
   auto create = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
 
   // Allocate buffers
   using zivc::cl_int2;
@@ -781,26 +781,26 @@ TEST(ClCppTest, VectorArithmeticAssignmentOperatorTest)
 
   auto buffer_in2 = device->createBuffer<cl_int2>(zivc::BufferUsage::kPreferDevice);
   {
-    std::initializer_list<cl_int2> v = {cl_int2{1, -1},
-                                        cl_int2{10, -10},
-                                        cl_int2{1, 5},
-                                        cl_int2{10, 2}};
+    const std::initializer_list<cl_int2> v = {cl_int2{1, -1},
+                                              cl_int2{10, -10},
+                                              cl_int2{1, 5},
+                                              cl_int2{10, 2}};
     ztest::setDeviceBuffer(*device, v, buffer_in2.get());
   }
   auto buffer_in3 = device->createBuffer<cl_int3>(zivc::BufferUsage::kPreferDevice);
   {
-    std::initializer_list<cl_int3> v = {cl_int3{1, -1, 4},
-                                        cl_int3{10, -10, -4},
-                                        cl_int3{1, 5, 4},
-                                        cl_int3{10, 2, 7}};
+    const std::initializer_list<cl_int3> v = {cl_int3{1, -1, 4},
+                                              cl_int3{10, -10, -4},
+                                              cl_int3{1, 5, 4},
+                                              cl_int3{10, 2, 7}};
     ztest::setDeviceBuffer(*device, v, buffer_in3.get());
   }
   auto buffer_in4 = device->createBuffer<cl_int4>(zivc::BufferUsage::kPreferDevice);
   {
-    std::initializer_list<cl_int4> v = {cl_int4{1, -1, 4, 12},
-                                        cl_int4{10, -10, -4, -8},
-                                        cl_int4{1, 5, 4, 12},
-                                        cl_int4{10, 2, 7, 8}};
+    const std::initializer_list<cl_int4> v = {cl_int4{1, -1, 4, 12},
+                                              cl_int4{10, -10, -4, -8},
+                                              cl_int4{1, 5, 4, 12},
+                                              cl_int4{10, 2, 7, 8}};
     ztest::setDeviceBuffer(*device, v, buffer_in4.get());
   }
   const std::size_t n = 10;
@@ -982,7 +982,7 @@ TEST(ClCppTest, VectorBitwiseOperatorTest)
 {
   auto create = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
 
   // Allocate buffers
   using zivc::uint32b;
@@ -998,29 +998,29 @@ TEST(ClCppTest, VectorBitwiseOperatorTest)
 
   auto buffer_in2 = device->createBuffer<cl_uint2>(zivc::BufferUsage::kPreferDevice);
   {
-    std::initializer_list<cl_uint2> v = {cl_uint2{mask01, mask01},
-                                         cl_uint2{mask02, mask03},
-                                         cl_uint2{mask04, mask05},
-                                         cl_uint2{32u, 64u},
-                                         cl_uint2{2u, 4u}};
+    const std::initializer_list<cl_uint2> v = {cl_uint2{mask01, mask01},
+                                               cl_uint2{mask02, mask03},
+                                               cl_uint2{mask04, mask05},
+                                               cl_uint2{32u, 64u},
+                                               cl_uint2{2u, 4u}};
     ztest::setDeviceBuffer(*device, v, buffer_in2.get());
   }
   auto buffer_in3 = device->createBuffer<cl_uint3>(zivc::BufferUsage::kPreferDevice);
   {
-    std::initializer_list<cl_uint3> v = {cl_uint3{mask01, mask01, mask01},
-                                         cl_uint3{mask02, mask03, mask02},
-                                         cl_uint3{mask04, mask05, mask04},
-                                         cl_uint3{32u, 64u, 128u},
-                                         cl_uint3{2u, 4u, 6u}};
+    const std::initializer_list<cl_uint3> v = {cl_uint3{mask01, mask01, mask01},
+                                               cl_uint3{mask02, mask03, mask02},
+                                               cl_uint3{mask04, mask05, mask04},
+                                               cl_uint3{32u, 64u, 128u},
+                                               cl_uint3{2u, 4u, 6u}};
     ztest::setDeviceBuffer(*device, v, buffer_in3.get());
   }
   auto buffer_in4 = device->createBuffer<cl_uint4>(zivc::BufferUsage::kPreferDevice);
   {
-    std::initializer_list<cl_uint4> v = {cl_uint4{mask01, mask01, mask01, mask01},
-                                         cl_uint4{mask02, mask03, mask02, mask03},
-                                         cl_uint4{mask04, mask05, mask04, mask05},
-                                         cl_uint4{32u, 64u, 128u, 256u},
-                                         cl_uint4{2u, 4u, 6u, 8u}};
+    const std::initializer_list<cl_uint4> v = {cl_uint4{mask01, mask01, mask01, mask01},
+                                               cl_uint4{mask02, mask03, mask02, mask03},
+                                               cl_uint4{mask04, mask05, mask04, mask05},
+                                               cl_uint4{32u, 64u, 128u, 256u},
+                                               cl_uint4{2u, 4u, 6u, 8u}};
     ztest::setDeviceBuffer(*device, v, buffer_in4.get());
   }
   const std::size_t n = 14;
@@ -1234,7 +1234,7 @@ TEST(ClCppTest, VectorBitwiseAssignmentOperatorTest)
 {
   auto create = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
 
   // Allocate buffers
   using zivc::uint32b;
@@ -1250,29 +1250,29 @@ TEST(ClCppTest, VectorBitwiseAssignmentOperatorTest)
 
   auto buffer_in2 = device->createBuffer<cl_uint2>(zivc::BufferUsage::kPreferDevice);
   {
-    std::initializer_list<cl_uint2> v = {cl_uint2{mask01, mask01},
-                                         cl_uint2{mask02, mask03},
-                                         cl_uint2{mask04, mask05},
-                                         cl_uint2{32u, 64u},
-                                         cl_uint2{2u, 4u}};
+    const std::initializer_list<cl_uint2> v = {cl_uint2{mask01, mask01},
+                                               cl_uint2{mask02, mask03},
+                                               cl_uint2{mask04, mask05},
+                                               cl_uint2{32u, 64u},
+                                               cl_uint2{2u, 4u}};
     ztest::setDeviceBuffer(*device, v, buffer_in2.get());
   }
   auto buffer_in3 = device->createBuffer<cl_uint3>(zivc::BufferUsage::kPreferDevice);
   {
-    std::initializer_list<cl_uint3> v = {cl_uint3{mask01, mask01, mask01},
-                                         cl_uint3{mask02, mask03, mask02},
-                                         cl_uint3{mask04, mask05, mask04},
-                                         cl_uint3{32u, 64u, 128u},
-                                         cl_uint3{2u, 4u, 6u}};
+    const std::initializer_list<cl_uint3> v = {cl_uint3{mask01, mask01, mask01},
+                                               cl_uint3{mask02, mask03, mask02},
+                                               cl_uint3{mask04, mask05, mask04},
+                                               cl_uint3{32u, 64u, 128u},
+                                               cl_uint3{2u, 4u, 6u}};
     ztest::setDeviceBuffer(*device, v, buffer_in3.get());
   }
   auto buffer_in4 = device->createBuffer<cl_uint4>(zivc::BufferUsage::kPreferDevice);
   {
-    std::initializer_list<cl_uint4> v = {cl_uint4{mask01, mask01, mask01, mask01},
-                                         cl_uint4{mask02, mask03, mask02, mask03},
-                                         cl_uint4{mask04, mask05, mask04, mask05},
-                                         cl_uint4{32u, 64u, 128u, 256u},
-                                         cl_uint4{2u, 4u, 6u, 8u}};
+    const std::initializer_list<cl_uint4> v = {cl_uint4{mask01, mask01, mask01, mask01},
+                                               cl_uint4{mask02, mask03, mask02, mask03},
+                                               cl_uint4{mask04, mask05, mask04, mask05},
+                                               cl_uint4{32u, 64u, 128u, 256u},
+                                               cl_uint4{2u, 4u, 6u, 8u}};
     ztest::setDeviceBuffer(*device, v, buffer_in4.get());
   }
   const std::size_t n = 14;
@@ -1448,21 +1448,21 @@ TEST(ClCppTest, VectorIncrementDecrementTest)
 {
   auto create = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
 
   // Allocate buffers
   using zivc::cl_int4;
 
   auto buffer_inout4 = device->createBuffer<cl_int4>(zivc::BufferUsage::kPreferDevice);
   {
-    std::initializer_list<cl_int4> v = {cl_int4{0, 1, 2, 3},
-                                        cl_int4{0, 0, 0, 0},
-                                        cl_int4{0, 1, 2, 3},
-                                        cl_int4{0, 0, 0, 0},
-                                        cl_int4{0, 1, 2, 3},
-                                        cl_int4{0, 0, 0, 0},
-                                        cl_int4{0, 1, 2, 3},
-                                        cl_int4{0, 0, 0, 0}};
+    const std::initializer_list<cl_int4> v = {cl_int4{0, 1, 2, 3},
+                                              cl_int4{0, 0, 0, 0},
+                                              cl_int4{0, 1, 2, 3},
+                                              cl_int4{0, 0, 0, 0},
+                                              cl_int4{0, 1, 2, 3},
+                                              cl_int4{0, 0, 0, 0},
+                                              cl_int4{0, 1, 2, 3},
+                                              cl_int4{0, 0, 0, 0}};
     ztest::setDeviceBuffer(*device, v, buffer_inout4.get());
   }
 
@@ -1533,18 +1533,18 @@ TEST(ClCppTest, VectorConditionalOperatorTest)
 {
   auto create = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
 
   // Allocate buffers
   using zivc::cl_int4;
 
   auto buffer_inout4 = device->createBuffer<cl_int4>(zivc::BufferUsage::kPreferDevice);
   {
-    std::initializer_list<cl_int4> v = {cl_int4{1, 0, 0, 0},
-                                        cl_int4{1, 2, 3, 4},
-                                        cl_int4{-1, -2, -3, -4},
-                                        cl_int4{0, 0, 0, 0},
-                                        cl_int4{0, 0, 0, 0}};
+    const std::initializer_list<cl_int4> v = {cl_int4{1, 0, 0, 0},
+                                              cl_int4{1, 2, 3, 4},
+                                              cl_int4{-1, -2, -3, -4},
+                                              cl_int4{0, 0, 0, 0},
+                                              cl_int4{0, 0, 0, 0}};
     ztest::setDeviceBuffer(*device, v, buffer_inout4.get());
   }
 
@@ -1591,7 +1591,7 @@ TEST(ClCppTest, VectorComparisonOperatorTest)
 {
   auto create = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
 
   // Allocate buffers
   using zivc::cl_int4;
@@ -1599,8 +1599,8 @@ TEST(ClCppTest, VectorComparisonOperatorTest)
 
   auto buffer_in4 = device->createBuffer<cl_int4>(zivc::BufferUsage::kPreferDevice);
   {
-    std::initializer_list<cl_int4> v = {cl_int4{1, 1, 1, 1},
-                                        cl_int4{-1, 0, 1, 2}};
+    const std::initializer_list<cl_int4> v = {cl_int4{1, 1, 1, 1},
+                                              cl_int4{-1, 0, 1, 2}};
     ztest::setDeviceBuffer(*device, v, buffer_in4.get());
   }
   auto buffer_out = device->createBuffer<cl_Boolean>(zivc::BufferUsage::kPreferDevice);
@@ -1745,7 +1745,7 @@ TEST(ClCppTest, VectorLogicalOperatorTest)
 {
   auto create = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
 
   // Allocate buffers
   using zivc::cl_int4;
@@ -1753,9 +1753,9 @@ TEST(ClCppTest, VectorLogicalOperatorTest)
 
   auto buffer_in4 = device->createBuffer<cl_int4>(zivc::BufferUsage::kPreferDevice);
   {
-    std::initializer_list<cl_int4> v = {cl_int4{1, 1, 1, 1},
-                                        cl_int4{1, 0, 1, 0},
-                                        cl_int4{0, 0, 1, 0}};
+    const std::initializer_list<cl_int4> v = {cl_int4{1, 1, 1, 1},
+                                              cl_int4{1, 0, 1, 0},
+                                              cl_int4{0, 0, 1, 0}};
     ztest::setDeviceBuffer(*device, v, buffer_in4.get());
   }
   auto buffer_out = device->createBuffer<cl_Boolean>(zivc::BufferUsage::kPreferDevice);
@@ -1844,7 +1844,7 @@ TEST(ClCppTest, ScalarCastTest)
 {
   auto create = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
 
   // Allocate buffers
   using zivc::cl_char;
@@ -1859,12 +1859,12 @@ TEST(ClCppTest, ScalarCastTest)
   {
     constexpr cl_int vmax = (std::numeric_limits<cl_int>::max)();
     constexpr cl_int vmin = (std::numeric_limits<cl_int>::min)();
-    std::initializer_list<cl_int> v = {0, 100, -100, vmax, vmin};
+    const std::initializer_list<cl_int> v = {0, 100, -100, vmax, vmin};
     ztest::setDeviceBuffer(*device, v, buffer_in0.get());
   }
   auto buffer_in1 = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
   {
-    std::initializer_list<cl_float> v = {0.0f, 100.0f, -100.0f, 3.14f};
+    const std::initializer_list<cl_float> v = {0.0f, 100.0f, -100.0f, 3.14f};
     ztest::setDeviceBuffer(*device, v, buffer_in1.get());
   }
 
@@ -2076,7 +2076,7 @@ TEST(ClCppTest, ScalarBoolCastTest)
 {
   auto create = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
 
   // Allocate buffers
   using zivc::cl_char;
@@ -2091,12 +2091,12 @@ TEST(ClCppTest, ScalarBoolCastTest)
   {
     constexpr cl_int vmax = (std::numeric_limits<cl_int>::max)();
     constexpr cl_int vmin = (std::numeric_limits<cl_int>::min)();
-    std::initializer_list<cl_int> v = {0, 1, -1, 100, -100, vmax, vmin};
+    const std::initializer_list<cl_int> v = {0, 1, -1, 100, -100, vmax, vmin};
     ztest::setDeviceBuffer(*device, v, buffer_in0.get());
   }
   auto buffer_in1 = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
   {
-    std::initializer_list<cl_float> v = {0.0f, 100.0f, -100.0f, 3.14f};
+    const std::initializer_list<cl_float> v = {0.0f, 100.0f, -100.0f, 3.14f};
     ztest::setDeviceBuffer(*device, v, buffer_in1.get());
   }
 
@@ -2160,7 +2160,7 @@ TEST(ClCppTest, Vector2CastTest)
 {
   auto create = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
 
   // Allocate buffers
   using zivc::cl_char;
@@ -2182,26 +2182,26 @@ TEST(ClCppTest, Vector2CastTest)
   {
     constexpr cl_int vmax = (std::numeric_limits<cl_int>::max)();
     constexpr cl_int vmin = (std::numeric_limits<cl_int>::min)();
-    std::initializer_list<cl_int> v = {0, 100, -100, vmax, vmin};
+    const std::initializer_list<cl_int> v = {0, 100, -100, vmax, vmin};
     ztest::setDeviceBuffer(*device, v, buffer_in0.get());
   }
   auto buffer_in1 = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
   {
-    std::initializer_list<cl_float> v = {0.0f, 100.0f, -100.0f, 3.14f};
+    const std::initializer_list<cl_float> v = {0.0f, 100.0f, -100.0f, 3.14f};
     ztest::setDeviceBuffer(*device, v, buffer_in1.get());
   }
   auto buffer_in2 = device->createBuffer<cl_int2>(zivc::BufferUsage::kPreferDevice);
   {
     constexpr cl_int vmax = (std::numeric_limits<cl_int>::max)();
     constexpr cl_int vmin = (std::numeric_limits<cl_int>::min)();
-    std::initializer_list<cl_int2> v = {cl_int2{0, 100},
-                                        cl_int2{vmax, vmin}};
+    const std::initializer_list<cl_int2> v = {cl_int2{0, 100},
+                                              cl_int2{vmax, vmin}};
     ztest::setDeviceBuffer(*device, v, buffer_in2.get());
   }
   auto buffer_in3 = device->createBuffer<cl_float2>(zivc::BufferUsage::kPreferDevice);
   {
-    std::initializer_list<cl_float2> v = {cl_float2{0.0f, 100.0f},
-                                          cl_float2{-100.0f, 3.14f}};
+    const std::initializer_list<cl_float2> v = {cl_float2{0.0f, 100.0f},
+                                                cl_float2{-100.0f, 3.14f}};
     ztest::setDeviceBuffer(*device, v, buffer_in3.get());
   }
 
@@ -2612,7 +2612,7 @@ TEST(ClCppTest, Vector3CastTest)
 {
   auto create = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
 
   // Allocate buffers
   using zivc::cl_char;
@@ -2634,23 +2634,23 @@ TEST(ClCppTest, Vector3CastTest)
   {
     constexpr cl_int vmax = (std::numeric_limits<cl_int>::max)();
     constexpr cl_int vmin = (std::numeric_limits<cl_int>::min)();
-    std::initializer_list<cl_int> v = {0, 100, -100, vmax, vmin};
+    const std::initializer_list<cl_int> v = {0, 100, -100, vmax, vmin};
     ztest::setDeviceBuffer(*device, v, buffer_in0.get());
   }
   auto buffer_in1 = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
   {
-    std::initializer_list<cl_float> v = {0.0f, 100.0f, -100.0f, 3.14f};
+    const std::initializer_list<cl_float> v = {0.0f, 100.0f, -100.0f, 3.14f};
     ztest::setDeviceBuffer(*device, v, buffer_in1.get());
   }
   auto buffer_in2 = device->createBuffer<cl_int3>(zivc::BufferUsage::kPreferDevice);
   {
     constexpr cl_int vmax = (std::numeric_limits<cl_int>::max)();
-    std::initializer_list<cl_int3> v = {cl_int3{0, 100, vmax}};
+    const std::initializer_list<cl_int3> v = {cl_int3{0, 100, vmax}};
     ztest::setDeviceBuffer(*device, v, buffer_in2.get());
   }
   auto buffer_in3 = device->createBuffer<cl_float3>(zivc::BufferUsage::kPreferDevice);
   {
-    std::initializer_list<cl_float3> v = {cl_float3{0.0f, 100.0f, -100.0f}};
+    const std::initializer_list<cl_float3> v = {cl_float3{0.0f, 100.0f, -100.0f}};
     ztest::setDeviceBuffer(*device, v, buffer_in3.get());
   }
 
@@ -3096,7 +3096,7 @@ TEST(ClCppTest, Vector4CastTest)
 {
   auto create = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
 
   // Allocate buffers
   using zivc::cl_char;
@@ -3118,24 +3118,24 @@ TEST(ClCppTest, Vector4CastTest)
   {
     constexpr cl_int vmax = (std::numeric_limits<cl_int>::max)();
     constexpr cl_int vmin = (std::numeric_limits<cl_int>::min)();
-    std::initializer_list<cl_int> v = {0, 100, -100, vmax, vmin};
+    const std::initializer_list<cl_int> v = {0, 100, -100, vmax, vmin};
     ztest::setDeviceBuffer(*device, v, buffer_in0.get());
   }
   auto buffer_in1 = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
   {
-    std::initializer_list<cl_float> v = {0.0f, 100.0f, -100.0f, 3.14f};
+    const std::initializer_list<cl_float> v = {0.0f, 100.0f, -100.0f, 3.14f};
     ztest::setDeviceBuffer(*device, v, buffer_in1.get());
   }
   auto buffer_in2 = device->createBuffer<cl_int4>(zivc::BufferUsage::kPreferDevice);
   {
     constexpr cl_int vmax = (std::numeric_limits<cl_int>::max)();
     constexpr cl_int vmin = (std::numeric_limits<cl_int>::min)();
-    std::initializer_list<cl_int4> v = {cl_int4{0, 100, vmax, vmin}};
+    const std::initializer_list<cl_int4> v = {cl_int4{0, 100, vmax, vmin}};
     ztest::setDeviceBuffer(*device, v, buffer_in2.get());
   }
   auto buffer_in3 = device->createBuffer<cl_float4>(zivc::BufferUsage::kPreferDevice);
   {
-    std::initializer_list<cl_float4> v = {cl_float4{0.0f, 100.0f, -100.0f, 3.14f}};
+    const std::initializer_list<cl_float4> v = {cl_float4{0.0f, 100.0f, -100.0f, 3.14f}};
     ztest::setDeviceBuffer(*device, v, buffer_in3.get());
   }
 

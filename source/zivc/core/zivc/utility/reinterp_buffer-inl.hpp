@@ -22,7 +22,6 @@
 #include <type_traits>
 #include <utility>
 // Zisc
-#include "zisc/concepts.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "buffer_init_params.hpp"
@@ -38,7 +37,7 @@ namespace zivc {
   \details No detailed description
   */
 template <DerivedBuffer Derived, KernelArg T> inline
-ReinterpBuffer<Derived, T>::ReinterpBuffer(BufferP buffer, IdData&& id) noexcept :
+ReinterpBuffer<Derived, T>::ReinterpBuffer(BufferPtr buffer, IdData&& id) noexcept :
     Buffer<T>(std::move(id)),
     buffer_{buffer}
 {
@@ -380,7 +379,7 @@ void ReinterpBuffer<Derived, T>::updateDebugInfoImpl() noexcept
   \return No description
   */
 template <DerivedBuffer Derived, KernelArg T> inline
-void ReinterpBuffer<Derived, T>::initCommon(const ConstBufferP buffer) noexcept
+void ReinterpBuffer<Derived, T>::initCommon(const ConstBufferPtr buffer) noexcept
 {
   if (buffer != nullptr) {
     Buffer<T>::setUsage(buffer->usage());
@@ -394,7 +393,7 @@ void ReinterpBuffer<Derived, T>::initCommon(const ConstBufferP buffer) noexcept
   \return No description
   */
 template <DerivedBuffer Derived, KernelArg T> inline
-auto ReinterpBuffer<Derived, T>::internalBuffer() noexcept -> BufferP
+auto ReinterpBuffer<Derived, T>::internalBuffer() noexcept -> BufferPtr
 {
   ZIVC_ASSERT(buffer_ != nullptr, "The internal buffer is null.");
   return buffer_;
@@ -406,7 +405,7 @@ auto ReinterpBuffer<Derived, T>::internalBuffer() noexcept -> BufferP
   \return No description
   */
 template <DerivedBuffer Derived, KernelArg T> inline
-auto ReinterpBuffer<Derived, T>::internalBuffer() const noexcept -> ConstBufferP
+auto ReinterpBuffer<Derived, T>::internalBuffer() const noexcept -> ConstBufferPtr
 {
   ZIVC_ASSERT(buffer_ != nullptr, "The internal buffer is null.");
   return buffer_;

@@ -235,7 +235,7 @@ void VulkanBufferImpl::deallocateMemory(
     VmaAllocation* vm_allocation,
     VmaAllocationInfo* alloc_info) const noexcept
 {
-  if (zivcvk::Buffer{*buffer}) {
+  if (zivcvk::Buffer{*buffer} && (vm_allocation != nullptr)) {
     vmaDestroyBuffer(device().memoryAllocator(), *buffer, *vm_allocation);
   }
   alloc_info->deviceMemory = ZIVC_VK_NULL_HANDLE;

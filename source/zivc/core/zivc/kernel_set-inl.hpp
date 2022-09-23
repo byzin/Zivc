@@ -37,7 +37,6 @@ template <typename SetType> inline
 KernelSet<SetType>::KernelSet(zisc::pmr::memory_resource* mem_resource) noexcept :
     spirv_code_{typename decltype(spirv_code_)::allocator_type{mem_resource}}
 {
-  initialize();
 }
 
 /*!
@@ -50,6 +49,16 @@ constexpr uint64b KernelSet<SetType>::id() noexcept
 {
   constexpr uint64b i = SetType::id();
   return i;
+}
+
+/*!
+  \details No detailed description
+  */
+template <typename SetType> inline
+void KernelSet<SetType>::initialize()
+{
+  spirv_code_.clear();
+  loadSpirVCode(std::addressof(spirv_code_));
 }
 
 /*!
@@ -101,20 +110,11 @@ const zisc::pmr::memory_resource* KernelSet<SetType>::memoryResource() const noe
 
 /*!
   \details No detailed description
-  */
-template <typename SetType> inline
-void KernelSet<SetType>::initialize() noexcept
-{
-  loadSpirVCode(std::addressof(spirv_code_));
-}
-
-/*!
-  \details No detailed description
 
   \param [out] spirv_code_out No description.
   */
 template <typename SetType> inline
-void KernelSet<SetType>::loadSpirVCode(zisc::pmr::vector<uint32b>* spirv_code_out) noexcept
+void KernelSet<SetType>::loadSpirVCode(zisc::pmr::vector<uint32b>* spirv_code_out)
 {
   SetType::loadSpirVCode(spirv_code_out);
 }

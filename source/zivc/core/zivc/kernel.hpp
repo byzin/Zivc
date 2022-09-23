@@ -18,13 +18,13 @@
 // Standard C++ library
 #include <array>
 #include <atomic>
+#include <concepts>
 #include <cstddef>
 #include <memory>
 #include <span>
 #include <string_view>
 #include <type_traits>
 // Zisc
-#include "zisc/concepts.hpp"
 #include "zisc/algorithm.hpp"
 // Zivc
 #include "kernel_set.hpp"
@@ -60,9 +60,9 @@ class Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> : public Kernel
   // Type aliases
   using SharedPtr = std::shared_ptr<Kernel>;
   using WeakPtr = std::weak_ptr<Kernel>;
-  using ArgParser = KernelArgParser<FuncArgs...>;
-  using Params = KernelInitParams<kDim, KSet, FuncArgs...>;
-  using LaunchOptions = KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>,
+  using ArgParserT = KernelArgParser<FuncArgs...>;
+  using ParamsT = KernelInitParams<kDim, KSet, FuncArgs...>;
+  using LaunchOptionsT = KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>,
                                             Args...>;
 
 
@@ -80,7 +80,7 @@ class Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> : public Kernel
   constexpr std::size_t bufferSize() const noexcept override;
 
   //! Create launch options
-  LaunchOptions createOptions() const noexcept;
+  LaunchOptionsT createOptions() const noexcept;
 
   //! Destroy the buffer
   void destroy() noexcept;
@@ -94,7 +94,7 @@ class Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> : public Kernel
   //! Initialize the kernel
   void initialize(ZivcObject::SharedPtr&& parent,
                   WeakPtr&& own,
-                  const Params& params);
+                  const ParamsT& params);
 
   //! Return the number of kernel arguments required
   static constexpr std::size_t numOfArgs() noexcept;
@@ -110,7 +110,7 @@ class Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> : public Kernel
 
   //! Execute a kernel
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
-  virtual LaunchResult run(Args... args, const LaunchOptions& launch_options) = 0;
+  virtual LaunchResult run(Args... args, const LaunchOptionsT& launch_options) = 0;
 
  protected:
   static_assert(zisc::Algorithm::isInBounds(kDim, 1u, 4u),
@@ -126,7 +126,7 @@ class Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> : public Kernel
       const uint32b fill_value) noexcept;
 
   //! Initialize the kernel 
-  virtual void initData(const Params& params) = 0;
+  virtual void initData(const ParamsT& params) = 0;
 };
 
 } // namespace zivc

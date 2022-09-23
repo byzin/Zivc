@@ -367,7 +367,7 @@ class VulkanDeviceInfo : public DeviceInfo
   // VkExternalSemaphoreProperties;
   VkPhysicalDevice device_;
   std::size_t device_index_ = 0;
-  IdData::NameType vendor_name_;
+  IdData::NameT vendor_name_;
   VendorId vendor_id_;
   uint32b subgroup_size_ = 0;
   Properties properties_;

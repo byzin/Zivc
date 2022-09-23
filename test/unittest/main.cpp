@@ -71,13 +71,13 @@ void processCommandLineArgs(const ztest::CliOption& options) noexcept
 
 bool checkIfDeviceIsAvailable()
 {
-  zivc::SharedContext context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   if (!context) {
     std::cerr << "[Error] Context isn't available." << std::endl;
     return false;
   }
   const ztest::Config& config = ztest::Config::globalConfig();
-  zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
   if (!device) {
     std::cerr << "[Error] Device isn't available." << std::endl;
     return false;

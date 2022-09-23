@@ -39,7 +39,7 @@ class IdData : private zisc::NonCopyable<IdData>
 
  public:
   // Types
-  using NameType = std::array<char, kMaxNameLength>;
+  using NameT = std::array<char, kMaxNameLength>;
 
 
   //! Create an ID data
@@ -106,8 +106,8 @@ class IdData : private zisc::NonCopyable<IdData>
   std::array<void*, kDataSize> data_list_;
   int64b id_;
   int64b line_number_;
-  NameType name_;
-  NameType file_name_;
+  NameT name_;
+  NameT file_name_;
 };
 
 //! Concatenate two strings

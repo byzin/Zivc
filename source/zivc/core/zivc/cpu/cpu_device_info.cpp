@@ -123,7 +123,7 @@ std::array<uint32b, 3> CpuDeviceInfo::maxWorkGroupCount() const noexcept
 
   \return No description
   */
-auto CpuDeviceInfo::memoryStats() const noexcept -> const MemoryStats&
+auto CpuDeviceInfo::memoryStats() const noexcept -> const MemoryStatsT&
 {
   return memory_stats_;
 }

@@ -43,9 +43,9 @@ class ZivcObject : private zisc::NonCopyable<ZivcObject>
 
   // Types used in Zivc
   template <typename Type>
-  using UniqueVector = zisc::pmr::unique_ptr<zisc::pmr::vector<Type>>;
+  using UniqueVectorT = zisc::pmr::unique_ptr<zisc::pmr::vector<Type>>;
   template <typename Key, typename Type>
-  using UniqueMap = zisc::pmr::unique_ptr<zisc::pmr::map<Key, Type>>;
+  using UniqueMapT = zisc::pmr::unique_ptr<zisc::pmr::map<Key, Type>>;
 
 
   //! Initialize the object

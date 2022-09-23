@@ -21,8 +21,6 @@
 #include <cstddef>
 #include <memory>
 #include <type_traits>
-// Zisc
-#include "zisc/concepts.hpp"
 // Zivc
 #include "zivc/zivc_config.hpp"
 #include "zivc/cpucl/address_space_pointer.hpp"
@@ -41,7 +39,7 @@ template <cl::AddressSpaceType kASpaceType, KernelArg Type>
 class KernelArgTypeInfo<cl::AddressSpacePointer<kASpaceType, Type>>
 {
  public:
-  using ElementType = std::remove_cv_t<Type>;
+  using ElementT = std::remove_cv_t<Type>;
 
 
   static constexpr bool kIsGlobal = kASpaceType == cl::AddressSpaceType::kGlobal;
@@ -51,8 +49,8 @@ class KernelArgTypeInfo<cl::AddressSpacePointer<kASpaceType, Type>>
   static constexpr bool kIsBuffer = kIsGlobal || kIsConstant;
 
  private:
-  static_assert(!std::is_pointer_v<ElementType>, "The element type is pointer.");
-  static_assert(!std::is_reference_v<ElementType>, "The element type is reference.");
+  static_assert(!std::is_pointer_v<ElementT>, "The element type is pointer.");
+  static_assert(!std::is_reference_v<ElementT>, "The element type is reference.");
   static_assert(kASpaceType != cl::AddressSpaceType::kPrivate,
                 "Private address space argument isn't allowed.");
 };
@@ -68,7 +66,7 @@ template <KernelArg Type>
 class KernelArgTypeInfo<Buffer<Type>>
 {
  public:
-  using ElementType = std::remove_cv_t<Type>;
+  using ElementT = std::remove_cv_t<Type>;
 
 
   static constexpr bool kIsGlobal = true;
@@ -78,8 +76,8 @@ class KernelArgTypeInfo<Buffer<Type>>
   static constexpr bool kIsBuffer = kIsGlobal || kIsConstant;
 
  private:
-  static_assert(!std::is_pointer_v<ElementType>, "The element type is pointer.");
-  static_assert(!std::is_reference_v<ElementType>, "The element type is reference.");
+  static_assert(!std::is_pointer_v<ElementT>, "The element type is pointer.");
+  static_assert(!std::is_reference_v<ElementT>, "The element type is reference.");
 };
 
 } // namespace zivc

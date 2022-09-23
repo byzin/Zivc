@@ -20,10 +20,6 @@
 #include <cstddef>
 #include <memory>
 #include <type_traits>
-// Zisc
-#include "zisc/concepts.hpp"
-#include "zisc/non_copyable.hpp"
-#include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "zivc_config.hpp"
 #include "utility/buffer_common.hpp"
@@ -60,7 +56,7 @@ class Buffer : public BufferCommon
   using ConstReference = std::add_lvalue_reference_t<ConstType>;
   using Pointer = std::add_pointer_t<Type>;
   using ConstPointer = std::add_pointer_t<ConstType>;
-  using LaunchOptions = BufferLaunchOptions<Type>;
+  using LaunchOptionsT = BufferLaunchOptions<Type>;
   template <KernelArg NewType>
   using ReinterpBufferT = ReinterpBuffer<BufferCommon, NewType>;
   template <KernelArg NewType>
@@ -79,17 +75,17 @@ class Buffer : public BufferCommon
 
   //! Copy from the given buffer
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
-  LaunchResult copyFrom(const Buffer& source, const LaunchOptions& launch_options);
+  LaunchResult copyFrom(const Buffer& source, const LaunchOptionsT& launch_options);
 
   //! Create launch options
-  LaunchOptions createOptions() const noexcept;
+  LaunchOptionsT createOptions() const noexcept;
 
   //! Destroy the buffer
   void destroy() noexcept override;
 
   //! Fill the buffer with specified value
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
-  LaunchResult fill(ConstReference value, const LaunchOptions& launch_options);
+  LaunchResult fill(ConstReference value, const LaunchOptionsT& launch_options);
 
   //! Initialize the buffer
   void initialize(ZivcObject::SharedPtr&& parent,
@@ -132,7 +128,7 @@ class Buffer : public BufferCommon
   template <template<typename> typename Derived, KernelArg SrcType>
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
   LaunchResult copyFromDerived(const Buffer<SrcType>& source,
-                               const LaunchOptions& launch_options);
+                               const LaunchOptionsT& launch_options);
 
   //! Clear the contents of the buffer
   virtual void destroyData() noexcept = 0;
@@ -141,7 +137,7 @@ class Buffer : public BufferCommon
   template <template<typename> typename Derived>
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
   LaunchResult fillDerived(ConstReference value,
-                           const LaunchOptions& launch_options);
+                           const LaunchOptionsT& launch_options);
 
   //! Initialize the buffer common data
   void initCommon(const BufferInitParams& params) noexcept;

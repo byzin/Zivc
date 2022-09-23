@@ -103,7 +103,7 @@ commandBuffer() const noexcept
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 LaunchResult VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-run(Args ...args, const LaunchOptions& launch_options)
+run(Args ...args, const LaunchOptionsT& launch_options)
 {
   VulkanDevice& device = parentImpl();
 
@@ -165,7 +165,7 @@ inline
 constexpr bool VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 hasGlobalArg() noexcept
 {
-  const bool result = 0 < BaseKernelT::ArgParser::kNumOfGlobalArgs;
+  const bool result = 0 < BaseKernelT::ArgParserT::kNumOfGlobalArgs;
   return result;
 }
 
@@ -178,7 +178,7 @@ inline
 constexpr bool VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 hasLocalArg() noexcept
 {
-  const bool result = 0 < BaseKernelT::ArgParser::kNumOfLocalArgs;
+  const bool result = 0 < BaseKernelT::ArgParserT::kNumOfLocalArgs;
   return result;
 }
 
@@ -191,7 +191,7 @@ inline
 constexpr bool VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 hasPodArg() noexcept
 {
-  const bool result = 0 < BaseKernelT::ArgParser::kNumOfPodArgs;
+  const bool result = 0 < BaseKernelT::ArgParserT::kNumOfPodArgs;
   return result;
 }
 
@@ -236,7 +236,7 @@ dispatchCmd(const std::span<const uint32b, 3> work_size)
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-initData(const Params& params)
+initData(const ParamsT& params)
 {
   static_assert(hasGlobalArg(), "The kernel doesn't have global argument.");
   validateData();
@@ -246,11 +246,17 @@ initData(const Params& params)
   const auto* command_p = static_cast<const VkCommandBuffer*>(params.vulkanCommandBufferPtr());
   setCommandBufferRef(command_p);
   // Add a shader module
-  const auto& module_data = device.addShaderModule(KSet{ZivcObject::memoryResource()});
+  zisc::pmr::unique_ptr<KSet> kernel_set;
+  {
+    zisc::pmr::polymorphic_allocator<KSet> alloc{ZivcObject::memoryResource()};
+    kernel_set = zisc::pmr::allocateUnique<KSet>(alloc, ZivcObject::memoryResource());
+  }
+  const auto& module_data = device.addShaderModule(*kernel_set);
+  kernel_set.reset();
   // Add a kernel data
-  const std::size_t num_of_storage_buffers = BaseKernelT::ArgParser::kNumOfBufferArgs;
+  const std::size_t num_of_storage_buffers = BaseKernelT::ArgParserT::kNumOfBufferArgs;
   const std::size_t num_of_uniform_buffers = hasPodArg() ? 1 : 0;
-  const std::size_t num_of_local_args = BaseKernelT::ArgParser::kNumOfLocalArgs;
+  const std::size_t num_of_local_args = BaseKernelT::ArgParserT::kNumOfLocalArgs;
   const auto& kernel_data = device.addShaderKernel(module_data,
                                                    params.kernelName(),
                                                    BaseKernelT::dimension(),
@@ -283,7 +289,7 @@ updateDebugInfoImpl()
   (const VkObjectType type, const auto& obj, const std::string_view suffix)
   {
     if (obj != ZIVC_VK_NULL_HANDLE) {
-      IdData::NameType obj_name{""};
+      IdData::NameT obj_name{""};
       copyStr(kernel_name, obj_name.data());
       concatStr(suffix, obj_name.data());
       device.setDebugInfo(type, obj, obj_name.data(), this);
@@ -297,14 +303,14 @@ updateDebugInfoImpl()
                  desc_set_,
                  "_descset");
   if (pod_buffer_) {
-    IdData::NameType obj_name{""};
+    IdData::NameT obj_name{""};
     const std::string_view suffix{"_podbuffer"};
     copyStr(kernel_name, obj_name.data());
     concatStr(suffix, obj_name.data());
     pod_buffer_->setName(obj_name.data());
   }
   if (pod_cache_) {
-    IdData::NameType obj_name{""};
+    IdData::NameT obj_name{""};
     const std::string_view suffix{"_podcache"};
     copyStr(kernel_name, obj_name.data());
     concatStr(suffix, obj_name.data());
@@ -326,9 +332,9 @@ template <std::size_t kIndex, typename ...PodTypes> inline
 auto VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 createPodCacheType(const KernelArgCache<PodTypes...>& cache) noexcept
 {
-  using ArgParser = typename BaseKernelT::ArgParser;
-  if constexpr (kIndex < ArgParser::kNumOfPodArgs) {
-    constexpr auto pod_arg_info = ArgParser::getPodArgInfoList();
+  using ArgParserT = typename BaseKernelT::ArgParserT;
+  if constexpr (kIndex < ArgParserT::kNumOfPodArgs) {
+    constexpr auto pod_arg_info = ArgParserT::getPodArgInfoList();
     constexpr std::size_t pod_index = pod_arg_info[kIndex].index();
     using ArgTuple = std::tuple<FuncArgs...>;
     using PodType = std::tuple_element_t<pod_index, ArgTuple>;
@@ -439,14 +445,14 @@ initPodBuffer()
     using BuffType = VulkanBuffer<PodCacheT>;
     {
       BufferInitParams params{BufferUsage::kPreferDevice};
-      params.setDescriptorType(BuffType::DescriptorType::kUniform);
+      params.setDescriptorType(BuffType::DescriptorT::kUniform);
       params.setInternalBufferFlag(true);
       pod_buffer_ = device.template createBuffer<PodCacheT>(params);
       pod_buffer_->setSize(1);
     }
     {
       BufferInitParams params{BufferUsage::kPreferHost, BufferFlag::kRandomAccessible};
-      params.setDescriptorType(BuffType::DescriptorType::kUniform);
+      params.setDescriptorType(BuffType::DescriptorT::kUniform);
       params.setInternalBufferFlag(true);
       pod_cache_ = device.template createBuffer<PodCacheT>(params);
       pod_cache_->setSize(1);
@@ -499,7 +505,7 @@ inline
 constexpr std::size_t VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 numOfAllBuffers() noexcept
 {
-  std::size_t n = BaseKernelT::ArgParser::kNumOfBufferArgs;
+  std::size_t n = BaseKernelT::ArgParserT::kNumOfBufferArgs;
   n += hasPodArg() ? 1 : 0;
   return n;
 }
@@ -564,7 +570,7 @@ updateCommandBufferDebugInfo()
   (const VkObjectType type, const auto& obj, const std::string_view suffix)
   {
     if (obj != ZIVC_VK_NULL_HANDLE) {
-      IdData::NameType obj_name{""};
+      IdData::NameT obj_name{""};
       copyStr(kernel_name, obj_name.data());
       concatStr(suffix, obj_name.data());
       device.setDebugInfo(type, obj, obj_name.data(), this);
@@ -609,7 +615,7 @@ template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...
 inline
 void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 updateModuleScopePushConstantsCmd(const std::span<const uint32b, 3>& work_size,
-                                  const LaunchOptions& launch_options)
+                                  const LaunchOptionsT& launch_options)
 {
   std::array<uint32b, 23> constans = {0};
   constans.fill(0);

@@ -75,7 +75,7 @@ class KernelSet_@kernel_set_name@ : public KernelSet<KernelSet_@kernel_set_name@
   }
 
   //! Load the SPIR-V code
-  static void loadSpirVCode(zisc::pmr::vector<uint32b>* spirv_code_out) noexcept;
+  static void loadSpirVCode(zisc::pmr::vector<uint32b>* spirv_code_out);
 
   //! Return the kernel set name
   static constexpr std::string_view name() noexcept

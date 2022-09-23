@@ -31,7 +31,7 @@ template <typename ...Types>
 struct TypePack
 {
   //! First type in Types
-  using Type = void;
+  using ValueT = void;
 
 
   //! Return the number of types

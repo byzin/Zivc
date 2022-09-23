@@ -21,7 +21,7 @@
 #include <string>
 // Zisc
 #include "zisc/utility.hpp"
-#include "zisc/memory/simple_memory_resource.hpp"
+#include "zisc/memory/alloc_free_resource.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "zivc/zivc.hpp"
@@ -302,7 +302,7 @@ int doBufferExample(zivc::Context& context)
 
   \param [in] mem_resource No description.
   */
-void printMemoryUsage(const zisc::SimpleMemoryResource& mem_resource) noexcept
+void printMemoryUsage(const zisc::AllocFreeResource& mem_resource) noexcept
 {
   const std::string indent1 = "    ";
   std::cout << std::endl;
@@ -319,7 +319,7 @@ void printMemoryUsage(const zisc::SimpleMemoryResource& mem_resource) noexcept
 int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 {
   // Any custom std::pmr::memory_resource can be speicified as zivc memory allcator
-  zisc::SimpleMemoryResource mem_resource;
+  zisc::AllocFreeResource mem_resource;
 
   // Do buffer operations
   int exec_result = EXIT_FAILURE;

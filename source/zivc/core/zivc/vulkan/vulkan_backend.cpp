@@ -733,7 +733,8 @@ void VulkanBackend::initDeviceList()
   using DeviceList = zisc::pmr::vector<zivcvk::PhysicalDevice>;
   DeviceList::allocator_type alloc{memoryResource()};
   const auto& loader = dispatcher().loader();
-  // The enumerate function causes undefined symbol error
+  //! \todo Resolve the error
+  // The enumerate function causes undefined symbol error with custom allocator
   // auto device_list = ins.enumeratePhysicalDevices(alloc, loader);
   auto device_list = ins.enumeratePhysicalDevices(loader);
 

@@ -21,6 +21,7 @@
 
 // C++ configuratinos
 #undef _LIBCPP_HAS_NO_INCOMPLETE_FORMAT
+#define _LIBCPP_NO_EXCEPTIONS
 
 // Namespace
 #define VULKAN_HPP_NAMESPACE zivcvk
@@ -56,5 +57,8 @@
 #if defined(Z_GCC) || defined(Z_CLANG)
 #pragma GCC diagnostic pop
 #endif // Z_GCC || Z_CLANG
+
+// C++ configurations
+#undef _LIBCPP_NO_EXCEPTIONS
 
 #endif // ZIVC_VULKAN_HPP_HPP

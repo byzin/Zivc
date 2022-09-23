@@ -18,8 +18,6 @@
 #include <system_error>
 #include <string>
 #include <string_view>
-// Zisc
-#include "zisc/utility.hpp"
 // Zivc
 #include "zivc/vulkan/utility/vulkan.hpp"
 #include "zivc/vulkan/utility/vulkan_hpp.hpp"
@@ -90,7 +88,7 @@ const char* ErrorCategory::name() const noexcept
   */
 std::string ErrorCategory::message(const int condition) const
 {
-  const auto code = zisc::cast<ErrorCode>(condition);
+  const auto code = static_cast<ErrorCode>(condition);
   std::string code_str = getErrorCodeString(code);
   return code_str;
 }
@@ -101,7 +99,7 @@ std::string ErrorCategory::message(const int condition) const
   \param [in] code No description.
   */
 SystemError::SystemError(const ErrorCode code) :
-    std::system_error(zisc::cast<int>(code), ErrorCategory{})
+    std::system_error(static_cast<int>(code), ErrorCategory{})
 {
 }
 
@@ -111,7 +109,7 @@ SystemError::SystemError(const ErrorCode code) :
   \param [in] code No description.
   */
 SystemError::SystemError(const ErrorCode code, const std::string_view what_arg) :
-    std::system_error(zisc::cast<int>(code), ErrorCategory{}, what_arg.data())
+    std::system_error(static_cast<int>(code), ErrorCategory{}, what_arg.data())
 {
 }
 
@@ -150,7 +148,7 @@ SystemError& SystemError::operator=(SystemError&& other) noexcept
   */
 void checkVulkanResult(const int result)
 {
-  const auto r = zisc::cast<zivcvk::Result>(result);
+  const auto r = static_cast<zivcvk::Result>(result);
   if (r != zivcvk::Result::eSuccess) {
     const auto desc = "Vulkan error: " + zivcvk::to_string(r) + ".";
     throw SystemError{ErrorCode::kVulkanError, desc};

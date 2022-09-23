@@ -17,7 +17,7 @@
 #include <memory>
 // Zisc
 #include "zisc/boolean.hpp"
-#include "zisc/memory/simple_memory_resource.hpp"
+#include "zisc/memory/alloc_free_resource.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "zivc/zivc.hpp"
@@ -175,7 +175,7 @@ Config::Config() noexcept
   */
 void Config::initialize() noexcept
 {
-  mem_resource_ = std::make_unique<zisc::SimpleMemoryResource>();
+  mem_resource_ = std::make_unique<zisc::AllocFreeResource>();
 }
 
 } // namespace ztest

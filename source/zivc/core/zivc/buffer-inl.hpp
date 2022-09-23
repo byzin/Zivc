@@ -24,7 +24,6 @@
 #include <utility>
 // Zisc
 #include "zisc/concepts.hpp"
-#include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "zivc_config.hpp"
@@ -184,7 +183,7 @@ template <KernelArg T> template <KernelArg NewType> inline
 auto Buffer<T>::reinterp() noexcept -> ReinterpBufferT<NewType>
 {
   auto id_copy = id().copy();
-  auto own = zisc::cast<BufferCommon*>(getOwn());
+  auto own = static_cast<BufferCommon*>(getOwn());
   ReinterpBufferT<NewType> new_buffer{own, std::move(id_copy)};
   return new_buffer;
 }
@@ -198,7 +197,7 @@ template <KernelArg T> template <KernelArg NewType> inline
 auto Buffer<T>::reinterp() const noexcept -> ConstReinterpBufferT<NewType>
 {
   auto id_copy = id().copy();
-  auto own = zisc::cast<const BufferCommon*>(getOwn());
+  auto own = static_cast<const BufferCommon*>(getOwn());
   ConstReinterpBufferT<NewType> new_buffer{own, std::move(id_copy)};
   return new_buffer;
 }

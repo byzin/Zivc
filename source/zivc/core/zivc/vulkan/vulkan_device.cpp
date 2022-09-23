@@ -348,7 +348,10 @@ VkCommandBuffer VulkanDevice::createCommandBuffer()
       zivcvk::CommandBufferLevel::ePrimary,
       1};
   zisc::pmr::vector<zivcvk::CommandBuffer>::allocator_type alloc{mem_resource};
-  auto commands = d.allocateCommandBuffers(alloc_info, alloc, dispatcher().loader());
+  //! \todo Resolve the error
+  // The create function causes undefined symbol error with custom allocator
+  //auto commands = d.allocateCommandBuffers(alloc_info, alloc, dispatcher().loader());
+  auto commands = d.allocateCommandBuffers(alloc_info, dispatcher().loader());
   ZIVC_ASSERT(commands.size() == 1, "The size of command buffers isn't 1.");
   return zisc::cast<VkCommandBuffer>(commands[0]);
 }

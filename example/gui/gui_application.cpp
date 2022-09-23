@@ -21,7 +21,7 @@
 #include "imgui.h"
 // Zisc
 #include "zisc/utility.hpp"
-#include "zisc/memory/simple_memory_resource.hpp"
+#include "zisc/memory/alloc_free_resource.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "zivc/zivc.hpp"
@@ -282,7 +282,7 @@ void GuiApplication::setMemoryResource(zisc::pmr::memory_resource* mem_resource)
   if (mem_resource != nullptr)
     default_mem_resource_.reset();
   else
-    default_mem_resource_ = std::make_unique<zisc::SimpleMemoryResource>();
+    default_mem_resource_ = std::make_unique<zisc::AllocFreeResource>();
 }
 
 /*!

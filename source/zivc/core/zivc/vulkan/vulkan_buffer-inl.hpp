@@ -29,7 +29,6 @@
 #include "zisc/bit.hpp"
 #include "zisc/boolean.hpp"
 #include "zisc/concepts.hpp"
-#include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "vulkan_buffer_impl.hpp"
@@ -481,8 +480,8 @@ LaunchResult VulkanBuffer<T>::copyOnDevice(
 {
   VulkanDevice& device = *static_cast<VulkanDevice*>(dest->getParent());
 
-  const auto& src_data = *zisc::cast<const BufferData*>(source.rawBufferData());
-  auto& dst_data = *zisc::cast<BufferData*>(dest->rawBufferData());
+  const auto& src_data = *static_cast<const BufferData*>(source.rawBufferData());
+  auto& dst_data = *static_cast<BufferData*>(dest->rawBufferData());
 
   VkCommandBuffer command = dest->isDeviceLocal() ? dst_data.command_buffer_
                                                   : src_data.command_buffer_;
@@ -534,9 +533,9 @@ LaunchResult VulkanBuffer<T>::copyOnHost(
     using DataT = std::remove_cvref_t<D>;
     using DataPtr = std::add_pointer_t<DataT>;
     using ConstDataPtr = std::add_pointer_t<std::add_const_t<DataT>>;
-    const auto* src_ptr = zisc::cast<ConstDataPtr>(source.mapMemoryData());
+    const auto* src_ptr = static_cast<ConstDataPtr>(source.mapMemoryData());
     src_ptr = src_ptr + launch_options.sourceOffset();
-    auto* dst_ptr = zisc::cast<DataPtr>(dest->mapMemoryData());
+    auto* dst_ptr = static_cast<DataPtr>(dest->mapMemoryData());
     dst_ptr = dst_ptr + launch_options.destOffset();
     std::copy_n(src_ptr, launch_options.size(), dst_ptr);
   }
@@ -559,11 +558,11 @@ uint32b VulkanBuffer<T>::createDataForFillFast(ConstReference value) noexcept
                                                     void*>>>;
   uint32b data = 0;
   if constexpr (zisc::UnsignedInteger<ValueT>) {
-    data = zisc::cast<uint32b>(zisc::bit_cast<ValueT>(value));
+    data = static_cast<uint32b>(zisc::bit_cast<ValueT>(value));
     if constexpr (sizeof(ValueT) == 1)
-      data = zisc::cast<uint32b>(data << 8) | data;
+      data = static_cast<uint32b>(data << 8) | data;
     if constexpr (sizeof(ValueT) <= 2)
-      data = zisc::cast<uint32b>(data << 16) | data;
+      data = static_cast<uint32b>(data << 16) | data;
   }
   return data;
 }
@@ -586,7 +585,7 @@ LaunchResult VulkanBuffer<T>::fillFastOnDevice(
 
   // Create a data for fill
   const uint32b data = createDataForFillFast(value);
-  auto& dst_data = *zisc::cast<BufferData*>(dest->rawBufferData());
+  auto& dst_data = *static_cast<BufferData*>(dest->rawBufferData());
   VkCommandBuffer command = dst_data.command_buffer_;
   // Record commands
   {
@@ -659,9 +658,9 @@ LaunchResult VulkanBuffer<T>::fillOnDevice(
     BufferCommon* dest,
     const BufferLaunchOptions<D>& launch_options)
 {
-  BufferData* dest_data = zisc::cast<BufferData*>(dest->rawBufferData());
+  BufferData* dest_data = static_cast<BufferData*>(dest->rawBufferData());
   Buffer<uint8b>* fill_data = dest_data->fill_data_.get();
-  Buffer<D>* dest_buffer = zisc::cast<Buffer<D>*>(dest);
+  Buffer<D>* dest_buffer = static_cast<Buffer<D>*>(dest);
   // Set the value into the fill data
   {
     constexpr std::size_t s = sizeof(typename Buffer<D>::Type);
@@ -696,7 +695,7 @@ LaunchResult VulkanBuffer<T>::fillOnHost(
   {
     using DataT = std::remove_cvref_t<D>;
     using DataPtr = std::add_pointer_t<DataT>;
-    auto* dst_ptr = zisc::cast<DataPtr>(dest->mapMemoryData());
+    auto* dst_ptr = static_cast<DataPtr>(dest->mapMemoryData());
     dst_ptr = dst_ptr + launch_options.destOffset();
     std::fill_n(dst_ptr, launch_options.size(), value);
   }

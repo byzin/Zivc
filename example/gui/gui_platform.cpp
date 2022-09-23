@@ -70,7 +70,7 @@ GuiPlatform::~GuiPlatform() noexcept
   */
 zivc::VulkanDevice& GuiPlatform::device() noexcept
 {
-  auto* d = zisc::cast<zivc::VulkanDevice*>(device_.get());;
+  auto* d = static_cast<zivc::VulkanDevice*>(device_.get());;
   return *d;
 }
 
@@ -81,7 +81,7 @@ zivc::VulkanDevice& GuiPlatform::device() noexcept
   */
 const zivc::VulkanDevice& GuiPlatform::device() const noexcept
 {
-  const auto* d = zisc::cast<const zivc::VulkanDevice*>(device_.get());;
+  const auto* d = static_cast<const zivc::VulkanDevice*>(device_.get());;
   return *d;
 }
 
@@ -163,7 +163,7 @@ void GuiPlatform::destroyData() noexcept
   */
 void GuiPlatform::checkVulkanResult(const VkResult result)
 {
-  ::example::checkVulkanResult(zisc::cast<int>(result));
+  ::example::checkVulkanResult(static_cast<int>(result));
 }
 
 /*!
@@ -197,7 +197,7 @@ void GuiPlatform::destroyImGui() noexcept
 void GuiPlatform::destroyVulkan() noexcept
 {
   if (descriptor_pool_ != ZIVC_VK_NULL_HANDLE) {
-    auto d = zisc::cast<zivcvk::Device>(device().device());
+    auto d = static_cast<zivcvk::Device>(device().device());
     zivcvk::AllocationCallbacks alloc{vk_allocator_};
     zivcvk::DescriptorPool desc_pool{descriptor_pool_};
     d.destroyDescriptorPool(desc_pool, alloc, dispatcher().loader());
@@ -255,7 +255,7 @@ void GuiPlatform::initGlfw(const GuiApplicationOptions& options)
     using GSurfaceType = GlfwSurfaceType;
     constexpr auto is_equal = [](WSurfaceType lhs, GlfwSurfaceType rhs) noexcept
     {
-      return zisc::cast<int>(lhs) == zisc::cast<int>(rhs);
+      return static_cast<int>(lhs) == static_cast<int>(rhs);
     };
     static_assert(is_equal(WSurfaceType::kWin32, GSurfaceType::kWin32));
     static_assert(is_equal(WSurfaceType::kMacOS, GSurfaceType::kMacOS));
@@ -291,7 +291,7 @@ void GuiPlatform::initGlfw(const GuiApplicationOptions& options)
   {
     VkInstance ins = instance();
     auto* proc_addr = zisc::reinterp<void*>(dispatcher().instanceProcAddr());
-    const auto surface_type = zisc::cast<GlfwSurfaceType>(surfaceType());
+    const auto surface_type = static_cast<GlfwSurfaceType>(surfaceType());
     auto* s = zisc::reinterp<void**>(&surface);
     initGlfwVulkan(ins, proc_addr, glfw_window_, &vk_allocator_, surface_type, s);
   }
@@ -367,7 +367,7 @@ void GuiPlatform::initImGui([[maybe_unused]] const GuiApplicationOptions& option
     begin_info.setFlags(zivcvk::CommandBufferUsageFlagBits::eOneTimeSubmit);
     const zivcvk::Result result = command_buffer.begin(&begin_info,
                                                        dispatcher().loader());
-    checkVulkanResult(zisc::cast<VkResult>(result));
+    checkVulkanResult(static_cast<VkResult>(result));
     ImGui_ImplVulkan_CreateFontsTexture(zisc::cast<VkCommandBuffer>(command_buffer));
     command_buffer.end(dispatcher().loader());
 
@@ -411,7 +411,7 @@ void GuiPlatform::initVulkanWindow(const GuiApplicationOptions& options)
   {
     auto loader_func = [](const char* function_name, void* user_data) noexcept
     {
-      const auto* platform = zisc::cast<const GuiPlatform*>(user_data);
+      const auto* platform = static_cast<const GuiPlatform*>(user_data);
       VkInstance instance = platform->instance();
       const zivc::VulkanDispatchLoader& dispatcher = platform->dispatcher();
       const PFN_vkGetInstanceProcAddr proc_addr = dispatcher.instanceProcAddr();
@@ -545,7 +545,7 @@ void GuiPlatform::initVulkanDevice(zivc::Context& context)
 VkInstance GuiPlatform::instance() const noexcept
 {
   const auto* platform =
-      zisc::cast<const zivc::VulkanBackend*>(device().getParent());
+      static_cast<const zivc::VulkanBackend*>(device().getParent());
   return platform->instance();
 }
 
@@ -584,7 +584,7 @@ void GuiPlatform::presentFrameImpl()
     setSwapChainRebuild(true);
     return;
   }
-  checkVulkanResult(zisc::cast<VkResult>(result));
+  checkVulkanResult(static_cast<VkResult>(result));
   wd.SemaphoreIndex = (wd.SemaphoreIndex + 1) % wd.ImageCount; // Now we can use the next set of semaphores
 }
 
@@ -687,7 +687,7 @@ void GuiPlatform::renderFrameImpl(ImDrawData* draw_data)
       setSwapChainRebuild(true);
       return;
     }
-    checkVulkanResult(zisc::cast<VkResult>(result));
+    checkVulkanResult(static_cast<VkResult>(result));
   }
 
   ImGui_ImplVulkanH_Frame* fd = &wd.Frames[wd.FrameIndex];
@@ -697,7 +697,7 @@ void GuiPlatform::renderFrameImpl(ImDrawData* draw_data)
                                                   VK_TRUE,
                                                   timeout,
                                                   dispatcher().loader());
-    checkVulkanResult(zisc::cast<VkResult>(result));
+    checkVulkanResult(static_cast<VkResult>(result));
     d.resetFences(fence, dispatcher().loader());
   }
   auto command_buffer = zisc::cast<zivcvk::CommandBuffer>(fd->CommandBuffer);
@@ -784,7 +784,7 @@ std::size_t GuiPlatform::selectDevice(const zivc::Context& context) noexcept
     const zivc::DeviceInfo* info = device_info_list[device_index];
     if (info->type() != zivc::BackendType::kVulkan)
       continue;
-    const auto* device_info = zisc::cast<const zivc::VulkanDeviceInfo*>(info);
+    const auto* device_info = static_cast<const zivc::VulkanDeviceInfo*>(info);
     const VkPhysicalDeviceProperties& prop = device_info->properties().properties1_;
     if (prop.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
       is_device_found = true;
@@ -827,7 +827,7 @@ void GuiPlatform::setSwapChainRebuild(const bool is_rebuilt) noexcept
 zivc::VulkanBackend::WindowSurfaceType GuiPlatform::surfaceType() const noexcept
 {
   const auto* platform =
-      zisc::cast<const zivc::VulkanBackend*>(device().getParent());
+      static_cast<const zivc::VulkanBackend*>(device().getParent());
   return platform->windowSurfaceType();
 }
 

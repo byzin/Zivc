@@ -24,7 +24,7 @@
 #include <vector>
 // Zisc
 #include "zisc/utility.hpp"
-#include "zisc/memory/simple_memory_resource.hpp"
+#include "zisc/memory/alloc_free_resource.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "zivc/zivc.hpp"
@@ -72,7 +72,7 @@ int printVulkanBackendInfo(const zivc::Context& context)
 #if defined(ZIVC_ENABLE_VULKAN_BACKEND)
   // Get the vulkan backend
   const auto* backend_p =
-    zisc::cast<const zivc::VulkanBackend*>(context.backend(zivc::BackendType::kVulkan));
+    static_cast<const zivc::VulkanBackend*>(context.backend(zivc::BackendType::kVulkan));
 
   const std::string indent1 = "    ";
   const std::string indent2 = indent1 + indent1;
@@ -371,7 +371,7 @@ int printVulkanBackendInfo(const zivc::Context& context)
 
   \param [in] mem_resource No description.
   */
-void printMemoryUsage(const zisc::SimpleMemoryResource& mem_resource) noexcept
+void printMemoryUsage(const zisc::AllocFreeResource& mem_resource) noexcept
 {
   const std::string indent1 = "    ";
   std::cout << std::endl;
@@ -388,7 +388,7 @@ void printMemoryUsage(const zisc::SimpleMemoryResource& mem_resource) noexcept
 int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 {
   // Any custom std::pmr::memory_resource can be specified as zivc memory allocator
-  zisc::SimpleMemoryResource mem_resource;
+  zisc::AllocFreeResource mem_resource;
 
   // Create a zivc context and print vulkan backend information
   int exec_result = EXIT_FAILURE;

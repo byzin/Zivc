@@ -182,8 +182,11 @@ void VulkanKernelImpl::initDescriptorSet(
     const zivcvk::DescriptorSetAllocateInfo alloc_info{desc_pool,
                                                        1,
                                                        &desc_set_layout};
-    zisc::pmr::polymorphic_allocator<zivcvk::DescriptorSet> set_alloc{mem_resource};
-    auto desc_set = d.allocateDescriptorSets(alloc_info, set_alloc, loader);
+    zisc::pmr::polymorphic_allocator<zivcvk::DescriptorSet> alloc{mem_resource};
+    //! \todo Resolve the error
+    // The allocate function causes undefined symbol error with custom allocator
+    //auto desc_set = d.allocateDescriptorSets(alloc_info, alloc, loader);
+    auto desc_set = d.allocateDescriptorSets(alloc_info, loader);
     ZIVC_ASSERT(desc_set.size() == 1, "Multiple descriptor sets were created.");
 
     // Output

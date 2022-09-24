@@ -22,7 +22,6 @@
 #include <iostream>
 #include <map>
 #include <memory>
-#include <mutex>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -334,7 +333,7 @@ void VulkanBackend::Callbacks::deallocateMemory(
       data = mem_list[index];
     }
     {
-      const auto index_result = mem_map.remove(address);
+      [[maybe_unused]] const auto index_result = mem_map.remove(address);
       ZIVC_ASSERT(index_result.has_value(), "The address isn't in the map.");
     }
     alloc_data->memoryResource()->deallocate(memory, data.size_, data.alignment_);
@@ -730,17 +729,18 @@ void VulkanBackend::initDeviceList()
 {
   const zivcvk::Instance ins{instance()};
 
-  using DeviceList = zisc::pmr::vector<zivcvk::PhysicalDevice>;
-  const DeviceList::allocator_type alloc{memoryResource()};
   const auto& loader = dispatcher().loader();
   //! \todo Resolve the error
   // The enumerate function causes undefined symbol error with custom allocator
-  // auto device_list = ins.enumeratePhysicalDevices(alloc, loader);
+  //using TmpDeviceListT = zisc::pmr::vector<zivcvk::PhysicalDevice>;
+  //TmpDeviceListT::allocator_type tmp_alloc{memoryResource()};
+  //auto device_list = ins.enumeratePhysicalDevices(tmp_alloc, loader);
   auto device_list = ins.enumeratePhysicalDevices(loader);
 
-  using DstDeviceList = decltype(device_list_)::element_type;
-  using T = decltype(device_list_)::element_type;
-  device_list_ = zisc::pmr::allocateUnique<DstDeviceList>(memoryResource(), T{alloc});
+  using DeviceListT = decltype(device_list_)::element_type;
+  const DeviceListT::allocator_type alloc{memoryResource()};
+  device_list_ = zisc::pmr::allocateUnique<DeviceListT>(memoryResource(),
+                                                        DeviceListT{alloc});
   device_list_->resize(device_list.size());
   std::copy(device_list.begin(), device_list.end(), device_list_->begin());
 }
@@ -750,13 +750,10 @@ void VulkanBackend::initDeviceList()
   */
 void VulkanBackend::initDeviceInfoList() noexcept
 {
-  auto* mem_resource = memoryResource();
-  using DeviceInfoList = decltype(device_info_list_)::element_type;
-  DeviceInfoList info_list{DeviceInfoList::allocator_type{mem_resource}};
-  const zisc::pmr::polymorphic_allocator<DeviceInfoList> alloc{mem_resource};
-  device_info_list_ = zisc::pmr::allocateUnique<DeviceInfoList>(
-      alloc,
-      std::move(info_list));
+  using DeviceInfoListT = decltype(device_info_list_)::element_type;
+  const DeviceInfoListT::allocator_type alloc{memoryResource()};
+  device_info_list_ = zisc::pmr::allocateUnique<DeviceInfoListT>(memoryResource(),
+                                                                 DeviceInfoListT{alloc});
 }
 
 /*!
@@ -767,16 +764,17 @@ void VulkanBackend::initDeviceInfoList() noexcept
 void VulkanBackend::initDispatcher(ContextOptions& options)
 {
   auto* mem_resource = memoryResource();
-  const zisc::pmr::polymorphic_allocator<VulkanDispatchLoader> alloc{mem_resource};
 
   using FuncPtr = std::add_pointer_t<PFN_vkGetInstanceProcAddr>;
   auto* ptr = static_cast<FuncPtr>(options.vulkanGetProcAddrPtr());
-  const std::string_view lib = options.vulkanLibraryName();
-  dispatcher_ = zisc::pmr::allocateUnique<VulkanDispatchLoader>(alloc);
-  if (ptr != nullptr)
+  dispatcher_ = zisc::pmr::allocateUnique<VulkanDispatchLoader>(mem_resource);
+  if (ptr != nullptr) {
     dispatcher_->set(mem_resource, *ptr);
-  else
+  }
+  else {
+    const std::string_view lib = options.vulkanLibraryName();
     dispatcher_->set(mem_resource, lib);
+  }
   ZIVC_ASSERT(dispatcher().isDispatchableForInstance(), "Unexpected init.");
   ZIVC_ASSERT(!dispatcher().isDispatchableForDevice(), "Unexpected init.");
 }
@@ -793,12 +791,11 @@ void VulkanBackend::initProperties()
   {
     // Create a properties list
     {
-      using PropertiesList = decltype(extension_properties_list_)::element_type;
-      PropertiesList prop_list{PropertiesList::allocator_type{mem_resource}};
-      const zisc::pmr::polymorphic_allocator<PropertiesList> alloc{mem_resource};
-      extension_properties_list_ = zisc::pmr::allocateUnique<PropertiesList>(
-          alloc,
-          std::move(prop_list));
+      using PropertiesListT = decltype(extension_properties_list_)::element_type;
+      const PropertiesListT::allocator_type alloc{mem_resource};
+      extension_properties_list_ = zisc::pmr::allocateUnique<PropertiesListT>(
+          mem_resource,
+          PropertiesListT{alloc});
     }
     auto& prop_list = *extension_properties_list_;
     // Retrieve extension properties
@@ -841,12 +838,11 @@ void VulkanBackend::initProperties()
   {
     // Create a properties list
     {
-      using PropertiesList = decltype(layer_properties_list_)::element_type;
-      PropertiesList prop_list{PropertiesList::allocator_type{mem_resource}};
-      const zisc::pmr::polymorphic_allocator<PropertiesList> alloc{mem_resource};
-      layer_properties_list_ = zisc::pmr::allocateUnique<PropertiesList>(
-          alloc,
-          std::move(prop_list));
+      using PropertiesListT = decltype(layer_properties_list_)::element_type;
+      const PropertiesListT::allocator_type alloc{mem_resource};
+      layer_properties_list_ = zisc::pmr::allocateUnique<PropertiesListT>(
+          mem_resource,
+          PropertiesListT{alloc});
     }
     auto& prop_list = *layer_properties_list_;
     // Retrieve layer properties

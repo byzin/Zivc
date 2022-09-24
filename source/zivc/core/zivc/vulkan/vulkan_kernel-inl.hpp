@@ -18,6 +18,7 @@
 #include "vulkan_kernel.hpp"
 // Standard C++ library
 #include <array>
+#include <concepts>
 #include <cstddef>
 #include <cstdio>
 #include <cstring>
@@ -28,7 +29,6 @@
 #include <type_traits>
 #include <utility>
 // Zisc
-#include "zisc/concepts.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "vulkan_buffer.hpp"
@@ -246,30 +246,32 @@ initData(const ParamsT& params)
   const auto* command_p = static_cast<const VkCommandBuffer*>(params.vulkanCommandBufferPtr());
   setCommandBufferRef(command_p);
   // Add a shader module
-  zisc::pmr::unique_ptr<KSet> kernel_set;
+  using ModuleDataT = VulkanDevice::ModuleData;
+  const ModuleDataT* module_data = nullptr;
   {
-    zisc::pmr::polymorphic_allocator<KSet> alloc{ZivcObject::memoryResource()};
-    kernel_set = zisc::pmr::allocateUnique<KSet>(alloc, ZivcObject::memoryResource());
+    KSet kernel_set{ZivcObject::memoryResource()};
+    module_data = &device.addShaderModule(kernel_set);
   }
-  const auto& module_data = device.addShaderModule(*kernel_set);
-  kernel_set.reset();
   // Add a kernel data
-  const std::size_t num_of_storage_buffers = BaseKernelT::ArgParserT::kNumOfBufferArgs;
-  const std::size_t num_of_uniform_buffers = hasPodArg() ? 1 : 0;
-  const std::size_t num_of_local_args = BaseKernelT::ArgParserT::kNumOfLocalArgs;
-  const auto& kernel_data = device.addShaderKernel(module_data,
-                                                   params.kernelName(),
-                                                   BaseKernelT::dimension(),
-                                                   num_of_storage_buffers,
-                                                   num_of_uniform_buffers,
-                                                   num_of_local_args);
-  kernel_data_ = std::addressof(kernel_data);
-  VulkanKernelImpl impl{std::addressof(device)};
-  impl.initDescriptorSet(num_of_storage_buffers,
-                         num_of_uniform_buffers,
-                         kernel_data_,
-                         std::addressof(desc_pool_),
-                         std::addressof(desc_set_));
+  {
+    const std::size_t num_of_storage_buffers = BaseKernelT::ArgParserT::kNumOfBufferArgs;
+    const std::size_t num_of_uniform_buffers = hasPodArg() ? 1 : 0;
+    const std::size_t num_of_local_args = BaseKernelT::ArgParserT::kNumOfLocalArgs;
+    using KernelDataT = VulkanDevice::KernelData;
+    const KernelDataT& kernel_data = device.addShaderKernel(*module_data,
+                                                            params.kernelName(),
+                                                            BaseKernelT::dimension(),
+                                                            num_of_storage_buffers,
+                                                            num_of_uniform_buffers,
+                                                            num_of_local_args);
+    kernel_data_ = std::addressof(kernel_data);
+    VulkanKernelImpl impl{std::addressof(device)};
+    impl.initDescriptorSet(num_of_storage_buffers,
+                           num_of_uniform_buffers,
+                           kernel_data_,
+                           std::addressof(desc_pool_),
+                           std::addressof(desc_set_));
+  }
   initPodBuffer();
 }
 
@@ -336,9 +338,9 @@ createPodCacheType(const KernelArgCache<PodTypes...>& cache) noexcept
   if constexpr (kIndex < ArgParserT::kNumOfPodArgs) {
     constexpr auto pod_arg_info = ArgParserT::getPodArgInfoList();
     constexpr std::size_t pod_index = pod_arg_info[kIndex].index();
-    using ArgTuple = std::tuple<FuncArgs...>;
-    using PodType = std::tuple_element_t<pod_index, ArgTuple>;
-    auto precedence = concatArgCache<PodType>(cache);
+    using ArgTupleT = std::tuple<FuncArgs...>;
+    using PodTypeT = std::tuple_element_t<pod_index, ArgTupleT>;
+    auto precedence = concatArgCache<PodTypeT>(cache);
     return createPodCacheType<kIndex + 1>(precedence);
   }
   else {

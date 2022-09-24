@@ -56,7 +56,7 @@ std::span<const DeviceInfo* const> Context::deviceInfoList() const noexcept
 inline
 bool Context::hasBackend(const BackendType type) const noexcept
 {
-  const std::size_t index = static_cast<std::size_t>(type);
+  [[maybe_unused]] const std::size_t index = static_cast<std::size_t>(type);
   ZIVC_ASSERT(index < kNumOfBackends, "The index is out of range.");
   const auto* backend_p = backend(type);
   const bool result = (backend_p != nullptr) && backend_p->isAvailable();

@@ -232,9 +232,10 @@ int doBufferExample(zivc::Context& context)
       // Host to device copy
       // First create a launch options
       auto options = buffer4->createOptions();
-      options.requestFence(false); // Only last command has to synchronize with host
+      options.requestFence(true);
       // Launch the copy command
-      [[maybe_unused]] auto result = zivc::copy(*buffer4, buffer1.get(), options);
+      auto result = zivc::copy(*buffer4, buffer1.get(), options);
+      device->waitForCompletion(result.fence());
     }
     {
       // Device to host copy
@@ -268,12 +269,15 @@ int doBufferExample(zivc::Context& context)
       }
       // Host to device copy
       auto fp1 = buffer1->reinterp<float>();
-      [[maybe_unused]] auto result1 = zivc::copy(fp4, &fp1, {});
+      auto options1 = fp4.createOptions();
+      options1.requestFence(true);
+      auto result1 = zivc::copy(fp4, &fp1, options1);
+      device->waitForCompletion(result1.fence());
       // Device to host copy
       auto fp6 = buffer6->reinterp<float>();
-      auto options = fp1.createOptions();
-      options.requestFence(true);
-      auto result2 = zivc::copy(fp1, &fp6, options);
+      auto options2 = fp1.createOptions();
+      options2.requestFence(true);
+      auto result2 = zivc::copy(fp1, &fp6, options2);
       device->waitForCompletion(result2.fence());
       // Print mapped buffer memory
       {

@@ -71,11 +71,14 @@ auto getDefaultFeatures(const zivc::VulkanDeviceInfo& info,
     zivcvk::PhysicalDeviceAccelerationStructureFeaturesKHR acceleration_structure_;
     zivcvk::PhysicalDeviceMaintenance4FeaturesKHR maintenance4_;
     zivcvk::PhysicalDeviceRayQueryFeaturesKHR ray_query_;
+    zivcvk::PhysicalDeviceRayTracingMaintenance1FeaturesKHR ray_tracing_maintenance1_;
     zivcvk::PhysicalDeviceRayTracingPipelineFeaturesKHR ray_tracing_pipeline_;
     zivcvk::PhysicalDeviceShaderAtomicFloatFeaturesEXT shader_atomic_float_;
+    zivcvk::PhysicalDeviceShaderAtomicFloat2FeaturesEXT shader_atomic_float2_;
     zivcvk::PhysicalDeviceShaderAtomicInt64Features shader_atomic_int64_;
     zivcvk::PhysicalDeviceShaderClockFeaturesKHR shader_clock_;
     zivcvk::PhysicalDeviceShaderFloat16Int8Features shader_float16_int8_;
+    zivcvk::PhysicalDeviceShaderIntegerDotProductFeatures shader_integer_dot_product_;
     zivcvk::PhysicalDeviceVariablePointersFeatures variable_pointers_;
     zivcvk::PhysicalDeviceVulkanMemoryModelFeatures vulkan_memory_model_;
   };
@@ -97,11 +100,14 @@ auto getDefaultFeatures(const zivc::VulkanDeviceInfo& info,
   f->acceleration_structure_ = inputs.acceleration_structure_;
   f->maintenance4_ = inputs.maintenance4_;
   f->ray_query_ = inputs.ray_query_;
+  f->ray_tracing_maintenance1_ = inputs.ray_tracing_maintenance1_;
   f->ray_tracing_pipeline_ = inputs.ray_tracing_pipeline_features_;
   f->shader_atomic_float_ = inputs.shader_atomic_float_;
+  f->shader_atomic_float2_ = inputs.shader_atomic_float2_;
   f->shader_atomic_int64_ = inputs.shader_atomic_int64_;
   f->shader_clock_ = inputs.shader_clock_;
   f->shader_float16_int8_ = inputs.shader_float16_int8_;
+  f->shader_integer_dot_product_ = inputs.shader_integer_dot_product_;
   f->variable_pointers_ = inputs.variable_pointers_;
   f->vulkan_memory_model_ = inputs.vulkan_memory_model_;
 
@@ -111,11 +117,14 @@ auto getDefaultFeatures(const zivc::VulkanDeviceInfo& info,
 //                               f->acceleration_structure_,
 //                               f->maintenance4_,
 //                               f->ray_query_,
+//                               f->ray_tracing_maintenance1_,
 //                               f->ray_tracing_pipeline_,
                                f->shader_atomic_float_,
+                               f->shader_atomic_float2_,
                                f->shader_atomic_int64_,
                                f->shader_clock_,
                                f->shader_float16_int8_,
+                               f->shader_integer_dot_product_,
                                f->variable_pointers_,
                                f->vulkan_memory_model_);
 
@@ -303,8 +312,7 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
 
   const KernelData* data = nullptr;
   {
-    const zisc::pmr::polymorphic_allocator<KernelData> data_alloc{mem_resource};
-    auto kernel_data = zisc::pmr::allocateUnique(data_alloc);
+    auto kernel_data = zisc::pmr::allocateUnique<KernelData>(mem_resource);
     data = kernel_data.get();
     kernel_data->module_ = std::addressof(module);
     copyStr(kernel_name, kernel_data->kernel_name_.data());
@@ -340,15 +348,15 @@ VmaDeviceMemoryCallbacks VulkanDevice::createAllocationNotifier() noexcept
 VkCommandBuffer VulkanDevice::createCommandBuffer()
 {
   const zivcvk::Device d{device()};
-  auto* mem_resource = memoryResource();
+  [[maybe_unused]] auto* mem_resource = memoryResource();
 
   const zivcvk::CommandBufferAllocateInfo alloc_info{
       commandPool(),
       zivcvk::CommandBufferLevel::ePrimary,
       1};
-  const zisc::pmr::vector<zivcvk::CommandBuffer>::allocator_type alloc{mem_resource};
   //! \todo Resolve the error
   // The create function causes undefined symbol error with custom allocator
+  //const zisc::pmr::vector<zivcvk::CommandBuffer>::allocator_type alloc{mem_resource};
   //auto commands = d.allocateCommandBuffers(alloc_info, alloc, dispatcher().loader());
   auto commands = d.allocateCommandBuffers(alloc_info, dispatcher().loader());
   ZIVC_ASSERT(commands.size() == 1, "The size of command buffers isn't 1.");
@@ -775,41 +783,36 @@ void VulkanDevice::initData()
     fence_index_queue_ = zisc::pmr::allocateUnique(alloc, mem_resource);
   }
   {
-    using FenceList = decltype(fence_list_)::element_type;
-    const FenceList::allocator_type allocs{mem_resource};
-    FenceList fence_list{allocs};
-    const zisc::pmr::polymorphic_allocator<FenceList> alloc{mem_resource};
-    fence_list_ = zisc::pmr::allocateUnique(alloc, std::move(fence_list));
+    using FenceListT = decltype(fence_list_)::element_type;
+    const FenceListT::allocator_type alloc{mem_resource};
+    fence_list_ = zisc::pmr::allocateUnique<FenceListT>(mem_resource,
+                                                        FenceListT{mem_resource});
   }
   {
-    using QueueList = decltype(queue_list_)::element_type;
-    const QueueList::allocator_type allocs{mem_resource};
-    QueueList queue_list{allocs};
-    const zisc::pmr::polymorphic_allocator<QueueList> alloc{mem_resource};
-    queue_list_ = zisc::pmr::allocateUnique(alloc, std::move(queue_list));
+    using QueueListT = decltype(queue_list_)::element_type;
+    const QueueListT::allocator_type alloc{mem_resource};
+    queue_list_ = zisc::pmr::allocateUnique<QueueListT>(mem_resource,
+                                                        QueueListT{alloc});
   }
   {
-    using UsageList = decltype(heap_usage_list_)::element_type;
-    const UsageList::allocator_type alloce{mem_resource};
-    UsageList usage_list{alloce};
-    const zisc::pmr::polymorphic_allocator<UsageList> alloc{mem_resource};
-    heap_usage_list_ = zisc::pmr::allocateUnique(alloc, std::move(usage_list));
+    using UsageListT = decltype(heap_usage_list_)::element_type;
+    const UsageListT::allocator_type alloc{mem_resource};
+    heap_usage_list_ = zisc::pmr::allocateUnique<UsageListT>(mem_resource,
+                                                             UsageListT{alloc});
     const auto& info = deviceInfoImpl();
     heap_usage_list_->resize(info.heapInfoList().size());
   }
   {
-    using ShaderModuleList = decltype(module_data_list_)::element_type;
-    const ShaderModuleList::allocator_type allocs{mem_resource};
-    ShaderModuleList module_list{allocs};
-    const zisc::pmr::polymorphic_allocator<ShaderModuleList> alloc{mem_resource};
-    module_data_list_ = zisc::pmr::allocateUnique(alloc, std::move(module_list));
+    using ShaderModuleListT = decltype(module_data_list_)::element_type;
+    const ShaderModuleListT::allocator_type alloc{mem_resource};
+    module_data_list_ = zisc::pmr::allocateUnique<ShaderModuleListT>(mem_resource,
+                                                                     ShaderModuleListT{alloc});
   }
   {
-    using KernelDataList = decltype(kernel_data_list_)::element_type;
-    const KernelDataList::allocator_type allocs{mem_resource};
-    KernelDataList module_list{allocs};
-    const zisc::pmr::polymorphic_allocator<KernelDataList> alloc{mem_resource};
-    kernel_data_list_ = zisc::pmr::allocateUnique(alloc, std::move(module_list));
+    using KernelDataListT = decltype(kernel_data_list_)::element_type;
+    const KernelDataListT::allocator_type alloc{mem_resource};
+    kernel_data_list_ = zisc::pmr::allocateUnique<KernelDataListT>(mem_resource,
+                                                                   KernelDataListT{alloc});
   }
 
   initCapability();
@@ -980,8 +983,7 @@ auto VulkanDevice::addShaderModule(const uint64b id,
 
   const ModuleData* data = nullptr;
   {
-    const zisc::pmr::polymorphic_allocator<ModuleData> data_alloc{mem_resource};
-    auto module_data = zisc::pmr::allocateUnique(data_alloc);
+    auto module_data = zisc::pmr::allocateUnique<ModuleData>(mem_resource);
     data = module_data.get();
     module_data->name_ = module_name;
     module_data->module_ = zisc::cast<VkShaderModule>(module);

@@ -19,7 +19,6 @@
 #include <cstddef>
 #include <map>
 #include <memory>
-#include <mutex>
 #include <span>
 #include <string_view>
 #include <type_traits>

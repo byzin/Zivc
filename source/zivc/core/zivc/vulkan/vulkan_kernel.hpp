@@ -22,8 +22,6 @@
 #include <span>
 #include <type_traits>
 #include <utility>
-// Zisc
-#include "zisc/concepts.hpp"
 // Zivc
 #include "utility/vulkan.hpp"
 #include "zivc/buffer.hpp"

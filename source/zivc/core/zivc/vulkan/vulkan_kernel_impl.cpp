@@ -152,9 +152,9 @@ void VulkanKernelImpl::initDescriptorSet(
   // Initialize descriptor pool
   zivcvk::DescriptorPool desc_pool;
   {
-    using PoolSizeList = zisc::pmr::vector<zivcvk::DescriptorPoolSize>;
-    const PoolSizeList::allocator_type pool_alloc{mem_resource};
-    PoolSizeList pool_size_list{pool_alloc};
+    using PoolSizeListT = zisc::pmr::vector<zivcvk::DescriptorPoolSize>;
+    const PoolSizeListT::allocator_type pool_alloc{mem_resource};
+    PoolSizeListT pool_size_list{pool_alloc};
     pool_size_list.reserve(2);
     // Storage buffers
     if (0 < num_of_storage_buffers) {
@@ -182,9 +182,9 @@ void VulkanKernelImpl::initDescriptorSet(
     const zivcvk::DescriptorSetAllocateInfo alloc_info{desc_pool,
                                                        1,
                                                        &desc_set_layout};
-    const zisc::pmr::polymorphic_allocator<zivcvk::DescriptorSet> alloc{mem_resource};
     //! \todo Resolve the error
     // The allocate function causes undefined symbol error with custom allocator
+    //const zisc::pmr::polymorphic_allocator<zivcvk::DescriptorSet> alloc{mem_resource};
     //auto desc_set = d.allocateDescriptorSets(alloc_info, alloc, loader);
     auto desc_set = d.allocateDescriptorSets(alloc_info, loader);
     ZIVC_ASSERT(desc_set.size() == 1, "Multiple descriptor sets were created.");

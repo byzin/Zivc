@@ -276,12 +276,18 @@ function(Zivc_getSpirvOptOptions opt_options)
   # Optimization
   list(APPEND options -O
                       --combine-access-chains
+                      --eliminate-dead-const
+                      --eliminate-dead-input-components
+                      --eliminate-dead-variables
+                      --eliminate-local-multi-store
                       --local-redundancy-elimination
                       --loop-invariant-code-motion
                       --loop-unswitch
                       --remove-duplicates
+                      --remove-unused-interface-variables
                       --strength-reduction
                       --strip-debug
+                      --strip-nonsemantic
                       --unify-const)
 
   # Output

@@ -120,13 +120,13 @@ template <typename ...ArgTypes, typename ...Types>
 class KernelArgCache<KernelArgCache<ArgTypes...>, Types...>
 {
   // Type aliases
-  using CurrentCacheT = KernelArgCache<ArgTypes...>;
+  using ValueCacheT = KernelArgCache<ArgTypes...>;
   using PrecedenceCacheT = KernelArgCache<Types...>;
 
 
  public:
   //! The number of args the cache has
-  static constexpr std::size_t kSize = CurrentCacheT::kSize + PrecedenceCacheT::kSize;
+  static constexpr std::size_t kSize = ValueCacheT::kSize + PrecedenceCacheT::kSize;
 
   //! Check if the cache has value 
   template <std::size_t kIndex>
@@ -137,7 +137,7 @@ class KernelArgCache<KernelArgCache<ArgTypes...>, Types...>
   //! Return the type by the given index
   template <std::size_t kIndex>
   using CacheT = std::conditional_t<kHasValue<kIndex>,
-      typename CurrentCacheT::template CacheT<
+      typename ValueCacheT::template CacheT<
           kHasValue<kIndex> ? kIndex - PrecedenceCacheT::kSize : 0>,
       typename PrecedenceCacheT::template CacheT<kIndex>>;
 
@@ -172,11 +172,11 @@ class KernelArgCache<KernelArgCache<ArgTypes...>, Types...>
   static constexpr std::size_t tailPaddingSize() noexcept;
 
  private:
-  static_assert(0 < CurrentCacheT::size());
+  static_assert(0 < ValueCacheT::size());
   static_assert(0 < PrecedenceCacheT::size());
 
   PrecedenceCacheT precedence_;
-  CurrentCacheT value_;
+  ValueCacheT value_;
 };
 
 /*!
@@ -190,12 +190,12 @@ template <typename ...ArgTypes>
 class KernelArgCache<KernelArgCache<ArgTypes...>>
 {
   // Type aliases
-  using CurrentCacheT = KernelArgCache<ArgTypes...>;
+  using ValueCacheT = KernelArgCache<ArgTypes...>;
 
 
  public:
   //! The number of args the cache has
-  static constexpr std::size_t kSize = CurrentCacheT::kSize;
+  static constexpr std::size_t kSize = ValueCacheT::kSize;
 
   //! Check if the cache has value 
   template <std::size_t kIndex>
@@ -205,7 +205,7 @@ class KernelArgCache<KernelArgCache<ArgTypes...>>
   //! Return the type by the given index
   template <std::size_t kIndex>
   using CacheT = std::conditional_t<kHasValue<kIndex>,
-      typename CurrentCacheT::template CacheT<kIndex>,
+      typename ValueCacheT::template CacheT<kIndex>,
       void>;
 
 
@@ -239,9 +239,9 @@ class KernelArgCache<KernelArgCache<ArgTypes...>>
   static constexpr std::size_t tailPaddingSize() noexcept;
 
  private:
-  static_assert(0 < CurrentCacheT::size());
+  static_assert(0 < ValueCacheT::size());
 
-  CurrentCacheT value_;
+  ValueCacheT value_;
 };
 
 /*!

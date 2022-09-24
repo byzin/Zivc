@@ -97,7 +97,7 @@ bool KernelArgCache<KernelArgCache<ArgTypes...>, Types...>::isEqual(
 template <typename ...ArgTypes, typename ...Types> inline
 constexpr bool KernelArgCache<KernelArgCache<ArgTypes...>, Types...>::isValid() noexcept
 {
-  return CurrentCacheT::isValid() && PrecedenceCacheT::isValid();
+  return ValueCacheT::isValid() && PrecedenceCacheT::isValid();
 }
 
 #if defined(ZIVC_PRINT_CACHE_TREE)
@@ -112,15 +112,15 @@ void KernelArgCache<KernelArgCache<ArgTypes...>, Types...>::printTree(
     const std::size_t indent,
     std::ostream* output) noexcept
 {
-  using VoidCache = KernelArgCache<void>;
+  using VoidCacheT = KernelArgCache<void>;
   PrecedenceCacheT::printTree(indent, output);
 
-  VoidCache::printValue<CurrentCacheT>(indent, "ArgCache", output);
+  VoidCacheT::printValue<ValueCacheT>(indent, "ArgCache", output);
   (*output) << " {" << std::endl;
 
-  CurrentCacheT::printTree(indent + 1, output);
+  ValueCacheT::printTree(indent + 1, output);
 
-  VoidCache::printIndent(indent, output);
+  VoidCacheT::printIndent(indent, output);
   (*output) << "}" << std::endl;
 }
 #endif // ZIVC_PRINT_CACHE_TREE
@@ -161,10 +161,10 @@ void KernelArgCache<KernelArgCache<ArgTypes...>, Types...>::set(
 template <typename ...ArgTypes, typename ...Types> inline
 constexpr std::size_t KernelArgCache<KernelArgCache<ArgTypes...>, Types...>::tailPaddingSize() noexcept
 {
-  const bool has_tail_padding = (std::alignment_of_v<CurrentCacheT> <
+  const bool has_tail_padding = (std::alignment_of_v<ValueCacheT> <
                                  std::alignment_of_v<PrecedenceCacheT>);
   const std::size_t s = has_tail_padding
-      ? sizeof(KernelArgCache) - (sizeof(PrecedenceCacheT) + sizeof(CurrentCacheT))
+      ? sizeof(KernelArgCache) - (sizeof(PrecedenceCacheT) + sizeof(ValueCacheT))
       : 0;
   return s;
 }
@@ -223,7 +223,7 @@ bool KernelArgCache<KernelArgCache<ArgTypes...>>::isEqual(
 template <typename ...ArgTypes> inline
 constexpr bool KernelArgCache<KernelArgCache<ArgTypes...>>::isValid() noexcept
 {
-  return CurrentCacheT::isValid();
+  return ValueCacheT::isValid();
 }
 
 #if defined(ZIVC_PRINT_CACHE_TREE)
@@ -238,13 +238,13 @@ void KernelArgCache<KernelArgCache<ArgTypes...>>::printTree(
     const std::size_t indent,
     std::ostream* output) noexcept
 {
-  using VoidCache = KernelArgCache<void>;
-  VoidCache::printValue<CurrentCacheT>(indent, "ArgCache", output);
+  using VoidCacheT = KernelArgCache<void>;
+  VoidCacheT::printValue<ValueCacheT>(indent, "ArgCache", output);
   (*output) << " {" << std::endl;
 
-  CurrentCacheT::printTree(indent + 1, output);
+  ValueCacheT::printTree(indent + 1, output);
 
-  VoidCache::printIndent(indent, output);
+  VoidCacheT::printIndent(indent, output);
   (*output) << "}" << std::endl;
 }
 #endif // ZIVC_PRINT_CACHE_TREE
@@ -353,9 +353,9 @@ void KernelArgCache<Type, Types...>::printTree(
     const std::size_t indent,
     std::ostream* output) noexcept
 {
-  using VoidCache = KernelArgCache<void>;
+  using VoidCacheT = KernelArgCache<void>;
   PrecedenceCacheT::printTree(indent, output);
-  VoidCache::printValue<PlainCacheT>(indent, "value", output);
+  VoidCacheT::printValue<PlainCacheT>(indent, "value", output);
   (*output) << std::endl;
 }
 #endif // ZIVC_PRINT_CACHE_TREE
@@ -468,8 +468,8 @@ void KernelArgCache<Type>::printTree(
     const std::size_t indent,
     std::ostream* output) noexcept
 {
-  using VoidCache = KernelArgCache<void>;
-  VoidCache::printValue<KernelArgCache>(indent, "value", output);
+  using VoidCacheT = KernelArgCache<void>;
+  VoidCacheT::printValue<KernelArgCache>(indent, "value", output);
   (*output) << std::endl;
 }
 #endif // ZIVC_PRINT_CACHE_TREE
@@ -578,9 +578,9 @@ void KernelArgCache<Buffer<Type>&, Types...>::printTree(
     const std::size_t indent,
     std::ostream* output) noexcept
 {
-  using VoidCache = KernelArgCache<void>;
+  using VoidCacheT = KernelArgCache<void>;
   PrecedenceCacheT::printTree(indent, output);
-  VoidCache::printValue<BufferP>(indent, "buffer", output);
+  VoidCacheT::printValue<BufferP>(indent, "buffer", output);
   (*output) << std::endl;
 }
 #endif // ZIVC_PRINT_CACHE_TREE
@@ -693,8 +693,8 @@ void KernelArgCache<Buffer<Type>&>::printTree(
     const std::size_t indent,
     std::ostream* output) noexcept
 {
-  using VoidCache = KernelArgCache<void>;
-  VoidCache::printValue<BufferP>(indent, "buffer", output);
+  using VoidCacheT = KernelArgCache<void>;
+  VoidCacheT::printValue<BufferP>(indent, "buffer", output);
   (*output) << std::endl;
 }
 #endif // ZIVC_PRINT_CACHE_TREE

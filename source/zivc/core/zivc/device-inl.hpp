@@ -117,8 +117,8 @@ template <template<typename, typename...> typename Derived,
 auto Device::createDerivedKernel(const KernelInitParams<kDim, KSet, Args...>& params)
     -> SharedKernel<kDim, KSet, Args...>
 {
-  using Parser = KernelArgParser<Args...>;
-  using KernelT = typename Parser::template KernelT<Derived, kDim, KSet>;
+  using ParserT = KernelArgParser<Args...>;
+  using KernelT = typename ParserT::template KernelT<Derived, kDim, KSet>;
   using SharedKernelT = SharedKernel<kDim, KSet, Args...>;
   using WeakKernelT = WeakKernel<kDim, KSet, Args...>;
 

@@ -96,9 +96,9 @@ run(Args... args, const LaunchOptionsT& launch_options)
   // Command recording
   auto c = [this]() noexcept
   {
-    //runImpl<0, 0>();
-    constexpr std::size_t n = BaseKernelT::numOfArgs();
-    runImpl(std::make_index_sequence<n>{});
+    runImpl<0, 0>();
+//    constexpr std::size_t n = BaseKernelT::numOfArgs();
+//    runImpl(std::make_index_sequence<n>{});
   };
   using CommandT = decltype(c);
   static_assert(sizeof(CommandStorage) == sizeof(CommandT));
@@ -253,28 +253,28 @@ void
 CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 runImpl(Types&&... cl_args) noexcept
 {
-  using ArgParserT = typename BaseKernelT::ArgParser;
+  using ArgParserT = typename BaseKernelT::ArgParserT;
   if constexpr (kIndex < ArgParserT::kNumOfArgs) {
-    using CacheType = typename ArgCache::template CacheType<kIndex>;
-    using ArgType = std::remove_cv_t<std::remove_pointer_t<CacheType>>;
-    using ArgTypeInfo = KernelArgTypeInfo<ArgType>;
-    if constexpr (ArgTypeInfo::kIsLocal) { // Process a local argument
-      using ElementType = typename ArgTypeInfo::ElementType;
-      ElementType storage{};
+    using CacheT = typename ArgCache::template CacheT<kIndex>;
+    using ArgT = std::remove_cv_t<std::remove_pointer_t<CacheT>>;
+    using ArgTInfo = KernelArgTypeInfo<ArgT>;
+    if constexpr (ArgTInfo::kIsLocal) { // Process a local argument
+      using ElementT = typename ArgTInfo::ElementT;
+      ElementT storage{};
       auto data = std::addressof(storage);
-      cl::AddressSpacePointer<cl::AddressSpaceType::kLocal, ElementType> cl_arg{data};
+      cl::AddressSpacePointer<cl::AddressSpaceType::kLocal, ElementT> cl_arg{data};
       runImpl<kIndex + 1, kCacheIndex>(std::forward<Types>(cl_args)..., cl_arg);
     }
-    else if constexpr (ArgTypeInfo::kIsPod) { // Process a pod argument
+    else if constexpr (ArgTInfo::kIsPod) { // Process a pod argument
       auto cl_arg = arg_cache_.template get<kCacheIndex>();
       runImpl<kIndex + 1, kCacheIndex + 1>(std::forward<Types>(cl_args)..., cl_arg);
     }
     else { // Process a global argument
-      using ElementType = typename ArgTypeInfo::ElementType;
-      using PointerT = typename ArgType::Pointer;
+      using ElementT = typename ArgTInfo::ElementT;
+      using Pointer = typename ArgT::Pointer;
       BufferCommon* cache = arg_cache_.template get<kCacheIndex>();
-      auto data = zisc::cast<PointerT>(cache->rawBufferData());
-      cl::AddressSpacePointer<cl::AddressSpaceType::kGlobal, ElementType> cl_arg{data};
+      auto data = static_cast<Pointer>(cache->rawBufferData());
+      cl::AddressSpacePointer<cl::AddressSpaceType::kGlobal, ElementT> cl_arg{data};
       runImpl<kIndex + 1, kCacheIndex + 1>(std::forward<Types>(cl_args)..., cl_arg);
     }
   }

@@ -20,8 +20,6 @@
 #include <memory>
 #include <type_traits>
 #include <utility>
-// Zisc
-#include "zisc/non_copyable.hpp"
 // Zivc
 #include "zivc/zivc_config.hpp"
 

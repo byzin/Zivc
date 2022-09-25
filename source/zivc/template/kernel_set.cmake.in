@@ -404,7 +404,6 @@ function(Zivc_initVulkanBackend target)
   add_custom_target(${vulkan_backend_target}
     DEPENDS ${clspv_output_files}
     COMMENT "Preparing kernel set '@kernel_set_name@'")
-  list(APPEND sub_targets ${vulkan_backend_target})
 
   ## SPIR-V analysis
   if(ZIVC_ENABLE_SPIRV_ANALYSIS)
@@ -412,6 +411,8 @@ function(Zivc_initVulkanBackend target)
     Zivc_prepareSpirVAnalysis(${analysis_target} ${spv_org_file_path} ${spv_file_path})
     add_dependencies(${analysis_target} ${vulkan_backend_target})
     list(APPEND sub_targets ${analysis_target})
+  else()
+    list(APPEND sub_targets ${vulkan_backend_target})
   endif()
 
   ## Make a dependency with C++ backend

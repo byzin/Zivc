@@ -116,6 +116,9 @@ void Context::initialize(ContextOptions& options)
   // Clear the previous context data first 
   destroy();
 
+  capacity_for_kernels_per_device_ = options.capacityForKernelsPerDevice();
+  capacity_for_modules_per_device_ = options.capacityForModulesPerDevice();
+
   setMemoryResource(options.memoryResource());
   setDebugMode(options.debugModeEnabled());
   id_count_.store(0, std::memory_order::release);

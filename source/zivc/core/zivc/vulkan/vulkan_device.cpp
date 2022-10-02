@@ -23,9 +23,8 @@
 #include <iterator>
 #include <limits>
 #include <memory>
-#include <mutex>
 #include <numeric>
-#include <shared_mutex>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <tuple>
@@ -321,8 +320,9 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
     kernel_data->pipeline_layout_ = zisc::cast<VkPipelineLayout>(pline_layout);
     kernel_data->pipeline_ = zisc::cast<VkPipeline>(pline);
 
-    const std::unique_lock<std::shared_mutex> lock{shader_mutex_};
-    kernel_data_list_->emplace(id, std::move(kernel_data));
+    const std::optional<std::size_t> result = kernelDataList().add(id, std::move(kernel_data));
+    //! \todo Raise an exception
+    ZIVC_ASSERT(result.has_value(), "The kernel list overflowed.");
   }
   updateKernelDataDebugInfo(*data);
   return *data;
@@ -744,11 +744,11 @@ void VulkanDevice::destroyData() noexcept
     setFenceSize(0); // Destroy all fences
 
     // Kernel data
-    for (auto& kernel : *kernel_data_list_)
+    for (auto& kernel : kernelDataList())
       destroyShaderKernel(kernel.second.get());
 
     // Shader modules
-    for (auto& module : *module_data_list_)
+    for (auto& module : moduleDataList())
       destroyShaderModule(module.second.get());
 
     // Command pool
@@ -804,15 +804,17 @@ void VulkanDevice::initData()
   }
   {
     using ShaderModuleListT = decltype(module_data_list_)::element_type;
-    const ShaderModuleListT::allocator_type alloc{mem_resource};
+    const std::size_t cap = parentImpl().capacityForModulesPerDevice();
     module_data_list_ = zisc::pmr::allocateUnique<ShaderModuleListT>(mem_resource,
-                                                                     ShaderModuleListT{alloc});
+                                                                     cap,
+                                                                     mem_resource);
   }
   {
     using KernelDataListT = decltype(kernel_data_list_)::element_type;
-    const KernelDataListT::allocator_type alloc{mem_resource};
+    const std::size_t cap = parentImpl().capacityForKernelsPerDevice();
     kernel_data_list_ = zisc::pmr::allocateUnique<KernelDataListT>(mem_resource,
-                                                                   KernelDataListT{alloc});
+                                                                   cap,
+                                                                   mem_resource);
   }
 
   initCapability();
@@ -883,10 +885,10 @@ void VulkanDevice::updateDebugInfoImpl()
   for (std::size_t i = 0; i < fence_list_->size(); ++i)
     updateFenceDebugInfo(i);
   // Shader modules
-  for (const auto& module : *module_data_list_)
+  for (const auto& module : moduleDataList())
     updateShaderModuleDebugInfo(*module.second);
   // Kernel data
-  for (const auto& kernel : *kernel_data_list_)
+  for (const auto& kernel : kernelDataList())
     updateKernelDataDebugInfo(*kernel.second);
 }
 
@@ -988,8 +990,9 @@ auto VulkanDevice::addShaderModule(const uint64b id,
     module_data->name_ = module_name;
     module_data->module_ = zisc::cast<VkShaderModule>(module);
 
-    const std::unique_lock<std::shared_mutex> lock{shader_mutex_};
-    module_data_list_->emplace(id, std::move(module_data));
+    const std::optional<std::size_t> result = moduleDataList().add(id, std::move(module_data));
+    //! \todo Raise an exception
+    ZIVC_ASSERT(result.has_value(), "The module list overflowed.");
   }
   updateShaderModuleDebugInfo(*data);
   return *data;

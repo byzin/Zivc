@@ -340,11 +340,10 @@ void CpuBuffer<T>::prepareBuffer() noexcept
 {
   if (!buffer_data_) {
     auto mem_resource = Buffer<T>::memoryResource();
-    using BufferImplType = typename decltype(buffer_data_)::element_type;
-    typename BufferImplType::allocator_type alloc{mem_resource};
-    BufferImplType buffer{alloc};
-    buffer_data_ = zisc::pmr::allocateUnique<BufferImplType>(mem_resource,
-                                                             std::move(buffer));
+    using BufferImplTypeT = typename decltype(buffer_data_)::element_type;
+    typename BufferImplTypeT::allocator_type alloc{mem_resource};
+    buffer_data_ = zisc::pmr::allocateUnique<BufferImplTypeT>(mem_resource,
+                                                              BufferImplTypeT{alloc});
   }
 }
 

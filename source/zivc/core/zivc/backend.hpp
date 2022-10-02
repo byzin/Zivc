@@ -17,6 +17,7 @@
 
 // Standard C++ library
 #include <atomic>
+#include <cstddef>
 #include <memory>
 #include <span>
 #include <vector>
@@ -54,6 +55,12 @@ class Backend : public ZivcObject
   //! Finalize the backend
   ~Backend() noexcept override;
 
+
+  //! Return the maximum possible number of kernels that can be created
+  std::size_t capacityForKernelsPerDevice() const noexcept;
+
+  //! Return the maximum possible number of modules that can be created
+  std::size_t capacityForModulesPerDevice() const noexcept;
 
   //! Return the underlying device info
   virtual const DeviceInfo& deviceInfo(const std::size_t index) const noexcept = 0;

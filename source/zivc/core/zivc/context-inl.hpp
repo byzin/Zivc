@@ -42,6 +42,28 @@ namespace zivc {
   \return No description
   */
 inline
+std::size_t Context::capacityForKernelsPerDevice() const noexcept
+{
+  return capacity_for_kernels_per_device_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+std::size_t Context::capacityForModulesPerDevice() const noexcept
+{
+  return capacity_for_modules_per_device_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
 std::span<const DeviceInfo* const> Context::deviceInfoList() const noexcept
 {
   return *device_info_list_;

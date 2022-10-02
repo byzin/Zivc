@@ -50,6 +50,8 @@ ContextOptions::ContextOptions(zisc::pmr::memory_resource* mem_resource) noexcep
     context_version_major_{0},
     context_version_minor_{0},
     context_version_patch_{0},
+    capacity_for_kernels_per_device{1024},
+    capacity_for_modules_per_device{1024},
     cpu_num_of_threads_{0},
     cpu_task_batch_size_{32},
     cpu_work_group_size_{4},
@@ -73,6 +75,8 @@ ContextOptions::ContextOptions(ContextOptions&& other) noexcept :
     context_version_major_{other.context_version_major_},
     context_version_minor_{other.context_version_minor_},
     context_version_patch_{other.context_version_patch_},
+    capacity_for_kernels_per_device{other.capacity_for_kernels_per_device},
+    capacity_for_modules_per_device{other.capacity_for_modules_per_device},
     cpu_num_of_threads_{other.cpu_num_of_threads_},
     cpu_task_batch_size_{other.cpu_task_batch_size_},
     cpu_work_group_size_{other.cpu_work_group_size_},
@@ -99,6 +103,8 @@ ContextOptions& ContextOptions::operator=(ContextOptions&& other) noexcept
   context_version_major_ = other.context_version_major_;
   context_version_minor_ = other.context_version_minor_;
   context_version_patch_ = other.context_version_patch_;
+  capacity_for_kernels_per_device = other.capacity_for_kernels_per_device;
+  capacity_for_modules_per_device = other.capacity_for_modules_per_device;
   cpu_num_of_threads_ = other.cpu_num_of_threads_;
   cpu_task_batch_size_ = other.cpu_task_batch_size_;
   cpu_work_group_size_ = other.cpu_work_group_size_;
@@ -108,6 +114,73 @@ ContextOptions& ContextOptions::operator=(ContextOptions&& other) noexcept
   vulkan_instance_ptr_ = other.vulkan_instance_ptr_;
   vulkan_get_proc_addr_ptr_ = other.vulkan_get_proc_addr_ptr_;
   return *this;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+uint32b ContextOptions::capacityForKernelsPerDevice() const noexcept
+{
+  return capacity_for_kernels_per_device;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+uint32b ContextOptions::capacityForModulesPerDevice() const noexcept
+{
+  return capacity_for_modules_per_device;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+std::string_view ContextOptions::contextName() const noexcept
+{
+  const std::string_view name{context_name_.data()};
+  return name;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+uint32b ContextOptions::contextVersionMajor() const noexcept
+{
+  return context_version_major_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+uint32b ContextOptions::contextVersionMinor() const noexcept
+{
+  return context_version_minor_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+uint32b ContextOptions::contextVersionPatch() const noexcept
+{
+  return context_version_patch_;
 }
 
 /*!
@@ -141,6 +214,17 @@ inline
 uint32b ContextOptions::cpuWorkGroupSize() const noexcept
 {
   return cpu_work_group_size_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+bool ContextOptions::debugModeEnabled() const noexcept
+{
+  return static_cast<bool>(debug_mode_enabled_);
 }
 
 /*!
@@ -203,101 +287,23 @@ const zisc::pmr::memory_resource* ContextOptions::memoryResource() const noexcep
 /*!
   \details No detailed description
 
-  \return No description
+  \param [in] cap No description.
   */
 inline
-std::string_view ContextOptions::contextName() const noexcept
+void ContextOptions::setCapacityForKernelsPerDevice(const uint32b cap) noexcept
 {
-  const std::string_view name{context_name_.data()};
-  return name;
+  capacity_for_kernels_per_device = (std::max)(cap, 1u);
 }
 
 /*!
   \details No detailed description
 
-  \return No description
+  \param [in] cap No description.
   */
 inline
-uint32b ContextOptions::contextVersionMajor() const noexcept
+void ContextOptions::setCapacityForModulesPerDevice(const uint32b cap) noexcept
 {
-  return context_version_major_;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-inline
-uint32b ContextOptions::contextVersionMinor() const noexcept
-{
-  return context_version_minor_;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-inline
-uint32b ContextOptions::contextVersionPatch() const noexcept
-{
-  return context_version_patch_;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-inline
-bool ContextOptions::debugModeEnabled() const noexcept
-{
-  return static_cast<bool>(debug_mode_enabled_);
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] num_of_threads No description.
-  */
-inline
-void ContextOptions::setCpuNumOfThreads(const uint32b num_of_threads) noexcept
-{
-  cpu_num_of_threads_ = num_of_threads;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] task_batch_size No description.
-  */
-inline
-void ContextOptions::setCpuTaskBatchSize(const uint32b task_batch_size) noexcept
-{
-  cpu_task_batch_size_ = task_batch_size;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] work_group_size No description.
-  */
-inline
-void ContextOptions::setCpuWorkGroupSize(const uint32b work_group_size) noexcept
-{
-  cpu_work_group_size_ = work_group_size;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in,out] mem_resource No description.
-  */
-inline
-void ContextOptions::setMemoryResource(zisc::pmr::memory_resource* mem_resource) noexcept
-{
-  mem_resource_ = mem_resource;
+  capacity_for_modules_per_device = (std::max)(cap, 1u);
 }
 
 /*!
@@ -342,6 +348,50 @@ inline
 void ContextOptions::setContextVersionPatch(const uint32b patch) noexcept
 {
   context_version_patch_ = patch;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] num_of_threads No description.
+  */
+inline
+void ContextOptions::setCpuNumOfThreads(const uint32b num_of_threads) noexcept
+{
+  cpu_num_of_threads_ = num_of_threads;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] task_batch_size No description.
+  */
+inline
+void ContextOptions::setCpuTaskBatchSize(const uint32b task_batch_size) noexcept
+{
+  cpu_task_batch_size_ = task_batch_size;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] work_group_size No description.
+  */
+inline
+void ContextOptions::setCpuWorkGroupSize(const uint32b work_group_size) noexcept
+{
+  cpu_work_group_size_ = work_group_size;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in,out] mem_resource No description.
+  */
+inline
+void ContextOptions::setMemoryResource(zisc::pmr::memory_resource* mem_resource) noexcept
+{
+  mem_resource_ = mem_resource;
 }
 
 /*!

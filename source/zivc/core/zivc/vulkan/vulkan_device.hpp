@@ -22,11 +22,12 @@
 #include <map>
 #include <memory>
 #include <span>
-#include <shared_mutex>
 #include <string_view>
 // Zisc
 #include "zisc/memory/memory.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
+#include "zisc/structure/map.hpp"
+#include "zisc/structure/mutex_bst.hpp"
 #include "zisc/structure/queue.hpp"
 #include "zisc/structure/scalable_circular_queue.hpp"
 // Zivc
@@ -302,6 +303,10 @@ class VulkanDevice : public Device
   using IndexQueueImplT = zisc::ScalableCircularQueue<std::size_t>;
   using IndexQueueT = zisc::Queue<IndexQueueImplT, std::size_t>;
   static_assert(IndexQueueT::isConcurrent(), "The queue must be concurrent.");
+  template <typename DataT>
+  using ShaderMapImplT = zisc::MutexBst<uint64b, DataT>;
+  template <typename DataT>
+  using ShaderMapT = zisc::Map<ShaderMapImplT<DataT>, uint64b, DataT>;
   using UniqueModuleDataT = zisc::pmr::unique_ptr<ModuleData>;
   using UniqueKernelDataT = zisc::pmr::unique_ptr<KernelData>;
 
@@ -374,6 +379,18 @@ class VulkanDevice : public Device
   //! Initialize a vulkan memory allocator
   void initMemoryAllocator();
 
+  //! Return the underlying shader kernel data list
+  ShaderMapT<UniqueKernelDataT>& kernelDataList() noexcept;
+
+  //! Return the underlying shader kernel data list
+  const ShaderMapT<UniqueKernelDataT>& kernelDataList() const noexcept;
+
+  //! Return the underlying shader module data list
+  ShaderMapT<UniqueModuleDataT>& moduleDataList() noexcept;
+
+  //! Return the underlying shader module data list
+  const ShaderMapT<UniqueModuleDataT>& moduleDataList() const noexcept;
+
   //! Return the number of supported capabilities
   static constexpr std::size_t numOfCapabilities() noexcept;
 
@@ -396,7 +413,6 @@ class VulkanDevice : public Device
   void updateShaderModuleDebugInfo(const ModuleData& module);
 
 
-  mutable std::shared_mutex shader_mutex_;
   VkDevice device_ = ZIVC_VK_NULL_HANDLE;
   VmaAllocator vm_allocator_ = ZIVC_VK_NULL_HANDLE;
   VkCommandPool command_pool_ = ZIVC_VK_NULL_HANDLE;
@@ -405,8 +421,8 @@ class VulkanDevice : public Device
   ZivcObject::UniqueVectorT<VkQueue> queue_list_;
   ZivcObject::UniqueVectorT<zisc::Memory::Usage> heap_usage_list_;
   zisc::pmr::unique_ptr<VulkanDispatchLoader> dispatcher_;
-  ZivcObject::UniqueMapT<uint64b, UniqueModuleDataT> module_data_list_;
-  ZivcObject::UniqueMapT<uint64b, UniqueKernelDataT> kernel_data_list_;
+  zisc::pmr::unique_ptr<ShaderMapImplT<UniqueModuleDataT>> module_data_list_;
+  zisc::pmr::unique_ptr<ShaderMapImplT<UniqueKernelDataT>> kernel_data_list_;
   std::array<uint32b, kNumOfCapabilities> queue_family_index_list_;
   std::array<uint32b, kNumOfCapabilities> queue_count_list_;
   std::array<uint32b, kNumOfCapabilities> queue_offset_list_;

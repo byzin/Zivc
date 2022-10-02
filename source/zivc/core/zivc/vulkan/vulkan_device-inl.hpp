@@ -21,14 +21,14 @@
 #include <array>
 #include <limits>
 #include <memory>
-#include <mutex>
-#include <shared_mutex>
+#include <optional>
 #include <string_view>
 #include <type_traits>
 #include <vector>
 // Zisc
 #include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
+#include "zisc/structure/map.hpp"
 #include "zisc/structure/queue.hpp"
 // Zivc
 #include "vulkan_backend.hpp"
@@ -176,14 +176,10 @@ const VkQueue& VulkanDevice::getQueue(const CapabilityT cap,
 inline
 auto VulkanDevice::getShaderKernel(const uint64b id) const noexcept -> const KernelData&
 {
-  ZIVC_ASSERT(hasShaderKernel(id), "Kernel data not found. id = ", id);
-  const KernelData* data = nullptr;
-  {
-    std::shared_lock<std::shared_mutex> lock{shader_mutex_};
-    auto kernel = kernel_data_list_->find(id);
-    data = kernel->second.get();
-  }
-  return *data;
+  const std::optional<std::size_t> index = kernelDataList().contain(id);
+  ZIVC_ASSERT(index.has_value(), "Kernel data not found. id = ", id);
+  const KernelData& data = *kernelDataList().get(*index).second;
+  return data;
 }
 
 /*!
@@ -195,14 +191,10 @@ auto VulkanDevice::getShaderKernel(const uint64b id) const noexcept -> const Ker
 inline
 auto VulkanDevice::getShaderModule(const uint64b id) const noexcept -> const ModuleData&
 {
-  ZIVC_ASSERT(hasShaderModule(id), "Shader module not found. id = ", id);
-  const ModuleData* data = nullptr;
-  {
-    std::shared_lock<std::shared_mutex> lock{shader_mutex_};
-    auto module = module_data_list_->find(id);
-    data = module->second.get();
-  }
-  return *data;
+  const std::optional<std::size_t> index = moduleDataList().contain(id);
+  ZIVC_ASSERT(index.has_value(), "Shader module not found. id = ", id);
+  const ModuleData& data = *moduleDataList().get(*index).second;
+  return data;
 }
 
 /*!
@@ -228,13 +220,8 @@ bool VulkanDevice::hasCapability(const CapabilityT cap) const noexcept
 inline
 bool VulkanDevice::hasShaderKernel(const uint64b id) const noexcept
 {
-  bool result = false;
-  {
-    std::shared_lock<std::shared_mutex> lock{shader_mutex_};
-    auto kernel = kernel_data_list_->find(id);
-    result = kernel != kernel_data_list_->end();
-  }
-  return result;
+  const std::optional<std::size_t> result = kernelDataList().contain(id);
+  return result.has_value();
 }
 
 /*!
@@ -246,13 +233,8 @@ bool VulkanDevice::hasShaderKernel(const uint64b id) const noexcept
 inline
 bool VulkanDevice::hasShaderModule(const uint64b id) const noexcept
 {
-  bool result = false;
-  {
-    std::shared_lock<std::shared_mutex> lock{shader_mutex_};
-    auto module = module_data_list_->find(id);
-    result = module != module_data_list_->end();
-  }
-  return result;
+  const std::optional<std::size_t> result = moduleDataList().contain(id);
+  return result.has_value();
 }
 
 /*!
@@ -433,6 +415,54 @@ const VulkanBackend& VulkanDevice::parentImpl() const noexcept
 {
   const auto p = getParent();
   return *static_cast<const VulkanBackend*>(p);
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+auto VulkanDevice::kernelDataList() noexcept
+    -> ShaderMapT<UniqueKernelDataT>&
+{
+  return *kernel_data_list_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+auto VulkanDevice::kernelDataList() const noexcept
+    -> const ShaderMapT<UniqueKernelDataT>&
+{
+  return *kernel_data_list_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+auto VulkanDevice::moduleDataList() noexcept
+    -> ShaderMapT<UniqueModuleDataT>&
+{
+  return *module_data_list_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+auto VulkanDevice::moduleDataList() const noexcept
+    -> const ShaderMapT<UniqueModuleDataT>&
+{
+  return *module_data_list_;
 }
 
 /*!

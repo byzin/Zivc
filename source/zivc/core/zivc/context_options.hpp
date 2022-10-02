@@ -50,6 +50,24 @@ class ContextOptions : private zisc::NonCopyable<ContextOptions>
   ContextOptions& operator=(ContextOptions&& other) noexcept;
 
 
+  //! Return the maximum possible number of shader kernels that can be created
+  uint32b capacityForKernelsPerDevice() const noexcept;
+
+  //! Return the maximum possible number of shader modules that can be created
+  uint32b capacityForModulesPerDevice() const noexcept;
+
+  //! Return the context name
+  std::string_view contextName() const noexcept;
+
+  //! Return the value of the major component of the context version number
+  uint32b contextVersionMajor() const noexcept;
+
+  //! Return the value of the minor component of the context version number
+  uint32b contextVersionMinor() const noexcept;
+
+  //! Return the value of the patch component of the context version number
+  uint32b contextVersionPatch() const noexcept;
+
   //! Return the number of thread for kernel execution
   uint32b cpuNumOfThreads() const noexcept;
 
@@ -58,6 +76,9 @@ class ContextOptions : private zisc::NonCopyable<ContextOptions>
 
   //! Return the work group size for cpu backend
   uint32b cpuWorkGroupSize() const noexcept;
+
+  //! Check whether the debug mode is enabled
+  bool debugModeEnabled() const noexcept;
 
   //! Enable the debug mode
   void enableDebugMode(const bool debug_mode_enabled) noexcept;
@@ -74,32 +95,11 @@ class ContextOptions : private zisc::NonCopyable<ContextOptions>
   //! Return the underlying memory resource
   const zisc::pmr::memory_resource* memoryResource() const noexcept;
 
-  //! Return the context name
-  std::string_view contextName() const noexcept;
+  //! Set the maximum possible number of shader kernels that can be created
+  void setCapacityForKernelsPerDevice(const uint32b cap) noexcept;
 
-  //! Return the value of the major component of the context version number
-  uint32b contextVersionMajor() const noexcept;
-
-  //! Return the value of the minor component of the context version number
-  uint32b contextVersionMinor() const noexcept;
-
-  //! Return the value of the patch component of the context version number
-  uint32b contextVersionPatch() const noexcept;
-
-  //! Check whether the debug mode is enabled
-  bool debugModeEnabled() const noexcept;
-
-  //! Set the number of threads for kernel execution
-  void setCpuNumOfThreads(const uint32b num_of_threads) noexcept;
-
-  //! Set the task batch size per thread
-  void setCpuTaskBatchSize(const uint32b task_batch_size) noexcept;
-
-  //! Set the work group size for cpu backend
-  void setCpuWorkGroupSize(const uint32b work_group_size) noexcept;
-
-  //! Set memory resource for Zivc
-  void setMemoryResource(zisc::pmr::memory_resource* mem_resource) noexcept;
+  //! Set the maximum possible number of shader modules that can be created
+  void setCapacityForModulesPerDevice(const uint32b cap) noexcept;
 
   //! Set the context name
   void setContextName(std::string_view name) noexcept;
@@ -112,6 +112,18 @@ class ContextOptions : private zisc::NonCopyable<ContextOptions>
 
   //! Set the value of the patch component of the context version number
   void setContextVersionPatch(const uint32b patch) noexcept;
+
+  //! Set the number of threads for kernel execution
+  void setCpuNumOfThreads(const uint32b num_of_threads) noexcept;
+
+  //! Set the task batch size per thread
+  void setCpuTaskBatchSize(const uint32b task_batch_size) noexcept;
+
+  //! Set the work group size for cpu backend
+  void setCpuWorkGroupSize(const uint32b work_group_size) noexcept;
+
+  //! Set memory resource for Zivc
+  void setMemoryResource(zisc::pmr::memory_resource* mem_resource) noexcept;
 
   //! Set a ptr of a VkInstance object which is used instead of internal instance
   void setVulkanInstancePtr(void* instance_ptr) noexcept;
@@ -148,9 +160,11 @@ class ContextOptions : private zisc::NonCopyable<ContextOptions>
   uint32b context_version_major_;
   uint32b context_version_minor_;
   uint32b context_version_patch_;
-  uint32b cpu_num_of_threads_ = 0;
-  uint32b cpu_task_batch_size_ = 32;
-  uint32b cpu_work_group_size_ = 4;
+  uint32b capacity_for_kernels_per_device;
+  uint32b capacity_for_modules_per_device;
+  uint32b cpu_num_of_threads_;
+  uint32b cpu_task_batch_size_;
+  uint32b cpu_work_group_size_;
   zisc::Boolean debug_mode_enabled_; //!< Enable debugging in Zivc
   zisc::Boolean vulkan_backend_enabled_;
   zisc::Boolean vulkan_wsi_extension_enabled_;

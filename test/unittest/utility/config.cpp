@@ -132,6 +132,8 @@ zivc::SharedContext Config::queryContext() noexcept
     const zisc::pmr::polymorphic_allocator<zivc::Context> alloc{memoryResource()};
     zivc::ContextOptions options{memoryResource()};
     options.setContextName("UnitTest");
+    options.setCapacityForModulesPerDevice(2048);
+    options.setCapacityForKernelsPerDevice(4096);
     options.setContextVersionMajor(zivc::Config::versionMajor());
     options.setContextVersionMinor(zivc::Config::versionMinor());
     options.setContextVersionPatch(zivc::Config::versionPatch());

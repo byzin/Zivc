@@ -30,6 +30,11 @@
 #include "utility/googletest.hpp"
 #include "utility/test.hpp"
 
+// Check if vulkan.hpp isn't visible from user
+#if defined(VULKAN_HPP)
+static_assert(false, "vulkan.hpp is visible from user.");
+#endif // VULKAN_HPP
+
 #define ZIVC_CHECK_TYPE_SIZE(type, expected_size) \
   static_assert(sizeof( type ) == ( expected_size ), \
                 "The size of '" #type "' isn't correct."); \
@@ -52,12 +57,18 @@ TEST(ContextTest, InitializationTest)
   ASSERT_TRUE(context) << "Context isn't available.";
   // Check if context has backend
   const auto& config = ztest::Config::globalConfig();
-  const auto type = (config.deviceId() == 0) ? zivc::BackendType::kCpu
-                                             : zivc::BackendType::kVulkan;
+  const zivc::BackendType type = (config.deviceId() == 0) ? zivc::BackendType::kCpu
+                                                          : zivc::BackendType::kVulkan;
   ASSERT_TRUE(context->hasBackend(type)) << "Context initialization failed.";
   // Check if context has the memory resource
   ASSERT_EQ(config.memoryResource(), context->memoryResource())
       << "Context doesn't have memory resource.";
+  // Check capacity for kernels
+  const zivc::Backend* backend = context->backend(type);
+  ASSERT_EQ(2048, backend->capacityForModulesPerDevice())
+        << "Capacity for modules isn't set correctly.";
+  ASSERT_EQ(4096, backend->capacityForKernelsPerDevice())
+        << "Capacity for kernels isn't set correctly.";
 }
 
 TEST(ContextTest, DeviceInfoTest)

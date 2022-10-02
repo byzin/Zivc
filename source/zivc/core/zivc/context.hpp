@@ -67,6 +67,12 @@ class Context : private zisc::NonCopyable<Context>
   Context& operator=(Context&& other) noexcept;
 
 
+  //! Return the maximum possible number of kernels that can be created
+  std::size_t capacityForKernelsPerDevice() const noexcept;
+
+  //! Return the maximum possible number of modules that can be created
+  std::size_t capacityForModulesPerDevice() const noexcept;
+
   //! Destroy the context
   void destroy() noexcept;
 
@@ -142,6 +148,8 @@ class Context : private zisc::NonCopyable<Context>
   ZivcObject::UniqueVectorT<WeakDevice> device_list_;
   ZivcObject::UniqueVectorT<const DeviceInfo*> device_info_list_;
   std::atomic<int64b> id_count_ = 0;
+  uint32b capacity_for_kernels_per_device_ = 0;
+  uint32b capacity_for_modules_per_device_ = 0;
   zisc::Boolean is_debug_mode_;
   [[maybe_unused]] Padding<7> pad_;
 };

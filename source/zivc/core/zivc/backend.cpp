@@ -15,6 +15,7 @@
 #include "backend.hpp"
 // Standard C++ library
 #include <atomic>
+#include <cstddef>
 #include <memory>
 #include <utility>
 // Zisc
@@ -41,6 +42,26 @@ Backend::Backend(Context* context) noexcept :
   */
 Backend::~Backend() noexcept
 {
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+std::size_t Backend::capacityForKernelsPerDevice() const noexcept
+{
+  return context_->capacityForKernelsPerDevice();
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+std::size_t Backend::capacityForModulesPerDevice() const noexcept
+{
+  return context_->capacityForModulesPerDevice();
 }
 
 /*!

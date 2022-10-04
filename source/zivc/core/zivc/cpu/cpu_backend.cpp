@@ -143,7 +143,6 @@ void CpuBackend::updateDeviceInfo()
 void CpuBackend::destroyData() noexcept
 {
   task_batch_size_ = 0;
-  work_group_size_ = 0;
   thread_manager_.reset();
   device_info_.reset();
 }
@@ -159,7 +158,8 @@ void CpuBackend::initData(ContextOptions& options)
   // Init device info
   {
     const zisc::pmr::polymorphic_allocator<CpuDeviceInfo> alloc{mem_resource};
-    device_info_ = zisc::pmr::allocateUnique<CpuDeviceInfo>(alloc, mem_resource);
+    device_info_ = zisc::pmr::allocateUnique<CpuDeviceInfo>(alloc,
+                                                            mem_resource);
   }
   // Init the thread manager
   {
@@ -170,15 +170,10 @@ void CpuBackend::initData(ContextOptions& options)
   }
   // Init batch size
   {
-    constexpr uint32b max_batch_size = maxTaskBatchSize();
+    constexpr uint32b min_size = CpuDeviceInfo::maxWorkGroupSize();
+    constexpr uint32b max_size = maxTaskBatchSize();
     task_batch_size_ = std::bit_ceil(options.cpuTaskBatchSize());
-    task_batch_size_ = zisc::clamp(task_batch_size_, 1U, max_batch_size);
-  }
-  // Work group size
-  {
-    constexpr uint32b max_group_size = maxWorkGroupSize();
-    work_group_size_ = std::bit_ceil(options.cpuWorkGroupSize());
-    work_group_size_ = zisc::clamp(work_group_size_, 1U, max_group_size);
+    task_batch_size_ = zisc::clamp(task_batch_size_, min_size, max_size);
   }
 }
 

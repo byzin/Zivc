@@ -74,9 +74,6 @@ class ContextOptions : private zisc::NonCopyable<ContextOptions>
   //! Return the task batch size per thread
   uint32b cpuTaskBatchSize() const noexcept;
 
-  //! Return the work group size for cpu backend
-  uint32b cpuWorkGroupSize() const noexcept;
-
   //! Check whether the debug mode is enabled
   bool debugModeEnabled() const noexcept;
 
@@ -118,9 +115,6 @@ class ContextOptions : private zisc::NonCopyable<ContextOptions>
 
   //! Set the task batch size per thread
   void setCpuTaskBatchSize(const uint32b task_batch_size) noexcept;
-
-  //! Set the work group size for cpu backend
-  void setCpuWorkGroupSize(const uint32b work_group_size) noexcept;
 
   //! Set memory resource for Zivc
   void setMemoryResource(zisc::pmr::memory_resource* mem_resource) noexcept;
@@ -164,11 +158,10 @@ class ContextOptions : private zisc::NonCopyable<ContextOptions>
   uint32b capacity_for_modules_per_device;
   uint32b cpu_num_of_threads_;
   uint32b cpu_task_batch_size_;
-  uint32b cpu_work_group_size_;
   zisc::Boolean debug_mode_enabled_; //!< Enable debugging in Zivc
   zisc::Boolean vulkan_backend_enabled_;
   zisc::Boolean vulkan_wsi_extension_enabled_;
-  [[maybe_unused]] Padding<5> pad_;
+  [[maybe_unused]] Padding<1> pad_;
   void* vulkan_instance_ptr_ = nullptr;
   void* vulkan_get_proc_addr_ptr_ = nullptr;
 };

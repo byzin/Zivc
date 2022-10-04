@@ -68,6 +68,9 @@ class CpuDeviceInfo : public DeviceInfo
   //! Return the maximum work group count
   std::array<uint32b, 3> maxWorkGroupCount() const noexcept override;
 
+  //! Return the maximum possible work group size
+  static constexpr uint32b maxWorkGroupSize() noexcept;
+
   //! Return the memory stats of the device
   const MemoryStatsT& memoryStats() const noexcept;
 
@@ -97,5 +100,7 @@ class CpuDeviceInfo : public DeviceInfo
 };
 
 } // namespace zivc
+
+#include "cpu_device_info-inl.hpp"
 
 #endif // ZIVC_CPU_DEVICE_INFO_HPP

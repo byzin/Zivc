@@ -86,26 +86,42 @@ class CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   void updateDebugInfoImpl() override;
 
  private:
+  //! Command object for kernel execution
+  struct Command
+  {
+    //! Exec the underlying kernel
+    void operator()() noexcept;
+
+    CpuKernel* kernel_ = nullptr;
+  };
+
+
   //! Make a struct of arg cache
   template <typename Type, typename ...Types, typename ...ArgTypes>
-  static auto makeArgCacheType(const KernelArgCache<ArgTypes...>& cache) noexcept;
+  static auto makeArgCacheT(const KernelArgCache<ArgTypes...>& cache) noexcept;
 
 
   // Storage types
-  using ArgCache = decltype(makeArgCacheType<Args...>(KernelArgCache<void>{}));
-  using CommandStorage = std::aligned_storage_t<
+  using ArgCacheT = decltype(makeArgCacheT<Args...>(KernelArgCache<void>{}));
+  using CommandStorageT = std::aligned_storage_t<
       sizeof(void*),
       std::alignment_of_v<void*>>;
-  using AtomicStorage = std::aligned_storage_t<
+  using AtomicStorageT = std::aligned_storage_t<
       sizeof(std::atomic<uint32b>),
       std::alignment_of_v<std::atomic<uint32b>>>;
 
 
   //! Return the memory for command
-  AtomicStorage* atomicStorage() noexcept;
+  AtomicStorageT* atomicStorage() noexcept;
 
   //! Return the memory for command
-  CommandStorage* commandStorage() noexcept;
+  CommandStorageT* commandStorage() noexcept;
+
+  //! Create a command for a kernel submission
+  Command* createCommand() noexcept;
+
+  //! Create an ID counter for a kernel submission
+  std::atomic<uint32b>* createIdCounter() noexcept;
 
   //! Return the device
   CpuDevice& parentImpl() noexcept;
@@ -118,8 +134,8 @@ class CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   void runImpl(Types&&... cl_args) noexcept;
 
   //! Run the underlying kernel
-  template <typename I, I... indices>
-  void runImpl(const std::integer_sequence<I, indices...> index_seq) noexcept;
+  template <std::size_t... indices>
+  void runImpl(const std::index_sequence<indices...> index_seq) noexcept;
 
   //! Update arg cache
   template <std::size_t kIndex, KernelArg Type, typename ...Types>
@@ -131,9 +147,9 @@ class CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
 
 
   FunctionT kernel_ = nullptr;
-  ArgCache arg_cache_;
-  CommandStorage command_storage_;
-  AtomicStorage atomic_storage_;
+  ArgCacheT arg_cache_;
+  CommandStorageT command_storage_;
+  AtomicStorageT atomic_storage_;
   [[maybe_unused]] uint32b padding_;
 };
 

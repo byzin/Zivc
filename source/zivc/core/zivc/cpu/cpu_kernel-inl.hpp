@@ -93,21 +93,8 @@ LaunchResult CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 run(Args... args, const LaunchOptionsT& launch_options)
 {
   updateArgCache<0>(args...);
-  // Command recording
-  auto c = [this]() noexcept
-  {
-    runImpl<0, 0>();
-//    constexpr std::size_t n = BaseKernelT::numOfArgs();
-//    runImpl(std::make_index_sequence<n>{});
-  };
-  using CommandT = decltype(c);
-  static_assert(sizeof(CommandStorage) == sizeof(CommandT));
-  static_assert(std::alignment_of_v<CommandStorage> == std::alignment_of_v<CommandT>);
-  auto* command_mem = zisc::cast<void*>(commandStorage());
-  CommandT* command = ::new (command_mem) CommandT{c};
-  // id counter
-  auto atomic_mem = zisc::cast<void*>(atomicStorage());
-  std::atomic<uint32b>* id = ::new (atomic_mem) std::atomic<uint32b>{0};
+  Command* command = createCommand(); // Command recording
+  std::atomic<uint32b>* id = createIdCounter();
 
   LaunchResult result{};
   CpuDevice& device = parentImpl();
@@ -115,9 +102,10 @@ run(Args... args, const LaunchOptionsT& launch_options)
   {
     Fence& fence = result.fence();
     fence.setDevice(launch_options.isFenceRequested() ? &device : nullptr);
-    constexpr uint32b dim = BaseKernelT::dimension();
-    const auto work_size = BaseKernelT::expandWorkSize(launch_options.workSize(), 1);
-    const auto id_offset = BaseKernelT::expandWorkSize(launch_options.globalIdOffset(), 0);
+    using BaseT = BaseKernelT;
+    constexpr uint32b dim = BaseT::dimension();
+    const auto work_size = BaseT::expandWorkSize(launch_options.workSize(), 1);
+    const auto id_offset = BaseT::expandWorkSize(launch_options.globalIdOffset(), 0);
     device.submit(*command, dim, work_size, id_offset, id, std::addressof(fence));
   }
   result.setAsync(true);
@@ -160,6 +148,19 @@ updateDebugInfoImpl()
 
 /*!
   \details No detailed description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+inline
+void CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::Command::
+operator()() noexcept
+{
+  kernel_->runImpl<0, 0>();
+//    constexpr std::size_t n = BaseKernelT::numOfArgs();
+//    runImpl(std::make_index_sequence<n>{});
+}
+
+/*!
+  \details No detailed description
 
   \tparam Type No description.
   \tparam Types No description.
@@ -170,12 +171,12 @@ updateDebugInfoImpl()
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 template <typename Type, typename ...Types, typename ...ArgTypes> inline
 auto CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-makeArgCacheType(const KernelArgCache<ArgTypes...>& cache) noexcept
+makeArgCacheT(const KernelArgCache<ArgTypes...>& cache) noexcept
 {
   constexpr std::size_t num_of_args = sizeof...(Types) + 1;
   auto precedence = concatArgCache<Type>(cache);
   if constexpr (1 < num_of_args) {
-    return makeArgCacheType<Types...>(precedence);
+    return makeArgCacheT<Types...>(precedence);
   }
   else {
     return precedence;
@@ -189,9 +190,8 @@ makeArgCacheType(const KernelArgCache<ArgTypes...>& cache) noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-auto
-CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-atomicStorage() noexcept -> AtomicStorage*
+auto CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+atomicStorage() noexcept -> AtomicStorageT*
 {
   return std::addressof(atomic_storage_);
 }
@@ -203,9 +203,8 @@ atomicStorage() noexcept -> AtomicStorage*
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-auto
-CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-commandStorage() noexcept -> CommandStorage*
+auto CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+commandStorage() noexcept -> CommandStorageT*
 {
   return std::addressof(command_storage_);
 }
@@ -217,8 +216,45 @@ commandStorage() noexcept -> CommandStorage*
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-CpuDevice&
-CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+auto CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+createCommand() noexcept -> Command*
+{
+  // Command recording
+  // To guarantee that the command is alive while kernel execution,
+  // create the command using the member storage
+  static_assert(sizeof(CommandStorageT) == sizeof(Command));
+  static_assert(std::alignment_of_v<CommandStorageT> == std::alignment_of_v<Command>);
+  auto* memory = static_cast<void*>(commandStorage());
+  Command* command = ::new (memory) Command{{this}};
+
+  return command;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+inline
+std::atomic<uint32b>* CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+createIdCounter() noexcept
+{
+  // To guarantee that the counter is alive while kernel execution,
+  // create the counter using the member storage
+  auto* memory = zisc::cast<void*>(atomicStorage());
+  std::atomic<uint32b>* id = ::new (memory) std::atomic<uint32b>{0};
+  return id;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+inline
+CpuDevice& CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 parentImpl() noexcept
 {
   auto p = BaseKernelT::getParent();
@@ -232,8 +268,7 @@ parentImpl() noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
-const CpuDevice&
-CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+const CpuDevice& CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 parentImpl() const noexcept
 {
   const auto p = BaseKernelT::getParent();
@@ -249,13 +284,12 @@ parentImpl() const noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 template <std::size_t kIndex, std::size_t kCacheIndex, typename ...Types> inline
-void
-CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+void CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 runImpl(Types&&... cl_args) noexcept
 {
   using ArgParserT = typename BaseKernelT::ArgParserT;
   if constexpr (kIndex < ArgParserT::kNumOfArgs) {
-    using CacheT = typename ArgCache::template CacheT<kIndex>;
+    using CacheT = typename ArgCacheT::template CacheT<kIndex>;
     using ArgT = std::remove_cv_t<std::remove_pointer_t<CacheT>>;
     using ArgTInfo = KernelArgTypeInfo<ArgT>;
     if constexpr (ArgTInfo::kIsLocal) { // Process a local argument
@@ -285,9 +319,9 @@ runImpl(Types&&... cl_args) noexcept
 }
 
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-template <typename I, I... indices> inline
+template <std::size_t... indices> inline
 void CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-runImpl([[maybe_unused]] const std::integer_sequence<I, indices...> index_seq) noexcept
+runImpl(const std::index_sequence<indices...> index_seq) noexcept
 {
 }
 
@@ -302,8 +336,7 @@ runImpl([[maybe_unused]] const std::integer_sequence<I, indices...> index_seq) n
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 template <std::size_t kIndex, KernelArg Type, typename ...Types> inline
-void
-CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+void CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 updateArgCache(const Type value, Types&&... values) noexcept
 {
   constexpr std::size_t num_of_rest = sizeof...(Types);
@@ -323,8 +356,7 @@ updateArgCache(const Type value, Types&&... values) noexcept
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 template <std::size_t kIndex, KernelArg Type, typename ...Types> inline
-void
-CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+void CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 updateArgCache(Buffer<Type>& value, Types&&... values) noexcept
 {
   constexpr std::size_t num_of_rest = sizeof...(Types);

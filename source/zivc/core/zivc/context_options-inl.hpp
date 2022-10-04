@@ -54,7 +54,6 @@ ContextOptions::ContextOptions(zisc::pmr::memory_resource* mem_resource) noexcep
     capacity_for_modules_per_device{1024},
     cpu_num_of_threads_{0},
     cpu_task_batch_size_{32},
-    cpu_work_group_size_{4},
     vulkan_instance_ptr_{nullptr},
     vulkan_get_proc_addr_ptr_{nullptr}
 {
@@ -79,7 +78,6 @@ ContextOptions::ContextOptions(ContextOptions&& other) noexcept :
     capacity_for_modules_per_device{other.capacity_for_modules_per_device},
     cpu_num_of_threads_{other.cpu_num_of_threads_},
     cpu_task_batch_size_{other.cpu_task_batch_size_},
-    cpu_work_group_size_{other.cpu_work_group_size_},
     debug_mode_enabled_{other.debug_mode_enabled_},
     vulkan_backend_enabled_{other.vulkan_backend_enabled_},
     vulkan_wsi_extension_enabled_{other.vulkan_wsi_extension_enabled_},
@@ -107,7 +105,6 @@ ContextOptions& ContextOptions::operator=(ContextOptions&& other) noexcept
   capacity_for_modules_per_device = other.capacity_for_modules_per_device;
   cpu_num_of_threads_ = other.cpu_num_of_threads_;
   cpu_task_batch_size_ = other.cpu_task_batch_size_;
-  cpu_work_group_size_ = other.cpu_work_group_size_;
   debug_mode_enabled_ = other.debug_mode_enabled_;
   vulkan_backend_enabled_ = other.vulkan_backend_enabled_;
   vulkan_wsi_extension_enabled_ = other.vulkan_wsi_extension_enabled_;
@@ -203,17 +200,6 @@ inline
 uint32b ContextOptions::cpuTaskBatchSize() const noexcept
 {
   return cpu_task_batch_size_;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-inline
-uint32b ContextOptions::cpuWorkGroupSize() const noexcept
-{
-  return cpu_work_group_size_;
 }
 
 /*!
@@ -370,17 +356,6 @@ inline
 void ContextOptions::setCpuTaskBatchSize(const uint32b task_batch_size) noexcept
 {
   cpu_task_batch_size_ = task_batch_size;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] work_group_size No description.
-  */
-inline
-void ContextOptions::setCpuWorkGroupSize(const uint32b work_group_size) noexcept
-{
-  cpu_work_group_size_ = work_group_size;
 }
 
 /*!

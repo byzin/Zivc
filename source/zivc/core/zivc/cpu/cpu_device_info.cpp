@@ -167,7 +167,7 @@ std::string_view CpuDeviceInfo::vendorName() const noexcept
   */
 uint32b CpuDeviceInfo::workGroupSize() const noexcept
 {
-  return 1;
+  return maxWorkGroupSize();
 }
 
 /*!

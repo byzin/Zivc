@@ -37,6 +37,7 @@
 #include "zivc/cpucl/address_space_pointer.hpp"
 #include "zivc/utility/fence.hpp"
 #include "zivc/utility/id_data.hpp"
+#include "zivc/utility/kernel_arg_info.hpp"
 #include "zivc/utility/kernel_arg_type_info.hpp"
 #include "zivc/utility/kernel_launch_options.hpp"
 #include "zivc/utility/kernel_init_params.hpp"
@@ -154,9 +155,8 @@ inline
 void CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::Command::
 operator()() noexcept
 {
-  kernel_->runImpl<0, 0>();
-//    constexpr std::size_t n = BaseKernelT::numOfArgs();
-//    runImpl(std::make_index_sequence<n>{});
+  using ArgParserT = typename BaseKernelT::ArgParserT;
+  kernel_->runImpl(std::make_index_sequence<ArgParserT::kNumOfArgs>{});
 }
 
 /*!
@@ -173,13 +173,52 @@ template <typename Type, typename ...Types, typename ...ArgTypes> inline
 auto CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 makeArgCacheT(const KernelArgCache<ArgTypes...>& cache) noexcept
 {
-  constexpr std::size_t num_of_args = sizeof...(Types) + 1;
   auto precedence = concatArgCache<Type>(cache);
-  if constexpr (1 < num_of_args) {
+  constexpr std::size_t num_of_args = sizeof...(Types) + 1;
+  if constexpr (1 < num_of_args)
     return makeArgCacheT<Types...>(precedence);
-  }
-  else {
+  else
     return precedence;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam Types No description.
+  \tparam ArgTypes No description.
+  \param [in] cache No description.
+  \return No description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+template <typename Type, typename ...Types, typename ...ArgTypes> inline
+auto CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+makeLocalCacheT(const KernelArgCache<ArgTypes...>& cache) noexcept
+{
+  using ArgParserT = typename BaseKernelT::ArgParserT;
+  if constexpr (ArgParserT::kNumOfLocalArgs == 0) {
+    return cache;
+  }
+  else { // has local variable
+    using ArgTypeInfoT = KernelArgTypeInfo<Type>;
+    constexpr std::size_t num_of_args = sizeof...(Types) + 1;
+    if constexpr (ArgTypeInfoT::kIsLocal) {
+      // Create local variable type
+      constexpr std::size_t n = CpuDeviceInfo::maxWorkGroupSize();
+      using LocalT = std::array<typename ArgTypeInfoT::ElementT, n>;
+      //
+      auto precedence = concatArgCache<LocalT>(cache);
+      if constexpr (1 < num_of_args)
+        return makeLocalCacheT<Types...>(precedence);
+      else
+        return precedence;
+    }
+    else {
+      if constexpr (1 < num_of_args)
+        return makeLocalCacheT<Types...>(cache);
+      else
+        return cache;
+    }
   }
 }
 
@@ -250,6 +289,42 @@ createIdCounter() noexcept
 /*!
   \details No detailed description
 
+  \tparam kIndex No description.
+  \param [in] local_cache No description.
+  \return No description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+template <std::size_t kIndex> inline
+auto CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+getArg(LocalCacheT& local_cache) noexcept -> ArgT<kIndex>
+{
+  using ArgumentT = ArgT<kIndex>;
+  using ArgParserT = typename BaseKernelT::ArgParserT;
+  constexpr KernelArgInfo info = ArgParserT::getArgInfoList()[kIndex];
+  constexpr std::size_t offset = info.localOffset();
+  if constexpr (info.isLocal()) {
+    constexpr std::size_t cache_index = offset;
+    auto* data = local_cache.template get<cache_index>().data();
+    ArgumentT cl_arg{data};
+    return cl_arg;
+  }
+  else if constexpr (info.isPod()) {
+    constexpr std::size_t cache_index = kIndex - offset;
+    ArgumentT cl_arg = arg_cache_.template get<cache_index>();
+    return cl_arg;
+  }
+  else { // global
+    constexpr std::size_t cache_index = kIndex - offset;
+    BufferCommon* cache = arg_cache_.template get<cache_index>();
+    auto* data = static_cast<typename ArgumentT::Pointer>(cache->rawBufferData());
+    ArgumentT cl_arg{data};
+    return cl_arg;
+  }
+}
+
+/*!
+  \details No detailed description
+
   \return No description
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
@@ -278,51 +353,17 @@ parentImpl() const noexcept
 /*!
   \details No detailed description
 
-  \tparam kIndex No description.
-  \tparam Types No description.
-  \param [in] cl_args No description.
+  \tparam kIndices No description.
+  \param [in] index_seq No description.
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-template <std::size_t kIndex, std::size_t kCacheIndex, typename ...Types> inline
+template <std::size_t... kIndices> inline
 void CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-runImpl(Types&&... cl_args) noexcept
+runImpl([[maybe_unused]] const std::index_sequence<kIndices...> index_seq) noexcept
 {
-  using ArgParserT = typename BaseKernelT::ArgParserT;
-  if constexpr (kIndex < ArgParserT::kNumOfArgs) {
-    using CacheT = typename ArgCacheT::template CacheT<kIndex>;
-    using ArgT = std::remove_cv_t<std::remove_pointer_t<CacheT>>;
-    using ArgTInfo = KernelArgTypeInfo<ArgT>;
-    if constexpr (ArgTInfo::kIsLocal) { // Process a local argument
-      using ElementT = typename ArgTInfo::ElementT;
-      ElementT storage{};
-      auto data = std::addressof(storage);
-      cl::AddressSpacePointer<cl::AddressSpaceType::kLocal, ElementT> cl_arg{data};
-      runImpl<kIndex + 1, kCacheIndex>(std::forward<Types>(cl_args)..., cl_arg);
-    }
-    else if constexpr (ArgTInfo::kIsPod) { // Process a pod argument
-      auto cl_arg = arg_cache_.template get<kCacheIndex>();
-      runImpl<kIndex + 1, kCacheIndex + 1>(std::forward<Types>(cl_args)..., cl_arg);
-    }
-    else { // Process a global argument
-      using ElementT = typename ArgTInfo::ElementT;
-      using Pointer = typename ArgT::Pointer;
-      BufferCommon* cache = arg_cache_.template get<kCacheIndex>();
-      auto data = static_cast<Pointer>(cache->rawBufferData());
-      cl::AddressSpacePointer<cl::AddressSpaceType::kGlobal, ElementT> cl_arg{data};
-      runImpl<kIndex + 1, kCacheIndex + 1>(std::forward<Types>(cl_args)..., cl_arg);
-    }
-  }
-  else { // Launch the kernel
-    FunctionT func = kernel();
-    std::invoke(func, std::forward<Types>(cl_args)...);
-  }
-}
-
-template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-template <std::size_t... indices> inline
-void CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-runImpl(const std::index_sequence<indices...> index_seq) noexcept
-{
+  FunctionT func = kernel();
+  LocalCacheT local_cache{};
+  std::invoke(func, getArg<kIndices>(local_cache)...);
 }
 
 /*!

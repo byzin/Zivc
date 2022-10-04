@@ -20,6 +20,7 @@
 #include <atomic>
 #include <cstddef>
 #include <memory>
+#include <tuple>
 #include <type_traits>
 #include <utility>
 // Zivc
@@ -100,9 +101,16 @@ class CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   template <typename Type, typename ...Types, typename ...ArgTypes>
   static auto makeArgCacheT(const KernelArgCache<ArgTypes...>& cache) noexcept;
 
+  //! Make a struct of local cache
+  template <typename Type, typename ...Types, typename ...ArgTypes>
+  static auto makeLocalCacheT(const KernelArgCache<ArgTypes...>& cache) noexcept;
+
 
   // Storage types
   using ArgCacheT = decltype(makeArgCacheT<Args...>(KernelArgCache<void>{}));
+  using LocalCacheT = decltype(makeLocalCacheT<FuncArgs...>(KernelArgCache<void>{}));
+  template <std::size_t kIndex>
+  using ArgT = std::tuple_element_t<kIndex, std::tuple<FuncArgs...>>;
   using CommandStorageT = std::aligned_storage_t<
       sizeof(void*),
       std::alignment_of_v<void*>>;
@@ -123,6 +131,10 @@ class CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   //! Create an ID counter for a kernel submission
   std::atomic<uint32b>* createIdCounter() noexcept;
 
+  //! Return the kernel argument by the index
+  template <std::size_t kIndex>
+  ArgT<kIndex> getArg(LocalCacheT& local_cache) noexcept;
+
   //! Return the device
   CpuDevice& parentImpl() noexcept;
 
@@ -130,12 +142,8 @@ class CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   const CpuDevice& parentImpl() const noexcept;
 
   //! Run the underlying kernel
-  template <std::size_t kIndex, std::size_t kCacheIndex, typename ...Types>
-  void runImpl(Types&&... cl_args) noexcept;
-
-  //! Run the underlying kernel
-  template <std::size_t... indices>
-  void runImpl(const std::index_sequence<indices...> index_seq) noexcept;
+  template <std::size_t... kIndices>
+  void runImpl(const std::index_sequence<kIndices...> index_seq) noexcept;
 
   //! Update arg cache
   template <std::size_t kIndex, KernelArg Type, typename ...Types>

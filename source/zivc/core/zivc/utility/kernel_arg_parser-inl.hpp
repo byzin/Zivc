@@ -39,7 +39,7 @@ constexpr auto KernelArgParser<Args...>::getArgInfoList() noexcept
     -> ArgInfoListT<kNumOfArgs>
 {
   ArgInfoListT<kNumOfArgs> info_list{};
-  ImplT::setArgInfo(0, 0, info_list.data());
+  ImplT::setArgInfo(0, 0, 0, info_list.data());
   return info_list;
 }
 
@@ -53,7 +53,7 @@ constexpr auto KernelArgParser<Args...>::getLocalArgInfoList() noexcept
     -> ArgInfoListT<kNumOfLocalArgs>
 {
   ArgInfoListT<kNumOfLocalArgs> info_list{};
-  ImplT::setLocalArgInfo(0, 0, info_list.data());
+  ImplT::setLocalArgInfo(0, 0, 0, info_list.data());
   return info_list;
 }
 
@@ -67,7 +67,7 @@ constexpr auto KernelArgParser<Args...>::getPodArgInfoList() noexcept
     -> ArgInfoListT<kNumOfPodArgs>
 {
   ArgInfoListT<kNumOfPodArgs> info_list{};
-  ImplT::setPodArgInfo(0, 0, info_list.data());
+  ImplT::setPodArgInfo(0, 0, 0, info_list.data());
   return info_list;
 }
 
@@ -81,7 +81,7 @@ constexpr auto KernelArgParser<Args...>::getBufferArgInfoList() noexcept
     -> ArgInfoListT<kNumOfBufferArgs>
 {
   ArgInfoListT<kNumOfBufferArgs> info_list{};
-  ImplT::setBufferArgInfo(0, 0, info_list.data());
+  ImplT::setBufferArgInfo(0, 0, 0, info_list.data());
   return info_list;
 }
 
@@ -180,59 +180,71 @@ class KernelArgParserImpl<Arg, RestArgs...>
   //! Set a kernel arg info by the given index
   static constexpr void setArgInfo(const std::size_t position,
                                    std::size_t index,
+                                   std::size_t local_offset,
                                    KernelArgInfo* info_list) noexcept
   {
     KernelArgInfo info = makeArgInfo();
     info.setIndex(position);
+    info.setLocalOffset(local_offset);
     info_list[index] = info;
     index = index + 1;
+    local_offset = ArgTypeInfoT::kIsLocal ? local_offset + 1 : local_offset;
     if constexpr (1 <= NextParserT::kNumOfArgs)
-      NextParserT::setArgInfo(position + 1, index, info_list);
+      NextParserT::setArgInfo(position + 1, index, local_offset, info_list);
   }
 
   //! Set a local kernel arg info by the given index
   static constexpr void setLocalArgInfo(const std::size_t position,
                                         std::size_t index,
+                                        std::size_t local_offset,
                                         KernelArgInfo* info_list) noexcept
   {
     if constexpr (ArgTypeInfoT::kIsLocal) {
       KernelArgInfo info = makeArgInfo();
       info.setIndex(position);
+      info.setLocalOffset(local_offset);
       info_list[index] = info;
       index = index + 1;
+      local_offset = local_offset + 1;
     }
     if constexpr (1 <= NextParserT::kNumOfLocalArgs)
-      NextParserT::setLocalArgInfo(position + 1, index, info_list);
+      NextParserT::setLocalArgInfo(position + 1, index, local_offset, info_list);
   }
 
   //! Set a POD kernel arg info by the given index
   static constexpr void setPodArgInfo(const std::size_t position,
                                       std::size_t index,
+                                      std::size_t local_offset,
                                       KernelArgInfo* info_list) noexcept
   {
     if constexpr (ArgTypeInfoT::kIsPod) {
       KernelArgInfo info = makeArgInfo();
       info.setIndex(position);
+      info.setLocalOffset(local_offset);
       info_list[index] = info;
       index = index + 1;
     }
+    local_offset = ArgTypeInfoT::kIsLocal ? local_offset + 1 : local_offset;
     if constexpr (1 <= NextParserT::kNumOfPodArgs)
-      NextParserT::setPodArgInfo(position + 1, index, info_list);
+      NextParserT::setPodArgInfo(position + 1, index, local_offset, info_list);
   }
 
   //! Set a buffer kernel arg info by the given index
   static constexpr void setBufferArgInfo(const std::size_t position,
                                          std::size_t index,
+                                         std::size_t local_offset,
                                          KernelArgInfo* info_list) noexcept
   {
     if constexpr (ArgTypeInfoT::kIsBuffer) {
       KernelArgInfo info = makeArgInfo();
       info.setIndex(position);
+      info.setLocalOffset(local_offset);
       info_list[index] = info;
       index = index + 1;
     }
+    local_offset = ArgTypeInfoT::kIsLocal ? local_offset + 1 : local_offset;
     if constexpr (1 <= NextParserT::kNumOfBufferArgs)
-      NextParserT::setBufferArgInfo(position + 1, index, info_list);
+      NextParserT::setBufferArgInfo(position + 1, index, local_offset, info_list);
   }
 };
 

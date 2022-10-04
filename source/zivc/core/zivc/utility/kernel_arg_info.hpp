@@ -61,17 +61,24 @@ class KernelArgInfo
   //! Return the position of the argument
   constexpr std::size_t index() const noexcept;
 
+  //! Return the local offset at the argument
+  constexpr std::size_t localOffset() const noexcept;
+
   //! Set an index of the argument
   constexpr void setIndex(const std::size_t index) noexcept;
 
+  //! Set a local offset at the argument
+  constexpr void setLocalOffset(const std::size_t offset) noexcept;
+
  private:
   std::size_t index_;
+  uint8b local_offset_;
   zisc::Boolean is_global_;
   zisc::Boolean is_local_;
   zisc::Boolean is_constant_;
   zisc::Boolean is_pod_;
   zisc::Boolean is_buffer_;
-  [[maybe_unused]] std::array<uint8b, 3> padding_{0, 0, 0};
+  [[maybe_unused]] std::array<uint8b, 2> padding_{0, 0};
 };
 
 } // namespace zivc

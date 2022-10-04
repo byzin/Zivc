@@ -54,6 +54,7 @@ constexpr KernelArgInfo::KernelArgInfo(const bool is_global,
                                        const bool is_pod,
                                        const bool is_buffer) noexcept :
     index_{0},
+    local_offset_{0},
     is_global_{is_global},
     is_local_{is_local},
     is_constant_{is_constant},
@@ -116,6 +117,7 @@ constexpr bool KernelArgInfo::isBuffer() const noexcept
 {
   return is_buffer_;
 }
+
 /*!
   \details No detailed description
 
@@ -130,12 +132,34 @@ constexpr std::size_t KernelArgInfo::index() const noexcept
 /*!
   \details No detailed description
 
+  \return No description
+  */
+inline
+constexpr std::size_t KernelArgInfo::localOffset() const noexcept
+{
+  return static_cast<std::size_t>(local_offset_);
+}
+
+/*!
+  \details No detailed description
+
   \param [in] index No description.
   */
 inline
 constexpr void KernelArgInfo::setIndex(const std::size_t index) noexcept
 {
   index_ = index;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] offset No description.
+  */
+inline
+constexpr void KernelArgInfo::setLocalOffset(const std::size_t offset) noexcept
+{
+  local_offset_ = static_cast<uint8b>(offset);
 }
 
 } // namespace zivc

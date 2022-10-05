@@ -17,6 +17,7 @@
 #include <iostream>
 #include <memory>
 #include <numeric>
+#include <span>
 #include <stdexcept>
 #include <string>
 // Zisc
@@ -85,10 +86,10 @@ int doKernelExample(zivc::Context& context)
 
   // Print device info
   std::cout << std::endl;
-  const auto& device_info_list = context.deviceInfoList();
+  const std::span device_info_list = context.deviceInfoList();
   for (std::size_t i = 0; i < device_info_list.size(); ++i) {
     std::cout << std::endl;
-    const auto* const info = device_info_list[i];
+    const zivc::DeviceInfo* const info = device_info_list[i];
     std::cout << indent1 << "## Device[" << i << "]" << std::endl;
     std::cout << indent2 << "Type                : "
               << ::getBackendTypeString(info->type()) << std::endl;
@@ -160,7 +161,7 @@ int doKernelExample(zivc::Context& context)
     // Create a kernel
     std::cout << indent2 << "Launch kernel1" << std::endl;
     auto kernel_params1 = ZIVC_CREATE_KERNEL_INIT_PARAMS(example, kernel1, 1);
-    auto kernel1 = device->createKernel(kernel_params1);
+    const std::shared_ptr kernel1 = device->createKernel(kernel_params1);
     print_kernel_info(*kernel1);
 
     // Launch the kernel

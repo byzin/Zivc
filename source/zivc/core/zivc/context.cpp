@@ -100,7 +100,7 @@ void Context::destroy() noexcept
 {
   device_info_list_.reset();
   device_list_.reset();
-  for (auto& backend_p : backend_list_)
+  for (SharedBackend& backend_p : backend_list_)
     backend_p.reset();
   default_mem_resource_.reset();
   custom_mem_resource_ = nullptr;
@@ -176,7 +176,7 @@ SharedDevice Context::queryDevice(const std::size_t device_index)
   */
 zisc::ThreadManager& Context::threadManager() noexcept
 {
-  auto* backend_p = backend(BackendType::kCpu);
+  Backend* backend_p = backend(BackendType::kCpu);
   auto* cpu_backend = static_cast<CpuBackend*>(backend_p);
   return cpu_backend->threadManager();
 }
@@ -188,7 +188,7 @@ zisc::ThreadManager& Context::threadManager() noexcept
   */
 const zisc::ThreadManager& Context::threadManager() const noexcept
 {
-  const auto* backend_p = backend(BackendType::kCpu);
+  const Backend* backend_p = backend(BackendType::kCpu);
   const auto* cpu_backend = static_cast<const CpuBackend*>(backend_p);
   return cpu_backend->threadManager();
 }
@@ -217,7 +217,7 @@ void Context::initBackend(ContextOptions& options)
   */
 SharedDevice Context::createDevice(const std::size_t device_index)
 {
-  const auto& info_list = deviceInfoList();
+  const std::span info_list = deviceInfoList();
   if (info_list.size() <= device_index) {
     const char* message = "The device index is out of range.";
     throw SystemError{ErrorCode::kInitializationFailed, message};
@@ -225,7 +225,7 @@ SharedDevice Context::createDevice(const std::size_t device_index)
   const DeviceInfo* info = info_list[device_index];
   Backend* backend_p = backend(info->type());
   ZIVC_ASSERT(backend_p->isAvailable(), "The backend isn't available.");
-  auto device = backend_p->createDevice(*info);
+  SharedDevice device = backend_p->createDevice(*info);
   return device;
 }
 
@@ -261,7 +261,7 @@ void Context::updateDeviceInfo()
   device_info_list_->clear();
   std::size_t num_of_devices = 0;
   // 
-  for (auto& backend_p : backend_list_) {
+  for (const SharedBackend& backend_p : backend_list_) {
     if (backend_p && backend_p->isAvailable()) {
       backend_p->updateDeviceInfo();
       num_of_devices += backend_p->numOfDevices();
@@ -269,7 +269,7 @@ void Context::updateDeviceInfo()
   }
   //
   device_info_list_->reserve(num_of_devices);
-  for (const auto& backend_p : backend_list_) {
+  for (const SharedBackend& backend_p : backend_list_) {
     if (backend_p && backend_p->isAvailable()) {
       for (std::size_t i = 0; i < backend_p->numOfDevices(); ++i) {
         const DeviceInfo& info = backend_p->deviceInfo(i);
@@ -283,7 +283,7 @@ void Context::updateDeviceInfo()
 /*!
   \details No detailed description
 
-  \param [in,out] options No description.
+  \param [in] options No description.
   \return No description
   */
 SharedContext createContext(ContextOptions& options)
@@ -291,7 +291,7 @@ SharedContext createContext(ContextOptions& options)
   SharedContext context;
 
   // Create a context
-  auto* mem_resource = options.memoryResource();
+  zisc::pmr::memory_resource* mem_resource = options.memoryResource();
   if (mem_resource != nullptr) {
     const zisc::pmr::polymorphic_allocator<Context> alloc{mem_resource};
     context = std::allocate_shared<Context>(alloc);

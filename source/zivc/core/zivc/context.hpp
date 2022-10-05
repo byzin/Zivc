@@ -157,7 +157,7 @@ class Context : private zisc::NonCopyable<Context>
 // Type aliases
 using SharedContext = std::shared_ptr<Context>;
 
-//! Create a unique context
+//! Create a context
 [[nodiscard]]
 SharedContext createContext(ContextOptions& options);
 

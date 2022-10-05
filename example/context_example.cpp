@@ -13,6 +13,7 @@
   */
 
 // Standard C++ library
+#include <array>
 #include <cstdlib>
 #include <iostream>
 #include <memory>
@@ -77,7 +78,7 @@ int printContextInfo(const zivc::Context& context)
 
   // Print device info
   std::cout << std::endl;
-  const auto& device_info_list = context.deviceInfoList();
+  const std::span device_info_list = context.deviceInfoList();
   for (std::size_t i = 0; i < device_info_list.size(); ++i) {
     std::cout << std::endl;
     const zivc::DeviceInfo* const info = device_info_list[i];
@@ -88,7 +89,7 @@ int printContextInfo(const zivc::Context& context)
               << info->name() << std::endl;
     std::cout << indent2 << "Vendor name         : "
               << info->vendorName() << std::endl;
-    const auto workgroup_counts = info->maxWorkGroupCount();
+    const std::array workgroup_counts = info->maxWorkGroupCount();
     std::cout << indent2 << "Max work group count: " << "("
               << workgroup_counts[0] << ", "
               << workgroup_counts[1] << ", "
@@ -98,10 +99,10 @@ int printContextInfo(const zivc::Context& context)
     std::cout << indent2 << "Max allocation size : "
               << ::toMegaBytes(info->maxAllocationSize()) << " MB." << std::endl;
     const std::string indent3 = indent2 + indent1;
-    const auto& heap_info_list = info->heapInfoList();
+    const std::span heap_info_list = info->heapInfoList();
     for (std::size_t index = 0; index < heap_info_list.size(); ++index) {
       std::cout << indent2 << "MemoryHeap[" << index << "]" << std::endl;
-      const auto& heap_info = heap_info_list[index];
+      const zivc::MemoryHeapInfo& heap_info = heap_info_list[index];
       std::cout << indent3 << "Device local    : "
                 << heap_info.isDeviceLocal() << std::endl;
       std::cout << indent3 << "Total memory    : "

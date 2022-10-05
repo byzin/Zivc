@@ -43,7 +43,9 @@ namespace zivc {
 //! Create a buffer
 template <KernelArg Type>
 [[nodiscard]]
-SharedBuffer<Type> createBuffer(Device* device, const BufferInitParams& params);
+SharedBuffer<Type> createBuffer(
+    Device* device,
+    const BufferInitParams& params);
 
 //! Create a kernel
 template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
@@ -55,7 +57,6 @@ SharedKernel<kDim, KSet, Args...> createKernel(
 //! Create a kernel parameters
 template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
 KernelInitParams<kDim, KSet, Args...> createKernelInitParams(
-    const KernelSet<KSet>& kernel_set,
     void (*func)(Args...),
     std::string_view kernel_name) noexcept;
 

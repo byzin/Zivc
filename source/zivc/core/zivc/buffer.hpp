@@ -27,6 +27,7 @@
 #include "utility/buffer_launch_options.hpp"
 #include "utility/id_data.hpp"
 #include "utility/launch_result.hpp"
+#include "utility/shared_buffer.hpp"
 #include "utility/zivc_object.hpp"
 
 namespace zivc {
@@ -48,7 +49,7 @@ class Buffer : public BufferCommon
 {
  public:
   // Type aliases
-  using SharedPtr = std::shared_ptr<Buffer>;
+  using SharedPtr = SharedBuffer<T>;
   using WeakPtr = std::weak_ptr<Buffer>;
   using Type = std::remove_cv_t<std::remove_reference_t<T>>;
   using ConstType = std::add_const_t<Type>;
@@ -148,8 +149,6 @@ class Buffer : public BufferCommon
 
 
 // Type aliases
-template <KernelArg Type>
-using SharedBuffer = typename Buffer<Type>::SharedPtr;
 template <KernelArg Type>
 using WeakBuffer = typename Buffer<Type>::WeakPtr;
 

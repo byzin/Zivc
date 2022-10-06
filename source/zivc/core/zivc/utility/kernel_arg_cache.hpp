@@ -494,11 +494,6 @@ template <typename ...Types>
 bool operator==(const KernelArgCache<Types...>& lhs,
                 const KernelArgCache<Types...>& rhs) noexcept;
 
-//! Check if two cache are equal in values
-template <typename ...Types>
-bool operator!=(const KernelArgCache<Types...>& lhs,
-                const KernelArgCache<Types...>& rhs) noexcept;
-
 //! Concatenate caches
 template <typename Type, typename ...ArgTypes, typename ...Types>
 auto concatArgCache(const KernelArgCache<KernelArgCache<ArgTypes...>, Types...>& cache) noexcept;

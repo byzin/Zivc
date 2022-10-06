@@ -86,10 +86,10 @@ SharedBuffer<T> Device::createDerivedBuffer(const BufferInitParams& params)
 {
   using BufferT = Derived<T>;
   zisc::pmr::polymorphic_allocator<BufferT> alloc{memoryResource()};
-  SharedBuffer<T> buffer = std::allocate_shared<BufferT>(alloc, issueId());
+  SharedBuffer<T> buffer{std::allocate_shared<BufferT>(alloc, issueId())};
 
   ZivcObject::SharedPtr parent{getOwnPtr()};
-  WeakBuffer<T> own{buffer};
+  WeakBuffer<T> own{buffer.data()};
   try {
     buffer->initialize(std::move(parent), std::move(own), params);
   }

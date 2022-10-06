@@ -811,22 +811,6 @@ bool operator==(const KernelArgCache<Types...>& lhs,
 /*!
   \details No detailed description
 
-  \tparam Types No description.
-  \param [in] lhs No description.
-  \param [in] rhs No description.
-  \return No description
-  */
-template <typename ...Types> inline
-bool operator!=(const KernelArgCache<Types...>& lhs,
-                const KernelArgCache<Types...>& rhs) noexcept
-{
-  const bool result = !(lhs == rhs);
-  return result;
-}
-
-/*!
-  \details No detailed description
-
   \tparam Type No description.
   \tparam ArgTypes No description.
   \tparam Types No description.

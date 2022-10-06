@@ -18,7 +18,6 @@
 // Standard C++ library
 #include <concepts>
 #include <cstddef>
-#include <memory>
 #include <type_traits>
 // Zivc
 #include "id_data.hpp"
@@ -127,9 +126,6 @@ class BufferCommon : public ZivcObject
   BufferUsage buffer_usage_ = BufferUsage::kAuto;
   BufferFlag buffer_flag_ = BufferFlag::kNone;
 };
-
-// Type aliases
-using SharedBufferCommon = std::shared_ptr<BufferCommon>;
 
 } // namespace zivc
 

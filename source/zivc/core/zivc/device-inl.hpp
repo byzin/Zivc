@@ -123,10 +123,10 @@ auto Device::createDerivedKernel(const KernelInitParams<kDim, KSet, Args...>& pa
   using WeakKernelT = WeakKernel<kDim, KSet, Args...>;
 
   zisc::pmr::polymorphic_allocator<KernelT> alloc{memoryResource()};
-  SharedKernelT kernel = std::allocate_shared<KernelT>(alloc, issueId());
+  SharedKernelT kernel{std::allocate_shared<KernelT>(alloc, issueId())};
 
   ZivcObject::SharedPtr parent{getOwnPtr()};
-  WeakKernelT own{kernel};
+  WeakKernelT own{kernel.data()};
   try {
     kernel->initialize(std::move(parent), std::move(own), params);
   }

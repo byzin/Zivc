@@ -24,6 +24,7 @@
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "buffer.hpp"
+#include "kernel.hpp"
 #include "kernel_set.hpp"
 #include "zivc_config.hpp"
 #include "utility/buffer_init_params.hpp"

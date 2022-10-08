@@ -148,11 +148,6 @@ class Buffer : public BufferCommon
 };
 
 
-// Type aliases
-template <KernelArg Type>
-using WeakBuffer = typename Buffer<Type>::WeakPtr;
-
-
 //! Copy from the source to the dest
 template <KernelArg SrcType, std::same_as<std::remove_const_t<SrcType>> DstType>
 [[nodiscard("The result can have a fence when external sync mode is on.")]]

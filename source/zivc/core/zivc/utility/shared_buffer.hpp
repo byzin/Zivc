@@ -20,6 +20,7 @@
 #include <memory>
 #include <type_traits>
 // Zivc
+#include "buffer_common.hpp"
 #include "zivc/zivc_config.hpp"
 
 namespace zivc {
@@ -59,12 +60,6 @@ class SharedBuffer
   SharedBuffer() noexcept = default;
 
   //! Copy a shared ptr
-  SharedBuffer(const SharedPtr& ptr) noexcept;
-
-  //! Move a shared ptr
-  SharedBuffer(SharedPtr&& ptr) noexcept;
-
-  //! Copy a shared ptr
   template <typename T>
   SharedBuffer(const std::shared_ptr<T>& ptr) noexcept;
 
@@ -76,8 +71,19 @@ class SharedBuffer
   ~SharedBuffer() noexcept = default;
 
 
+  //! Assign the shared pointer
+  template <typename T>
+  SharedBuffer& operator=(const std::shared_ptr<T>& ptr) noexcept;
+
+  //! Assign the shared pointer
+  template <typename T>
+  SharedBuffer& operator=(std::shared_ptr<T>&& ptr) noexcept;
+
   //! Check if the stored pointer is not null
   explicit operator bool() const noexcept;
+
+  //! Apply cast to the stored pointer
+  operator SharedBufferCommon() const noexcept;
 
   //! Dereference the stored pointer
   Reference operator*() const noexcept;
@@ -96,8 +102,8 @@ class SharedBuffer
   Pointer get() const noexcept;
 
   //! Provide owner-base ordering of SharedBuffer
-  template <typename T>
-  bool ownerBefore(const SharedBuffer<T>& other) const noexcept;
+  template <KernelArg Type2>
+  bool ownerBefore(const SharedBuffer<Type2>& other) const noexcept;
 
   //! Replace the managed object
   void reset() noexcept;
@@ -108,6 +114,10 @@ class SharedBuffer
  private:
   SharedPtr ptr_;
 };
+
+// Type aliases
+template <KernelArg Type>
+using WeakBuffer = typename SharedBuffer<Type>::WeakPtr;
 
 //!
 template <KernelArg Type1, KernelArg Type2>

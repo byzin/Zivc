@@ -161,7 +161,7 @@ int doKernelExample(zivc::Context& context)
     // Create a kernel
     std::cout << indent2 << "Launch kernel1" << std::endl;
     auto kernel_params1 = ZIVC_CREATE_KERNEL_INIT_PARAMS(example, kernel1, 1);
-    const std::shared_ptr kernel1 = device->createKernel(kernel_params1);
+    const zivc::SharedKernel kernel1 = device->createKernel(kernel_params1);
     print_kernel_info(*kernel1);
 
     // Launch the kernel

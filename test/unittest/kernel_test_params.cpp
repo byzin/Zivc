@@ -74,9 +74,9 @@ testing::AssertionResult testScalarBuffer(zivc::Device& device,
 
 TEST(KernelTest, LargeNumOfParametersTest)
 {
-  auto create = ztest::createContext();
+  auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
   [[maybe_unused]] const auto& info = device->deviceInfo();
 
   using zivc::int8b;

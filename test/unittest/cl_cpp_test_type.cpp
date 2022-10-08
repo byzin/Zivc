@@ -30,9 +30,9 @@
 
 TEST(ClCppTest, VectorComponentAccessTest)
 {
-  auto create = ztest::createContext();
+  auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   // Allocate buffers
   using zivc::cl_float;
@@ -174,9 +174,9 @@ TEST(ClCppTest, VectorComponentAccessTest)
 
 TEST(ClCppTest, VectorConstructionTest)
 {
-  auto create = ztest::createContext();
+  auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   // Allocate buffers
   using zivc::cl_int2;
@@ -304,9 +304,9 @@ TEST(ClCppTest, VectorConstructionTest)
 
 TEST(ClCppTest, VectorArithmeticOperatorTest)
 {
-  auto create = ztest::createContext();
+  auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   // Allocate buffers
   using zivc::cl_int2;
@@ -770,9 +770,9 @@ TEST(ClCppTest, VectorArithmeticOperatorTest)
 
 TEST(ClCppTest, VectorArithmeticAssignmentOperatorTest)
 {
-  auto create = ztest::createContext();
+  auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   // Allocate buffers
   using zivc::cl_int2;
@@ -980,9 +980,9 @@ TEST(ClCppTest, VectorArithmeticAssignmentOperatorTest)
 
 TEST(ClCppTest, VectorBitwiseOperatorTest)
 {
-  auto create = ztest::createContext();
+  auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   // Allocate buffers
   using zivc::uint32b;
@@ -1232,9 +1232,9 @@ TEST(ClCppTest, VectorBitwiseOperatorTest)
 
 TEST(ClCppTest, VectorBitwiseAssignmentOperatorTest)
 {
-  auto create = ztest::createContext();
+  auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   // Allocate buffers
   using zivc::uint32b;
@@ -1446,9 +1446,9 @@ TEST(ClCppTest, VectorBitwiseAssignmentOperatorTest)
 
 TEST(ClCppTest, VectorIncrementDecrementTest)
 {
-  auto create = ztest::createContext();
+  auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   // Allocate buffers
   using zivc::cl_int4;
@@ -1531,9 +1531,9 @@ TEST(ClCppTest, VectorIncrementDecrementTest)
 
 TEST(ClCppTest, VectorConditionalOperatorTest)
 {
-  auto create = ztest::createContext();
+  auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   // Allocate buffers
   using zivc::cl_int4;
@@ -1589,9 +1589,9 @@ TEST(ClCppTest, VectorConditionalOperatorTest)
 
 TEST(ClCppTest, VectorComparisonOperatorTest)
 {
-  auto create = ztest::createContext();
+  auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   // Allocate buffers
   using zivc::cl_int4;
@@ -1743,9 +1743,9 @@ TEST(ClCppTest, VectorComparisonOperatorTest)
 
 TEST(ClCppTest, VectorLogicalOperatorTest)
 {
-  auto create = ztest::createContext();
+  auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   // Allocate buffers
   using zivc::cl_int4;
@@ -1842,9 +1842,9 @@ TEST(ClCppTest, VectorLogicalOperatorTest)
 
 TEST(ClCppTest, ScalarCastTest)
 {
-  auto create = ztest::createContext();
+  auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   // Allocate buffers
   using zivc::cl_char;
@@ -2074,9 +2074,9 @@ TEST(ClCppTest, ScalarCastTest)
 
 TEST(ClCppTest, ScalarBoolCastTest)
 {
-  auto create = ztest::createContext();
+  auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   // Allocate buffers
   using zivc::cl_char;
@@ -2158,9 +2158,9 @@ TEST(ClCppTest, ScalarBoolCastTest)
 
 TEST(ClCppTest, Vector2CastTest)
 {
-  auto create = ztest::createContext();
+  auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   // Allocate buffers
   using zivc::cl_char;
@@ -2610,9 +2610,9 @@ TEST(ClCppTest, Vector2CastTest)
 
 TEST(ClCppTest, Vector3CastTest)
 {
-  auto create = ztest::createContext();
+  auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   // Allocate buffers
   using zivc::cl_char;
@@ -3094,9 +3094,9 @@ TEST(ClCppTest, Vector3CastTest)
 
 TEST(ClCppTest, Vector4CastTest)
 {
-  auto create = ztest::createContext();
+  auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   // Allocate buffers
   using zivc::cl_char;

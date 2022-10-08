@@ -21,6 +21,7 @@
 #include <memory>
 #include <utility>
 // Zivc
+#include "buffer_common.hpp"
 #include "zivc/zivc_config.hpp"
 
 namespace zivc {
@@ -28,20 +29,12 @@ namespace zivc {
 /*!
   \details No detailed description
 
+  \tparam T No description.
   \param [in] ptr No description.
   */
-template <KernelArg Type> inline
-SharedBuffer<Type>::SharedBuffer(const SharedPtr& ptr) noexcept : ptr_{ptr}
-{
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] ptr No description.
-  */
-template <KernelArg Type> inline
-SharedBuffer<Type>::SharedBuffer(SharedPtr&& ptr) noexcept : ptr_{std::move(ptr)}
+template <KernelArg Type> template <typename T> inline
+SharedBuffer<Type>::SharedBuffer(const std::shared_ptr<T>& ptr) noexcept
+    : ptr_{static_pointer_cast<BufferT>(ptr)}
 {
 }
 
@@ -52,7 +45,8 @@ SharedBuffer<Type>::SharedBuffer(SharedPtr&& ptr) noexcept : ptr_{std::move(ptr)
   \param [in] ptr No description.
   */
 template <KernelArg Type> template <typename T> inline
-SharedBuffer<Type>::SharedBuffer(const std::shared_ptr<T>& ptr) noexcept : ptr_{ptr}
+SharedBuffer<Type>::SharedBuffer(std::shared_ptr<T>&& ptr) noexcept :
+    ptr_{static_pointer_cast<BufferT>(std::move(ptr))}
 {
 }
 
@@ -61,10 +55,29 @@ SharedBuffer<Type>::SharedBuffer(const std::shared_ptr<T>& ptr) noexcept : ptr_{
 
   \tparam T No description.
   \param [in] ptr No description.
+  \return No description
   */
 template <KernelArg Type> template <typename T> inline
-SharedBuffer<Type>::SharedBuffer(std::shared_ptr<T>&& ptr) noexcept : ptr_{std::move(ptr)}
+auto SharedBuffer<Type>::operator=(const std::shared_ptr<T>& ptr) noexcept
+    -> SharedBuffer&
 {
+  ptr_ = static_pointer_cast<BufferT>(ptr);
+  return *this;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam T No description.
+  \param [in] ptr No description.
+  \return No description
+  */
+template <KernelArg Type> template <typename T> inline
+auto SharedBuffer<Type>::operator=(std::shared_ptr<T>&& ptr) noexcept
+    -> SharedBuffer&
+{
+  ptr_ = static_pointer_cast<BufferT>(std::move(ptr));
+  return *this;
 }
 
 /*!
@@ -76,6 +89,17 @@ template <KernelArg Type> inline
 SharedBuffer<Type>::operator bool() const noexcept
 {
   return static_cast<bool>(data());
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <KernelArg Type> inline
+SharedBuffer<Type>::operator SharedBufferCommon() const noexcept
+{
+  return static_cast<SharedBufferCommon>(data());
 }
 
 /*!
@@ -136,12 +160,12 @@ auto SharedBuffer<Type>::get() const noexcept -> Pointer
 /*!
   \details No detailed description
 
-  \tparam T No description.
+  \tparam Type2 No description.
   \param [in] other No description.
   \return No description
   */
-template <KernelArg Type> template <typename T> inline
-bool SharedBuffer<Type>::ownerBefore(const SharedBuffer<T>& other) const noexcept
+template <KernelArg Type> template <KernelArg Type2> inline
+bool SharedBuffer<Type>::ownerBefore(const SharedBuffer<Type2>& other) const noexcept
 {
   return data().owner_before(other.data());
 }

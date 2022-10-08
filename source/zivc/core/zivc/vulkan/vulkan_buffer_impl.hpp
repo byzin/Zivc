@@ -36,6 +36,7 @@ namespace zivc {
 // Forward declaration
 class BufferCommon;
 class VulkanDevice;
+template <typename, typename...> class Kernel;
 
 /*!
   \brief No brief description
@@ -70,7 +71,7 @@ class VulkanBufferImpl : private zisc::NonCopyable<VulkanBufferImpl>
   //!  a fill kernel instance
   template <KernelArg Type>
   [[nodiscard("The result will have a vulkan kernel.")]]
-  std::shared_ptr<KernelCommon> createFillKernel(const VkCommandBuffer& command_buffer);
+  SharedKernelCommon createFillKernel(const VkCommandBuffer& command_buffer);
 
   //! Deallocate a device memory
   void deallocateMemory(VkBuffer* buffer,
@@ -126,23 +127,23 @@ class VulkanBufferImpl : private zisc::NonCopyable<VulkanBufferImpl>
 
   //! Create a fill8 kernel instance
   [[nodiscard("The result will have a vulkan kernel.")]]
-  std::shared_ptr<KernelCommon> createFillU8Kernel(const VkCommandBuffer& command_buffer);
+  SharedKernelCommon createFillU8Kernel(const VkCommandBuffer& command_buffer);
 
   //! Create a fill16 kernel instance
   [[nodiscard("The result will have a vulkan kernel.")]]
-  std::shared_ptr<KernelCommon> createFillU16Kernel(const VkCommandBuffer& command_buffer);
+  SharedKernelCommon createFillU16Kernel(const VkCommandBuffer& command_buffer);
 
   //! Create a fill32 kernel instance
   [[nodiscard("The result will have a vulkan kernel.")]]
-  std::shared_ptr<KernelCommon> createFillU32Kernel(const VkCommandBuffer& command_buffer);
+  SharedKernelCommon createFillU32Kernel(const VkCommandBuffer& command_buffer);
 
   //! Create a fill64 kernel instance
   [[nodiscard("The result will have a vulkan kernel.")]]
-  std::shared_ptr<KernelCommon> createFillU64Kernel(const VkCommandBuffer& command_buffer);
+  SharedKernelCommon createFillU64Kernel(const VkCommandBuffer& command_buffer);
 
   //! Create a fill128 kernel instance
   [[nodiscard("The result will have a vulkan kernel.")]]
-  std::shared_ptr<KernelCommon> createFillU128Kernel(const VkCommandBuffer& command_buffer);
+  SharedKernelCommon createFillU128Kernel(const VkCommandBuffer& command_buffer);
 
   //! Return the underlying device object
   VulkanDevice& device() noexcept;
@@ -151,9 +152,9 @@ class VulkanBufferImpl : private zisc::NonCopyable<VulkanBufferImpl>
   const VulkanDevice& device() const noexcept;
 
   //! Fill the given buffer with the specified value in u8 elements
-  template <typename Type, typename KernelType>
+  template <typename Type, typename KType, typename ...KTypes>
   [[nodiscard]]
-  LaunchResult fillImpl(KernelCommon* fill_kernel,
+  LaunchResult fillImpl(Kernel<KType, KTypes...>* kernel,
                         Buffer<Type>* data_buffer,
                         Buffer<Type>* buffer,
                         const LaunchOptions& launch_options,

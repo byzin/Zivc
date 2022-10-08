@@ -63,7 +63,7 @@ class VulkanBuffer : public Buffer<T>
     VmaAllocation vm_allocation_ = ZIVC_VK_NULL_HANDLE;
     VmaAllocationInfo vm_alloc_info_;
     VkCommandBuffer command_buffer_ = ZIVC_VK_NULL_HANDLE;
-    SharedKernelCommon fill_kernel_;
+    std::shared_ptr<KernelCommon> fill_kernel_;
     SharedBuffer<uint8b> fill_data_;
     DescriptorT desc_type_ = DescriptorT::kStorage;
     [[maybe_unused]] Padding<4> pad_;

@@ -36,9 +36,9 @@
 
 TEST(KernelTest, SimpleKernelTest)
 {
-  auto create = ztest::createContext();
+  auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   // Allocate buffers
   auto buffer = device->createBuffer<zivc::int32b>({zivc::BufferUsage::kPreferDevice});
@@ -67,9 +67,9 @@ TEST(KernelTest, SimpleKernelTest)
 
 TEST(KernelTest, BasicTypeSizeTest)
 {
-  auto create = ztest::createContext();
+  auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
   [[maybe_unused]] const auto& info = device->deviceInfo();
 
   const std::size_t n = 96;
@@ -270,9 +270,9 @@ TEST(KernelTest, BasicTypeSizeTest)
 
 TEST(KernelTest, ClassSize1Test)
 {
-  auto create = ztest::createContext();
+  auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
   [[maybe_unused]] const auto& info = device->deviceInfo();
 
   using zivc::int32b;
@@ -319,9 +319,9 @@ TEST(KernelTest, ClassSize1Test)
 
 TEST(KernelTest, InputOutput1Test)
 {
-  auto create = ztest::createContext();
+  auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
   const auto& info = device->deviceInfo();
 
   const std::size_t n = config.testKernelWorkSize1d();
@@ -386,9 +386,9 @@ TEST(KernelTest, InputOutput1Test)
 
 TEST(KernelTest, InputOutputHost1Test)
 {
-  auto create = ztest::createContext();
+  auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
   const auto& info = device->deviceInfo();
 
   const std::size_t n = config.testKernelWorkSize1d();
@@ -453,9 +453,9 @@ TEST(KernelTest, InputOutputHost1Test)
 
 TEST(KernelTest, InputOutputHost2Test)
 {
-  auto create = ztest::createContext();
+  auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
   const auto& info = device->deviceInfo();
 
   const std::size_t n = config.testKernelWorkSize1d();
@@ -520,9 +520,9 @@ TEST(KernelTest, InputOutputHost2Test)
 
 TEST(KernelTest, InputOutput2Test)
 {
-  auto create = ztest::createContext();
+  auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
   [[maybe_unused]] const auto& info = device->deviceInfo();
 
   const std::size_t n = 256;
@@ -643,9 +643,9 @@ void printWorkItemProperties(const zivc::uint32b* properties) noexcept
 
 TEST(KernelTest, WorkItem1dTest)
 {
-  auto create = ztest::createContext();
+  auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
   [[maybe_unused]] const auto& info = device->deviceInfo();
 
   using zivc::int32b;
@@ -744,9 +744,9 @@ TEST(KernelTest, WorkItem1dTest)
 
 TEST(KernelTest, WorkItem2dTest)
 {
-  auto create = ztest::createContext();
+  auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
   [[maybe_unused]] const auto& info = device->deviceInfo();
 
   using zivc::int32b;
@@ -845,9 +845,9 @@ TEST(KernelTest, WorkItem2dTest)
 
 TEST(KernelTest, WorkItem3dTest)
 {
-  auto create = ztest::createContext();
+  auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
   [[maybe_unused]] const auto& info = device->deviceInfo();
 
   using zivc::int32b;
@@ -946,9 +946,9 @@ TEST(KernelTest, WorkItem3dTest)
 
 TEST(KernelTest, WorkItemOffset1dTest)
 {
-  auto create = ztest::createContext();
+  auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
   [[maybe_unused]] const auto& info = device->deviceInfo();
 
   using zivc::int32b;
@@ -1095,9 +1095,9 @@ TEST(KernelTest, WorkItemOffset1dTest)
 
 TEST(KernelTest, WorkItemOffset3dTest)
 {
-  auto create = ztest::createContext();
+  auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
   [[maybe_unused]] const auto& info = device->deviceInfo();
 
   using zivc::int32b;

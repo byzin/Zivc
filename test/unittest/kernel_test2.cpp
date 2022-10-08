@@ -50,11 +50,46 @@ constexpr zivc::uint32b getExpectedValueForKernelMultipleInvocations() noexcept
 
 } // namespace 
 
+TEST(KernelTest, SharedKernelTest)
+{
+  auto context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Creating a shared kernel
+  const zivc::KernelInitParams params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2,
+                                                                       invocation1Kernel,
+                                                                       1);
+  const zivc::SharedKernel kernel1 = device->createKernel(params);
+  ASSERT_TRUE(static_cast<bool>(kernel1)) << "SharedKernel initialization failed.";
+  ASSERT_EQ(1, kernel1->dimension()) << "SharedKernel initialization failed.";
+  ASSERT_EQ(1, (*kernel1).dimension()) << "SharedKernel initialization failed.";
+  ASSERT_EQ(1, kernel1.useCount()) << "SharedKernel initialization failed.";
+
+  // Casting to common type
+  zivc::SharedKernelCommon common = kernel1;
+
+  // Casting to the derived kernel type
+  using SharedKernelT = std::remove_cvref_t<decltype(kernel1)>;
+  const SharedKernelT kernel2{common};
+  ASSERT_EQ(1, kernel2->dimension()) << "SharedKernel initialization failed.";
+  ASSERT_EQ(1, (*kernel2).dimension()) << "SharedKernel initialization failed.";
+  ASSERT_EQ(3, kernel2.useCount()) << "SharedKernel initialization failed.";
+
+  SharedKernelT kernel3{std::move(common)};
+  ASSERT_EQ(1, kernel3->dimension()) << "SharedKernel initialization failed.";
+  ASSERT_EQ(1, (*kernel3).dimension()) << "SharedKernel initialization failed.";
+  ASSERT_EQ(3, kernel3.useCount()) << "SharedKernel initialization failed.";
+
+  kernel3.reset();
+  ASSERT_EQ(2, kernel1.useCount()) << "SharedKernel initialization failed.";
+}
+
 TEST(KernelTest, KernelMultipleInvocationsTest)
 {
-  auto create = ztest::createContext();
+  auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
   [[maybe_unused]] const auto& info = device->deviceInfo();
 
   using zivc::int32b;
@@ -186,9 +221,9 @@ TEST(KernelTest, KernelMultipleInvocationsTest)
 
 TEST(KernelTest, KernelBufferChangeTest)
 {
-  auto create = ztest::createContext();
+  auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
   [[maybe_unused]] const auto& info = device->deviceInfo();
 
   using zivc::int32b;
@@ -312,9 +347,9 @@ TEST(KernelTest, KernelBufferChangeTest)
 
 TEST(KernelTest, KernelQueueTest)
 {
-  auto create = ztest::createContext();
+  auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
   [[maybe_unused]] const auto& info = device->deviceInfo();
 
   using zivc::int32b;
@@ -455,9 +490,9 @@ TEST(KernelTest, KernelQueueTest)
 
 TEST(KernelTest, KernelFenceTest)
 {
-  auto create = ztest::createContext();
+  auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
   [[maybe_unused]] const auto& info = device->deviceInfo();
 
   using zivc::int32b;
@@ -608,9 +643,9 @@ TEST(KernelTest, KernelReinterpBufferTest)
   using zivc::uint32b;
   using zivc::uint64b;
 
-  auto create = ztest::createContext();
+  auto context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = create->queryDevice(config.deviceId());
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
   [[maybe_unused]] const auto& info = device->deviceInfo();
 
   constexpr std::size_t w = 2560;

@@ -89,14 +89,6 @@ class KernelArgParser
   static constexpr ArgInfoListT<kNumOfBufferArgs> getBufferArgInfoList() noexcept;
 };
 
-// Type aliases
-template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
-using SharedKernel = std::shared_ptr<typename KernelArgParser<Args...>::
-                                         template KernelT<Kernel, kDim, KSet>>;
-template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
-using WeakKernel = std::weak_ptr<typename KernelArgParser<Args...>::
-                                     template KernelT<Kernel, kDim, KSet>>;
-
 } // namespace zivc
 
 #include "kernel_arg_parser-inl.hpp"

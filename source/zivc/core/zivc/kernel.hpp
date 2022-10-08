@@ -32,6 +32,7 @@
 #include "utility/kernel_launch_options.hpp"
 #include "utility/id_data.hpp"
 #include "utility/launch_result.hpp"
+#include "utility/shared_kernel.hpp"
 #include "utility/zivc_object.hpp"
 #include "zivc/zivc_config.hpp"
 

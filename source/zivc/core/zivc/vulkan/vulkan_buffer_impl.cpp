@@ -27,12 +27,15 @@
 #include "utility/vulkan_dispatch_loader.hpp"
 #include "utility/vulkan_hpp.hpp"
 #include "utility/vulkan_memory_allocator.hpp"
+#include "zivc/kernel.hpp"
 #include "zivc/zivc.hpp"
 #include "zivc/zivc_cl.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/kernel_set/kernel_set-zivc_internal_kernel.hpp"
 #include "zivc/utility/buffer_common.hpp"
 #include "zivc/utility/error.hpp"
+#include "zivc/utility/kernel_common.hpp"
+#include "zivc/utility/kernel_init_params.hpp"
 #include "zivc/utility/launch_result.hpp"
 #include "zivc/utility/launch_options.hpp"
 
@@ -54,7 +57,7 @@ auto createFillKernelImpl(zivc::VulkanDevice* device,
                           Params& params)
 {
   params.setVulkanCommandBufferPtr(std::addressof(command_buffer));
-  auto kernel = device->createKernel(params);
+  const zivc::SharedKernel kernel = device->createKernel(params);
   return kernel;
 }
 
@@ -69,8 +72,10 @@ auto createFillKernelImpl(zivc::VulkanDevice* device,
 auto createFillU8KernelImpl(zivc::VulkanDevice* device,
                             const VkCommandBuffer& command_buffer)
 {
-  auto p = ZIVC_CREATE_KERNEL_INIT_PARAMS(zivc_internal_kernel, Zivc_fillU8Kernel, 1);
-  auto kernel = createFillKernelImpl(device, command_buffer, p);
+  zivc::KernelInitParams p = ZIVC_CREATE_KERNEL_INIT_PARAMS(zivc_internal_kernel,
+                                                            Zivc_fillU8Kernel,
+                                                            1);
+  const zivc::SharedKernel kernel = createFillKernelImpl(device, command_buffer, p);
   return kernel;
 }
 
@@ -85,8 +90,10 @@ auto createFillU8KernelImpl(zivc::VulkanDevice* device,
 auto createFillU16KernelImpl(zivc::VulkanDevice* device,
                              const VkCommandBuffer& command_buffer)
 {
-  auto p = ZIVC_CREATE_KERNEL_INIT_PARAMS(zivc_internal_kernel, Zivc_fillU16Kernel, 1);
-  auto kernel = createFillKernelImpl(device, command_buffer, p);
+  zivc::KernelInitParams p = ZIVC_CREATE_KERNEL_INIT_PARAMS(zivc_internal_kernel,
+                                                            Zivc_fillU16Kernel,
+                                                            1);
+  const zivc::SharedKernel kernel = createFillKernelImpl(device, command_buffer, p);
   return kernel;
 }
 
@@ -101,8 +108,10 @@ auto createFillU16KernelImpl(zivc::VulkanDevice* device,
 auto createFillU32KernelImpl(zivc::VulkanDevice* device,
                              const VkCommandBuffer& command_buffer)
 {
-  auto p = ZIVC_CREATE_KERNEL_INIT_PARAMS(zivc_internal_kernel, Zivc_fillU32Kernel, 1);
-  auto kernel = createFillKernelImpl(device, command_buffer, p);
+  zivc::KernelInitParams p = ZIVC_CREATE_KERNEL_INIT_PARAMS(zivc_internal_kernel,
+                                                            Zivc_fillU32Kernel,
+                                                            1);
+  const zivc::SharedKernel kernel = createFillKernelImpl(device, command_buffer, p);
   return kernel;
 }
 
@@ -117,8 +126,10 @@ auto createFillU32KernelImpl(zivc::VulkanDevice* device,
 auto createFillU64KernelImpl(zivc::VulkanDevice* device,
                              const VkCommandBuffer& command_buffer)
 {
-  auto p = ZIVC_CREATE_KERNEL_INIT_PARAMS(zivc_internal_kernel, Zivc_fillU64Kernel, 1);
-  auto kernel = createFillKernelImpl(device, command_buffer, p);
+  zivc::KernelInitParams p = ZIVC_CREATE_KERNEL_INIT_PARAMS(zivc_internal_kernel,
+                                                            Zivc_fillU64Kernel,
+                                                            1);
+  const zivc::SharedKernel kernel = createFillKernelImpl(device, command_buffer, p);
   return kernel;
 }
 
@@ -133,8 +144,10 @@ auto createFillU64KernelImpl(zivc::VulkanDevice* device,
 auto createFillU128KernelImpl(zivc::VulkanDevice* device,
                               const VkCommandBuffer& command_buffer)
 {
-  auto p = ZIVC_CREATE_KERNEL_INIT_PARAMS(zivc_internal_kernel, Zivc_fillU128Kernel, 1);
-  auto kernel = createFillKernelImpl(device, command_buffer, p);
+  zivc::KernelInitParams p = ZIVC_CREATE_KERNEL_INIT_PARAMS(zivc_internal_kernel,
+                                                            Zivc_fillU128Kernel,
+                                                            1);
+  const zivc::SharedKernel kernel = createFillKernelImpl(device, command_buffer, p);
   return kernel;
 }
 
@@ -178,20 +191,20 @@ void VulkanBufferImpl::allocateMemory(const std::size_t size,
                                       VmaAllocationInfo* alloc_info) const
 {
   uint32b index_list_size = 0;
-  const auto family_index_list = device().getQueueFamilyIndexList(&index_list_size);
+  const std::array family_index_list = device().getQueueFamilyIndexList(&index_list_size);
   VkBufferCreateInfo binfo = createBufferCreateInfo(size, desc_type);
   binfo.queueFamilyIndexCount = index_list_size;
   binfo.pQueueFamilyIndices = family_index_list.data();
 
-  const auto alloc_create_info = createAllocCreateInfo(object.usage(),
-                                                       object.flag(),
-                                                       user_data);
-  const auto result = vmaCreateBuffer(device().memoryAllocator(),
-                                      std::addressof(binfo),
-                                      std::addressof(alloc_create_info),
-                                      buffer,
-                                      vm_allocation,
-                                      alloc_info);
+  const VmaAllocationCreateInfo alloc_create_info = createAllocCreateInfo(object.usage(),
+                                                                          object.flag(),
+                                                                          user_data);
+  const VkResult result = vmaCreateBuffer(device().memoryAllocator(),
+                                          std::addressof(binfo),
+                                          std::addressof(alloc_create_info),
+                                          buffer,
+                                          vm_allocation,
+                                          alloc_info);
   if (result != VK_SUCCESS) [[unlikely]] {
     const std::string message = createErrorMessage(
         object,
@@ -249,8 +262,9 @@ void VulkanBufferImpl::deallocateMemory(
   \details No detailed description
 
   \tparam Type No description.
-  \tparam KernelType No description.
-  \param [in] fill_kernel No description.
+  \tparam KType No description.
+  \tparam KTypes No description.
+  \param [in] kernel No description.
   \param [in] data_buffer No description.
   \param [out] buffer No description.
   \param [in] launch_options No description.
@@ -258,25 +272,22 @@ void VulkanBufferImpl::deallocateMemory(
   \param [in] size No description.
   \return No description
   */
-template <typename Type, typename KernelType>
-LaunchResult VulkanBufferImpl::fillImpl(KernelCommon* fill_kernel,
+template <typename Type, typename KType, typename ...KTypes>
+LaunchResult VulkanBufferImpl::fillImpl(Kernel<KType, KTypes...>* kernel,
                                         Buffer<Type>* data_buffer,
                                         Buffer<Type>* buffer,
                                         const LaunchOptions& launch_options,
                                         const std::size_t offset,
                                         const std::size_t size) const
 {
-  using FillKernelP = std::add_pointer_t<KernelType>;
   using FillInfoT = zivc::cl::zivc::FillInfo;
-  auto* kernel = static_cast<FillKernelP>(fill_kernel);
-
-  auto kernel_launch_options = kernel->createOptions();
-  const std::size_t work_size = (size + FillInfoT::batchSize() - 1) /
-                                FillInfoT::batchSize();
 
   constexpr std::size_t type_size = sizeof(Type);
   const std::size_t adjustment = (type_size <= 2) ? data_buffer->size() : 1;
 
+  KernelLaunchOptions kernel_launch_options = kernel->createOptions();
+  const std::size_t work_size = (size + FillInfoT::batchSize() - 1) /
+                                FillInfoT::batchSize();
   kernel_launch_options.setWorkSize({{zisc::cast<uint32b>(work_size * adjustment)}});
   kernel_launch_options.setQueueIndex(launch_options.queueIndex());
   kernel_launch_options.requestFence(launch_options.isFenceRequested());
@@ -288,7 +299,7 @@ LaunchResult VulkanBufferImpl::fillImpl(KernelCommon* fill_kernel,
   info.setElementSize(size * adjustment);
   info.setDataSize(data_buffer->size());
 
-  auto result = kernel->run(*data_buffer, *buffer, info, kernel_launch_options);
+  LaunchResult result = kernel->run(*data_buffer, *buffer, info, kernel_launch_options);
   return result;
 }
 
@@ -310,10 +321,10 @@ LaunchResult VulkanBufferImpl::fillU8(KernelCommon* fill_kernel,
                                       const std::size_t offset,
                                       const std::size_t size) const
 {
-  using FillKernelT =
-      std::remove_cvref_t<decltype(*::createFillU8KernelImpl(nullptr, nullptr))>;
-  auto result = fillImpl<uint8b, FillKernelT>(fill_kernel, data_buffer, buffer,
-                                              launch_options, offset, size);
+  using KernelT = decltype(::createFillU8KernelImpl(nullptr, nullptr))::ElementT;
+  auto* kernel = static_cast<KernelT*>(fill_kernel);
+  LaunchResult result = fillImpl<uint8b>(kernel, data_buffer, buffer,
+                                         launch_options, offset, size);
   return result;
 }
 
@@ -335,10 +346,10 @@ LaunchResult VulkanBufferImpl::fillU16(KernelCommon* fill_kernel,
                                        const std::size_t offset,
                                        const std::size_t size) const
 {
-  using FillKernelT =
-      std::remove_cvref_t<decltype(*::createFillU16KernelImpl(nullptr, nullptr))>;
-  auto result = fillImpl<uint16b, FillKernelT>(fill_kernel, data_buffer, buffer,
-                                               launch_options, offset, size);
+  using KernelT = decltype(::createFillU16KernelImpl(nullptr, nullptr))::ElementT;
+  auto* kernel = static_cast<KernelT*>(fill_kernel);
+  LaunchResult result = fillImpl<uint16b>(kernel, data_buffer, buffer,
+                                          launch_options, offset, size);
   return result;
 }
 
@@ -360,10 +371,10 @@ LaunchResult VulkanBufferImpl::fillU32(KernelCommon* fill_kernel,
                                        const std::size_t offset,
                                        const std::size_t size) const
 {
-  using FillKernelT =
-      std::remove_cvref_t<decltype(*::createFillU32KernelImpl(nullptr, nullptr))>;
-  auto result = fillImpl<uint32b, FillKernelT>(fill_kernel, data_buffer, buffer,
-                                               launch_options, offset, size);
+  using KernelT = decltype(::createFillU32KernelImpl(nullptr, nullptr))::ElementT;
+  auto* kernel = static_cast<KernelT*>(fill_kernel);
+  LaunchResult result = fillImpl<uint32b>(kernel, data_buffer, buffer,
+                                          launch_options, offset, size);
   return result;
 }
 
@@ -385,10 +396,10 @@ LaunchResult VulkanBufferImpl::fillU64(KernelCommon* fill_kernel,
                                        const std::size_t offset,
                                        const std::size_t size) const
 {
-  using FillKernelT =
-      std::remove_cvref_t<decltype(*::createFillU64KernelImpl(nullptr, nullptr))>;
-  auto result = fillImpl<cl_uint2, FillKernelT>(fill_kernel, data_buffer, buffer,
-                                                launch_options, offset, size);
+  using KernelT = decltype(::createFillU64KernelImpl(nullptr, nullptr))::ElementT;
+  auto* kernel = static_cast<KernelT*>(fill_kernel);
+  LaunchResult result = fillImpl<cl_uint2>(kernel, data_buffer, buffer,
+                                           launch_options, offset, size);
   return result;
 }
 
@@ -410,10 +421,10 @@ LaunchResult VulkanBufferImpl::fillU128(KernelCommon* fill_kernel,
                                        const std::size_t offset,
                                        const std::size_t size) const
 {
-  using FillKernelT =
-      std::remove_cvref_t<decltype(*::createFillU128KernelImpl(nullptr, nullptr))>;
-  auto result = fillImpl<cl_uint4, FillKernelT>(fill_kernel, data_buffer, buffer,
-                                                launch_options, offset, size);
+  using KernelT = decltype(::createFillU128KernelImpl(nullptr, nullptr))::ElementT;
+  auto* kernel = static_cast<KernelT*>(fill_kernel);
+  LaunchResult result = fillImpl<cl_uint4>(kernel, data_buffer, buffer,
+                                           launch_options, offset, size);
   return result;
 }
 
@@ -458,14 +469,14 @@ void VulkanBufferImpl::initAllocationInfo(const BufferCommon& object,
 
   VkBufferCreateInfo binfo = createBufferCreateInfo(1, desc_type);
   uint32b index_list_size = 0;
-  const auto family_index_list = device().getQueueFamilyIndexList(&index_list_size);
+  const std::array family_index_list = device().getQueueFamilyIndexList(&index_list_size);
   binfo.queueFamilyIndexCount = index_list_size;
   binfo.pQueueFamilyIndices = family_index_list.data();
 
-  const auto alloc_create_info = createAllocCreateInfo(object.usage(),
-                                                       object.flag(),
-                                                       nullptr);
-  const auto result = vmaFindMemoryTypeIndexForBufferInfo(
+  const VmaAllocationCreateInfo alloc_create_info = createAllocCreateInfo(object.usage(),
+                                                                          object.flag(),
+                                                                          nullptr);
+  const VkResult result = vmaFindMemoryTypeIndexForBufferInfo(
       device().memoryAllocator(),
       std::addressof(binfo),
       std::addressof(alloc_create_info),
@@ -550,11 +561,12 @@ VkBufferCreateInfo VulkanBufferImpl::createBufferCreateInfo(
   \param [in] command_buffer No description.
   \return No description
   */
-std::shared_ptr<KernelCommon> VulkanBufferImpl::createFillU8Kernel(
+SharedKernelCommon VulkanBufferImpl::createFillU8Kernel(
     const VkCommandBuffer& command_buffer)
 {
-  auto kernel = ::createFillU8KernelImpl(std::addressof(device()), command_buffer);
-  return std::move(kernel);
+  zivc::SharedKernel kernel = ::createFillU8KernelImpl(std::addressof(device()),
+                                                       command_buffer);
+  return std::move(kernel.data());
 }
 
 /*!
@@ -563,11 +575,12 @@ std::shared_ptr<KernelCommon> VulkanBufferImpl::createFillU8Kernel(
   \param [in] command_buffer No description.
   \return No description
   */
-std::shared_ptr<KernelCommon> VulkanBufferImpl::createFillU16Kernel(
+SharedKernelCommon VulkanBufferImpl::createFillU16Kernel(
     const VkCommandBuffer& command_buffer)
 {
-  auto kernel = ::createFillU16KernelImpl(std::addressof(device()), command_buffer);
-  return std::move(kernel);
+  zivc::SharedKernel kernel = ::createFillU16KernelImpl(std::addressof(device()),
+                                                        command_buffer);
+  return std::move(kernel.data());
 }
 
 /*!
@@ -576,11 +589,12 @@ std::shared_ptr<KernelCommon> VulkanBufferImpl::createFillU16Kernel(
   \param [in] command_buffer No description.
   \return No description
   */
-std::shared_ptr<KernelCommon> VulkanBufferImpl::createFillU32Kernel(
+SharedKernelCommon VulkanBufferImpl::createFillU32Kernel(
     const VkCommandBuffer& command_buffer)
 {
-  auto kernel = ::createFillU32KernelImpl(std::addressof(device()), command_buffer);
-  return std::move(kernel);
+  zivc::SharedKernel kernel = ::createFillU32KernelImpl(std::addressof(device()),
+                                                        command_buffer);
+  return std::move(kernel.data());
 }
 
 /*!
@@ -589,11 +603,12 @@ std::shared_ptr<KernelCommon> VulkanBufferImpl::createFillU32Kernel(
   \param [in] command_buffer No description.
   \return No description
   */
-std::shared_ptr<KernelCommon> VulkanBufferImpl::createFillU64Kernel(
+SharedKernelCommon VulkanBufferImpl::createFillU64Kernel(
     const VkCommandBuffer& command_buffer)
 {
-  auto kernel = ::createFillU64KernelImpl(std::addressof(device()), command_buffer);
-  return std::move(kernel);
+  zivc::SharedKernel kernel = ::createFillU64KernelImpl(std::addressof(device()),
+                                                        command_buffer);
+  return std::move(kernel.data());
 }
 
 /*!
@@ -602,11 +617,12 @@ std::shared_ptr<KernelCommon> VulkanBufferImpl::createFillU64Kernel(
   \param [in] command_buffer No description.
   \return No description
   */
-std::shared_ptr<KernelCommon> VulkanBufferImpl::createFillU128Kernel(
+SharedKernelCommon VulkanBufferImpl::createFillU128Kernel(
     const VkCommandBuffer& command_buffer)
 {
-  auto kernel = ::createFillU128KernelImpl(std::addressof(device()), command_buffer);
-  return std::move(kernel);
+  zivc::SharedKernel kernel = ::createFillU128KernelImpl(std::addressof(device()),
+                                                         command_buffer);
+  return std::move(kernel.data());
 }
 
 /*!

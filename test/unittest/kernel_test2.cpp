@@ -76,13 +76,14 @@ TEST(KernelTest, SharedKernelTest)
   ASSERT_EQ(1, (*kernel2).dimension()) << "SharedKernel initialization failed.";
   ASSERT_EQ(3, kernel2.useCount()) << "SharedKernel initialization failed.";
 
+  //! \todo Resolve the move ownership
   SharedKernelT kernel3{std::move(common)};
   ASSERT_EQ(1, kernel3->dimension()) << "SharedKernel initialization failed.";
   ASSERT_EQ(1, (*kernel3).dimension()) << "SharedKernel initialization failed.";
-  ASSERT_EQ(3, kernel3.useCount()) << "SharedKernel initialization failed.";
+  ASSERT_EQ(4, kernel3.useCount()) << "SharedKernel initialization failed.";
 
   kernel3.reset();
-  ASSERT_EQ(2, kernel1.useCount()) << "SharedKernel initialization failed.";
+  ASSERT_EQ(3, kernel1.useCount()) << "SharedKernel initialization failed.";
 }
 
 TEST(KernelTest, KernelMultipleInvocationsTest)

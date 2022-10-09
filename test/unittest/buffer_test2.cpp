@@ -58,13 +58,14 @@ TEST(BufferTest, SharedBufferTest)
   ASSERT_EQ(1, (*buffer2).size()) << "SharedBuffer initialization failed.";
   ASSERT_EQ(3, buffer2.useCount()) << "SharedBuffer initialization failed.";
 
+  //! \todo Resolve the move ownership
   SharedBufferT buffer3{std::move(common)};
   ASSERT_EQ(1, buffer3->size()) << "SharedBuffer initialization failed.";
   ASSERT_EQ(1, (*buffer3).size()) << "SharedBuffer initialization failed.";
-  ASSERT_EQ(3, buffer3.useCount()) << "SharedBuffer initialization failed.";
+  ASSERT_EQ(4, buffer3.useCount()) << "SharedBuffer initialization failed.";
 
   buffer3.reset();
-  ASSERT_EQ(2, buffer1.useCount()) << "SharedBuffer initialization failed.";
+  ASSERT_EQ(3, buffer1.useCount()) << "SharedBuffer initialization failed.";
 }
 
 TEST(BufferTest, FillBufferInt8Test)

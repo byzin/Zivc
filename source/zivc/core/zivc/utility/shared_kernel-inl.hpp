@@ -52,6 +52,7 @@ template <typename T> inline
 SharedKernel<kDim, KSet, Args...>::SharedKernel(std::shared_ptr<T>&& ptr) noexcept :
     ptr_{static_pointer_cast<KernelT>(std::move(ptr))}
 {
+  //! \todo Resolve the move ownership. The pointer_cast just copy, not move
 }
 
 /*!
@@ -82,6 +83,7 @@ template <typename T> inline
 auto SharedKernel<kDim, KSet, Args...>::operator=(std::shared_ptr<T>&& ptr) noexcept
     -> SharedKernel&
 {
+  //! \todo Resolve the move ownership. The pointer_cast just copy, not move
   ptr_ = static_pointer_cast<KernelT>(std::move(ptr));
   return *this;
 }

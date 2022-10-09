@@ -48,6 +48,7 @@ template <KernelArg Type> template <typename T> inline
 SharedBuffer<Type>::SharedBuffer(std::shared_ptr<T>&& ptr) noexcept :
     ptr_{static_pointer_cast<BufferT>(std::move(ptr))}
 {
+  //! \todo Resolve the move ownership. The pointer_cast just copy, not move
 }
 
 /*!
@@ -76,6 +77,7 @@ template <KernelArg Type> template <typename T> inline
 auto SharedBuffer<Type>::operator=(std::shared_ptr<T>&& ptr) noexcept
     -> SharedBuffer&
 {
+  //! \todo Resolve the move ownership. The pointer_cast just copy, not move
   ptr_ = static_pointer_cast<BufferT>(std::move(ptr));
   return *this;
 }

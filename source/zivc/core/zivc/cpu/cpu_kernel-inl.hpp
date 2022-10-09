@@ -42,7 +42,6 @@
 #include "zivc/utility/kernel_launch_options.hpp"
 #include "zivc/utility/kernel_init_params.hpp"
 #include "zivc/utility/launch_result.hpp"
-#include "zivc/utility/type_pack.hpp"
 
 namespace zivc {
 

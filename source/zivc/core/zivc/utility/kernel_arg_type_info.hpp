@@ -38,6 +38,7 @@ template <typename Type>
 class KernelArgTypeInfo
 {
  public:
+  // Type aliases
   using ElementT = std::remove_cv_t<Type>;
 
 

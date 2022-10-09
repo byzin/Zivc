@@ -1,5 +1,5 @@
 /*!
-  \file type_pack.hpp
+  \file kernel_arg_pack.hpp
   \author Sho Ikeda
   \brief No brief description
 
@@ -12,13 +12,18 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_TYPE_PACK_HPP
-#define ZIVC_TYPE_PACK_HPP
+#ifndef ZIVC_KERNEL_ARG_PACK_HPP
+#define ZIVC_KERNEL_ARG_PACK_HPP
 
 // Standard C++ library
 #include <cstddef>
+// Zivc
+#include "zivc/zivc_config.hpp"
 
 namespace zivc {
+
+// Forward declaration
+template <KernelArg> class Buffer;
 
 /*!
   \brief No brief description
@@ -28,7 +33,7 @@ namespace zivc {
   \tparam Types No description.
   */
 template <typename ...Types>
-struct TypePack
+struct KernelArgPack
 {
   //! First type in Types
   using ValueT = void;
@@ -38,8 +43,13 @@ struct TypePack
   static constexpr std::size_t size() noexcept;
 };
 
+//! Concatenate the two packs
+template <typename Type1, typename ...Types2>
+auto operator+(const KernelArgPack<Type1>& lhs,
+               const KernelArgPack<Types2...>& rhs) noexcept;
+
 } // namespace zivc
 
-#include "type_pack-inl.hpp"
+#include "kernel_arg_pack-inl.hpp"
 
-#endif // ZIVC_TYPE_PACK_HPP
+#endif // ZIVC_KERNEL_ARG_PACK_HPP

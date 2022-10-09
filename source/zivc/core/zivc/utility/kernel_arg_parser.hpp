@@ -30,8 +30,7 @@ namespace zivc {
 // Forward declaration
 template <std::size_t, DerivedKSet, typename...> class KernelInitParams;
 template <typename, typename...> class Kernel;
-template <typename...> class KernelArgParserImpl;
-template <typename ...> struct TypePack;
+template <typename ...> struct KernelArgPack;
 
 /*!
   \brief Parse kernel arguments and provide kernel information
@@ -43,51 +42,71 @@ template <typename ...> struct TypePack;
 template <typename ...Args>
 class KernelArgParser 
 {
-  //! A kernel type helper class
-  template <typename> struct KernelTypeHelper;
+  //! Pack kernel arguments
+  static auto packArguments() noexcept;
 
-  //! A kernel type helper class
+  //! Return the number of global arguments
+  static constexpr std::size_t numOfGlobalArgs() noexcept;
+
+  //! Return the number of global arguments
+  static constexpr std::size_t numOfLocalArgs() noexcept;
+
+  //! Return the number of global arguments
+  static constexpr std::size_t numOfPodArgs() noexcept;
+
+  //! Return the number of global arguments
+  static constexpr std::size_t numOfBufferArgs() noexcept;
+
+
+  //!
+  template <typename ...> struct Pack;
+
+  //!
   template <typename ...KArgs>
-  struct KernelTypeHelper<TypePack<KArgs...>>
+  struct Pack<KernelArgPack<KArgs...>>
   {
-    template <template<typename, typename...> typename KernelT, std::size_t kDim, DerivedKSet KSet>
-    using T = KernelT<KernelInitParams<kDim, KSet, Args...>, KArgs...>;
+    template <template<typename, typename...> typename K, std::size_t D, DerivedKSet S>
+    using T = K<KernelInitParams<D, S, Args...>, KArgs...>;
   };
 
-
   // Type aliases
-  using ImplT = KernelArgParserImpl<Args...>;
-  using HelperT = KernelTypeHelper<typename ImplT::ArgTypePackT>;
+  using PackT = Pack<decltype(packArguments())>;
 
  public:
   // Type aliases
   template <std::size_t kSize>
   using ArgInfoListT = std::array<KernelArgInfo, kSize>;
-  template <template<typename, typename...> typename KernelT, std::size_t kDim, DerivedKSet KSet>
-  using KernelT = typename HelperT::template T<KernelT, kDim, KSet>;
+  template <template<typename, typename...> typename K, std::size_t D, DerivedKSet S>
+  using KernelT = typename PackT::template T<K, D, S>;
 
 
   // The number of kernel arguments
-  static constexpr std::size_t kNumOfArgs = ImplT::kNumOfArgs; //!< The number of arguments
-  static constexpr std::size_t kNumOfGlobalArgs = ImplT::kNumOfGlobalArgs; //!< The number of globals
-  static constexpr std::size_t kNumOfLocalArgs = ImplT::kNumOfLocalArgs; //!< The number of locals
-  static constexpr std::size_t kNumOfConstantArgs = ImplT::kNumOfConstantArgs; //!< The number of constants
-  static constexpr std::size_t kNumOfPodArgs = ImplT::kNumOfPodArgs; //!< The number of PODs
-  static constexpr std::size_t kNumOfBufferArgs = ImplT::kNumOfBufferArgs; //!< The number of buffers
+  static constexpr std::size_t kNumOfArgs = sizeof...(Args);
+  static constexpr std::size_t kNumOfGlobalArgs = numOfGlobalArgs();
+  static constexpr std::size_t kNumOfLocalArgs = numOfLocalArgs();
+  static constexpr std::size_t kNumOfPodArgs = numOfPodArgs();
+  static constexpr std::size_t kNumOfBufferArgs = numOfBufferArgs();
 
 
-  //! Return the info of arguments
+  //! Return the list of kernel argument info
   static constexpr ArgInfoListT<kNumOfArgs> getArgInfoList() noexcept;
 
-  //! Return the info of local arguments
+  //! Return the list of global argument info
+  static constexpr ArgInfoListT<kNumOfGlobalArgs> getGlobalArgInfoList() noexcept;
+
+  //! Return the list of local argument info
   static constexpr ArgInfoListT<kNumOfLocalArgs> getLocalArgInfoList() noexcept;
 
-  //! Return the info of POD arguments
+  //! Return the list of pod argument info
   static constexpr ArgInfoListT<kNumOfPodArgs> getPodArgInfoList() noexcept;
 
-  //! Return the info of buffer arguments
+  //! Return the list of buffer argument info
   static constexpr ArgInfoListT<kNumOfBufferArgs> getBufferArgInfoList() noexcept;
 };
+
+//! Create an argument info
+template <typename Type>
+constexpr KernelArgInfo createArgInfo() noexcept;
 
 } // namespace zivc
 

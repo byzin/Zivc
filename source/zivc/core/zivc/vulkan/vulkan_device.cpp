@@ -320,7 +320,7 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
     kernel_data->pipeline_layout_ = zisc::cast<VkPipelineLayout>(pline_layout);
     kernel_data->pipeline_ = zisc::cast<VkPipeline>(pline);
 
-    const std::optional<std::size_t> result = kernelDataList().add(id, std::move(kernel_data));
+    [[maybe_unused]] const std::optional<std::size_t> result = kernelDataList().add(id, std::move(kernel_data));
     //! \todo Raise an exception
     ZIVC_ASSERT(result.has_value(), "The kernel list overflowed.");
   }
@@ -391,7 +391,7 @@ auto VulkanDevice::getQueueFamilyIndexList(uint32b* size) const noexcept
     if (!hasCapability(cap))
       continue;
     const uint32b family_index = queueFamilyIndex(cap);
-    auto* const ite = std::find(index_list.begin(), index_list.end(), family_index);
+    const auto ite = std::find(index_list.begin(), index_list.end(), family_index);
     if (ite == index_list.end())
       index_list[s++] = family_index;
   }
@@ -990,7 +990,7 @@ auto VulkanDevice::addShaderModule(const uint64b id,
     module_data->name_ = module_name;
     module_data->module_ = zisc::cast<VkShaderModule>(module);
 
-    const std::optional<std::size_t> result = moduleDataList().add(id, std::move(module_data));
+    [[maybe_unused]] const std::optional<std::size_t> result = moduleDataList().add(id, std::move(module_data));
     //! \todo Raise an exception
     ZIVC_ASSERT(result.has_value(), "The module list overflowed.");
   }
@@ -1096,7 +1096,7 @@ uint32b VulkanDevice::findQueueFamily(const CapabilityT cap,
     for (uint32b i = 0; i < queue_family_list.size(); ++i) {
       if (!allow_overlap) {
         const auto& index_list = queue_family_index_list_;
-        const auto* const ite = std::find(index_list.begin(), index_list.end(), i);
+        const auto ite = std::find(index_list.begin(), index_list.end(), i);
         if (ite != index_list.end())
           continue;
       }

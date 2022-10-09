@@ -45,20 +45,7 @@ class KernelArgParser
   //! Pack kernel arguments
   static auto packArguments() noexcept;
 
-  //! Return the number of global arguments
-  static constexpr std::size_t numOfGlobalArgs() noexcept;
-
-  //! Return the number of global arguments
-  static constexpr std::size_t numOfLocalArgs() noexcept;
-
-  //! Return the number of global arguments
-  static constexpr std::size_t numOfPodArgs() noexcept;
-
-  //! Return the number of global arguments
-  static constexpr std::size_t numOfBufferArgs() noexcept;
-
-
-  //!
+  // Forward declaration
   template <typename ...> struct Pack;
 
   //!
@@ -71,17 +58,38 @@ class KernelArgParser
 
   // Type aliases
   using PackT = Pack<decltype(packArguments())>;
+  template <std::size_t kSize>
+  using ArgInfoListImplT = std::array<KernelArgInfo, kSize>;
+
+
+  static constexpr std::size_t kNumOfArgsImpl = sizeof...(Args);
+
+
+  //! Return the list of kernel argument info
+  static constexpr ArgInfoListImplT<kNumOfArgsImpl> getArgInfoListImpl() noexcept;
+
+  //! Return the number of global arguments
+  static constexpr std::size_t numOfGlobalArgs() noexcept;
+
+  //! Return the number of global arguments
+  static constexpr std::size_t numOfLocalArgs() noexcept;
+
+  //! Return the number of global arguments
+  static constexpr std::size_t numOfPodArgs() noexcept;
+
+  //! Return the number of global arguments
+  static constexpr std::size_t numOfBufferArgs() noexcept;
 
  public:
   // Type aliases
   template <std::size_t kSize>
-  using ArgInfoListT = std::array<KernelArgInfo, kSize>;
+  using ArgInfoListT = ArgInfoListImplT<kSize>;
   template <template<typename, typename...> typename K, std::size_t D, DerivedKSet S>
   using KernelT = typename PackT::template T<K, D, S>;
 
 
   // The number of kernel arguments
-  static constexpr std::size_t kNumOfArgs = sizeof...(Args);
+  static constexpr std::size_t kNumOfArgs = kNumOfArgsImpl;
   static constexpr std::size_t kNumOfGlobalArgs = numOfGlobalArgs();
   static constexpr std::size_t kNumOfLocalArgs = numOfLocalArgs();
   static constexpr std::size_t kNumOfPodArgs = numOfPodArgs();

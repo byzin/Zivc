@@ -41,6 +41,7 @@ function(getTestWarningFlags test_warning_flags)
                                )
     elseif(Z_VISUAL_STUDIO)
       list(APPEND warning_flags
+                               /wd6326 # Potential comparison of a constant with another constant
                                )
     endif()
   endif()

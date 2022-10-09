@@ -47,9 +47,29 @@ auto KernelArgParser<Args...>::packArguments() noexcept
   \return No description
   */
 template <typename ...Args> inline
+constexpr auto KernelArgParser<Args...>::getArgInfoListImpl() noexcept
+    -> ArgInfoListImplT<kNumOfArgsImpl>
+{
+  ArgInfoListImplT<kNumOfArgsImpl> info_list{createArgInfo<Args>()...};
+  std::size_t local_offset = 0;
+  for (std::size_t index = 0; index < info_list.size(); ++index) {
+    KernelArgInfo& info = info_list[index];
+    info.setIndex(index);
+    info.setLocalOffset(local_offset);
+    local_offset = info.isLocal() ? local_offset + 1 : local_offset;
+  }
+  return info_list;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <typename ...Args> inline
 constexpr std::size_t KernelArgParser<Args...>::numOfGlobalArgs() noexcept
 {
-  const std::array info_list = getArgInfoList();
+  const std::array info_list = getArgInfoListImpl();
   std::size_t n = 0;
   for (const KernelArgInfo& info : info_list)
     n = info.isGlobal() ? n + 1 : n;
@@ -64,7 +84,7 @@ constexpr std::size_t KernelArgParser<Args...>::numOfGlobalArgs() noexcept
 template <typename ...Args> inline
 constexpr std::size_t KernelArgParser<Args...>::numOfLocalArgs() noexcept
 {
-  const std::array info_list = getArgInfoList();
+  const std::array info_list = getArgInfoListImpl();
   std::size_t n = 0;
   for (const KernelArgInfo& info : info_list)
     n = info.isLocal() ? n + 1 : n;
@@ -79,7 +99,7 @@ constexpr std::size_t KernelArgParser<Args...>::numOfLocalArgs() noexcept
 template <typename ...Args> inline
 constexpr std::size_t KernelArgParser<Args...>::numOfPodArgs() noexcept
 {
-  const std::array info_list = getArgInfoList();
+  const std::array info_list = getArgInfoListImpl();
   std::size_t n = 0;
   for (const KernelArgInfo& info : info_list)
     n = info.isPod() ? n + 1 : n;
@@ -94,7 +114,7 @@ constexpr std::size_t KernelArgParser<Args...>::numOfPodArgs() noexcept
 template <typename ...Args> inline
 constexpr std::size_t KernelArgParser<Args...>::numOfBufferArgs() noexcept
 {
-  const std::array info_list = getArgInfoList();
+  const std::array info_list = getArgInfoListImpl();
   std::size_t n = 0;
   for (const KernelArgInfo& info : info_list)
     n = info.isBuffer() ? n + 1 : n;
@@ -110,15 +130,7 @@ template <typename ...Args> inline
 constexpr auto KernelArgParser<Args...>::getArgInfoList() noexcept
     -> ArgInfoListT<kNumOfArgs>
 {
-  ArgInfoListT<kNumOfArgs> info_list{createArgInfo<Args>()...};
-  std::size_t local_offset = 0;
-  for (std::size_t index = 0; index < info_list.size(); ++index) {
-    KernelArgInfo& info = info_list[index];
-    info.setIndex(index);
-    info.setLocalOffset(local_offset);
-    local_offset = info.isLocal() ? local_offset + 1 : local_offset;
-  }
-  return info_list;
+  return getArgInfoListImpl();
 }
 
 /*!

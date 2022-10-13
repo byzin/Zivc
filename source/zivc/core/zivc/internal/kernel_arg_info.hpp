@@ -23,7 +23,7 @@
 // Zivc
 #include "zivc/zivc_config.hpp"
 
-namespace zivc {
+namespace zivc::internal {
 
 /*!
   \brief No brief description
@@ -81,7 +81,7 @@ class KernelArgInfo
   [[maybe_unused]] std::array<uint8b, 2> padding_{0, 0};
 };
 
-} // namespace zivc
+} // namespace zivc::internal
 
 #include "kernel_arg_info-inl.hpp"
 

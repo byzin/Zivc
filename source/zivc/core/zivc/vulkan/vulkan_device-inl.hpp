@@ -33,15 +33,15 @@
 // Zivc
 #include "vulkan_backend.hpp"
 #include "vulkan_device_info.hpp"
-#include "utility/cmd_debug_label_region.hpp"
-#include "utility/cmd_record_region.hpp"
-#include "utility/queue_debug_label_region.hpp"
+#include "internal/cmd_debug_label_region.hpp"
+#include "internal/cmd_record_region.hpp"
+#include "internal/queue_debug_label_region.hpp"
+#include "internal/vulkan_memory_allocator.hpp"
 #include "utility/vulkan.hpp"
 #include "utility/vulkan_dispatch_loader.hpp"
-#include "utility/vulkan_memory_allocator.hpp"
 #include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
-#include "zivc/utility/error.hpp"
+#include "zivc/auxiliary/error.hpp"
 
 namespace zivc {
 
@@ -51,8 +51,7 @@ namespace zivc {
   \tparam SetType No description.
   */
 template <typename SetType> inline
-auto VulkanDevice::addShaderModule(KernelSet<SetType>& kernel_set)
-    -> const ModuleData&
+auto VulkanDevice::addShaderModule(KernelSet<SetType>& kernel_set) -> const ModuleData&
 {
   const uint64b id = kernel_set.id();
   if (hasShaderModule(id))
@@ -116,7 +115,7 @@ const VkDevice& VulkanDevice::device() const noexcept
 inline
 const VulkanDeviceInfo& VulkanDevice::deviceInfoImpl() const noexcept
 {
-  const auto& info = deviceInfo();
+  const DeviceInfo& info = deviceInfo();
   return *static_cast<const VulkanDeviceInfo*>(std::addressof(info));
 }
 
@@ -258,7 +257,7 @@ constexpr uint32b VulkanDevice::invalidQueueIndex() noexcept
   \return No description
   */
 template <LabelOptions Options> inline
-CmdDebugLabelRegion VulkanDevice::makeCmdDebugLabel(
+internal::CmdDebugLabelRegion VulkanDevice::makeCmdDebugLabel(
     const VkCommandBuffer& command_buffer,
     const Options& options) const noexcept
 {
@@ -277,7 +276,7 @@ CmdDebugLabelRegion VulkanDevice::makeCmdDebugLabel(
   \return No description
   */
 template <LabelOptions Options> inline
-QueueDebugLabelRegion VulkanDevice::makeQueueDebugLabel(
+internal::QueueDebugLabelRegion VulkanDevice::makeQueueDebugLabel(
     const VkQueue& q,
     const Options& options) const noexcept
 {
@@ -401,7 +400,7 @@ auto VulkanDevice::fenceIndexQueue() const noexcept -> const IndexQueueT&
 inline
 VulkanBackend& VulkanDevice::parentImpl() noexcept
 {
-  auto p = getParent();
+  ZivcObject* p = getParent();
   return *static_cast<VulkanBackend*>(p);
 }
 
@@ -413,7 +412,7 @@ VulkanBackend& VulkanDevice::parentImpl() noexcept
 inline
 const VulkanBackend& VulkanDevice::parentImpl() const noexcept
 {
-  const auto p = getParent();
+  const ZivcObject* p = getParent();
   return *static_cast<const VulkanBackend*>(p);
 }
 

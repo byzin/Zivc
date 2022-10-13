@@ -31,16 +31,16 @@
 #include "zisc/structure/queue.hpp"
 #include "zisc/structure/scalable_circular_queue.hpp"
 // Zivc
-#include "utility/cmd_debug_label_region.hpp"
-#include "utility/cmd_record_region.hpp"
-#include "utility/queue_debug_label_region.hpp"
+#include "internal/cmd_debug_label_region.hpp"
+#include "internal/cmd_record_region.hpp"
+#include "internal/queue_debug_label_region.hpp"
+#include "internal/vulkan_memory_allocator.hpp"
 #include "utility/vulkan.hpp"
 #include "utility/vulkan_dispatch_loader.hpp"
-#include "utility/vulkan_memory_allocator.hpp"
 #include "zivc/device.hpp"
 #include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
-#include "zivc/utility/id_data.hpp"
+#include "zivc/auxiliary/id_data.hpp"
 
 namespace zivc {
 
@@ -175,31 +175,31 @@ class VulkanDevice : public Device
   //! Make a debug label for a commandbuffer
   template <LabelOptions Options>
   [[nodiscard]]
-  CmdDebugLabelRegion makeCmdDebugLabel(const VkCommandBuffer& command_buffer,
-                                        const Options& options) const noexcept;
+  internal::CmdDebugLabelRegion makeCmdDebugLabel(const VkCommandBuffer& command_buffer,
+                                                  const Options& options) const noexcept;
 
   //! Make a debug label for a commandbuffer
   [[nodiscard]]
-  CmdDebugLabelRegion makeCmdDebugLabel(const VkCommandBuffer& command_buffer,
-                                        const std::string_view label_name,
-                                        const std::span<const float, 4> color) const noexcept;
+  internal::CmdDebugLabelRegion makeCmdDebugLabel(const VkCommandBuffer& command_buffer,
+                                                  const std::string_view label_name,
+                                                  const std::span<const float, 4> color) const noexcept;
 
   //! Make a record region for a commandbuffer
   [[nodiscard]]
-  CmdRecordRegion makeCmdRecord(const VkCommandBuffer& command_buffer,
-                                const VkCommandBufferUsageFlags flags) const;
+  internal::CmdRecordRegion makeCmdRecord(const VkCommandBuffer& command_buffer,
+                                          const VkCommandBufferUsageFlags flags) const;
 
   //! Make a debug label for a queue
   template <LabelOptions Options>
   [[nodiscard]]
-  QueueDebugLabelRegion makeQueueDebugLabel(const VkQueue& q,
-                                            const Options& options) const noexcept;
+  internal::QueueDebugLabelRegion makeQueueDebugLabel(const VkQueue& q,
+                                                      const Options& options) const noexcept;
 
   //! Make a debug label for a queue
   [[nodiscard]]
-  QueueDebugLabelRegion makeQueueDebugLabel(const VkQueue& q,
-                                            const std::string_view label_name,
-                                            const std::span<const float, 4> color) const noexcept;
+  internal::QueueDebugLabelRegion makeQueueDebugLabel(const VkQueue& q,
+                                                      const std::string_view label_name,
+                                                      const std::span<const float, 4> color) const noexcept;
 
   //! Return the memory allocator of the device
   VmaAllocator& memoryAllocator() noexcept;

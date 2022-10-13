@@ -26,11 +26,11 @@
 #include <type_traits>
 // Zivc
 #include "kernel_set.hpp"
-#include "utility/kernel_common.hpp"
-#include "utility/kernel_arg_parser.hpp"
-#include "utility/kernel_launch_options.hpp"
-#include "utility/id_data.hpp"
-#include "utility/zivc_object.hpp"
+#include "auxiliary/kernel_common.hpp"
+#include "auxiliary/kernel_launch_options.hpp"
+#include "auxiliary/id_data.hpp"
+#include "auxiliary/zivc_object.hpp"
+#include "internal/kernel_arg_parser.hpp"
 #include "zivc/zivc_config.hpp"
 
 namespace zivc {

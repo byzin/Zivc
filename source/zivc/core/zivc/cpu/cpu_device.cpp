@@ -32,8 +32,8 @@
 #include "zivc/device_info.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/cpucl/utility.hpp"
-#include "zivc/utility/id_data.hpp"
-#include "zivc/utility/fence.hpp"
+#include "zivc/auxiliary/id_data.hpp"
+#include "zivc/auxiliary/fence.hpp"
 
 namespace {
 
@@ -43,8 +43,7 @@ using CpuFence = zisc::Future<void>;
 
 namespace zivc {
 
-static_assert(std::alignment_of_v<Fence::DataT> %
-              std::alignment_of_v<::CpuFence> == 0);
+static_assert(std::alignment_of_v<Fence::DataT> % std::alignment_of_v<::CpuFence> == 0);
 static_assert(sizeof(::CpuFence) <= sizeof(Fence::DataT));
 
 /*!
@@ -145,7 +144,7 @@ void CpuDevice::submit(const CommandT& command,
                        Fence* fence)
 {
   const auto batch_size = zisc::cast<uint32b>(taskBatchSize());
-  auto task = [command, id, dimension, work_size, global_id_offset, batch_size]
+  const auto task = [command, id, dimension, work_size, global_id_offset, batch_size]
   (const int64b, const int64b) noexcept
   {
     cl::inner::WorkItem::setDimension(dimension);
@@ -158,11 +157,11 @@ void CpuDevice::submit(const CommandT& command,
   };
 
   // Create tasks as many as the number of unlydering threads and run those in parallel
-  auto& manager = threadManager();
+  zisc::ThreadManager& manager = threadManager();
   constexpr int64b start = 0;
   const int64b end = manager.numOfThreads();
-  constexpr auto parent_id = zisc::ThreadManager::kAllPrecedences;
-  auto result = manager.enqueueLoop(std::move(task), start, end, parent_id);
+  constexpr int64b parent_id = zisc::ThreadManager::kAllPrecedences;
+  zisc::Future result = manager.enqueueLoop(std::move(task), start, end, parent_id);
   // Set a fence
   if (fence->isActive()) {
     auto* fen = zisc::reinterp<CpuFence*>(std::addressof(fence->data()));
@@ -227,7 +226,7 @@ void CpuDevice::destroyData() noexcept
   */
 void CpuDevice::initData()
 {
-  [[maybe_unused]] auto& backend_p = parentImpl();
+  [[maybe_unused]] const CpuBackend& backend_p = parentImpl();
 
   heap_usage_.setPeak(0);
   heap_usage_.setTotal(0);

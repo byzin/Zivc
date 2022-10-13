@@ -24,15 +24,15 @@
 #include <utility>
 // Zivc
 #include "zivc_config.hpp"
-#include "utility/buffer_common.hpp"
-#include "utility/buffer_init_params.hpp"
-#include "utility/buffer_launch_options.hpp"
-#include "utility/error.hpp"
-#include "utility/id_data.hpp"
-#include "utility/launch_result.hpp"
-#include "utility/mapped_memory.hpp"
-#include "utility/reinterp_buffer.hpp"
-#include "utility/zivc_object.hpp"
+#include "auxiliary/buffer_common.hpp"
+#include "auxiliary/buffer_init_params.hpp"
+#include "auxiliary/buffer_launch_options.hpp"
+#include "auxiliary/error.hpp"
+#include "auxiliary/id_data.hpp"
+#include "auxiliary/launch_result.hpp"
+#include "auxiliary/mapped_memory.hpp"
+#include "auxiliary/reinterp_buffer.hpp"
+#include "auxiliary/zivc_object.hpp"
 
 namespace zivc {
 

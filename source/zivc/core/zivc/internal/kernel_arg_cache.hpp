@@ -32,6 +32,10 @@ namespace zivc {
 // Forward declaration
 template <KernelArg> class Buffer;
 
+} /* namespace zivc */
+
+namespace zivc::internal {
+
 #if defined(Z_GCC) || defined(Z_CLANG)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wpadded"
@@ -502,7 +506,7 @@ auto concatArgCache(const KernelArgCache<KernelArgCache<ArgTypes...>, Types...>&
 template <typename Type1, typename Type2, typename ...Types>
 auto concatArgCache(const KernelArgCache<Type2, Types...>& cache) noexcept;
 
-} // namespace zivc
+} // namespace zivc::internal
 
 #include "kernel_arg_cache-inl.hpp"
 

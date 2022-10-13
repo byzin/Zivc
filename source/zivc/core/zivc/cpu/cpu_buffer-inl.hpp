@@ -31,12 +31,12 @@
 #include "zivc/backend.hpp"
 #include "zivc/buffer.hpp"
 #include "zivc/zivc_config.hpp"
-#include "zivc/utility/buffer_init_params.hpp"
-#include "zivc/utility/buffer_launch_options.hpp"
-#include "zivc/utility/error.hpp"
-#include "zivc/utility/id_data.hpp"
-#include "zivc/utility/launch_result.hpp"
-#include "zivc/utility/zivc_object.hpp"
+#include "zivc/auxiliary/buffer_init_params.hpp"
+#include "zivc/auxiliary/buffer_launch_options.hpp"
+#include "zivc/auxiliary/error.hpp"
+#include "zivc/auxiliary/id_data.hpp"
+#include "zivc/auxiliary/launch_result.hpp"
+#include "zivc/auxiliary/zivc_object.hpp"
 
 namespace zivc {
 
@@ -196,12 +196,12 @@ void CpuBuffer<T>::setSize(const std::size_t s)
   const std::size_t prev_size = Buffer<T>::size();
   if (s != prev_size) {
     prepareBuffer();
-    auto& buff = rawBuffer();
+    zisc::pmr::vector<Type>& buff = rawBuffer();
     const std::size_t prev_cap = buff.capacity();
     buff.resize(s);
     const std::size_t cap = buff.capacity();
     if (cap != prev_cap) {
-      auto& device = parentImpl();
+      CpuDevice& device = parentImpl();
       const std::size_t prev_mem_size = sizeof(Type) * prev_cap;
       device.notifyDeallocation(prev_mem_size);
       const std::size_t mem_size = sizeof(Type) * cap;
@@ -316,7 +316,7 @@ LaunchResult CpuBuffer<T>::fillImpl(typename Buffer<D>::ConstReference value,
 template <KernelArg T> inline
 CpuDevice& CpuBuffer<T>::parentImpl() noexcept
 {
-  auto p = Buffer<T>::getParent();
+  ZivcObject* p = Buffer<T>::getParent();
   return *static_cast<CpuDevice*>(p);
 }
 
@@ -328,7 +328,7 @@ CpuDevice& CpuBuffer<T>::parentImpl() noexcept
 template <KernelArg T> inline
 const CpuDevice& CpuBuffer<T>::parentImpl() const noexcept
 {
-  const auto p = Buffer<T>::getParent();
+  const ZivcObject* p = Buffer<T>::getParent();
   return *static_cast<const CpuDevice*>(p);
 }
 
@@ -339,7 +339,7 @@ template <KernelArg T> inline
 void CpuBuffer<T>::prepareBuffer() noexcept
 {
   if (!buffer_data_) {
-    auto mem_resource = Buffer<T>::memoryResource();
+    zisc::pmr::memory_resource* mem_resource = Buffer<T>::memoryResource();
     using BufferImplTypeT = typename decltype(buffer_data_)::element_type;
     typename BufferImplTypeT::allocator_type alloc{mem_resource};
     buffer_data_ = zisc::pmr::allocateUnique<BufferImplTypeT>(mem_resource,

@@ -31,8 +31,8 @@
 #include "backend.hpp"
 #include "device_info.hpp"
 #include "zivc_config.hpp"
-#include "utility/error.hpp"
-#include "utility/id_data.hpp"
+#include "auxiliary/error.hpp"
+#include "auxiliary/id_data.hpp"
 
 namespace zivc {
 

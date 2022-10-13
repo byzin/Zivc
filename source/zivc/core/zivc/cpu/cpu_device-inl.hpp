@@ -37,7 +37,7 @@ namespace zivc {
 inline
 const CpuDeviceInfo& CpuDevice::deviceInfoImpl() const noexcept
 {
-  const auto& info = deviceInfo();
+  const DeviceInfo& info = deviceInfo();
   return *static_cast<const CpuDeviceInfo*>(std::addressof(info));
 }
 
@@ -75,7 +75,7 @@ void CpuDevice::notifyDeallocation(const std::size_t size) noexcept
 inline
 std::size_t CpuDevice::numOfThreads() const noexcept
 {
-  const auto& thread_manager = threadManager();
+  const zisc::ThreadManager& thread_manager = threadManager();
   return thread_manager.numOfThreads();
 }
 
@@ -121,7 +121,7 @@ const zisc::ThreadManager& CpuDevice::threadManager() const noexcept
 inline
 CpuBackend& CpuDevice::parentImpl() noexcept
 {
-  auto p = getParent();
+  ZivcObject* p = getParent();
   return *static_cast<CpuBackend*>(p);
 }
 
@@ -133,7 +133,7 @@ CpuBackend& CpuDevice::parentImpl() noexcept
 inline
 const CpuBackend& CpuDevice::parentImpl() const noexcept
 {
-  const auto p = getParent();
+  const ZivcObject* p = getParent();
   return *static_cast<const CpuBackend*>(p);
 }
 

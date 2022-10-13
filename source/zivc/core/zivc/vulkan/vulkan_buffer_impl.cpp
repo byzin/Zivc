@@ -24,20 +24,20 @@
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "vulkan_device.hpp"
+#include "internal/vulkan_memory_allocator.hpp"
 #include "utility/vulkan_dispatch_loader.hpp"
 #include "utility/vulkan_hpp.hpp"
-#include "utility/vulkan_memory_allocator.hpp"
 #include "zivc/kernel.hpp"
 #include "zivc/zivc.hpp"
 #include "zivc/zivc_cl.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/kernel_set/kernel_set-zivc_internal_kernel.hpp"
-#include "zivc/utility/buffer_common.hpp"
-#include "zivc/utility/error.hpp"
-#include "zivc/utility/kernel_common.hpp"
-#include "zivc/utility/kernel_init_params.hpp"
-#include "zivc/utility/launch_result.hpp"
-#include "zivc/utility/launch_options.hpp"
+#include "zivc/auxiliary/buffer_common.hpp"
+#include "zivc/auxiliary/error.hpp"
+#include "zivc/auxiliary/kernel_common.hpp"
+#include "zivc/auxiliary/kernel_init_params.hpp"
+#include "zivc/auxiliary/launch_result.hpp"
+#include "zivc/auxiliary/launch_options.hpp"
 
 namespace {
 
@@ -226,13 +226,13 @@ void VulkanBufferImpl::copyCmd(const VkCommandBuffer& command_buffer,
                                const VkBuffer& dest_buffer,
                                const VkBufferCopy& region) const
 {
-  const zivcvk::CommandBuffer command{command_buffer};
+  const vk::CommandBuffer command{command_buffer};
   ZIVC_ASSERT(command, "The given command buffer is null.");
-  const zivcvk::Buffer source{source_buffer};
+  const vk::Buffer source{source_buffer};
   ZIVC_ASSERT(source, "The given source buffer is null.");
-  const zivcvk::Buffer dest{dest_buffer};
+  const vk::Buffer dest{dest_buffer};
   ZIVC_ASSERT(dest, "The given dest buffer is null.");
-  const zivcvk::BufferCopy copy_region{region};
+  const vk::BufferCopy copy_region{region};
   command.copyBuffer(source, dest, copy_region, device().dispatcher().loader());
 }
 
@@ -248,7 +248,7 @@ void VulkanBufferImpl::deallocateMemory(
     VmaAllocation* vm_allocation,
     VmaAllocationInfo* alloc_info) const noexcept
 {
-  if (zivcvk::Buffer{*buffer} && (vm_allocation != nullptr)) {
+  if (vk::Buffer{*buffer} && (vm_allocation != nullptr)) {
     vmaDestroyBuffer(device().memoryAllocator(), *buffer, *vm_allocation);
   }
   alloc_info->deviceMemory = ZIVC_VK_NULL_HANDLE;
@@ -443,9 +443,9 @@ void VulkanBufferImpl::fillFastCmd(const VkCommandBuffer& command_buffer,
                                    const std::size_t size,
                                    const uint32b data) const noexcept
 {
-  const zivcvk::CommandBuffer command{command_buffer};
+  const vk::CommandBuffer command{command_buffer};
   ZIVC_ASSERT(command, "The given command buffer is null.");
-  const zivcvk::Buffer buf{buffer};
+  const vk::Buffer buf{buffer};
   ZIVC_ASSERT(buf, "The given buffer is null.");
   command.fillBuffer(buf, dest_offset, size, data, device().dispatcher().loader());
 }
@@ -497,8 +497,8 @@ void VulkanBufferImpl::initAllocationInfo(const BufferCommon& object,
   */
 void VulkanBufferImpl::throwResultException(const VkResult result, const char* message)
 {
-  const auto r = static_cast<zivcvk::Result>(result);
-  zivcvk::throwResultException(r, message);
+  const auto r = static_cast<vk::Result>(result);
+  vk::throwResultException(r, message);
 }
 
 /*!
@@ -542,13 +542,13 @@ VkBufferCreateInfo VulkanBufferImpl::createBufferCreateInfo(
     const VkBufferUsageFlagBits desc_type) noexcept
 {
   // Buffer create info
-  zivcvk::BufferCreateInfo buffer_create_info;
+  vk::BufferCreateInfo buffer_create_info;
   buffer_create_info.size = size;
-  const auto descriptor_type = static_cast<zivcvk::BufferUsageFlagBits>(desc_type);
-  buffer_create_info.usage = zivcvk::BufferUsageFlagBits::eTransferSrc |
-                             zivcvk::BufferUsageFlagBits::eTransferDst |
+  const auto descriptor_type = static_cast<vk::BufferUsageFlagBits>(desc_type);
+  buffer_create_info.usage = vk::BufferUsageFlagBits::eTransferSrc |
+                             vk::BufferUsageFlagBits::eTransferDst |
                              descriptor_type;
-  buffer_create_info.sharingMode = zivcvk::SharingMode::eExclusive;
+  buffer_create_info.sharingMode = vk::SharingMode::eExclusive;
   buffer_create_info.queueFamilyIndexCount = 0;
   buffer_create_info.pQueueFamilyIndices = nullptr;
 

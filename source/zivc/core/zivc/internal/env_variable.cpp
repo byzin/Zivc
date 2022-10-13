@@ -23,7 +23,7 @@
 // Zivc
 #include "zivc/zivc_config.hpp"
 
-namespace zivc {
+namespace zivc::internal {
 
 /*!
   \details No detailed description
@@ -31,13 +31,12 @@ namespace zivc {
   \param [in] env_variable No description.
   \return No description
   */
-inline
 int64b getEnvNumber(const std::string_view env_variable) noexcept
 {
-  std::string_view str = getEnvString(env_variable);
+  const std::string_view str = getEnvString(env_variable);
   int64b number = 0;
-  if (0 < str.size())
-    std::from_chars(&str[0], &str[0] + str.size(), number);
+  if (!str.empty())
+    std::from_chars(str.data(), str.data() + str.size(), number);
   return number;
 }
 
@@ -47,14 +46,13 @@ int64b getEnvNumber(const std::string_view env_variable) noexcept
   \param [in] env_variable No description.
   \return No description
   */
-inline
 std::string_view getEnvString(const std::string_view env_variable) noexcept
 {
-  char* value = std::getenv(env_variable.data());
-  std::string_view result = value ? value : "";
+  const char* const value = std::getenv(env_variable.data());
+  const std::string_view result = (value != nullptr) ? value : "";
   return result;
 }
 
-} // namespace zivc
+} // namespace zivc::internal
 
 #endif // ZIVC_ENV_VARIABLE_INL_HPP

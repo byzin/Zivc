@@ -30,12 +30,12 @@
 #include "zisc/structure/mutex_bst.hpp"
 // Zivc
 #include "vulkan_device_info.hpp"
-#include "utility/vulkan.hpp"
 #include "utility/vulkan_dispatch_loader.hpp"
+#include "utility/vulkan.hpp"
 #include "zivc/backend.hpp"
 #include "zivc/device.hpp"
 #include "zivc/zivc_config.hpp"
-#include "zivc/utility/zivc_object.hpp"
+#include "zivc/auxiliary/zivc_object.hpp"
 
 namespace zivc {
 

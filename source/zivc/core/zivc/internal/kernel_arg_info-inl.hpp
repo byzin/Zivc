@@ -22,7 +22,7 @@
 // Zivc
 #include "zivc/zivc_config.hpp"
 
-namespace zivc {
+namespace zivc::internal {
 
 /*!
   \details No detailed description
@@ -162,6 +162,6 @@ constexpr void KernelArgInfo::setLocalOffset(const std::size_t offset) noexcept
   local_offset_ = static_cast<uint8b>(offset);
 }
 
-} // namespace zivc
+} // namespace zivc::internal
 
 #endif // ZIVC_KERNEL_ARG_INFO_INL_HPP

@@ -28,9 +28,9 @@
 #include "zivc/kernel.hpp"
 #include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
-#include "zivc/utility/kernel_arg_cache.hpp"
-#include "zivc/utility/id_data.hpp"
-#include "zivc/utility/launch_result.hpp"
+#include "zivc/auxiliary/id_data.hpp"
+#include "zivc/auxiliary/launch_result.hpp"
+#include "zivc/internal/kernel_arg_cache.hpp"
 
 namespace zivc {
 
@@ -102,10 +102,10 @@ class VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
  private:
   //! Create a struct of POD cache
   template <std::size_t kIndex, typename ...PodTypes>
-  static auto createPodCacheType(const KernelArgCache<PodTypes...>& cache) noexcept;
+  static auto createPodCacheType(const internal::KernelArgCache<PodTypes...>& cache) noexcept;
 
 
-  using PodCacheT = decltype(createPodCacheType<0>(KernelArgCache<void>{}));
+  using PodCacheT = decltype(createPodCacheType<0>(internal::KernelArgCache<void>{}));
   static_assert(std::is_trivially_copyable_v<PodCacheT>,
                 "The POD values aren't trivially copyable.");
   static_assert(std::equality_comparable<PodCacheT>,

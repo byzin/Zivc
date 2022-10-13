@@ -26,8 +26,8 @@
 #include "buffer.hpp"
 #include "kernel_set.hpp"
 #include "zivc_config.hpp"
-#include "utility/buffer_init_params.hpp"
-#include "utility/kernel_arg_parser.hpp"
+#include "auxiliary/buffer_init_params.hpp"
+#include "internal/kernel_arg_parser.hpp"
 
 namespace zivc {
 
@@ -117,7 +117,7 @@ template <template<typename, typename...> typename Derived,
 auto Device::createDerivedKernel(const KernelInitParams<kDim, KSet, Args...>& params)
     -> SharedKernel<kDim, KSet, Args...>
 {
-  using ParserT = KernelArgParser<Args...>;
+  using ParserT = internal::KernelArgParser<Args...>;
   using KernelT = typename ParserT::template KernelT<Derived, kDim, KSet>;
   using SharedKernelT = SharedKernel<kDim, KSet, Args...>;
   using WeakKernelT = WeakKernel<kDim, KSet, Args...>;

@@ -148,9 +148,9 @@ SystemError& SystemError::operator=(SystemError&& other) noexcept
   */
 void checkVulkanResult(const int result)
 {
-  const auto r = static_cast<zivcvk::Result>(result);
-  if (r != zivcvk::Result::eSuccess) {
-    const auto desc = "Vulkan error: " + zivcvk::to_string(r) + ".";
+  const auto r = static_cast<zivc::vk::Result>(result);
+  if (r != zivc::vk::Result::eSuccess) {
+    const auto desc = "Vulkan error: " + zivc::vk::to_string(r) + ".";
     throw SystemError{ErrorCode::kVulkanError, desc};
   }
 }

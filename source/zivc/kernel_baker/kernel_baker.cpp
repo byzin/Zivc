@@ -34,7 +34,7 @@
 #include "zisc/memory/alloc_free_resource.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
-#include "zivc/utility/zstd.hpp"
+#include "zivc/internal/zstd.hpp"
 
 namespace {
 
@@ -282,7 +282,7 @@ double toMegaBytes(const std::size_t bytes) noexcept
 
 } // namespace
 
-int main(int /* argc */, char** argv)
+int main([[maybe_unused]] int argc, char** argv)
 {
   ::printDebugMessage("Bake a kernel set");
   // Input parameters
@@ -305,13 +305,13 @@ int main(int /* argc */, char** argv)
                       " (min=", min_level, ", max=", max_level, ")");
 
   ::printDebugMessage("    Encode SPIR-V");
-  const auto spv_data = ::loadSpirVFile(spv_file_path, params);
+  const zisc::pmr::vector<std::byte> spv_data = ::loadSpirVFile(spv_file_path, params);
   ::printDebugMessage("        SPIR-V data size : ",
                       ::toMegaBytes(spv_data.size()),
                       " MB.");
 
   // Compress the SPIR-V data
-  const auto encoded_data = ::encodeSpirVData(spv_data, params);
+  const zisc::pmr::vector<std::byte> encoded_data = ::encodeSpirVData(spv_data, params);
   ::printDebugMessage("        Encoded data size: ",
                       ::toMegaBytes(encoded_data.size()),
                       " MB.");

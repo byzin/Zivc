@@ -116,7 +116,7 @@ CppType& VulkanDeviceInfo::initProp(CType& prop) noexcept
                 "The size of CType and CppType aren't same.");
   static_assert(std::is_constructible_v<CppType, CType>,
                 "The CppType isn't constructible with CType.");
-  auto p = ::new (std::addressof(prop)) CppType{};
+  CppType* p = ::new (std::addressof(prop)) CppType{};
   return *p;
 }
 

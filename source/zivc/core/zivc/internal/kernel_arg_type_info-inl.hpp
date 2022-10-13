@@ -25,7 +25,7 @@
 #include "zivc/zivc_config.hpp"
 #include "zivc/cpucl/address_space_pointer.hpp"
 
-namespace zivc {
+namespace zivc::internal {
 
 /*!
   \brief Information of address space kernel argument
@@ -80,6 +80,6 @@ class KernelArgTypeInfo<Buffer<Type>>
   static_assert(!std::is_reference_v<ElementT>, "The element type is reference.");
 };
 
-} // namespace zivc
+} // namespace zivc::internal
 
 #endif // ZIVC_KERNEL_ARG_TYPE_INFO_INL_HPP

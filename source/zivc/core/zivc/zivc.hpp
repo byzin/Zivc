@@ -28,9 +28,9 @@
 #include "cpu/cpu_buffer.hpp"
 #include "cpu/cpu_device.hpp"
 #include "cpu/cpu_kernel.hpp"
-#include "utility/buffer_init_params.hpp"
-#include "utility/error.hpp"
-#include "utility/kernel_init_params.hpp"
+#include "auxiliary/buffer_init_params.hpp"
+#include "auxiliary/error.hpp"
+#include "auxiliary/kernel_init_params.hpp"
 #if defined(ZIVC_ENABLE_VULKAN_BACKEND)
 #include "vulkan/vulkan_buffer.hpp"
 #include "vulkan/vulkan_device.hpp"

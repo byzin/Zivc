@@ -19,13 +19,14 @@
 #include <cstring>
 #include <limits>
 #include <memory>
+#include <span>
 #include <string_view>
 #include <utility>
 // Zisc
 #include "zisc/memory/memory.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
-#include "utility/cpu_features.hpp"
+#include "internal/cpu_features.hpp"
 #include "zivc/device_info.hpp"
 #include "zivc/zivc_config.hpp"
 
@@ -175,7 +176,7 @@ uint32b CpuDeviceInfo::workGroupSize() const noexcept
   */
 void CpuDeviceInfo::initCpuInfo() noexcept
 {
-  getCpuFeatures(name_.data(), vendor_name_.data());
+  internal::getCpuFeatures(name_.data(), vendor_name_.data());
 }
 
 /*!
@@ -195,7 +196,7 @@ void CpuDeviceInfo::initHeapInfoList() noexcept
     info.setAvailableSize(size);
   }
   DeviceInfo::setHeapInfoListSize(1);
-  auto info_list = DeviceInfo::heapInfoList();
+  const std::span info_list = DeviceInfo::heapInfoList();
   info_list[0] = info;
 }
 

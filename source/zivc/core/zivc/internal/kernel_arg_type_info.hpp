@@ -27,6 +27,10 @@ namespace zivc {
 // Forward declaration
 template <KernelArg> class Buffer;
 
+} /* namespace zivc */
+
+namespace zivc::internal {
+
 /*!
   \brief Information of a pod kernel argument
 
@@ -59,7 +63,7 @@ class KernelArgTypeInfo
                 "The POD type isn't equality comparable.");
 };
 
-} // namespace zivc
+} // namespace zivc::internal
 
 #include "kernel_arg_type_info-inl.hpp"
 

@@ -16,7 +16,7 @@
 #define ZIVC_VULKAN_MEMORY_ALLOCATOR_HPP
 
 // Zivc
-#include "vulkan.hpp"
+#include "zivc/vulkan/utility/vulkan.hpp"
 
 #if defined(Z_GCC) || defined(Z_CLANG)
 #pragma GCC diagnostic push

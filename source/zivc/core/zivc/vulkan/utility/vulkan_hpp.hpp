@@ -24,7 +24,7 @@
 #define _LIBCPP_NO_EXCEPTIONS
 
 // Namespace
-#define VULKAN_HPP_NAMESPACE zivcvk
+#define VULKAN_HPP_NAMESPACE zivc::vk
 // Disable the smart handler of the Vulkan-HPP
 #define VULKAN_HPP_NO_SMART_HANDLE 1
 #define VULKAN_HPP_DISABLE_IMPLICIT_RESULT_VALUE_CAST 1

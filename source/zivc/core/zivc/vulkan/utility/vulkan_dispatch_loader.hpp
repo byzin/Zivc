@@ -24,13 +24,13 @@
 // Zivc
 #include "vulkan.hpp"
 
-namespace zivcvk {
+namespace zivc::vk {
 
 // Forward declaration
 class DispatchLoaderDynamic;
 class DynamicLoader;
 
-} // namespace zivcvk
+} // namespace zivc::vk
 
 namespace zivc {
 
@@ -43,7 +43,7 @@ class VulkanDispatchLoader
 {
  public:
   // Type aliases
-  using LoaderType = zivcvk::DispatchLoaderDynamic;
+  using LoaderType = vk::DispatchLoaderDynamic;
   using ConstLoaderType = std::add_const_t<LoaderType>;
   using LoaderReference = std::add_lvalue_reference_t<LoaderType>;
   using ConstLoaderReference = std::add_lvalue_reference_t<ConstLoaderType>;
@@ -125,7 +125,7 @@ class VulkanDispatchLoader
   void moveFrom(VulkanDispatchLoader& other) noexcept;
 
 
-  std::shared_ptr<zivcvk::DynamicLoader> dynamic_loader_ = nullptr;
+  std::shared_ptr<vk::DynamicLoader> dynamic_loader_ = nullptr;
   std::shared_ptr<LoaderType> loader_impl_ = nullptr;
 };
 

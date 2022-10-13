@@ -30,6 +30,12 @@ namespace zivc {
 // Forward declaration
 template <std::size_t, DerivedKSet, typename...> class KernelInitParams;
 template <typename, typename...> class Kernel;
+
+} // namespace zivc
+
+namespace zivc::internal {
+
+// Forward declaration
 template <typename ...> struct KernelArgPack;
 
 /*!
@@ -116,7 +122,7 @@ class KernelArgParser
 template <typename Type>
 constexpr KernelArgInfo createArgInfo() noexcept;
 
-} // namespace zivc
+} // namespace zivc::internal
 
 #include "kernel_arg_parser-inl.hpp"
 

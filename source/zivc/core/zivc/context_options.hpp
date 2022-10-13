@@ -23,7 +23,7 @@
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "zivc_config.hpp"
-#include "utility/id_data.hpp"
+#include "auxiliary/id_data.hpp"
 #include "zivc/zivc_config.hpp"
 
 namespace zivc {

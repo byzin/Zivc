@@ -24,7 +24,7 @@
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "vulkan_hpp.hpp"
-#include "zivc/utility/error.hpp"
+#include "zivc/auxiliary/error.hpp"
 
 namespace zivc {
 
@@ -157,7 +157,7 @@ void VulkanDispatchLoader::set(zisc::pmr::memory_resource* mem_resource,
 void VulkanDispatchLoader::set(const VkDevice& device)
 {
   if (isAvailable())
-    loader().init(zivcvk::Device{device});
+    loader().init(vk::Device{device});
 }
 
 /*!
@@ -168,7 +168,7 @@ void VulkanDispatchLoader::set(const VkDevice& device)
 void VulkanDispatchLoader::set(const VkInstance& instance)
 {
   if (isAvailable())
-    loader().init(zivcvk::Instance{instance});
+    loader().init(vk::Instance{instance});
 }
 
 /*!
@@ -195,7 +195,7 @@ void VulkanDispatchLoader::initialize(zisc::pmr::memory_resource* mem_resource,
 #if defined(ZIVC_DYNAMIC_VULKAN_LOADING)
   ZIVC_ASSERT(mem_resource != nullptr, "The memory resource is null.");
   {
-    using Loader = zivcvk::DynamicLoader;
+    using Loader = vk::DynamicLoader;
     const zisc::pmr::polymorphic_allocator<Loader> alloc{mem_resource};
     try {
       dynamic_loader_ = std::allocate_shared<Loader>(alloc, library_name.data());

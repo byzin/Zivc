@@ -290,7 +290,7 @@ void IdData::setName(std::string_view data_name) noexcept
 inline
 char* concatStr(const std::string_view source, char* dest) noexcept
 {
-  auto* d = std::strncat(dest, source.data(), source.size() + 1);
+  char* d = std::strncat(dest, source.data(), source.size() + 1);
   return d;
 }
 
@@ -304,7 +304,7 @@ char* concatStr(const std::string_view source, char* dest) noexcept
 inline
 char* copyStr(const std::string_view source, char* dest) noexcept
 {
-  auto* d = std::strncpy(dest, source.data(), source.size() + 1);
+  char* d = std::strncpy(dest, source.data(), source.size() + 1);
   return d;
 }
 

@@ -43,9 +43,9 @@
 
 // Zivc
 #include "zivc/device_info.hpp"
-#include "zivc/utility/id_data.hpp"
+#include "zivc/auxiliary/id_data.hpp"
 
-namespace zivc {
+namespace zivc::internal {
 
 /*!
   \details No detailed description
@@ -106,4 +106,4 @@ void getCpuFeatures(char* cpu_name, char* vendor_name) noexcept
   copyStr(vendor_n.data(), vendor_name);
 }
 
-} // namespace zivc
+} // namespace zivc::internal

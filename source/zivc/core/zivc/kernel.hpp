@@ -28,12 +28,12 @@
 #include "zisc/algorithm.hpp"
 // Zivc
 #include "kernel_set.hpp"
-#include "utility/kernel_common.hpp"
-#include "utility/kernel_launch_options.hpp"
-#include "utility/id_data.hpp"
-#include "utility/launch_result.hpp"
-#include "utility/shared_kernel.hpp"
-#include "utility/zivc_object.hpp"
+#include "auxiliary/kernel_common.hpp"
+#include "auxiliary/kernel_launch_options.hpp"
+#include "auxiliary/id_data.hpp"
+#include "auxiliary/launch_result.hpp"
+#include "auxiliary/shared_kernel.hpp"
+#include "auxiliary/zivc_object.hpp"
 #include "zivc/zivc_config.hpp"
 
 namespace zivc {
@@ -41,8 +41,10 @@ namespace zivc {
 // Forward declaration
 template <KernelArg> class Buffer;
 template <std::size_t, DerivedKSet, typename...> class KernelInitParams;
-template <typename...> class KernelArgParser;
 template <typename, typename...> class Kernel;
+namespace internal {
+template <typename...> class KernelArgParser;
+}
 
 /*!
   \brief No brief description
@@ -61,10 +63,9 @@ class Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> : public Kernel
   // Type aliases
   using SharedPtr = std::shared_ptr<Kernel>;
   using WeakPtr = std::weak_ptr<Kernel>;
-  using ArgParserT = KernelArgParser<FuncArgs...>;
   using ParamsT = KernelInitParams<kDim, KSet, FuncArgs...>;
   using LaunchOptionsT = KernelLaunchOptions<KernelInitParams<kDim, KSet, FuncArgs...>,
-                                            Args...>;
+                                             Args...>;
 
 
   //! Initialize the kernel
@@ -116,6 +117,10 @@ class Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> : public Kernel
  protected:
   static_assert(zisc::Algorithm::isInBounds(kDim, 1u, 4u),
                 "The kDim must be 1, 2 or 3.");
+
+
+  // Type aliases
+  using ArgParserT = internal::KernelArgParser<FuncArgs...>;
 
 
   //! Clear the contents of the kernel

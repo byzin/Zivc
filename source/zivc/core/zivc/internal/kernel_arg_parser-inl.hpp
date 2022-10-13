@@ -27,7 +27,7 @@
 #include "kernel_arg_type_info.hpp"
 #include "zivc/zivc_config.hpp"
 
-namespace zivc {
+namespace zivc::internal {
 
 /*!
   \details No detailed description
@@ -253,6 +253,6 @@ constexpr KernelArgInfo createArgInfo() noexcept
                        InfoT::kIsBuffer};
 }
 
-} // namespace zivc
+} // namespace zivc::internal
 
 #endif // ZIVC_KERNEL_ARG_PARSER_INL_HPP

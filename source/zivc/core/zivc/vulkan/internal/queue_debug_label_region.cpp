@@ -23,11 +23,11 @@
 // Zisc
 #include "zisc/non_copyable.hpp"
 // Zivc
-#include "vulkan_dispatch_loader.hpp"
-#include "vulkan_hpp.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/vulkan/utility/vulkan_dispatch_loader.hpp"
+#include "zivc/vulkan/utility/vulkan_hpp.hpp"
 
-namespace zivc {
+namespace zivc::internal {
 
 /*!
   \details No detailed description
@@ -86,7 +86,7 @@ QueueDebugLabelRegion& QueueDebugLabelRegion::operator=(QueueDebugLabelRegion&& 
   */
 void QueueDebugLabelRegion::end() noexcept
 {
-  const zivcvk::Queue q{queue_};
+  const vk::Queue q{queue_};
   if (q) {
     q.endDebugUtilsLabelEXT(dispatcher_->loader());
   }
@@ -103,13 +103,13 @@ void QueueDebugLabelRegion::end() noexcept
 void QueueDebugLabelRegion::begin(const std::string_view label_name,
                                   const std::span<const float, 4> color) noexcept
 {
-  const zivcvk::Queue q{queue_};
+  const vk::Queue q{queue_};
   if (q) {
     std::array<float, 4> c{{0.0f, 0.0f, 0.0f, 0.0f}};
     std::copy_n(color.begin(), color.size(), c.begin());
-    const zivcvk::DebugUtilsLabelEXT info{label_name.data(), c};
+    const vk::DebugUtilsLabelEXT info{label_name.data(), c};
     q.beginDebugUtilsLabelEXT(&info, dispatcher_->loader());
   }
 }
 
-} // namespace zivc
+} // namespace zivc::internal

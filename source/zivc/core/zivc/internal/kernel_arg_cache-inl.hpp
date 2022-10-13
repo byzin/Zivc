@@ -27,7 +27,7 @@
 // Zivc
 #include "zivc/zivc_config.hpp"
 
-namespace zivc {
+namespace zivc::internal {
 
 /*!
   \details No detailed description
@@ -580,7 +580,7 @@ void KernelArgCache<Buffer<Type>&, Types...>::printTree(
 {
   using VoidCacheT = KernelArgCache<void>;
   PrecedenceCacheT::printTree(indent, output);
-  VoidCacheT::printValue<BufferP>(indent, "buffer", output);
+  VoidCacheT::printValue<BufferPtr>(indent, "buffer", output);
   (*output) << std::endl;
 }
 #endif // ZIVC_PRINT_CACHE_TREE
@@ -694,7 +694,7 @@ void KernelArgCache<Buffer<Type>&>::printTree(
     std::ostream* output) noexcept
 {
   using VoidCacheT = KernelArgCache<void>;
-  VoidCacheT::printValue<BufferP>(indent, "buffer", output);
+  VoidCacheT::printValue<BufferPtr>(indent, "buffer", output);
   (*output) << std::endl;
 }
 #endif // ZIVC_PRINT_CACHE_TREE
@@ -893,6 +893,6 @@ auto concatArgCache([[maybe_unused]] const KernelArgCache<Type2, Types...>& cach
   }
 }
 
-} // namespace zivc
+} // namespace zivc::internal
 
 #endif // ZIVC_KERNEL_ARG_CACHE_INL_HPP

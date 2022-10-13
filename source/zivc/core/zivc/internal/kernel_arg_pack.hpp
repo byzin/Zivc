@@ -25,6 +25,10 @@ namespace zivc {
 // Forward declaration
 template <KernelArg> class Buffer;
 
+} /* namespace zivc */
+
+namespace zivc::internal {
+
 /*!
   \brief No brief description
 
@@ -48,7 +52,7 @@ template <typename Type1, typename ...Types2>
 auto operator+(const KernelArgPack<Type1>& lhs,
                const KernelArgPack<Types2...>& rhs) noexcept;
 
-} // namespace zivc
+} // namespace zivc::internal
 
 #include "kernel_arg_pack-inl.hpp"
 

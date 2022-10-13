@@ -27,10 +27,10 @@
 #include "zivc/kernel.hpp"
 #include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
-#include "zivc/utility/kernel_arg_cache.hpp"
-#include "zivc/utility/kernel_launch_options.hpp"
-#include "zivc/utility/id_data.hpp"
-#include "zivc/utility/launch_result.hpp"
+#include "zivc/auxiliary/kernel_launch_options.hpp"
+#include "zivc/auxiliary/id_data.hpp"
+#include "zivc/auxiliary/launch_result.hpp"
+#include "zivc/internal/kernel_arg_cache.hpp"
 
 namespace zivc {
 
@@ -99,16 +99,16 @@ class CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
 
   //! Make a struct of arg cache
   template <typename Type, typename ...Types, typename ...ArgTypes>
-  static auto makeArgCacheT(const KernelArgCache<ArgTypes...>& cache) noexcept;
+  static auto makeArgCacheT(const internal::KernelArgCache<ArgTypes...>& cache) noexcept;
 
   //! Make a struct of local cache
   template <typename Type, typename ...Types, typename ...ArgTypes>
-  static auto makeLocalCacheT(const KernelArgCache<ArgTypes...>& cache) noexcept;
+  static auto makeLocalCacheT(const internal::KernelArgCache<ArgTypes...>& cache) noexcept;
 
 
   // Storage types
-  using ArgCacheT = decltype(makeArgCacheT<Args...>(KernelArgCache<void>{}));
-  using LocalCacheT = decltype(makeLocalCacheT<FuncArgs...>(KernelArgCache<void>{}));
+  using ArgCacheT = decltype(makeArgCacheT<Args...>(internal::KernelArgCache<void>{}));
+  using LocalCacheT = decltype(makeLocalCacheT<FuncArgs...>(internal::KernelArgCache<void>{}));
   template <std::size_t kIndex>
   using ArgT = std::tuple_element_t<kIndex, std::tuple<FuncArgs...>>;
   using CommandStorageT = std::aligned_storage_t<

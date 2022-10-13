@@ -22,13 +22,13 @@
 #include <type_traits>
 // Zivc
 #include "zivc_config.hpp"
-#include "utility/buffer_common.hpp"
-#include "utility/buffer_init_params.hpp"
-#include "utility/buffer_launch_options.hpp"
-#include "utility/id_data.hpp"
-#include "utility/launch_result.hpp"
-#include "utility/shared_buffer.hpp"
-#include "utility/zivc_object.hpp"
+#include "auxiliary/buffer_common.hpp"
+#include "auxiliary/buffer_init_params.hpp"
+#include "auxiliary/buffer_launch_options.hpp"
+#include "auxiliary/id_data.hpp"
+#include "auxiliary/launch_result.hpp"
+#include "auxiliary/shared_buffer.hpp"
+#include "auxiliary/zivc_object.hpp"
 
 namespace zivc {
 

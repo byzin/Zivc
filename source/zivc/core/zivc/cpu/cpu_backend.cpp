@@ -33,7 +33,7 @@
 #include "zivc/context_options.hpp"
 #include "zivc/device.hpp"
 #include "zivc/zivc_config.hpp"
-#include "zivc/utility/error.hpp"
+#include "zivc/auxiliary/error.hpp"
 
 namespace zivc {
 
@@ -104,7 +104,7 @@ const DeviceInfo& CpuBackend::deviceInfo([[maybe_unused]] const std::size_t inde
   */
 bool CpuBackend::isAvailable() const noexcept
 {
-  const auto& own = getOwnPtr();
+  const ZivcObject::WeakPtr& own = getOwnPtr();
   const bool result = !own.expired();
   return result;
 }
@@ -154,7 +154,7 @@ void CpuBackend::destroyData() noexcept
   */
 void CpuBackend::initData(ContextOptions& options)
 {
-  auto* mem_resource = memoryResource();
+  zisc::pmr::memory_resource* mem_resource = memoryResource();
   // Init device info
   {
     const zisc::pmr::polymorphic_allocator<CpuDeviceInfo> alloc{mem_resource};

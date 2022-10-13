@@ -27,10 +27,9 @@
 #include "kernel.hpp"
 #include "kernel_set.hpp"
 #include "zivc_config.hpp"
-#include "utility/buffer_init_params.hpp"
-#include "utility/kernel_arg_parser.hpp"
-#include "utility/id_data.hpp"
-#include "utility/zivc_object.hpp"
+#include "auxiliary/buffer_init_params.hpp"
+#include "auxiliary/id_data.hpp"
+#include "auxiliary/zivc_object.hpp"
 
 namespace zivc {
 

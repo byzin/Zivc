@@ -15,11 +15,11 @@
 #ifndef ZIVC_CPU_FEATURES_HPP
 #define ZIVC_CPU_FEATURES_HPP
 
-namespace zivc {
+namespace zivc::internal {
 
 //! Get cpu features
 void getCpuFeatures(char* cpu_name, char* vendor_name) noexcept;
 
-} // namespace zivc
+} // namespace zivc::internal
 
 #endif // ZIVC_CPU_FEATURES_HPP

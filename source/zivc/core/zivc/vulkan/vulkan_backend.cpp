@@ -23,6 +23,7 @@
 #include <map>
 #include <memory>
 #include <stdexcept>
+#include <span>
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -36,16 +37,16 @@
 // Zivc
 #include "vulkan_device.hpp"
 #include "vulkan_device_info.hpp"
-#include "utility/vulkan_dispatch_loader.hpp"
 #include "utility/vulkan.hpp"
+#include "utility/vulkan_dispatch_loader.hpp"
 #include "utility/vulkan_hpp.hpp"
 #include "zivc/backend.hpp"
 #include "zivc/context.hpp"
 #include "zivc/context_options.hpp"
 #include "zivc/device.hpp"
 #include "zivc/zivc_config.hpp"
-#include "zivc/utility/env_variable.hpp"
-#include "zivc/utility/error.hpp"
+#include "zivc/auxiliary/error.hpp"
+#include "zivc/internal/env_variable.hpp"
 
 namespace zivc {
 
@@ -75,13 +76,13 @@ SharedDevice VulkanBackend::createDevice(const DeviceInfo& device_info)
 {
   // Check if the given device info is included in the info list
   {
-    const auto& info_list = deviceInfoList();
+    const std::span info_list = deviceInfoList();
     const auto pred = [&device_info](const DeviceInfo& info) noexcept
     {
       const bool result = std::addressof(device_info) == std::addressof(info);
       return result;
     };
-    auto it = std::find_if(info_list.begin(), info_list.end(), pred);
+    const auto it = std::find_if(info_list.begin(), info_list.end(), pred);
     if (it == info_list.end()) {
       const std::string message = createErrorMessage(
           *this,
@@ -136,12 +137,12 @@ bool VulkanBackend::isAvailable() const noexcept
   */
 VkAllocationCallbacks VulkanBackend::createAllocator() noexcept
 {
-  zivcvk::AllocationCallbacks alloc{allocator_data_.get(),
-                                    Callbacks::allocateMemory,
-                                    Callbacks::reallocateMemory,
-                                    Callbacks::deallocateMemory,
-                                    Callbacks::notifyOfMemoryAllocation,
-                                    Callbacks::notifyOfMemoryDeallocation};
+  vk::AllocationCallbacks alloc{allocator_data_.get(),
+                                Callbacks::allocateMemory,
+                                Callbacks::reallocateMemory,
+                                Callbacks::deallocateMemory,
+                                Callbacks::notifyOfMemoryAllocation,
+                                Callbacks::notifyOfMemoryDeallocation};
   return zisc::cast<VkAllocationCallbacks>(alloc);
 }
 
@@ -194,9 +195,9 @@ void VulkanBackend::destroyData() noexcept
   layer_properties_list_.reset();
   extension_properties_list_.reset();
 
-  const zivcvk::Instance ins{instance_};
+  const vk::Instance ins{instance_};
   if (ins) {
-    const zivcvk::AllocationCallbacks alloc{createAllocator()};
+    const vk::AllocationCallbacks alloc{createAllocator()};
     ins.destroy(alloc, dispatcher().loader());
     instance_ = ZIVC_VK_NULL_HANDLE;
   }
@@ -389,7 +390,7 @@ auto VulkanBackend::Callbacks::printDebugMessage(
 {
   using zisc::cast;
 
-  if (getEnvNumber("ZIVC_SUPPRESS_TRIVIAL_WARNINGS") != 0) {
+  if (internal::getEnvNumber("ZIVC_SUPPRESS_TRIVIAL_WARNINGS") != 0) {
     // VkLayer_api_dump.json invalid layer manifest file version 1.2.0. may cause errors.
     constexpr int32b invalid_layer_manifest_id = 0;
     // UNASSIGNED-BestPractices-vkCreateInstance-specialuse-extension
@@ -511,8 +512,8 @@ auto VulkanBackend::Callbacks::printDebugMessage(
         cast<int>(callback_data->objectCount));
     for (std::size_t id = 0; id < callback_data->objectCount; ++id) {
       const auto& object = callback_data->pObjects[id];
-      const auto obj_type_name = zivcvk::to_string(
-          static_cast<zivcvk::ObjectType>(object.objectType));
+      const auto obj_type_name = vk::to_string(
+          static_cast<vk::ObjectType>(object.objectType));
       std::sprintf(msg, "%s%s  * Object[%d] - Type '%s', Value %llu, Name '%s'\n",
           msg,
           indent.data(),
@@ -593,14 +594,14 @@ VkApplicationInfo VulkanBackend::createApplicationInfo(
     const uint32b app_version_patch) const noexcept
 {
   const uint32b app_version = vkMakeVersion(app_version_major,
-                                            app_version_minor,
-                                            app_version_patch);
+                                                      app_version_minor,
+                                                      app_version_patch);
   const std::string_view engine_name = engineName();
   constexpr uint32b engine_version = vkMakeVersion(Config::versionMajor(),
-                                                   Config::versionMinor(),
-                                                   Config::versionPatch());
+                                                             Config::versionMinor(),
+                                                             Config::versionPatch());
   constexpr uint32b api_version = vkGetVulkanApiVersion();
-  const zivcvk::ApplicationInfo data{app_name.data(),
+  const vk::ApplicationInfo data{app_name.data(),
                                      app_version,
                                      engine_name.data(),
                                      engine_version,
@@ -660,37 +661,37 @@ void VulkanBackend::initInstance(ContextOptions& options)
 
   // Debug utils extension
   const auto severity_flags =
-//      zivcvk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo |
-      zivcvk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
-      zivcvk::DebugUtilsMessageSeverityFlagBitsEXT::eError;
+//      vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo |
+      vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
+      vk::DebugUtilsMessageSeverityFlagBitsEXT::eError;
   const auto message_type_flags =
-      zivcvk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral |
-      zivcvk::DebugUtilsMessageTypeFlagBitsEXT::eValidation |
-      zivcvk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance;
+      vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral |
+      vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation |
+      vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance;
   PFN_vkDebugUtilsMessengerCallbackEXT callback = Callbacks::printDebugMessage;
-  zivcvk::DebugUtilsMessengerCreateInfoEXT debug_utils_create_info{
-      zivcvk::DebugUtilsMessengerCreateFlagsEXT{},
+  vk::DebugUtilsMessengerCreateInfoEXT debug_utils_create_info{
+      vk::DebugUtilsMessengerCreateFlagsEXT{},
       severity_flags,
       message_type_flags,
       callback};
 
   // Validation features
-  using FeatureEnableList = zisc::pmr::vector<zivcvk::ValidationFeatureEnableEXT>;
+  using FeatureEnableList = zisc::pmr::vector<vk::ValidationFeatureEnableEXT>;
   const FeatureEnableList::allocator_type feature_alloc{memoryResource()};
   FeatureEnableList validation_features_list{feature_alloc};
   validation_features_list.reserve(4);
   validation_features_list = {
-      zivcvk::ValidationFeatureEnableEXT::eBestPractices,
-      zivcvk::ValidationFeatureEnableEXT::eSynchronizationValidation
+      vk::ValidationFeatureEnableEXT::eBestPractices,
+      vk::ValidationFeatureEnableEXT::eSynchronizationValidation
   };
   //! \todo the gpu assisted flags cause shader compilation error on macOS
 #if !defined(Z_MAC)
   validation_features_list.emplace_back(
-      zivcvk::ValidationFeatureEnableEXT::eGpuAssisted);
+      vk::ValidationFeatureEnableEXT::eGpuAssisted);
   validation_features_list.emplace_back(
-      zivcvk::ValidationFeatureEnableEXT::eGpuAssistedReserveBindingSlot);
+      vk::ValidationFeatureEnableEXT::eGpuAssistedReserveBindingSlot);
 #endif // Z_MAC
-  zivcvk::ValidationFeaturesEXT validation_features{
+  vk::ValidationFeaturesEXT validation_features{
       zisc::cast<uint32b>(validation_features_list.size()),
       validation_features_list.data(),
       0,
@@ -698,12 +699,12 @@ void VulkanBackend::initInstance(ContextOptions& options)
 
   initWindowSurface(options, &extensions);
 
-  const zivcvk::ApplicationInfo app_info{createApplicationInfo(
+  const vk::ApplicationInfo app_info{createApplicationInfo(
       options.contextName(),
       options.contextVersionMajor(),
       options.contextVersionMinor(),
       options.contextVersionPatch())};
-  zivcvk::InstanceCreateInfo create_info{zivcvk::InstanceCreateFlags{},
+  vk::InstanceCreateInfo create_info{vk::InstanceCreateFlags{},
                                          std::addressof(app_info),
                                          zisc::cast<uint32b>(layers.size()),
                                          layers.data(),
@@ -714,9 +715,9 @@ void VulkanBackend::initInstance(ContextOptions& options)
     debug_utils_create_info.setPNext(std::addressof(validation_features));
   }
 
-  const zivcvk::AllocationCallbacks alloc{createAllocator()};
+  const vk::AllocationCallbacks alloc{createAllocator()};
   const auto& loader = dispatcher().loader();
-  const zivcvk::Instance ins = zivcvk::createInstance(create_info, alloc, loader);
+  const vk::Instance ins = vk::createInstance(create_info, alloc, loader);
   instance_ = zisc::cast<VkInstance>(ins);
   instance_ref_ = std::addressof(instance_);
   dispatcher_->set(instance());
@@ -727,12 +728,12 @@ void VulkanBackend::initInstance(ContextOptions& options)
   */
 void VulkanBackend::initDeviceList()
 {
-  const zivcvk::Instance ins{instance()};
+  const vk::Instance ins{instance()};
 
   const auto& loader = dispatcher().loader();
   //! \todo Resolve the error
   // The enumerate function causes undefined symbol error with custom allocator
-  //using TmpDeviceListT = zisc::pmr::vector<zivcvk::PhysicalDevice>;
+  //using TmpDeviceListT = zisc::pmr::vector<vk::PhysicalDevice>;
   //TmpDeviceListT::allocator_type tmp_alloc{memoryResource()};
   //auto device_list = ins.enumeratePhysicalDevices(tmp_alloc, loader);
   auto device_list = ins.enumeratePhysicalDevices(loader);
@@ -801,11 +802,11 @@ void VulkanBackend::initProperties()
     // Retrieve extension properties
     uint32b size = 0;
     {
-      const auto result = zivcvk::enumerateInstanceExtensionProperties(nullptr,
+      const auto result = vk::enumerateInstanceExtensionProperties(nullptr,
                                                                        &size,
                                                                        nullptr,
                                                                        loader);
-      if (result != zivcvk::Result::eSuccess) {
+      if (result != vk::Result::eSuccess) {
         const std::string message = createErrorMessage(
             *this,
             "Enumerating instance extension properties failed.");
@@ -814,12 +815,12 @@ void VulkanBackend::initProperties()
     }
     prop_list.resize(size);
     {
-      auto* props = zisc::reinterp<zivcvk::ExtensionProperties*>(prop_list.data());
-      const auto result = zivcvk::enumerateInstanceExtensionProperties(nullptr,
+      auto* props = zisc::reinterp<vk::ExtensionProperties*>(prop_list.data());
+      const auto result = vk::enumerateInstanceExtensionProperties(nullptr,
                                                                        &size,
                                                                        props,
                                                                        loader);
-      if (result != zivcvk::Result::eSuccess) {
+      if (result != vk::Result::eSuccess) {
         const std::string message = createErrorMessage(
             *this,
             "Enumerating instance extension properties failed.");
@@ -848,10 +849,10 @@ void VulkanBackend::initProperties()
     // Retrieve layer properties
     uint32b size = 0;
     {
-      const auto result = zivcvk::enumerateInstanceLayerProperties(&size,
+      const auto result = vk::enumerateInstanceLayerProperties(&size,
                                                                    nullptr,
                                                                    loader);
-      if (result != zivcvk::Result::eSuccess) {
+      if (result != vk::Result::eSuccess) {
         const std::string message = createErrorMessage(
             *this,
             "Enumerating instance layer properties failed.");
@@ -860,11 +861,11 @@ void VulkanBackend::initProperties()
     }
     prop_list.resize(size);
     {
-      auto* props = zisc::reinterp<zivcvk::LayerProperties*>(prop_list.data());
-      const auto result = zivcvk::enumerateInstanceLayerProperties(&size,
+      auto* props = zisc::reinterp<vk::LayerProperties*>(prop_list.data());
+      const auto result = vk::enumerateInstanceLayerProperties(&size,
                                                                    props,
                                                                    loader);
-      if (result != zivcvk::Result::eSuccess) {
+      if (result != vk::Result::eSuccess) {
         const std::string message = createErrorMessage(
             *this,
             "Enumerating instance layer properties failed.");

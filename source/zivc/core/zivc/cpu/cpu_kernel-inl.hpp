@@ -35,13 +35,13 @@
 #include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/cpucl/address_space_pointer.hpp"
-#include "zivc/utility/fence.hpp"
-#include "zivc/utility/id_data.hpp"
-#include "zivc/utility/kernel_arg_info.hpp"
-#include "zivc/utility/kernel_arg_type_info.hpp"
-#include "zivc/utility/kernel_launch_options.hpp"
-#include "zivc/utility/kernel_init_params.hpp"
-#include "zivc/utility/launch_result.hpp"
+#include "zivc/auxiliary/fence.hpp"
+#include "zivc/auxiliary/id_data.hpp"
+#include "zivc/auxiliary/kernel_launch_options.hpp"
+#include "zivc/auxiliary/kernel_init_params.hpp"
+#include "zivc/auxiliary/launch_result.hpp"
+#include "zivc/internal/kernel_arg_info.hpp"
+#include "zivc/internal/kernel_arg_type_info.hpp"
 
 namespace zivc {
 
@@ -170,7 +170,7 @@ operator()() noexcept
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 template <typename Type, typename ...Types, typename ...ArgTypes> inline
 auto CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-makeArgCacheT(const KernelArgCache<ArgTypes...>& cache) noexcept
+makeArgCacheT(const internal::KernelArgCache<ArgTypes...>& cache) noexcept
 {
   auto precedence = concatArgCache<Type>(cache);
   constexpr std::size_t num_of_args = sizeof...(Types) + 1;
@@ -192,14 +192,14 @@ makeArgCacheT(const KernelArgCache<ArgTypes...>& cache) noexcept
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 template <typename Type, typename ...Types, typename ...ArgTypes> inline
 auto CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-makeLocalCacheT(const KernelArgCache<ArgTypes...>& cache) noexcept
+makeLocalCacheT(const internal::KernelArgCache<ArgTypes...>& cache) noexcept
 {
   using ArgParserT = typename BaseKernelT::ArgParserT;
   if constexpr (ArgParserT::kNumOfLocalArgs == 0) {
     return cache;
   }
   else { // has local variable
-    using ArgTypeInfoT = KernelArgTypeInfo<Type>;
+    using ArgTypeInfoT = internal::KernelArgTypeInfo<Type>;
     constexpr std::size_t num_of_args = sizeof...(Types) + 1;
     if constexpr (ArgTypeInfoT::kIsLocal) {
       // Create local variable type
@@ -263,7 +263,7 @@ createCommand() noexcept -> Command*
   static_assert(sizeof(CommandStorageT) == sizeof(Command));
   static_assert(std::alignment_of_v<CommandStorageT> == std::alignment_of_v<Command>);
   auto* memory = static_cast<void*>(commandStorage());
-  Command* command = ::new (memory) Command{{this}};
+  auto* command = ::new (memory) Command{{this}};
 
   return command;
 }
@@ -281,7 +281,7 @@ createIdCounter() noexcept
   // To guarantee that the counter is alive while kernel execution,
   // create the counter using the member storage
   auto* memory = zisc::cast<void*>(atomicStorage());
-  std::atomic<uint32b>* id = ::new (memory) std::atomic<uint32b>{0};
+  auto* id = ::new (memory) std::atomic<uint32b>{0};
   return id;
 }
 
@@ -299,7 +299,7 @@ getArg(LocalCacheT& local_cache) noexcept -> ArgT<kIndex>
 {
   using ArgumentT = ArgT<kIndex>;
   using ArgParserT = typename BaseKernelT::ArgParserT;
-  constexpr KernelArgInfo info = ArgParserT::getArgInfoList()[kIndex];
+  constexpr internal::KernelArgInfo info = ArgParserT::getArgInfoList()[kIndex];
   constexpr std::size_t offset = info.localOffset();
   if constexpr (info.isLocal()) {
     constexpr std::size_t cache_index = offset;

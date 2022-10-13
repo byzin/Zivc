@@ -23,7 +23,7 @@
 #include "kernel_arg_type_info.hpp"
 #include "zivc/zivc_config.hpp"
 
-namespace zivc {
+namespace zivc::internal {
 
 /*!
   \details No detailed description
@@ -83,6 +83,6 @@ auto operator+([[maybe_unused]] const KernelArgPack<Type1>& lhs,
   }
 }
 
-} // namespace zivc
+} // namespace zivc::internal
 
 #endif // ZIVC_KERNEL_ARG_PACK_INL_HPP

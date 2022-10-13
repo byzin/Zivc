@@ -30,7 +30,7 @@
 #include "backend.hpp"
 #include "device.hpp"
 #include "zivc_config.hpp"
-#include "utility/zivc_object.hpp"
+#include "auxiliary/zivc_object.hpp"
 
 namespace zisc {
 

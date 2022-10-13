@@ -24,11 +24,11 @@
 #include "zivc/buffer.hpp"
 #include "zivc/zivc_cl.hpp"
 #include "zivc/zivc_config.hpp"
-#include "zivc/utility/buffer_launch_options.hpp"
-#include "zivc/utility/kernel_common.hpp"
-#include "zivc/utility/error.hpp"
-#include "zivc/utility/launch_result.hpp"
-#include "zivc/utility/launch_options.hpp"
+#include "zivc/auxiliary/buffer_launch_options.hpp"
+#include "zivc/auxiliary/kernel_common.hpp"
+#include "zivc/auxiliary/error.hpp"
+#include "zivc/auxiliary/launch_result.hpp"
+#include "zivc/auxiliary/launch_options.hpp"
 
 namespace zivc {
 

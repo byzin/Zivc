@@ -26,7 +26,7 @@
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "zivc_config.hpp"
-#include "utility/memory_heap_info.hpp"
+#include "auxiliary/memory_heap_info.hpp"
 
 namespace zivc {
 

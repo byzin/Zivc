@@ -35,7 +35,7 @@
 #if defined(ZIVC_ENABLE_VULKAN_BACKEND)
 #include "vulkan/vulkan_backend.hpp"
 #endif // ZIVC_ENABLE_VULKAN_BACKEND
-#include "utility/error.hpp"
+#include "auxiliary/error.hpp"
 
 namespace zivc {
 

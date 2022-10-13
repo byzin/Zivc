@@ -18,13 +18,17 @@
 // Zisc
 #include "zisc/non_copyable.hpp"
 // Zivc
-#include "vulkan.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/vulkan/utility/vulkan.hpp"
 
 namespace zivc {
 
 // Forward declaration
 class VulkanDispatchLoader;
+
+} /* namespace zivc */
+
+namespace zivc::internal {
 
 /*!
   \brief No brief description
@@ -62,6 +66,6 @@ class CmdRecordRegion : private zisc::NonCopyable<CmdRecordRegion>
   const VulkanDispatchLoader* dispatcher_ = nullptr;
 };
 
-} // namespace zivc
+} // namespace zivc::internal
 
 #endif // ZIVC_CMD_RECORD_REGION_HPP

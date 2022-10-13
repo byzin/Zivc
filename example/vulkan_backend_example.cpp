@@ -223,7 +223,7 @@ int printVulkanBackendInfo(const zivc::Context& context)
                   << "counts: " << prop.properties1_.queueCount
                   << ", " << std::endl
                   << indent4 << "capabilities: "
-                  << zivcvk::to_string(zisc::cast<zivcvk::QueueFlags>(prop.properties1_.queueFlags))
+                  << zivc::vk::to_string(zisc::cast<zivc::vk::QueueFlags>(prop.properties1_.queueFlags))
                   << std::endl;
       }
     }
@@ -236,7 +236,7 @@ int printVulkanBackendInfo(const zivc::Context& context)
       for (std::size_t index = 0; index < mem.memoryHeapCount; ++index) {
         const VkMemoryHeap& heap = mem.memoryHeaps[index];
         std::cout << indent3 << "Heap[" << index << "] attribute: "
-                  << zivcvk::to_string(zisc::cast<zivcvk::MemoryHeapFlags>(heap.flags))
+                  << zivc::vk::to_string(zisc::cast<zivc::vk::MemoryHeapFlags>(heap.flags))
                   << std::endl;
         std::cout << indent4 << "total  : "
                   << ::toMegaBytes(heap.size) << " MB"
@@ -258,7 +258,7 @@ int printVulkanBackendInfo(const zivc::Context& context)
         const VkMemoryType& memory = mem.memoryTypes[index];
         std::cout << indent3 << "Memory[" << index << "] -> Heap["
                   << memory.heapIndex << "], properties: "
-                  << zivcvk::to_string(zisc::cast<zivcvk::MemoryPropertyFlags>(memory.propertyFlags))
+                  << zivc::vk::to_string(zisc::cast<zivc::vk::MemoryPropertyFlags>(memory.propertyFlags))
                   << std::endl;
       }
     }

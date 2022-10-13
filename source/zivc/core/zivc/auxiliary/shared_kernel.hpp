@@ -24,7 +24,7 @@
 #include "kernel_common.hpp"
 #include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
-#include "zivc/utility/kernel_arg_parser.hpp"
+#include "zivc/internal/kernel_arg_parser.hpp"
 
 namespace zivc {
 
@@ -43,7 +43,7 @@ template <typename, typename...> class Kernel;
 template <std::size_t kDim, DerivedKSet KSet, typename ...Args>
 class SharedKernel
 {
-  using KernelT = typename KernelArgParser<Args...>::
+  using KernelT = typename internal::KernelArgParser<Args...>::
                       template KernelT<Kernel, kDim, KSet>;
 
  public:

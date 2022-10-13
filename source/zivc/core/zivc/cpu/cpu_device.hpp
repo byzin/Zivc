@@ -28,7 +28,7 @@
 // Zivc
 #include "zivc/device.hpp"
 #include "zivc/zivc_config.hpp"
-#include "zivc/utility/id_data.hpp"
+#include "zivc/auxiliary/id_data.hpp"
 
 namespace zivc {
 

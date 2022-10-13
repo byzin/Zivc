@@ -26,11 +26,12 @@
 // Zivc
 #include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
-#include "zivc/utility/error.hpp"
-#include "zivc/utility/zstd.hpp"
+#include "zivc/auxiliary/error.hpp"
+#include "zivc/internal/zstd.hpp"
+
+namespace {
 
 #if defined(ZIVC_BAKE_KERNELS)
-namespace {
 
 #include "@baked_spv_file_path@"
 
@@ -62,11 +63,11 @@ void loadBakedSpirvCode(zisc::pmr::vector<zivc::uint32b>* spirv_code_out)
   static_assert((expected_raw_size % 4) == 0,
                 "The size of the SPIR-V code isn't valid.");
 
-  auto alloc = spirv_code_out->get_allocator();
+  zisc::pmr::polymorphic_allocator alloc = spirv_code_out->get_allocator();
   zisc::pmr::memory_resource* mem_resource = alloc.resource();
 
   // Get the raw size of the SPIR-V code
-  constexpr auto encoded_code = BakedKernelSet::encodedData();
+  constexpr std::array encoded_code = BakedKernelSet::encodedData();
   static_assert(encoded_code.size() == BakedKernelSet::size(),
                 "The size of the encoded SPIR-V code isn't valid.");
   std::size_t raw_size = ZSTD_getFrameContentSize(encoded_code.data(),
@@ -89,8 +90,26 @@ void loadBakedSpirvCode(zisc::pmr::vector<zivc::uint32b>* spirv_code_out)
   ZSTD_freeDCtx(context);
 }
 
-} // namespace
+#else // ZIVC_BAKE_KERNELS
+
+/*!
+  \details No detailed description
+
+  \param [out] spirv_code_out No description.
+  */
+void loadSpirvCodeFile(zisc::pmr::vector<zivc::uint32b>* spirv_code_out)
+{
+  std::ifstream spv_file{"@spv_file_path@", std::ios_base::binary};
+  ZIVC_ASSERT(spv_file.is_open(), "The SPIR-V file not found.");
+  const std::streamsize spv_size = zisc::BSerializer::getDistance(&spv_file);
+  ZIVC_ASSERT((spv_size % 4) == 0, "The size of the SPIR-V code isn't valid.");
+  spirv_code_out->resize(zisc::cast<std::size_t>(spv_size / 4));
+  spv_file.read(reinterpret_cast<char*>(spirv_code_out->data()), spv_size);
+}
+
 #endif // ZIVC_BAKE_KERNELS
+
+} // namespace
 
 namespace zivc::kernel_set {
 
@@ -118,12 +137,7 @@ void KernelSetT::loadSpirVCode(zisc::pmr::vector<uint32b>* spirv_code_out)
 #if defined(ZIVC_BAKE_KERNELS)
   ::loadBakedSpirvCode(spirv_code_out);
 #else // ZIVC_BAKE_KERNELS
-  std::ifstream spv_file{"@spv_file_path@", std::ios_base::binary};
-  ZIVC_ASSERT(spv_file.is_open(), "The SPIR-V file not found.");
-  const std::streamsize spv_size = zisc::BSerializer::getDistance(&spv_file);
-  ZIVC_ASSERT((spv_size % 4) == 0, "The size of the SPIR-V code isn't valid.");
-  spirv_code_out->resize(zisc::cast<std::size_t>(spv_size / 4));
-  spv_file.read(reinterpret_cast<char*>(spirv_code_out->data()), spv_size);
+  ::loadSpirvCodeFile(spirv_code_out);
 #endif // ZIVC_BAKE_KERNELS
 }
 

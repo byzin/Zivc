@@ -35,22 +35,22 @@
 #include "vulkan_buffer_impl.hpp"
 #include "vulkan_device.hpp"
 #include "vulkan_kernel_impl.hpp"
-#include "utility/cmd_debug_label_region.hpp"
-#include "utility/cmd_record_region.hpp"
-#include "utility/queue_debug_label_region.hpp"
+#include "internal/cmd_debug_label_region.hpp"
+#include "internal/cmd_record_region.hpp"
+#include "internal/queue_debug_label_region.hpp"
 #include "utility/vulkan.hpp"
 #include "zivc/buffer.hpp"
 #include "zivc/device_info.hpp"
 #include "zivc/kernel.hpp"
 #include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
-#include "zivc/utility/buffer_init_params.hpp"
-#include "zivc/utility/error.hpp"
-#include "zivc/utility/id_data.hpp"
-#include "zivc/utility/kernel_arg_parser.hpp"
-#include "zivc/utility/kernel_arg_cache.hpp"
-#include "zivc/utility/kernel_init_params.hpp"
-#include "zivc/utility/launch_result.hpp"
+#include "zivc/auxiliary/buffer_init_params.hpp"
+#include "zivc/auxiliary/error.hpp"
+#include "zivc/auxiliary/id_data.hpp"
+#include "zivc/auxiliary/kernel_init_params.hpp"
+#include "zivc/auxiliary/launch_result.hpp"
+#include "zivc/internal/kernel_arg_parser.hpp"
+#include "zivc/internal/kernel_arg_cache.hpp"
 
 namespace zivc {
 
@@ -332,7 +332,7 @@ updateDebugInfoImpl()
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 template <std::size_t kIndex, typename ...PodTypes> inline
 auto VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-createPodCacheType(const KernelArgCache<PodTypes...>& cache) noexcept
+createPodCacheType(const internal::KernelArgCache<PodTypes...>& cache) noexcept
 {
   using ArgParserT = typename BaseKernelT::ArgParserT;
   if constexpr (kIndex < ArgParserT::kNumOfPodArgs) {
@@ -425,7 +425,7 @@ void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 initBufferList(VkBuffer* buffer_list, Type&& value, Types&&... rest) noexcept
 {
   using T = std::remove_cvref_t<Type>;
-  using ArgTypeInfo = KernelArgTypeInfo<T>;
+  using ArgTypeInfo = internal::KernelArgTypeInfo<T>;
   if constexpr (!ArgTypeInfo::kIsPod)
     buffer_list[kIndex] = getBufferHandle(value);
   if constexpr (0 < sizeof...(Types)) {
@@ -462,9 +462,9 @@ initPodBuffer()
 
 #if defined(ZIVC_PRINT_CACHE_TREE)
     // Print POD cache tree
-    KernelArgCache<void>::printValue<PodCacheT>(0,
-                                                "ArgCache",
-                                                std::addressof(std::cout));
+    internal::KernelArgCache<void>::printValue<PodCacheT>(0,
+                                                          "ArgCache",
+                                                          std::addressof(std::cout));
     std::cout << std::endl;
     PodCacheT::printTree(1, std::addressof(std::cout));
 #endif // ZIVC_PRINT_CACHE_TREE
@@ -487,7 +487,7 @@ void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 initPodCache(PodCacheT* cache, Type&& value, Types&&... rest) noexcept
 {
   using T = std::remove_cvref_t<Type>;
-  using ArgTypeInfo = KernelArgTypeInfo<T>;
+  using ArgTypeInfo = internal::KernelArgTypeInfo<T>;
   if constexpr (ArgTypeInfo::kIsPod)
     cache->template set<kIndex>(std::forward<Type>(value));
   constexpr bool has_rest = 0 < sizeof...(Types);

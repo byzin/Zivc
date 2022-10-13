@@ -79,7 +79,7 @@ ZivcObject* ReinterpBuffer<Derived, T>::getParent()
     throw SystemError{ErrorCode::kInvalidInstruction, message};
   }
   else {
-    auto b = internalBuffer();
+    BufferPtr b = internalBuffer();
     data = b->getParent();
   }
   return data;
@@ -93,7 +93,7 @@ ZivcObject* ReinterpBuffer<Derived, T>::getParent()
 template <DerivedBuffer Derived, KernelArg T> inline
 const ZivcObject* ReinterpBuffer<Derived, T>::getParent() const noexcept
 {
-  auto b = internalBuffer();
+  BufferPtr b = internalBuffer();
   return b->getParent();
 }
 
@@ -113,7 +113,7 @@ ZivcObject* ReinterpBuffer<Derived, T>::getOwn()
     throw SystemError{ErrorCode::kInvalidInstruction, message};
   }
   else {
-    auto b = internalBuffer();
+    BufferPtr b = internalBuffer();
     data = b->getOwn();
   }
   return data;
@@ -127,7 +127,7 @@ ZivcObject* ReinterpBuffer<Derived, T>::getOwn()
 template <DerivedBuffer Derived, KernelArg T> inline
 const ZivcObject* ReinterpBuffer<Derived, T>::getOwn() const noexcept
 {
-  auto b = internalBuffer();
+  BufferPtr b = internalBuffer();
   return b->getOwn();
 }
 
@@ -139,7 +139,7 @@ const ZivcObject* ReinterpBuffer<Derived, T>::getOwn() const noexcept
 template <DerivedBuffer Derived, KernelArg T> inline
 std::size_t ReinterpBuffer<Derived, T>::capacityInBytes() const noexcept
 {
-  auto b = internalBuffer();
+  BufferPtr b = internalBuffer();
   return b->capacityInBytes();
 }
 
@@ -151,7 +151,7 @@ std::size_t ReinterpBuffer<Derived, T>::capacityInBytes() const noexcept
 template <DerivedBuffer Derived, KernelArg T> inline
 std::size_t ReinterpBuffer<Derived, T>::heapIndex() const noexcept
 {
-  auto b = internalBuffer();
+  BufferPtr b = internalBuffer();
   return b->heapIndex();
 }
 
@@ -163,7 +163,7 @@ std::size_t ReinterpBuffer<Derived, T>::heapIndex() const noexcept
 template <DerivedBuffer Derived, KernelArg T> inline
 bool ReinterpBuffer<Derived, T>::isDebugMode() const noexcept
 {
-  auto b = internalBuffer();
+  BufferPtr b = internalBuffer();
   return b->isDebugMode();
 }
 
@@ -175,7 +175,7 @@ bool ReinterpBuffer<Derived, T>::isDebugMode() const noexcept
 template <DerivedBuffer Derived, KernelArg T> inline
 bool ReinterpBuffer<Derived, T>::isDeviceLocal() const noexcept
 {
-  auto b = internalBuffer();
+  BufferPtr b =internalBuffer();
   return b->isDeviceLocal();
 }
 
@@ -187,7 +187,7 @@ bool ReinterpBuffer<Derived, T>::isDeviceLocal() const noexcept
 template <DerivedBuffer Derived, KernelArg T> inline
 bool ReinterpBuffer<Derived, T>::isHostCached() const noexcept
 {
-  auto b = internalBuffer();
+  BufferPtr b = internalBuffer();
   return b->isHostCached();
 }
 
@@ -199,7 +199,7 @@ bool ReinterpBuffer<Derived, T>::isHostCached() const noexcept
 template <DerivedBuffer Derived, KernelArg T> inline
 bool ReinterpBuffer<Derived, T>::isHostCoherent() const noexcept
 {
-  auto b = internalBuffer();
+  BufferPtr b = internalBuffer();
   return b->isHostCoherent();
 }
 
@@ -211,7 +211,7 @@ bool ReinterpBuffer<Derived, T>::isHostCoherent() const noexcept
 template <DerivedBuffer Derived, KernelArg T> inline
 bool ReinterpBuffer<Derived, T>::isHostVisible() const noexcept
 {
-  auto b = internalBuffer();
+  BufferPtr b = internalBuffer();
   return b->isHostVisible();
 }
 
@@ -223,7 +223,7 @@ bool ReinterpBuffer<Derived, T>::isHostVisible() const noexcept
 template <DerivedBuffer Derived, KernelArg T> inline
 void* ReinterpBuffer<Derived, T>::mapMemoryData() const
 {
-  auto b = internalBuffer();
+  BufferPtr b = internalBuffer();
   return b->mapMemoryData();
 }
 
@@ -243,7 +243,7 @@ zisc::pmr::memory_resource* ReinterpBuffer<Derived, T>::memoryResource()
     throw SystemError{ErrorCode::kInvalidInstruction, message};
   }
   else {
-    auto b = internalBuffer();
+    BufferPtr b = internalBuffer();
     mem_resource = b->memoryResource();
   }
   return mem_resource;
@@ -258,7 +258,7 @@ zisc::pmr::memory_resource* ReinterpBuffer<Derived, T>::memoryResource()
 template <DerivedBuffer Derived, KernelArg T> inline
 const zisc::pmr::memory_resource* ReinterpBuffer<Derived, T>::memoryResource() const noexcept
 {
-  auto b = internalBuffer();
+  BufferPtr b = internalBuffer();
   return b->memoryResource();
 }
 
@@ -278,7 +278,7 @@ void* ReinterpBuffer<Derived, T>::rawBufferData()
     throw SystemError{ErrorCode::kInvalidInstruction, message};
   }
   else {
-    auto b = internalBuffer();
+    BufferPtr b = internalBuffer();
     data = b->rawBufferData();
   }
   return data;
@@ -292,7 +292,7 @@ void* ReinterpBuffer<Derived, T>::rawBufferData()
 template <DerivedBuffer Derived, KernelArg T> inline
 const void* ReinterpBuffer<Derived, T>::rawBufferData() const noexcept
 {
-  auto b = internalBuffer();
+  BufferPtr b = internalBuffer();
   return b->rawBufferData();
 }
 
@@ -309,7 +309,7 @@ void ReinterpBuffer<Derived, T>::setSize(const std::size_t s)
     throw SystemError{ErrorCode::kInvalidInstruction, message};
   }
   else {
-    auto b = internalBuffer();
+    BufferPtr b = internalBuffer();
     const std::size_t new_size = (sizeof(Type) * s) / b->typeSizeInBytes();
     b->setSize(new_size);
   }
@@ -323,7 +323,7 @@ void ReinterpBuffer<Derived, T>::setSize(const std::size_t s)
 template <DerivedBuffer Derived, KernelArg T> inline
 std::size_t ReinterpBuffer<Derived, T>::sizeInBytes() const noexcept
 {
-  auto b = internalBuffer();
+  BufferPtr b = internalBuffer();
   return b->sizeInBytes();
 }
 
@@ -335,7 +335,7 @@ std::size_t ReinterpBuffer<Derived, T>::sizeInBytes() const noexcept
 template <DerivedBuffer Derived, KernelArg T> inline
 BackendType ReinterpBuffer<Derived, T>::type() const noexcept
 {
-  auto b = internalBuffer();
+  BufferPtr b = internalBuffer();
   return b->type();
 }
 
@@ -345,7 +345,7 @@ BackendType ReinterpBuffer<Derived, T>::type() const noexcept
 template <DerivedBuffer Derived, KernelArg T> inline
 void ReinterpBuffer<Derived, T>::unmapMemoryData() const noexcept
 {
-  auto b = internalBuffer();
+  BufferPtr b = internalBuffer();
   b->unmapMemoryData();
 }
 

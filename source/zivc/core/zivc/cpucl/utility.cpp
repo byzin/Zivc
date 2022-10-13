@@ -20,7 +20,7 @@
 // Zivc
 #include "types.hpp"
 #include "zivc/zivc_config.hpp"
-#include "zivc/utility/error.hpp"
+#include "zivc/auxiliary/error.hpp"
 
 namespace zivc::cl::inner {
 

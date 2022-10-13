@@ -20,7 +20,7 @@
 // Zivc
 #include "zivc/zivc_config.hpp"
 
-namespace zivc {
+namespace zivc::internal {
 
 //! Return the integer identifying the value of the environment variable
 int64b getEnvNumber(const std::string_view env_variable) noexcept;
@@ -28,8 +28,6 @@ int64b getEnvNumber(const std::string_view env_variable) noexcept;
 //! Return the string identifying the value of the environment variable
 std::string_view getEnvString(const std::string_view env_variable) noexcept;
 
-} // namespace zivc
-
-#include "env_variable-inl.hpp"
+} // namespace zivc::internal
 
 #endif // ZIVC_ENV_VARIABLE_HPP

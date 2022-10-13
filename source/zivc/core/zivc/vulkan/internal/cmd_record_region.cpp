@@ -20,11 +20,11 @@
 #include "zisc/non_copyable.hpp"
 #include "zisc/utility.hpp"
 // Zivc
-#include "vulkan_dispatch_loader.hpp"
-#include "vulkan_hpp.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/vulkan/utility/vulkan_dispatch_loader.hpp"
+#include "zivc/vulkan/utility/vulkan_hpp.hpp"
 
-namespace zivc {
+namespace zivc::internal {
 
 /*!
   \details No detailed description
@@ -80,7 +80,7 @@ CmdRecordRegion& CmdRecordRegion::operator=(CmdRecordRegion&& other) noexcept
   */
 void CmdRecordRegion::end() noexcept
 {
-  const zivcvk::CommandBuffer command_buffer{command_buffer_};
+  const vk::CommandBuffer command_buffer{command_buffer_};
   if (command_buffer)
     command_buffer.end(dispatcher_->loader());
   command_buffer_ = ZIVC_VK_NULL_HANDLE;
@@ -94,12 +94,12 @@ void CmdRecordRegion::end() noexcept
   */
 void CmdRecordRegion::begin(const VkCommandBufferUsageFlags flags)
 {
-  const zivcvk::CommandBuffer command_buffer{command_buffer_};
+  const vk::CommandBuffer command_buffer{command_buffer_};
   if (command_buffer) {
-    const zivcvk::CommandBufferBeginInfo info{
-        zisc::cast<zivcvk::CommandBufferUsageFlags>(flags)};
+    const vk::CommandBufferBeginInfo info{
+        zisc::cast<vk::CommandBufferUsageFlags>(flags)};
     command_buffer.begin(info, dispatcher_->loader());
   }
 }
 
-} // namespace zivc
+} // namespace zivc::internal

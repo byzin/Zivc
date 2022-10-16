@@ -104,8 +104,8 @@ run(Args... args, const LaunchOptionsT& launch_options)
     fence.setDevice(launch_options.isFenceRequested() ? &device : nullptr);
     using BaseT = BaseKernelT;
     constexpr uint32b dim = BaseT::dimension();
-    const auto work_size = BaseT::expandWorkSize(launch_options.workSize(), 1);
-    const auto id_offset = BaseT::expandWorkSize(launch_options.globalIdOffset(), 0);
+    const std::array work_size = BaseT::expandWorkSize(launch_options.workSize(), 1);
+    const std::array id_offset = BaseT::expandWorkSize(launch_options.globalIdOffset(), 0);
     device.submit(*command, dim, work_size, id_offset, id, std::addressof(fence));
   }
   result.setAsync(true);
@@ -331,7 +331,7 @@ inline
 CpuDevice& CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 parentImpl() noexcept
 {
-  auto p = BaseKernelT::getParent();
+  ZivcObject* p = BaseKernelT::getParent();
   return *static_cast<CpuDevice*>(p);
 }
 
@@ -345,8 +345,8 @@ inline
 const CpuDevice& CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 parentImpl() const noexcept
 {
-  const auto p = BaseKernelT::getParent();
-  return *zisc::cast<const CpuDevice*>(p);
+  const ZivcObject* p = BaseKernelT::getParent();
+  return *static_cast<const CpuDevice*>(p);
 }
 
 /*!

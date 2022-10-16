@@ -57,7 +57,7 @@ VulkanKernelImpl::~VulkanKernelImpl() noexcept
 void VulkanKernelImpl::addPodBarrierCmd(const VkCommandBuffer& command_buffer,
                                         const VkBuffer& buffer)
 {
-  auto& zdevice = device();
+  const VulkanDevice& zdevice = device();
   const vk::BufferMemoryBarrier buff_barrier{
       vk::AccessFlagBits::eTransferWrite,
       vk::AccessFlagBits::eUniformRead,
@@ -83,7 +83,7 @@ void VulkanKernelImpl::addPodBarrierCmd(const VkCommandBuffer& command_buffer,
   */
 void VulkanKernelImpl::destroyDescriptorSet(VkDescriptorPool* descriptor_pool) noexcept
 {
-  auto& zdevice = device();
+  VulkanDevice& zdevice = device();
   const vk::Device d{zdevice.device()};
   if (d) {
     const vk::AllocationCallbacks alloc{zdevice.createAllocator()};
@@ -110,12 +110,12 @@ void VulkanKernelImpl::dispatchCmd(const VkCommandBuffer& command_buffer,
                                    const std::span<const uint32b, 3>& dispatch_size)
 {
   const auto* kdata = static_cast<const VulkanDevice::KernelData*>(kernel_data);
-  const auto& loader = device().dispatcher().loader();
+  VulkanDispatchLoader::ConstLoaderReference loader = device().dispatcher().loader();
 
   const vk::CommandBuffer command{command_buffer};
   ZIVC_ASSERT(command, "The given command buffer is null.");
 
-  constexpr auto bind_point = vk::PipelineBindPoint::eCompute;
+  constexpr vk::PipelineBindPoint bind_point = vk::PipelineBindPoint::eCompute;
   const vk::PipelineLayout pline_layout{kdata->pipeline_layout_};
   const vk::DescriptorSet desc_set{descriptor_set};
   command.bindDescriptorSets(bind_point, pline_layout, 0, desc_set, nullptr, loader);
@@ -142,11 +142,11 @@ void VulkanKernelImpl::initDescriptorSet(
     VkDescriptorPool* descriptor_pool,
     VkDescriptorSet* descriptor_set)
 {
-  auto& zdevice = device();
+  VulkanDevice& zdevice = device();
 
   const vk::Device d{zdevice.device()};
-  const auto& loader = zdevice.dispatcher().loader();
-  auto* mem_resource = zdevice.memoryResource();
+  VulkanDispatchLoader::ConstLoaderReference loader = zdevice.dispatcher().loader();
+  zisc::pmr::memory_resource* mem_resource = zdevice.memoryResource();
   const vk::AllocationCallbacks alloc{zdevice.createAllocator()};
 
   // Initialize descriptor pool
@@ -186,7 +186,7 @@ void VulkanKernelImpl::initDescriptorSet(
     // The allocate function causes undefined symbol error with custom allocator
     //const zisc::pmr::polymorphic_allocator<vk::DescriptorSet> alloc{mem_resource};
     //auto desc_set = d.allocateDescriptorSets(alloc_info, alloc, loader);
-    auto desc_set = d.allocateDescriptorSets(alloc_info, loader);
+    std::vector desc_set = d.allocateDescriptorSets(alloc_info, loader);
     ZIVC_ASSERT(desc_set.size() == 1, "Multiple descriptor sets were created.");
 
     // Output
@@ -233,10 +233,10 @@ void VulkanKernelImpl::pushConstantCmd(const VkCommandBuffer& command_buffer,
                                        const void* data)
 {
   const auto* kdata = static_cast<const VulkanDevice::KernelData*>(kernel_data);
-  const auto& loader = device().dispatcher().loader();
+  VulkanDispatchLoader::ConstLoaderReference loader = device().dispatcher().loader();
   const vk::CommandBuffer command{command_buffer};
   const vk::PipelineLayout pline_l{kdata->pipeline_layout_};
-  constexpr auto stage_flag = vk::ShaderStageFlagBits::eCompute;
+  constexpr vk::ShaderStageFlags stage_flag = vk::ShaderStageFlagBits::eCompute;
   const auto o = zisc::cast<uint32b>(offset);
   const auto s = zisc::cast<uint32b>(size);
   command.pushConstants(pline_l, stage_flag, o, s, data, loader);
@@ -276,7 +276,7 @@ void VulkanKernelImpl::updateDescriptorSet(const VkDescriptorSet& descriptor_set
   }
 
   const vk::Device d{device().device()};
-  const auto& loader = device().dispatcher().loader();
+  VulkanDispatchLoader::ConstLoaderReference loader = device().dispatcher().loader();
   const auto* descs = zisc::reinterp<const vk::WriteDescriptorSet*>(write_desc_list);
   d.updateDescriptorSets(zisc::cast<uint32b>(n), descs, 0, nullptr, loader);
 }

@@ -25,6 +25,7 @@
 #include <memory>
 #include <numeric>
 #include <optional>
+#include <span>
 #include <string>
 #include <string_view>
 #include <tuple>
@@ -229,7 +230,7 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
     pline_layout = d.createPipelineLayout(create_info, alloc, loader);
   }
   // Specialization constants
-  const auto& work_group_size = workGroupSizeDim(work_dimension);
+  const std::span work_group_size = workGroupSizeDim(work_dimension);
   const zisc::pmr::vector<uint32b>::allocator_type spec_alloc{mem_resource};
   zisc::pmr::vector<uint32b> spec_constants{spec_alloc};
   {
@@ -240,7 +241,7 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
     // Work dimension
     spec_constants.emplace_back(zisc::cast<uint32b>(work_dimension));
     // For clspv local element size
-    const auto& info = deviceInfoImpl();
+    const VulkanDeviceInfo& info = deviceInfoImpl();
     spec_constants.emplace_back(info.workGroupSize());
   }
   using MapEntryList = zisc::pmr::vector<vk::SpecializationMapEntry>;
@@ -295,10 +296,10 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
     const vk::ComputePipelineCreateInfo pipeline_info{pipeline_flags,
                                                           stage_info,
                                                           pline_layout};
-    auto result = d.createComputePipeline(vk::PipelineCache{},
-                                          pipeline_info,
-                                          alloc,
-                                          loader);
+    const vk::ResultValue result = d.createComputePipeline(vk::PipelineCache{},
+                                                           pipeline_info,
+                                                           alloc,
+                                                           loader);
     if (result.result != vk::Result::eSuccess) {
       const std::string message = createErrorMessage(
           *this,
@@ -753,8 +754,7 @@ void VulkanDevice::destroyData() noexcept
     // Command pool
     vk::CommandPool command_pool{command_pool_};
     if (command_pool) {
-      //! \todo Fix me. AMD gpu won't work with custom allocator
-      d.destroyCommandPool(command_pool, nullptr /* alloc */, loader);
+      d.destroyCommandPool(command_pool, alloc, loader);
       command_pool = nullptr;
     }
 
@@ -1244,8 +1244,7 @@ void VulkanDevice::initCommandPool()
       vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
       queueFamilyIndex(CapabilityT::kCompute)};
 
-  //! \todo Fix me. AMD gpu won't work with custom allocator
-  const vk::CommandPool command_pool = d.createCommandPool(create_info, nullptr /* alloc */, loader);
+  const vk::CommandPool command_pool = d.createCommandPool(create_info, alloc, loader);
   command_pool_ = zisc::cast<VkCommandPool>(command_pool);
 }
 
@@ -1402,7 +1401,7 @@ void VulkanDevice::initQueueCreateInfoList(
   const auto find_create_info = [info_list](const uint32b family_index) noexcept
   {
     vk::DeviceQueueCreateInfo* create_info = nullptr;
-    for (auto& c_info : *info_list) {
+    for (vk::DeviceQueueCreateInfo& c_info : *info_list) {
       if (c_info.queueFamilyIndex == family_index) {
         create_info = &c_info;
         break;

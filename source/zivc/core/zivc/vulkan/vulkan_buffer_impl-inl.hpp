@@ -29,6 +29,7 @@
 #include "zivc/auxiliary/error.hpp"
 #include "zivc/auxiliary/launch_result.hpp"
 #include "zivc/auxiliary/launch_options.hpp"
+#include "zivc/auxiliary/reinterp_buffer.hpp"
 
 namespace zivc {
 
@@ -93,31 +94,31 @@ LaunchResult VulkanBufferImpl::fill(KernelCommon* fill_kernel,
   constexpr FillUnitSize unit_size = getFillUnitSize(data_size);
   switch (unit_size) {
    case FillUnitSize::k8: {
-    auto buff = buffer->template reinterp<uint8b>();
+    ReinterpBuffer buff = buffer->template reinterp<uint8b>();
     result = fillU8(fill_kernel, data_buffer, &buff, launch_options, offset, size);
     break;
    }
    case FillUnitSize::k16: {
-    auto data_buff = data_buffer->reinterp<uint16b>();
-    auto buff = buffer->template reinterp<uint16b>();
+    ReinterpBuffer data_buff = data_buffer->reinterp<uint16b>();
+    ReinterpBuffer buff = buffer->template reinterp<uint16b>();
     result = fillU16(fill_kernel, &data_buff, &buff, launch_options, offset, size);
     break;
    }
    case FillUnitSize::k32: {
-    auto data_buff = data_buffer->reinterp<uint32b>();
-    auto buff = buffer->template reinterp<uint32b>();
+    ReinterpBuffer data_buff = data_buffer->reinterp<uint32b>();
+    ReinterpBuffer buff = buffer->template reinterp<uint32b>();
     result = fillU32(fill_kernel, &data_buff, &buff, launch_options, offset, size);
     break;
    }
    case FillUnitSize::k64: {
-    auto data_buff = data_buffer->reinterp<cl_uint2>();
-    auto buff = buffer->template reinterp<cl_uint2>();
+    ReinterpBuffer data_buff = data_buffer->reinterp<cl_uint2>();
+    ReinterpBuffer buff = buffer->template reinterp<cl_uint2>();
     result = fillU64(fill_kernel, &data_buff, &buff, launch_options, offset, size);
     break;
    }
    case FillUnitSize::k128: {
-    auto data_buff = data_buffer->reinterp<cl_uint4>();
-    auto buff = buffer->template reinterp<cl_uint4>();
+    ReinterpBuffer data_buff = data_buffer->reinterp<cl_uint4>();
+    ReinterpBuffer buff = buffer->template reinterp<cl_uint4>();
     result = fillU128(fill_kernel, &data_buff, &buff, launch_options, offset, size);
     break;
    }

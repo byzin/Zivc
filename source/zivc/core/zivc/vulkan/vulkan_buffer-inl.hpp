@@ -131,7 +131,7 @@ const VkBuffer& VulkanBuffer<T>::buffer() const noexcept
 template <KernelArg T> inline
 std::size_t VulkanBuffer<T>::capacityInBytes() const noexcept
 {
-  const auto& info = allocationInfo();
+  const VmaAllocationInfo& info = allocationInfo();
   const std::size_t c = info.size;
   return c;
 }
@@ -199,7 +199,7 @@ VkBufferUsageFlagBits VulkanBuffer<T>::descriptorTypeVk() const noexcept
 template <KernelArg T> inline
 std::size_t VulkanBuffer<T>::heapIndex() const noexcept
 {
-  const auto& mem_type = memoryType();
+  const VkMemoryType& mem_type = memoryType();
   return mem_type.heapIndex;
 }
 
@@ -260,7 +260,7 @@ template <KernelArg T> inline
 void* VulkanBuffer<T>::mapMemoryData() const
 {
   void* p = nullptr;
-  const auto& device = parentImpl();
+  const VulkanDevice& device = parentImpl();
   const VkResult result = vmaMapMemory(device.memoryAllocator(), allocation(), &p);
   if (result != VK_SUCCESS) [[unlikely]] {
     const std::string message = createErrorMessage(
@@ -340,7 +340,7 @@ std::size_t VulkanBuffer<T>::sizeInBytes() const noexcept
 template <KernelArg T> inline
 void VulkanBuffer<T>::unmapMemoryData() const noexcept
 {
-  const auto& device = parentImpl();
+  const VulkanDevice& device = parentImpl();
   vmaUnmapMemory(device.memoryAllocator(), allocation());
 }
 
@@ -392,7 +392,7 @@ void VulkanBuffer<T>::initData(const BufferInitParams& params)
 template <KernelArg T> inline
 void VulkanBuffer<T>::updateDebugInfoImpl() noexcept
 {
-  auto& device = parentImpl();
+  VulkanDevice& device = parentImpl();
   const IdData& id_data = ZivcObject::id();
   const std::string_view buffer_name = id_data.name();
   if (buffer() != ZIVC_VK_NULL_HANDLE) {
@@ -487,10 +487,10 @@ LaunchResult VulkanBuffer<T>::copyOnDevice(
   {
     constexpr auto flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
     // Recording scope
-    auto record_region = device.makeCmdRecord(command, flags);
+    const internal::CmdRecordRegion record_region = device.makeCmdRecord(command, flags);
     {
       // Start labeling for debug until the end of the scope
-      auto debug_region = device.makeCmdDebugLabel(command, launch_options);
+      const internal::CmdDebugLabelRegion debug_region = device.makeCmdDebugLabel(command, launch_options);
       // Record buffer copying operation
       const VkBufferCopy copy_region{launch_options.sourceOffsetInBytes(),
                                      launch_options.destOffsetInBytes(),
@@ -507,7 +507,7 @@ LaunchResult VulkanBuffer<T>::copyOnDevice(
     Fence& fence = result.fence();
     fence.setDevice(launch_options.isFenceRequested() ? &device : nullptr);
     // Start labeling for debug until the end of the scope
-    auto debug_region = device.makeQueueDebugLabel(q, launch_options);
+    const internal::QueueDebugLabelRegion debug_region = device.makeQueueDebugLabel(q, launch_options);
     device.submit(command, q, fence);
   }
   result.setAsync(true);
@@ -588,12 +588,12 @@ LaunchResult VulkanBuffer<T>::fillFastOnDevice(
   VkCommandBuffer command = dst_data.command_buffer_;
   // Record commands
   {
-    constexpr auto flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    constexpr VkCommandBufferUsageFlags flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
     // Recording scope
-    auto record_region = device.makeCmdRecord(command, flags);
+    const internal::CmdRecordRegion record_region = device.makeCmdRecord(command, flags);
     {
       // Start labeling for debug until the end of the scope
-      auto debug_region = device.makeCmdDebugLabel(command, launch_options);
+      const internal::CmdDebugLabelRegion debug_region = device.makeCmdDebugLabel(command, launch_options);
       // Record buffer filling operation
       const VulkanBufferImpl impl{std::addressof(device)};
       const std::size_t offset_bytes = launch_options.destOffsetInBytes();
@@ -609,7 +609,7 @@ LaunchResult VulkanBuffer<T>::fillFastOnDevice(
     Fence& fence = result.fence();
     fence.setDevice(launch_options.isFenceRequested() ? &device : nullptr);
     // Start labeling for debug until the end of the scope
-    auto debug_region = device.makeQueueDebugLabel(q, launch_options);
+    const internal::QueueDebugLabelRegion debug_region = device.makeQueueDebugLabel(q, launch_options);
     device.submit(command, q, fence);
   }
   result.setAsync(true);
@@ -664,7 +664,7 @@ LaunchResult VulkanBuffer<T>::fillOnDevice(
   {
     constexpr std::size_t s = sizeof(typename Buffer<D>::Type);
     fill_data->setSize(s);
-    auto mem = fill_data->mapMemory();
+    MappedMemory mem = fill_data->mapMemory();
     std::memcpy(mem.data(), std::addressof(value), mem.size());
   }
   //
@@ -711,7 +711,7 @@ LaunchResult VulkanBuffer<T>::fillOnHost(
 template <KernelArg T> inline
 bool VulkanBuffer<T>::hasMemoryProperty(const VkMemoryPropertyFlagBits flag) const noexcept
 {
-  const auto& mem_type = memoryType();
+  const VkMemoryType& mem_type = memoryType();
   const bool has_property = (mem_type.propertyFlags & flag) == flag;
   return has_property;
 }
@@ -723,7 +723,7 @@ template <KernelArg T> inline
 void VulkanBuffer<T>::initCommandBuffer()
 {
   if (commandBuffer() == ZIVC_VK_NULL_HANDLE) {
-    auto& device = parentImpl();
+    VulkanDevice& device = parentImpl();
     rawBuffer().command_buffer_ = device.createCommandBuffer();
   }
 }
@@ -767,12 +767,12 @@ bool VulkanBuffer<T>::isInternal() const noexcept
 template <KernelArg T> inline
 const VkMemoryType& VulkanBuffer<T>::memoryType() const noexcept
 {
-  const auto& device = parentImpl();
-  const auto& device_info = device.deviceInfoImpl();
-  const auto& info = allocationInfo();
+  const VulkanDevice& device = parentImpl();
+  const VulkanDeviceInfo& device_info = device.deviceInfoImpl();
+  const VmaAllocationInfo& info = allocationInfo();
 
-  const auto& mem_props = device_info.memoryProperties().properties1_;
-  const auto& mem_type = mem_props.memoryTypes[info.memoryType];
+  const VkPhysicalDeviceMemoryProperties& mem_props = device_info.memoryProperties().properties1_;
+  const VkMemoryType& mem_type = mem_props.memoryTypes[info.memoryType];
   return mem_type;
 }
 
@@ -784,7 +784,7 @@ const VkMemoryType& VulkanBuffer<T>::memoryType() const noexcept
 template <KernelArg T> inline
 VulkanDevice& VulkanBuffer<T>::parentImpl() noexcept
 {
-  auto p = Buffer<T>::getParent();
+  ZivcObject* p = Buffer<T>::getParent();
   return *static_cast<VulkanDevice*>(p);
 }
 
@@ -796,7 +796,7 @@ VulkanDevice& VulkanBuffer<T>::parentImpl() noexcept
 template <KernelArg T> inline
 const VulkanDevice& VulkanBuffer<T>::parentImpl() const noexcept
 {
-  const auto p = Buffer<T>::getParent();
+  const ZivcObject* p = Buffer<T>::getParent();
   return *static_cast<const VulkanDevice*>(p);
 }
 

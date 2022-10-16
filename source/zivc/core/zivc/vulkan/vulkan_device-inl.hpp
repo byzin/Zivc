@@ -261,9 +261,9 @@ internal::CmdDebugLabelRegion VulkanDevice::makeCmdDebugLabel(
     const VkCommandBuffer& command_buffer,
     const Options& options) const noexcept
 {
-  auto region = makeCmdDebugLabel(command_buffer,
-                                  options.label(),
-                                  options.labelColor());
+  internal::CmdDebugLabelRegion region = makeCmdDebugLabel(command_buffer,
+                                                           options.label(),
+                                                           options.labelColor());
   return region;
 }
 
@@ -280,9 +280,9 @@ internal::QueueDebugLabelRegion VulkanDevice::makeQueueDebugLabel(
     const VkQueue& q,
     const Options& options) const noexcept
 {
-  auto region = makeQueueDebugLabel(q,
-                                    options.label(),
-                                    options.labelColor());
+  internal::QueueDebugLabelRegion region = makeQueueDebugLabel(q,
+                                                               options.label(),
+                                                               options.labelColor());
   return region;
 }
 

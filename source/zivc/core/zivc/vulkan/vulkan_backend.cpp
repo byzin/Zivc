@@ -22,6 +22,7 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <optional>
 #include <stdexcept>
 #include <span>
 #include <string>
@@ -125,7 +126,7 @@ const DeviceInfo& VulkanBackend::deviceInfo(const std::size_t index) const noexc
   */
 bool VulkanBackend::isAvailable() const noexcept
 {
-  const auto& own = getOwnPtr();
+  const ZivcObject::WeakPtr& own = getOwnPtr();
   const bool result = !own.expired() && (instance_ref_ != nullptr);
   return result;
 }
@@ -174,7 +175,7 @@ void VulkanBackend::updateDeviceInfo()
 {
   device_info_list_->clear();
   device_info_list_->reserve(numOfDevices());
-  const auto& device_list = deviceList();
+  const std::span device_list = deviceList();
   for (std::size_t i = 0; i < device_list.size(); ++i) {
     const VkPhysicalDevice& device = device_list[i];
     VulkanDeviceInfo info{memoryResource()};
@@ -248,7 +249,7 @@ VulkanBackend::AllocatorData::AllocatorData(
 VulkanBackend::AllocatorData::~AllocatorData() noexcept
 {
   //! \todo check memory leak
-  auto& mem_map = memoryMap();
+  const MemoryMap& mem_map = memoryMap();
   if (0 < mem_map.size()) {
 //    zisc::MebiUnit total{0};
 //    for (const auto& mem_data : mem_map_)
@@ -265,7 +266,7 @@ VulkanBackend::AllocatorData::~AllocatorData() noexcept
   */
 void VulkanBackend::AllocatorData::initialize()
 {
-  auto& mem_map = memoryMap();
+  MemoryMap& mem_map = memoryMap();
   mem_map.setCapacity(mapCapacity());
   mem_map.clear();
   mem_list_.resize(mapCapacity());
@@ -294,12 +295,12 @@ auto VulkanBackend::Callbacks::allocateMemory(
   static_assert(sizeof(void*) == sizeof(double));
   const auto address = zisc::bit_cast<double>(memory);
   ZIVC_ASSERT(std::isfinite(address), "The address float isn't finite.");
-  auto& mem_map = alloc_data->memoryMap();
+  AllocatorData::MemoryMap& mem_map = alloc_data->memoryMap();
   {
-    const auto index_result = mem_map.add(address);
+    const std::optional index_result = mem_map.add(address);
     ZIVC_ASSERT(index_result.has_value(), "Adding the address into the map failed.");
     const std::size_t index = index_result.has_value() ? *index_result : 0;
-    auto mem_list = alloc_data->memoryList();
+    const std::span<MemoryData> mem_list = alloc_data->memoryList();
     const MemoryData data{size, alignment};
     mem_list[index] = data;
   }
@@ -324,17 +325,17 @@ void VulkanBackend::Callbacks::deallocateMemory(
     static_assert(sizeof(void*) == sizeof(double));
     const auto address = zisc::bit_cast<double>(memory);
     ZIVC_ASSERT(std::isfinite(address), "The address float isn't finite.");
-    auto& mem_map = alloc_data->memoryMap();
+    AllocatorData::MemoryMap& mem_map = alloc_data->memoryMap();
     MemoryData data;
     {
-      const auto index_result = mem_map.contain(address);
+      const std::optional index_result = mem_map.contain(address);
       ZIVC_ASSERT(index_result.has_value(), "The address isn't in the map.");
       const std::size_t index = index_result.has_value() ? *index_result : 0;
-      const auto& mem_list = alloc_data->memoryList();
+      const std::span<MemoryData> mem_list = alloc_data->memoryList();
       data = mem_list[index];
     }
     {
-      [[maybe_unused]] const auto index_result = mem_map.remove(address);
+      [[maybe_unused]] const std::optional index_result = mem_map.remove(address);
       ZIVC_ASSERT(index_result.has_value(), "The address isn't in the map.");
     }
     alloc_data->memoryResource()->deallocate(memory, data.size_, data.alignment_);
@@ -471,7 +472,7 @@ auto VulkanBackend::Callbacks::printDebugMessage(
         indent.data(),
         cast<int>(callback_data->queueLabelCount));
     for (std::size_t id = 0; id < callback_data->queueLabelCount; ++id) {
-      const auto& label = callback_data->pQueueLabels[id];
+      const VkDebugUtilsLabelEXT& label = callback_data->pQueueLabels[id];
       std::sprintf(msg, "%s%s  * Label[%d] - %s {%lf, %lf, %lf, %lf}\n",
           msg,
           indent.data(),
@@ -491,7 +492,7 @@ auto VulkanBackend::Callbacks::printDebugMessage(
         indent.data(),
         zisc::cast<int>(callback_data->cmdBufLabelCount));
     for (std::size_t id = 0; id < callback_data->cmdBufLabelCount; ++id) {
-      const auto& label = callback_data->pCmdBufLabels[id];
+      const VkDebugUtilsLabelEXT& label = callback_data->pCmdBufLabels[id];
       std::sprintf(msg, "%s%s  * Label[%d] - %s {%lf, %lf, %lf, %lf}\n",
           msg,
           indent.data(),
@@ -511,8 +512,8 @@ auto VulkanBackend::Callbacks::printDebugMessage(
         indent.data(),
         cast<int>(callback_data->objectCount));
     for (std::size_t id = 0; id < callback_data->objectCount; ++id) {
-      const auto& object = callback_data->pObjects[id];
-      const auto obj_type_name = vk::to_string(
+      const VkDebugUtilsObjectNameInfoEXT& object = callback_data->pObjects[id];
+      const std::string obj_type_name = vk::to_string(
           static_cast<vk::ObjectType>(object.objectType));
       std::sprintf(msg, "%s%s  * Object[%d] - Type '%s', Value %llu, Name '%s'\n",
           msg,
@@ -560,13 +561,13 @@ auto VulkanBackend::Callbacks::reallocateMemory(
     static_assert(sizeof(void*) == sizeof(double));
     const auto address = zisc::bit_cast<double>(original_memory);
     ZIVC_ASSERT(std::isfinite(address), "The address float isn't finite.");
-    auto& mem_map = alloc_data->memoryMap();
+    const AllocatorData::MemoryMap& mem_map = alloc_data->memoryMap();
     MemoryData data;
     {
-      const auto index_result = mem_map.contain(address);
+      const std::optional index_result = mem_map.contain(address);
       ZIVC_ASSERT(index_result.has_value(), "The address isn't in the map.");
       const std::size_t index = index_result.has_value() ? *index_result : 0;
-      const auto& mem_list = alloc_data->memoryList();
+      const std::span<MemoryData> mem_list = alloc_data->memoryList();
       data = mem_list[index];
     }
     const std::size_t data_size = (std::min)(size, data.size_);
@@ -628,7 +629,7 @@ bool VulkanBackend::compareProperties(const std::string_view lhs,
   */
 void VulkanBackend::initAllocator() noexcept
 {
-  auto* mem_resource = memoryResource();
+  zisc::pmr::memory_resource* mem_resource = memoryResource();
   const zisc::pmr::polymorphic_allocator<AllocatorData> alloc{mem_resource};
   allocator_data_ = zisc::pmr::allocateUnique<AllocatorData>(alloc, mem_resource);
 }
@@ -660,11 +661,11 @@ void VulkanBackend::initInstance(ContextOptions& options)
   }
 
   // Debug utils extension
-  const auto severity_flags =
+  const vk::DebugUtilsMessageSeverityFlagsEXT severity_flags =
 //      vk::DebugUtilsMessageSeverityFlagBitsEXT::eInfo |
       vk::DebugUtilsMessageSeverityFlagBitsEXT::eWarning |
       vk::DebugUtilsMessageSeverityFlagBitsEXT::eError;
-  const auto message_type_flags =
+  const vk::DebugUtilsMessageTypeFlagsEXT message_type_flags =
       vk::DebugUtilsMessageTypeFlagBitsEXT::eGeneral |
       vk::DebugUtilsMessageTypeFlagBitsEXT::eValidation |
       vk::DebugUtilsMessageTypeFlagBitsEXT::ePerformance;
@@ -716,7 +717,7 @@ void VulkanBackend::initInstance(ContextOptions& options)
   }
 
   const vk::AllocationCallbacks alloc{createAllocator()};
-  const auto& loader = dispatcher().loader();
+  VulkanDispatchLoader::ConstLoaderReference loader = dispatcher().loader();
   const vk::Instance ins = vk::createInstance(create_info, alloc, loader);
   instance_ = zisc::cast<VkInstance>(ins);
   instance_ref_ = std::addressof(instance_);
@@ -730,13 +731,13 @@ void VulkanBackend::initDeviceList()
 {
   const vk::Instance ins{instance()};
 
-  const auto& loader = dispatcher().loader();
+  VulkanDispatchLoader::ConstLoaderReference loader = dispatcher().loader();
   //! \todo Resolve the error
   // The enumerate function causes undefined symbol error with custom allocator
   //using TmpDeviceListT = zisc::pmr::vector<vk::PhysicalDevice>;
   //TmpDeviceListT::allocator_type tmp_alloc{memoryResource()};
   //auto device_list = ins.enumeratePhysicalDevices(tmp_alloc, loader);
-  auto device_list = ins.enumeratePhysicalDevices(loader);
+  const std::vector device_list = ins.enumeratePhysicalDevices(loader);
 
   using DeviceListT = decltype(device_list_)::element_type;
   const DeviceListT::allocator_type alloc{memoryResource()};
@@ -764,7 +765,7 @@ void VulkanBackend::initDeviceInfoList() noexcept
   */
 void VulkanBackend::initDispatcher(ContextOptions& options)
 {
-  auto* mem_resource = memoryResource();
+  zisc::pmr::memory_resource* mem_resource = memoryResource();
 
   using FuncPtr = std::add_pointer_t<PFN_vkGetInstanceProcAddr>;
   auto* ptr = static_cast<FuncPtr>(options.vulkanGetProcAddrPtr());
@@ -785,8 +786,8 @@ void VulkanBackend::initDispatcher(ContextOptions& options)
   */
 void VulkanBackend::initProperties()
 {
-  auto* mem_resource = memoryResource();
-  const auto& loader = dispatcher().loader();
+  zisc::pmr::memory_resource* mem_resource = memoryResource();
+  VulkanDispatchLoader::ConstLoaderReference loader = dispatcher().loader();
 
   // Instance extension properties
   {
@@ -798,14 +799,14 @@ void VulkanBackend::initProperties()
           mem_resource,
           PropertiesListT{alloc});
     }
-    auto& prop_list = *extension_properties_list_;
+    zisc::pmr::vector<VkExtensionProperties>& prop_list = *extension_properties_list_;
     // Retrieve extension properties
     uint32b size = 0;
     {
-      const auto result = vk::enumerateInstanceExtensionProperties(nullptr,
-                                                                       &size,
-                                                                       nullptr,
-                                                                       loader);
+      const vk::Result result = vk::enumerateInstanceExtensionProperties(nullptr,
+                                                                         &size,
+                                                                         nullptr,
+                                                                         loader);
       if (result != vk::Result::eSuccess) {
         const std::string message = createErrorMessage(
             *this,
@@ -816,10 +817,10 @@ void VulkanBackend::initProperties()
     prop_list.resize(size);
     {
       auto* props = zisc::reinterp<vk::ExtensionProperties*>(prop_list.data());
-      const auto result = vk::enumerateInstanceExtensionProperties(nullptr,
-                                                                       &size,
-                                                                       props,
-                                                                       loader);
+      const vk::Result result = vk::enumerateInstanceExtensionProperties(nullptr,
+                                                                         &size,
+                                                                         props,
+                                                                         loader);
       if (result != vk::Result::eSuccess) {
         const std::string message = createErrorMessage(
             *this,
@@ -845,13 +846,13 @@ void VulkanBackend::initProperties()
           mem_resource,
           PropertiesListT{alloc});
     }
-    auto& prop_list = *layer_properties_list_;
+    zisc::pmr::vector<VkLayerProperties>& prop_list = *layer_properties_list_;
     // Retrieve layer properties
     uint32b size = 0;
     {
-      const auto result = vk::enumerateInstanceLayerProperties(&size,
-                                                                   nullptr,
-                                                                   loader);
+      const vk::Result result = vk::enumerateInstanceLayerProperties(&size,
+                                                                     nullptr,
+                                                                     loader);
       if (result != vk::Result::eSuccess) {
         const std::string message = createErrorMessage(
             *this,
@@ -862,9 +863,9 @@ void VulkanBackend::initProperties()
     prop_list.resize(size);
     {
       auto* props = zisc::reinterp<vk::LayerProperties*>(prop_list.data());
-      const auto result = vk::enumerateInstanceLayerProperties(&size,
-                                                                   props,
-                                                                   loader);
+      const vk::Result result = vk::enumerateInstanceLayerProperties(&size,
+                                                                     props,
+                                                                     loader);
       if (result != vk::Result::eSuccess) {
         const std::string message = createErrorMessage(
             *this,
@@ -954,7 +955,7 @@ bool VulkanBackend::isExtensionSupported(const std::string_view name) const noex
   {
     return compareProperties(lhs.extensionName, rhs);
   };
-  const auto& prop_list = extensionPropertiesList();
+  const std::span prop_list = extensionPropertiesList();
   const auto ite = std::lower_bound(prop_list.begin(), prop_list.end(), name, comp);
   const bool result = (ite != prop_list.end()) && (ite->extensionName == name);
   return result;
@@ -973,7 +974,7 @@ bool VulkanBackend::isLayerSupported(const std::string_view name) const noexcept
   {
     return compareProperties(lhs.layerName, rhs);
   };
-  const auto& prop_list = layerPropertiesList();
+  const std::span prop_list = layerPropertiesList();
   const auto ite = std::lower_bound(prop_list.begin(), prop_list.end(), name, comp);
   const bool result = (ite != prop_list.end()) && (ite->layerName == name);
   return result;

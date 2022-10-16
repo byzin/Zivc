@@ -69,7 +69,7 @@ auto ZivcObject::getOwnPtr() const noexcept -> const WeakPtr&
 inline
 bool ZivcObject::hasOwnPtr() const noexcept
 {
-  const auto& o = getOwnPtr();
+  const WeakPtr& o = getOwnPtr();
   const bool result = !o.expired();
   return result;
 }

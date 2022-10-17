@@ -754,7 +754,8 @@ void VulkanDevice::destroyData() noexcept
     // Command pool
     vk::CommandPool command_pool{command_pool_};
     if (command_pool) {
-      d.destroyCommandPool(command_pool, alloc, loader);
+      //! \todo Fix me. AMD gpu won't work with custom allocator
+      d.destroyCommandPool(command_pool, /* alloc */ nullptr, loader);
       command_pool = nullptr;
     }
 
@@ -1244,7 +1245,8 @@ void VulkanDevice::initCommandPool()
       vk::CommandPoolCreateFlagBits::eResetCommandBuffer,
       queueFamilyIndex(CapabilityT::kCompute)};
 
-  const vk::CommandPool command_pool = d.createCommandPool(create_info, alloc, loader);
+  //! \todo Fix me. AMD gpu won't work with custom allocator
+  const vk::CommandPool command_pool = d.createCommandPool(create_info, /* alloc */ nullptr, loader);
   command_pool_ = zisc::cast<VkCommandPool>(command_pool);
 }
 

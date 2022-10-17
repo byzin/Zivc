@@ -87,6 +87,28 @@ class CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   void updateDebugInfoImpl() override;
 
  private:
+  //!
+  struct CacheTypeCreator
+  {
+    //! Create a struct of arg cache
+    static auto createArg() noexcept;
+
+    //! Create a struct of local cache
+    static auto createLocal() noexcept;
+
+    //! Create a struct of local cache
+    template <std::size_t ...kIndices>
+    static auto createLocalImpl(std::index_sequence<kIndices...> indices) noexcept;
+
+    //! Return the type value of the local address variable by the position
+    template <std::size_t kIndex>
+    static auto getLocal() noexcept;
+
+    // Type aliases
+    using ArgCacheT = decltype(createArg());
+    using LocalCacheT = decltype(createLocal());
+  };
+
   //! Command object for kernel execution
   struct Command
   {
@@ -97,20 +119,11 @@ class CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   };
 
 
-  //! Make a struct of arg cache
-  template <typename Type, typename ...Types, typename ...ArgTypes>
-  static auto makeArgCacheT(const internal::KernelArgCache<ArgTypes...>& cache) noexcept;
-
-  //! Make a struct of local cache
-  template <typename Type, typename ...Types, typename ...ArgTypes>
-  static auto makeLocalCacheT(const internal::KernelArgCache<ArgTypes...>& cache) noexcept;
-
-
   // Storage types
-  using ArgCacheT = decltype(makeArgCacheT<Args...>(internal::KernelArgCache<void>{}));
-  using LocalCacheT = decltype(makeLocalCacheT<FuncArgs...>(internal::KernelArgCache<void>{}));
+  using ArgCacheT = typename CacheTypeCreator::ArgCacheT;
+  using LocalCacheT = typename CacheTypeCreator::LocalCacheT;
   template <std::size_t kIndex>
-  using ArgT = std::tuple_element_t<kIndex, std::tuple<FuncArgs...>>;
+  using ArgT = typename BaseKernelT::template ArgT<kIndex>;
   using CommandStorageT = std::aligned_storage_t<
       sizeof(void*),
       std::alignment_of_v<void*>>;
@@ -142,16 +155,24 @@ class CpuKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   const CpuDevice& parentImpl() const noexcept;
 
   //! Run the underlying kernel
-  template <std::size_t... kIndices>
-  void runImpl(const std::index_sequence<kIndices...> index_seq) noexcept;
+  template <std::size_t ...kIndices>
+  void runImpl(std::index_sequence<kIndices...> indices) noexcept;
+
+  //! Set a value into the arg cache
+  template <std::size_t kIndex, typename Type>
+  void setArgCache(Buffer<Type>& value) noexcept;
+
+  //! Set a value into the arg cache
+  template <std::size_t kIndex, typename Type>
+  void setArgCache(const Type value) noexcept;
 
   //! Update arg cache
-  template <std::size_t kIndex, KernelArg Type, typename ...Types>
-  void updateArgCache(const Type value, Types&&... values) noexcept;
+  void updateArgCache(Args... args) noexcept;
 
   //! Update arg cache
-  template <std::size_t kIndex, KernelArg Type, typename ...Types>
-  void updateArgCache(Buffer<Type>& value, Types&&... values) noexcept;
+  template <std::size_t ...kIndices>
+  void updateArgCacheImpl(Args... args,
+                          std::index_sequence<kIndices...> indices) noexcept;
 
 
   FunctionT kernel_ = nullptr;

@@ -52,11 +52,14 @@ constexpr auto KernelArgParser<Args...>::getArgInfoListImpl() noexcept
 {
   ArgInfoListImplT<kNumOfArgsImpl> info_list{createArgInfo<Args>()...};
   std::size_t local_offset = 0;
+  std::size_t pod_offset = 0;
   for (std::size_t index = 0; index < info_list.size(); ++index) {
     KernelArgInfo& info = info_list[index];
     info.setIndex(index);
     info.setLocalOffset(local_offset);
+    info.setPodOffset(pod_offset);
     local_offset = info.isLocal() ? local_offset + 1 : local_offset;
+    pod_offset = info.isPod() ? pod_offset + 1 : pod_offset;
   }
   return info_list;
 }
@@ -127,6 +130,21 @@ constexpr std::size_t KernelArgParser<Args...>::numOfBufferArgs() noexcept
   \return No description
   */
 template <typename ...Args> inline
+constexpr std::size_t KernelArgParser<Args...>::numOfParameterArgs() noexcept
+{
+  const std::array info_list = getArgInfoListImpl();
+  std::size_t n = 0;
+  for (const KernelArgInfo& info : info_list)
+    n = info.isParameter() ? n + 1 : n;
+  return n;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <typename ...Args> inline
 constexpr auto KernelArgParser<Args...>::getArgInfoList() noexcept
     -> ArgInfoListT<kNumOfArgs>
 {
@@ -146,6 +164,7 @@ constexpr auto KernelArgParser<Args...>::getGlobalArgInfoList() noexcept
   ArgInfoListT<kNumOfGlobalArgs> info_list{};
   std::size_t index = 0;
   std::size_t local_offset = 0;
+  std::size_t pod_offset = 0;
   for (std::size_t position = 0; position < arg_info_list.size(); ++position) {
     const KernelArgInfo& arg_info = arg_info_list[position];
     if (arg_info.isGlobal()) {
@@ -153,8 +172,10 @@ constexpr auto KernelArgParser<Args...>::getGlobalArgInfoList() noexcept
       info = arg_info;
       info.setIndex(position);
       info.setLocalOffset(local_offset);
+      info.setPodOffset(pod_offset);
     }
     local_offset = arg_info.isLocal() ? local_offset + 1 : local_offset;
+    pod_offset = arg_info.isPod() ? pod_offset + 1 : pod_offset;
   }
   return info_list;
 }
@@ -172,6 +193,7 @@ constexpr auto KernelArgParser<Args...>::getLocalArgInfoList() noexcept
   ArgInfoListT<kNumOfLocalArgs> info_list{};
   std::size_t index = 0;
   std::size_t local_offset = 0;
+  std::size_t pod_offset = 0;
   for (std::size_t position = 0; position < arg_info_list.size(); ++position) {
     const KernelArgInfo& arg_info = arg_info_list[position];
     if (arg_info.isLocal()) {
@@ -179,7 +201,9 @@ constexpr auto KernelArgParser<Args...>::getLocalArgInfoList() noexcept
       info = arg_info;
       info.setIndex(position);
       info.setLocalOffset(local_offset++);
+      info.setPodOffset(pod_offset);
     }
+    pod_offset = arg_info.isPod() ? pod_offset + 1 : pod_offset;
   }
   return info_list;
 }
@@ -197,6 +221,7 @@ constexpr auto KernelArgParser<Args...>::getPodArgInfoList() noexcept
   ArgInfoListT<kNumOfPodArgs> info_list{};
   std::size_t index = 0;
   std::size_t local_offset = 0;
+  std::size_t pod_offset = 0;
   for (std::size_t position = 0; position < arg_info_list.size(); ++position) {
     const KernelArgInfo& arg_info = arg_info_list[position];
     if (arg_info.isPod()) {
@@ -204,6 +229,7 @@ constexpr auto KernelArgParser<Args...>::getPodArgInfoList() noexcept
       info = arg_info;
       info.setIndex(position);
       info.setLocalOffset(local_offset);
+      info.setPodOffset(pod_offset++);
     }
     local_offset = arg_info.isLocal() ? local_offset + 1 : local_offset;
   }
@@ -223,6 +249,7 @@ constexpr auto KernelArgParser<Args...>::getBufferArgInfoList() noexcept
   ArgInfoListT<kNumOfBufferArgs> info_list{};
   std::size_t index = 0;
   std::size_t local_offset = 0;
+  std::size_t pod_offset = 0;
   for (std::size_t position = 0; position < arg_info_list.size(); ++position) {
     const KernelArgInfo& arg_info = arg_info_list[position];
     if (arg_info.isBuffer()) {
@@ -230,8 +257,39 @@ constexpr auto KernelArgParser<Args...>::getBufferArgInfoList() noexcept
       info = arg_info;
       info.setIndex(position);
       info.setLocalOffset(local_offset);
+      info.setPodOffset(pod_offset);
     }
     local_offset = arg_info.isLocal() ? local_offset + 1 : local_offset;
+    pod_offset = arg_info.isPod() ? pod_offset + 1 : pod_offset;
+  }
+  return info_list;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <typename ...Args> inline
+constexpr auto KernelArgParser<Args...>::getParameterArgInfoList() noexcept
+    -> ArgInfoListT<kNumOfParameterArgs>
+{
+  const std::array arg_info_list = getArgInfoList();
+  ArgInfoListT<kNumOfParameterArgs> info_list{};
+  std::size_t index = 0;
+  std::size_t local_offset = 0;
+  std::size_t pod_offset = 0;
+  for (std::size_t position = 0; position < arg_info_list.size(); ++position) {
+    const KernelArgInfo& arg_info = arg_info_list[position];
+    if (arg_info.isParameter()) {
+      KernelArgInfo& info = info_list[index++];
+      info = arg_info;
+      info.setIndex(position);
+      info.setLocalOffset(local_offset);
+      info.setPodOffset(pod_offset);
+    }
+    local_offset = arg_info.isLocal() ? local_offset + 1 : local_offset;
+    pod_offset = arg_info.isPod() ? pod_offset + 1 : pod_offset;
   }
   return info_list;
 }
@@ -249,8 +307,7 @@ constexpr KernelArgInfo createArgInfo() noexcept
   return KernelArgInfo{InfoT::kIsGlobal,
                        InfoT::kIsLocal,
                        InfoT::kIsConstant,
-                       InfoT::kIsPod,
-                       InfoT::kIsBuffer};
+                       InfoT::kIsPod};
 }
 
 } // namespace zivc::internal

@@ -43,6 +43,62 @@ constexpr bool KernelArgCache<Types...>::isValid() noexcept
 /*!
   \details No detailed description
 
+  \return No description
+  */
+inline
+constexpr bool KernelArgCache<void>::isValid() noexcept
+{
+  return true;
+}
+
+#if defined(ZIVC_PRINT_CACHE_TREE)
+/*!
+  \details No detailed description
+
+  \param [in] indent No description.
+  \param [out] output No description.
+  */
+inline
+void KernelArgCache<void>::printIndent(const std::size_t indent,
+                                       std::ostream* output) noexcept
+{
+  constexpr char indent_space[] = "  ";
+  for (std::size_t i = 0; i < indent; ++i)
+    (*output) << indent_space;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] indent No description.
+  \param [out] output No description.
+  */
+template <typename Type> inline
+void KernelArgCache<void>::printValue(const std::size_t indent,
+                                      const std::string_view name,
+                                      std::ostream* output) noexcept
+{
+  constexpr std::size_t size = sizeof(Type);
+  constexpr std::size_t alignment = std::alignment_of_v<Type>;
+  printIndent(indent, output);
+  (*output) << name << " (size=" << size << ", alignment=" << alignment << ")";
+}
+#endif // ZIVC_PRINT_CACHE_TREE
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+constexpr std::size_t KernelArgCache<void>::size() noexcept
+{
+  return kSize;
+}
+
+/*!
+  \details No detailed description
+
   \tparam kIndex No description.
   \return No description
   */
@@ -739,62 +795,6 @@ constexpr std::size_t KernelArgCache<Buffer<Type>&>::tailPaddingSize() noexcept
 /*!
   \details No detailed description
 
-  \return No description
-  */
-inline
-constexpr bool KernelArgCache<void>::isValid() noexcept
-{
-  return true;
-}
-
-#if defined(ZIVC_PRINT_CACHE_TREE)
-/*!
-  \details No detailed description
-
-  \param [in] indent No description.
-  \param [out] output No description.
-  */
-inline
-void KernelArgCache<void>::printIndent(const std::size_t indent,
-                                       std::ostream* output) noexcept
-{
-  constexpr char indent_space[] = "  ";
-  for (std::size_t i = 0; i < indent; ++i)
-    (*output) << indent_space;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] indent No description.
-  \param [out] output No description.
-  */
-template <typename Type> inline
-void KernelArgCache<void>::printValue(const std::size_t indent,
-                                      const std::string_view name,
-                                      std::ostream* output) noexcept
-{
-  constexpr std::size_t size = sizeof(Type);
-  constexpr std::size_t alignment = std::alignment_of_v<Type>;
-  printIndent(indent, output);
-  (*output) << name << " (size=" << size << ", alignment=" << alignment << ")";
-}
-#endif // ZIVC_PRINT_CACHE_TREE
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-inline
-constexpr std::size_t KernelArgCache<void>::size() noexcept
-{
-  return kSize;
-}
-
-/*!
-  \details No detailed description
-
   \tparam Types No description.
   \param [in] lhs No description.
   \param [in] rhs No description.
@@ -811,46 +811,52 @@ bool operator==(const KernelArgCache<Types...>& lhs,
 /*!
   \details No detailed description
 
-  \tparam Type No description.
-  \tparam ArgTypes No description.
-  \tparam Types No description.
-  \param [in] cache No description.
+  \tparam InTypes No description.
+  \tparam PreTypes No description.
+  \tparam NewTypes No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
   \return No description
   */
-template <typename Type, typename ...ArgTypes, typename ...Types> inline
-auto concatArgCache([[maybe_unused]] const KernelArgCache<KernelArgCache<ArgTypes...>, Types...>& cache) noexcept
+template <typename ...InTypes, typename ...PreTypes, typename ...NewTypes> inline
+auto concat(
+    [[maybe_unused]] const KernelArgCache<KernelArgCache<InTypes...>, PreTypes...>& lhs,
+    [[maybe_unused]]const KernelArgCache<NewTypes...>& rhs) noexcept
 {
-  using CacheT = KernelArgCache<ArgTypes...>;
-  static_assert(CacheT::isValid());
-  static_assert(1 < CacheT::size());
-  using PrecedenceCacheT = KernelArgCache<CacheT, Types...>;
-  static_assert(PrecedenceCacheT::isValid());
-  static_assert(0 < PrecedenceCacheT::size());
-
-  using TypeCacheT = KernelArgCache<Type>;
-  constexpr std::size_t t_size = sizeof(TypeCacheT);
-  constexpr std::size_t t_alignment = std::alignment_of_v<TypeCacheT>;
-
-  constexpr std::size_t cache_padding_size = CacheT::tailPaddingSize();
-  constexpr bool is_cache_padding_reusable = (t_size <= cache_padding_size) &&
-                                             (t_alignment <= cache_padding_size);
-  if constexpr (is_cache_padding_reusable) {
-    using NewCacheT = decltype(concatArgCache<Type>(CacheT{}));
-    using NewArgCacheT = KernelArgCache<NewCacheT, Types...>;
-    return NewArgCacheT{};
+  using InCacheT = KernelArgCache<InTypes...>;
+  using PreCacheT = KernelArgCache<InCacheT, PreTypes...>;
+  using NewCacheT = KernelArgCache<NewTypes...>;
+  static_assert(PreCacheT::isValid() && NewCacheT::isValid());
+  if constexpr (PreCacheT::size() == 0) {
+    return NewCacheT{};
   }
-  else {
-    constexpr std::size_t padding_size = PrecedenceCacheT::tailPaddingSize();
-    constexpr bool is_padding_reusable = (t_size <= padding_size) &&
-                                         (t_alignment <= padding_size);
-    if constexpr (is_padding_reusable) {
-      using NewCacheT = KernelArgCache<Type, CacheT>;
-      using NewArgCacheT = KernelArgCache<NewCacheT, Types...>;
-      return NewArgCacheT{};
+  else if constexpr (NewCacheT::size() == 0) {
+    return PreCacheT{};
+  }
+  else { // Both caches are valid
+    static_assert(2 <= InCacheT::size());
+    constexpr std::size_t size = sizeof(NewCacheT);
+    constexpr std::size_t alignment = std::alignment_of_v<NewCacheT>;
+    constexpr std::size_t pad_size = InCacheT::tailPaddingSize();
+    constexpr bool is_pad_reusable = (size <= pad_size) && (alignment <= pad_size);
+    if constexpr (is_pad_reusable) {
+      using NewInCacheT = decltype(concat(InCacheT{}, rhs));
+      static_assert(!std::is_reference_v<NewInCacheT>);
+      using NewCacheT = KernelArgCache<NewInCacheT, PreTypes...>;
+      return NewCacheT{};
     }
     else {
-      using NewArgCacheT = KernelArgCache<Type, CacheT, Types...>;
-      return NewArgCacheT{};
+      constexpr std::size_t pad_size = PreCacheT::tailPaddingSize();
+      constexpr bool is_pad_reusable = (size <= pad_size) && (alignment <= pad_size);
+      if constexpr (is_pad_reusable) {
+        using NewInCacheT = KernelArgCache<NewTypes..., InCacheT>;
+        using NewCacheT = KernelArgCache<NewInCacheT, PreTypes...>;
+        return NewCacheT{};
+      }
+      else {
+        using NewCacheT = KernelArgCache<NewTypes..., InCacheT, PreTypes...>;
+        return NewCacheT{};
+      }
     }
   }
 }
@@ -858,39 +864,56 @@ auto concatArgCache([[maybe_unused]] const KernelArgCache<KernelArgCache<ArgType
 /*!
   \details No detailed description
 
-  \tparam Type1 No description.
-  \tparam Type2 No description.
-  \tparam Types No description.
-  \param [in] cache No description.
+  \tparam PreType No description.
+  \tparam PreTypes No description.
+  \tparam NewTypes No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
   \return No description
   */
-template <typename Type1, typename Type2, typename ...Types> inline
-auto concatArgCache([[maybe_unused]] const KernelArgCache<Type2, Types...>& cache) noexcept
+template <typename PreType, typename ...PreTypes, typename ...NewTypes> inline
+auto concat([[maybe_unused]] const KernelArgCache<PreType, PreTypes...>& lhs,
+            [[maybe_unused]] const KernelArgCache<NewTypes...>& rhs) noexcept
 {
-  using PrecedenceCacheT = KernelArgCache<Type2, Types...>;
-  static_assert(PrecedenceCacheT::isValid());
-
-  if constexpr (0 < PrecedenceCacheT::size()) {
-    using TypeCacheT = KernelArgCache<Type1>;
-    constexpr std::size_t t_size = sizeof(TypeCacheT);
-    constexpr std::size_t t_alignment = std::alignment_of_v<TypeCacheT>;
-
-    constexpr std::size_t padding_size = PrecedenceCacheT::tailPaddingSize();
-    constexpr bool is_padding_reusable = (t_size <= padding_size) &&
-                                         (t_alignment <= padding_size);
-    if constexpr (is_padding_reusable) {
-      using NewArgCacheT = KernelArgCache<KernelArgCache<Type1, Type2>, Types...>;
-      return NewArgCacheT{};
+  using PreCacheT = KernelArgCache<PreType, PreTypes...>;
+  using NewCacheT = KernelArgCache<NewTypes...>;
+  static_assert(PreCacheT::isValid() && NewCacheT::isValid());
+  if constexpr (PreCacheT::size() == 0) {
+    return NewCacheT{};
+  }
+  else if constexpr (NewCacheT::size() == 0) {
+    return PreCacheT{};
+  }
+  else { // Both caches are valid
+    constexpr std::size_t size = sizeof(NewCacheT);
+    constexpr std::size_t alignment = std::alignment_of_v<NewCacheT>;
+    constexpr std::size_t pad_size = PreCacheT::tailPaddingSize();
+    constexpr bool is_pad_reusable = (size <= pad_size) && (alignment <= pad_size);
+    if constexpr (is_pad_reusable) {
+      using NewCacheT = KernelArgCache<KernelArgCache<NewTypes..., PreType>, PreTypes...>;
+      return NewCacheT{};
     }
     else {
-      using NewArgCacheT = KernelArgCache<Type1, Type2, Types...>;
-      return NewArgCacheT{};
+      using NewCacheT = KernelArgCache<NewTypes..., PreType, PreTypes...>;
+      return NewCacheT{};
     }
   }
-  else {
-    using NewArgCacheT = KernelArgCache<Type1>;
-    return NewArgCacheT{};
-  }
+}
+
+/*!
+  \details No detailed description
+
+  \tparam PreTypes No description.
+  \tparam NewTypes No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <typename ...PreTypes, typename ...NewTypes> inline
+auto operator+(const KernelArgCache<PreTypes...>& lhs,
+               const KernelArgCache<NewTypes...>& rhs) noexcept
+{
+  return concat(lhs, rhs);
 }
 
 } // namespace zivc::internal

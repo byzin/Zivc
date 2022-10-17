@@ -77,14 +77,17 @@ class KernelArgParser
   //! Return the number of global arguments
   static constexpr std::size_t numOfGlobalArgs() noexcept;
 
-  //! Return the number of global arguments
+  //! Return the number of local arguments
   static constexpr std::size_t numOfLocalArgs() noexcept;
 
-  //! Return the number of global arguments
+  //! Return the number of POD arguments
   static constexpr std::size_t numOfPodArgs() noexcept;
 
-  //! Return the number of global arguments
+  //! Return the number of global and constant arguments
   static constexpr std::size_t numOfBufferArgs() noexcept;
+
+  //! Return the number of global, constant and POD arguments
+  static constexpr std::size_t numOfParameterArgs() noexcept;
 
  public:
   // Type aliases
@@ -100,6 +103,7 @@ class KernelArgParser
   static constexpr std::size_t kNumOfLocalArgs = numOfLocalArgs();
   static constexpr std::size_t kNumOfPodArgs = numOfPodArgs();
   static constexpr std::size_t kNumOfBufferArgs = numOfBufferArgs();
+  static constexpr std::size_t kNumOfParameterArgs = numOfParameterArgs();
 
 
   //! Return the list of kernel argument info
@@ -116,6 +120,9 @@ class KernelArgParser
 
   //! Return the list of buffer argument info
   static constexpr ArgInfoListT<kNumOfBufferArgs> getBufferArgInfoList() noexcept;
+
+  //! Return the list of parameter argument info
+  static constexpr ArgInfoListT<kNumOfParameterArgs> getParameterArgInfoList() noexcept;
 };
 
 //! Create an argument info

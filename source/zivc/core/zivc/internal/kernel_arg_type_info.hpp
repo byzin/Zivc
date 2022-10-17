@@ -51,6 +51,7 @@ class KernelArgTypeInfo
   static constexpr bool kIsConstant = false;
   static constexpr bool kIsPod = true;
   static constexpr bool kIsBuffer = false;
+  static constexpr bool kIsParameter = true;
 
  private:
   static_assert(!std::is_pointer_v<ElementT>, "The Type is pointer.");

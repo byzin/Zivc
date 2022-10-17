@@ -498,13 +498,20 @@ template <typename ...Types>
 bool operator==(const KernelArgCache<Types...>& lhs,
                 const KernelArgCache<Types...>& rhs) noexcept;
 
-//! Concatenate caches
-template <typename Type, typename ...ArgTypes, typename ...Types>
-auto concatArgCache(const KernelArgCache<KernelArgCache<ArgTypes...>, Types...>& cache) noexcept;
+//! Concatenate types of caches
+template <typename ...InTypes, typename ...PreTypes, typename ...NewTypes>
+auto concat(const KernelArgCache<KernelArgCache<InTypes...>, PreTypes...>& lhs,
+            const KernelArgCache<NewTypes...>& rhs) noexcept;
 
-//! Concatenate caches
-template <typename Type1, typename Type2, typename ...Types>
-auto concatArgCache(const KernelArgCache<Type2, Types...>& cache) noexcept;
+//! Concatenate types of caches
+template <typename PreType, typename ...PreTypes, typename ...NewTypes>
+auto concat(const KernelArgCache<PreType, PreTypes...>& lhs,
+            const KernelArgCache<NewTypes...>& rhs) noexcept;
+
+//! Concatenate types of caches
+template <typename ...PreTypes, typename ...NewTypes>
+auto operator+(const KernelArgCache<PreTypes...>& lhs,
+               const KernelArgCache<NewTypes...>& rhs) noexcept;
 
 } // namespace zivc::internal
 

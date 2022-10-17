@@ -49,8 +49,8 @@
 #include "zivc/auxiliary/id_data.hpp"
 #include "zivc/auxiliary/kernel_init_params.hpp"
 #include "zivc/auxiliary/launch_result.hpp"
-#include "zivc/internal/kernel_arg_parser.hpp"
 #include "zivc/internal/kernel_arg_cache.hpp"
+#include "zivc/internal/kernel_arg_parser.hpp"
 
 namespace zivc {
 
@@ -107,20 +107,19 @@ run(Args ...args, const LaunchOptionsT& launch_options)
 {
   VulkanDevice& device = parentImpl();
 
-  updateDescriptorSet(args...);
+  const bool has_new_pod = updateArgCache(args...); // Update descriptor and POD cache
   // Prepare command buffer
   prepareCommandBuffer();
   VkCommandBuffer command = commandBuffer();
   // Command recording
   {
-    const bool has_new_pod = updatePodCacheIfNeeded(args...);
-    const auto work_size = calcDispatchWorkSize(launch_options.workSize());
+    const std::array work_size = calcDispatchWorkSize(launch_options.workSize());
     // Recording scope
-    const auto flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-    auto record_region = device.makeCmdRecord(command, flags);
+    const VkCommandBufferUsageFlags flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    const internal::CmdRecordRegion record_region = device.makeCmdRecord(command, flags);
     {
       // Start labeling for debug until the end of the scope
-      auto debug_region = device.makeCmdDebugLabel(command, launch_options);
+      const internal::CmdDebugLabelRegion debug_region = device.makeCmdDebugLabel(command, launch_options);
       // Update global and region offsets
       updateModuleScopePushConstantsCmd(work_size, launch_options);
       // Update POD buffer
@@ -137,7 +136,7 @@ run(Args ...args, const LaunchOptionsT& launch_options)
     const VkQueue q = device.getQueue(cap, launch_options.queueIndex());
     result.fence().setDevice(launch_options.isFenceRequested() ? &device : nullptr);
     // Start labeling for debug until the end of the scope
-    auto debug_region = device.makeQueueDebugLabel(q, launch_options);
+    const internal::QueueDebugLabelRegion debug_region = device.makeQueueDebugLabel(q, launch_options);
     device.submit(command, q, result.fence());
   }
   result.setAsync(true);
@@ -154,45 +153,6 @@ void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 setCommandBufferRef(const VkCommandBuffer* command_ref) noexcept
 {
   command_buffer_ref_ = command_ref;
-}
-
-/*!
-  \details No detailed description
-  \return No description
-  */
-template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-inline
-constexpr bool VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-hasGlobalArg() noexcept
-{
-  const bool result = 0 < BaseKernelT::ArgParserT::kNumOfGlobalArgs;
-  return result;
-}
-
-/*!
-  \details No detailed description
-  \return No description
-  */
-template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-inline
-constexpr bool VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-hasLocalArg() noexcept
-{
-  const bool result = 0 < BaseKernelT::ArgParserT::kNumOfLocalArgs;
-  return result;
-}
-
-/*!
-  \details No detailed description
-  \return No description
-  */
-template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-inline
-constexpr bool VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-hasPodArg() noexcept
-{
-  const bool result = 0 < BaseKernelT::ArgParserT::kNumOfPodArgs;
-  return result;
 }
 
 /*!
@@ -238,7 +198,7 @@ inline
 void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 initData(const ParamsT& params)
 {
-  static_assert(hasGlobalArg(), "The kernel doesn't have global argument.");
+  static_assert(BaseKernelT::hasGlobalArg(), "The kernel doesn't have global argument.");
   validateData();
   VulkanDevice& device = parentImpl();
 
@@ -255,7 +215,7 @@ initData(const ParamsT& params)
   // Add a kernel data
   {
     const std::size_t num_of_storage_buffers = BaseKernelT::ArgParserT::kNumOfBufferArgs;
-    const std::size_t num_of_uniform_buffers = hasPodArg() ? 1 : 0;
+    const std::size_t num_of_uniform_buffers = BaseKernelT::hasPodArg() ? 1 : 0;
     const std::size_t num_of_local_args = BaseKernelT::ArgParserT::kNumOfLocalArgs;
     using KernelDataT = VulkanDevice::KernelData;
     const KernelDataT& kernel_data = device.addShaderKernel(*module_data,
@@ -287,7 +247,7 @@ updateDebugInfoImpl()
   const IdData& id_data = ZivcObject::id();
   const std::string_view kernel_name = id_data.name();
 
-  auto set_debug_info = [this, &device, &kernel_name]
+  const auto set_debug_info = [this, &device, &kernel_name]
   (const VkObjectType type, const auto& obj, const std::string_view suffix)
   {
     if (obj != ZIVC_VK_NULL_HANDLE) {
@@ -324,30 +284,64 @@ updateDebugInfoImpl()
 /*!
   \details No detailed description
 
-  \tparam kIndex No description.
-  \tparam PodTypes No description.
-  \param [in] cache No description.
   \return No description
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-template <std::size_t kIndex, typename ...PodTypes> inline
-auto VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-createPodCacheType(const internal::KernelArgCache<PodTypes...>& cache) noexcept
+inline
+auto VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::CacheTypeCreator::
+createPod() noexcept
 {
   using ArgParserT = typename BaseKernelT::ArgParserT;
-  if constexpr (kIndex < ArgParserT::kNumOfPodArgs) {
-    constexpr auto pod_arg_info = ArgParserT::getPodArgInfoList();
-    constexpr std::size_t pod_index = pod_arg_info[kIndex].index();
-    using ArgTupleT = std::tuple<FuncArgs...>;
-    using PodTypeT = std::tuple_element_t<pod_index, ArgTupleT>;
-    auto precedence = concatArgCache<PodTypeT>(cache);
-    return createPodCacheType<kIndex + 1>(precedence);
+  constexpr std::size_t n = ArgParserT::kNumOfPodArgs;
+  if constexpr (n == 0) {
+    return internal::KernelArgCache<void>{};
   }
   else {
+    internal::KernelArgCache cache = createPodImpl(std::make_index_sequence<n>());
+    using CacheT = decltype(cache);
+    static_assert(std::is_trivially_copyable_v<CacheT>,
+                  "The POD values aren't trivially copyable.");
+    static_assert(std::equality_comparable<CacheT>,
+                  "The POD values aren't equality comparable.");
     return cache;
   }
 }
 
+/*!
+  \details No detailed description
+
+  \tparam kIndices No description.
+  \param [in] indices No description.
+  \return No description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+template <std::size_t ...kIndices> inline
+auto VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::CacheTypeCreator::
+createPodImpl([[maybe_unused]] std::index_sequence<kIndices...> indices) noexcept
+{
+  using EmptyT = internal::KernelArgCache<void>;
+  internal::KernelArgCache cache = (EmptyT{} + ... + getPod<kIndices>());
+  return cache;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kIndex No description.
+  \return No description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+template <std::size_t kIndex> inline
+auto VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::CacheTypeCreator::
+getPod() noexcept
+{
+  using ArgParserT = typename BaseKernelT::ArgParserT;
+  constexpr internal::KernelArgInfo info = ArgParserT::getPodArgInfoList()[kIndex];
+  using ArgumentT = typename BaseKernelT::template ArgT<info.index()>;
+  using ArgTypeInfoT = internal::KernelArgTypeInfo<ArgumentT>;
+  static_assert(ArgTypeInfoT::kIsPod, "The Type isn't POD.");
+  return internal::KernelArgCache<typename ArgTypeInfoT::ElementT>{};
+}
 
 /*!
   \details No detailed description
@@ -362,30 +356,13 @@ calcDispatchWorkSize(const std::span<const uint32b, kDim> work_size) const noexc
     -> std::array<uint32b, 3>
 {
   const VulkanDevice& device = parentImpl();
-  const auto& group_size = device.workGroupSizeDim(BaseKernelT::dimension());
+  const std::span group_size = device.workGroupSizeDim(BaseKernelT::dimension());
   std::array<uint32b, 3> dispatch_size{{1, 1, 1}};
   for (std::size_t i = 0; i < BaseKernelT::dimension(); ++i) {
     const uint32b s = (work_size[i] + group_size[i] - 1) / group_size[i];
     dispatch_size[i] = s;
   }
   return dispatch_size;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] args No description.
-  \return No description
-  */
-template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-inline
-auto VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-createPodCache(Args... args) noexcept -> PodCacheT
-{
-  PodCacheT cache{};
-  if constexpr (hasPodArg())
-    initPodCache<0>(std::addressof(cache), args...);
-  return cache;
 }
 
 /*!
@@ -410,39 +387,13 @@ getBufferHandle(const Buffer<Type>& buffer) noexcept
 
 /*!
   \details No detailed description
-
-  \tparam kIndex No description.
-  \tparam Type No description.
-  \tparam Types No description.
-  \param [out] buffer_list No description.
-  \param [in] value No description.
-  \param [in] rest No description.
-  */
-template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-template <std::size_t kIndex, typename Type, typename ...Types>
-inline
-void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-initBufferList(VkBuffer* buffer_list, Type&& value, Types&&... rest) noexcept
-{
-  using T = std::remove_cvref_t<Type>;
-  using ArgTypeInfo = internal::KernelArgTypeInfo<T>;
-  if constexpr (!ArgTypeInfo::kIsPod)
-    buffer_list[kIndex] = getBufferHandle(value);
-  if constexpr (0 < sizeof...(Types)) {
-    constexpr std::size_t next_index = !ArgTypeInfo::kIsPod ? kIndex + 1 : kIndex;
-    initBufferList<next_index>(buffer_list, std::forward<Types>(rest)...);
-  }
-}
-
-/*!
-  \details No detailed description
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 initPodBuffer()
 {
-  if constexpr (hasPodArg()) {
+  if constexpr (BaseKernelT::hasPodArg()) {
     auto& device = parentImpl();
     using BuffType = VulkanBuffer<PodCacheT>;
     {
@@ -474,41 +425,15 @@ initPodBuffer()
 /*!
   \details No detailed description
 
-  \tparam kIndex No description.
-  \tparam Type No description.
-  \tparam Types No description.
-  \param [out] cache No description.
-  \param [in] value No description.
-  \param [in] rest No description.
-  */
-template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-template <std::size_t kIndex, typename Type, typename ...Types> inline
-void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-initPodCache(PodCacheT* cache, Type&& value, Types&&... rest) noexcept
-{
-  using T = std::remove_cvref_t<Type>;
-  using ArgTypeInfo = internal::KernelArgTypeInfo<T>;
-  if constexpr (ArgTypeInfo::kIsPod)
-    cache->template set<kIndex>(std::forward<Type>(value));
-  constexpr bool has_rest = 0 < sizeof...(Types);
-  if constexpr (has_rest) {
-    constexpr std::size_t next_index = ArgTypeInfo::kIsPod ? kIndex + 1 : kIndex;
-    initPodCache<next_index>(cache, std::forward<Types>(rest)...);
-  }
-}
-
-/*!
-  \details No detailed description
-
   \return No description
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 constexpr std::size_t VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-numOfAllBuffers() noexcept
+numOfDescriptors() noexcept
 {
   std::size_t n = BaseKernelT::ArgParserT::kNumOfBufferArgs;
-  n += hasPodArg() ? 1 : 0;
+  n += BaseKernelT::hasPodArg() ? 1 : 0;
   return n;
 }
 
@@ -522,7 +447,7 @@ inline
 VulkanDevice& VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 parentImpl() noexcept
 {
-  auto p = BaseKernelT::getParent();
+  ZivcObject* p = BaseKernelT::getParent();
   return *static_cast<VulkanDevice*>(p);
 }
 
@@ -536,7 +461,7 @@ inline
 const VulkanDevice& VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 parentImpl() const noexcept
 {
-  auto p = BaseKernelT::getParent();
+  const ZivcObject* p = BaseKernelT::getParent();
   return *static_cast<const VulkanDevice*>(p);
 }
 
@@ -558,6 +483,108 @@ prepareCommandBuffer()
 
 /*!
   \details No detailed description
+
+  \tparam kIndex No description.
+  \tparam Type No description.
+  \param [in] value No description.
+  \param [out] buffer_list No description.
+  \param [out] pod_cache No description.
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+template <std::size_t kIndex, typename Type> inline
+void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+setArgCache(const Buffer<Type>& value,
+            VkBuffer* buffer_list,
+            [[maybe_unused]] PodCacheT* pod_cache) noexcept
+{
+  using ArgParserT = typename BaseKernelT::ArgParserT;
+  constexpr internal::KernelArgInfo info = ArgParserT::getParameterArgInfoList()[kIndex];
+  constexpr std::size_t index = info.index() - (info.localOffset() + info.podOffset());
+  buffer_list[index] = getBufferHandle(value);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kIndex No description.
+  \tparam Type No description.
+  \param [in] value No description.
+  \param [out] buffer_list No description.
+  \param [out] pod_cache No description.
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+template <std::size_t kIndex, typename Type> inline
+void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+setArgCache(const Type value,
+            [[maybe_unused]] VkBuffer* buffer_list,
+            PodCacheT* pod_cache) noexcept
+{
+  using ArgParserT = typename BaseKernelT::ArgParserT;
+  constexpr internal::KernelArgInfo info = ArgParserT::getParameterArgInfoList()[kIndex];
+  constexpr std::size_t index = info.podOffset();
+  pod_cache->template set<index>(value);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] args No description.
+  \return No description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+inline
+bool VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+updateArgCache(Args... args)
+{
+  // Set global and constant buffers into the buffer list and POD values into the cache
+  using ArgParserT = typename BaseKernelT::ArgParserT;
+  constexpr std::size_t n = numOfDescriptors();
+  std::array<VkBuffer, n> buffer_list{};
+  PodCacheT pod_cache{};
+  updateArgCacheImpl(args...,
+                     buffer_list.data(),
+                     &pod_cache, 
+                     std::make_index_sequence<ArgParserT::kNumOfParameterArgs>());
+
+  // Update descriptor
+  std::array<VkDescriptorType, n> desc_type_list{};
+  desc_type_list.fill(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER);
+  if constexpr (BaseKernelT::hasPodArg()) {
+    buffer_list[n - 1] = getBufferHandle(*pod_buffer_);
+    desc_type_list[n - 1] = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+  }
+  VulkanKernelImpl impl{std::addressof(parentImpl())};
+  impl.updateDescriptorSet(desc_set_, buffer_list, desc_type_list);
+
+  // Check if update of POD cache buffer is needed
+  const bool has_new_pod = updatePodCacheIfNeeded(pod_cache);
+
+  return has_new_pod;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kIndices No description.
+  \param [in] args No description.
+  \param [in] buffer_list No description.
+  \param [in] pod_cache No description.
+  \param [in] indices No description.
+  \return No description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+template <std::size_t ...kIndices> inline
+void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+updateArgCacheImpl(Args... args,
+                   VkBuffer* buffer_list,
+                   PodCacheT* pod_cache,
+                   [[maybe_unused]] std::index_sequence<kIndices...> indices) noexcept
+{
+  (..., setArgCache<kIndices>(args, buffer_list, pod_cache));
+}
+
+/*!
+  \details No detailed description
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
@@ -568,7 +595,7 @@ updateCommandBufferDebugInfo()
   const IdData& id_data = ZivcObject::id();
   const std::string_view kernel_name = id_data.name();
 
-  auto set_debug_info = [this, &device, &kernel_name]
+  const auto set_debug_info = [this, &device, &kernel_name]
   (const VkObjectType type, const auto& obj, const std::string_view suffix)
   {
     if (obj != ZIVC_VK_NULL_HANDLE) {
@@ -587,29 +614,6 @@ updateCommandBufferDebugInfo()
 /*!
   \details No detailed description
 
-  \param [in] args No description.
-  */
-template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
-inline
-void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-updateDescriptorSet(Args... args)
-{
-  constexpr std::size_t n = numOfAllBuffers();
-  std::array<VkBuffer, n> buffer_list{};
-  std::array<VkDescriptorType, n> desc_type_list{};
-  initBufferList<0>(buffer_list.data(), args...);
-  desc_type_list.fill(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER);
-  if constexpr (hasPodArg()) {
-    buffer_list[n - 1] = getBufferHandle(*pod_buffer_);
-    desc_type_list[n - 1] = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-  }
-  VulkanKernelImpl impl{std::addressof(parentImpl())};
-  impl.updateDescriptorSet(desc_set_, buffer_list, desc_type_list);
-}
-
-/*!
-  \details No detailed description
-
   \param [in] work_size No description.
   \param [in] launch_options No description.
   */
@@ -623,10 +627,10 @@ updateModuleScopePushConstantsCmd(const std::span<const uint32b, 3>& work_size,
   constans.fill(0);
 
   const VulkanDevice& device = parentImpl();
-  const auto& group_size = device.workGroupSizeDim(BaseKernelT::dimension());
+  const std::span group_size = device.workGroupSizeDim(BaseKernelT::dimension());
   // Global offset
   {
-    const auto global_offset = BaseKernelT::expandWorkSize(launch_options.globalIdOffset(), 0);
+    const std::array global_offset = BaseKernelT::expandWorkSize(launch_options.globalIdOffset(), 0);
     constexpr std::size_t offset = 0;
     for (std::size_t i = 0; i < global_offset.size(); ++i)
       constans[offset + i] = global_offset[i];
@@ -662,8 +666,8 @@ inline
 void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 updatePodBufferCmd()
 {
-  auto pod_cache = getBufferHandle(*pod_cache_);
-  auto pod_buff = getBufferHandle(*pod_buffer_);
+  const VkBuffer& pod_cache = getBufferHandle(*pod_cache_);
+  const VkBuffer& pod_buff = getBufferHandle(*pod_buffer_);
   {
     const VkBufferCopy copy_region{0, 0, sizeof(PodCacheT)};
     VulkanBufferImpl impl{std::addressof(parentImpl())};
@@ -678,22 +682,21 @@ updatePodBufferCmd()
 /*!
   \details No detailed description
 
-  \param [in] args No description.
+  \param [in] new_cache No description.
   \return No description
   */
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 bool VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
-updatePodCacheIfNeeded(Args... args) const noexcept
+updatePodCacheIfNeeded(const PodCacheT& new_cache) const noexcept
 {
   bool has_new_pod = false;
-  if constexpr (hasPodArg()) {
-    const PodCacheT data = createPodCache(args...);
+  if constexpr (BaseKernelT::hasPodArg()) {
     ZIVC_ASSERT(pod_cache_->isHostVisible(), "The cache isn't host visible.");
     MappedMemory<PodCacheT> cache = pod_cache_->mapMemory();
-    has_new_pod = cache[0] != data;
+    has_new_pod = cache[0] != new_cache;
     if (has_new_pod)
-      cache[0] = data;
+      cache[0] = new_cache;
   }
   return has_new_pod;
 }

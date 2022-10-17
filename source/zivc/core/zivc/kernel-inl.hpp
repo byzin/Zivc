@@ -135,6 +135,48 @@ dimensionSize() const noexcept
 /*!
   \details No detailed description
 
+  \return No description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+inline
+constexpr bool Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+hasGlobalArg() noexcept
+{
+  const bool result = 0 < ArgParserT::kNumOfGlobalArgs;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+inline
+constexpr bool Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+hasLocalArg() noexcept
+{
+  const bool result = 0 < ArgParserT::kNumOfLocalArgs;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+inline
+constexpr bool Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+hasPodArg() noexcept
+{
+  const bool result = 0 < ArgParserT::kNumOfPodArgs;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
   \param [in] parent No description.
   \param [in] own No description.
   \param [in] params No description.

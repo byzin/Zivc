@@ -47,6 +47,7 @@ class KernelArgTypeInfo<cl::AddressSpacePointer<kASpaceType, Type>>
   static constexpr bool kIsConstant = kASpaceType == cl::AddressSpaceType::kConstant;
   static constexpr bool kIsPod = false;
   static constexpr bool kIsBuffer = kIsGlobal || kIsConstant;
+  static constexpr bool kIsParameter = kIsBuffer || kIsPod;
 
  private:
   static_assert(!std::is_pointer_v<ElementT>, "The element type is pointer.");
@@ -74,6 +75,7 @@ class KernelArgTypeInfo<Buffer<Type>>
   static constexpr bool kIsConstant = false;
   static constexpr bool kIsPod = false;
   static constexpr bool kIsBuffer = kIsGlobal || kIsConstant;
+  static constexpr bool kIsParameter = kIsBuffer || kIsPod;
 
  private:
   static_assert(!std::is_pointer_v<ElementT>, "The element type is pointer.");

@@ -23,6 +23,7 @@
 #include <memory>
 #include <span>
 #include <string_view>
+#include <tuple>
 #include <type_traits>
 // Zisc
 #include "zisc/algorithm.hpp"
@@ -75,7 +76,7 @@ class Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> : public Kernel
   ~Kernel() noexcept override;
 
 
-  //! Return the number of kernel arguments required
+  //! Return the number of kernel arguments required (nBuffers + nPods)
   constexpr std::size_t argSize() const noexcept override;
 
   //! Return the number of buffer arguments required
@@ -93,12 +94,21 @@ class Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> : public Kernel
   //! Return the work-group dimension
   constexpr std::size_t dimensionSize() const noexcept override;
 
+  //! Check if the kernel has global arg
+  static constexpr bool hasGlobalArg() noexcept;
+
+  //! Check if the kernel has local arg
+  static constexpr bool hasLocalArg() noexcept;
+
+  //! Check if the kernel has pod arg
+  static constexpr bool hasPodArg() noexcept;
+
   //! Initialize the kernel
   void initialize(ZivcObject::SharedPtr&& parent,
                   WeakPtr&& own,
                   const ParamsT& params);
 
-  //! Return the number of kernel arguments required
+  //! Return the number of kernel arguments required (nBuffers + nPods)
   static constexpr std::size_t numOfArgs() noexcept;
 
   //! Return the number of buffer arguments required
@@ -121,6 +131,8 @@ class Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> : public Kernel
 
   // Type aliases
   using ArgParserT = internal::KernelArgParser<FuncArgs...>;
+  template <std::size_t kIndex>
+  using ArgT = std::tuple_element_t<kIndex, std::tuple<FuncArgs...>>;
 
 
   //! Clear the contents of the kernel

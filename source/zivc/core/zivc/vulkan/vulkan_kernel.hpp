@@ -70,15 +70,6 @@ class VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   //! Return the command buffer
   const VkCommandBuffer& commandBuffer() const noexcept;
 
-  //! Check if the kernel has global arg
-  static constexpr bool hasGlobalArg() noexcept;
-
-  //! Check if the kernel has local arg
-  static constexpr bool hasLocalArg() noexcept;
-
-  //! Check if the kernel has pod arg
-  static constexpr bool hasPodArg() noexcept;
-
   //! Execute a kernel
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
   LaunchResult run(Args... args, const LaunchOptionsT& launch_options) override;
@@ -100,43 +91,43 @@ class VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   void updateDebugInfoImpl() override;
 
  private:
-  //! Create a struct of POD cache
-  template <std::size_t kIndex, typename ...PodTypes>
-  static auto createPodCacheType(const internal::KernelArgCache<PodTypes...>& cache) noexcept;
+  //!
+  struct CacheTypeCreator
+  {
+    //! Create a struct of POD cache
+    static auto createPod() noexcept;
+
+    //! Create a struct of POD cache
+    template <std::size_t... kIndices>
+    static auto createPodImpl(std::index_sequence<kIndices...> indices) noexcept;
+
+    //! Return the type value of the pod variable by the position
+    template <std::size_t kIndex>
+    static auto getPod() noexcept;
+
+    // Type aliases
+    using PodCacheT = decltype(createPod());
+  };
 
 
-  using PodCacheT = decltype(createPodCacheType<0>(internal::KernelArgCache<void>{}));
-  static_assert(std::is_trivially_copyable_v<PodCacheT>,
-                "The POD values aren't trivially copyable.");
-  static_assert(std::equality_comparable<PodCacheT>,
-                "The POD values aren't equality comparable.");
+  // Type aliases
+  using PodCacheT = typename CacheTypeCreator::PodCacheT;
+  template <std::size_t kIndex>
+  using ArgT = typename BaseKernelT::template ArgT<kIndex>;
 
 
   //! Calculate the dispatch work size
   std::array<uint32b, 3> calcDispatchWorkSize(const std::span<const uint32b, kDim> work_size) const noexcept;
 
-  //! Create a POD data from the given POD parameters
-  static PodCacheT createPodCache(Args... args) noexcept;
-
   //! Get the underlying VkBuffer from the given buffer
   template <KernelArg Type>
   static const VkBuffer& getBufferHandle(const Buffer<Type>& buffer) noexcept;
 
-  //! Initialize the buffer list
-  template <std::size_t kIndex, typename Type, typename ...Types>
-  static void initBufferList(VkBuffer* buffer_list,
-                             Type&& value,
-                             Types&&... rest) noexcept;
-
   //! Initialize the POD buffer
   void initPodBuffer();
 
-  //! Initialize a POD cache from the given arguments
-  template <std::size_t kIndex, typename Type, typename ...Types>
-  static void initPodCache(PodCacheT* cache, Type&& value, Types&&... rest) noexcept;
-
-  //! Return the number of buffers which is needed for the kernel (including pod)
-  static constexpr std::size_t numOfAllBuffers() noexcept;
+  //! Return the number of descriptors which is needed for the kernel (including pod)
+  static constexpr std::size_t numOfDescriptors() noexcept;
 
   //! Return the device
   VulkanDevice& parentImpl() noexcept;
@@ -147,11 +138,30 @@ class VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   //! Prepare command buffer
   void prepareCommandBuffer();
 
+  //! Set
+  template <std::size_t kIndex, typename Type>
+  void setArgCache(const Buffer<Type>& value,
+                   VkBuffer* buffer_list,
+                   PodCacheT* pod_cache) noexcept;
+
+  //! Set
+  template <std::size_t kIndex, typename Type>
+  void setArgCache(const Type value,
+                   VkBuffer* buffer_list,
+                   PodCacheT* pod_cache) noexcept;
+
+  //! Update the underlying descriptor set and pod cache
+  bool updateArgCache(Args... args);
+
+  //! Update the underlying descriptor set and pod cache
+  template <std::size_t ...kIndices>
+  void updateArgCacheImpl(Args... args,
+                          VkBuffer* buffer_list,
+                          PodCacheT* pod_cache,
+                          std::index_sequence<kIndices...> indices) noexcept;
+
   //! Update debug info of the underlying command buffer
   void updateCommandBufferDebugInfo();
-
-  //! Update the underlying descriptor set with the given arguments
-  void updateDescriptorSet(Args... args);
 
   //! Update module scope push constans
   void updateModuleScopePushConstantsCmd(const std::span<const uint32b, 3>& work_size,
@@ -160,8 +170,8 @@ class VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> :
   //! Update POD buffer
   void updatePodBufferCmd();
 
-  //! Update pod cache with the given args if needed
-  bool updatePodCacheIfNeeded(Args... args) const noexcept;
+  //! Update pod cache buffer with the given cache if needed
+  bool updatePodCacheIfNeeded(const PodCacheT& new_cache) const noexcept;
 
   //! Validate kernel data
   void validateData();

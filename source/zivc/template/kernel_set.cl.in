@@ -23,7 +23,7 @@
 //#pragma clang diagnostic ignored "-Wc++98-c++11-c++14-compat-pedantic"
 
 /*!
-  \brief No brief
+  \brief This function is defined for enabling all pushconstant values used in clspv
   \details No detailed description
 
   \param [out] outputs No description.
@@ -58,8 +58,8 @@ __kernel void zivcClspvInitKernel(__global uint* outputs)
   outputs[i++] = get_global_offset(0);
   outputs[i++] = get_global_offset(1);
   outputs[i++] = get_global_offset(2);
-//  outputs[i++] = get_global_linear_id(); //!< \todo Try me
-//  outputs[i++] = get_local_linear_id(); //!< \todo Try me
+  outputs[i++] = get_global_linear_id();
+  outputs[i++] = get_local_linear_id();
   outputs[i++] = get_sub_group_size();
   outputs[i++] = get_max_sub_group_size();
   outputs[i++] = get_num_sub_groups();

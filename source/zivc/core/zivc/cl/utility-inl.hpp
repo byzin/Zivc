@@ -499,25 +499,7 @@ size_t getGlobalOffsetZ() noexcept
 inline
 size_t getGlobalLinearId() noexcept
 {
-  //! \todo Use built-in 'get_global_linear_id`
-  const uint32b dim = getWorkDim();
-
-  // 1d
-  const size_t gx = getGlobalIdX() - getGlobalOffsetX();
-  size_t id = gx;
-  // 2d
-  if (2 <= dim) {
-    const size_t n = getGlobalSizeX();
-    const size_t gy = getGlobalIdY() - getGlobalOffsetY();
-    id = id + n * gy;
-  }
-  // 3d
-  if (3 <= dim) {
-    const size_t n = getGlobalSizeX() * getGlobalSizeY();
-    const size_t gz = getGlobalIdZ() - getGlobalOffsetZ();
-    id = id + n * gz;
-  }
-
+  const size_t id = get_global_linear_id();
   return id;
 }
 
@@ -529,25 +511,7 @@ size_t getGlobalLinearId() noexcept
 inline
 size_t getLocalLinearId() noexcept
 {
-  //! \todo Use built-in 'get_local_linear_id`
-  const uint32b dim = getWorkDim();
-
-  // 1d
-  const size_t lx = getLocalIdX();
-  size_t id = lx;
-  // 2d
-  if (2 <= dim) {
-    const size_t n = getLocalSizeX();
-    const size_t ly = getLocalIdY();
-    id = id + n * ly;
-  }
-  // 3d
-  if (3 <= dim) {
-    const size_t n = getLocalSizeX() * getLocalSizeY();
-    const size_t lz = getLocalIdZ();
-    id = id + n * lz;
-  }
-
+  const size_t id = get_local_linear_id();
   return id;
 }
 

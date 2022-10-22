@@ -46,7 +46,7 @@ size_t get_group_id(const uint32b dimension) noexcept;
 constexpr size_t get_local_id(const uint32b dimension) noexcept;
 
 //! Return the work-items 1-dimensional local ID
-constexpr size_t get_local_linear_id() noexcept;
+size_t get_local_linear_id() noexcept;
 
 //! Return the number of local work-items
 constexpr size_t get_local_size(const uint32b dimension) noexcept;

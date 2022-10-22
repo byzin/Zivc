@@ -109,6 +109,33 @@ size_t get_global_id(const uint32b dimension) noexcept
 /*!
   \details No detailed description
 
+  \return No description
+  */
+inline
+size_t get_global_linear_id() noexcept
+{
+  const uint32b dim = get_work_dim();
+  // 1d
+  const size_t gx = get_global_id(0) - get_global_offset(0);
+  size_t id = gx;
+  // 2d
+  if (2 <= dim) {
+    const size_t n = get_global_size(0);
+    const size_t gy = get_global_id(1) - get_global_offset(1);
+    id = id + n * gy;
+  }
+  // 3d
+  if (3 <= dim) {
+    const size_t n = get_global_size(0) * get_global_size(1);
+    const size_t gz = get_global_id(2) - get_global_offset(2);
+    id = id + n * gz;
+  }
+  return id;
+}
+
+/*!
+  \details No detailed description
+
   \param [in] dimension No description.
   \return No description
   */
@@ -152,6 +179,33 @@ inline
 constexpr size_t get_local_id([[maybe_unused]] const uint32b dimension) noexcept
 {
   return 0;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+size_t get_local_linear_id() noexcept
+{
+  const uint32b dim = get_work_dim();
+  // 1d
+  const size_t lx = get_local_id(0);
+  size_t id = lx;
+  // 2d
+  if (2 <= dim) {
+    const size_t n = get_local_size(0);
+    const size_t ly = get_local_id(1);
+    id = id + n * ly;
+  }
+  // 3d
+  if (3 <= dim) {
+    const size_t n = get_local_size(0) * get_local_size(1);
+    const size_t lz = get_local_id(2);
+    id = id + n * lz;
+  }
+  return id;
 }
 
 /*!

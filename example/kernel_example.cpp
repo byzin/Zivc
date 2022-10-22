@@ -118,34 +118,34 @@ int doKernelExample(zivc::Context& context)
     // Create buffers
     constexpr std::size_t n = 10;
     // Input1
-    auto buffer1 = device->createBuffer<int32b>({zivc::BufferUsage::kPreferDevice});
+    const zivc::SharedBuffer buffer1 = device->createBuffer<int32b>({zivc::BufferUsage::kPreferDevice});
     buffer1->setSize(n);
     // Input2
-    auto buffer2 = device->createBuffer<int32b>({zivc::BufferUsage::kPreferDevice});
+    const zivc::SharedBuffer buffer2 = device->createBuffer<int32b>({zivc::BufferUsage::kPreferDevice});
     buffer2->setSize(n);
     // Output
-    auto buffer3 = device->createBuffer<int32b>({zivc::BufferUsage::kPreferDevice});
+    const zivc::SharedBuffer buffer3 = device->createBuffer<int32b>({zivc::BufferUsage::kPreferDevice});
     buffer3->setSize(n);
     // Staging buffer
-    auto staging = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost,
-                                                 zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer staging = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost,
+                                                               zivc::BufferFlag::kRandomAccessible});
     staging->setSize(n);
 
     // Initialize the input buffers
     {
-      auto mem = staging->mapMemory();
+      zivc::MappedMemory mem = staging->mapMemory();
       std::iota(mem.begin(), mem.end(), 0);
     }
     {
-      auto options = staging->createOptions();
+      zivc::BufferLaunchOptions options = staging->createOptions();
       options.requestFence(true);
-      auto result = zivc::copy(*staging, buffer1.get(), options);
+      zivc::LaunchResult result = zivc::copy(*staging, buffer1.get(), options);
       device->waitForCompletion(result.fence());
     }
     {
-      auto options = buffer2->createOptions();
+      zivc::BufferLaunchOptions options = buffer2->createOptions();
       options.requestFence(true);
-      auto result = zivc::fill(10, buffer2.get(), options);
+      zivc::LaunchResult result = zivc::fill(10, buffer2.get(), options);
       device->waitForCompletion(result.fence());
     }
 
@@ -160,74 +160,78 @@ int doKernelExample(zivc::Context& context)
 
     // Create a kernel
     std::cout << indent2 << "Launch kernel1" << std::endl;
-    auto kernel_params1 = ZIVC_CREATE_KERNEL_INIT_PARAMS(example, kernel1, 1);
+    const zivc::KernelInitParams kernel_params1 = ZIVC_CREATE_KERNEL_INIT_PARAMS(example,
+                                                                                 kernel1,
+                                                                                 1);
     const zivc::SharedKernel kernel1 = device->createKernel(kernel_params1);
     print_kernel_info(*kernel1);
 
     // Launch the kernel
     {
       // First create options for launching the kernel
-      auto options = kernel1->createOptions();
+      zivc::KernelLaunchOptions options = kernel1->createOptions();
       options.setWorkSize({{n}});
       options.requestFence(true);
       // Launch the kernel
       const zivc::uint32b resolution = n;
-      auto result = kernel1->run(*buffer1, *buffer2, *buffer3, resolution, options);
+      zivc::LaunchResult result = kernel1->run(*buffer1, *buffer2, *buffer3, resolution, options);
       // Wait this thread until the kernel done
       device->waitForCompletion(result.fence());
     }
     // Print the output
     {
-      auto options = buffer3->createOptions();
+      zivc::BufferLaunchOptions options = buffer3->createOptions();
       options.requestFence(true);
-      auto result = zivc::copy(*buffer3, staging.get(), options);
+      zivc::LaunchResult result = zivc::copy(*buffer3, staging.get(), options);
       device->waitForCompletion(result.fence());
 
-      auto mem = staging->mapMemory();
+      const zivc::MappedMemory mem = staging->mapMemory();
       for (std::size_t i = 0; i < mem.size(); ++i)
         std::cout << indent3 << "output[" << i << "] = " << mem[i] << std::endl;
     }
 
     // Create another kernel
     std::cout << indent2 << "Launch kernel2" << std::endl;
-    auto kernel_params2 = ZIVC_CREATE_KERNEL_INIT_PARAMS(example, kernel2, 1);
-    auto kernel2 = device->createKernel(kernel_params2);
+    const zivc::KernelInitParams kernel_params2 = ZIVC_CREATE_KERNEL_INIT_PARAMS(example,
+                                                                                 kernel2,
+                                                                                 1);
+    const zivc::SharedKernel kernel2 = device->createKernel(kernel_params2);
     print_kernel_info(*kernel2);
 
     // Reinterpreted buffers also can be used as kernel argument
     {
       // Initialize buffers
-      auto staging_fp = staging->reinterp<float>();
+      zivc::ReinterpBuffer staging_fp = staging->reinterp<float>();
       {
-        auto mem = staging_fp.mapMemory();
+        zivc::MappedMemory mem = staging_fp.mapMemory();
         std::iota(mem.begin(), mem.end(), 0.25f);
       }
-      auto fp1 = buffer1->reinterp<float>();
-      auto fp3 = buffer3->reinterp<float>();
+      zivc::ReinterpBuffer fp1 = buffer1->reinterp<float>();
+      zivc::ReinterpBuffer fp3 = buffer3->reinterp<float>();
       {
-        auto options = staging_fp.createOptions();
+        zivc::BufferLaunchOptions options = staging_fp.createOptions();
         options.requestFence(true);
-        auto result = zivc::copy(staging_fp, &fp1, options);
+        zivc::LaunchResult result = zivc::copy(staging_fp, &fp1, options);
         device->waitForCompletion(result.fence());
       }
       {
         // Create options
-        auto options = kernel2->createOptions();
+        zivc::KernelLaunchOptions options = kernel2->createOptions();
         options.setWorkSize({{n}});
         options.requestFence(true);
         // Launch the kernel
         const zivc::uint32b resolution = n;
-        auto result = kernel2->run(fp1, fp3, resolution, options);
+        zivc::LaunchResult result = kernel2->run(fp1, fp3, resolution, options);
         // Wait this thread until the kernel done
         device->waitForCompletion(result.fence());
       }
       {
-        auto options = fp3.createOptions();
+        zivc::BufferLaunchOptions options = fp3.createOptions();
         options.requestFence(true);
-        auto result = zivc::copy(fp3, &staging_fp, options);
+        zivc::LaunchResult result = zivc::copy(fp3, &staging_fp, options);
         device->waitForCompletion(result.fence());
 
-        auto mem = staging_fp.mapMemory();
+        const zivc::MappedMemory mem = staging_fp.mapMemory();
         for (std::size_t i = 0; i < mem.size(); ++i)
           std::cout << indent3 << "output[" << i << "] = " << mem[i] << std::endl;
       }

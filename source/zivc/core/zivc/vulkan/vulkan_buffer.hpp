@@ -239,6 +239,11 @@ class VulkanBuffer : public Buffer<T>
   //! Return the underlying buffer data
   const BufferData& rawBuffer() const noexcept;
 
+  //! Set buffer allocation data
+  void setAllocationData(const VkBuffer buffer,
+                         const VmaAllocation vm_allocation,
+                         const VmaAllocationInfo vm_alloc_info) noexcept;
+
 
   BufferData buffer_data_;
   std::size_t size_ = 0;

@@ -206,10 +206,10 @@ void VulkanBufferImpl::allocateMemory(const std::size_t size,
                                           vm_allocation,
                                           alloc_info);
   if (result != VK_SUCCESS) [[unlikely]] {
-    const std::string message = createErrorMessage(
-        object,
-        "Device memory allocation failed.");
-    throwResultException(result, message.data());
+    std::string message = "Buffer memroy allocation failed. size: " +
+                          std::to_string(size) + " bytes.";
+    message = createErrorMessage(object, message);
+    throw SystemError{ErrorCode::kBufferMemoryAllocationFailed, message};
   }
 }
 

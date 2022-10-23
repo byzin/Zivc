@@ -33,11 +33,11 @@
 
 TEST(BufferTest, DeviceLocalBufferInitializationTest)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
   // Init test
-  auto buffer = device->createBuffer<int>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buffer = device->createBuffer<int>({zivc::BufferUsage::kPreferDevice});
   ASSERT_EQ(0, buffer->size()) << "Buffer initialization failed.";
   ASSERT_EQ(zivc::BufferUsage::kPreferDevice, buffer->usage()) << "Buffer initialization failed.";
   ASSERT_EQ(zivc::BufferFlag::kNone, buffer->flag()) << "Buffer initialization failed.";
@@ -94,12 +94,11 @@ TEST(BufferTest, DeviceLocalBufferInitializationTest)
 
 TEST(BufferTest, HostWritableDeviceBufferInitializationTest)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
   // Init test
-  auto buffer = device->createBuffer<int>({zivc::BufferUsage::kPreferDevice,
-                                           zivc::BufferFlag::kSequentialWritable});
+  const zivc::SharedBuffer buffer = device->createBuffer<int>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kSequentialWritable});
   ASSERT_EQ(0, buffer->size()) << "Buffer initialization failed.";
   ASSERT_EQ(zivc::BufferUsage::kPreferDevice, buffer->usage()) << "Buffer initialization failed.";
   ASSERT_EQ(zivc::BufferFlag::kSequentialWritable, buffer->flag()) << "Buffer initialization failed.";
@@ -156,12 +155,11 @@ TEST(BufferTest, HostWritableDeviceBufferInitializationTest)
 
 TEST(BufferTest, HostReadableDeviceBufferInitializationTest)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
   // Init test
-  auto buffer = device->createBuffer<int>({zivc::BufferUsage::kPreferDevice,
-                                           zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer = device->createBuffer<int>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
   ASSERT_EQ(0, buffer->size()) << "Buffer initialization failed.";
   ASSERT_EQ(zivc::BufferUsage::kPreferDevice, buffer->usage()) << "Buffer initialization failed.";
   ASSERT_EQ(zivc::BufferFlag::kRandomAccessible, buffer->flag()) << "Buffer initialization failed.";
@@ -218,11 +216,11 @@ TEST(BufferTest, HostReadableDeviceBufferInitializationTest)
 
 TEST(BufferTest, HostBufferInitializationTest)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
   // Init test
-  auto buffer = device->createBuffer<int>({zivc::BufferUsage::kPreferHost});
+  const zivc::SharedBuffer buffer = device->createBuffer<int>({zivc::BufferUsage::kPreferHost});
   ASSERT_EQ(0, buffer->size()) << "Buffer initialization failed.";
   ASSERT_EQ(zivc::BufferUsage::kPreferHost, buffer->usage()) << "Buffer initialization failed.";
   ASSERT_EQ(zivc::BufferFlag::kNone, buffer->flag()) << "Buffer initialization failed.";
@@ -279,12 +277,11 @@ TEST(BufferTest, HostBufferInitializationTest)
 
 TEST(BufferTest, HostWritableHostBufferInitializationTest)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
   // Init test
-  auto buffer = device->createBuffer<int>({zivc::BufferUsage::kPreferHost,
-                                           zivc::BufferFlag::kSequentialWritable});
+  const zivc::SharedBuffer buffer = device->createBuffer<int>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kSequentialWritable});
   ASSERT_EQ(0, buffer->size()) << "Buffer initialization failed.";
   ASSERT_EQ(zivc::BufferUsage::kPreferHost, buffer->usage()) << "Buffer initialization failed.";
   ASSERT_EQ(zivc::BufferFlag::kSequentialWritable, buffer->flag()) << "Buffer initialization failed.";
@@ -341,12 +338,11 @@ TEST(BufferTest, HostWritableHostBufferInitializationTest)
 
 TEST(BufferTest, HostReadableHostBufferInitializationTest)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
   // Init test
-  auto buffer = device->createBuffer<int>({zivc::BufferUsage::kPreferHost,
-                                           zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer = device->createBuffer<int>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
   ASSERT_EQ(0, buffer->size()) << "Buffer initialization failed.";
   ASSERT_EQ(zivc::BufferUsage::kPreferHost, buffer->usage()) << "Buffer initialization failed.";
   ASSERT_EQ(zivc::BufferFlag::kRandomAccessible, buffer->flag()) << "Buffer initialization failed.";
@@ -403,14 +399,14 @@ TEST(BufferTest, HostReadableHostBufferInitializationTest)
 
 TEST(BufferTest, DeviceBufferMaxAllocationTest)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer = device->createBuffer<int>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buffer = device->createBuffer<int>({zivc::BufferUsage::kPreferDevice});
   EXPECT_TRUE(buffer->isDeviceLocal()) << "The buffer isn't device local.";
 
-  const auto& info = device->deviceInfo();
+  const zivc::DeviceInfo& info = device->deviceInfo();
   {
     constexpr std::size_t max_alloc = 4ull * 1024ull * 1024ull * 1024ull;
     const std::size_t alloc_size = (std::min)(info.maxAllocationSize(), max_alloc);
@@ -430,8 +426,8 @@ TEST(BufferTest, DeviceBufferMaxAllocationTest)
     const std::size_t alloc_size = sizeof(int) * buffer->capacity();
     std::cout << "## Max allocation size: "
               << to_mb(alloc_size) << " MB." << std::endl;
-    const auto& heap_info = info.heapInfo(buffer->heapIndex());
-    const auto& usage = heap_info.usedSizeForBuffer();
+    const zivc::MemoryHeapInfo& heap_info = info.heapInfo(buffer->heapIndex());
+    const zivc::MemoryHeapInfo::UsageT& usage = heap_info.usedSizeForBuffer();
     ASSERT_GT(usage.peak(), 0) << "Memory usage isn't updated.";
     std::cout << "## Used memory size: "
               << to_mb(usage.peak()) << " MB." << std::endl;
@@ -440,14 +436,14 @@ TEST(BufferTest, DeviceBufferMaxAllocationTest)
 
 TEST(BufferTest, HostBufferMaxAllocationTest)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer = device->createBuffer<int>({zivc::BufferUsage::kPreferHost});
+  const zivc::SharedBuffer buffer = device->createBuffer<int>({zivc::BufferUsage::kPreferHost});
   EXPECT_TRUE(buffer->isHostVisible()) << "The buffer isn't host visible.";
 
-  const auto& info = device->deviceInfo();
+  const zivc::DeviceInfo& info = device->deviceInfo();
   {
     constexpr std::size_t max_alloc = 4ull * 1024ull * 1024ull * 1024ull;
     const std::size_t alloc_size = (std::min)(info.maxAllocationSize(), max_alloc);
@@ -467,8 +463,8 @@ TEST(BufferTest, HostBufferMaxAllocationTest)
     const std::size_t alloc_size = sizeof(int) * buffer->capacity();
     std::cout << "## Max allocation size: "
               << to_mb(alloc_size) << " MB." << std::endl;
-    const auto& heap_info = info.heapInfo(buffer->heapIndex());
-    const auto& usage = heap_info.usedSizeForBuffer();
+    const zivc::MemoryHeapInfo& heap_info = info.heapInfo(buffer->heapIndex());
+    const zivc::MemoryHeapInfo::UsageT& usage = heap_info.usedSizeForBuffer();
     ASSERT_GT(usage.peak(), 0) << "Memory usage isn't updated.";
     std::cout << "## Used memory size: "
               << to_mb(usage.peak()) << " MB." << std::endl;
@@ -477,12 +473,11 @@ TEST(BufferTest, HostBufferMaxAllocationTest)
 
 TEST(BufferTest, HostRandomAccessibleDeviceBufferMemoryMappingTest)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer = device->createBuffer<int>({zivc::BufferUsage::kPreferDevice,
-                                           zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer = device->createBuffer<int>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
   ASSERT_TRUE(buffer->isHostWritable()) << "The buffer isn't host writable.";
   ASSERT_TRUE(buffer->isHostReadable()) << "The buffer isn't host readable.";
 
@@ -495,7 +490,7 @@ TEST(BufferTest, HostRandomAccessibleDeviceBufferMemoryMappingTest)
 
   using zisc::cast;
   {
-    const auto& info = device->deviceInfo();
+    const zivc::DeviceInfo& info = device->deviceInfo();
     constexpr std::size_t max_alloc = 1ull * 1024ull * 1024ull * 1024ull;
     const std::size_t alloc_size = (std::min)(info.maxAllocationSize(), max_alloc);
     const std::size_t s = alloc_size / sizeof(int);
@@ -531,12 +526,11 @@ TEST(BufferTest, HostRandomAccessibleDeviceBufferMemoryMappingTest)
 
 TEST(BufferTest, HostRandomAccessibleHostBufferMemoryMappingTest)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer = device->createBuffer<int>({zivc::BufferUsage::kPreferHost,
-                                           zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer = device->createBuffer<int>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
   ASSERT_TRUE(buffer->isHostWritable()) << "The buffer isn't host writable.";
   ASSERT_TRUE(buffer->isHostReadable()) << "The buffer isn't host readable.";
 
@@ -549,7 +543,7 @@ TEST(BufferTest, HostRandomAccessibleHostBufferMemoryMappingTest)
 
   using zisc::cast;
   {
-    const auto& info = device->deviceInfo();
+    const zivc::DeviceInfo& info = device->deviceInfo();
     constexpr std::size_t max_alloc = 1ull * 1024ull * 1024ull * 1024ull;
     const std::size_t alloc_size = (std::min)(info.maxAllocationSize(), max_alloc);
     const std::size_t s = alloc_size / sizeof(int);
@@ -585,17 +579,16 @@ TEST(BufferTest, HostRandomAccessibleHostBufferMemoryMappingTest)
 
 TEST(BufferTest, HostWritableDeviceBufferMemoryMappingTest)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer = device->createBuffer<float>({zivc::BufferUsage::kPreferDevice,
-                                             zivc::BufferFlag::kSequentialWritable});
+  const zivc::SharedBuffer buffer = device->createBuffer<float>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kSequentialWritable});
   ASSERT_TRUE(buffer->isHostWritable()) << "The buffer isn't host writable.";
 
   using zisc::cast;
   {
-    const auto& info = device->deviceInfo();
+    const zivc::DeviceInfo& info = device->deviceInfo();
     constexpr std::size_t max_alloc = 128ull * 1024ull * 1024ull;
     const std::size_t alloc_size = (std::min)(info.maxAllocationSize(), max_alloc);
     const std::size_t s = alloc_size / sizeof(float);
@@ -612,14 +605,13 @@ TEST(BufferTest, HostWritableDeviceBufferMemoryMappingTest)
       mapped_mem[i] = cast<float>(i + 1);
   }
 
-  auto buffer2 = device->createBuffer<float>({zivc::BufferUsage::kPreferHost,
-                                              zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer2 = device->createBuffer<float>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
   buffer2->setSize(buffer->size());
   {
-    auto options = buffer->createOptions();
+    zivc::BufferLaunchOptions options = buffer->createOptions();
     options.setLabel("MemoryMappingTest");
     options.requestFence(true);
-    auto result = zivc::copy(*buffer, buffer2.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer, buffer2.get(), options);
     device->waitForCompletion(result.fence());
   }
   {
@@ -633,17 +625,16 @@ TEST(BufferTest, HostWritableDeviceBufferMemoryMappingTest)
 
 TEST(BufferTest, HostWritableHostBufferMemoryMappingTest)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer = device->createBuffer<float>({zivc::BufferUsage::kPreferHost,
-                                             zivc::BufferFlag::kSequentialWritable});
+  const zivc::SharedBuffer buffer = device->createBuffer<float>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kSequentialWritable});
   ASSERT_TRUE(buffer->isHostWritable()) << "The buffer isn't host writable.";
 
   using zisc::cast;
   {
-    const auto& info = device->deviceInfo();
+    const zivc::DeviceInfo& info = device->deviceInfo();
     constexpr std::size_t max_alloc = 1ull * 1024ull * 1024ull * 1024ull;
     const std::size_t alloc_size = (std::min)(info.maxAllocationSize(), max_alloc);
     const std::size_t s = alloc_size / sizeof(float);
@@ -660,14 +651,13 @@ TEST(BufferTest, HostWritableHostBufferMemoryMappingTest)
       mapped_mem[i] = cast<float>(i + 1);
   }
 
-  auto buffer2 = device->createBuffer<float>({zivc::BufferUsage::kPreferHost,
-                                              zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer2 = device->createBuffer<float>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
   buffer2->setSize(buffer->size());
   {
-    auto options = buffer->createOptions();
+    zivc::BufferLaunchOptions options = buffer->createOptions();
     options.setLabel("MemoryMappingTest");
     options.requestFence(true);
-    auto result = zivc::copy(*buffer, buffer2.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer, buffer2.get(), options);
     device->waitForCompletion(result.fence());
   }
   {
@@ -683,15 +673,13 @@ TEST(BufferTest, CopyBufferTest)
 {
   using zivc::uint64b;
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost,
-                                                 zivc::BufferFlag::kSequentialWritable});
-  auto buffer_h2 = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost,
-                                                  zivc::BufferFlag::kRandomAccessible});
-  auto buffer_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kSequentialWritable});
+  const zivc::SharedBuffer buffer_h2 = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferDevice});
 
   // Allocate memories
   {
@@ -709,10 +697,10 @@ TEST(BufferTest, CopyBufferTest)
   }
   // Copy from host to device
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("HostToDeviceCopy");
     options.requestFence(true);
-    auto result = zivc::copy(*buffer_h, buffer_d.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer_h, buffer_d.get(), options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async copy operation failed.";
       ASSERT_TRUE(result.fence()) << "The async copy operation failed.";
@@ -725,10 +713,10 @@ TEST(BufferTest, CopyBufferTest)
   }
   // Copy from device to host
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("DeviceToHostCopy");
     options.requestFence(true);
-    auto result = zivc::copy(*buffer_d, buffer_h2.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer_d, buffer_h2.get(), options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async copy operation failed.";
       ASSERT_TRUE(result.fence()) << "The async copy operation failed.";
@@ -748,15 +736,14 @@ TEST(BufferTest, CopyMaxAllocBufferTest)
 {
   using zivc::uint64b;
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost,
-                                                 zivc::BufferFlag::kRandomAccessible});
-  auto buffer_d = device->createBuffer<uint64b>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_d = device->createBuffer<uint64b>(zivc::BufferUsage::kPreferDevice);
 
-  const auto& info = device->deviceInfo();
+  const zivc::DeviceInfo& info = device->deviceInfo();
   // Allocate memories
   {
     constexpr std::size_t max_alloc = 4ull * 1024ull * 1024ull * 1024ull;
@@ -773,10 +760,10 @@ TEST(BufferTest, CopyMaxAllocBufferTest)
   }
   // Copy from host to device
   {
-    auto options = buffer_h->createOptions();
+    zivc::BufferLaunchOptions options = buffer_h->createOptions();
     options.setLabel("HostToDeviceCopy");
     options.requestFence(true);
-    auto result = zivc::copy(*buffer_h, buffer_d.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer_h, buffer_d.get(), options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async copy operation failed.";
       ASSERT_TRUE(result.fence()) << "The async copy operation failed.";
@@ -789,10 +776,10 @@ TEST(BufferTest, CopyMaxAllocBufferTest)
   }
   // Copy from device to host
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("DeviceToHostCopy");
     options.requestFence(true);
-    auto result = zivc::copy(*buffer_d, buffer_h.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer_d, buffer_h.get(), options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async copy operation failed.";
       ASSERT_TRUE(result.fence()) << "The async copy operation failed.";
@@ -812,15 +799,13 @@ TEST(BufferTest, CopyBufferRangeTest)
 {
   using zivc::uint64b;
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost,
-                                                 zivc::BufferFlag::kSequentialWritable});
-  auto buffer_h2 = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost,
-                                                  zivc::BufferFlag::kRandomAccessible});
-  auto buffer_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kSequentialWritable});
+  const zivc::SharedBuffer buffer_h2 = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferDevice});
 
   // Allocate memories
   {
@@ -840,13 +825,13 @@ TEST(BufferTest, CopyBufferRangeTest)
   constexpr uint64b v = 16;
   // Copy from host to device
   {
-    auto options = buffer_h->createOptions();
+    zivc::BufferLaunchOptions options = buffer_h->createOptions();
     options.setLabel("HostToDeviceCopy");
     options.requestFence(true);
     options.setSourceOffset(offset);
     options.setDestOffset(offset);
     options.setSize(buffer_d->size() - 2 * offset);
-    auto result = zivc::copy(*buffer_h, buffer_d.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer_h, buffer_d.get(), options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async copy operation failed.";
       ASSERT_TRUE(result.fence()) << "The async copy operation failed.";
@@ -859,13 +844,13 @@ TEST(BufferTest, CopyBufferRangeTest)
   }
   // Copy from device to host
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("DeviceToHostCopy");
     options.requestFence(true);
     options.setSourceOffset(offset);
     options.setDestOffset(offset);
     options.setSize(buffer_d->size() - 2 * offset);
-    auto result = zivc::copy(*buffer_d, buffer_h2.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer_d, buffer_h2.get(), options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async copy operation failed.";
       ASSERT_TRUE(result.fence()) << "The async copy operation failed.";
@@ -892,15 +877,13 @@ TEST(BufferTest, CopyBufferRangeTest2)
 {
   using zivc::uint64b;
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost,
-                                                 zivc::BufferFlag::kSequentialWritable});
-  auto buffer_h2 = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost,
-                                                  zivc::BufferFlag::kRandomAccessible});
-  auto buffer_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kSequentialWritable});
+  const zivc::SharedBuffer buffer_h2 = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferDevice});
 
   // Allocate memories
   {
@@ -920,12 +903,12 @@ TEST(BufferTest, CopyBufferRangeTest2)
   constexpr uint64b v = 16;
   // Copy from host to device
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("HostToDeviceCopy");
     options.requestFence(true);
     options.setDestOffset(offset);
     options.setSize(buffer_d->size() - offset);
-    auto result = zivc::copy(*buffer_h, buffer_d.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer_h, buffer_d.get(), options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async copy operation failed";
       ASSERT_TRUE(result.fence()) << "The async copy operation failed";
@@ -938,13 +921,13 @@ TEST(BufferTest, CopyBufferRangeTest2)
   }
   // Copy from device to host
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("DeviceToHostCopy");
     options.requestFence(true);
     options.setSourceOffset(offset);
     options.setDestOffset(offset);
     options.setSize(buffer_d->size() - offset);
-    auto result = zivc::copy(*buffer_d, buffer_h2.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer_d, buffer_h2.get(), options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async copy operation failed";
       ASSERT_TRUE(result.fence()) << "The async copy operation failed";
@@ -967,15 +950,13 @@ TEST(BufferTest, CopyHostBufferTest)
 {
   using zivc::uint64b;
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost,
-                                                 zivc::BufferFlag::kSequentialWritable});
-  auto buffer_h2 = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost,
-                                                  zivc::BufferFlag::kRandomAccessible});
-  auto buffer_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost});
+  const zivc::SharedBuffer buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kSequentialWritable});
+  const zivc::SharedBuffer buffer_h2 = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost});
 
   // Allocate memories
   {
@@ -993,10 +974,10 @@ TEST(BufferTest, CopyHostBufferTest)
   }
   // Copy from host to device
   {
-    auto options = buffer_h->createOptions();
+    zivc::BufferLaunchOptions options = buffer_h->createOptions();
     options.setLabel("HostToHostCopy");
     options.requestFence(true);
-    auto result = zivc::copy(*buffer_h, buffer_d.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer_h, buffer_d.get(), options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async copy operation failed";
       ASSERT_TRUE(result.fence()) << "The async copy operation failed";
@@ -1009,10 +990,10 @@ TEST(BufferTest, CopyHostBufferTest)
   }
   // Copy from device to host
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("HostToHostCopy");
     options.requestFence(true);
-    auto result = zivc::copy(*buffer_d, buffer_h2.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer_d, buffer_h2.get(), options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async copy operation failed";
       ASSERT_TRUE(result.fence()) << "The async copy operation failed";
@@ -1032,15 +1013,13 @@ TEST(BufferTest, CopyHostBufferRangeTest)
 {
   using zivc::uint64b;
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost,
-                                                 zivc::BufferFlag::kSequentialWritable});
-  auto buffer_h2 = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost,
-                                                  zivc::BufferFlag::kRandomAccessible});
-  auto buffer_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost});
+  const zivc::SharedBuffer buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kSequentialWritable});
+  const zivc::SharedBuffer buffer_h2 = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost});
 
   // Allocate memories
   {
@@ -1060,13 +1039,13 @@ TEST(BufferTest, CopyHostBufferRangeTest)
   constexpr uint64b v = 16;
   // Copy from host to device
   {
-    auto options = buffer_h->createOptions();
+    zivc::BufferLaunchOptions options = buffer_h->createOptions();
     options.setLabel("HostToHostCopy");
     options.requestFence(true);
     options.setSourceOffset(offset);
     options.setDestOffset(offset);
     options.setSize(buffer_h->size() - 2 * offset);
-    auto result = zivc::copy(*buffer_h, buffer_d.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer_h, buffer_d.get(), options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async copy operation failed";
       ASSERT_TRUE(result.fence()) << "The async copy operation failed";
@@ -1079,13 +1058,13 @@ TEST(BufferTest, CopyHostBufferRangeTest)
   }
   // Copy from device to host
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("HostToHostCopy");
     options.requestFence(true);
     options.setSourceOffset(offset);
     options.setDestOffset(offset);
     options.setSize(buffer_d->size() - 2 * offset);
-    auto result = zivc::copy(*buffer_d, buffer_h2.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer_d, buffer_h2.get(), options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async copy operation failed";
       ASSERT_TRUE(result.fence()) << "The async copy operation failed";
@@ -1112,15 +1091,13 @@ TEST(BufferTest, CopyHostBufferRangeTest2)
 {
   using zivc::uint64b;
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost,
-                                                 zivc::BufferFlag::kSequentialWritable});
-  auto buffer_h2 = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost,
-                                                  zivc::BufferFlag::kRandomAccessible});
-  auto buffer_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost});
+  const zivc::SharedBuffer buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kSequentialWritable});
+  const zivc::SharedBuffer buffer_h2 = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost});
 
   // Allocate memories
   {
@@ -1140,12 +1117,12 @@ TEST(BufferTest, CopyHostBufferRangeTest2)
   constexpr uint64b v = 16;
   // Copy from host to device
   {
-    auto options = buffer_h->createOptions();
+    zivc::BufferLaunchOptions options = buffer_h->createOptions();
     options.setLabel("HostToHostCopy");
     options.requestFence(true);
     options.setDestOffset(offset);
     options.setSize(buffer_h->size() - offset);
-    auto result = zivc::copy(*buffer_h, buffer_d.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer_h, buffer_d.get(), options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async copy operation failed";
       ASSERT_TRUE(result.fence()) << "The async copy operation failed";
@@ -1158,13 +1135,13 @@ TEST(BufferTest, CopyHostBufferRangeTest2)
   }
   // Copy from device to host
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("HostToHostCopy");
     options.requestFence(true);
     options.setSourceOffset(offset);
     options.setDestOffset(offset);
     options.setSize(buffer_d->size() - offset);
-    auto result = zivc::copy(*buffer_d, buffer_h2.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer_d, buffer_h2.get(), options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async copy operation failed";
       ASSERT_TRUE(result.fence()) << "The async copy operation failed";
@@ -1187,13 +1164,12 @@ TEST(BufferTest, FillBufferFastInt8Test)
 {
   using zisc::int8b;
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_d = device->createBuffer<int8b>({zivc::BufferUsage::kPreferDevice});
-  auto buffer_h = device->createBuffer<int8b>({zivc::BufferUsage::kPreferHost,
-                                               zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_d = device->createBuffer<int8b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buffer_h = device->createBuffer<int8b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
 
   // Allocate memories
   {
@@ -1206,10 +1182,10 @@ TEST(BufferTest, FillBufferFastInt8Test)
   constexpr int8b v = 24;
   // Fill buffer test
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("FillBuffer");
     options.requestFence(true);
-    auto result = buffer_d->fill(v, options);
+    const zivc::LaunchResult result = buffer_d->fill(v, options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async fill operation failed";
       ASSERT_TRUE(result.fence()) << "The async fill operation failed";
@@ -1218,10 +1194,10 @@ TEST(BufferTest, FillBufferFastInt8Test)
   }
   // Copy from device to host
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("DeviceToHostCopy");
     options.requestFence(true);
-    auto result = zivc::copy(*buffer_d, buffer_h.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer_d, buffer_h.get(), options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async fill operation failed";
       ASSERT_TRUE(result.fence()) << "The async fill operation failed";
@@ -1240,13 +1216,12 @@ TEST(BufferTest, FillBufferFastInt16Test)
 {
   using zisc::int16b;
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_d = device->createBuffer<int16b>({zivc::BufferUsage::kPreferDevice});
-  auto buffer_h = device->createBuffer<int16b>({zivc::BufferUsage::kPreferHost,
-                                                zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_d = device->createBuffer<int16b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buffer_h = device->createBuffer<int16b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
 
   // Allocate memories
   {
@@ -1259,10 +1234,10 @@ TEST(BufferTest, FillBufferFastInt16Test)
   constexpr int16b v = 24;
   // Fill buffer test
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("FillBuffer");
     options.requestFence(true);
-    auto result = buffer_d->fill(v, options);
+    const zivc::LaunchResult result = buffer_d->fill(v, options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async fill operation failed";
       ASSERT_TRUE(result.fence()) << "The async fill operation failed";
@@ -1271,10 +1246,10 @@ TEST(BufferTest, FillBufferFastInt16Test)
   }
   // Copy from device to host
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("DeviceToHostCopy");
     options.requestFence(true);
-    auto result = zivc::copy(*buffer_d, buffer_h.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer_d, buffer_h.get(), options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async fill operation failed";
       ASSERT_TRUE(result.fence()) << "The async fill operation failed";
@@ -1293,13 +1268,12 @@ TEST(BufferTest, FillBufferFastInt32Test)
 {
   using zisc::int32b;
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_d = device->createBuffer<int32b>({zivc::BufferUsage::kPreferDevice});
-  auto buffer_h = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost,
-                                                zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_d = device->createBuffer<int32b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buffer_h = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
 
   // Allocate memories
   {
@@ -1312,10 +1286,10 @@ TEST(BufferTest, FillBufferFastInt32Test)
   constexpr int32b v = 24;
   // Fill buffer test
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("FillBuffer");
     options.requestFence(true);
-    auto result = buffer_d->fill(v, options);
+    const zivc::LaunchResult result = buffer_d->fill(v, options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async fill operation failed";
       ASSERT_TRUE(result.fence()) << "The async fill operation failed";
@@ -1324,10 +1298,10 @@ TEST(BufferTest, FillBufferFastInt32Test)
   }
   // Copy from device to host
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("DeviceToHostCopy");
     options.requestFence(true);
-    auto result = zivc::copy(*buffer_d, buffer_h.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer_d, buffer_h.get(), options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async fill operation failed";
       ASSERT_TRUE(result.fence()) << "The async fill operation failed";
@@ -1346,13 +1320,12 @@ TEST(BufferTest, FillBufferFastRangeTest)
 {
   using zisc::int32b;
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_d = device->createBuffer<int32b>({zivc::BufferUsage::kPreferDevice});
-  auto buffer_h = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost,
-                                                zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_d = device->createBuffer<int32b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buffer_h = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
 
   // Allocate memories
   {
@@ -1366,11 +1339,11 @@ TEST(BufferTest, FillBufferFastRangeTest)
   constexpr std::size_t offset = 10;
   // Fill buffer test
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("FillBuffer");
     options.requestFence(true);
     {
-      auto result = buffer_d->fill(0, options);
+      const zivc::LaunchResult result = buffer_d->fill(0, options);
       if (result.isAsync()) {
         ASSERT_TRUE(result.hasFence()) << "The async fill operation failed";
         ASSERT_TRUE(result.fence()) << "The async fill operation failed";
@@ -1380,7 +1353,7 @@ TEST(BufferTest, FillBufferFastRangeTest)
     options.setDestOffset(offset);
     options.setSize(buffer_d->size() - 2 * offset);
     {
-      auto result = buffer_d->fill(v, options);
+      const zivc::LaunchResult result = buffer_d->fill(v, options);
       if (result.isAsync()) {
         ASSERT_TRUE(result.hasFence()) << "The async fill operation failed";
         ASSERT_TRUE(result.fence()) << "The async fill operation failed";
@@ -1390,10 +1363,10 @@ TEST(BufferTest, FillBufferFastRangeTest)
   }
   // Copy from device to host
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("DeviceToHostCopy");
     options.requestFence(true);
-    auto result = zivc::copy(*buffer_d, buffer_h.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer_d, buffer_h.get(), options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async fill operation failed";
       ASSERT_TRUE(result.fence()) << "The async fill operation failed";
@@ -1401,7 +1374,7 @@ TEST(BufferTest, FillBufferFastRangeTest)
     }
   }
   {
-    auto mapped_mem = buffer_h->mapMemory();
+    const zivc::MappedMemory mapped_mem = buffer_h->mapMemory();
     for (std::size_t i = 0; i < offset; ++i) {
       ASSERT_EQ(0, mapped_mem[i]) << "Fill operation failed: mem[" << i << "].";
     }
@@ -1419,13 +1392,12 @@ TEST(BufferTest, FillHostBufferTest)
 {
   using zisc::int32b;
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_d = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost});
-  auto buffer_h = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost,
-                                                zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_d = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost});
+  const zivc::SharedBuffer buffer_h = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
 
   // Allocate memories
   {
@@ -1438,10 +1410,10 @@ TEST(BufferTest, FillHostBufferTest)
   constexpr int32b v = 24;
   // Fill buffer test
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("FillBuffer");
     options.requestFence(true);
-    auto result = buffer_d->fill(v, options);
+    const zivc::LaunchResult result = buffer_d->fill(v, options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async fill operation failed";
       ASSERT_TRUE(result.fence()) << "The async fill operation failed";
@@ -1450,10 +1422,10 @@ TEST(BufferTest, FillHostBufferTest)
   }
   // Copy from device to host
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("DeviceToHostCopy");
     options.requestFence(true);
-    auto result = zivc::copy(*buffer_d, buffer_h.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer_d, buffer_h.get(), options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async fill operation failed";
       ASSERT_TRUE(result.fence()) << "The async fill operation failed";
@@ -1472,13 +1444,12 @@ TEST(BufferTest, FillHostBufferRangeTest)
 {
   using zisc::int32b;
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_d = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost});
-  auto buffer_h = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost,
-                                                zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_d = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost});
+  const zivc::SharedBuffer buffer_h = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
 
   // Allocate memories
   {
@@ -1492,11 +1463,11 @@ TEST(BufferTest, FillHostBufferRangeTest)
   constexpr std::size_t offset = 10;
   // Fill buffer test
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("FillBuffer");
     options.requestFence(true);
     {
-      auto result = buffer_d->fill(0, options);
+      const zivc::LaunchResult result = buffer_d->fill(0, options);
       if (result.isAsync()) {
         ASSERT_TRUE(result.hasFence()) << "The async fill operation failed";
         ASSERT_TRUE(result.fence()) << "The async fill operation failed";
@@ -1506,7 +1477,7 @@ TEST(BufferTest, FillHostBufferRangeTest)
     options.setDestOffset(offset);
     options.setSize(buffer_d->size() - 2 * offset);
     {
-      auto result = buffer_d->fill(v, options);
+      const zivc::LaunchResult result = buffer_d->fill(v, options);
       if (result.isAsync()) {
         ASSERT_TRUE(result.hasFence()) << "The async fill operation failed";
         ASSERT_TRUE(result.fence()) << "The async fill operation failed";
@@ -1516,10 +1487,10 @@ TEST(BufferTest, FillHostBufferRangeTest)
   }
   // Copy from device to host
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("DeviceToHostCopy");
     options.requestFence(true);
-    auto result = zivc::copy(*buffer_d, buffer_h.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer_d, buffer_h.get(), options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async fill operation failed";
       ASSERT_TRUE(result.fence()) << "The async fill operation failed";
@@ -1527,7 +1498,7 @@ TEST(BufferTest, FillHostBufferRangeTest)
     }
   }
   {
-    auto mapped_mem = buffer_h->mapMemory();
+    const zivc::MappedMemory mapped_mem = buffer_h->mapMemory();
     for (std::size_t i = 0; i < offset; ++i) {
       ASSERT_EQ(0, mapped_mem[i]) << "Fill operation failed: mem[" << i << "].";
     }
@@ -1541,19 +1512,80 @@ TEST(BufferTest, FillHostBufferRangeTest)
   }
 }
 
+TEST(BufferTest, DeviceBufferAllocationExceptionTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  const zivc::SharedBuffer buffer = device->createBuffer<int>({zivc::BufferUsage::kPreferDevice});
+  EXPECT_TRUE(buffer->isDeviceLocal()) << "The buffer isn't device local.";
+  buffer->setSize(32);
+
+  const zivc::SharedBuffer staging = device->createBuffer<int>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+  EXPECT_TRUE(staging->isHostWritable()) << "The buffer isn't device local.";
+  staging->setSize(buffer->size());
+  {
+    zivc::MappedMemory mem = staging->mapMemory();
+    std::iota(mem.begin(), mem.end(), 0);
+  }
+
+  // Host to device copy
+  {
+    zivc::BufferLaunchOptions options = staging->createOptions();
+    options.setLabel("HostToDeviceCopy");
+    options.requestFence(true);
+    zivc::LaunchResult result = zivc::copy(*staging, buffer.get(), options);
+    result.fence().wait();
+  }
+
+  {
+    constexpr std::size_t size = (std::numeric_limits<std::size_t>::max)();
+    ASSERT_THROW(buffer->setSize(size), zivc::SystemError)
+        << "The buffer exception handling failed.";
+    EXPECT_TRUE(buffer->isDeviceLocal()) << "The buffer isn't device local.";
+    ASSERT_EQ(staging->size(), buffer->size()) << "The buffer data is corrupted.";
+  }
+
+  // Test if the state of the buffer is rolled back to the state just before the error
+  // Device to host copy
+  {
+    zivc::BufferLaunchOptions options = buffer->createOptions();
+    options.setLabel("DeviceToHostCopy");
+    options.requestFence(true);
+    zivc::LaunchResult result = zivc::copy(*buffer, staging.get(), options);
+    result.fence().wait();
+  }
+  {
+    const zivc::MappedMemory mem = staging->mapMemory();
+    for (std::size_t i = 0; i < mem.size(); ++i) {
+      const auto expected = static_cast<int>(i);
+      ASSERT_EQ(expected, mem[i]) << "The buffer data is corrupted.";
+    }
+  }
+}
+
+// Exception tests
+//! \todo Invalid copy size test
+//! \todo Invalid copy range test
+//! \todo Invalid fill size test
+//! \todo Invalid fill range test
+//! \todo Getting mapped memory without memory allocation
+//! \todo Copying buffer without memory allocation
+//! \todo Filling buffer without memory allocation
+
 TEST(BufferTest, CopyBufferReinterpTest)
 {
   using zivc::uint8b;
   using zivc::uint16b;
   using zivc::uint64b;
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferDevice});
-  auto buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost,
-                                                 zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
 
   // Allocate memories
   {
@@ -1563,7 +1595,7 @@ TEST(BufferTest, CopyBufferReinterpTest)
     buffer_d->setSize(s);
   }
 
-  auto reinterp_h = buffer_h->reinterp<uint16b>();
+  zivc::ReinterpBuffer reinterp_h = buffer_h->reinterp<uint16b>();
   {
     ASSERT_EQ(buffer_h->capacityInBytes(), reinterp_h.capacityInBytes())
         << " Reinterp adopter is wrong.";
@@ -1598,7 +1630,7 @@ TEST(BufferTest, CopyBufferReinterpTest)
     ASSERT_EQ(buffer_h->flag(), reinterp_h.flag())
         << " Reinterp adopter is wrong.";
   }
-  auto reinterp_d = buffer_d->reinterp<uint16b>();
+  zivc::ReinterpBuffer reinterp_d = buffer_d->reinterp<uint16b>();
   {
     ASSERT_EQ(buffer_d->capacityInBytes(), reinterp_d.capacityInBytes())
         << " Reinterp adopter is wrong.";
@@ -1651,10 +1683,10 @@ TEST(BufferTest, CopyBufferReinterpTest)
   }
   // Copy from host to device
   {
-    auto options = reinterp_h.createOptions();
+    zivc::BufferLaunchOptions options = reinterp_h.createOptions();
     options.setLabel("HostToDeviceCopy");
     options.requestFence(true);
-    auto result = zivc::copy(reinterp_h, &reinterp_d, options);
+    const zivc::LaunchResult result = zivc::copy(reinterp_h, &reinterp_d, options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async copy operation failed";
       ASSERT_TRUE(result.fence()) << "The async copy operation failed";
@@ -1667,10 +1699,10 @@ TEST(BufferTest, CopyBufferReinterpTest)
   }
   // Copy from device to host
   {
-    auto options = reinterp_d.createOptions();
+    zivc::BufferLaunchOptions options = reinterp_d.createOptions();
     options.setLabel("DeviceToHostCopy");
     options.requestFence(true);
-    auto result = zivc::copy(reinterp_d, &reinterp_h, options);
+    const zivc::LaunchResult result = zivc::copy(reinterp_d, &reinterp_h, options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async copy operation failed";
       ASSERT_TRUE(result.fence()) << "The async copy operation failed";
@@ -1691,13 +1723,12 @@ TEST(BufferTest, CopyBufferReinterpReinterpTest)
   using zivc::uint32b;
   using zivc::uint64b;
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferDevice});
-  auto buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost,
-                                                 zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
 
   // Allocate memories
   {
@@ -1707,9 +1738,9 @@ TEST(BufferTest, CopyBufferReinterpReinterpTest)
     buffer_d->setSize(s);
   }
 
-  auto reinterp_h = buffer_h->reinterp<float>();
-  auto reinterp_d = buffer_d->reinterp<uint32b>();
-  auto reinterp_d2 = reinterp_d.reinterp<float>();
+  zivc::ReinterpBuffer reinterp_h = buffer_h->reinterp<float>();
+  zivc::ReinterpBuffer reinterp_d = buffer_d->reinterp<uint32b>();
+  zivc::ReinterpBuffer reinterp_d2 = reinterp_d.reinterp<float>();
   // Reinterp-reinterp test
   {
     ASSERT_EQ(buffer_d->capacityInBytes(), reinterp_d2.capacityInBytes())
@@ -1753,10 +1784,10 @@ TEST(BufferTest, CopyBufferReinterpReinterpTest)
   }
   // Copy from host to device
   {
-    auto options = reinterp_h.createOptions();
+    zivc::BufferLaunchOptions options = reinterp_h.createOptions();
     options.setLabel("HostToDeviceCopy");
     options.requestFence(true);
-    auto result = zivc::copy(reinterp_h, &reinterp_d2, options);
+    const zivc::LaunchResult result = zivc::copy(reinterp_h, &reinterp_d2, options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async copy operation failed";
       ASSERT_TRUE(result.fence()) << "The async copy operation failed";
@@ -1769,10 +1800,10 @@ TEST(BufferTest, CopyBufferReinterpReinterpTest)
   }
   // Copy from device to host
   {
-    auto options = reinterp_d2.createOptions();
+    zivc::BufferLaunchOptions options = reinterp_d2.createOptions();
     options.setLabel("DeviceToHostCopy");
     options.requestFence(true);
-    auto result = zivc::copy(reinterp_d2, &reinterp_h, options);
+    const zivc::LaunchResult result = zivc::copy(reinterp_d2, &reinterp_h, options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async copy operation failed";
       ASSERT_TRUE(result.fence()) << "The async copy operation failed";
@@ -1805,13 +1836,12 @@ TEST(BufferTest, CopyBufferRangeReinterpTest)
   using zivc::uint16b;
   using zivc::uint64b;
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferDevice});
-  auto buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost,
-                                                 zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
 
   // Allocate memories
   {
@@ -1822,8 +1852,8 @@ TEST(BufferTest, CopyBufferRangeReinterpTest)
   }
 
   constexpr std::size_t k = sizeof(uint64b) / sizeof(uint16b);
-  auto reinterp_h = buffer_h->reinterp<uint16b>();
-  auto reinterp_d = buffer_d->reinterp<uint16b>();
+  zivc::ReinterpBuffer reinterp_h = buffer_h->reinterp<uint16b>();
+  zivc::ReinterpBuffer reinterp_d = buffer_d->reinterp<uint16b>();
 
   constexpr std::array<uint16b, 4> v16{{0b0101'0101'0101'0101,
                                         0b0011'0011'0011'0011,
@@ -1843,13 +1873,13 @@ TEST(BufferTest, CopyBufferRangeReinterpTest)
   constexpr std::size_t offset = 10;
   // Copy from host to device
   {
-    auto options = reinterp_h.createOptions();
+    zivc::BufferLaunchOptions options = reinterp_h.createOptions();
     options.setLabel("HostToDeviceCopy");
     options.requestFence(true);
     options.setSourceOffset(k * offset);
     options.setDestOffset(k * offset);
     options.setSize(reinterp_h.size() - 2 * k * offset);
-    auto result = zivc::copy(reinterp_h, &reinterp_d, options);
+    const zivc::LaunchResult result = zivc::copy(reinterp_h, &reinterp_d, options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async copy operation failed";
       ASSERT_TRUE(result.fence()) << "The async copy operation failed";
@@ -1862,13 +1892,13 @@ TEST(BufferTest, CopyBufferRangeReinterpTest)
   }
   // Copy from device to host
   {
-    auto options = reinterp_d.createOptions();
+    zivc::BufferLaunchOptions options = reinterp_d.createOptions();
     options.setLabel("DeviceToHostCopy");
     options.requestFence(true);
     options.setSourceOffset(k * offset);
     options.setDestOffset(k * offset);
     options.setSize(reinterp_d.size() - 2 * k * offset);
-    auto result = zivc::copy(reinterp_d, &reinterp_h, options);
+    const zivc::LaunchResult result = zivc::copy(reinterp_d, &reinterp_h, options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async copy operation failed";
       ASSERT_TRUE(result.fence()) << "The async copy operation failed";
@@ -1897,13 +1927,12 @@ TEST(BufferTest, FillBufferRangeReinterpTest)
   using zivc::uint16b;
   using zivc::uint64b;
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferDevice});
-  auto buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost,
-                                                 zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
 
   // Allocate memories
   {
@@ -1914,8 +1943,8 @@ TEST(BufferTest, FillBufferRangeReinterpTest)
   }
 
   constexpr std::size_t k = sizeof(uint64b) / sizeof(uint16b);
-  auto reinterp_h = buffer_h->reinterp<uint16b>();
-  auto reinterp_d = buffer_d->reinterp<uint16b>();
+  zivc::ReinterpBuffer reinterp_h = buffer_h->reinterp<uint16b>();
+  zivc::ReinterpBuffer reinterp_d = buffer_d->reinterp<uint16b>();
 
   constexpr uint16b v16 = 0b0101'0101'0101'0101;
   constexpr uint64b v64 = (zisc::cast<uint64b>(v16) << 0) |
@@ -1926,11 +1955,11 @@ TEST(BufferTest, FillBufferRangeReinterpTest)
   constexpr std::size_t offset = 10;
   // Fill buffer test
   {
-    auto options = reinterp_d.createOptions();
+    zivc::BufferLaunchOptions options = reinterp_d.createOptions();
     options.setLabel("FillBuffer");
     options.requestFence(true);
     {
-      auto result = reinterp_d.fill(0, options);
+      const zivc::LaunchResult result = reinterp_d.fill(0, options);
       if (result.isAsync()) {
         ASSERT_TRUE(result.hasFence()) << "The async fill operation failed";
         ASSERT_TRUE(result.fence()) << "The async fill operation failed";
@@ -1940,7 +1969,7 @@ TEST(BufferTest, FillBufferRangeReinterpTest)
     options.setDestOffset(k * offset);
     options.setSize(reinterp_d.size() - 2 * k * offset);
     {
-      auto result = reinterp_d.fill(v16, options);
+      const zivc::LaunchResult result = reinterp_d.fill(v16, options);
       if (result.isAsync()) {
         ASSERT_TRUE(result.hasFence()) << "The async fill operation failed";
         ASSERT_TRUE(result.fence()) << "The async fill operation failed";
@@ -1950,10 +1979,10 @@ TEST(BufferTest, FillBufferRangeReinterpTest)
   }
   // Copy from device to host
   {
-    auto options = reinterp_d.createOptions();
+    zivc::BufferLaunchOptions options = reinterp_d.createOptions();
     options.setLabel("DeviceToHostCopy");
     options.requestFence(true);
-    auto result = zivc::copy(reinterp_d, &reinterp_h, options);
+    const zivc::LaunchResult result = zivc::copy(reinterp_d, &reinterp_h, options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async copy operation failed";
       ASSERT_TRUE(result.fence()) << "The async copy operation failed";
@@ -1982,13 +2011,12 @@ TEST(BufferTest, CopyHostBufferReinterpTest)
   using zivc::uint16b;
   using zivc::uint64b;
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost});
-  auto buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost,
-                                                 zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost});
+  const zivc::SharedBuffer buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
 
   // Allocate memories
   {
@@ -1998,8 +2026,8 @@ TEST(BufferTest, CopyHostBufferReinterpTest)
     buffer_d->setSize(s);
   }
 
-  auto reinterp_h = buffer_h->reinterp<uint16b>();
-  auto reinterp_d = buffer_d->reinterp<uint16b>();
+  zivc::ReinterpBuffer reinterp_h = buffer_h->reinterp<uint16b>();
+  zivc::ReinterpBuffer reinterp_d = buffer_d->reinterp<uint16b>();
 
   constexpr std::array<uint16b, 4> v16{{0b0101'0101'0101'0101,
                                         0b0011'0011'0011'0011,
@@ -2018,10 +2046,10 @@ TEST(BufferTest, CopyHostBufferReinterpTest)
   }
   // Copy from host to device
   {
-    auto options = reinterp_h.createOptions();
+    zivc::BufferLaunchOptions options = reinterp_h.createOptions();
     options.setLabel("HostToDeviceCopy");
     options.requestFence(true);
-    auto result = zivc::copy(reinterp_h, &reinterp_d, options);
+    const zivc::LaunchResult result = zivc::copy(reinterp_h, &reinterp_d, options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async copy operation failed";
       ASSERT_TRUE(result.fence()) << "The async copy operation failed";
@@ -2030,10 +2058,10 @@ TEST(BufferTest, CopyHostBufferReinterpTest)
   }
   // Copy from device to host
   {
-    auto options = reinterp_d.createOptions();
+    zivc::BufferLaunchOptions options = reinterp_d.createOptions();
     options.setLabel("DeviceToHostCopy");
     options.requestFence(true);
-    auto result = zivc::copy(reinterp_d, &reinterp_h, options);
+    const zivc::LaunchResult result = zivc::copy(reinterp_d, &reinterp_h, options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async copy operation failed";
       ASSERT_TRUE(result.fence()) << "The async copy operation failed";
@@ -2055,13 +2083,12 @@ TEST(BufferTest, CopyHostBufferRangeReinterpTest)
   using zivc::uint16b;
   using zivc::uint64b;
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost});
-  auto buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost,
-                                                 zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost});
+  const zivc::SharedBuffer buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
 
   // Allocate memories
   {
@@ -2072,8 +2099,8 @@ TEST(BufferTest, CopyHostBufferRangeReinterpTest)
   }
 
   constexpr std::size_t k = sizeof(uint64b) / sizeof(uint16b);
-  auto reinterp_h = buffer_h->reinterp<uint16b>();
-  auto reinterp_d = buffer_d->reinterp<uint16b>();
+  zivc::ReinterpBuffer reinterp_h = buffer_h->reinterp<uint16b>();
+  zivc::ReinterpBuffer reinterp_d = buffer_d->reinterp<uint16b>();
 
   constexpr std::array<uint16b, 4> v16{{0b0101'0101'0101'0101,
                                         0b0011'0011'0011'0011,
@@ -2093,13 +2120,13 @@ TEST(BufferTest, CopyHostBufferRangeReinterpTest)
   constexpr std::size_t offset = 10;
   // Copy from host to device
   {
-    auto options = reinterp_h.createOptions();
+    zivc::BufferLaunchOptions options = reinterp_h.createOptions();
     options.setLabel("HostToDeviceCopy");
     options.requestFence(true);
     options.setSourceOffset(k * offset);
     options.setDestOffset(k * offset);
     options.setSize(reinterp_h.size() - 2 * k * offset);
-    auto result = zivc::copy(reinterp_h, &reinterp_d, options);
+    const zivc::LaunchResult result = zivc::copy(reinterp_h, &reinterp_d, options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async copy operation failed";
       ASSERT_TRUE(result.fence()) << "The async copy operation failed";
@@ -2112,13 +2139,13 @@ TEST(BufferTest, CopyHostBufferRangeReinterpTest)
   }
   // Copy from device to host
   {
-    auto options = reinterp_d.createOptions();
+    zivc::BufferLaunchOptions options = reinterp_d.createOptions();
     options.setLabel("DeviceToHostCopy");
     options.requestFence(true);
     options.setSourceOffset(k * offset);
     options.setDestOffset(k * offset);
     options.setSize(reinterp_d.size() - 2 * k * offset);
-    auto result = zivc::copy(reinterp_d, &reinterp_h, options);
+    const zivc::LaunchResult result = zivc::copy(reinterp_d, &reinterp_h, options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async copy operation failed";
       ASSERT_TRUE(result.fence()) << "The async copy operation failed";
@@ -2147,13 +2174,12 @@ TEST(BufferTest, FillHostBufferRangeReinterpTest)
   using zivc::uint16b;
   using zivc::uint64b;
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost});
-  auto buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost,
-                                                 zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost});
+  const zivc::SharedBuffer buffer_h = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
 
   // Allocate memories
   {
@@ -2164,8 +2190,8 @@ TEST(BufferTest, FillHostBufferRangeReinterpTest)
   }
 
   constexpr std::size_t k = sizeof(uint64b) / sizeof(uint16b);
-  auto reinterp_h = buffer_h->reinterp<uint16b>();
-  auto reinterp_d = buffer_d->reinterp<uint16b>();
+  zivc::ReinterpBuffer reinterp_h = buffer_h->reinterp<uint16b>();
+  zivc::ReinterpBuffer reinterp_d = buffer_d->reinterp<uint16b>();
 
   constexpr uint16b v16 = 0b0101'0101'0101'0101;
   constexpr uint64b v64 = (zisc::cast<uint64b>(v16) << 0) |
@@ -2176,11 +2202,11 @@ TEST(BufferTest, FillHostBufferRangeReinterpTest)
   constexpr std::size_t offset = 10;
   // Fill buffer test
   {
-    auto options = reinterp_d.createOptions();
+    zivc::BufferLaunchOptions options = reinterp_d.createOptions();
     options.setLabel("FillBuffer");
     options.requestFence(true);
     {
-      auto result = reinterp_d.fill(0, options);
+      const zivc::LaunchResult result = reinterp_d.fill(0, options);
       if (result.isAsync()) {
         ASSERT_TRUE(result.hasFence()) << "The async fill operation failed";
         ASSERT_TRUE(result.fence()) << "The async fill operation failed";
@@ -2190,7 +2216,7 @@ TEST(BufferTest, FillHostBufferRangeReinterpTest)
     options.setDestOffset(k * offset);
     options.setSize(reinterp_d.size() - 2 * k * offset);
     {
-      auto result = reinterp_d.fill(v16, options);
+      const zivc::LaunchResult result = reinterp_d.fill(v16, options);
       if (result.isAsync()) {
         ASSERT_TRUE(result.hasFence()) << "The async fill operation failed";
         ASSERT_TRUE(result.fence()) << "The async fill operation failed";
@@ -2200,10 +2226,10 @@ TEST(BufferTest, FillHostBufferRangeReinterpTest)
   }
   // Copy from device to host
   {
-    auto options = reinterp_d.createOptions();
+    zivc::BufferLaunchOptions options = reinterp_d.createOptions();
     options.setLabel("DeviceToHostCopy");
     options.requestFence(true);
-    auto result = zivc::copy(reinterp_d, &reinterp_h, options);
+    const zivc::LaunchResult result = zivc::copy(reinterp_d, &reinterp_h, options);
     if (result.isAsync()) {
       ASSERT_TRUE(result.hasFence()) << "The async copy operation failed";
       ASSERT_TRUE(result.fence()) << "The async copy operation failed";
@@ -2231,17 +2257,17 @@ TEST(BufferTest, ResizeBufferReinterpTest)
   using zivc::uint16b;
   using zivc::uint64b;
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_d = device->createBuffer<uint64b>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_d = device->createBuffer<uint64b>(zivc::BufferUsage::kPreferDevice);
   {
     constexpr std::size_t k = sizeof(uint64b) / sizeof(uint16b);
     constexpr std::size_t n = 100;
     constexpr std::size_t s = sizeof(uint16b) * n;
 
-    auto reinterp_d = buffer_d->reinterp<uint16b>();
+    zivc::ReinterpBuffer reinterp_d = buffer_d->reinterp<uint16b>();
     reinterp_d.setSize(n);
     ASSERT_EQ(reinterp_d.size(), n) << "Reinterp adapter is wrong.";
     ASSERT_EQ(reinterp_d.sizeInBytes(), s) << "Reinterp adapter is wrong.";
@@ -2254,7 +2280,7 @@ TEST(BufferTest, ResizeBufferReinterpTest)
     constexpr std::size_t n = 200;
     constexpr std::size_t s = sizeof(uint16b) * n;
 
-    auto reinterp_d = buffer_d->reinterp<uint16b>();
+    zivc::ReinterpBuffer reinterp_d = buffer_d->reinterp<uint16b>();
     reinterp_d.setSize(n);
     ASSERT_EQ(reinterp_d.size(), n) << "Reinterp adapter is wrong.";
     ASSERT_EQ(reinterp_d.sizeInBytes(), s) << "Reinterp adapter is wrong.";

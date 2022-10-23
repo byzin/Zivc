@@ -29,22 +29,22 @@ namespace {
 
 std::unique_ptr<CLI::App> makeCommandLineParser(ztest::CliOption* options) noexcept
 {
-  auto parser = std::make_unique<CLI::App>("Zivc unit test.");
+  std::unique_ptr parser = std::make_unique<CLI::App>("Zivc unit test.");
   parser->allow_extras();
 
   // Context option
   {
     const char* desc = "Use each test's zivc context instead of global context.";
-    [[maybe_unused]] auto* option = parser->add_flag("--disable-global-context", options->disable_global_context_, desc);
+    [[maybe_unused]] CLI::Option* option = parser->add_flag("--disable-global-context", options->disable_global_context_, desc);
   }
   // Device option
   {
     const char* desc = "Specify the device which is used in the unit test.\n"
                        "possible values: 'cpu', 'vulkan', 'vulkan0' ... 'vulkan15'.";
-    auto* option = parser->add_option("--device", options->device_name_, desc);
-    auto validator = [](const std::string& device_name) noexcept
+    CLI::Option* option = parser->add_option("--device", options->device_name_, desc);
+    const auto validator = [](const std::string& device_name) noexcept
     {
-      const auto id = ztest::getDeviceId(device_name);
+      const zivc::uint32b id = ztest::getDeviceId(device_name);
       std::string result;
       if (id == ztest::Config::invalidDeviceId())
         result = "Invalid value '" + device_name + "'.";
@@ -55,7 +55,7 @@ std::unique_ptr<CLI::App> makeCommandLineParser(ztest::CliOption* options) noexc
   // Debug option
   {
     const char* desc = "Disable debug mode.";
-    [[maybe_unused]] auto* option = parser->add_flag("--nodebug", options->is_nodebug_, desc);
+    [[maybe_unused]] CLI::Option* option = parser->add_flag("--nodebug", options->is_nodebug_, desc);
   }
 
   return parser;
@@ -63,7 +63,7 @@ std::unique_ptr<CLI::App> makeCommandLineParser(ztest::CliOption* options) noexc
 
 void processCommandLineArgs(const ztest::CliOption& options) noexcept
 {
-  auto& config = ztest::Config::globalConfig();
+  ztest::Config& config = ztest::Config::globalConfig();
   config.setDeviceId(ztest::getDeviceId(options.device_name_));
   config.enableDebugMode(!options.is_nodebug_);
   config.enableGlobalContext(!options.disable_global_context_);
@@ -110,7 +110,7 @@ int main(int argc, char** argv)
   const int result = RUN_ALL_TESTS();
   // Destroy resources
   {
-    auto& config = ztest::Config::globalConfig();
+    ztest::Config& config = ztest::Config::globalConfig();
     config.destroyContext();
   }
   return result;

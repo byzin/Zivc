@@ -302,17 +302,26 @@ template <KernelArg T> inline
 void VulkanBuffer<T>::setSize(const std::size_t s)
 {
   const std::size_t prev_cap = Buffer<T>::capacity();
+  //! \todo Should we reduce capacity when the given size is less than the capacity?
   if (prev_cap < s) {
-    Buffer<T>::clear();
     const std::size_t mem_size = sizeof(Type) * s;
+    VkBuffer buffer = ZIVC_VK_NULL_HANDLE;
+    VmaAllocation vm_allocation = ZIVC_VK_NULL_HANDLE;
+    VmaAllocationInfo vm_alloc_info{};
     const VulkanBufferImpl impl{std::addressof(parentImpl())};
     impl.allocateMemory(mem_size,
                         *this,
                         descriptorTypeVk(),
                         std::addressof(Buffer<T>::id()),
-                        std::addressof(buffer()),
-                        std::addressof(allocation()),
-                        std::addressof(rawBuffer().vm_alloc_info_));
+                        std::addressof(buffer),
+                        std::addressof(vm_allocation),
+                        std::addressof(vm_alloc_info));
+
+    // Clear current data after the new memory allocation succeeded
+    // for strong exception guarantee
+    Buffer<T>::clear();
+    setAllocationData(buffer, vm_allocation, vm_alloc_info);
+
     if (!isInternal()) {
       initCommandBuffer();
       initFillKernel();
@@ -820,6 +829,24 @@ template <KernelArg T> inline
 auto VulkanBuffer<T>::rawBuffer() const noexcept -> const BufferData&
 {
   return buffer_data_;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] buffer No description.
+  \param [in] vm_allocation No description.
+  \param [in] vm_alloc_info No description.
+  */
+template <KernelArg T> inline
+void VulkanBuffer<T>::setAllocationData(const VkBuffer buffer,
+                                        const VmaAllocation vm_allocation,
+                                        const VmaAllocationInfo vm_alloc_info) noexcept
+{
+  BufferData& data = rawBuffer();
+  data.buffer_ = buffer;
+  data.vm_allocation_ = vm_allocation;
+  data.vm_alloc_info_ = vm_alloc_info;
 }
 
 } // namespace zivc

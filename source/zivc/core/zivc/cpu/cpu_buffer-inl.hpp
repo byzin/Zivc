@@ -19,8 +19,10 @@
 // Standard C++ library
 #include <algorithm>
 #include <cstddef>
+#include <exception>
 #include <memory>
 #include <span>
+#include <string>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -192,13 +194,23 @@ const void* CpuBuffer<T>::rawBufferData() const noexcept
 template <KernelArg T> inline
 void CpuBuffer<T>::setSize(const std::size_t s)
 {
-  //! \todo Throw exception when this method is called from reinterp buffer
   const std::size_t prev_size = Buffer<T>::size();
   if (s != prev_size) {
     prepareBuffer();
     zisc::pmr::vector<Type>& buff = rawBuffer();
     const std::size_t prev_cap = buff.capacity();
-    buff.resize(s);
+
+    // Allocate new memory
+    try {
+      buff.resize(s);
+    }
+    catch (const std::exception& error) {
+      std::string message = "Buffer memory allocation failed. size: " +
+                            std::to_string(s) + " bytes.";
+      message = createErrorMessage(*this, message);
+      throw SystemError{ErrorCode::kBufferMemoryAllocationFailed, message};
+    }
+
     const std::size_t cap = buff.capacity();
     if (cap != prev_cap) {
       CpuDevice& device = parentImpl();

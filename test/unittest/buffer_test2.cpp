@@ -36,7 +36,7 @@
 
 TEST(BufferTest, SharedBufferTest)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
@@ -74,13 +74,12 @@ TEST(BufferTest, FillBufferInt8Test)
   using TestData = uint8b;
   static_assert(sizeof(TestData) == 1);
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_d = device->createBuffer<TestData>({zivc::BufferUsage::kPreferDevice});
-  auto buffer_h = device->createBuffer<TestData>({zivc::BufferUsage::kPreferHost,
-                                                  zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_d = device->createBuffer<TestData>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buffer_h = device->createBuffer<TestData>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
 
   // Allocate memories
   {
@@ -93,10 +92,10 @@ TEST(BufferTest, FillBufferInt8Test)
   const TestData v = 0b01010101;
   // Fill buffer test
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("Fill8Buffer");
     options.requestFence(true);
-    auto result = buffer_d->fill(v, options);
+    const zivc::LaunchResult result = buffer_d->fill(v, options);
     device->waitForCompletion(result.fence());
   }
   {
@@ -105,10 +104,10 @@ TEST(BufferTest, FillBufferInt8Test)
   }
   // Copy from device to host
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("DeviceToHostCopy");
     options.requestFence(true);
-    auto result = zivc::copy(*buffer_d, buffer_h.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer_d, buffer_h.get(), options);
     device->waitForCompletion(result.fence());
   }
   {
@@ -125,13 +124,12 @@ TEST(BufferTest, FillBufferInt16Test)
   using TestData = uint16b;
   static_assert(sizeof(TestData) == 2);
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_d = device->createBuffer<TestData>({zivc::BufferUsage::kPreferDevice});
-  auto buffer_h = device->createBuffer<TestData>({zivc::BufferUsage::kPreferHost,
-                                                  zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_d = device->createBuffer<TestData>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buffer_h = device->createBuffer<TestData>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
 
   // Allocate memories
   {
@@ -144,10 +142,10 @@ TEST(BufferTest, FillBufferInt16Test)
   const TestData v = 0b01010101'01010101;
   // Fill buffer test
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("Fill16Buffer");
     options.requestFence(true);
-    auto result = buffer_d->fill(v, options);
+    const zivc::LaunchResult result = buffer_d->fill(v, options);
     device->waitForCompletion(result.fence());
   }
   {
@@ -156,10 +154,10 @@ TEST(BufferTest, FillBufferInt16Test)
   }
   // Copy from device to host
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("DeviceToHostCopy");
     options.requestFence(true);
-    auto result = zivc::copy(*buffer_d, buffer_h.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer_d, buffer_h.get(), options);
     device->waitForCompletion(result.fence());
   }
   {
@@ -176,13 +174,12 @@ TEST(BufferTest, FillBufferInt24Test)
   using TestData = std::array<uint8b, 3>;
   static_assert(sizeof(TestData) == 3);
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_d = device->createBuffer<TestData>({zivc::BufferUsage::kPreferDevice});
-  auto buffer_h = device->createBuffer<TestData>({zivc::BufferUsage::kPreferHost,
-                                                  zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_d = device->createBuffer<TestData>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buffer_h = device->createBuffer<TestData>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
 
   // Allocate memories
   {
@@ -195,10 +192,10 @@ TEST(BufferTest, FillBufferInt24Test)
   const TestData v{{0b01010101, 0b10101010, 0b11110000}};
   // Fill buffer test
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("Fill24Buffer");
     options.requestFence(true);
-    auto result = buffer_d->fill(v, options);
+    const zivc::LaunchResult result = buffer_d->fill(v, options);
     device->waitForCompletion(result.fence());
   }
   {
@@ -207,10 +204,10 @@ TEST(BufferTest, FillBufferInt24Test)
   }
   // Copy from device to host
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("DeviceToHostCopy");
     options.requestFence(true);
-    auto result = zivc::copy(*buffer_d, buffer_h.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer_d, buffer_h.get(), options);
     device->waitForCompletion(result.fence());
   }
   {
@@ -227,13 +224,12 @@ TEST(BufferTest, FillBufferInt24RangeTest)
   using TestData = std::array<uint8b, 3>;
   static_assert(sizeof(TestData) == 3);
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_d = device->createBuffer<TestData>({zivc::BufferUsage::kPreferDevice});
-  auto buffer_h = device->createBuffer<TestData>({zivc::BufferUsage::kPreferHost,
-                                                  zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_d = device->createBuffer<TestData>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buffer_h = device->createBuffer<TestData>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
 
   // Allocate memories
   {
@@ -248,26 +244,26 @@ TEST(BufferTest, FillBufferInt24RangeTest)
   constexpr std::size_t offset = 10;
   // Fill buffer test
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("Fill24Buffer");
     options.requestFence(true);
     {
-      auto result = buffer_d->fill(v0, options);
+      const zivc::LaunchResult result = buffer_d->fill(v0, options);
       device->waitForCompletion(result.fence());
     }
     options.setDestOffset(offset);
     options.setSize(buffer_d->size() - 2 * offset);
     {
-      auto result = buffer_d->fill(v, options);
+      const zivc::LaunchResult result = buffer_d->fill(v, options);
       device->waitForCompletion(result.fence());
     }
   }
   // Copy from device to host
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("DeviceToHostCopy");
     options.requestFence(true);
-    auto result = zivc::copy(*buffer_d, buffer_h.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer_d, buffer_h.get(), options);
     device->waitForCompletion(result.fence());
   }
   {
@@ -291,13 +287,12 @@ TEST(BufferTest, FillBufferInt48Test)
   using TestData = std::array<uint16b, 3>;
   static_assert(sizeof(TestData) == 6);
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_d = device->createBuffer<TestData>({zivc::BufferUsage::kPreferDevice});
-  auto buffer_h = device->createBuffer<TestData>({zivc::BufferUsage::kPreferHost,
-                                                  zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_d = device->createBuffer<TestData>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buffer_h = device->createBuffer<TestData>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
 
   // Allocate memories
   {
@@ -310,10 +305,10 @@ TEST(BufferTest, FillBufferInt48Test)
   const TestData v{{0b01010101'01010101, 0b10101010'10101010, 0b11110000'11110000}};
   // Fill buffer test
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("Fill48Buffer");
     options.requestFence(true);
-    auto result = buffer_d->fill(v, options);
+    const zivc::LaunchResult result = buffer_d->fill(v, options);
     device->waitForCompletion(result.fence());
   }
   {
@@ -322,10 +317,10 @@ TEST(BufferTest, FillBufferInt48Test)
   }
   // Copy from device to host
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("DeviceToHostCopy");
     options.requestFence(true);
-    auto result = zivc::copy(*buffer_d, buffer_h.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer_d, buffer_h.get(), options);
     device->waitForCompletion(result.fence());
   }
   {
@@ -342,13 +337,12 @@ TEST(BufferTest, FillBufferInt48RangeTest)
   using TestData = std::array<uint16b, 3>;
   static_assert(sizeof(TestData) == 6);
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_d = device->createBuffer<TestData>({zivc::BufferUsage::kPreferDevice});
-  auto buffer_h = device->createBuffer<TestData>({zivc::BufferUsage::kPreferHost,
-                                                  zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_d = device->createBuffer<TestData>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buffer_h = device->createBuffer<TestData>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
 
   // Allocate memories
   {
@@ -363,26 +357,26 @@ TEST(BufferTest, FillBufferInt48RangeTest)
   constexpr std::size_t offset = 10;
   // Fill buffer test
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("Fill48Buffer");
     options.requestFence(true);
     {
-      auto result = buffer_d->fill(v0, options);
+      const zivc::LaunchResult result = buffer_d->fill(v0, options);
       device->waitForCompletion(result.fence());
     }
     options.setDestOffset(offset);
     options.setSize(buffer_d->size() - 2 * offset);
     {
-      auto result = buffer_d->fill(v, options);
+      const zivc::LaunchResult result = buffer_d->fill(v, options);
       device->waitForCompletion(result.fence());
     }
   }
   // Copy from device to host
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("DeviceToHostCopy");
     options.requestFence(true);
-    auto result = zivc::copy(*buffer_d, buffer_h.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer_d, buffer_h.get(), options);
     device->waitForCompletion(result.fence());
   }
   {
@@ -406,13 +400,12 @@ TEST(BufferTest, FillBufferInt64Test)
   using zivc::cl_int2;
   static_assert(sizeof(cl_int2) == 8);
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_d = device->createBuffer<cl_int2>({zivc::BufferUsage::kPreferDevice});
-  auto buffer_h = device->createBuffer<cl_int2>({zivc::BufferUsage::kPreferHost,
-                                                  zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_d = device->createBuffer<cl_int2>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buffer_h = device->createBuffer<cl_int2>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
 
   // Allocate memories
   {
@@ -425,10 +418,10 @@ TEST(BufferTest, FillBufferInt64Test)
   const cl_int2 v{0b01010101'01010101, 0b10101010'10101010};
   // Fill buffer test
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("Fill64Buffer");
     options.requestFence(true);
-    auto result = buffer_d->fill(v, options);
+    const zivc::LaunchResult result = buffer_d->fill(v, options);
     device->waitForCompletion(result.fence());
   }
   {
@@ -437,10 +430,10 @@ TEST(BufferTest, FillBufferInt64Test)
   }
   // Copy from device to host
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("DeviceToHostCopy");
     options.requestFence(true);
-    auto result = zivc::copy(*buffer_d, buffer_h.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer_d, buffer_h.get(), options);
     device->waitForCompletion(result.fence());
   }
   {
@@ -457,13 +450,12 @@ TEST(BufferTest, FillBufferInt96Test)
   using TestData = std::array<int32b, 3>;
   static_assert(sizeof(TestData) == 12);
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_d = device->createBuffer<TestData>({zivc::BufferUsage::kPreferDevice});
-  auto buffer_h = device->createBuffer<TestData>({zivc::BufferUsage::kPreferHost,
-                                                  zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_d = device->createBuffer<TestData>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buffer_h = device->createBuffer<TestData>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
 
   // Allocate memories
   {
@@ -476,10 +468,10 @@ TEST(BufferTest, FillBufferInt96Test)
   const TestData v{{0b01010101'01010101, 0b10101010'10101010, 0b11110000'11110000}};
   // Fill buffer test
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("Fill96Buffer");
     options.requestFence(true);
-    auto result = buffer_d->fill(v, options);
+    const zivc::LaunchResult result = buffer_d->fill(v, options);
     device->waitForCompletion(result.fence());
   }
   {
@@ -488,10 +480,10 @@ TEST(BufferTest, FillBufferInt96Test)
   }
   // Copy from device to host
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("DeviceToHostCopy");
     options.requestFence(true);
-    auto result = zivc::copy(*buffer_d, buffer_h.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer_d, buffer_h.get(), options);
     device->waitForCompletion(result.fence());
   }
   {
@@ -508,13 +500,12 @@ TEST(BufferTest, FillBufferInt96RangeTest)
   using TestData = std::array<int32b, 3>;
   static_assert(sizeof(TestData) == 12);
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_d = device->createBuffer<TestData>({zivc::BufferUsage::kPreferDevice});
-  auto buffer_h = device->createBuffer<TestData>({zivc::BufferUsage::kPreferHost,
-                                                  zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_d = device->createBuffer<TestData>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buffer_h = device->createBuffer<TestData>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
 
   // Allocate memories
   {
@@ -529,26 +520,26 @@ TEST(BufferTest, FillBufferInt96RangeTest)
   constexpr std::size_t offset = 10;
   // Fill buffer test
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("Fill96Buffer");
     options.requestFence(true);
     {
-      auto result = buffer_d->fill(v0, options);
+      const zivc::LaunchResult result = buffer_d->fill(v0, options);
       device->waitForCompletion(result.fence());
     }
     options.setDestOffset(offset);
     options.setSize(buffer_d->size() - 2 * offset);
     {
-      auto result = buffer_d->fill(v, options);
+      const zivc::LaunchResult result = buffer_d->fill(v, options);
       device->waitForCompletion(result.fence());
     }
   }
   // Copy from device to host
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("DeviceToHostCopy");
     options.requestFence(true);
-    auto result = zivc::copy(*buffer_d, buffer_h.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer_d, buffer_h.get(), options);
     device->waitForCompletion(result.fence());
   }
   {
@@ -572,13 +563,12 @@ TEST(BufferTest, FillBufferInt128Test)
   using zivc::cl_int4;
   static_assert(sizeof(cl_int4) == 16);
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_d = device->createBuffer<cl_int4>({zivc::BufferUsage::kPreferDevice});
-  auto buffer_h = device->createBuffer<cl_int4>({zivc::BufferUsage::kPreferHost,
-                                                  zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_d = device->createBuffer<cl_int4>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buffer_h = device->createBuffer<cl_int4>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
 
   // Allocate memories
   {
@@ -592,10 +582,10 @@ TEST(BufferTest, FillBufferInt128Test)
                   0b11110000'11110000, 0b11111111'00000000};
   // Fill buffer test
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("Fill128Buffer");
     options.requestFence(true);
-    auto result = buffer_d->fill(v, options);
+    const zivc::LaunchResult result = buffer_d->fill(v, options);
     device->waitForCompletion(result.fence());
   }
   {
@@ -604,10 +594,10 @@ TEST(BufferTest, FillBufferInt128Test)
   }
   // Copy from device to host
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("DeviceToHostCopy");
     options.requestFence(true);
-    auto result = zivc::copy(*buffer_d, buffer_h.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer_d, buffer_h.get(), options);
     device->waitForCompletion(result.fence());
   }
   {
@@ -624,13 +614,12 @@ TEST(BufferTest, FillBufferInt192Test)
   using TestData = std::array<int32b, 6>;
   static_assert(sizeof(TestData) == 24);
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_d = device->createBuffer<TestData>({zivc::BufferUsage::kPreferDevice});
-  auto buffer_h = device->createBuffer<TestData>({zivc::BufferUsage::kPreferHost,
-                                                  zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_d = device->createBuffer<TestData>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buffer_h = device->createBuffer<TestData>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
 
   // Allocate memories
   {
@@ -645,10 +634,10 @@ TEST(BufferTest, FillBufferInt192Test)
      0b11'01010101'01010101, 0b11'10101010'10101010, 0b11'11110000'11110000}};
   // Fill buffer test
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("Fill192Buffer");
     options.requestFence(true);
-    auto result = buffer_d->fill(v, options);
+    const zivc::LaunchResult result = buffer_d->fill(v, options);
     device->waitForCompletion(result.fence());
   }
   {
@@ -657,10 +646,10 @@ TEST(BufferTest, FillBufferInt192Test)
   }
   // Copy from device to host
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("DeviceToHostCopy");
     options.requestFence(true);
-    auto result = zivc::copy(*buffer_d, buffer_h.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer_d, buffer_h.get(), options);
     device->waitForCompletion(result.fence());
   }
   {
@@ -677,13 +666,12 @@ TEST(BufferTest, FillBufferInt192RangeTest)
   using TestData = std::array<int32b, 6>;
   static_assert(sizeof(TestData) == 24);
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_d = device->createBuffer<TestData>({zivc::BufferUsage::kPreferDevice});
-  auto buffer_h = device->createBuffer<TestData>({zivc::BufferUsage::kPreferHost,
-                                                  zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_d = device->createBuffer<TestData>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buffer_h = device->createBuffer<TestData>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
 
   // Allocate memories
   {
@@ -700,26 +688,26 @@ TEST(BufferTest, FillBufferInt192RangeTest)
   constexpr std::size_t offset = 10;
   // Fill buffer test
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("Fill192Buffer");
     options.requestFence(true);
     {
-      auto result = buffer_d->fill(v0, options);
+      const zivc::LaunchResult result = buffer_d->fill(v0, options);
       device->waitForCompletion(result.fence());
     }
     options.setDestOffset(offset);
     options.setSize(buffer_d->size() - 2 * offset);
     {
-      auto result = buffer_d->fill(v, options);
+      const zivc::LaunchResult result = buffer_d->fill(v, options);
       device->waitForCompletion(result.fence());
     }
   }
   // Copy from device to host
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("DeviceToHostCopy");
     options.requestFence(true);
-    auto result = zivc::copy(*buffer_d, buffer_h.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer_d, buffer_h.get(), options);
     device->waitForCompletion(result.fence());
   }
   {
@@ -743,13 +731,12 @@ TEST(BufferTest, FillBufferInt384Test)
   using TestData = std::array<int32b, 12>;
   static_assert(sizeof(TestData) == 48);
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_d = device->createBuffer<TestData>({zivc::BufferUsage::kPreferDevice});
-  auto buffer_h = device->createBuffer<TestData>({zivc::BufferUsage::kPreferHost,
-                                                  zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_d = device->createBuffer<TestData>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buffer_h = device->createBuffer<TestData>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
 
   // Allocate memories
   {
@@ -766,10 +753,10 @@ TEST(BufferTest, FillBufferInt384Test)
        0b01'01010101'01010101, 0b01'10101010'10101010, 0b01'11110000'11110000}};
   // Fill buffer test
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("Fill384Buffer");
     options.requestFence(true);
-    auto result = buffer_d->fill(v, options);
+    const zivc::LaunchResult result = buffer_d->fill(v, options);
     device->waitForCompletion(result.fence());
   }
   {
@@ -778,10 +765,10 @@ TEST(BufferTest, FillBufferInt384Test)
   }
   // Copy from device to host
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("DeviceToHostCopy");
     options.requestFence(true);
-    auto result = zivc::copy(*buffer_d, buffer_h.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer_d, buffer_h.get(), options);
     device->waitForCompletion(result.fence());
   }
   {
@@ -798,13 +785,12 @@ TEST(BufferTest, FillBufferInt384RangeTest)
   using TestData = std::array<int32b, 12>;
   static_assert(sizeof(TestData) == 48);
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
-  auto buffer_d = device->createBuffer<TestData>({zivc::BufferUsage::kPreferDevice});
-  auto buffer_h = device->createBuffer<TestData>({zivc::BufferUsage::kPreferHost,
-                                                  zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_d = device->createBuffer<TestData>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buffer_h = device->createBuffer<TestData>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
 
   // Allocate memories
   {
@@ -823,26 +809,26 @@ TEST(BufferTest, FillBufferInt384RangeTest)
   constexpr std::size_t offset = 10;
   // Fill buffer test
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("Fill384Buffer");
     options.requestFence(true);
     {
-      auto result = buffer_d->fill(v0, options);
+      const zivc::LaunchResult result = buffer_d->fill(v0, options);
       device->waitForCompletion(result.fence());
     }
     options.setDestOffset(offset);
     options.setSize(buffer_d->size() - 2 * offset);
     {
-      auto result = buffer_d->fill(v, options);
+      const zivc::LaunchResult result = buffer_d->fill(v, options);
       device->waitForCompletion(result.fence());
     }
   }
   // Copy from device to host
   {
-    auto options = buffer_d->createOptions();
+    zivc::BufferLaunchOptions options = buffer_d->createOptions();
     options.setLabel("DeviceToHostCopy");
     options.requestFence(true);
-    auto result = zivc::copy(*buffer_d, buffer_h.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buffer_d, buffer_h.get(), options);
     device->waitForCompletion(result.fence());
   }
   {

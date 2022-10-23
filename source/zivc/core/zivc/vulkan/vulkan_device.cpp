@@ -654,8 +654,8 @@ void VulkanDevice::takeFence(Fence* fence)
     throw SystemError{ErrorCode::kAvailableFenceNotFound, message};
   }
 
-  auto* memory = std::addressof(fence->data());
-  auto* dest = ::new (zisc::cast<void*>(memory)) vk::Fence{};
+  void* memory = std::addressof(fence->data());
+  auto* dest = ::new (memory) vk::Fence{};
   {
     const vk::Device d{device()};
     const std::size_t fence_index = *index_result;

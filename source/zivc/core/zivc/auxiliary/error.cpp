@@ -51,6 +51,7 @@ std::string getErrorCodeString(const ErrorCode code) noexcept
     ERROR_CODE_STRING_CASE(InitializationFailed, code_str)
     ERROR_CODE_STRING_CASE(InvalidInstruction, code_str)
     ERROR_CODE_STRING_CASE(AvailableFenceNotFound, code_str)
+    ERROR_CODE_STRING_CASE(BufferMemoryAllocationFailed, code_str)
     ERROR_CODE_STRING_CASE(NumOfParametersLimitExceeded, code_str)
     ERROR_CODE_STRING_CASE(VulkanInitializationFailed, code_str)
     ERROR_CODE_STRING_CASE(VulkanLibraryNotFound, code_str)

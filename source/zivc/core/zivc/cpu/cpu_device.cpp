@@ -176,8 +176,8 @@ void CpuDevice::submit(const CommandT& command,
   */
 void CpuDevice::takeFence(Fence* fence)
 {
-  auto* memory = std::addressof(fence->data());
-  [[maybe_unused]] auto* f = ::new (zisc::cast<void*>(memory)) ::CpuFence{};
+  void* memory = std::addressof(fence->data());
+  [[maybe_unused]] auto* f = ::new (memory) ::CpuFence{};
 }
 
 /*!
@@ -207,7 +207,7 @@ void CpuDevice::waitForCompletion([[maybe_unused]] const uint32b queue_index) co
 void CpuDevice::waitForCompletion(const Fence& fence) const
 {
   if (fence) {
-    const auto* memory = std::addressof(fence.data());
+    const void* memory = std::addressof(fence.data());
     const auto& f = *zisc::reinterp<const ::CpuFence*>(memory);
     f.wait();
     const_cast<Fence*>(std::addressof(fence))->clear();

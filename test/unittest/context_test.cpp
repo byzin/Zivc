@@ -18,6 +18,7 @@
 #include <iostream>
 #include <limits>
 #include <memory>
+#include <span>
 #include <string_view>
 // Zisc
 #include "zisc/utility.hpp"
@@ -53,10 +54,10 @@ ZIVC_CHECK_TYPE_SIZE(zivc::uint64b, 8);
 
 TEST(ContextTest, InitializationTest)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   ASSERT_TRUE(context) << "Context isn't available.";
   // Check if context has backend
-  const auto& config = ztest::Config::globalConfig();
+  const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::BackendType type = (config.deviceId() == 0) ? zivc::BackendType::kCpu
                                                           : zivc::BackendType::kVulkan;
   ASSERT_TRUE(context->hasBackend(type)) << "Context initialization failed.";
@@ -73,9 +74,9 @@ TEST(ContextTest, InitializationTest)
 
 TEST(ContextTest, DeviceInfoTest)
 {
-  const auto& config = ztest::Config::globalConfig();
-  auto context = ztest::createContext();
-  const auto* const info = context->deviceInfoList()[config.deviceId()];
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedContext context = ztest::createContext();
+  const zivc::DeviceInfo* const info = context->deviceInfoList()[config.deviceId()];
   // Device name
   {
     const std::string_view name = info->name();
@@ -101,12 +102,12 @@ TEST(ContextTest, DeviceInfoTest)
   };
 
   // Heap
-  const auto& heap_info_list = info->heapInfoList();
+  const std::span heap_info_list = info->heapInfoList();
   EXPECT_GT(heap_info_list.size(), 0) << "Heap size is zero.";
   std::cout << "## Num of heaps: " << heap_info_list.size() << std::endl;
   // Memory
   for (std::size_t i = 0; i < heap_info_list.size(); ++i) {
-    const auto& heap_info = heap_info_list[i];
+    const zivc::MemoryHeapInfo& heap_info = heap_info_list[i];
     std::cout << "    Heap[" << i << "]:          device local: "
               << heap_info.isDeviceLocal() << std::endl;
     EXPECT_GT(heap_info.totalSize(), 0)
@@ -153,18 +154,18 @@ TEST(ContextTest, DeviceInfoTest)
 
 TEST(ContextTest, CreateDeviceExceptionTest)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   constexpr std::size_t device_index = (std::numeric_limits<std::size_t>::max)();
   ASSERT_THROW(auto d = context->queryDevice(device_index), zivc::SystemError)
       << "The bounds check of device index isn't performed.";
-  const auto& info_list = context->deviceInfoList();
+  const std::span info_list = context->deviceInfoList();
   ASSERT_THROW(auto d = context->queryDevice(info_list.size()), zivc::SystemError)
       << "The bounds check of device index isn't performed.";
 }
 
 TEST(ContextTest, CreateDeviceTest)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
 
   const zivc::SharedDevice device1 = context->queryDevice(config.deviceId());

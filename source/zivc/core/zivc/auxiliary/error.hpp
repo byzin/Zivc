@@ -49,6 +49,7 @@ enum class ErrorCode : int
   kInitializationFailed,
   kInvalidInstruction,
   kAvailableFenceNotFound,
+  kBufferMemoryAllocationFailed,
   kNumOfParametersLimitExceeded,
   kVulkanInitializationFailed,
   kVulkanLibraryNotFound,

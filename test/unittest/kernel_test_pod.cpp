@@ -41,18 +41,17 @@ template <typename Type>
 testing::AssertionResult testVectorBuffer(zivc::Device& device,
                                           const zivc::Buffer<Type>& buffer)
 {
-  auto buff_host = device.createBuffer<Type>({zivc::BufferUsage::kPreferHost,
-                                              zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buff_host = device.createBuffer<Type>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
   buff_host->setSize(buffer.size());
   {
-    auto options = buffer.createOptions();
+    zivc::BufferLaunchOptions options = buffer.createOptions();
     options.requestFence(true);
-    auto result = zivc::copy(buffer, buff_host.get(), options);
+    const zivc::LaunchResult result = zivc::copy(buffer, buff_host.get(), options);
     device.waitForCompletion(result.fence());
   }
   {
-    auto mem = buff_host->mapMemory();
-    auto ptr = std::addressof(mem[0][0]);
+    const zivc::MappedMemory mem = buff_host->mapMemory();
+    auto* ptr = std::addressof(mem[0][0]);
     using ScalarT = std::remove_cvref_t<decltype(ptr[0])>;
     auto expected = static_cast<ScalarT>(1);
     const std::size_t n =  mem.size() * mem[0].size();
@@ -70,56 +69,55 @@ testing::AssertionResult testVectorBuffer(zivc::Device& device,
 
 TEST(KernelTest, Pod1Test)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
-  [[maybe_unused]] const auto& info = device->deviceInfo();
+  [[maybe_unused]] const zivc::DeviceInfo& info = device->deviceInfo();
 
   using zivc::int32b;
   using zivc::uint32b;
 
   // Allocate buffers
-  auto buff_device = device->createBuffer<uint32b>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buff_device = device->createBuffer<uint32b>(zivc::BufferUsage::kPreferDevice);
   buff_device->setSize(1);
-  auto buff_host = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost,
-                                                  zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buff_host = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
   buff_host->setSize(1);
 
   // Make a kernel
-  auto kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test_pod, pod1Kernel, 1);
-  auto kernel = device->createKernel(kernel_params);
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test_pod, pod1Kernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel->argSize()) << "Wrong kernel property.";
 
   constexpr uint32b expected = 0b01010101'10101010'11110000'00001111u;
   // Launch the kernel
   {
-    auto launch_options = kernel->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel->createOptions();
     launch_options.setWorkSize({{1}});
     launch_options.requestFence(false);
     launch_options.setLabel("Pod1Kernel");
-    auto result = kernel->run(*buff_device, expected, launch_options);
+    const zivc::LaunchResult result = kernel->run(*buff_device, expected, launch_options);
     device->waitForCompletion();
   }
 
   // Check the outputs
   {
-    auto options = buff_device->createOptions();
+    zivc::BufferLaunchOptions options = buff_device->createOptions();
     options.requestFence(true);
-    auto result = zivc::copy(*buff_device, buff_host.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buff_device, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
-    const auto mem = buff_host->mapMemory();
+    const zivc::MappedMemory mem = buff_host->mapMemory();
     EXPECT_EQ(expected, mem[0]) << "Copying POD value failed.";
   }
 }
 
 TEST(KernelTest, Pod2Test)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
-  [[maybe_unused]] const auto& info = device->deviceInfo();
+  [[maybe_unused]] const zivc::DeviceInfo& info = device->deviceInfo();
 
   const std::size_t n = config.testKernelWorkSize1d();
 
@@ -127,51 +125,50 @@ TEST(KernelTest, Pod2Test)
   using zivc::uint32b;
 
   // Allocate buffers
-  auto buff_device1 = device->createBuffer<int32b>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buff_device1 = device->createBuffer<int32b>(zivc::BufferUsage::kPreferDevice);
   buff_device1->setSize(n);
-  auto buff_device2 = device->createBuffer<int32b>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buff_device2 = device->createBuffer<int32b>(zivc::BufferUsage::kPreferDevice);
   buff_device2->setSize(n);
-  auto buff_host = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost,
-                                                 zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buff_host = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
   buff_host->setSize(n);
 
   // Init buffers
   {
     {
-      auto mem = buff_host->mapMemory();
+      zivc::MappedMemory mem = buff_host->mapMemory();
       std::iota(mem.begin(), mem.end(), 0);
     }
-    auto options = buff_device1->createOptions();
+    zivc::BufferLaunchOptions options = buff_device1->createOptions();
     options.requestFence(true);
-    auto result = zivc::copy(*buff_host, buff_device1.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buff_host, buff_device1.get(), options);
     device->waitForCompletion(result.fence());
   }
 
   // Make a kernel
-  auto kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test_pod, pod2Kernel, 1);
-  auto kernel = device->createKernel(kernel_params);
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test_pod, pod2Kernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(3, kernel->argSize()) << "Wrong kernel property.";
 
   // Launch the kernel
   {
     const uint32b res = zisc::cast<uint32b>(n);
-    auto launch_options = kernel->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel->createOptions();
     launch_options.setWorkSize({{res}});
     launch_options.requestFence(false);
     launch_options.setLabel("Pod2Kernel");
-    auto result = kernel->run(*buff_device1, *buff_device2, res, launch_options);
+    const zivc::LaunchResult result = kernel->run(*buff_device1, *buff_device2, res, launch_options);
     device->waitForCompletion();
   }
 
   // Check the outputs
   {
-    auto options = buff_device2->createOptions();
+    zivc::BufferLaunchOptions options = buff_device2->createOptions();
     options.requestFence(true);
-    auto result = zivc::copy(*buff_device2, buff_host.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buff_device2, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
-    const auto mem = buff_host->mapMemory();
+    const zivc::MappedMemory mem = buff_host->mapMemory();
     {
       const int32b expected = zisc::cast<int32b>(n);
       EXPECT_EQ(expected, mem[0]) << "Copying POD value failed.";
@@ -186,25 +183,25 @@ TEST(KernelTest, Pod2Test)
 
 TEST(KernelTest, Pod3Test)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
-  [[maybe_unused]] const auto& info = device->deviceInfo();
+  [[maybe_unused]] const zivc::DeviceInfo& info = device->deviceInfo();
 
   using zivc::int32b;
   using zivc::uint32b;
 
   // Allocate buffers
-  auto buff_device_i = device->createBuffer<int32b>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buff_device_i = device->createBuffer<int32b>(zivc::BufferUsage::kPreferDevice);
   buff_device_i->setSize(3);
-  auto buff_device_u = device->createBuffer<uint32b>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buff_device_u = device->createBuffer<uint32b>(zivc::BufferUsage::kPreferDevice);
   buff_device_u->setSize(3);
-  auto buff_device_f = device->createBuffer<float>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buff_device_f = device->createBuffer<float>(zivc::BufferUsage::kPreferDevice);
   buff_device_f->setSize(3);
 
   // Make a kernel
-  auto kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test_pod, pod3Kernel, 1);
-  auto kernel = device->createKernel(kernel_params);
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test_pod, pod3Kernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(12, kernel->argSize()) << "Wrong kernel property.";
 
@@ -220,11 +217,11 @@ TEST(KernelTest, Pod3Test)
 
   // Launch the kernel
   {
-    auto launch_options = kernel->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel->createOptions();
     launch_options.setWorkSize({{1}});
     launch_options.requestFence(false);
     launch_options.setLabel("Pod3Kernel");
-    auto result = kernel->run(
+    const zivc::LaunchResult result = kernel->run(
         i0, u0, f0,
         i1, u1, f1,
         i2, u2, f2,
@@ -234,17 +231,16 @@ TEST(KernelTest, Pod3Test)
 
   // Check the outputs
   {
-    auto buff_host = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost,
-                                                   zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buff_host = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     buff_host->setSize(3);
 
-    auto options = buff_device_i->createOptions();
+    zivc::BufferLaunchOptions options = buff_device_i->createOptions();
     options.requestFence(true);
-    auto result = zivc::copy(*buff_device_i, buff_host.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buff_device_i, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
     {
-      const auto mem = buff_host->mapMemory();
+      const zivc::MappedMemory mem = buff_host->mapMemory();
       EXPECT_EQ(i0, mem[0]) << "POD copying failed.";
       EXPECT_EQ(i1, mem[1]) << "POD copying failed.";
       EXPECT_EQ(i2, mem[2]) << "POD copying failed.";
@@ -252,17 +248,16 @@ TEST(KernelTest, Pod3Test)
   }
 
   {
-    auto buff_host = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost,
-                                                    zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buff_host = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     buff_host->setSize(3);
 
-    auto options = buff_device_u->createOptions();
+    zivc::BufferLaunchOptions options = buff_device_u->createOptions();
     options.requestFence(true);
-    auto result = zivc::copy(*buff_device_u, buff_host.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buff_device_u, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
     {
-      const auto mem = buff_host->mapMemory();
+      const zivc::MappedMemory mem = buff_host->mapMemory();
       EXPECT_EQ(u0, mem[0]) << "POD copying failed.";
       EXPECT_EQ(u1, mem[1]) << "POD copying failed.";
       EXPECT_EQ(u2, mem[2]) << "POD copying failed.";
@@ -270,17 +265,16 @@ TEST(KernelTest, Pod3Test)
   }
 
   {
-    auto buff_host = device->createBuffer<float>({zivc::BufferUsage::kPreferHost,
-                                                  zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buff_host = device->createBuffer<float>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     buff_host->setSize(3);
 
-    auto options = buff_device_f->createOptions();
+    zivc::BufferLaunchOptions options = buff_device_f->createOptions();
     options.requestFence(true);
-    auto result = zivc::copy(*buff_device_f, buff_host.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buff_device_f, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
     {
-      const auto mem = buff_host->mapMemory();
+      const zivc::MappedMemory mem = buff_host->mapMemory();
       EXPECT_EQ(f0, mem[0]) << "POD copying failed.";
       EXPECT_EQ(f1, mem[1]) << "POD copying failed.";
       EXPECT_EQ(f2, mem[2]) << "POD copying failed.";
@@ -290,10 +284,10 @@ TEST(KernelTest, Pod3Test)
 
 TEST(KernelTest, PodSizeAlignmentTest)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
-  [[maybe_unused]] const auto& info = device->deviceInfo();
+  [[maybe_unused]] const zivc::DeviceInfo& info = device->deviceInfo();
 
   using zivc::int8b;
   using zivc::int16b;
@@ -303,17 +297,17 @@ TEST(KernelTest, PodSizeAlignmentTest)
   using zivc::uint32b;
 
   // Allocate buffers
-  auto buff_device1 = device->createBuffer<int32b>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buff_device1 = device->createBuffer<int32b>(zivc::BufferUsage::kPreferDevice);
   buff_device1->setSize(15);
   {
-    auto options = buff_device1->createOptions();
-    [[maybe_unused]] auto result = buff_device1->fill(0, options);
+    const zivc::BufferLaunchOptions options = buff_device1->createOptions();
+    [[maybe_unused]] const zivc::LaunchResult result = buff_device1->fill(0, options);
     device->waitForCompletion();
   }
 
   // Make a kernel
-  auto kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test_pod, podSizeAlignmentKernel, 1);
-  auto kernel = device->createKernel(kernel_params);
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test_pod, podSizeAlignmentKernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(16, kernel->argSize()) << "Wrong kernel property.";
 
@@ -335,11 +329,11 @@ TEST(KernelTest, PodSizeAlignmentTest)
 
   // Launch the kernel
   {
-    auto launch_options = kernel->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel->createOptions();
     launch_options.setWorkSize({{1}});
     launch_options.requestFence(false);
     launch_options.setLabel("PodSizeAlignmentKernel");
-    auto result = kernel->run(*buff_device1, i16, i8_1, i8_2,
+    const zivc::LaunchResult result = kernel->run(*buff_device1, i16, i8_1, i8_2,
                               u32, u8_1, u8_2, u8_3, u8_4,
                               u32_2, i16_2, i8_3, i8_4, i8_5, i8_6, i16_3,
                               launch_options);
@@ -348,14 +342,13 @@ TEST(KernelTest, PodSizeAlignmentTest)
 
   // Check the outputs
   {
-    auto buff_host = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost,
-                                                   zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buff_host = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     buff_host->setSize(buff_device1->size());
-    auto options = buff_device1->createOptions();
-    [[maybe_unused]] auto result = zivc::copy(*buff_device1, buff_host.get(), options);
+    const zivc::BufferLaunchOptions options = buff_device1->createOptions();
+    [[maybe_unused]] const zivc::LaunchResult result = zivc::copy(*buff_device1, buff_host.get(), options);
     device->waitForCompletion();
     {
-      const auto mem = buff_host->mapMemory();
+      const zivc::MappedMemory mem = buff_host->mapMemory();
       for (std::size_t i = 0; i < mem.size(); ++i) {
         const int32b expected = zisc::cast<int32b>(i + 1);
         ASSERT_EQ(expected, mem[i]) << "POD value isn't processed properly.";
@@ -366,10 +359,10 @@ TEST(KernelTest, PodSizeAlignmentTest)
 
 TEST(KernelTest, PodSizeAlignment2Test)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
-  [[maybe_unused]] const auto& info = device->deviceInfo();
+  [[maybe_unused]] const zivc::DeviceInfo& info = device->deviceInfo();
 
   using zivc::int8b;
   using zivc::int16b;
@@ -382,32 +375,32 @@ TEST(KernelTest, PodSizeAlignment2Test)
   auto init_buffer = [](zivc::Device& d, auto& buffer, const auto value)
   {
     using Type = std::add_const_t<decltype(value)>;
-    auto buff_host = d.createBuffer<Type>({zivc::BufferUsage::kPreferHost,
+    const zivc::SharedBuffer buff_host = d.createBuffer<Type>({zivc::BufferUsage::kPreferHost,
                                            zivc::BufferFlag::kRandomAccessible});
     buff_host->setSize(buffer.size());
     {
-      auto mem = buff_host->mapMemory();
+      zivc::MappedMemory mem = buff_host->mapMemory();
       std::fill(mem.begin(), mem.end(), value);
     }
-    auto options = buff_host->createOptions();
-    [[maybe_unused]] auto result = zivc::copy(*buff_host, std::addressof(buffer), options);
+    const zivc::BufferLaunchOptions options = buff_host->createOptions();
+    [[maybe_unused]] const zivc::LaunchResult result = zivc::copy(*buff_host, std::addressof(buffer), options);
     d.waitForCompletion();
   };
 
   // Allocate buffers
-  auto buff_device1 = device->createBuffer<uint8b>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buff_device1 = device->createBuffer<uint8b>(zivc::BufferUsage::kPreferDevice);
   buff_device1->setSize(2);
-  auto buff_device2 = device->createBuffer<float>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buff_device2 = device->createBuffer<float>(zivc::BufferUsage::kPreferDevice);
   buff_device2->setSize(2);
-  auto buff_device3 = device->createBuffer<int8b>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buff_device3 = device->createBuffer<int8b>(zivc::BufferUsage::kPreferDevice);
   buff_device3->setSize(2);
-  auto buff_device4 = device->createBuffer<int16b>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buff_device4 = device->createBuffer<int16b>(zivc::BufferUsage::kPreferDevice);
   buff_device4->setSize(2);
-  auto buff_device5 = device->createBuffer<uint16b>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buff_device5 = device->createBuffer<uint16b>(zivc::BufferUsage::kPreferDevice);
   buff_device5->setSize(2);
-  auto buff_device6 = device->createBuffer<int32b>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buff_device6 = device->createBuffer<int32b>(zivc::BufferUsage::kPreferDevice);
   buff_device6->setSize(2);
-  auto buff_device7 = device->createBuffer<PodTest>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buff_device7 = device->createBuffer<PodTest>(zivc::BufferUsage::kPreferDevice);
   buff_device7->setSize(2);
 
   init_buffer(*device, *buff_device1, zisc::cast<uint8b>(0));
@@ -419,8 +412,8 @@ TEST(KernelTest, PodSizeAlignment2Test)
   init_buffer(*device, *buff_device7, PodTest{});
 
   // Make a kernel
-  auto kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test_pod, podSizeAlignment2Kernel, 1);
-  auto kernel = device->createKernel(kernel_params);
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test_pod, podSizeAlignment2Kernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(14, kernel->argSize()) << "Wrong kernel property.";
 
@@ -434,11 +427,11 @@ TEST(KernelTest, PodSizeAlignment2Test)
 
   // Launch the kernel
   {
-    auto launch_options = kernel->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel->createOptions();
     launch_options.setWorkSize({{1}});
     launch_options.requestFence(false);
     launch_options.setLabel("PodSizeAlignment2Kernel");
-    auto result = kernel->run(
+    const zivc::LaunchResult result = kernel->run(
         *buff_device1, *buff_device2, *buff_device3, *buff_device4,
         *buff_device5, *buff_device6, *buff_device7,
         u8, f32, i8, i16, u16, i32, test, launch_options);
@@ -447,92 +440,85 @@ TEST(KernelTest, PodSizeAlignment2Test)
 
   // Check the outputs
   {
-    auto buff_host = device->createBuffer<uint8b>({zivc::BufferUsage::kPreferHost,
-                                                   zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buff_host = device->createBuffer<uint8b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     buff_host->setSize(buff_device1->size());
-    auto options = buff_device1->createOptions();
-    [[maybe_unused]] auto result = zivc::copy(*buff_device1, buff_host.get(), options);
+    const zivc::BufferLaunchOptions options = buff_device1->createOptions();
+    [[maybe_unused]] const zivc::LaunchResult result = zivc::copy(*buff_device1, buff_host.get(), options);
     device->waitForCompletion();
     {
-      const auto mem = buff_host->mapMemory();
+      const zivc::MappedMemory mem = buff_host->mapMemory();
       ASSERT_EQ(u8, mem[0]) << "POD value isn't processed properly.";
       ASSERT_EQ(u8, mem[1]) << "POD structure isn't processed properly.";
     }
   }
   {
-    auto buff_host = device->createBuffer<float>({zivc::BufferUsage::kPreferHost,
-                                                  zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buff_host = device->createBuffer<float>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     buff_host->setSize(buff_device2->size());
-    auto options = buff_device2->createOptions();
-    [[maybe_unused]] auto result = zivc::copy(*buff_device2, buff_host.get(), options);
+    const zivc::BufferLaunchOptions options = buff_device2->createOptions();
+    [[maybe_unused]] const zivc::LaunchResult result = zivc::copy(*buff_device2, buff_host.get(), options);
     device->waitForCompletion();
     {
-      const auto mem = buff_host->mapMemory();
+      const zivc::MappedMemory mem = buff_host->mapMemory();
       ASSERT_EQ(f32, mem[0]) << "POD value isn't processed properly.";
       ASSERT_EQ(f32, mem[1]) << "POD structure isn't processed properly.";
     }
   }
   {
-    auto buff_host = device->createBuffer<int8b>({zivc::BufferUsage::kPreferHost,
-                                                  zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buff_host = device->createBuffer<int8b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     buff_host->setSize(buff_device3->size());
-    auto options = buff_device3->createOptions();
-    [[maybe_unused]] auto result = zivc::copy(*buff_device3, buff_host.get(), options);
+    const zivc::BufferLaunchOptions options = buff_device3->createOptions();
+    [[maybe_unused]] const zivc::LaunchResult result = zivc::copy(*buff_device3, buff_host.get(), options);
     device->waitForCompletion();
     {
-      const auto mem = buff_host->mapMemory();
+      const zivc::MappedMemory mem = buff_host->mapMemory();
       ASSERT_EQ(i8, mem[0]) << "POD value isn't processed properly.";
       ASSERT_EQ(i8, mem[1]) << "POD structure isn't processed properly.";
     }
   }
   {
-    auto buff_host = device->createBuffer<int16b>({zivc::BufferUsage::kPreferHost,
-                                                   zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buff_host = device->createBuffer<int16b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     buff_host->setSize(buff_device4->size());
-    auto options = buff_device4->createOptions();
-    [[maybe_unused]] auto result = zivc::copy(*buff_device4, buff_host.get(), options);
+    const zivc::BufferLaunchOptions options = buff_device4->createOptions();
+    [[maybe_unused]] const zivc::LaunchResult result = zivc::copy(*buff_device4, buff_host.get(), options);
     device->waitForCompletion();
     {
-      const auto mem = buff_host->mapMemory();
+      const zivc::MappedMemory mem = buff_host->mapMemory();
       ASSERT_EQ(i16, mem[0]) << "POD value isn't processed properly.";
       ASSERT_EQ(i16, mem[1]) << "POD structure isn't processed properly.";
     }
   }
   {
-    auto buff_host = device->createBuffer<uint16b>({zivc::BufferUsage::kPreferHost,
-                                                    zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buff_host = device->createBuffer<uint16b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     buff_host->setSize(buff_device5->size());
-    auto options = buff_device5->createOptions();
-    [[maybe_unused]] auto result = zivc::copy(*buff_device5, buff_host.get(), options);
+    const zivc::BufferLaunchOptions options = buff_device5->createOptions();
+    [[maybe_unused]] const zivc::LaunchResult result = zivc::copy(*buff_device5, buff_host.get(), options);
     device->waitForCompletion();
     {
-      const auto mem = buff_host->mapMemory();
+      const zivc::MappedMemory mem = buff_host->mapMemory();
       ASSERT_EQ(u16, mem[0]) << "POD value isn't processed properly.";
       ASSERT_EQ(u16, mem[1]) << "POD structure isn't processed properly.";
     }
   }
   {
-    auto buff_host = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost,
-                                                   zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buff_host = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     buff_host->setSize(buff_device6->size());
-    auto options = buff_device6->createOptions();
-    [[maybe_unused]] auto result = zivc::copy(*buff_device6, buff_host.get(), options);
+    const zivc::BufferLaunchOptions options = buff_device6->createOptions();
+    [[maybe_unused]] const zivc::LaunchResult result = zivc::copy(*buff_device6, buff_host.get(), options);
     device->waitForCompletion();
     {
-      const auto mem = buff_host->mapMemory();
+      const zivc::MappedMemory mem = buff_host->mapMemory();
       ASSERT_EQ(i32, mem[0]) << "POD value isn't processed properly.";
       ASSERT_EQ(i32, mem[1]) << "POD structure isn't processed properly.";
     }
   }
   {
-    auto buff_host = device->createBuffer<PodTest>({zivc::BufferUsage::kPreferHost,
-                                                    zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buff_host = device->createBuffer<PodTest>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     buff_host->setSize(buff_device7->size());
-    auto options = buff_device7->createOptions();
-    [[maybe_unused]] auto result = zivc::copy(*buff_device7, buff_host.get(), options);
+    const zivc::BufferLaunchOptions options = buff_device7->createOptions();
+    [[maybe_unused]] const zivc::LaunchResult result = zivc::copy(*buff_device7, buff_host.get(), options);
     device->waitForCompletion();
     {
-      const auto mem = buff_host->mapMemory();
+      const zivc::MappedMemory mem = buff_host->mapMemory();
       ASSERT_EQ(u8, mem[0].u8_) << "POD value isn't processed properly.";
       ASSERT_EQ(u8, mem[1].u8_) << "POD structure isn't processed properly.";
       ASSERT_EQ(f32, mem[0].f_) << "POD value isn't processed properly.";
@@ -551,10 +537,10 @@ TEST(KernelTest, PodSizeAlignment2Test)
 
 TEST(KernelTest, PodMultipleValuesTest)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
-  [[maybe_unused]] const auto& info = device->deviceInfo();
+  [[maybe_unused]] const zivc::DeviceInfo& info = device->deviceInfo();
 
   using zivc::int8b;
   using zivc::int16b;
@@ -567,32 +553,31 @@ TEST(KernelTest, PodMultipleValuesTest)
   auto init_buffer = [](zivc::Device& d, auto& buffer, const auto value)
   {
     using Type = std::add_const_t<decltype(value)>;
-    auto buff_host = d.createBuffer<Type>({zivc::BufferUsage::kPreferHost,
-                                           zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buff_host = d.createBuffer<Type>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     buff_host->setSize(buffer.size());
     {
-      auto mem = buff_host->mapMemory();
+      zivc::MappedMemory mem = buff_host->mapMemory();
       std::fill(mem.begin(), mem.end(), value);
     }
-    auto options = buff_host->createOptions();
-    [[maybe_unused]] auto result = zivc::copy(*buff_host, std::addressof(buffer), options);
+    const zivc::BufferLaunchOptions options = buff_host->createOptions();
+    [[maybe_unused]] const zivc::LaunchResult result = zivc::copy(*buff_host, std::addressof(buffer), options);
     d.waitForCompletion();
   };
 
   // Allocate buffers
-  auto buff_device1 = device->createBuffer<uint8b>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buff_device1 = device->createBuffer<uint8b>(zivc::BufferUsage::kPreferDevice);
   buff_device1->setSize(2);
-  auto buff_device2 = device->createBuffer<float>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buff_device2 = device->createBuffer<float>(zivc::BufferUsage::kPreferDevice);
   buff_device2->setSize(2);
-  auto buff_device3 = device->createBuffer<int8b>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buff_device3 = device->createBuffer<int8b>(zivc::BufferUsage::kPreferDevice);
   buff_device3->setSize(2);
-  auto buff_device4 = device->createBuffer<int16b>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buff_device4 = device->createBuffer<int16b>(zivc::BufferUsage::kPreferDevice);
   buff_device4->setSize(2);
-  auto buff_device5 = device->createBuffer<uint16b>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buff_device5 = device->createBuffer<uint16b>(zivc::BufferUsage::kPreferDevice);
   buff_device5->setSize(2);
-  auto buff_device6 = device->createBuffer<int32b>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buff_device6 = device->createBuffer<int32b>(zivc::BufferUsage::kPreferDevice);
   buff_device6->setSize(2);
-  auto buff_device7 = device->createBuffer<PodTest>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buff_device7 = device->createBuffer<PodTest>(zivc::BufferUsage::kPreferDevice);
   buff_device7->setSize(2);
 
   init_buffer(*device, *buff_device1, zisc::cast<uint8b>(0));
@@ -604,8 +589,8 @@ TEST(KernelTest, PodMultipleValuesTest)
   init_buffer(*device, *buff_device7, PodTest{});
 
   // Make a kernel
-  auto kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test_pod, podSizeAlignment2Kernel, 1);
-  auto kernel = device->createKernel(kernel_params);
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test_pod, podSizeAlignment2Kernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(14, kernel->argSize()) << "Wrong kernel property.";
 
@@ -621,11 +606,11 @@ TEST(KernelTest, PodMultipleValuesTest)
 
     // Launch the kernel
     {
-      auto launch_options = kernel->createOptions();
+      zivc::KernelLaunchOptions launch_options = kernel->createOptions();
       launch_options.setWorkSize({{1}});
       launch_options.requestFence(false);
       launch_options.setLabel("PodSizeAlignment2Kernel");
-      auto result = kernel->run(
+      const zivc::LaunchResult result = kernel->run(
           *buff_device1, *buff_device2, *buff_device3, *buff_device4,
           *buff_device5, *buff_device6, *buff_device7,
           u8, f32, i8, i16, u16, i32, test, launch_options);
@@ -634,92 +619,85 @@ TEST(KernelTest, PodMultipleValuesTest)
 
     // Check the outputs
     {
-      auto buff_host = device->createBuffer<uint8b>({zivc::BufferUsage::kPreferHost,
-                                                     zivc::BufferFlag::kRandomAccessible});
+      const zivc::SharedBuffer buff_host = device->createBuffer<uint8b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
       buff_host->setSize(buff_device1->size());
-      auto options = buff_device1->createOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device1, buff_host.get(), options);
+      const zivc::BufferLaunchOptions options = buff_device1->createOptions();
+      [[maybe_unused]] const zivc::LaunchResult result = zivc::copy(*buff_device1, buff_host.get(), options);
       device->waitForCompletion();
       {
-        const auto mem = buff_host->mapMemory();
+        const zivc::MappedMemory mem = buff_host->mapMemory();
         ASSERT_EQ(u8, mem[0]) << "POD value isn't processed properly.";
         ASSERT_EQ(u8, mem[1]) << "POD structure isn't processed properly.";
       }
     }
     {
-      auto buff_host = device->createBuffer<float>({zivc::BufferUsage::kPreferHost,
-                                                    zivc::BufferFlag::kRandomAccessible});
+      const zivc::SharedBuffer buff_host = device->createBuffer<float>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
       buff_host->setSize(buff_device2->size());
-      auto options = buff_device2->createOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device2, buff_host.get(), options);
+      const zivc::BufferLaunchOptions options = buff_device2->createOptions();
+      [[maybe_unused]] const zivc::LaunchResult result = zivc::copy(*buff_device2, buff_host.get(), options);
       device->waitForCompletion();
       {
-        const auto mem = buff_host->mapMemory();
+        const zivc::MappedMemory mem = buff_host->mapMemory();
         ASSERT_EQ(f32, mem[0]) << "POD value isn't processed properly.";
         ASSERT_EQ(f32, mem[1]) << "POD structure isn't processed properly.";
       }
     }
     {
-      auto buff_host = device->createBuffer<int8b>({zivc::BufferUsage::kPreferHost,
-                                                    zivc::BufferFlag::kRandomAccessible});
+      const zivc::SharedBuffer buff_host = device->createBuffer<int8b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
       buff_host->setSize(buff_device3->size());
-      auto options = buff_device3->createOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device3, buff_host.get(), options);
+      const zivc::BufferLaunchOptions options = buff_device3->createOptions();
+      [[maybe_unused]] const zivc::LaunchResult result = zivc::copy(*buff_device3, buff_host.get(), options);
       device->waitForCompletion();
       {
-        const auto mem = buff_host->mapMemory();
+        const zivc::MappedMemory mem = buff_host->mapMemory();
         ASSERT_EQ(i8, mem[0]) << "POD value isn't processed properly.";
         ASSERT_EQ(i8, mem[1]) << "POD structure isn't processed properly.";
       }
     }
     {
-      auto buff_host = device->createBuffer<int16b>({zivc::BufferUsage::kPreferHost,
-                                                     zivc::BufferFlag::kRandomAccessible});
+      const zivc::SharedBuffer buff_host = device->createBuffer<int16b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
       buff_host->setSize(buff_device4->size());
-      auto options = buff_device4->createOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device4, buff_host.get(), options);
+      const zivc::BufferLaunchOptions options = buff_device4->createOptions();
+      [[maybe_unused]] const zivc::LaunchResult result = zivc::copy(*buff_device4, buff_host.get(), options);
       device->waitForCompletion();
       {
-        const auto mem = buff_host->mapMemory();
+        const zivc::MappedMemory mem = buff_host->mapMemory();
         ASSERT_EQ(i16, mem[0]) << "POD value isn't processed properly.";
         ASSERT_EQ(i16, mem[1]) << "POD structure isn't processed properly.";
       }
     }
     {
-      auto buff_host = device->createBuffer<uint16b>({zivc::BufferUsage::kPreferHost,
-                                                      zivc::BufferFlag::kRandomAccessible});
+      const zivc::SharedBuffer buff_host = device->createBuffer<uint16b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
       buff_host->setSize(buff_device5->size());
-      auto options = buff_device5->createOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device5, buff_host.get(), options);
+      const zivc::BufferLaunchOptions options = buff_device5->createOptions();
+      [[maybe_unused]] const zivc::LaunchResult result = zivc::copy(*buff_device5, buff_host.get(), options);
       device->waitForCompletion();
       {
-        const auto mem = buff_host->mapMemory();
+        const zivc::MappedMemory mem = buff_host->mapMemory();
         ASSERT_EQ(u16, mem[0]) << "POD value isn't processed properly.";
         ASSERT_EQ(u16, mem[1]) << "POD structure isn't processed properly.";
       }
     }
     {
-      auto buff_host = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost,
-                                                     zivc::BufferFlag::kRandomAccessible});
+      const zivc::SharedBuffer buff_host = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
       buff_host->setSize(buff_device6->size());
-      auto options = buff_device6->createOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device6, buff_host.get(), options);
+      const zivc::BufferLaunchOptions options = buff_device6->createOptions();
+      [[maybe_unused]] const zivc::LaunchResult result = zivc::copy(*buff_device6, buff_host.get(), options);
       device->waitForCompletion();
       {
-        const auto mem = buff_host->mapMemory();
+        const zivc::MappedMemory mem = buff_host->mapMemory();
         ASSERT_EQ(i32, mem[0]) << "POD value isn't processed properly.";
         ASSERT_EQ(i32, mem[1]) << "POD structure isn't processed properly.";
       }
     }
     {
-      auto buff_host = device->createBuffer<PodTest>({zivc::BufferUsage::kPreferHost,
-                                                      zivc::BufferFlag::kRandomAccessible});
+      const zivc::SharedBuffer buff_host = device->createBuffer<PodTest>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
       buff_host->setSize(buff_device7->size());
-      auto options = buff_device7->createOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device7, buff_host.get(), options);
+      const zivc::BufferLaunchOptions options = buff_device7->createOptions();
+      [[maybe_unused]] const zivc::LaunchResult result = zivc::copy(*buff_device7, buff_host.get(), options);
       device->waitForCompletion();
       {
-        const auto mem = buff_host->mapMemory();
+        const zivc::MappedMemory mem = buff_host->mapMemory();
         ASSERT_EQ(u8, mem[0].u8_) << "POD value isn't processed properly.";
         ASSERT_EQ(u8, mem[1].u8_) << "POD structure isn't processed properly.";
         ASSERT_EQ(f32, mem[0].f_) << "POD value isn't processed properly.";
@@ -747,11 +725,11 @@ TEST(KernelTest, PodMultipleValuesTest)
 
     // Launch the kernel
     {
-      auto launch_options = kernel->createOptions();
+      zivc::KernelLaunchOptions launch_options = kernel->createOptions();
       launch_options.setWorkSize({{1}});
       launch_options.requestFence(false);
       launch_options.setLabel("PodSizeAlignmentKernel");
-      auto result = kernel->run(
+      const zivc::LaunchResult result = kernel->run(
           *buff_device1, *buff_device2, *buff_device3, *buff_device4,
           *buff_device5, *buff_device6, *buff_device7,
           u8, f32, i8, i16, u16, i32, test, launch_options);
@@ -760,92 +738,85 @@ TEST(KernelTest, PodMultipleValuesTest)
 
     // Check the outputs
     {
-      auto buff_host = device->createBuffer<uint8b>({zivc::BufferUsage::kPreferHost,
-                                                     zivc::BufferFlag::kRandomAccessible});
+      const zivc::SharedBuffer buff_host = device->createBuffer<uint8b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
       buff_host->setSize(buff_device1->size());
-      auto options = buff_device1->createOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device1, buff_host.get(), options);
+      const zivc::BufferLaunchOptions options = buff_device1->createOptions();
+      [[maybe_unused]] const zivc::LaunchResult result = zivc::copy(*buff_device1, buff_host.get(), options);
       device->waitForCompletion();
       {
-        const auto mem = buff_host->mapMemory();
+        const zivc::MappedMemory mem = buff_host->mapMemory();
         ASSERT_EQ(u8, mem[0]) << "POD value isn't processed properly.";
         ASSERT_EQ(u8, mem[1]) << "POD structure isn't processed properly.";
       }
     }
     {
-      auto buff_host = device->createBuffer<float>({zivc::BufferUsage::kPreferHost,
-                                                    zivc::BufferFlag::kRandomAccessible});
+      const zivc::SharedBuffer buff_host = device->createBuffer<float>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
       buff_host->setSize(buff_device2->size());
-      auto options = buff_device2->createOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device2, buff_host.get(), options);
+      const zivc::BufferLaunchOptions options = buff_device2->createOptions();
+      [[maybe_unused]] const zivc::LaunchResult result = zivc::copy(*buff_device2, buff_host.get(), options);
       device->waitForCompletion();
       {
-        const auto mem = buff_host->mapMemory();
+        const zivc::MappedMemory mem = buff_host->mapMemory();
         ASSERT_EQ(f32, mem[0]) << "POD value isn't processed properly.";
         ASSERT_EQ(f32, mem[1]) << "POD structure isn't processed properly.";
       }
     }
     {
-      auto buff_host = device->createBuffer<int8b>({zivc::BufferUsage::kPreferHost,
-                                                    zivc::BufferFlag::kRandomAccessible});
+      const zivc::SharedBuffer buff_host = device->createBuffer<int8b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
       buff_host->setSize(buff_device3->size());
-      auto options = buff_device3->createOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device3, buff_host.get(), options);
+      const zivc::BufferLaunchOptions options = buff_device3->createOptions();
+      [[maybe_unused]] const zivc::LaunchResult result = zivc::copy(*buff_device3, buff_host.get(), options);
       device->waitForCompletion();
       {
-        const auto mem = buff_host->mapMemory();
+        const zivc::MappedMemory mem = buff_host->mapMemory();
         ASSERT_EQ(i8, mem[0]) << "POD value isn't processed properly.";
         ASSERT_EQ(i8, mem[1]) << "POD structure isn't processed properly.";
       }
     }
     {
-      auto buff_host = device->createBuffer<int16b>({zivc::BufferUsage::kPreferHost,
-                                                     zivc::BufferFlag::kRandomAccessible});
+      const zivc::SharedBuffer buff_host = device->createBuffer<int16b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
       buff_host->setSize(buff_device4->size());
-      auto options = buff_device4->createOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device4, buff_host.get(), options);
+      const zivc::BufferLaunchOptions options = buff_device4->createOptions();
+      [[maybe_unused]] const zivc::LaunchResult result = zivc::copy(*buff_device4, buff_host.get(), options);
       device->waitForCompletion();
       {
-        const auto mem = buff_host->mapMemory();
+        const zivc::MappedMemory mem = buff_host->mapMemory();
         ASSERT_EQ(i16, mem[0]) << "POD value isn't processed properly.";
         ASSERT_EQ(i16, mem[1]) << "POD structure isn't processed properly.";
       }
     }
     {
-      auto buff_host = device->createBuffer<uint16b>({zivc::BufferUsage::kPreferHost,
-                                                      zivc::BufferFlag::kRandomAccessible});
+      const zivc::SharedBuffer buff_host = device->createBuffer<uint16b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
       buff_host->setSize(buff_device5->size());
-      auto options = buff_device5->createOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device5, buff_host.get(), options);
+      const zivc::BufferLaunchOptions options = buff_device5->createOptions();
+      [[maybe_unused]] const zivc::LaunchResult result = zivc::copy(*buff_device5, buff_host.get(), options);
       device->waitForCompletion();
       {
-        const auto mem = buff_host->mapMemory();
+        const zivc::MappedMemory mem = buff_host->mapMemory();
         ASSERT_EQ(u16, mem[0]) << "POD value isn't processed properly.";
         ASSERT_EQ(u16, mem[1]) << "POD structure isn't processed properly.";
       }
     }
     {
-      auto buff_host = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost,
-                                                     zivc::BufferFlag::kRandomAccessible});
+      const zivc::SharedBuffer buff_host = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
       buff_host->setSize(buff_device6->size());
-      auto options = buff_device6->createOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device6, buff_host.get(), options);
+      const zivc::BufferLaunchOptions options = buff_device6->createOptions();
+      [[maybe_unused]] const zivc::LaunchResult result = zivc::copy(*buff_device6, buff_host.get(), options);
       device->waitForCompletion();
       {
-        const auto mem = buff_host->mapMemory();
+        const zivc::MappedMemory mem = buff_host->mapMemory();
         ASSERT_EQ(i32, mem[0]) << "POD value isn't processed properly.";
         ASSERT_EQ(i32, mem[1]) << "POD structure isn't processed properly.";
       }
     }
     {
-      auto buff_host = device->createBuffer<PodTest>({zivc::BufferUsage::kPreferHost,
-                                                      zivc::BufferFlag::kRandomAccessible});
+      const zivc::SharedBuffer buff_host = device->createBuffer<PodTest>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
       buff_host->setSize(buff_device7->size());
-      auto options = buff_device7->createOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device7, buff_host.get(), options);
+      const zivc::BufferLaunchOptions options = buff_device7->createOptions();
+      [[maybe_unused]] const zivc::LaunchResult result = zivc::copy(*buff_device7, buff_host.get(), options);
       device->waitForCompletion();
       {
-        const auto mem = buff_host->mapMemory();
+        const zivc::MappedMemory mem = buff_host->mapMemory();
         ASSERT_EQ(u8, mem[0].u8_) << "POD value isn't processed properly.";
         ASSERT_EQ(u8, mem[1].u8_) << "POD structure isn't processed properly.";
         ASSERT_EQ(f32, mem[0].f_) << "POD value isn't processed properly.";
@@ -873,11 +844,11 @@ TEST(KernelTest, PodMultipleValuesTest)
 
     // Launch the kernel
     {
-      auto launch_options = kernel->createOptions();
+      zivc::KernelLaunchOptions launch_options = kernel->createOptions();
       launch_options.setWorkSize({{1}});
       launch_options.requestFence(false);
       launch_options.setLabel("PodSizeAlignmentKernel");
-      auto result = kernel->run(
+      const zivc::LaunchResult result = kernel->run(
           *buff_device1, *buff_device2, *buff_device3, *buff_device4,
           *buff_device5, *buff_device6, *buff_device7,
           u8, f32, i8, i16, u16, i32, test, launch_options);
@@ -886,92 +857,85 @@ TEST(KernelTest, PodMultipleValuesTest)
 
     // Check the outputs
     {
-      auto buff_host = device->createBuffer<uint8b>({zivc::BufferUsage::kPreferHost,
-                                                     zivc::BufferFlag::kRandomAccessible});
+      const zivc::SharedBuffer buff_host = device->createBuffer<uint8b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
       buff_host->setSize(buff_device1->size());
-      auto options = buff_device1->createOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device1, buff_host.get(), options);
+      const zivc::BufferLaunchOptions options = buff_device1->createOptions();
+      [[maybe_unused]] const zivc::LaunchResult result = zivc::copy(*buff_device1, buff_host.get(), options);
       device->waitForCompletion();
       {
-        const auto mem = buff_host->mapMemory();
+        const zivc::MappedMemory mem = buff_host->mapMemory();
         ASSERT_EQ(u8, mem[0]) << "POD value isn't processed properly.";
         ASSERT_EQ(u8, mem[1]) << "POD structure isn't processed properly.";
       }
     }
     {
-      auto buff_host = device->createBuffer<float>({zivc::BufferUsage::kPreferHost,
-                                                    zivc::BufferFlag::kRandomAccessible});
+      const zivc::SharedBuffer buff_host = device->createBuffer<float>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
       buff_host->setSize(buff_device2->size());
-      auto options = buff_device2->createOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device2, buff_host.get(), options);
+      const zivc::BufferLaunchOptions options = buff_device2->createOptions();
+      [[maybe_unused]] const zivc::LaunchResult result = zivc::copy(*buff_device2, buff_host.get(), options);
       device->waitForCompletion();
       {
-        const auto mem = buff_host->mapMemory();
+        const zivc::MappedMemory mem = buff_host->mapMemory();
         ASSERT_EQ(f32, mem[0]) << "POD value isn't processed properly.";
         ASSERT_EQ(f32, mem[1]) << "POD structure isn't processed properly.";
       }
     }
     {
-      auto buff_host = device->createBuffer<int8b>({zivc::BufferUsage::kPreferHost,
-                                                    zivc::BufferFlag::kRandomAccessible});
+      const zivc::SharedBuffer buff_host = device->createBuffer<int8b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
       buff_host->setSize(buff_device3->size());
-      auto options = buff_device3->createOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device3, buff_host.get(), options);
+      const zivc::BufferLaunchOptions options = buff_device3->createOptions();
+      [[maybe_unused]] const zivc::LaunchResult result = zivc::copy(*buff_device3, buff_host.get(), options);
       device->waitForCompletion();
       {
-        const auto mem = buff_host->mapMemory();
+        const zivc::MappedMemory mem = buff_host->mapMemory();
         ASSERT_EQ(i8, mem[0]) << "POD value isn't processed properly.";
         ASSERT_EQ(i8, mem[1]) << "POD structure isn't processed properly.";
       }
     }
     {
-      auto buff_host = device->createBuffer<int16b>({zivc::BufferUsage::kPreferHost,
-                                                     zivc::BufferFlag::kRandomAccessible});
+      const zivc::SharedBuffer buff_host = device->createBuffer<int16b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
       buff_host->setSize(buff_device4->size());
-      auto options = buff_device4->createOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device4, buff_host.get(), options);
+      const zivc::BufferLaunchOptions options = buff_device4->createOptions();
+      [[maybe_unused]] const zivc::LaunchResult result = zivc::copy(*buff_device4, buff_host.get(), options);
       device->waitForCompletion();
       {
-        const auto mem = buff_host->mapMemory();
+        const zivc::MappedMemory mem = buff_host->mapMemory();
         ASSERT_EQ(i16, mem[0]) << "POD value isn't processed properly.";
         ASSERT_EQ(i16, mem[1]) << "POD structure isn't processed properly.";
       }
     }
     {
-      auto buff_host = device->createBuffer<uint16b>({zivc::BufferUsage::kPreferHost,
-                                                      zivc::BufferFlag::kRandomAccessible});
+      const zivc::SharedBuffer buff_host = device->createBuffer<uint16b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
       buff_host->setSize(buff_device5->size());
-      auto options = buff_device5->createOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device5, buff_host.get(), options);
+      const zivc::BufferLaunchOptions options = buff_device5->createOptions();
+      [[maybe_unused]] const zivc::LaunchResult result = zivc::copy(*buff_device5, buff_host.get(), options);
       device->waitForCompletion();
       {
-        const auto mem = buff_host->mapMemory();
+        const zivc::MappedMemory mem = buff_host->mapMemory();
         ASSERT_EQ(u16, mem[0]) << "POD value isn't processed properly.";
         ASSERT_EQ(u16, mem[1]) << "POD structure isn't processed properly.";
       }
     }
     {
-      auto buff_host = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost,
-                                                     zivc::BufferFlag::kRandomAccessible});
+      const zivc::SharedBuffer buff_host = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
       buff_host->setSize(buff_device6->size());
-      auto options = buff_device6->createOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device6, buff_host.get(), options);
+      const zivc::BufferLaunchOptions options = buff_device6->createOptions();
+      [[maybe_unused]] const zivc::LaunchResult result = zivc::copy(*buff_device6, buff_host.get(), options);
       device->waitForCompletion();
       {
-        const auto mem = buff_host->mapMemory();
+        const zivc::MappedMemory mem = buff_host->mapMemory();
         ASSERT_EQ(i32, mem[0]) << "POD value isn't processed properly.";
         ASSERT_EQ(i32, mem[1]) << "POD structure isn't processed properly.";
       }
     }
     {
-      auto buff_host = device->createBuffer<PodTest>({zivc::BufferUsage::kPreferHost,
-                                                      zivc::BufferFlag::kRandomAccessible});
+      const zivc::SharedBuffer buff_host = device->createBuffer<PodTest>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
       buff_host->setSize(buff_device7->size());
-      auto options = buff_device7->createOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_device7, buff_host.get(), options);
+      const zivc::BufferLaunchOptions options = buff_device7->createOptions();
+      [[maybe_unused]] const zivc::LaunchResult result = zivc::copy(*buff_device7, buff_host.get(), options);
       device->waitForCompletion();
       {
-        const auto mem = buff_host->mapMemory();
+        const zivc::MappedMemory mem = buff_host->mapMemory();
         ASSERT_EQ(u8, mem[0].u8_) << "POD value isn't processed properly.";
         ASSERT_EQ(u8, mem[1].u8_) << "POD structure isn't processed properly.";
         ASSERT_EQ(f32, mem[0].f_) << "POD value isn't processed properly.";
@@ -991,10 +955,10 @@ TEST(KernelTest, PodMultipleValuesTest)
 
 TEST(KernelTest, PodVectorTypeTest)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
-  [[maybe_unused]] const auto& info = device->deviceInfo();
+  [[maybe_unused]] const zivc::DeviceInfo& info = device->deviceInfo();
 
   using zivc::int8b;
   using zivc::int16b;
@@ -1015,38 +979,37 @@ TEST(KernelTest, PodVectorTypeTest)
   auto init_buffer = [](zivc::Device& d, auto& buffer, const auto value)
   {
     using Type = std::add_const_t<decltype(value)>;
-    auto buff_host = d.createBuffer<Type>({zivc::BufferUsage::kPreferHost,
-                                           zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buff_host = d.createBuffer<Type>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     buff_host->setSize(buffer.size());
     {
-      auto mem = buff_host->mapMemory();
+      zivc::MappedMemory mem = buff_host->mapMemory();
       std::fill(mem.begin(), mem.end(), value);
     }
     {
-      auto options = buff_host->createOptions();
-      [[maybe_unused]] auto result = zivc::copy(*buff_host, std::addressof(buffer), options);
+      const zivc::BufferLaunchOptions options = buff_host->createOptions();
+      [[maybe_unused]] const zivc::LaunchResult result = zivc::copy(*buff_host, std::addressof(buffer), options);
       d.waitForCompletion();
     }
   };
 
   // Allocate buffers
-  auto buff_device1 = device->createBuffer<cl_uchar2>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buff_device1 = device->createBuffer<cl_uchar2>(zivc::BufferUsage::kPreferDevice);
   buff_device1->setSize(4);
-  auto buff_device2 = device->createBuffer<cl_uchar4>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buff_device2 = device->createBuffer<cl_uchar4>(zivc::BufferUsage::kPreferDevice);
   buff_device2->setSize(4);
-  auto buff_device3 = device->createBuffer<cl_short2>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buff_device3 = device->createBuffer<cl_short2>(zivc::BufferUsage::kPreferDevice);
   buff_device3->setSize(4);
-  auto buff_device4 = device->createBuffer<cl_short4>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buff_device4 = device->createBuffer<cl_short4>(zivc::BufferUsage::kPreferDevice);
   buff_device4->setSize(4);
-  auto buff_device5 = device->createBuffer<cl_int2>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buff_device5 = device->createBuffer<cl_int2>(zivc::BufferUsage::kPreferDevice);
   buff_device5->setSize(4);
-  auto buff_device6 = device->createBuffer<cl_int4>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buff_device6 = device->createBuffer<cl_int4>(zivc::BufferUsage::kPreferDevice);
   buff_device6->setSize(4);
-  auto buff_device7 = device->createBuffer<cl_float2>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buff_device7 = device->createBuffer<cl_float2>(zivc::BufferUsage::kPreferDevice);
   buff_device7->setSize(4);
-  auto buff_device8 = device->createBuffer<cl_float4>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buff_device8 = device->createBuffer<cl_float4>(zivc::BufferUsage::kPreferDevice);
   buff_device8->setSize(4);
-  auto buff_device9 = device->createBuffer<PodTest>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buff_device9 = device->createBuffer<PodTest>(zivc::BufferUsage::kPreferDevice);
   buff_device9->setSize(2);
 
   init_buffer(*device, *buff_device1, cl_uchar2{0, 0});
@@ -1059,8 +1022,8 @@ TEST(KernelTest, PodVectorTypeTest)
   init_buffer(*device, *buff_device8, cl_float4{0.0f, 0.0f, 0.0f, 0.0f});
 
   // Make a kernel
-  auto kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test_pod, podVectorKernel, 1);
-  auto kernel = device->createKernel(kernel_params);
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test_pod, podVectorKernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(26, kernel->argSize()) << "Wrong kernel property.";
 
@@ -1087,11 +1050,11 @@ TEST(KernelTest, PodVectorTypeTest)
 
   // Launch the kernel
   {
-    auto launch_options = kernel->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel->createOptions();
     launch_options.setWorkSize({{1}});
     launch_options.requestFence(false);
     launch_options.setLabel("PodVectorKernel");
-    auto result = kernel->run(
+    const zivc::LaunchResult result = kernel->run(
         *buff_device1, *buff_device2, *buff_device3, *buff_device4,
         *buff_device5, *buff_device6, *buff_device7, *buff_device8, *buff_device9,
         u8v2_1, u8v2_2, u8v4_1, u8v4_2,
@@ -1112,19 +1075,18 @@ TEST(KernelTest, PodVectorTypeTest)
   ASSERT_TRUE(::testVectorBuffer(*device, *buff_device7));
   ASSERT_TRUE(::testVectorBuffer(*device, *buff_device8));
   {
-    auto buff_host = device->createBuffer<PodTest>({zivc::BufferUsage::kPreferHost,
-                                                    zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buff_host = device->createBuffer<PodTest>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     buff_host->setSize(buff_device9->size());
     {
-      auto options = buff_device9->createOptions();
+      zivc::BufferLaunchOptions options = buff_device9->createOptions();
       options.requestFence(true);
-      auto result = zivc::copy(*buff_device9, buff_host.get(), options);
+      const zivc::LaunchResult result = zivc::copy(*buff_device9, buff_host.get(), options);
       device->waitForCompletion(result.fence());
     }
     {
-      auto mem = buff_host->mapMemory();
+      zivc::MappedMemory mem = buff_host->mapMemory();
 
-      auto test_vec = [](const auto ptr, const std::size_t n) noexcept
+      const auto test_vec = [](const auto ptr, const std::size_t n) noexcept
       {
         using ScalarT = std::remove_cvref_t<decltype(ptr[0])>;
         ScalarT expected = static_cast<ScalarT>(1);

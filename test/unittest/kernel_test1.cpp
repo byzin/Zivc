@@ -36,22 +36,22 @@
 
 TEST(KernelTest, SimpleKernelTest)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   // Allocate buffers
-  auto buffer = device->createBuffer<zivc::int32b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buffer = device->createBuffer<zivc::int32b>({zivc::BufferUsage::kPreferDevice});
   buffer->setSize(1);
 
   // Make a kernel
-  auto kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test1, simpleKernel, 1);
-  auto kernel = device->createKernel(kernel_params);
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test1, simpleKernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(1, kernel->argSize()) << "Wrong kernel property.";
 
   // Launch the kernel
-  auto launch_options = kernel->createOptions();
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
   launch_options.setQueueIndex(0);
   launch_options.setWorkSize({{1}});
   launch_options.requestFence(false);
@@ -61,16 +61,16 @@ TEST(KernelTest, SimpleKernelTest)
   ASSERT_EQ(0, launch_options.queueIndex());
   ASSERT_EQ(1, launch_options.workSize()[0]);
   ASSERT_FALSE(launch_options.isFenceRequested());
-  auto result = kernel->run(*buffer, launch_options);
+  const zivc::LaunchResult result = kernel->run(*buffer, launch_options);
   device->waitForCompletion();
 }
 
 TEST(KernelTest, BasicTypeSizeTest)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
-  [[maybe_unused]] const auto& info = device->deviceInfo();
+  [[maybe_unused]] const zivc::DeviceInfo& info = device->deviceInfo();
 
   const std::size_t n = 96;
 
@@ -78,33 +78,32 @@ TEST(KernelTest, BasicTypeSizeTest)
   using zivc::uint32b;
 
   // Allocate buffers
-  auto buff_d = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buff_d = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
   buff_d->setSize(n);
-  auto buff_h = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost,
-                                               zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buff_h = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
   buff_h->setSize(n);
 
   // Make a kernel
-  auto kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test1, basicTypeSizeKernel, 1);
-  auto kernel = device->createKernel(kernel_params);
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test1, basicTypeSizeKernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(1, kernel->argSize()) << "Wrong kernel property.";
 
   // Launch the kernel
   {
-    auto launch_options = kernel->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel->createOptions();
     launch_options.setWorkSize({{1}});
     launch_options.requestFence(false);
     launch_options.setLabel("BasicTypeSizeKernel");
-    auto result = kernel->run(*buff_d, launch_options);
+    const zivc::LaunchResult result = kernel->run(*buff_d, launch_options);
     device->waitForCompletion();
   }
 
   // Check the outputs
   {
-    auto options = buff_d->createOptions();
+    zivc::BufferLaunchOptions options = buff_d->createOptions();
     options.requestFence(true);
-    auto result = zivc::copy(*buff_d, buff_h.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buff_d, buff_h.get(), options);
     device->waitForCompletion(result.fence());
 
     const zivc::MappedMemory<uint32b> mem = buff_h->mapMemory();
@@ -270,42 +269,41 @@ TEST(KernelTest, BasicTypeSizeTest)
 
 TEST(KernelTest, ClassSize1Test)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
-  [[maybe_unused]] const auto& info = device->deviceInfo();
+  [[maybe_unused]] const zivc::DeviceInfo& info = device->deviceInfo();
 
   using zivc::int32b;
   using zivc::uint32b;
 
   // Allocate buffers
-  auto buff_d = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buff_d = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
   buff_d->setSize(2);
-  auto buff_h = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost,
-                                               zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buff_h = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
   buff_h->setSize(2);
 
   // Make a kernel
-  auto kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test1, classSize1Kernel, 1);
-  auto kernel = device->createKernel(kernel_params);
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test1, classSize1Kernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(1, kernel->argSize()) << "Wrong kernel property.";
 
   // Launch the kernel
   {
-    auto launch_options = kernel->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel->createOptions();
     launch_options.setWorkSize({{1}});
     launch_options.requestFence(false);
     launch_options.setLabel("ClassSize1Kernel");
-    auto result = kernel->run(*buff_d, launch_options);
+    const zivc::LaunchResult result = kernel->run(*buff_d, launch_options);
     device->waitForCompletion();
   }
 
   // Check the outputs
   {
-    auto options = buff_d->createOptions();
+    zivc::BufferLaunchOptions options = buff_d->createOptions();
     options.requestFence(true);
-    auto result = zivc::copy(*buff_d, buff_h.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buff_d, buff_h.get(), options);
     device->waitForCompletion(result.fence());
 
     const zivc::MappedMemory<uint32b> mem = buff_h->mapMemory();
@@ -319,10 +317,10 @@ TEST(KernelTest, ClassSize1Test)
 
 TEST(KernelTest, InputOutput1Test)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
-  const auto& info = device->deviceInfo();
+  const zivc::DeviceInfo& info = device->deviceInfo();
 
   const std::size_t n = config.testKernelWorkSize1d();
 
@@ -330,12 +328,11 @@ TEST(KernelTest, InputOutput1Test)
   using zivc::uint32b;
 
   // Allocate buffers
-  auto buff_d = device->createBuffer<int32b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buff_d = device->createBuffer<int32b>({zivc::BufferUsage::kPreferDevice});
   buff_d->setSize(n + info.workGroupSize());
-  auto buff_d2 = device->createBuffer<int32b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buff_d2 = device->createBuffer<int32b>({zivc::BufferUsage::kPreferDevice});
   buff_d2->setSize(n + info.workGroupSize());
-  auto buff_h = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost,
-                                              zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buff_h = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
   buff_h->setSize(n);
 
   // Init buffers
@@ -344,35 +341,35 @@ TEST(KernelTest, InputOutput1Test)
       zivc::MappedMemory<int32b> mem = buff_h->mapMemory();
       std::iota(mem.begin(), mem.end(), 0);
     }
-    auto options = buff_d->createOptions();
+    zivc::BufferLaunchOptions options = buff_d->createOptions();
     options.setSize(n);
     options.requestFence(true);
-    auto result = zivc::copy(*buff_h, buff_d.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buff_h, buff_d.get(), options);
     device->waitForCompletion(result.fence());
   }
 
   // Make a kernel
-  auto kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test1, inputOutput1Kernel, 1);
-  auto kernel = device->createKernel(kernel_params);
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test1, inputOutput1Kernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel->argSize()) << "Wrong kernel property.";
 
   // Launch the kernel
   {
-    auto launch_options = kernel->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel->createOptions();
     launch_options.setWorkSize({{zisc::cast<uint32b>(n)}});
     launch_options.requestFence(false);
     launch_options.setLabel("InputOutput1Kernel");
-    auto result = kernel->run(*buff_d, *buff_d2, launch_options);
+    const zivc::LaunchResult result = kernel->run(*buff_d, *buff_d2, launch_options);
     device->waitForCompletion();
   }
 
   // Check the outputs
   {
-    auto options = buff_d2->createOptions();
+    zivc::BufferLaunchOptions options = buff_d2->createOptions();
     options.setSize(n);
     options.requestFence(true);
-    auto result = zivc::copy(*buff_d2, buff_h.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buff_d2, buff_h.get(), options);
     device->waitForCompletion(result.fence());
 
     const zivc::MappedMemory<int32b> mem = buff_h->mapMemory();
@@ -386,10 +383,10 @@ TEST(KernelTest, InputOutput1Test)
 
 TEST(KernelTest, InputOutputHost1Test)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
-  const auto& info = device->deviceInfo();
+  const zivc::DeviceInfo& info = device->deviceInfo();
 
   const std::size_t n = config.testKernelWorkSize1d();
 
@@ -397,12 +394,11 @@ TEST(KernelTest, InputOutputHost1Test)
   using zivc::uint32b;
 
   // Allocate buffers
-  auto buff_input = device->createBuffer<int32b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buff_input = device->createBuffer<int32b>({zivc::BufferUsage::kPreferDevice});
   buff_input->setSize(n + info.workGroupSize());
-  auto buff_output = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost});
+  const zivc::SharedBuffer buff_output = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost});
   buff_output->setSize(n + info.workGroupSize());
-  auto buff_host = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost,
-                                                 zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buff_host = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
   buff_host->setSize(n);
 
   // Init buffers
@@ -411,35 +407,35 @@ TEST(KernelTest, InputOutputHost1Test)
       zivc::MappedMemory<int32b> mem = buff_host->mapMemory();
       std::iota(mem.begin(), mem.end(), 0);
     }
-    auto options = buff_input->createOptions();
+    zivc::BufferLaunchOptions options = buff_input->createOptions();
     options.setSize(n);
     options.requestFence(true);
-    auto result = zivc::copy(*buff_host, buff_input.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buff_host, buff_input.get(), options);
     device->waitForCompletion(result.fence());
   }
 
   // Make a kernel
-  auto kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test1, inputOutput1Kernel, 1);
-  auto kernel = device->createKernel(kernel_params);
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test1, inputOutput1Kernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel->argSize()) << "Wrong kernel property.";
 
   // Launch the kernel
   {
-    auto launch_options = kernel->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel->createOptions();
     launch_options.setWorkSize({{zisc::cast<uint32b>(n)}});
     launch_options.requestFence(false);
     launch_options.setLabel("InputOutput1Kernel");
-    auto result = kernel->run(*buff_input, *buff_output, launch_options);
+    const zivc::LaunchResult result = kernel->run(*buff_input, *buff_output, launch_options);
     device->waitForCompletion();
   }
 
   // Check the outputs
   {
-    auto options = buff_output->createOptions();
+    zivc::BufferLaunchOptions options = buff_output->createOptions();
     options.setSize(n);
     options.requestFence(true);
-    auto result = zivc::copy(*buff_output, buff_host.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buff_output, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
     const zivc::MappedMemory<int32b> mem = buff_host->mapMemory();
@@ -453,10 +449,10 @@ TEST(KernelTest, InputOutputHost1Test)
 
 TEST(KernelTest, InputOutputHost2Test)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
-  const auto& info = device->deviceInfo();
+  const zivc::DeviceInfo& info = device->deviceInfo();
 
   const std::size_t n = config.testKernelWorkSize1d();
 
@@ -464,12 +460,11 @@ TEST(KernelTest, InputOutputHost2Test)
   using zivc::uint32b;
 
   // Allocate buffers
-  auto buff_input = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost});
+  const zivc::SharedBuffer buff_input = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost});
   buff_input->setSize(n + info.workGroupSize());
-  auto buff_output = device->createBuffer<int32b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buff_output = device->createBuffer<int32b>({zivc::BufferUsage::kPreferDevice});
   buff_output->setSize(n + info.workGroupSize());
-  auto buff_host = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost,
-                                                 zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buff_host = device->createBuffer<int32b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
   buff_host->setSize(n);
 
   // Init buffers
@@ -478,35 +473,35 @@ TEST(KernelTest, InputOutputHost2Test)
       zivc::MappedMemory<int32b> mem = buff_host->mapMemory();
       std::iota(mem.begin(), mem.end(), 0);
     }
-    auto options = buff_input->createOptions();
+    zivc::BufferLaunchOptions options = buff_input->createOptions();
     options.setSize(n);
     options.requestFence(true);
-    auto result = zivc::copy(*buff_host, buff_input.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buff_host, buff_input.get(), options);
     device->waitForCompletion(result.fence());
   }
 
   // Make a kernel
-  auto kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test1, inputOutput1Kernel, 1);
-  auto kernel = device->createKernel(kernel_params);
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test1, inputOutput1Kernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel->argSize()) << "Wrong kernel property.";
 
   // Launch the kernel
   {
-    auto launch_options = kernel->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel->createOptions();
     launch_options.setWorkSize({{zisc::cast<uint32b>(n)}});
     launch_options.requestFence(false);
     launch_options.setLabel("InputOutput1Kernel");
-    auto result = kernel->run(*buff_input, *buff_output, launch_options);
+    const zivc::LaunchResult result = kernel->run(*buff_input, *buff_output, launch_options);
     device->waitForCompletion();
   }
 
   // Check the outputs
   {
-    auto options = buff_output->createOptions();
+    zivc::BufferLaunchOptions options = buff_output->createOptions();
     options.setSize(n);
     options.requestFence(true);
-    auto result = zivc::copy(*buff_output, buff_host.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buff_output, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
     const zivc::MappedMemory<int32b> mem = buff_host->mapMemory();
@@ -520,10 +515,10 @@ TEST(KernelTest, InputOutputHost2Test)
 
 TEST(KernelTest, InputOutput2Test)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
-  [[maybe_unused]] const auto& info = device->deviceInfo();
+  [[maybe_unused]] const zivc::DeviceInfo& info = device->deviceInfo();
 
   const std::size_t n = 256;
 
@@ -533,12 +528,11 @@ TEST(KernelTest, InputOutput2Test)
   using TestType = zivc::cl::ClassSizeTest1;
 
   // Allocate buffers
-  auto buff_d = device->createBuffer<TestType>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buff_d = device->createBuffer<TestType>({zivc::BufferUsage::kPreferDevice});
   buff_d->setSize(n);
-  auto buff_d2 = device->createBuffer<TestType>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buff_d2 = device->createBuffer<TestType>({zivc::BufferUsage::kPreferDevice});
   buff_d2->setSize(2 * n);
-  auto buff_h = device->createBuffer<TestType>({zivc::BufferUsage::kPreferHost,
-                                                zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buff_h = device->createBuffer<TestType>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
   buff_h->setSize(2 * n);
 
   // Init buffers
@@ -554,34 +548,34 @@ TEST(KernelTest, InputOutput2Test)
       }
     }
 
-    auto options = buff_d->createOptions();
+    zivc::BufferLaunchOptions options = buff_d->createOptions();
     options.setSize(n);
     options.requestFence(true);
-    auto result = zivc::copy(*buff_h, buff_d.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buff_h, buff_d.get(), options);
     device->waitForCompletion(result.fence());
   }
 
   // Make a kernel
-  auto kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test1, inputOutput2Kernel, 1);
-  auto kernel = device->createKernel(kernel_params);
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test1, inputOutput2Kernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel->argSize()) << "Wrong kernel property.";
 
   // Launch the kernel
   {
-    auto launch_options = kernel->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel->createOptions();
     launch_options.setWorkSize({{zisc::cast<uint32b>(n)}});
     launch_options.requestFence(false);
     launch_options.setLabel("InputOutput2Kernel");
-    auto result = kernel->run(*buff_d, *buff_d2, launch_options);
+    const zivc::LaunchResult result = kernel->run(*buff_d, *buff_d2, launch_options);
     device->waitForCompletion();
   }
 
   // Check the outputs
   {
-    auto options = buff_d2->createOptions();
+    zivc::BufferLaunchOptions options = buff_d2->createOptions();
     options.requestFence(true);
-    auto result = zivc::copy(*buff_d2, buff_h.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buff_d2, buff_h.get(), options);
     device->waitForCompletion(result.fence());
 
     const zivc::MappedMemory<TestType> mem = buff_h->mapMemory();
@@ -643,10 +637,10 @@ void printWorkItemProperties(const zivc::uint32b* properties) noexcept
 
 TEST(KernelTest, WorkItem1dTest)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
-  [[maybe_unused]] const auto& info = device->deviceInfo();
+  [[maybe_unused]] const zivc::DeviceInfo& info = device->deviceInfo();
 
   using zivc::int32b;
   using zivc::uint32b;
@@ -655,50 +649,50 @@ TEST(KernelTest, WorkItem1dTest)
   constexpr std::size_t n = n_dim;
 
   // Allocate buffers
-  auto buff_d = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buff_d = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
   buff_d->setSize(n + 3);
-  auto buff_p = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buff_p = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
   buff_p->setSize(16);
 
   // Init buffers
   {
-    auto options = buff_d->createOptions();
+    zivc::BufferLaunchOptions options = buff_d->createOptions();
     options.requestFence(true);
-    auto result = buff_d->fill(0, options);
+    const zivc::LaunchResult result = buff_d->fill(0, options);
     device->waitForCompletion(result.fence());
   }
   {
-    auto options = buff_p->createOptions();
+    zivc::BufferLaunchOptions options = buff_p->createOptions();
     options.requestFence(true);
-    auto result = buff_p->fill(0, options);
+    const zivc::LaunchResult result = buff_p->fill(0, options);
     device->waitForCompletion(result.fence());
   }
 
   // Make a kernel
-  auto kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test1, workItem1dKernel, 1);
-  auto kernel = device->createKernel(kernel_params);
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test1, workItem1dKernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(3, kernel->argSize()) << "Wrong kernel property.";
 
   // Launch the kernel
   {
-    auto launch_options = kernel->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel->createOptions();
     launch_options.setWorkSize({{n_dim}});
     launch_options.requestFence(false);
     launch_options.setLabel("workItem1dKernel");
-    auto result = kernel->run(*buff_d, *buff_p, n, launch_options);
+    const zivc::LaunchResult result = kernel->run(*buff_d, *buff_p, n, launch_options);
     device->waitForCompletion();
   }
 
   // Check the outputs
   {
-    auto buff_h = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost,
+    const zivc::SharedBuffer buff_h = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost,
                                                  zivc::BufferFlag::kRandomAccessible});
     buff_h->setSize(buff_p->size());
 
-    auto options = buff_p->createOptions();
+    zivc::BufferLaunchOptions options = buff_p->createOptions();
     options.requestFence(true);
-    auto result = zivc::copy(*buff_p, buff_h.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buff_p, buff_h.get(), options);
     device->waitForCompletion(result.fence());
 
     {
@@ -719,13 +713,12 @@ TEST(KernelTest, WorkItem1dTest)
     }
   }
   {
-    auto buff_h = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost,
-                                                 zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buff_h = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     buff_h->setSize(buff_d->size());
 
-    auto options = buff_d->createOptions();
+    zivc::BufferLaunchOptions options = buff_d->createOptions();
     options.requestFence(true);
-    auto result = zivc::copy(*buff_d, buff_h.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buff_d, buff_h.get(), options);
     device->waitForCompletion(result.fence());
 
     {
@@ -744,10 +737,10 @@ TEST(KernelTest, WorkItem1dTest)
 
 TEST(KernelTest, WorkItem2dTest)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
-  [[maybe_unused]] const auto& info = device->deviceInfo();
+  [[maybe_unused]] const zivc::DeviceInfo& info = device->deviceInfo();
 
   using zivc::int32b;
   using zivc::uint32b;
@@ -756,50 +749,50 @@ TEST(KernelTest, WorkItem2dTest)
   constexpr std::size_t n = n_dim * n_dim;
 
   // Allocate buffers
-  auto buff_d = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buff_d = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
   buff_d->setSize(n + 3);
-  auto buff_p = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buff_p = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
   buff_p->setSize(16);
 
   // Init buffers
   {
-    auto options = buff_d->createOptions();
+    zivc::BufferLaunchOptions options = buff_d->createOptions();
     options.requestFence(true);
-    auto result = buff_d->fill(0, options);
+    const zivc::LaunchResult result = buff_d->fill(0, options);
     device->waitForCompletion(result.fence());
   }
   {
-    auto options = buff_p->createOptions();
+    zivc::BufferLaunchOptions options = buff_p->createOptions();
     options.requestFence(true);
-    auto result = buff_p->fill(0, options);
+    const zivc::LaunchResult result = buff_p->fill(0, options);
     device->waitForCompletion(result.fence());
   }
 
   // Make a kernel
-  auto kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test1, workItem2dKernel, 2);
-  auto kernel = device->createKernel(kernel_params);
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test1, workItem2dKernel, 2);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(2, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(3, kernel->argSize()) << "Wrong kernel property.";
 
   // Launch the kernel
   {
-    auto launch_options = kernel->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel->createOptions();
     launch_options.setWorkSize({{n_dim, n_dim}});
     launch_options.requestFence(false);
     launch_options.setLabel("workItem2dKernel");
-    auto result = kernel->run(*buff_d, *buff_p, n, launch_options);
+    const zivc::LaunchResult result = kernel->run(*buff_d, *buff_p, n, launch_options);
     device->waitForCompletion();
   }
 
   // Check the outputs
   {
-    auto buff_h = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost,
+    const zivc::SharedBuffer buff_h = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost,
                                                  zivc::BufferFlag::kRandomAccessible});
     buff_h->setSize(buff_p->size());
 
-    auto options = buff_p->createOptions();
+    zivc::BufferLaunchOptions options = buff_p->createOptions();
     options.requestFence(true);
-    auto result = zivc::copy(*buff_p, buff_h.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buff_p, buff_h.get(), options);
     device->waitForCompletion(result.fence());
 
     {
@@ -820,13 +813,13 @@ TEST(KernelTest, WorkItem2dTest)
     }
   }
   {
-    auto buff_h = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost,
+    const zivc::SharedBuffer buff_h = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost,
                                                  zivc::BufferFlag::kRandomAccessible});
     buff_h->setSize(buff_d->size());
 
-    auto options = buff_d->createOptions();
+    zivc::BufferLaunchOptions options = buff_d->createOptions();
     options.requestFence(true);
-    auto result = zivc::copy(*buff_d, buff_h.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buff_d, buff_h.get(), options);
     device->waitForCompletion(result.fence());
 
     {
@@ -845,10 +838,10 @@ TEST(KernelTest, WorkItem2dTest)
 
 TEST(KernelTest, WorkItem3dTest)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
-  [[maybe_unused]] const auto& info = device->deviceInfo();
+  [[maybe_unused]] const zivc::DeviceInfo& info = device->deviceInfo();
 
   using zivc::int32b;
   using zivc::uint32b;
@@ -857,50 +850,49 @@ TEST(KernelTest, WorkItem3dTest)
   constexpr std::size_t n = n_dim * n_dim * n_dim;
 
   // Allocate buffers
-  auto buff_d = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buff_d = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
   buff_d->setSize(n + 3);
-  auto buff_p = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buff_p = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
   buff_p->setSize(16);
 
   // Init buffers
   {
-    auto options = buff_d->createOptions();
+    zivc::BufferLaunchOptions options = buff_d->createOptions();
     options.requestFence(true);
-    auto result = buff_d->fill(0, options);
+    const zivc::LaunchResult result = buff_d->fill(0, options);
     device->waitForCompletion(result.fence());
   }
   {
-    auto options = buff_p->createOptions();
+    zivc::BufferLaunchOptions options = buff_p->createOptions();
     options.requestFence(true);
-    auto result = buff_p->fill(0, options);
+    const zivc::LaunchResult result = buff_p->fill(0, options);
     device->waitForCompletion(result.fence());
   }
 
   // Make a kernel
-  auto kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test1, workItem3dKernel, 3);
-  auto kernel = device->createKernel(kernel_params);
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test1, workItem3dKernel, 3);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(3, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(3, kernel->argSize()) << "Wrong kernel property.";
 
   // Launch the kernel
   {
-    auto launch_options = kernel->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel->createOptions();
     launch_options.setWorkSize({{n_dim, n_dim, n_dim}});
     launch_options.requestFence(false);
     launch_options.setLabel("workItem3dKernel");
-    auto result = kernel->run(*buff_d, *buff_p, n, launch_options);
+    const zivc::LaunchResult result = kernel->run(*buff_d, *buff_p, n, launch_options);
     device->waitForCompletion();
   }
 
   // Check the outputs
   {
-    auto buff_h = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost,
-                                                 zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buff_h = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     buff_h->setSize(buff_p->size());
 
-    auto options = buff_p->createOptions();
+    zivc::BufferLaunchOptions options = buff_p->createOptions();
     options.requestFence(true);
-    auto result = zivc::copy(*buff_p, buff_h.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buff_p, buff_h.get(), options);
     device->waitForCompletion(result.fence());
 
     {
@@ -921,13 +913,13 @@ TEST(KernelTest, WorkItem3dTest)
     }
   }
   {
-    auto buff_h = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost,
+    const zivc::SharedBuffer buff_h = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost,
                                                  zivc::BufferFlag::kRandomAccessible});
     buff_h->setSize(buff_d->size());
 
-    auto options = buff_d->createOptions();
+    zivc::BufferLaunchOptions options = buff_d->createOptions();
     options.requestFence(true);
-    auto result = zivc::copy(*buff_d, buff_h.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buff_d, buff_h.get(), options);
     device->waitForCompletion(result.fence());
 
     {
@@ -946,10 +938,10 @@ TEST(KernelTest, WorkItem3dTest)
 
 TEST(KernelTest, WorkItemOffset1dTest)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
-  [[maybe_unused]] const auto& info = device->deviceInfo();
+  [[maybe_unused]] const zivc::DeviceInfo& info = device->deviceInfo();
 
   using zivc::int32b;
   using zivc::uint32b;
@@ -959,102 +951,101 @@ TEST(KernelTest, WorkItemOffset1dTest)
   constexpr std::size_t offset_x = 19;
 
   // Allocate buffers
-  auto buff_device1 = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buff_device1 = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
   buff_device1->setSize(n);
-  auto buff_device2 = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buff_device2 = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
   buff_device2->setSize(n + info.workGroupSize() + offset_x);
-  auto buff_device3 = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buff_device3 = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
   buff_device3->setSize(2 * n);
-  auto buff_properties = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buff_properties = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
   buff_properties->setSize(1);
 
   // Init buffers
   {
-    auto options = buff_device1->createOptions();
+    zivc::BufferLaunchOptions options = buff_device1->createOptions();
     options.requestFence(true);
-    auto result = buff_device1->fill(0, options);
+    const zivc::LaunchResult result = buff_device1->fill(0, options);
     device->waitForCompletion(result.fence());
   }
   {
-    auto options = buff_device2->createOptions();
+    zivc::BufferLaunchOptions options = buff_device2->createOptions();
     options.requestFence(true);
-    auto result = buff_device2->fill(0, options);
+    const zivc::LaunchResult result = buff_device2->fill(0, options);
     device->waitForCompletion(result.fence());
   }
   {
-    auto options = buff_device3->createOptions();
+    zivc::BufferLaunchOptions options = buff_device3->createOptions();
     options.requestFence(true);
-    auto result = buff_device3->fill(0, options);
+    const zivc::LaunchResult result = buff_device3->fill(0, options);
     device->waitForCompletion(result.fence());
   }
   {
-    auto options = buff_properties->createOptions();
+    zivc::BufferLaunchOptions options = buff_properties->createOptions();
     options.requestFence(true);
-    auto result = buff_properties->fill(0, options);
+    const zivc::LaunchResult result = buff_properties->fill(0, options);
     device->waitForCompletion(result.fence());
   }
 
   // Make a kernel
-  auto kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test1, workItemOffset1dKernel, 1);
-  auto kernel = device->createKernel(kernel_params);
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test1, workItemOffset1dKernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(5, kernel->argSize()) << "Wrong kernel property.";
 
   // Launch the kernel
   {
-    auto launch_options = kernel->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel->createOptions();
     launch_options.setWorkSize({{n_dim}});
     launch_options.setGlobalIdOffset({{offset_x}});
     launch_options.requestFence(false);
     launch_options.setLabel("workItemOffset1dKernel");
-    auto result = kernel->run(*buff_device1, *buff_device2, *buff_device3, *buff_properties, n, launch_options);
+    const zivc::LaunchResult result = kernel->run(*buff_device1, *buff_device2, *buff_device3, *buff_properties, n, launch_options);
     device->waitForCompletion();
   }
 
   // Check the outputs
   {
-    auto buff_host = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost,
-                                                    zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buff_host = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     buff_host->setSize(buff_properties->size());
 
-    auto options = buff_properties->createOptions();
+    zivc::BufferLaunchOptions options = buff_properties->createOptions();
     options.requestFence(true);
-    auto result = zivc::copy(*buff_properties, buff_host.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buff_properties, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
     {
-      auto mem = buff_host->mapMemory();
+      const zivc::MappedMemory mem = buff_host->mapMemory();
       ASSERT_EQ(offset_x, mem[0]) << "Global offset x is wrong.";
     }
   }
   {
-    auto buff_host = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost,
+    const zivc::SharedBuffer buff_host = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost,
                                                     zivc::BufferFlag::kRandomAccessible});
     buff_host->setSize(buff_device1->size());
 
-    auto options = buff_device1->createOptions();
+    zivc::BufferLaunchOptions options = buff_device1->createOptions();
     options.requestFence(true);
-    auto result = zivc::copy(*buff_device1, buff_host.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buff_device1, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
     {
-      auto mem = buff_host->mapMemory();
+      const zivc::MappedMemory mem = buff_host->mapMemory();
       for (std::size_t i = 0; i < n; i++)
         ASSERT_EQ(2, mem[i]) << "Work item[" << i << "] prop isn't set properly.";
     }
   }
   {
-    auto buff_host = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost,
+    const zivc::SharedBuffer buff_host = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost,
                                                     zivc::BufferFlag::kRandomAccessible});
     buff_host->setSize(buff_device2->size());
 
-    auto options = buff_device2->createOptions();
+    zivc::BufferLaunchOptions options = buff_device2->createOptions();
     options.requestFence(true);
-    auto result = zivc::copy(*buff_device2, buff_host.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buff_device2, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
     {
-      auto mem = buff_host->mapMemory();
+      const zivc::MappedMemory mem = buff_host->mapMemory();
 //      for (std::size_t i = 0; i < mem.size(); ++i) {
 //        std::cout << "mem[" << i << "] = " << mem[i] << std::endl;
 //      }
@@ -1068,17 +1059,16 @@ TEST(KernelTest, WorkItemOffset1dTest)
     }
   }
   {
-    auto buff_host = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost,
-                                                    zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buff_host = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     buff_host->setSize(buff_device3->size());
 
-    auto options = buff_device3->createOptions();
+    zivc::BufferLaunchOptions options = buff_device3->createOptions();
     options.requestFence(true);
-    auto result = zivc::copy(*buff_device3, buff_host.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buff_device3, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
     {
-      auto mem = buff_host->mapMemory();
+      const zivc::MappedMemory mem = buff_host->mapMemory();
       for (std::size_t i = 0; i < n; ++i) {
         {
           const uint32b x = zisc::cast<uint32b>(i);
@@ -1095,10 +1085,10 @@ TEST(KernelTest, WorkItemOffset1dTest)
 
 TEST(KernelTest, WorkItemOffset3dTest)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
-  [[maybe_unused]] const auto& info = device->deviceInfo();
+  [[maybe_unused]] const zivc::DeviceInfo& info = device->deviceInfo();
 
   using zivc::int32b;
   using zivc::uint32b;
@@ -1108,46 +1098,45 @@ TEST(KernelTest, WorkItemOffset3dTest)
   constexpr std::size_t n = n_dim * n_dim * n_dim;
 
   // Allocate buffers
-  auto buff_device1 = device->createBuffer<uint32b>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buff_device1 = device->createBuffer<uint32b>(zivc::BufferUsage::kPreferDevice);
   buff_device1->setSize(n);
-  auto buff_device2 = device->createBuffer<GlobalId>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buff_device2 = device->createBuffer<GlobalId>(zivc::BufferUsage::kPreferDevice);
   buff_device2->setSize(2 * n);
-  auto buff_properties = device->createBuffer<uint32b>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buff_properties = device->createBuffer<uint32b>(zivc::BufferUsage::kPreferDevice);
   buff_properties->setSize(3);
 
   // Init buffers
   {
-    auto options = buff_device1->createOptions();
+    zivc::BufferLaunchOptions options = buff_device1->createOptions();
     options.requestFence(true);
-    auto result = buff_device1->fill(0, options);
+    const zivc::LaunchResult result = buff_device1->fill(0, options);
     device->waitForCompletion(result.fence());
   }
   {
-    auto buff_host = device->createBuffer<GlobalId>({zivc::BufferUsage::kPreferHost,
-                                                     zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buff_host = device->createBuffer<GlobalId>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     buff_host->setSize(buff_device2->size());
     {
       constexpr uint32b init_v = 0;
       const GlobalId id{init_v, init_v, init_v};
-      auto mem = buff_host->mapMemory();
+      zivc::MappedMemory mem = buff_host->mapMemory();
       std::fill(mem.begin(), mem.end(), id);
     }
 
-    auto options = buff_device2->createOptions();
+    zivc::BufferLaunchOptions options = buff_device2->createOptions();
     options.requestFence(true);
-    auto result = zivc::copy(*buff_host, buff_device2.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buff_host, buff_device2.get(), options);
     device->waitForCompletion(result.fence());
   }
   {
-    auto options = buff_properties->createOptions();
+    zivc::BufferLaunchOptions options = buff_properties->createOptions();
     options.requestFence(true);
-    auto result = buff_properties->fill(0, options);
+    const zivc::LaunchResult result = buff_properties->fill(0, options);
     device->waitForCompletion(result.fence());
   }
 
   // Make a kernel
-  auto kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test1, workItemOffset3dKernel, 3);
-  auto kernel = device->createKernel(kernel_params);
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test1, workItemOffset3dKernel, 3);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(3, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(4, kernel->argSize()) << "Wrong kernel property.";
 
@@ -1157,41 +1146,39 @@ TEST(KernelTest, WorkItemOffset3dTest)
 
   // Launch the kernel
   {
-    auto launch_options = kernel->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel->createOptions();
     launch_options.setWorkSize({{n_dim, n_dim, n_dim}});
     launch_options.setGlobalIdOffset({{offset_x, offset_y, offset_z}});
     launch_options.requestFence(false);
     launch_options.setLabel("workItemOffset3dKernel");
-    auto result = kernel->run(*buff_device1, *buff_device2, *buff_properties, n, launch_options);
+    const zivc::LaunchResult result = kernel->run(*buff_device1, *buff_device2, *buff_properties, n, launch_options);
     device->waitForCompletion();
   }
 
   // Check the outputs
   {
-    auto buff_host = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost,
-                                                    zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buff_host = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     buff_host->setSize(buff_properties->size());
 
-    auto options = buff_properties->createOptions();
+    zivc::BufferLaunchOptions options = buff_properties->createOptions();
     options.requestFence(true);
-    auto result = zivc::copy(*buff_properties, buff_host.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buff_properties, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
     {
-      auto mem = buff_host->mapMemory();
+      const zivc::MappedMemory mem = buff_host->mapMemory();
       ASSERT_EQ(offset_x, mem[0]) << "Global offset x is wrong.";
       ASSERT_EQ(offset_y, mem[1]) << "Global offset y is wrong.";
       ASSERT_EQ(offset_z, mem[2]) << "Global offset z is wrong.";
     }
   }
   {
-    auto buff_host = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost,
-                                                    zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buff_host = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     buff_host->setSize(buff_device1->size());
 
-    auto options = buff_device1->createOptions();
+    zivc::BufferLaunchOptions options = buff_device1->createOptions();
     options.requestFence(true);
-    auto result = zivc::copy(*buff_device1, buff_host.get(), options);
+    const zivc::LaunchResult result = zivc::copy(*buff_device1, buff_host.get(), options);
     device->waitForCompletion(result.fence());
 
     {

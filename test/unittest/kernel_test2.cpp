@@ -52,7 +52,7 @@ constexpr zivc::uint32b getExpectedValueForKernelMultipleInvocations() noexcept
 
 TEST(KernelTest, SharedKernelTest)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
@@ -88,7 +88,7 @@ TEST(KernelTest, SharedKernelTest)
 
 TEST(KernelTest, KernelMultipleInvocationsTest)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
   [[maybe_unused]] const auto& info = device->deviceInfo();
@@ -101,119 +101,118 @@ TEST(KernelTest, KernelMultipleInvocationsTest)
   constexpr std::size_t n = w * h;
 
   // Allocate buffers
-  auto buff_device = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buff_device = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
   buff_device->setSize(n);
 
   // Init buffers
   {
-    auto options = buff_device->createOptions();
+    zivc::BufferLaunchOptions options = buff_device->createOptions();
     options.requestFence(true);
-    auto result = buff_device->fill(0, options);
+    const zivc::LaunchResult result = buff_device->fill(0, options);
     device->waitForCompletion(result.fence());
   }
 
   // Make a kernels
-  auto kernel_params1 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation1Kernel, 1);
-  auto kernel1 = device->createKernel(kernel_params1);
+  const zivc::KernelInitParams kernel_params1 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation1Kernel, 1);
+  const zivc::SharedKernel kernel1 = device->createKernel(kernel_params1);
   ASSERT_EQ(1, kernel1->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel1->argSize()) << "Wrong kernel property.";
 
-  auto kernel_params2 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation1Kernel, 1);
-  auto kernel2 = device->createKernel(kernel_params2);
+  const zivc::KernelInitParams kernel_params2 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation1Kernel, 1);
+  const zivc::SharedKernel kernel2 = device->createKernel(kernel_params2);
   ASSERT_EQ(1, kernel2->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel2->argSize()) << "Wrong kernel property.";
 
-  auto kernel_params3 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation1Kernel, 1);
-  auto kernel3 = device->createKernel(kernel_params3);
+  const zivc::KernelInitParams kernel_params3 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation1Kernel, 1);
+  const zivc::SharedKernel kernel3 = device->createKernel(kernel_params3);
   ASSERT_EQ(1, kernel3->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel3->argSize()) << "Wrong kernel property.";
 
-  auto kernel_params4 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation2Kernel, 1);
-  auto kernel4 = device->createKernel(kernel_params4);
+  const zivc::KernelInitParams kernel_params4 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation2Kernel, 1);
+  const zivc::SharedKernel kernel4 = device->createKernel(kernel_params4);
   ASSERT_EQ(1, kernel4->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel4->argSize()) << "Wrong kernel property.";
 
-  auto kernel_params5 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation3Kernel, 1);
-  auto kernel5 = device->createKernel(kernel_params5);
+  const zivc::KernelInitParams kernel_params5 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation3Kernel, 1);
+  const zivc::SharedKernel kernel5 = device->createKernel(kernel_params5);
   ASSERT_EQ(1, kernel5->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel5->argSize()) << "Wrong kernel property.";
 
-  auto kernel_params6 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation3Kernel, 1);
-  auto kernel6 = device->createKernel(kernel_params6);
+  const zivc::KernelInitParams kernel_params6 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation3Kernel, 1);
+  const zivc::SharedKernel kernel6 = device->createKernel(kernel_params6);
   ASSERT_EQ(1, kernel6->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel6->argSize()) << "Wrong kernel property.";
 
-  auto kernel_params7 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation3Kernel, 1);
-  auto kernel7 = device->createKernel(kernel_params7);
+  const zivc::KernelInitParams kernel_params7 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation3Kernel, 1);
+  const zivc::SharedKernel kernel7 = device->createKernel(kernel_params7);
   ASSERT_EQ(1, kernel7->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel7->argSize()) << "Wrong kernel property.";
 
   // Launch the kernels
   {
-    auto launch_options = kernel1->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel1->createOptions();
     launch_options.setWorkSize({{n}});
     launch_options.requestFence(false);
     launch_options.setLabel("invocation1Kernel");
-    auto result = kernel1->run(*buff_device, n, launch_options);
+    const zivc::LaunchResult result = kernel1->run(*buff_device, n, launch_options);
   }
   {
-    auto launch_options = kernel2->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel2->createOptions();
     launch_options.setWorkSize({{n}});
     launch_options.requestFence(false);
     launch_options.setLabel("invocation1Kernel");
-    auto result = kernel2->run(*buff_device, n, launch_options);
+    const zivc::LaunchResult result = kernel2->run(*buff_device, n, launch_options);
   }
   {
-    auto launch_options = kernel3->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel3->createOptions();
     launch_options.setWorkSize({{n}});
     launch_options.requestFence(false);
     launch_options.setLabel("invocation1Kernel");
-    auto result = kernel3->run(*buff_device, n, launch_options);
+    const zivc::LaunchResult result = kernel3->run(*buff_device, n, launch_options);
   }
   {
-    auto launch_options = kernel4->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel4->createOptions();
     launch_options.setWorkSize({{n}});
     launch_options.requestFence(false);
     launch_options.setLabel("invocation2Kernel");
-    auto result = kernel4->run(*buff_device, n, launch_options);
+    const zivc::LaunchResult result = kernel4->run(*buff_device, n, launch_options);
   }
   {
-    auto launch_options = kernel5->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel5->createOptions();
     launch_options.setWorkSize({{n}});
     launch_options.requestFence(false);
     launch_options.setLabel("invocation3Kernel");
-    auto result = kernel5->run(*buff_device, n, launch_options);
+    const zivc::LaunchResult result = kernel5->run(*buff_device, n, launch_options);
   }
   {
-    auto launch_options = kernel6->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel6->createOptions();
     launch_options.setWorkSize({{n}});
     launch_options.requestFence(false);
     launch_options.setLabel("invocation3Kernel");
-    auto result = kernel6->run(*buff_device, n, launch_options);
+    const zivc::LaunchResult result = kernel6->run(*buff_device, n, launch_options);
   }
   {
-    auto launch_options = kernel7->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel7->createOptions();
     launch_options.setWorkSize({{n}});
     launch_options.requestFence(false);
     launch_options.setLabel("invocation3Kernel");
-    auto result = kernel7->run(*buff_device, n, launch_options);
+    const zivc::LaunchResult result = kernel7->run(*buff_device, n, launch_options);
   }
   device->waitForCompletion();
 
   // Check the outputs
   {
-    auto buff_host = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost,
-                                                    zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buff_host = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     buff_host->setSize(buff_device->size());
     {
-      auto options = buff_device->createOptions();
+      zivc::BufferLaunchOptions options = buff_device->createOptions();
       options.requestFence(true);
-      auto result = zivc::copy(*buff_device, buff_host.get(), options);
+      const zivc::LaunchResult result = zivc::copy(*buff_device, buff_host.get(), options);
       device->waitForCompletion(result.fence());
     }
     {
       constexpr uint32b expected = ::getExpectedValueForKernelMultipleInvocations();
-      auto mem = buff_host->mapMemory();
+      const zivc::MappedMemory mem = buff_host->mapMemory();
       for (std::size_t i = 0; i < mem.size(); ++i)
         ASSERT_EQ(expected, mem[i]) << "Multiple kernel invocations failed.";
     }
@@ -222,10 +221,10 @@ TEST(KernelTest, KernelMultipleInvocationsTest)
 
 TEST(KernelTest, KernelBufferChangeTest)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
-  [[maybe_unused]] const auto& info = device->deviceInfo();
+  [[maybe_unused]] const zivc::DeviceInfo& info = device->deviceInfo();
 
   using zivc::int32b;
   using zivc::uint32b;
@@ -235,111 +234,108 @@ TEST(KernelTest, KernelBufferChangeTest)
   constexpr std::size_t n = w * h;
 
   // Allocate buffers
-  auto buff_device1 = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buff_device1 = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
   buff_device1->setSize(n);
-  auto buff_device2 = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buff_device2 = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
   buff_device2->setSize(n);
-  auto buff_device3 = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buff_device3 = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
   buff_device3->setSize(n);
 
   // Init buffers
   {
-    auto options = buff_device1->createOptions();
+    zivc::BufferLaunchOptions options = buff_device1->createOptions();
     options.requestFence(true);
-    auto result = buff_device1->fill(0, options);
+    const zivc::LaunchResult result = buff_device1->fill(0, options);
     device->waitForCompletion(result.fence());
   }
   {
-    auto options = buff_device2->createOptions();
+    zivc::BufferLaunchOptions options = buff_device2->createOptions();
     options.requestFence(true);
-    auto result = buff_device2->fill(0, options);
+    const zivc::LaunchResult result = buff_device2->fill(0, options);
     device->waitForCompletion(result.fence());
   }
   {
-    auto options = buff_device3->createOptions();
+    zivc::BufferLaunchOptions options = buff_device3->createOptions();
     options.requestFence(true);
-    auto result = buff_device3->fill(0, options);
+    const zivc::LaunchResult result = buff_device3->fill(0, options);
     device->waitForCompletion(result.fence());
   }
 
   // Make a kernels
-  auto kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation1Kernel, 1);
-  auto kernel = device->createKernel(kernel_params);
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation1Kernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel->argSize()) << "Wrong kernel property.";
 
   // Launch the kernels
   {
-    auto launch_options = kernel->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel->createOptions();
     launch_options.setWorkSize({{n}});
     launch_options.requestFence(false);
     launch_options.setLabel("invocation1Kernel");
-    auto result = kernel->run(*buff_device1, n, launch_options);
+    const zivc::LaunchResult result = kernel->run(*buff_device1, n, launch_options);
     device->waitForCompletion();
   }
   {
-    auto launch_options = kernel->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel->createOptions();
     launch_options.setWorkSize({{n}});
     launch_options.requestFence(false);
     launch_options.setLabel("invocation1Kernel");
-    auto result = kernel->run(*buff_device2, n, launch_options);
+    const zivc::LaunchResult result = kernel->run(*buff_device2, n, launch_options);
     device->waitForCompletion();
   }
   {
-    auto launch_options = kernel->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel->createOptions();
     launch_options.setWorkSize({{n}});
     launch_options.requestFence(false);
     launch_options.setLabel("invocation1Kernel");
-    auto result = kernel->run(*buff_device3, n, launch_options);
+    const zivc::LaunchResult result = kernel->run(*buff_device3, n, launch_options);
     device->waitForCompletion();
   }
 
   // Check the outputs
   constexpr uint32b expected = 10 * 1024;
   {
-    auto buff_host = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost,
-                                                    zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buff_host = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     buff_host->setSize(buff_device1->size());
     {
-      auto options = buff_device1->createOptions();
+      zivc::BufferLaunchOptions options = buff_device1->createOptions();
       options.requestFence(true);
-      auto result = zivc::copy(*buff_device1, buff_host.get(), options);
+      const zivc::LaunchResult result = zivc::copy(*buff_device1, buff_host.get(), options);
       device->waitForCompletion(result.fence());
     }
     {
-      auto mem = buff_host->mapMemory();
+      const zivc::MappedMemory mem = buff_host->mapMemory();
       for (std::size_t i = 0; i < mem.size(); ++i)
         ASSERT_EQ(expected, mem[i]) << "Changing buffer failed.";
     }
   }
   {
-    auto buff_host = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost,
-                                                    zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buff_host = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     buff_host->setSize(buff_device2->size());
     {
-      auto options = buff_device2->createOptions();
+      zivc::BufferLaunchOptions options = buff_device2->createOptions();
       options.requestFence(true);
-      auto result = zivc::copy(*buff_device2, buff_host.get(), options);
+      const zivc::LaunchResult result = zivc::copy(*buff_device2, buff_host.get(), options);
       device->waitForCompletion(result.fence());
     }
     {
-      auto mem = buff_host->mapMemory();
+      const zivc::MappedMemory mem = buff_host->mapMemory();
       for (std::size_t i = 0; i < mem.size(); ++i)
         ASSERT_EQ(expected, mem[i]) << "Changing buffer failed.";
     }
   }
   {
-    auto buff_host = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost,
-                                                    zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buff_host = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     buff_host->setSize(buff_device3->size());
     {
-      auto options = buff_device3->createOptions();
+      zivc::BufferLaunchOptions options = buff_device3->createOptions();
       options.requestFence(true);
-      auto result = zivc::copy(*buff_device3, buff_host.get(), options);
+      const zivc::LaunchResult result = zivc::copy(*buff_device3, buff_host.get(), options);
       device->waitForCompletion(result.fence());
     }
     {
-      auto mem = buff_host->mapMemory();
+      const zivc::MappedMemory mem = buff_host->mapMemory();
       for (std::size_t i = 0; i < mem.size(); ++i)
         ASSERT_EQ(expected, mem[i]) << "Changing buffer failed.";
     }
@@ -348,10 +344,10 @@ TEST(KernelTest, KernelBufferChangeTest)
 
 TEST(KernelTest, KernelQueueTest)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
-  [[maybe_unused]] const auto& info = device->deviceInfo();
+  [[maybe_unused]] const zivc::DeviceInfo& info = device->deviceInfo();
 
   using zivc::int32b;
   using zivc::uint32b;
@@ -361,127 +357,126 @@ TEST(KernelTest, KernelQueueTest)
   constexpr std::size_t n = w * h;
 
   // Allocate buffers
-  auto buff_device = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buff_device = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
   buff_device->setSize(n);
 
   // Make a kernels
-  auto kernel_params1 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation1Kernel, 1);
-  auto kernel1 = device->createKernel(kernel_params1);
+  const zivc::KernelInitParams kernel_params1 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation1Kernel, 1);
+  const zivc::SharedKernel kernel1 = device->createKernel(kernel_params1);
   ASSERT_EQ(1, kernel1->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel1->argSize()) << "Wrong kernel property.";
 
-  auto kernel_params2 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation1Kernel, 1);
-  auto kernel2 = device->createKernel(kernel_params2);
+  const zivc::KernelInitParams kernel_params2 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation1Kernel, 1);
+  const zivc::SharedKernel kernel2 = device->createKernel(kernel_params2);
   ASSERT_EQ(1, kernel2->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel2->argSize()) << "Wrong kernel property.";
 
-  auto kernel_params3 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation1Kernel, 1);
-  auto kernel3 = device->createKernel(kernel_params3);
+  const zivc::KernelInitParams kernel_params3 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation1Kernel, 1);
+  const zivc::SharedKernel kernel3 = device->createKernel(kernel_params3);
   ASSERT_EQ(1, kernel3->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel3->argSize()) << "Wrong kernel property.";
 
-  auto kernel_params4 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation2Kernel, 1);
-  auto kernel4 = device->createKernel(kernel_params4);
+  const zivc::KernelInitParams kernel_params4 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation2Kernel, 1);
+  const zivc::SharedKernel kernel4 = device->createKernel(kernel_params4);
   ASSERT_EQ(1, kernel4->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel4->argSize()) << "Wrong kernel property.";
 
-  auto kernel_params5 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation3Kernel, 1);
-  auto kernel5 = device->createKernel(kernel_params5);
+  const zivc::KernelInitParams kernel_params5 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation3Kernel, 1);
+  const zivc::SharedKernel kernel5 = device->createKernel(kernel_params5);
   ASSERT_EQ(1, kernel5->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel5->argSize()) << "Wrong kernel property.";
 
-  auto kernel_params6 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation3Kernel, 1);
-  auto kernel6 = device->createKernel(kernel_params6);
+  const zivc::KernelInitParams kernel_params6 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation3Kernel, 1);
+  const zivc::SharedKernel kernel6 = device->createKernel(kernel_params6);
   ASSERT_EQ(1, kernel6->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel6->argSize()) << "Wrong kernel property.";
 
-  auto kernel_params7 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation3Kernel, 1);
-  auto kernel7 = device->createKernel(kernel_params7);
+  const zivc::KernelInitParams kernel_params7 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation3Kernel, 1);
+  const zivc::SharedKernel kernel7 = device->createKernel(kernel_params7);
   ASSERT_EQ(1, kernel7->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel7->argSize()) << "Wrong kernel property.";
 
   for (uint32b queue_index = 0; queue_index < 16; ++queue_index) {
     // Init buffers
     {
-      auto options = buff_device->createOptions();
+      zivc::BufferLaunchOptions options = buff_device->createOptions();
       options.requestFence(true);
-      auto result = buff_device->fill(0, options);
+      const zivc::LaunchResult result = buff_device->fill(0, options);
       device->waitForCompletion(result.fence());
     }
 
     // Launch the kernels
     {
-      auto launch_options = kernel1->createOptions();
+      zivc::KernelLaunchOptions launch_options = kernel1->createOptions();
       launch_options.setWorkSize({{n}});
       launch_options.setQueueIndex(queue_index);
       launch_options.requestFence(false);
       launch_options.setLabel("invocation1Kernel");
-      auto result = kernel1->run(*buff_device, n, launch_options);
+      const zivc::LaunchResult result = kernel1->run(*buff_device, n, launch_options);
     }
     {
-      auto launch_options = kernel2->createOptions();
+      zivc::KernelLaunchOptions launch_options = kernel2->createOptions();
       launch_options.setWorkSize({{n}});
       launch_options.setQueueIndex(queue_index);
       launch_options.requestFence(false);
       launch_options.setLabel("invocation1Kernel");
-      auto result = kernel2->run(*buff_device, n, launch_options);
+      const zivc::LaunchResult result = kernel2->run(*buff_device, n, launch_options);
     }
     {
-      auto launch_options = kernel3->createOptions();
+      zivc::KernelLaunchOptions launch_options = kernel3->createOptions();
       launch_options.setWorkSize({{n}});
       launch_options.setQueueIndex(queue_index);
       launch_options.requestFence(false);
       launch_options.setLabel("invocation1Kernel");
-      auto result = kernel3->run(*buff_device, n, launch_options);
+      const zivc::LaunchResult result = kernel3->run(*buff_device, n, launch_options);
     }
     {
-      auto launch_options = kernel4->createOptions();
+      zivc::KernelLaunchOptions launch_options = kernel4->createOptions();
       launch_options.setWorkSize({{n}});
       launch_options.setQueueIndex(queue_index);
       launch_options.requestFence(false);
       launch_options.setLabel("invocation2Kernel");
-      auto result = kernel4->run(*buff_device, n, launch_options);
+      const zivc::LaunchResult result = kernel4->run(*buff_device, n, launch_options);
     }
     {
-      auto launch_options = kernel5->createOptions();
+      zivc::KernelLaunchOptions launch_options = kernel5->createOptions();
       launch_options.setWorkSize({{n}});
       launch_options.setQueueIndex(queue_index);
       launch_options.requestFence(false);
       launch_options.setLabel("invocation3Kernel");
-      auto result = kernel5->run(*buff_device, n, launch_options);
+      const zivc::LaunchResult result = kernel5->run(*buff_device, n, launch_options);
     }
     {
-      auto launch_options = kernel6->createOptions();
+      zivc::KernelLaunchOptions launch_options = kernel6->createOptions();
       launch_options.setWorkSize({{n}});
       launch_options.setQueueIndex(queue_index);
       launch_options.requestFence(false);
       launch_options.setLabel("invocation3Kernel");
-      auto result = kernel6->run(*buff_device, n, launch_options);
+      const zivc::LaunchResult result = kernel6->run(*buff_device, n, launch_options);
     }
     {
-      auto launch_options = kernel7->createOptions();
+      zivc::KernelLaunchOptions launch_options = kernel7->createOptions();
       launch_options.setWorkSize({{n}});
       launch_options.setQueueIndex(queue_index);
       launch_options.requestFence(false);
       launch_options.setLabel("invocation3Kernel");
-      auto result = kernel7->run(*buff_device, n, launch_options);
+      const zivc::LaunchResult result = kernel7->run(*buff_device, n, launch_options);
       device->waitForCompletion(queue_index);
     }
 
     // Check the outputs
     {
-      auto buff_host = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost,
-                                                      zivc::BufferFlag::kRandomAccessible});
+      const zivc::SharedBuffer buff_host = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
       buff_host->setSize(buff_device->size());
       {
-        auto options = buff_device->createOptions();
+        zivc::BufferLaunchOptions options = buff_device->createOptions();
         options.requestFence(true);
-        auto result = zivc::copy(*buff_device, buff_host.get(), options);
+        const zivc::LaunchResult result = zivc::copy(*buff_device, buff_host.get(), options);
         device->waitForCompletion(result.fence());
       }
       {
         constexpr uint32b expected = ::getExpectedValueForKernelMultipleInvocations();
-        auto mem = buff_host->mapMemory();
+        const zivc::MappedMemory mem = buff_host->mapMemory();
         for (std::size_t i = 0; i < mem.size(); ++i)
           ASSERT_EQ(expected, mem[i]) << "Queue[" << queue_index << "] failed.";
       }
@@ -491,10 +486,10 @@ TEST(KernelTest, KernelQueueTest)
 
 TEST(KernelTest, KernelFenceTest)
 {
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
-  [[maybe_unused]] const auto& info = device->deviceInfo();
+  [[maybe_unused]] const zivc::DeviceInfo& info = device->deviceInfo();
 
   using zivc::int32b;
   using zivc::uint32b;
@@ -504,134 +499,133 @@ TEST(KernelTest, KernelFenceTest)
   constexpr std::size_t n = w * h;
 
   // Allocate buffers
-  auto buff_device = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buff_device = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
   buff_device->setSize(n);
 
   // Init buffers
   {
-    auto options = buff_device->createOptions();
+    zivc::BufferLaunchOptions options = buff_device->createOptions();
     options.requestFence(true);
-    auto result = buff_device->fill(0, options);
+    const zivc::LaunchResult result = buff_device->fill(0, options);
     device->waitForCompletion(result.fence());
   }
 
   device->setFenceSize(7);
 
   // Make a kernels
-  auto kernel_params1 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation1Kernel, 1);
-  auto kernel1 = device->createKernel(kernel_params1);
+  const zivc::KernelInitParams kernel_params1 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation1Kernel, 1);
+  const zivc::SharedKernel kernel1 = device->createKernel(kernel_params1);
   ASSERT_EQ(1, kernel1->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel1->argSize()) << "Wrong kernel property.";
 
-  auto kernel_params2 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation1Kernel, 1);
-  auto kernel2 = device->createKernel(kernel_params2);
+  const zivc::KernelInitParams kernel_params2 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation1Kernel, 1);
+  const zivc::SharedKernel kernel2 = device->createKernel(kernel_params2);
   ASSERT_EQ(1, kernel2->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel2->argSize()) << "Wrong kernel property.";
 
-  auto kernel_params3 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation1Kernel, 1);
-  auto kernel3 = device->createKernel(kernel_params3);
+  const zivc::KernelInitParams kernel_params3 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation1Kernel, 1);
+  const zivc::SharedKernel kernel3 = device->createKernel(kernel_params3);
   ASSERT_EQ(1, kernel3->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel3->argSize()) << "Wrong kernel property.";
 
-  auto kernel_params4 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation2Kernel, 1);
-  auto kernel4 = device->createKernel(kernel_params4);
+  const zivc::KernelInitParams kernel_params4 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation2Kernel, 1);
+  const zivc::SharedKernel kernel4 = device->createKernel(kernel_params4);
   ASSERT_EQ(1, kernel4->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel4->argSize()) << "Wrong kernel property.";
 
-  auto kernel_params5 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation3Kernel, 1);
-  auto kernel5 = device->createKernel(kernel_params5);
+  const zivc::KernelInitParams kernel_params5 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation3Kernel, 1);
+  const zivc::SharedKernel kernel5 = device->createKernel(kernel_params5);
   ASSERT_EQ(1, kernel5->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel5->argSize()) << "Wrong kernel property.";
 
-  auto kernel_params6 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation3Kernel, 1);
-  auto kernel6 = device->createKernel(kernel_params6);
+  const zivc::KernelInitParams kernel_params6 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation3Kernel, 1);
+  const zivc::SharedKernel kernel6 = device->createKernel(kernel_params6);
   ASSERT_EQ(1, kernel6->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel6->argSize()) << "Wrong kernel property.";
 
-  auto kernel_params7 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation3Kernel, 1);
-  auto kernel7 = device->createKernel(kernel_params7);
+  const zivc::KernelInitParams kernel_params7 = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, invocation3Kernel, 1);
+  const zivc::SharedKernel kernel7 = device->createKernel(kernel_params7);
   ASSERT_EQ(1, kernel7->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel7->argSize()) << "Wrong kernel property.";
 
   // Launch the kernels
   {
-    auto launch_options = kernel1->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel1->createOptions();
     launch_options.setWorkSize({{n}});
     launch_options.setQueueIndex(0);
     launch_options.requestFence(true);
     launch_options.setLabel("invocation1Kernel");
-    auto result = kernel1->run(*buff_device, n, launch_options);
+    const zivc::LaunchResult result = kernel1->run(*buff_device, n, launch_options);
     device->waitForCompletion(result.fence());
   }
   {
-    auto launch_options = kernel2->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel2->createOptions();
     launch_options.setWorkSize({{n}});
     launch_options.setQueueIndex(1);
     launch_options.requestFence(true);
     launch_options.setLabel("invocation1Kernel");
-    auto result = kernel2->run(*buff_device, n, launch_options);
+    const zivc::LaunchResult result = kernel2->run(*buff_device, n, launch_options);
     device->waitForCompletion(result.fence());
   }
   {
-    auto launch_options = kernel3->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel3->createOptions();
     launch_options.setWorkSize({{n}});
     launch_options.setQueueIndex(2);
     launch_options.requestFence(true);
     launch_options.setLabel("invocation1Kernel");
-    auto result = kernel3->run(*buff_device, n, launch_options);
+    const zivc::LaunchResult result = kernel3->run(*buff_device, n, launch_options);
     device->waitForCompletion(result.fence());
   }
   {
-    auto launch_options = kernel4->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel4->createOptions();
     launch_options.setWorkSize({{n}});
     launch_options.setQueueIndex(3);
     launch_options.requestFence(true);
     launch_options.setLabel("invocation2Kernel");
-    auto result = kernel4->run(*buff_device, n, launch_options);
+    const zivc::LaunchResult result = kernel4->run(*buff_device, n, launch_options);
     device->waitForCompletion(result.fence());
   }
   {
-    auto launch_options = kernel5->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel5->createOptions();
     launch_options.setWorkSize({{n}});
     launch_options.setQueueIndex(4);
     launch_options.requestFence(true);
     launch_options.setLabel("invocation3Kernel");
-    auto result = kernel5->run(*buff_device, n, launch_options);
+    const zivc::LaunchResult result = kernel5->run(*buff_device, n, launch_options);
     device->waitForCompletion(result.fence());
   }
   {
-    auto launch_options = kernel6->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel6->createOptions();
     launch_options.setWorkSize({{n}});
     launch_options.setQueueIndex(5);
     launch_options.requestFence(true);
     launch_options.setLabel("invocation3Kernel");
-    auto result = kernel6->run(*buff_device, n, launch_options);
+    const zivc::LaunchResult result = kernel6->run(*buff_device, n, launch_options);
     device->waitForCompletion(result.fence());
   }
   {
-    auto launch_options = kernel7->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel7->createOptions();
     launch_options.setWorkSize({{n}});
     launch_options.setQueueIndex(6);
     launch_options.requestFence(true);
     launch_options.setLabel("invocation3Kernel");
-    auto result = kernel7->run(*buff_device, n, launch_options);
+    const zivc::LaunchResult result = kernel7->run(*buff_device, n, launch_options);
     device->waitForCompletion(result.fence());
   }
 
   // Check the outputs
   {
-    auto buff_host = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost,
-                                                    zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buff_host = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     buff_host->setSize(buff_device->size());
     {
-      auto options = buff_device->createOptions();
+      zivc::BufferLaunchOptions options = buff_device->createOptions();
       options.requestFence(true);
-      auto result = zivc::copy(*buff_device, buff_host.get(), options);
+      const zivc::LaunchResult result = zivc::copy(*buff_device, buff_host.get(), options);
       device->waitForCompletion(result.fence());
     }
     {
       constexpr uint32b expected = ::getExpectedValueForKernelMultipleInvocations();
-      auto mem = buff_host->mapMemory();
+      const zivc::MappedMemory mem = buff_host->mapMemory();
       for (std::size_t i = 0; i < mem.size(); ++i)
         ASSERT_EQ(expected, mem[i]) << "Multiple kernel invocations failed.";
     }
@@ -644,18 +638,17 @@ TEST(KernelTest, KernelReinterpBufferTest)
   using zivc::uint32b;
   using zivc::uint64b;
 
-  auto context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
-  [[maybe_unused]] const auto& info = device->deviceInfo();
+  [[maybe_unused]] const zivc::DeviceInfo& info = device->deviceInfo();
 
   constexpr std::size_t w = 2560;
   constexpr std::size_t h = 1440;
 
   // Allocate buffers
-  auto buff_h = device->createBuffer<float>({zivc::BufferUsage::kPreferHost,
-                                             zivc::BufferFlag::kRandomAccessible});
-  auto buff_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferDevice});
+  const zivc::SharedBuffer buff_h = device->createBuffer<float>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buff_d = device->createBuffer<uint64b>({zivc::BufferUsage::kPreferDevice});
 
   // Allocate memories
   {
@@ -671,35 +664,35 @@ TEST(KernelTest, KernelReinterpBufferTest)
     for (std::size_t i = 0; i < mem.size(); ++i)
       mem[i] = zisc::cast<float>(i + 1);
   }
-  auto reinterp_d = buff_d->reinterp<float>();
+  zivc::ReinterpBuffer reinterp_d = buff_d->reinterp<float>();
   {
-    auto options = buff_h->createOptions();
+    zivc::BufferLaunchOptions options = buff_h->createOptions();
     options.requestFence(true);
-    auto result = zivc::copy(*buff_h, &reinterp_d, options);
+    const zivc::LaunchResult result = zivc::copy(*buff_h, &reinterp_d, options);
     device->waitForCompletion(result.fence());
   }
 
   // Make a kernels
-  auto kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, reinterpTestKernel, 1);
-  auto kernel = device->createKernel(kernel_params);
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, reinterpTestKernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel->argSize()) << "Wrong kernel property.";
 
   // Launch the kernels
   {
     const auto n = zisc::cast<uint32b>(reinterp_d.size());
-    auto launch_options = kernel->createOptions();
+    zivc::KernelLaunchOptions launch_options = kernel->createOptions();
     launch_options.setWorkSize({{n}});
     launch_options.requestFence(true);
     launch_options.setLabel("reinterpTestKernel");
-    auto result = kernel->run(reinterp_d, n, launch_options);
+    const zivc::LaunchResult result = kernel->run(reinterp_d, n, launch_options);
     device->waitForCompletion(result.fence());
   }
 
   {
-    auto options = buff_h->createOptions();
+    zivc::BufferLaunchOptions options = buff_h->createOptions();
     options.requestFence(true);
-    auto result = zivc::copy(reinterp_d, buff_h.get(), options);
+    const zivc::LaunchResult result = zivc::copy(reinterp_d, buff_h.get(), options);
     device->waitForCompletion(result.fence());
   }
 

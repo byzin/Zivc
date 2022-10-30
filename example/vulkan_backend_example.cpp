@@ -317,49 +317,78 @@ int printVulkanBackendInfo(const zivc::Context& context)
                 << indent3 << "atomic64 shared: "
                 << atomic_float.shaderSharedFloat64AtomicAdd << std::endl;
     }
+    // Ray tracing features
     {
       const auto& props = info.properties();
       const auto& features = info.features();
-      const VkPhysicalDeviceAccelerationStructureFeaturesKHR& acc_structure = features.acceleration_structure_;
       std::cout << indent2 << "Ray Tracing" << std::endl;
+
+      const VkPhysicalDeviceAccelerationStructureFeaturesKHR& acc_structure = features.acceleration_structure_;
       std::cout << indent3 << "acceleration structure: "
                 << acc_structure.accelerationStructure << std::endl;
-      if (acc_structure.accelerationStructure != 0u) {
-        std::cout << indent4 << "indirect build: "
-                  << acc_structure.accelerationStructureIndirectBuild << std::endl;
-        std::cout << indent4 << "host commands: "
+      if (acc_structure.accelerationStructure != 0) {
+        std::cout << indent4 << "capture reply: "
+                  << acc_structure.accelerationStructureCaptureReplay << std::endl
+                  << indent4 << "indirect build: "
+                  << acc_structure.accelerationStructureIndirectBuild << std::endl
+                  << indent4 << "host commands: "
                   << acc_structure.accelerationStructureHostCommands << std::endl;
-        std::cout << indent4 << "Max geometry count: "
-                  << props.acceleration_structure_.maxGeometryCount << std::endl
-                  << indent4 << "Max instance count: "
-                  << props.acceleration_structure_.maxInstanceCount << std::endl
-                  << indent4 << "Max primitive count: "
-                  << props.acceleration_structure_.maxPrimitiveCount << std::endl
-                  << indent4 << "Min scratch offset alignment: "
-                  << props.acceleration_structure_.minAccelerationStructureScratchOffsetAlignment << std::endl;
       }
+      if (acc_structure.accelerationStructure != 0) {
+        const VkPhysicalDeviceAccelerationStructurePropertiesKHR acc_structure = props.acceleration_structure_;
+        std::cout << indent4 << "Max geometry count: "
+                  << acc_structure.maxGeometryCount << std::endl
+                  << indent4 << "Max instance count: "
+                  << acc_structure.maxInstanceCount << std::endl
+                  << indent4 << "Max primitive count: "
+                  << acc_structure.maxPrimitiveCount << std::endl
+                  << indent4 << "Min scratch offset alignment: "
+                  << acc_structure.minAccelerationStructureScratchOffsetAlignment << std::endl;
+      }
+
       const VkPhysicalDeviceRayQueryFeaturesKHR& ray_query = features.ray_query_;
       std::cout << indent3 << "ray query: "
                 << ray_query.rayQuery << std::endl;
-      const VkPhysicalDeviceRayTracingPipelineFeaturesKHR& ray_pipeline = features.ray_tracing_pipeline_features_;
+
+      const VkPhysicalDeviceRayTracingPipelineFeaturesKHR& ray_pipeline = features.ray_tracing_pipeline_;
       std::cout << indent3 << "ray tracing pipeline: "
                 << ray_pipeline.rayTracingPipeline << std::endl;
       if (ray_pipeline.rayTracingPipeline != 0) {
-        const VkPhysicalDeviceRayTracingPipelinePropertiesKHR& ray_pipeline_prop = props.ray_tracing_pipeline_;
         std::cout << indent4 << "indirect trace ray: "
                   << ray_pipeline.rayTracingPipelineTraceRaysIndirect << std::endl;
         std::cout << indent4 << "primitive culling: "
                   << ray_pipeline.rayTraversalPrimitiveCulling << std::endl;
+      }
+      if (ray_pipeline.rayTracingPipeline != 0) {
+        const VkPhysicalDeviceRayTracingPipelinePropertiesKHR& ray_pipeline = props.ray_tracing_pipeline_;
         std::cout << indent4 << "Shader group handle size: "
-                  << ray_pipeline_prop.shaderGroupHandleSize << std::endl
+                  << ray_pipeline.shaderGroupHandleSize << std::endl
                   << indent4 << "Max ray recursion depth: "
-                  << ray_pipeline_prop.maxRayRecursionDepth << std::endl
+                  << ray_pipeline.maxRayRecursionDepth << std::endl
                   << indent4 << "Shader group base alignment: "
-                  << ray_pipeline_prop.shaderGroupBaseAlignment << std::endl
+                  << ray_pipeline.shaderGroupBaseAlignment << std::endl
                   << indent4 << "Shader group handle alignment: "
-                  << ray_pipeline_prop.shaderGroupHandleAlignment << std::endl
+                  << ray_pipeline.shaderGroupHandleAlignment << std::endl
                   << indent4 << "Max ray hit attribute size: "
-                  << ray_pipeline_prop.maxRayHitAttributeSize << std::endl;
+                  << ray_pipeline.maxRayHitAttributeSize << std::endl;
+      }
+
+      const VkPhysicalDeviceOpacityMicromapFeaturesEXT& opacity_micromap = features.opacity_micromap_;
+      std::cout << indent3 << "opacity micromap: "
+                << opacity_micromap.micromap << std::endl;
+      if (opacity_micromap.micromap != 0) {
+        std::cout << opacity_micromap.micromap << std::endl
+                  << indent4 << "micromap capture reply: "
+                  << opacity_micromap.micromapCaptureReplay << std::endl
+                  << indent4 << "micromap host commands: "
+                  << opacity_micromap.micromapHostCommands << std::endl;
+      }
+      if (opacity_micromap.micromap != 0) {
+        const VkPhysicalDeviceOpacityMicromapPropertiesEXT& opacity_micromap = props.opacity_micromap_;
+        std::cout << indent4 << "max opacity2state subdivision level: "
+                  << opacity_micromap.maxOpacity2StateSubdivisionLevel << std::endl
+                  << indent4 << "max opacity4state subdivision level: "
+                  << opacity_micromap.maxOpacity4StateSubdivisionLevel << std::endl;
       }
     }
   }

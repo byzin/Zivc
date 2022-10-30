@@ -19,10 +19,6 @@
 #include "vulkan.hpp"
 #include "zivc/zivc_config.hpp"
 
-// C++ configuratinos
-#undef _LIBCPP_HAS_NO_INCOMPLETE_FORMAT
-#define _LIBCPP_NO_EXCEPTIONS
-
 // Namespace
 #define VULKAN_HPP_NAMESPACE zivc::vk
 // Disable the smart handler of the Vulkan-HPP
@@ -57,8 +53,5 @@
 #if defined(Z_GCC) || defined(Z_CLANG)
 #pragma GCC diagnostic pop
 #endif // Z_GCC || Z_CLANG
-
-// C++ configurations
-#undef _LIBCPP_NO_EXCEPTIONS
 
 #endif // ZIVC_VULKAN_HPP_HPP

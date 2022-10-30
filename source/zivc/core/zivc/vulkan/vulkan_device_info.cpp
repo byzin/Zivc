@@ -332,6 +332,8 @@ void VulkanDeviceInfo::fetchFeatures(const VulkanDispatchLoader& dispatcher)
           props.astc_decode_),
        initProp<vk::PhysicalDeviceAccelerationStructureFeaturesKHR>(
           props.acceleration_structure_),
+       initProp<vk::PhysicalDeviceAddressBindingReportFeaturesEXT>(
+          props.address_binding_report_),
        initProp<vk::PhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT>(
           props.attachment_feedback_loop_layout_),
        initProp<vk::PhysicalDeviceBlendOperationAdvancedFeaturesEXT>(
@@ -346,6 +348,8 @@ void VulkanDeviceInfo::fetchFeatures(const VulkanDispatchLoader& dispatcher)
           props.conditional_rendering_),
        initProp<vk::PhysicalDeviceCustomBorderColorFeaturesEXT>(
           props.custom_border_color_),
+       initProp<vk::PhysicalDeviceDepthClampZeroOneFeaturesEXT>(
+          props.depth_clamp_zero_one_),
        initProp<vk::PhysicalDeviceDepthClipControlFeaturesEXT>(
           props.depth_clip_control_),
        initProp<vk::PhysicalDeviceDepthClipEnableFeaturesEXT>(
@@ -360,10 +364,16 @@ void VulkanDeviceInfo::fetchFeatures(const VulkanDispatchLoader& dispatcher)
           props.extended_dynamic_state_),
        initProp<vk::PhysicalDeviceExtendedDynamicState2FeaturesEXT>(
           props.extended_dynamic_state2_),
+       initProp<vk::PhysicalDeviceExtendedDynamicState3FeaturesEXT>(
+          props.extended_dynamic_state3_),
+       initProp<vk::PhysicalDeviceFaultFeaturesEXT>(
+          props.fault_feature_),
        initProp<vk::PhysicalDeviceFragmentDensityMapFeaturesEXT>(
           props.fragment_density_map_),
        initProp<vk::PhysicalDeviceFragmentDensityMap2FeaturesEXT>(
           props.fragment_density_map2_),
+       initProp<vk::PhysicalDeviceFragmentShaderBarycentricFeaturesKHR>(
+          props.fragment_shader_barycentric_),
        initProp<vk::PhysicalDeviceFragmentShaderInterlockFeaturesEXT>(
           props.fragment_shader_inter_lock_),
        initProp<vk::PhysicalDeviceFragmentShadingRateFeaturesKHR>(
@@ -390,20 +400,28 @@ void VulkanDeviceInfo::fetchFeatures(const VulkanDispatchLoader& dispatcher)
           props.index_type_uint8_),
        initProp<vk::PhysicalDeviceInlineUniformBlockFeatures>(
           props.inline_uniform_block_),
+       initProp<vk::PhysicalDeviceLegacyDitheringFeaturesEXT>(
+          props.legacy_dithering_),
        initProp<vk::PhysicalDeviceLineRasterizationFeaturesEXT>(
           props.line_rasterization_),
        initProp<vk::PhysicalDeviceMaintenance4Features>(
           props.maintenance4_),
        initProp<vk::PhysicalDeviceMemoryPriorityFeaturesEXT>(
-          props.memory_priority_features_),
+          props.memory_priority_),
+       initProp<vk::PhysicalDeviceMeshShaderFeaturesEXT>(
+          props.mesh_shader_),
        initProp<vk::PhysicalDeviceMultiDrawFeaturesEXT>(
           props.multi_draw_),
        initProp<vk::PhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT>(
           props.multisample_render_to_single_sampled_),
        initProp<vk::PhysicalDeviceMultiviewFeatures>(
           props.multiview_),
+       initProp<vk::PhysicalDeviceMutableDescriptorTypeFeaturesEXT>(
+          props.mutabledescriptor_type_),
        initProp<vk::PhysicalDeviceNonSeamlessCubeMapFeaturesEXT>(
           props.non_seamless_cube_map_),
+       initProp<vk::PhysicalDeviceOpacityMicromapFeaturesEXT>(
+          props.opacity_micromap_),
        initProp<vk::PhysicalDevicePageableDeviceLocalMemoryFeaturesEXT>(
           props.pageable_device_local_memory_),
        initProp<vk::PhysicalDevicePerformanceQueryFeaturesKHR>(
@@ -416,6 +434,8 @@ void VulkanDeviceInfo::fetchFeatures(const VulkanDispatchLoader& dispatcher)
           props.portability_subset_),
        initProp<vk::PhysicalDevicePipelinePropertiesFeaturesEXT>(
           props.pipeline_properties_),
+       initProp<vk::PhysicalDevicePipelineProtectedAccessFeaturesEXT>(
+          props.pipeline_protected_access_),
        initProp<vk::PhysicalDevicePipelineRobustnessFeaturesEXT>(
           props.pipeline_robustness_),
        initProp<vk::PhysicalDevicePresentIdFeaturesKHR>(
@@ -427,17 +447,19 @@ void VulkanDeviceInfo::fetchFeatures(const VulkanDispatchLoader& dispatcher)
        initProp<vk::PhysicalDevicePrimitivesGeneratedQueryFeaturesEXT>(
           props.primitives_generated_query_),
        initProp<vk::PhysicalDevicePrivateDataFeatures>(
-          props.private_data_features_),
+          props.private_data_),
        initProp<vk::PhysicalDeviceProtectedMemoryFeatures>(
           props.protected_memory_),
        initProp<vk::PhysicalDeviceProvokingVertexFeaturesEXT>(
           props.provoking_vertex_),
+       initProp<vk::PhysicalDeviceRasterizationOrderAttachmentAccessFeaturesARM>(
+          props.rasterization_order_attachment_access_),
        initProp<vk::PhysicalDeviceRayQueryFeaturesKHR>(
           props.ray_query_),
        initProp<vk::PhysicalDeviceRayTracingMaintenance1FeaturesKHR>(
           props.ray_tracing_maintenance1_),
        initProp<vk::PhysicalDeviceRayTracingPipelineFeaturesKHR>(
-          props.ray_tracing_pipeline_features_),
+          props.ray_tracing_pipeline_),
        initProp<vk::PhysicalDeviceRGBA10X6FormatsFeaturesEXT>(
           props.rgba10x6_formats),
        initProp<vk::PhysicalDeviceRobustness2FeaturesEXT>(
@@ -608,6 +630,8 @@ void VulkanDeviceInfo::fetchProperties(const VulkanDispatchLoader& dispatcher)
           props.driver_),
        initProp<vk::PhysicalDeviceDrmPropertiesEXT>(
           props.drm_),
+       initProp<vk::PhysicalDeviceExtendedDynamicState3PropertiesEXT>(
+          props.extended_dynamic_state3_),
        initProp<vk::PhysicalDeviceExternalMemoryHostPropertiesEXT>(
           props.external_memory_host_),
        initProp<vk::PhysicalDeviceFloatControlsProperties>(
@@ -632,12 +656,16 @@ void VulkanDeviceInfo::fetchProperties(const VulkanDispatchLoader& dispatcher)
           props.maintenance3_),
        initProp<vk::PhysicalDeviceMaintenance4Properties>(
           props.maintenance4_),
+       initProp<vk::PhysicalDeviceMeshShaderPropertiesEXT>(
+          props.mesh_shader_),
        initProp<vk::PhysicalDeviceMultiDrawPropertiesEXT>(
           props.multi_draw_),
        initProp<vk::PhysicalDeviceMultiviewProperties>(
           props.multiview_),
        initProp<vk::PhysicalDevicePCIBusInfoPropertiesEXT>(
           props.pci_bus_info_),
+       initProp<vk::PhysicalDeviceOpacityMicromapPropertiesEXT>(
+          props.opacity_micromap_),
        initProp<vk::PhysicalDevicePerformanceQueryPropertiesKHR>(
           props.performance_query_),
        initProp<vk::PhysicalDevicePipelineRobustnessPropertiesEXT>(
@@ -748,9 +776,9 @@ void VulkanDeviceInfo::fetchQueueFamilyProperties(const VulkanDispatchLoader& di
     link(p,
          initProp<vk::QueueFamilyGlobalPriorityPropertiesEXT>(
             props.global_priority_),
-         initProp<vk::QueueFamilyQueryResultStatusProperties2KHR>(
+         initProp<vk::QueueFamilyQueryResultStatusPropertiesKHR>(
             props.query_result_status_),
-         initProp<vk::VideoQueueFamilyProperties2KHR>(
+         initProp<vk::QueueFamilyVideoPropertiesKHR>(
             props.video_)
         );
   }

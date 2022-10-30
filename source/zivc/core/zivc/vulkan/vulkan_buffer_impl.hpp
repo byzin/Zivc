@@ -210,7 +210,7 @@ class VulkanBufferImpl : private zisc::NonCopyable<VulkanBufferImpl>
   static constexpr FillUnitSize getFillUnitSize(const std::size_t size) noexcept;
 
   //! Convert to VMA flags
-  static constexpr VmaAllocationCreateFlagBits toVmaFlag(const BufferFlag flag) noexcept;
+  static constexpr VmaAllocationCreateFlags toVmaFlag(const BufferFlag flag) noexcept;
 
   //! Convert to VMA usage flags
   static constexpr VmaMemoryUsage toVmaUsage(const BufferUsage usage) noexcept;

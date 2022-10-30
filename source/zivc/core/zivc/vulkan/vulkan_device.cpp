@@ -101,7 +101,7 @@ auto getDefaultFeatures(const zivc::VulkanDeviceInfo& info,
   f->maintenance4_ = inputs.maintenance4_;
   f->ray_query_ = inputs.ray_query_;
   f->ray_tracing_maintenance1_ = inputs.ray_tracing_maintenance1_;
-  f->ray_tracing_pipeline_ = inputs.ray_tracing_pipeline_features_;
+  f->ray_tracing_pipeline_ = inputs.ray_tracing_pipeline_;
   f->shader_atomic_float_ = inputs.shader_atomic_float_;
   f->shader_atomic_float2_ = inputs.shader_atomic_float2_;
   f->shader_atomic_int64_ = inputs.shader_atomic_int64_;

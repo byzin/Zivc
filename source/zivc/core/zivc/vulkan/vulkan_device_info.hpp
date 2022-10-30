@@ -69,6 +69,7 @@ class VulkanDeviceInfo : public DeviceInfo
     VkPhysicalDeviceDiscardRectanglePropertiesEXT discard_rectangle_;
     VkPhysicalDeviceDriverProperties driver_;
     VkPhysicalDeviceDrmPropertiesEXT drm_;
+    VkPhysicalDeviceExtendedDynamicState3PropertiesEXT extended_dynamic_state3_;
     VkPhysicalDeviceExternalMemoryHostPropertiesEXT external_memory_host_;
     VkPhysicalDeviceFloatControlsProperties float_controls_;
     VkPhysicalDeviceFragmentDensityMapPropertiesEXT fragment_density_map_;
@@ -81,9 +82,10 @@ class VulkanDeviceInfo : public DeviceInfo
     VkPhysicalDeviceLineRasterizationPropertiesEXT line_rasterization_;
     VkPhysicalDeviceMaintenance3Properties maintenance3_;
     VkPhysicalDeviceMaintenance4Properties maintenance4_;
-    //VkPhysicalDeviceMeshShaderPropertiesEXT mesh_shader_;
+    VkPhysicalDeviceMeshShaderPropertiesEXT mesh_shader_;
     VkPhysicalDeviceMultiDrawPropertiesEXT multi_draw_;
     VkPhysicalDeviceMultiviewProperties multiview_;
+    VkPhysicalDeviceOpacityMicromapPropertiesEXT opacity_micromap_;
     VkPhysicalDevicePCIBusInfoPropertiesEXT pci_bus_info_;
     VkPhysicalDevicePerformanceQueryPropertiesKHR performance_query_;
     VkPhysicalDevicePipelineRobustnessPropertiesEXT pipeline_robustness_;
@@ -119,6 +121,7 @@ class VulkanDeviceInfo : public DeviceInfo
     VkPhysicalDevice8BitStorageFeatures b8bit_storage_;
     VkPhysicalDeviceASTCDecodeFeaturesEXT astc_decode_;
     VkPhysicalDeviceAccelerationStructureFeaturesKHR acceleration_structure_;
+    VkPhysicalDeviceAddressBindingReportFeaturesEXT address_binding_report_;
     VkPhysicalDeviceAttachmentFeedbackLoopLayoutFeaturesEXT attachment_feedback_loop_layout_;
     VkPhysicalDeviceBlendOperationAdvancedFeaturesEXT blend_operation_advanced_;
     VkPhysicalDeviceBorderColorSwizzleFeaturesEXT border_color_swizzle_;
@@ -126,7 +129,7 @@ class VulkanDeviceInfo : public DeviceInfo
     VkPhysicalDeviceColorWriteEnableFeaturesEXT color_write_enable_;
     VkPhysicalDeviceConditionalRenderingFeaturesEXT conditional_rendering_;
     VkPhysicalDeviceCustomBorderColorFeaturesEXT custom_border_color_;
-    //VkPhysicalDeviceDepthClampZeroOneFeaturesEXT depth_clamp_zero_one_;
+    VkPhysicalDeviceDepthClampZeroOneFeaturesEXT depth_clamp_zero_one_;
     VkPhysicalDeviceDepthClipControlFeaturesEXT depth_clip_control_;
     VkPhysicalDeviceDepthClipEnableFeaturesEXT depth_clip_enabled_;
     VkPhysicalDeviceDescriptorIndexingFeatures descriptor_indexing_;
@@ -134,8 +137,11 @@ class VulkanDeviceInfo : public DeviceInfo
     VkPhysicalDeviceDynamicRenderingFeatures dynamic_rendering_;
     VkPhysicalDeviceExtendedDynamicStateFeaturesEXT extended_dynamic_state_;
     VkPhysicalDeviceExtendedDynamicState2FeaturesEXT extended_dynamic_state2_;
+    VkPhysicalDeviceExtendedDynamicState3FeaturesEXT extended_dynamic_state3_;
+    VkPhysicalDeviceFaultFeaturesEXT fault_feature_;
     VkPhysicalDeviceFragmentDensityMapFeaturesEXT fragment_density_map_;
     VkPhysicalDeviceFragmentDensityMap2FeaturesEXT fragment_density_map2_;
+    VkPhysicalDeviceFragmentShaderBarycentricFeaturesKHR fragment_shader_barycentric_;
     VkPhysicalDeviceFragmentShaderInterlockFeaturesEXT fragment_shader_inter_lock_;
     VkPhysicalDeviceFragmentShadingRateFeaturesKHR fragment_shading_rate_;
     VkPhysicalDeviceGlobalPriorityQueryFeaturesKHR global_priority_query_;
@@ -149,34 +155,36 @@ class VulkanDeviceInfo : public DeviceInfo
     VkPhysicalDeviceImagelessFramebufferFeatures imageless_framebuffer_;
     VkPhysicalDeviceIndexTypeUint8FeaturesEXT index_type_uint8_;
     VkPhysicalDeviceInlineUniformBlockFeatures inline_uniform_block_;
-    //VkPhysicalDeviceLegacyDitheringFeaturesEXT legacy_dithering_;
+    VkPhysicalDeviceLegacyDitheringFeaturesEXT legacy_dithering_;
     VkPhysicalDeviceLineRasterizationFeaturesEXT line_rasterization_;
     VkPhysicalDeviceMaintenance4Features maintenance4_;
-    VkPhysicalDeviceMemoryPriorityFeaturesEXT memory_priority_features_;
-    //VkPhysicalDeviceMeshShaderFeaturesEXT mesh_shader_;
+    VkPhysicalDeviceMemoryPriorityFeaturesEXT memory_priority_;
+    VkPhysicalDeviceMeshShaderFeaturesEXT mesh_shader_;
     VkPhysicalDeviceMultiDrawFeaturesEXT multi_draw_;
     VkPhysicalDeviceMultisampledRenderToSingleSampledFeaturesEXT multisample_render_to_single_sampled_;
     VkPhysicalDeviceMultiviewFeatures multiview_;
-    //VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT mutabledescriptor_taype_;
+    VkPhysicalDeviceMutableDescriptorTypeFeaturesEXT mutabledescriptor_type_;
     VkPhysicalDeviceNonSeamlessCubeMapFeaturesEXT non_seamless_cube_map_;
+    VkPhysicalDeviceOpacityMicromapFeaturesEXT opacity_micromap_;
     VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT pageable_device_local_memory_;
     VkPhysicalDevicePerformanceQueryFeaturesKHR performance_query_;
     VkPhysicalDevicePipelineCreationCacheControlFeatures pipeline_creation_cache_control_;
     VkPhysicalDevicePipelineExecutablePropertiesFeaturesKHR pipeline_executable_properties_;
     VkPhysicalDevicePipelinePropertiesFeaturesEXT pipeline_properties_;
+    VkPhysicalDevicePipelineProtectedAccessFeaturesEXT pipeline_protected_access_;
     VkPhysicalDevicePipelineRobustnessFeaturesEXT pipeline_robustness_;
     VkPhysicalDevicePortabilitySubsetFeaturesKHR portability_subset_;
     VkPhysicalDevicePresentIdFeaturesKHR present_id_;
     VkPhysicalDevicePresentWaitFeaturesKHR present_wait_;
     VkPhysicalDevicePrimitiveTopologyListRestartFeaturesEXT primitive_topology_list_restart_;
     VkPhysicalDevicePrimitivesGeneratedQueryFeaturesEXT primitives_generated_query_;
-    VkPhysicalDevicePrivateDataFeatures private_data_features_;
+    VkPhysicalDevicePrivateDataFeatures private_data_;
     VkPhysicalDeviceProtectedMemoryFeatures protected_memory_;
     VkPhysicalDeviceProvokingVertexFeaturesEXT provoking_vertex_;
-    //VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT rasterization_order_attachment_access_;
+    VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT rasterization_order_attachment_access_;
     VkPhysicalDeviceRayQueryFeaturesKHR ray_query_;
     VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR ray_tracing_maintenance1_;
-    VkPhysicalDeviceRayTracingPipelineFeaturesKHR ray_tracing_pipeline_features_;
+    VkPhysicalDeviceRayTracingPipelineFeaturesKHR ray_tracing_pipeline_;
     VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT rgba10x6_formats;
     VkPhysicalDeviceRobustness2FeaturesEXT robustness2_;
     VkPhysicalDeviceSamplerYcbcrConversionFeatures sampler_ycbcr_conversion_;
@@ -228,8 +236,8 @@ class VulkanDeviceInfo : public DeviceInfo
   {
     VkQueueFamilyProperties properties1_;
     VkQueueFamilyGlobalPriorityPropertiesEXT global_priority_;
-    VkQueueFamilyQueryResultStatusProperties2KHR query_result_status_;
-    VkVideoQueueFamilyProperties2KHR video_;
+    VkQueueFamilyQueryResultStatusPropertiesKHR query_result_status_;
+    VkQueueFamilyVideoPropertiesKHR video_;
   };
 
   //! Format properties

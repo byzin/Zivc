@@ -516,9 +516,7 @@ VmaAllocationCreateInfo VulkanBufferImpl::createAllocCreateInfo(
 {
   // VMA allocation create info
   VmaAllocationCreateInfo alloc_create_info;
-  alloc_create_info.flags = (buffer_flag == BufferFlag::kNone)
-      ? VMA_ALLOCATION_CREATE_STRATEGY_MIN_MEMORY_BIT
-      : VMA_ALLOCATION_CREATE_STRATEGY_MIN_MEMORY_BIT | toVmaFlag(buffer_flag);
+  alloc_create_info.flags = VMA_ALLOCATION_CREATE_STRATEGY_MIN_MEMORY_BIT | toVmaFlag(buffer_flag);
   alloc_create_info.usage = toVmaUsage(buffer_usage);
   alloc_create_info.requiredFlags = 0;
   alloc_create_info.preferredFlags = 0;
@@ -654,16 +652,16 @@ const VulkanDevice& VulkanBufferImpl::device() const noexcept
   \return No description
   */
 inline
-constexpr VmaAllocationCreateFlagBits VulkanBufferImpl::toVmaFlag(const BufferFlag flag) noexcept
+constexpr VmaAllocationCreateFlags VulkanBufferImpl::toVmaFlag(const BufferFlag flag) noexcept
 {
-  VmaAllocationCreateFlagBits buf_flag = VMA_ALLOCATION_CREATE_FLAG_BITS_MAX_ENUM;
+  VmaAllocationCreateFlags buf_flag = VMA_ALLOCATION_CREATE_WITHIN_BUDGET_BIT;
   switch (flag) {
    case BufferFlag::kSequentialWritable: {
-    buf_flag = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+    buf_flag |= VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
     break;
    }
    case BufferFlag::kRandomAccessible: {
-    buf_flag = VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT;
+    buf_flag |= VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT;
     break;
    }
    default:

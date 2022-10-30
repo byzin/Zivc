@@ -55,7 +55,7 @@ BufferFlag BufferCommon::flag() const noexcept
 inline
 bool BufferCommon::isHostReadable() const noexcept
 {
-  const bool result = isHostCoherent() && isHostCached();
+  const bool result = flag() == BufferFlag::kRandomAccessible;
   return result;
 }
 
@@ -67,7 +67,8 @@ bool BufferCommon::isHostReadable() const noexcept
 inline
 bool BufferCommon::isHostWritable() const noexcept
 {
-  const bool result = isHostVisible() && isHostCoherent();
+  const bool result = (flag() == BufferFlag::kSequentialWritable) ||
+                      (flag() == BufferFlag::kRandomAccessible);
   return result;
 }
 

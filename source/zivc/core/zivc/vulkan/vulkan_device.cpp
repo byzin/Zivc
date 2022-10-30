@@ -1325,7 +1325,6 @@ void VulkanDevice::initProperties(zisc::pmr::vector<const char*>* extensions,
                  VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME};
 #endif // Z_MAC
 
-  extensions->emplace_back(VK_KHR_PORTABILITY_SUBSET_EXTENSION_NAME);
   if (hasCapability(CapabilityT::kCompute)) {
     extensions->emplace_back(VK_EXT_MEMORY_BUDGET_EXTENSION_NAME);
                             //VK_EXT_EXTERNAL_MEMORY_HOST_EXTENSION_NAME,

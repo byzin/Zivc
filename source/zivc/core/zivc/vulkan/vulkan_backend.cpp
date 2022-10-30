@@ -655,6 +655,10 @@ void VulkanBackend::initInstance(ContextOptions& options)
   zisc::pmr::vector<const char*> layers{layer_alloc};
   zisc::pmr::vector<const char*> extensions{layer_alloc};
 
+  // Enable features
+  extensions.emplace_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+
+  // Enable debug features 
   if (isDebugMode()) {
     layers.emplace_back("VK_LAYER_KHRONOS_validation");
     extensions.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
@@ -705,12 +709,13 @@ void VulkanBackend::initInstance(ContextOptions& options)
       options.contextVersionMajor(),
       options.contextVersionMinor(),
       options.contextVersionPatch())};
-  vk::InstanceCreateInfo create_info{vk::InstanceCreateFlags{},
-                                         std::addressof(app_info),
-                                         zisc::cast<uint32b>(layers.size()),
-                                         layers.data(),
-                                         zisc::cast<uint32b>(extensions.size()),
-                                         extensions.data()};
+  const vk::InstanceCreateFlags create_flags = vk::InstanceCreateFlagBits::eEnumeratePortabilityKHR;
+  vk::InstanceCreateInfo create_info{create_flags,
+                                     std::addressof(app_info),
+                                     zisc::cast<uint32b>(layers.size()),
+                                     layers.data(),
+                                     zisc::cast<uint32b>(extensions.size()),
+                                     extensions.data()};
   if (isDebugMode()) {
     create_info.setPNext(std::addressof(debug_utils_create_info));
     debug_utils_create_info.setPNext(std::addressof(validation_features));

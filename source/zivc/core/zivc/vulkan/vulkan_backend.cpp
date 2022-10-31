@@ -656,7 +656,9 @@ void VulkanBackend::initInstance(ContextOptions& options)
   zisc::pmr::vector<const char*> extensions{layer_alloc};
 
   // Enable features
+#if defined(Z_MAC)
   extensions.emplace_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+#endif // Z_MAC
 
   // Enable debug features 
   if (isDebugMode()) {
@@ -709,7 +711,11 @@ void VulkanBackend::initInstance(ContextOptions& options)
       options.contextVersionMajor(),
       options.contextVersionMinor(),
       options.contextVersionPatch())};
+#if defined(Z_MAC)
   const vk::InstanceCreateFlags create_flags = vk::InstanceCreateFlagBits::eEnumeratePortabilityKHR;
+#else // Z_MAC
+  const vk::InstanceCreateFlags create_flags{};
+#endif // Z_MAC
   vk::InstanceCreateInfo create_info{create_flags,
                                      std::addressof(app_info),
                                      zisc::cast<uint32b>(layers.size()),

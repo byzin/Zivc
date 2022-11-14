@@ -224,17 +224,16 @@ TEST(BufferTest, HostBufferInitializationTest)
   ASSERT_EQ(0, buffer->size()) << "Buffer initialization failed.";
   ASSERT_EQ(zivc::BufferUsage::kPreferHost, buffer->usage()) << "Buffer initialization failed.";
   ASSERT_EQ(zivc::BufferFlag::kNone, buffer->flag()) << "Buffer initialization failed.";
-  EXPECT_TRUE(buffer->isHostVisible()) << "The buffer isn't host visible.";
+  //! \note host buffer without read/write option can be non-host visible
+  // EXPECT_TRUE(buffer->isHostVisible()) << "The buffer isn't host visible.";
   // Allocation test
   {
     constexpr std::size_t n = 1;
     buffer->setSize(n);
-    EXPECT_TRUE(buffer->isHostVisible()) << "The buffer isn't host visible.";
     ASSERT_EQ(n, buffer->size()) << "Buffer 'setSize(" << n << ")' failed.";
   }
   // Clear
   buffer->clear();
-  EXPECT_TRUE(buffer->isHostVisible()) << "The buffer isn't host visible.";
   ASSERT_EQ(0, buffer->size()) << "Buffer 'clear' failed.";
   // Resize test
   {
@@ -267,7 +266,6 @@ TEST(BufferTest, HostBufferInitializationTest)
     buffer->setSize(n);
     ASSERT_EQ(n, buffer->size()) << "Buffer 'setSize(" << n << ")' failed.";
   }
-  ASSERT_TRUE(buffer->isHostVisible()) << "The buffer isn't host visible.";
   {
     constexpr std::size_t n = 1;
     buffer->setSize(n);
@@ -441,7 +439,8 @@ TEST(BufferTest, HostBufferMaxAllocationTest)
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   const zivc::SharedBuffer buffer = device->createBuffer<int>({zivc::BufferUsage::kPreferHost});
-  EXPECT_TRUE(buffer->isHostVisible()) << "The buffer isn't host visible.";
+  //! \note host buffer without read/write option can be non host visible
+  // EXPECT_TRUE(buffer->isHostVisible()) << "The buffer isn't host visible.";
 
   const zivc::DeviceInfo& info = device->deviceInfo();
   {

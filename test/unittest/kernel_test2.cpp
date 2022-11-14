@@ -80,10 +80,15 @@ TEST(KernelTest, SharedKernelTest)
   SharedKernelT kernel3{std::move(common)};
   ASSERT_EQ(1, kernel3->dimension()) << "SharedKernel initialization failed.";
   ASSERT_EQ(1, (*kernel3).dimension()) << "SharedKernel initialization failed.";
-  ASSERT_EQ(4, kernel3.useCount()) << "SharedKernel initialization failed.";
+#if defined(Z_CLANG)
+  constexpr std::size_t count_offset = 1;
+#else // Z_CLANG
+  constexpr std::size_t count_offset = 0;
+#endif // Z_CLANG
+  ASSERT_EQ(3 + count_offset, kernel3.useCount()) << "SharedKernel initialization failed.";
 
   kernel3.reset();
-  ASSERT_EQ(3, kernel1.useCount()) << "SharedKernel initialization failed.";
+  ASSERT_EQ(2 + count_offset, kernel1.useCount()) << "SharedKernel initialization failed.";
 }
 
 TEST(KernelTest, KernelMultipleInvocationsTest)

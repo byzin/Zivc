@@ -62,11 +62,11 @@ TEST(BufferTest, SharedBufferTest)
   SharedBufferT buffer3{std::move(common)};
   ASSERT_EQ(1, buffer3->size()) << "SharedBuffer initialization failed.";
   ASSERT_EQ(1, (*buffer3).size()) << "SharedBuffer initialization failed.";
-#if defined(Z_CLANG)
-  constexpr std::size_t count_offset = 1;
-#else // Z_CLANG
+#if defined(Z_MAC) || defined(Z_LINUX)
+  constexpr std::size_t count_offset = 1; // The constructor of kernel3 doesn't use move from common
+#else
   constexpr std::size_t count_offset = 0;
-#endif // Z_CLANG
+#endif
   ASSERT_EQ(3 + count_offset, buffer3.useCount()) << "SharedBuffer initialization failed.";
 
   buffer3.reset();

@@ -712,8 +712,10 @@ validateData()
   const VulkanDevice& device = parentImpl();
   const DeviceInfo& info = device.deviceInfo();
   if (info.maxNumOfBuffersPerKernel() < BaseKernelT::numOfBuffers()) {
-    char message[256] = "";
-    std::sprintf(message,
+    constexpr std::size_t max_message_size = 256;
+    char message[max_message_size] = "";
+    std::snprintf(message,
+        max_message_size,
         "The number of buffer arguments in the kernel exceeded the limit. limit=%d, buffers=%d",
         static_cast<int>(info.maxNumOfBuffersPerKernel()),
         static_cast<int>(BaseKernelT::numOfBuffers()));

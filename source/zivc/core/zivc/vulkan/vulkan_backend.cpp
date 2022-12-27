@@ -414,17 +414,17 @@ auto VulkanBackend::Callbacks::printDebugMessage(
   if (user_data != nullptr) {
     char* msg = tmp.data();
     const auto* data = static_cast<const IdData*>(user_data);
-    std::sprintf(msg, "ID[%lld] -", cast<long long>(data->id()));
+    std::snprintf(msg, max_message_size, "ID[%lld] -", cast<long long>(data->id()));
     if (data->hasName()) {
-      std::sprintf(msg, "%s Name '%s'", msg, data->name().data());
+      std::snprintf(msg, max_message_size, "%s Name '%s'", msg, data->name().data());
     }
     if (data->hasFileInfo()) {
       const std::string_view file_name = data->fileName();
       const int64b line = data->lineNumber();
-      std::sprintf(msg, "%s at line %lld in '%s'",
-                   msg,
-                   cast<long long>(line),
-                   file_name.data());
+      std::snprintf(msg, max_message_size, "%s at line %lld in '%s'",
+                    msg,
+                    cast<long long>(line),
+                    file_name.data());
     }
     concatStr("\n", msg);
     concatStr(msg, message.data());
@@ -458,7 +458,7 @@ auto VulkanBackend::Callbacks::printDebugMessage(
     }
 
     char* msg = tmp.data();
-    std::sprintf(msg, "%s - Message ID Number %d, Message ID Name %s : %s\n",
+    std::snprintf(msg, max_message_size, "%s - Message ID Number %d, Message ID Name %s : %s\n",
         prefix,
         callback_data->messageIdNumber,
         callback_data->pMessageIdName,
@@ -468,12 +468,12 @@ auto VulkanBackend::Callbacks::printDebugMessage(
 
   if (0 < callback_data->queueLabelCount) {
     char* msg = tmp.data();
-    std::sprintf(msg, "\n%sQueue Labels - %d\n",
+    std::snprintf(msg, max_message_size, "\n%sQueue Labels - %d\n",
         indent.data(),
         cast<int>(callback_data->queueLabelCount));
     for (std::size_t id = 0; id < callback_data->queueLabelCount; ++id) {
       const VkDebugUtilsLabelEXT& label = callback_data->pQueueLabels[id];
-      std::sprintf(msg, "%s%s  * Label[%d] - %s {%lf, %lf, %lf, %lf}\n",
+      std::snprintf(msg, max_message_size, "%s%s  * Label[%d] - %s {%lf, %lf, %lf, %lf}\n",
           msg,
           indent.data(),
           cast<int>(id),
@@ -488,12 +488,12 @@ auto VulkanBackend::Callbacks::printDebugMessage(
 
   if (0 < callback_data->cmdBufLabelCount) {
     char* msg = tmp.data();
-    std::sprintf(msg, "\n%sCommand Buffer Labels - %d\n",
+    std::snprintf(msg, max_message_size, "\n%sCommand Buffer Labels - %d\n",
         indent.data(),
         zisc::cast<int>(callback_data->cmdBufLabelCount));
     for (std::size_t id = 0; id < callback_data->cmdBufLabelCount; ++id) {
       const VkDebugUtilsLabelEXT& label = callback_data->pCmdBufLabels[id];
-      std::sprintf(msg, "%s%s  * Label[%d] - %s {%lf, %lf, %lf, %lf}\n",
+      std::snprintf(msg, max_message_size, "%s%s  * Label[%d] - %s {%lf, %lf, %lf, %lf}\n",
           msg,
           indent.data(),
           cast<int>(id),
@@ -508,14 +508,14 @@ auto VulkanBackend::Callbacks::printDebugMessage(
 
   if (0 < callback_data->objectCount) {
     char* msg = tmp.data();
-    std::sprintf(msg, "\n%sObjects - %d\n",
+    std::snprintf(msg, max_message_size, "\n%sObjects - %d\n",
         indent.data(),
         cast<int>(callback_data->objectCount));
     for (std::size_t id = 0; id < callback_data->objectCount; ++id) {
       const VkDebugUtilsObjectNameInfoEXT& object = callback_data->pObjects[id];
       const std::string obj_type_name = vk::to_string(
           static_cast<vk::ObjectType>(object.objectType));
-      std::sprintf(msg, "%s%s  * Object[%d] - Type '%s', Value %llu, Name '%s'\n",
+      std::snprintf(msg, max_message_size, "%s%s  * Object[%d] - Type '%s', Value %llu, Name '%s'\n",
           msg,
           indent.data(),
           cast<int>(id),

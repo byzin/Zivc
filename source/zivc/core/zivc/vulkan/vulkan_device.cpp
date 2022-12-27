@@ -1343,10 +1343,11 @@ void VulkanDevice::initProperties(zisc::pmr::vector<const char*>* extensions,
   {
     constexpr std::size_t max_message_size = 256;
     std::array<char, max_message_size> m;
-    std::sprintf(m.data(),
-                 "%s property '%s' isn't supported in the device.",
-                 type,
-                 name);
+    std::snprintf(m.data(),
+                  max_message_size,
+                  "%s property '%s' isn't supported in the device.",
+                  type,
+                  name);
     const std::string message = createErrorMessage(*this, m.data());
     throw SystemError{ErrorCode::kVulkanInitializationFailed, message};
   };

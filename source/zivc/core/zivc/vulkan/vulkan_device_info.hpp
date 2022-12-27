@@ -65,6 +65,8 @@ class VulkanDeviceInfo : public DeviceInfo
     VkPhysicalDeviceConservativeRasterizationPropertiesEXT conservative_rasterization_;
     VkPhysicalDeviceCustomBorderColorPropertiesEXT custom_border_color_;
     VkPhysicalDeviceDepthStencilResolveProperties depth_stencil_resolve_;
+    VkPhysicalDeviceDescriptorBufferDensityMapPropertiesEXT descriptor_buffer_density_map_;
+    VkPhysicalDeviceDescriptorBufferPropertiesEXT descriptor_buffer_;
     VkPhysicalDeviceDescriptorIndexingProperties descriptor_indexing_;
     VkPhysicalDeviceDiscardRectanglePropertiesEXT discard_rectangle_;
     VkPhysicalDeviceDriverProperties driver_;
@@ -132,6 +134,7 @@ class VulkanDeviceInfo : public DeviceInfo
     VkPhysicalDeviceDepthClampZeroOneFeaturesEXT depth_clamp_zero_one_;
     VkPhysicalDeviceDepthClipControlFeaturesEXT depth_clip_control_;
     VkPhysicalDeviceDepthClipEnableFeaturesEXT depth_clip_enabled_;
+    VkPhysicalDeviceDescriptorBufferFeaturesEXT descriptor_buffer_;
     VkPhysicalDeviceDescriptorIndexingFeatures descriptor_indexing_;
     VkPhysicalDeviceDeviceMemoryReportFeaturesEXT device_memory_report_;
     VkPhysicalDeviceDynamicRenderingFeatures dynamic_rendering_;
@@ -181,11 +184,11 @@ class VulkanDeviceInfo : public DeviceInfo
     VkPhysicalDevicePrivateDataFeatures private_data_;
     VkPhysicalDeviceProtectedMemoryFeatures protected_memory_;
     VkPhysicalDeviceProvokingVertexFeaturesEXT provoking_vertex_;
+    VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT rgba10x6_formats_;
     VkPhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT rasterization_order_attachment_access_;
     VkPhysicalDeviceRayQueryFeaturesKHR ray_query_;
     VkPhysicalDeviceRayTracingMaintenance1FeaturesKHR ray_tracing_maintenance1_;
     VkPhysicalDeviceRayTracingPipelineFeaturesKHR ray_tracing_pipeline_;
-    VkPhysicalDeviceRGBA10X6FormatsFeaturesEXT rgba10x6_formats;
     VkPhysicalDeviceRobustness2FeaturesEXT robustness2_;
     VkPhysicalDeviceSamplerYcbcrConversionFeatures sampler_ycbcr_conversion_;
     VkPhysicalDeviceScalarBlockLayoutFeatures scalar_block_layout_;
@@ -205,6 +208,7 @@ class VulkanDeviceInfo : public DeviceInfo
     VkPhysicalDeviceShaderTerminateInvocationFeatures shader_terminate_invocation_;
     VkPhysicalDeviceSubgroupSizeControlFeatures subgroup_size_control_;
     VkPhysicalDeviceSubpassMergeFeedbackFeaturesEXT subpass_merge_feedback_;
+    //VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT swapchain_maintenance1_;
     VkPhysicalDeviceSynchronization2Features synchronization2_;
     VkPhysicalDeviceTexelBufferAlignmentFeaturesEXT texel_buffer_alignment_;
     VkPhysicalDeviceTextureCompressionASTCHDRFeatures texture_compression_astchdr_;

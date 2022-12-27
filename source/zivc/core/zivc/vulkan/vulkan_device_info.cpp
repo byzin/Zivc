@@ -354,6 +354,8 @@ void VulkanDeviceInfo::fetchFeatures(const VulkanDispatchLoader& dispatcher)
           props.depth_clip_control_),
        initProp<vk::PhysicalDeviceDepthClipEnableFeaturesEXT>(
           props.depth_clip_enabled_),
+       initProp<vk::PhysicalDeviceDescriptorBufferFeaturesEXT>(
+          props.descriptor_buffer_),
        initProp<vk::PhysicalDeviceDescriptorIndexingFeatures>(
           props.descriptor_indexing_),
        initProp<vk::PhysicalDeviceDeviceMemoryReportFeaturesEXT>(
@@ -452,7 +454,9 @@ void VulkanDeviceInfo::fetchFeatures(const VulkanDispatchLoader& dispatcher)
           props.protected_memory_),
        initProp<vk::PhysicalDeviceProvokingVertexFeaturesEXT>(
           props.provoking_vertex_),
-       initProp<vk::PhysicalDeviceRasterizationOrderAttachmentAccessFeaturesARM>(
+       initProp<vk::PhysicalDeviceRGBA10X6FormatsFeaturesEXT>(
+          props.rgba10x6_formats_),
+       initProp<vk::PhysicalDeviceRasterizationOrderAttachmentAccessFeaturesEXT>(
           props.rasterization_order_attachment_access_),
        initProp<vk::PhysicalDeviceRayQueryFeaturesKHR>(
           props.ray_query_),
@@ -460,8 +464,6 @@ void VulkanDeviceInfo::fetchFeatures(const VulkanDispatchLoader& dispatcher)
           props.ray_tracing_maintenance1_),
        initProp<vk::PhysicalDeviceRayTracingPipelineFeaturesKHR>(
           props.ray_tracing_pipeline_),
-       initProp<vk::PhysicalDeviceRGBA10X6FormatsFeaturesEXT>(
-          props.rgba10x6_formats),
        initProp<vk::PhysicalDeviceRobustness2FeaturesEXT>(
           props.robustness2_),
        initProp<vk::PhysicalDeviceSamplerYcbcrConversionFeatures>(
@@ -622,6 +624,10 @@ void VulkanDeviceInfo::fetchProperties(const VulkanDispatchLoader& dispatcher)
           props.custom_border_color_),
        initProp<vk::PhysicalDeviceDepthStencilResolveProperties>(
           props.depth_stencil_resolve_),
+       initProp<vk::PhysicalDeviceDescriptorBufferDensityMapPropertiesEXT>(
+          props.descriptor_buffer_density_map_),
+       initProp<vk::PhysicalDeviceDescriptorBufferPropertiesEXT>(
+          props.descriptor_buffer_),
        initProp<vk::PhysicalDeviceDescriptorIndexingProperties>(
           props.descriptor_indexing_),
        initProp<vk::PhysicalDeviceDiscardRectanglePropertiesEXT>(

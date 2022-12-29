@@ -1,5 +1,5 @@
 /*!
-  \file kernel_test.cpp
+  \file kernel_test_pod.cpp
   \author Sho Ikeda
   \brief No brief description
 

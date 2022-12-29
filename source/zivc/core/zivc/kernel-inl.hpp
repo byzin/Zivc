@@ -205,6 +205,19 @@ initialize(ZivcObject::SharedPtr&& parent,
 template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
 inline
 constexpr std::size_t Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+localSize() const noexcept
+{
+  return numOfLocals();
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+inline
+constexpr std::size_t Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 numOfArgs() noexcept
 {
   const std::size_t size = sizeof...(Args);
@@ -222,6 +235,20 @@ constexpr std::size_t Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>
 numOfBuffers() noexcept
 {
   constexpr std::size_t size = ArgParserT::kNumOfBufferArgs;
+  return size;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <std::size_t kDim, DerivedKSet KSet, typename ...FuncArgs, typename ...Args>
+inline
+constexpr std::size_t Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
+numOfLocals() noexcept
+{
+  constexpr std::size_t size = ArgParserT::kNumOfLocalArgs;
   return size;
 }
 

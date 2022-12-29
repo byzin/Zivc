@@ -108,11 +108,17 @@ class Kernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...> : public Kernel
                   WeakPtr&& own,
                   const ParamsT& params);
 
+  //! Return the number of local parameters are used
+  constexpr std::size_t localSize() const noexcept override;
+
   //! Return the number of kernel arguments required (nBuffers + nPods)
   static constexpr std::size_t numOfArgs() noexcept;
 
   //! Return the number of buffer arguments required
   static constexpr std::size_t numOfBuffers() noexcept;
+
+  //! Return the number of local parameters are used
+  static constexpr std::size_t numOfLocals() noexcept;
 
   //! Return the number of pod arguments required
   static constexpr std::size_t numOfPods() noexcept;

@@ -49,6 +49,9 @@ class KernelCommon : public ZivcObject
   //! Return the work-group dimension
   virtual std::size_t dimensionSize() const noexcept = 0;
 
+  //! Return the number of local parameters are used
+  virtual std::size_t localSize() const noexcept = 0;
+
   //! Return the number of pod arguments required
   virtual std::size_t podSize() const noexcept = 0;
 };

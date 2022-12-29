@@ -238,16 +238,21 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
     // For clspv work group size
     for (const uint32b s : work_group_size)
       spec_constants.emplace_back(s);
-    // Work dimension
-    spec_constants.emplace_back(zisc::cast<uint32b>(work_dimension));
     // For clspv local element size
     const VulkanDeviceInfo& info = deviceInfoImpl();
     spec_constants.emplace_back(info.workGroupSize());
+    // Work dimension
+    spec_constants.emplace_back(zisc::cast<uint32b>(work_dimension));
   }
   using MapEntryList = zisc::pmr::vector<vk::SpecializationMapEntry>;
   const MapEntryList::allocator_type entry_alloc{mem_resource};
   MapEntryList entries{entry_alloc};
   {
+    constexpr std::size_t max_local_size = 8;
+    ZIVC_ASSERT(num_of_local_args <= max_local_size,
+                "The number of local args exceeded the limit.");
+    constexpr std::size_t num_of_specs = work_group_size.size() + 1 + max_local_size;
+
     entries.reserve(work_group_size.size() + 1 + num_of_local_args);
     // For clspv work group size
     for (std::size_t i = 0; i < work_group_size.size(); ++i) {
@@ -257,21 +262,23 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
           sizeof(uint32b)};
       entries.emplace_back(entry);
     }
-    // Work dimension
-    {
-      const auto work_dim_index = zisc::cast<uint32b>(entries.size());
-      const vk::SpecializationMapEntry entry{
-          work_dim_index,
-          zisc::cast<uint32b>(work_dim_index * sizeof(uint32b)),
-          sizeof(uint32b)};
-      entries.emplace_back(entry);
-    }
     // For clspv local element size
+    constexpr std::size_t local_size_offset = work_group_size.size();
     for (std::size_t i = 0; i < num_of_local_args; ++i) {
       const auto local_size_index = zisc::cast<uint32b>(entries.size());
       const vk::SpecializationMapEntry entry{
           local_size_index,
-          zisc::cast<uint32b>(local_size_index * sizeof(uint32b)),
+          zisc::cast<uint32b>(local_size_offset * sizeof(uint32b)),
+          sizeof(uint32b)};
+      entries.emplace_back(entry);
+    }
+    // Work dimension
+    constexpr std::size_t work_dim_offset = local_size_offset + 1;
+    for (std::size_t i = entries.size(); i < num_of_specs; ++i) {
+      const auto work_dim_index = zisc::cast<uint32b>(entries.size());
+      const vk::SpecializationMapEntry entry{
+          work_dim_index,
+          zisc::cast<uint32b>(work_dim_offset * sizeof(uint32b)),
           sizeof(uint32b)};
       entries.emplace_back(entry);
     }

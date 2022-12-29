@@ -171,6 +171,13 @@ macro(setTestProject)
       SOURCE_FILES ${kernel_test_pod_sources}
       INCLUDE_DIRS "${kernel_set_kernel_test_pod_dir}")
   target_link_libraries(${PROJECT_NAME} PRIVATE ${kernel_name})
+  ## kernelTestLocal
+  cmake_path(SET kernel_set_kernel_test_local_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/kernel_test_local")
+  file(GLOB_RECURSE kernel_test_local_sources ${kernel_set_kernel_test_local_dir}/*.cl)
+  Zivc_addKernelSet(kernel_test_local ${PROJECT_VERSION} kernel_name
+      SOURCE_FILES ${kernel_test_local_sources}
+      INCLUDE_DIRS "${kernel_set_kernel_test_local_dir}")
+  target_link_libraries(${PROJECT_NAME} PRIVATE ${kernel_name})
   ## opencl C++ test1
   cmake_path(SET kernel_set_cl_cpp_test1_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/cl_cpp_test1")
   file(GLOB_RECURSE cl_cpp_test1_sources ${kernel_set_cl_cpp_test1_dir}/*.cl)

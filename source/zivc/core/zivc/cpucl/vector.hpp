@@ -78,7 +78,7 @@ struct alignas(2 * sizeof(T)) Vector<T, 2>
 
 
   //! Initialize a vector
-  constexpr Vector() noexcept;
+  constexpr Vector() noexcept = default;
 
   //! Fill all elements with the given value v
   constexpr Vector(ConstReference v) noexcept;
@@ -175,7 +175,7 @@ struct alignas(4 * sizeof(T)) Vector<T, 3>
 
 
   //! Initialize a vector
-  constexpr Vector() noexcept;
+  constexpr Vector() noexcept = default;
 
   //! Fill all elements with the given value v
   constexpr Vector(ConstReference v) noexcept;
@@ -281,7 +281,7 @@ struct alignas(4 * sizeof(T)) Vector<T, 4>
 
 
   //! Initialize a vector
-  constexpr Vector() noexcept;
+  constexpr Vector() noexcept = default;
 
   //! Fill all elements with the given value v
   constexpr Vector(ConstReference v) noexcept;

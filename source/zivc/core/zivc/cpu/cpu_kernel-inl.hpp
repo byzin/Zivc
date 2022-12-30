@@ -182,9 +182,9 @@ createLocal() noexcept
     internal::KernelArgCache cache = createLocalImpl(std::make_index_sequence<n>());
     using CacheT = decltype(cache);
     static_assert(std::is_trivially_constructible_v<CacheT>,
-                  "The POD values aren't trivially copyable.");
+                  "The local values aren't trivially constructible.");
     static_assert(std::equality_comparable<CacheT>,
-                  "The POD values aren't equality comparable.");
+                  "The local values aren't equality comparable.");
     return cache;
   }
 }

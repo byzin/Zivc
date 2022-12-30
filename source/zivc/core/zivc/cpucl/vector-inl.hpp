@@ -13,6 +13,7 @@
 #include "vector.hpp"
 // Standard C++ library
 #include <array>
+#include <concepts>
 #include <cstddef>
 #include <type_traits>
 // Zisc
@@ -27,12 +28,55 @@
 namespace zivc::cl {
 
 /*!
-  \details No detailed description
+  \def ZIVC_CPUCL_VECTOR_TYPE_CHECK
+  \brief No brief description
+
+  No detailed description.
+
+  \param [in] type No description.
   */
-template <Arithmetic T> inline
-constexpr Vector<T, 2>::Vector() noexcept : Vector(zisc::cast<Type>(0))
-{
-}
+#define ZIVC_CPUCL_VECTOR_TYPE_CHECK(type) \
+    static_assert(std::is_trivially_constructible_v< type >, \
+                  "The vector type isn't trivially constructible."); \
+    static_assert(std::is_trivially_copy_constructible_v< type >, \
+                  "The vector type isn't trivially copyable."); \
+    static_assert(std::equality_comparable< type >, \
+                  "The vector type isn't equality comparable.")
+
+ZIVC_CPUCL_VECTOR_TYPE_CHECK(char2);
+ZIVC_CPUCL_VECTOR_TYPE_CHECK(char3);
+ZIVC_CPUCL_VECTOR_TYPE_CHECK(char4);
+ZIVC_CPUCL_VECTOR_TYPE_CHECK(uchar2);
+ZIVC_CPUCL_VECTOR_TYPE_CHECK(uchar3);
+ZIVC_CPUCL_VECTOR_TYPE_CHECK(uchar4);
+ZIVC_CPUCL_VECTOR_TYPE_CHECK(short2);
+ZIVC_CPUCL_VECTOR_TYPE_CHECK(short3);
+ZIVC_CPUCL_VECTOR_TYPE_CHECK(short4);
+ZIVC_CPUCL_VECTOR_TYPE_CHECK(ushort2);
+ZIVC_CPUCL_VECTOR_TYPE_CHECK(ushort3);
+ZIVC_CPUCL_VECTOR_TYPE_CHECK(ushort4);
+ZIVC_CPUCL_VECTOR_TYPE_CHECK(int2);
+ZIVC_CPUCL_VECTOR_TYPE_CHECK(int3);
+ZIVC_CPUCL_VECTOR_TYPE_CHECK(int4);
+ZIVC_CPUCL_VECTOR_TYPE_CHECK(uint2);
+ZIVC_CPUCL_VECTOR_TYPE_CHECK(uint3);
+ZIVC_CPUCL_VECTOR_TYPE_CHECK(uint4);
+ZIVC_CPUCL_VECTOR_TYPE_CHECK(long2);
+ZIVC_CPUCL_VECTOR_TYPE_CHECK(long3);
+ZIVC_CPUCL_VECTOR_TYPE_CHECK(long4);
+ZIVC_CPUCL_VECTOR_TYPE_CHECK(ulong2);
+ZIVC_CPUCL_VECTOR_TYPE_CHECK(ulong3);
+ZIVC_CPUCL_VECTOR_TYPE_CHECK(ulong4);
+//ZIVC_CPUCL_VECTOR_TYPE_CHECK(half2);
+//ZIVC_CPUCL_VECTOR_TYPE_CHECK(half3);
+//ZIVC_CPUCL_VECTOR_TYPE_CHECK(half4);
+ZIVC_CPUCL_VECTOR_TYPE_CHECK(float2);
+ZIVC_CPUCL_VECTOR_TYPE_CHECK(float3);
+ZIVC_CPUCL_VECTOR_TYPE_CHECK(float4);
+ZIVC_CPUCL_VECTOR_TYPE_CHECK(double2);
+ZIVC_CPUCL_VECTOR_TYPE_CHECK(double3);
+ZIVC_CPUCL_VECTOR_TYPE_CHECK(double4);
+
 
 /*!
   \details No detailed description
@@ -88,7 +132,7 @@ constexpr auto Vector<T, 2>::operator[](const size_type index) const noexcept ->
 template <Arithmetic T> inline
 constexpr Vector<T, 2>::operator bool() const noexcept
 {
-  const bool result = zisc::cast<bool>(x) && zisc::cast<bool>(y);
+  const bool result = static_cast<bool>(x) && static_cast<bool>(y);
   return result;
 }
 
@@ -222,14 +266,6 @@ constexpr auto Vector<T, 2>::size() noexcept -> size_type
 
 /*!
   \details No detailed description
-  */
-template <Arithmetic T> inline
-constexpr Vector<T, 3>::Vector() noexcept : Vector(zisc::cast<Type>(0))
-{
-}
-
-/*!
-  \details No detailed description
 
   \param [in] v No description.
   */
@@ -247,7 +283,7 @@ constexpr Vector<T, 3>::Vector(ConstReference v) noexcept : Vector(v, v, v)
   */
 template <Arithmetic T> inline
 constexpr Vector<T, 3>::Vector(ConstReference v0, ConstReference v1, ConstReference v2) noexcept :
-    data_{{v0, v1, v2, zisc::cast<Type>(0)}}
+    data_{{v0, v1, v2, static_cast<Type>(0)}}
 {
 }
 
@@ -307,8 +343,8 @@ constexpr auto Vector<T, 3>::operator[](const size_type index) const noexcept ->
 template <Arithmetic T> inline
 constexpr Vector<T, 3>::operator bool() const noexcept
 {
-  const bool result = zisc::cast<bool>(x) && zisc::cast<bool>(y) &&
-                      zisc::cast<bool>(z);
+  const bool result = static_cast<bool>(x) && static_cast<bool>(y) &&
+                      static_cast<bool>(z);
   return result;
 }
 
@@ -442,14 +478,6 @@ constexpr auto Vector<T, 3>::size() noexcept -> size_type
 
 /*!
   \details No detailed description
-  */
-template <Arithmetic T> inline
-constexpr Vector<T, 4>::Vector() noexcept : Vector(zisc::cast<Type>(0))
-{
-}
-
-/*!
-  \details No detailed description
 
   \param [in] v No description.
   */
@@ -579,8 +607,8 @@ constexpr auto Vector<T, 4>::operator[](const size_type index) const noexcept ->
 template <Arithmetic T> inline
 constexpr Vector<T, 4>::operator bool() const noexcept
 {
-  const bool result = zisc::cast<bool>(x) && zisc::cast<bool>(y) &&
-                      zisc::cast<bool>(z) && zisc::cast<bool>(z);
+  const bool result = static_cast<bool>(x) && static_cast<bool>(y) &&
+                      static_cast<bool>(z) && static_cast<bool>(z);
   return result;
 }
 
@@ -725,8 +753,10 @@ template <Arithmetic Type, size_t kN> inline
 constexpr Vector<Type, kN>& operator+=(Vector<Type, kN>& lhs,
                                        const Vector<Type, kN>& rhs) noexcept
 {
+  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    lhs[index] += rhs[index];
+    l[index] += r[index];
   return lhs;
 }
 
@@ -744,8 +774,9 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr Vector<Type1, kN>& operator+=(Vector<Type1, kN>& lhs,
                                         const Type2& rhs) noexcept
 {
+  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
   for (size_t index = 0; index < kN; ++index)
-    lhs[index] += rhs;
+    l[index] += rhs;
   return lhs;
 }
 
@@ -762,8 +793,10 @@ template <Arithmetic Type, size_t kN> inline
 constexpr Vector<Type, kN>& operator-=(Vector<Type, kN>& lhs,
                                        const Vector<Type, kN>& rhs) noexcept
 {
+  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    lhs[index] -= rhs[index];
+    l[index] -= r[index];
   return lhs;
 }
 
@@ -781,8 +814,9 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr Vector<Type1, kN>& operator-=(Vector<Type1, kN>& lhs,
                                         const Type2& rhs) noexcept
 {
+  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
   for (size_t index = 0; index < kN; ++index)
-    lhs[index] -= rhs;
+    l[index] -= rhs;
   return lhs;
 }
 
@@ -799,8 +833,10 @@ template <Arithmetic Type, size_t kN> inline
 constexpr Vector<Type, kN>& operator*=(Vector<Type, kN>& lhs,
                                        const Vector<Type, kN>& rhs) noexcept
 {
+  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    lhs[index] *= rhs[index];
+    l[index] *= r[index];
   return lhs;
 }
 
@@ -818,8 +854,9 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr Vector<Type1, kN>& operator*=(Vector<Type1, kN>& lhs,
                                         const Type2& rhs) noexcept
 {
+  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
   for (size_t index = 0; index < kN; ++index)
-    lhs[index] *= rhs;
+    l[index] *= rhs;
   return lhs;
 }
 
@@ -836,8 +873,10 @@ template <Arithmetic Type, size_t kN> inline
 constexpr Vector<Type, kN>& operator/=(Vector<Type, kN>& lhs,
                                        const Vector<Type, kN>& rhs) noexcept
 {
+  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    lhs[index] /= rhs[index];
+    l[index] /= r[index];
   return lhs;
 }
 
@@ -855,8 +894,9 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr Vector<Type1, kN>& operator/=(Vector<Type1, kN>& lhs,
                                         const Type2& rhs) noexcept
 {
+  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
   for (size_t index = 0; index < kN; ++index)
-    lhs[index] /= rhs;
+    l[index] /= rhs;
   return lhs;
 }
 
@@ -873,8 +913,10 @@ template <zisc::Integer Type, size_t kN> inline
 constexpr Vector<Type, kN>& operator%=(Vector<Type, kN>& lhs,
                                        const Vector<Type, kN>& rhs) noexcept
 {
+  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    lhs[index] %= rhs[index];
+    l[index] %= r[index];
   return lhs;
 }
 
@@ -892,8 +934,9 @@ template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 constexpr Vector<Type1, kN>& operator%=(Vector<Type1, kN>& lhs,
                                         const Type2& rhs) noexcept
 {
+  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
   for (size_t index = 0; index < kN; ++index)
-    lhs[index] %= rhs;
+    l[index] %= rhs;
   return lhs;
 }
 
@@ -910,8 +953,10 @@ template <zisc::Integer Type, size_t kN> inline
 constexpr Vector<Type, kN>& operator&=(Vector<Type, kN>& lhs,
                                        const Vector<Type, kN>& rhs) noexcept
 {
+  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    lhs[index] &= rhs[index];
+    l[index] &= r[index];
   return lhs;
 }
 
@@ -929,8 +974,9 @@ template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 constexpr Vector<Type1, kN>& operator&=(Vector<Type1, kN>& lhs,
                                         const Type2& rhs) noexcept
 {
+  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
   for (size_t index = 0; index < kN; ++index)
-    lhs[index] &= rhs;
+    l[index] &= rhs;
   return lhs;
 }
 
@@ -947,8 +993,10 @@ template <zisc::Integer Type, size_t kN> inline
 constexpr Vector<Type, kN>& operator|=(Vector<Type, kN>& lhs,
                                        const Vector<Type, kN>& rhs) noexcept
 {
+  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    lhs[index] |= rhs[index];
+    l[index] |= r[index];
   return lhs;
 }
 
@@ -966,8 +1014,9 @@ template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 constexpr Vector<Type1, kN>& operator|=(Vector<Type1, kN>& lhs,
                                         const Type2& rhs) noexcept
 {
+  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
   for (size_t index = 0; index < kN; ++index)
-    lhs[index] |= rhs;
+    l[index] |= rhs;
   return lhs;
 }
 
@@ -984,8 +1033,10 @@ template <zisc::Integer Type, size_t kN> inline
 constexpr Vector<Type, kN>& operator^=(Vector<Type, kN>& lhs,
                                        const Vector<Type, kN>& rhs) noexcept
 {
+  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    lhs[index] ^= rhs[index];
+    l[index] ^= r[index];
   return lhs;
 }
 
@@ -1003,8 +1054,9 @@ template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 constexpr Vector<Type1, kN>& operator^=(Vector<Type1, kN>& lhs,
                                         const Type2& rhs) noexcept
 {
+  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
   for (size_t index = 0; index < kN; ++index)
-    lhs[index] ^= rhs;
+    l[index] ^= rhs;
   return lhs;
 }
 
@@ -1022,8 +1074,10 @@ template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 constexpr Vector<Type1, kN>& operator<<=(Vector<Type1, kN>& lhs,
                                          const Vector<Type2, kN>& rhs) noexcept
 {
+  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    lhs[index] <<= rhs[index];
+    l[index] <<= r[index];
   return lhs;
 }
 
@@ -1041,8 +1095,9 @@ template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 constexpr Vector<Type1, kN>& operator<<=(Vector<Type1, kN>& lhs,
                                          const Type2& rhs) noexcept
 {
+  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
   for (size_t index = 0; index < kN; ++index)
-    lhs[index] <<= rhs;
+    l[index] <<= rhs;
   return lhs;
 }
 
@@ -1060,8 +1115,10 @@ template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 constexpr Vector<Type1, kN>& operator>>=(Vector<Type1, kN>& lhs,
                                          const Vector<Type2, kN>& rhs) noexcept
 {
+  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    lhs[index] >>= rhs[index];
+    l[index] >>= r[index];
   return lhs;
 }
 
@@ -1079,8 +1136,9 @@ template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 constexpr Vector<Type1, kN>& operator>>=(Vector<Type1, kN>& lhs,
                                          const Type2& rhs) noexcept
 {
+  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
   for (size_t index = 0; index < kN; ++index)
-    lhs[index] >>= rhs;
+    l[index] >>= rhs;
   return lhs;
 }
 
@@ -1095,8 +1153,7 @@ constexpr Vector<Type1, kN>& operator>>=(Vector<Type1, kN>& lhs,
 template <Arithmetic Type, size_t kN> inline
 Vector<Type, kN>& operator++(Vector<Type, kN>& value) noexcept
 {
-  constexpr auto one = zisc::cast<Type>(1);
-  value += one;
+  value += static_cast<Type>(1);
   return value;
 }
 
@@ -1111,8 +1168,7 @@ Vector<Type, kN>& operator++(Vector<Type, kN>& value) noexcept
 template <Arithmetic Type, size_t kN> inline
 Vector<Type, kN>& operator--(Vector<Type, kN>& value) noexcept
 {
-  constexpr auto one = zisc::cast<Type>(1);
-  value -= one;
+  value -= static_cast<Type>(1);
   return value;
 }
 
@@ -1127,9 +1183,8 @@ Vector<Type, kN>& operator--(Vector<Type, kN>& value) noexcept
 template <Arithmetic Type, size_t kN> inline
 Vector<Type, kN> operator++(Vector<Type, kN>& value, int) noexcept
 {
-  constexpr auto one = zisc::cast<Type>(1);
-  const auto old = value;
-  value += one;
+  const Vector<Type, kN> old = value;
+  value += static_cast<Type>(1);
   return old;
 }
 
@@ -1144,9 +1199,8 @@ Vector<Type, kN> operator++(Vector<Type, kN>& value, int) noexcept
 template <Arithmetic Type, size_t kN> inline
 Vector<Type, kN> operator--(Vector<Type, kN>& value, int) noexcept
 {
-  constexpr auto one = zisc::cast<Type>(1);
-  const auto old = value;
-  value -= one;
+  const Vector<Type, kN> old = value;
+  value -= static_cast<Type>(1);
   return old;
 }
 
@@ -1175,9 +1229,11 @@ constexpr Vector<Type, kN> operator+(const Vector<Type, kN>& value) noexcept
 template <Arithmetic Type, size_t kN> inline
 constexpr Vector<Type, kN> operator-(const Vector<Type, kN>& value) noexcept
 {
-  Vector<Type, kN> result{};
+  Vector<Type, kN> result{static_cast<Type>(0)};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(value)>::ConstPointer v = value.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = -value[index];
+    res[index] = -v[index];
   return result;
 }
 
@@ -1194,9 +1250,12 @@ template <Arithmetic Type, size_t kN> inline
 constexpr Vector<Type, kN> operator+(const Vector<Type, kN>& lhs,
                                      const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<Type, kN> result{};
+  Vector<Type, kN> result{static_cast<Type>(0)};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = lhs[index] + rhs[index];
+    res[index] = l[index] + r[index];
   return result;
 }
 
@@ -1214,9 +1273,11 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr Vector<Type2, kN> operator+(const Type1& lhs,
                                       const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<Type2, kN> result{};
+  Vector<Type2, kN> result{static_cast<Type2>(0)};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = lhs + rhs[index];
+    res[index] = lhs + r[index];
   return result;
 }
 
@@ -1250,9 +1311,12 @@ template <Arithmetic Type, size_t kN> inline
 constexpr Vector<Type, kN> operator-(const Vector<Type, kN>& lhs,
                                      const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<Type, kN> result{};
+  Vector<Type, kN> result{static_cast<Type>(0)};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = lhs[index] - rhs[index];
+    res[index] = l[index] - r[index];
   return result;
 }
 
@@ -1270,9 +1334,11 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr Vector<Type2, kN> operator-(const Type1& lhs,
                                       const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<Type2, kN> result{};
+  Vector<Type2, kN> result{static_cast<Type2>(0)};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = lhs - rhs[index];
+    res[index] = lhs - r[index];
   return result;
 }
 
@@ -1290,9 +1356,11 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr Vector<Type1, kN> operator-(const Vector<Type1, kN>& lhs,
                                       const Type2& rhs) noexcept
 {
-  Vector<Type2, kN> result{};
+  Vector<Type2, kN> result{static_cast<Type2>(0)};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = lhs[index] - rhs;
+    res[index] = l[index] - rhs;
   return result;
 }
 
@@ -1309,9 +1377,12 @@ template <Arithmetic Type, size_t kN> inline
 constexpr Vector<Type, kN> operator*(const Vector<Type, kN>& lhs,
                                      const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<Type, kN> result{};
+  Vector<Type, kN> result{static_cast<Type>(0)};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = lhs[index] * rhs[index];
+    res[index] = l[index] * r[index];
   return result;
 }
 
@@ -1329,9 +1400,11 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr Vector<Type2, kN> operator*(const Type1& lhs,
                                       const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<Type2, kN> result{};
+  Vector<Type2, kN> result{static_cast<Type2>(0)};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = lhs * rhs[index];
+    res[index] = lhs * r[index];
   return result;
 }
 
@@ -1365,9 +1438,12 @@ template <Arithmetic Type, size_t kN> inline
 constexpr Vector<Type, kN> operator/(const Vector<Type, kN>& lhs,
                                      const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<Type, kN> result{};
+  Vector<Type, kN> result{static_cast<Type>(0)};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = lhs[index] / rhs[index];
+    res[index] = l[index] / r[index];
   return result;
 }
 
@@ -1385,9 +1461,11 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr Vector<Type2, kN> operator/(const Type1& lhs,
                                       const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<Type2, kN> result{};
+  Vector<Type2, kN> result{static_cast<Type2>(0)};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = lhs / rhs[index];
+    res[index] = lhs / r[index];
   return result;
 }
 
@@ -1405,9 +1483,11 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr Vector<Type1, kN> operator/(const Vector<Type1, kN>& lhs,
                                       const Type2& rhs) noexcept
 {
-  Vector<Type1, kN> result{};
+  Vector<Type1, kN> result{static_cast<Type2>(0)};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = lhs[index] / rhs;
+    res[index] = l[index] / rhs;
   return result;
 }
 
@@ -1424,9 +1504,12 @@ template <zisc::Integer Type, size_t kN> inline
 constexpr Vector<Type, kN> operator%(const Vector<Type, kN>& lhs,
                                      const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<Type, kN> result{};
+  Vector<Type, kN> result{static_cast<Type>(0)};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = lhs[index] % rhs[index];
+    res[index] = l[index] % r[index];
   return result;
 }
 
@@ -1444,9 +1527,11 @@ template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 constexpr Vector<Type2, kN> operator%(const Type1& lhs,
                                       const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<Type2, kN> result{};
+  Vector<Type2, kN> result{static_cast<Type2>(0)};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = lhs % rhs[index];
+    res[index] = lhs % r[index];
   return result;
 }
 
@@ -1464,9 +1549,11 @@ template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 constexpr Vector<Type1, kN> operator%(const Vector<Type1, kN>& lhs,
                                       const Type2& rhs) noexcept
 {
-  Vector<Type1, kN> result{};
+  Vector<Type1, kN> result{static_cast<Type1>(0)};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = lhs[index] % rhs;
+    res[index] = l[index] % rhs;
   return result;
 }
 
@@ -1481,9 +1568,11 @@ constexpr Vector<Type1, kN> operator%(const Vector<Type1, kN>& lhs,
 template <zisc::Integer Type, size_t kN> inline
 constexpr Vector<Type, kN> operator~(const Vector<Type, kN>& value) noexcept
 {
-  Vector<Type, kN> result{};
+  Vector<Type, kN> result{static_cast<Type>(0)};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(value)>::ConstPointer v = value.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = ~value[index];
+    res[index] = ~v[index];
   return result;
 }
 
@@ -1500,9 +1589,12 @@ template <zisc::Integer Type, size_t kN> inline
 constexpr Vector<Type, kN> operator&(const Vector<Type, kN>& lhs,
                                      const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<Type, kN> result{};
+  Vector<Type, kN> result{static_cast<Type>(0)};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = lhs[index] & rhs[index];
+    res[index] = l[index] & r[index];
   return result;
 }
 
@@ -1520,9 +1612,11 @@ template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 constexpr Vector<Type2, kN> operator&(const Type1& lhs,
                                       const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<Type2, kN> result{};
+  Vector<Type2, kN> result{static_cast<Type2>(0)};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = lhs & rhs[index];
+    res[index] = lhs & r[index];
   return result;
 }
 
@@ -1556,9 +1650,12 @@ template <zisc::Integer Type, size_t kN> inline
 constexpr Vector<Type, kN> operator|(const Vector<Type, kN>& lhs,
                                      const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<Type, kN> result{};
+  Vector<Type, kN> result{static_cast<Type>(0)};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = lhs[index] | rhs[index];
+    res[index] = l[index] | r[index];
   return result;
 }
 
@@ -1576,9 +1673,11 @@ template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 constexpr Vector<Type2, kN> operator|(const Type1& lhs,
                                       const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<Type2, kN> result{};
+  Vector<Type2, kN> result{static_cast<Type2>(0)};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = lhs | rhs[index];
+    res[index] = lhs | r[index];
   return result;
 }
 
@@ -1612,9 +1711,12 @@ template <zisc::Integer Type, size_t kN> inline
 constexpr Vector<Type, kN> operator^(const Vector<Type, kN>& lhs,
                                      const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<Type, kN> result{};
+  Vector<Type, kN> result{static_cast<Type>(0)};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = lhs[index] ^ rhs[index];
+    res[index] = l[index] ^ r[index];
   return result;
 }
 
@@ -1632,9 +1734,11 @@ template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 constexpr Vector<Type2, kN> operator^(const Type1& lhs,
                                       const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<Type2, kN> result{};
+  Vector<Type2, kN> result{static_cast<Type2>(0)};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = lhs ^ rhs[index];
+    res[index] = lhs ^ r[index];
   return result;
 }
 
@@ -1669,9 +1773,12 @@ template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 constexpr Vector<Type1, kN> operator<<(const Vector<Type1, kN>& lhs,
                                        const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<Type1, kN> result{};
+  Vector<Type1, kN> result{static_cast<Type1>(0)};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = zisc::cast<Type1>(lhs[index] << rhs[index]);
+    res[index] = static_cast<Type1>(l[index] << r[index]);
   return result;
 }
 
@@ -1689,9 +1796,11 @@ template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 constexpr Vector<Type1, kN> operator<<(const Vector<Type1, kN>& lhs,
                                        const Type2& rhs) noexcept
 {
-  Vector<Type1, kN> result{};
+  Vector<Type1, kN> result{static_cast<Type1>(0)};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = zisc::cast<Type1>(lhs[index] << rhs);
+    res[index] = static_cast<Type1>(l[index] << rhs);
   return result;
 }
 
@@ -1709,9 +1818,12 @@ template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 constexpr Vector<Type1, kN> operator>>(const Vector<Type1, kN>& lhs,
                                        const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<Type1, kN> result{};
+  Vector<Type1, kN> result{static_cast<Type1>(0)};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = zisc::cast<Type1>(lhs[index] >> rhs[index]);
+    res[index] = static_cast<Type1>(l[index] >> r[index]);
   return result;
 }
 
@@ -1729,9 +1841,11 @@ template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 constexpr Vector<Type1, kN> operator>>(const Vector<Type1, kN>& lhs,
                                        const Type2& rhs) noexcept
 {
-  Vector<Type1, kN> result{};
+  Vector<Type1, kN> result{static_cast<Type1>(0)};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = zisc::cast<Type1>(lhs[index] >> rhs);
+    res[index] = static_cast<Type1>(l[index] >> rhs);
   return result;
 }
 
@@ -1746,9 +1860,11 @@ constexpr Vector<Type1, kN> operator>>(const Vector<Type1, kN>& lhs,
 template <Arithmetic Type, size_t kN> inline
 constexpr Vector<bool, kN> operator!(const Vector<Type, kN>& value) noexcept
 {
-  Vector<bool, kN> result{};
+  Vector<bool, kN> result{false};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(value)>::ConstPointer v = value.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = !value[index];
+    res[index] = !v[index];
   return result;
 }
 
@@ -1765,9 +1881,12 @@ template <Arithmetic Type, size_t kN> inline
 constexpr Vector<bool, kN> operator&&(const Vector<Type, kN>& lhs,
                                       const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<bool, kN> result{};
+  Vector<bool, kN> result{false};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = lhs[index] && rhs[index];
+    res[index] = l[index] && r[index];
   return result;
 }
 
@@ -1785,9 +1904,11 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr Vector<bool, kN> operator&&(const Type1& lhs,
                                       const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<bool, kN> result{};
+  Vector<bool, kN> result{false};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = lhs && rhs[index];
+    res[index] = lhs && r[index];
   return result;
 }
 
@@ -1821,9 +1942,12 @@ template <Arithmetic Type, size_t kN> inline
 constexpr Vector<bool, kN> operator||(const Vector<Type, kN>& lhs,
                                       const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<bool, kN> result{};
+  Vector<bool, kN> result{false};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = lhs[index] || rhs[index];
+    res[index] = l[index] || r[index];
   return result;
 }
 
@@ -1841,9 +1965,11 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr Vector<bool, kN> operator||(const Type1& lhs,
                                       const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<bool, kN> result{};
+  Vector<bool, kN> result{false};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = lhs || rhs[index];
+    res[index] = lhs || r[index];
   return result;
 }
 
@@ -1877,9 +2003,12 @@ template <Arithmetic Type, size_t kN> inline
 constexpr Vector<bool, kN> operator==(const Vector<Type, kN>& lhs,
                                       const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<bool, kN> result{};
+  Vector<bool, kN> result{false};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = zisc::equal(lhs[index], rhs[index]);
+    res[index] = zisc::equal(l[index], r[index]);
   return result;
 }
 
@@ -1897,9 +2026,11 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr Vector<bool, kN> operator==(const Type1& lhs,
                                       const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<bool, kN> result{};
+  Vector<bool, kN> result{false};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = zisc::equal(lhs, rhs[index]);
+    res[index] = zisc::equal(lhs, r[index]);
   return result;
 }
 
@@ -1933,9 +2064,12 @@ template <Arithmetic Type, size_t kN> inline
 constexpr Vector<bool, kN> operator!=(const Vector<Type, kN>& lhs,
                                       const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<bool, kN> result{};
+  Vector<bool, kN> result{false};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = !zisc::equal(lhs[index], rhs[index]);
+    res[index] = !zisc::equal(l[index], r[index]);
   return result;
 }
 
@@ -1953,9 +2087,11 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr Vector<bool, kN> operator!=(const Type1& lhs,
                                       const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<bool, kN> result{};
+  Vector<bool, kN> result{false};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = !zisc::equal(lhs, rhs[index]);
+    res[index] = !zisc::equal(lhs, r[index]);
   return result;
 }
 
@@ -1989,9 +2125,12 @@ template <Arithmetic Type, size_t kN> inline
 constexpr Vector<bool, kN> operator<(const Vector<Type, kN>& lhs,
                                      const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<bool, kN> result{};
+  Vector<bool, kN> result{false};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = lhs[index] < rhs[index];
+    res[index] = l[index] < r[index];
   return result;
 }
 
@@ -2009,9 +2148,11 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr Vector<bool, kN> operator<(const Type1& lhs,
                                      const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<bool, kN> result{};
+  Vector<bool, kN> result{false};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = lhs < rhs[index];
+    res[index] = lhs < r[index];
   return result;
 }
 
@@ -2045,9 +2186,12 @@ template <Arithmetic Type, size_t kN> inline
 constexpr Vector<bool, kN> operator<=(const Vector<Type, kN>& lhs,
                                       const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<bool, kN> result{};
+  Vector<bool, kN> result{false};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = lhs[index] <= rhs[index];
+    res[index] = l[index] <= r[index];
   return result;
 }
 
@@ -2065,9 +2209,11 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr Vector<bool, kN> operator<=(const Type1& lhs,
                                       const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<bool, kN> result{};
+  Vector<bool, kN> result{false};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = lhs <= rhs[index];
+    res[index] = lhs <= r[index];
   return result;
 }
 
@@ -2101,9 +2247,12 @@ template <Arithmetic Type, size_t kN> inline
 constexpr Vector<bool, kN> operator>(const Vector<Type, kN>& lhs,
                                      const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<bool, kN> result{};
+  Vector<bool, kN> result{false};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = lhs[index] > rhs[index];
+    res[index] = l[index] > r[index];
   return result;
 }
 
@@ -2121,9 +2270,11 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr Vector<bool, kN> operator>(const Type1& lhs,
                                      const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<bool, kN> result{};
+  Vector<bool, kN> result{false};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = lhs > rhs[index];
+    res[index] = lhs > r[index];
   return result;
 }
 
@@ -2157,9 +2308,12 @@ template <Arithmetic Type, size_t kN> inline
 constexpr Vector<bool, kN> operator>=(const Vector<Type, kN>& lhs,
                                       const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<bool, kN> result{};
+  Vector<bool, kN> result{false};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = lhs[index] >= rhs[index];
+    res[index] = l[index] >= r[index];
   return result;
 }
 
@@ -2177,9 +2331,11 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr Vector<bool, kN> operator>=(const Type1& lhs,
                                       const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<bool, kN> result{};
+  Vector<bool, kN> result{false};
+  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
+  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    result[index] = lhs >= rhs[index];
+    res[index] = lhs >= r[index];
   return result;
 }
 
@@ -2276,7 +2432,7 @@ float VectorData::vload_half(
     const half* p) noexcept
 {
   const half* address = p + offset;
-  const float result = zisc::cast<float>(*address);
+  const float result = static_cast<float>(*address);
   return result;
 }
 
@@ -2434,7 +2590,7 @@ void VectorData::vstore_half(
     half* p) noexcept
 {
   half* address = p + offset;
-  const half fdata = zisc::cast<half>(data);
+  const half fdata = static_cast<half>(data);
   *address = fdata;
 }
 
@@ -2535,7 +2691,7 @@ Vector<float, kN> VectorData::Vec::vload_halfn(
   Vector<float, kN> data;
   const half* address = p + offset * kN;
   for (size_t i = 0; i < kN; ++i) {
-    const float v = zisc::cast<float>(address[i]);
+    const float v = static_cast<float>(address[i]);
     data[i] = v;
   }
   return data;
@@ -2560,7 +2716,7 @@ void VectorData::Vec::vstore_halfn(
 {
   half* address = p + offset * kN;
   for (size_t i = 0; i < kN; ++i) {
-    const half v = zisc::cast<half>(data[i]);
+    const half v = static_cast<half>(data[i]);
     address[i] = v;
   }
 }

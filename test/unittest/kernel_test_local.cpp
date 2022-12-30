@@ -345,51 +345,50 @@ TEST(KernelTest, LocalStruct2Test)
 //  }
 //}
 
-//! \todo Remove the commentout. Enable the test
-//TEST(KernelTest, LocalStruct3Test)
-//{
-//  const zivc::SharedContext context = ztest::createContext();
-//  const ztest::Config& config = ztest::Config::globalConfig();
-//  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
-//  [[maybe_unused]] const zivc::DeviceInfo& info = device->deviceInfo();
-//
-//  using zivc::int32b;
-//  using zivc::uint32b;
-//
-//  constexpr std::size_t resolution = 2560 * 1440;
-//
-//  // Allocate buffers
-//  const zivc::SharedBuffer buff_device = device->createBuffer<uint32b>(zivc::BufferUsage::kPreferDevice);
-//  buff_device->setSize(resolution);
-//  const zivc::SharedBuffer buff_host = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
-//  buff_host->setSize(buff_device->size());
-//
-//  // Make a kernel
-//  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test_local, localStruct3Kernel, 1);
-//  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
-//  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
-//  ASSERT_EQ(2, kernel->argSize()) << "Wrong kernel property.";
-//
-//  // Launch the kernel
-//  {
-//    zivc::KernelLaunchOptions launch_options = kernel->createOptions();
-//    launch_options.setWorkSize({{resolution}});
-//    launch_options.requestFence(true);
-//    launch_options.setLabel("LocalStruct3Kernel");
-//    const zivc::LaunchResult result = kernel->run(*buff_device, resolution, launch_options);
-//    device->waitForCompletion(result.fence());
-//  }
-//  // Check the outputs
-//  {
-//    zivc::BufferLaunchOptions options = buff_device->createOptions();
-//    options.requestFence(true);
-//    const zivc::LaunchResult result = zivc::copy(*buff_device, buff_host.get(), options);
-//    device->waitForCompletion(result.fence());
-//
-//    const zivc::MappedMemory mem = buff_host->mapMemory();
-//    for (std::size_t i = 0; i < mem.size(); ++i) {
-//      const uint32b expected = 4 * i + 6;
-//      ASSERT_EQ(expected, mem[i]) << "Using local struct at " << i << " failed.";
-//    }
-//  }
-//}
+TEST(KernelTest, LocalStruct3Test)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  [[maybe_unused]] const zivc::DeviceInfo& info = device->deviceInfo();
+
+  using zivc::int32b;
+  using zivc::uint32b;
+
+  constexpr std::size_t resolution = 2560 * 1440;
+
+  // Allocate buffers
+  const zivc::SharedBuffer buff_device = device->createBuffer<uint32b>(zivc::BufferUsage::kPreferDevice);
+  buff_device->setSize(resolution);
+  const zivc::SharedBuffer buff_host = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+  buff_host->setSize(buff_device->size());
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test_local, localStruct3Kernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(2, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  {
+    zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+    launch_options.setWorkSize({{resolution}});
+    launch_options.requestFence(true);
+    launch_options.setLabel("LocalStruct3Kernel");
+    const zivc::LaunchResult result = kernel->run(*buff_device, resolution, launch_options);
+    device->waitForCompletion(result.fence());
+  }
+  // Check the outputs
+  {
+    zivc::BufferLaunchOptions options = buff_device->createOptions();
+    options.requestFence(true);
+    const zivc::LaunchResult result = zivc::copy(*buff_device, buff_host.get(), options);
+    device->waitForCompletion(result.fence());
+
+    const zivc::MappedMemory mem = buff_host->mapMemory();
+    for (std::size_t i = 0; i < mem.size(); ++i) {
+      const uint32b expected = 4 * i + 6;
+      ASSERT_EQ(expected, mem[i]) << "Using local struct at " << i << " failed.";
+    }
+  }
+}

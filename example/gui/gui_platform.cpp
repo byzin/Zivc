@@ -617,7 +617,7 @@ void GuiPlatform::raiseGlfwError(const int error, const char* description)
 {
   constexpr std::size_t max_desc_size = 1024;
   std::array<char, max_desc_size> desc;
-  std::sprintf(desc.data(), "Glfw Error %d: %s\n", error, description);
+  std::snprintf(desc.data(), max_desc_size,  "Glfw Error %d: %s\n", error, description);
   throw SystemError{ErrorCode::kGlfwInitializationFailed, desc.data()};
 }
 
@@ -630,7 +630,7 @@ void GuiPlatform::raiseImguiError(const char* description)
 {
   constexpr std::size_t max_desc_size = 1024;
   std::array<char, max_desc_size> desc;
-  std::sprintf(desc.data(), "Imgui Error: %s\n", description);
+  std::snprintf(desc.data(), max_desc_size, "Imgui Error: %s\n", description);
   throw SystemError{ErrorCode::kImGuiInitializationFailed, desc.data()};
 }
 

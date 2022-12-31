@@ -181,10 +181,8 @@ createLocal() noexcept
   else {
     internal::KernelArgCache cache = createLocalImpl(std::make_index_sequence<n>());
     using CacheT = decltype(cache);
-    static_assert(std::is_trivially_constructible_v<CacheT>,
-                  "The local values aren't trivially constructible.");
-    static_assert(std::equality_comparable<CacheT>,
-                  "The local values aren't equality comparable.");
+    static_assert(std::is_trivial_v<CacheT>, "The locals aren't trivial.");
+    static_assert(std::equality_comparable<CacheT>, "The locals aren't equal comparable.");
     return cache;
   }
 }

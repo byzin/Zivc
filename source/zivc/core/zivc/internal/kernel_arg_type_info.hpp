@@ -56,12 +56,9 @@ class KernelArgTypeInfo
  private:
   static_assert(!std::is_pointer_v<ElementT>, "The Type is pointer.");
   static_assert(!std::is_reference_v<ElementT>, "The Type is reference.");
-  static_assert(std::is_standard_layout_v<ElementT>,
-                "The POD type isn't standard layout type.");
-  static_assert(std::is_trivially_copyable_v<ElementT>,
-                "The POD type isn't trivially copyable type.");
-  static_assert(std::equality_comparable<ElementT>,
-                "The POD type isn't equality comparable.");
+  static_assert(std::is_trivial_v<ElementT>, "The POD isn't trivial.");
+  static_assert(std::is_standard_layout_v<ElementT>, "The POD isn't standard layout.");
+  static_assert(std::equality_comparable<ElementT>, "The POD isn't equal comparable.");
 };
 
 } // namespace zivc::internal

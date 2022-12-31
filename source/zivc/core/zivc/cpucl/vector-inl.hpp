@@ -36,10 +36,10 @@ namespace zivc::cl {
   \param [in] type No description.
   */
 #define ZIVC_CPUCL_VECTOR_TYPE_CHECK(type) \
-    static_assert(std::is_trivially_constructible_v< type >, \
-                  "The vector type isn't trivially constructible."); \
-    static_assert(std::is_trivially_copy_constructible_v< type >, \
+    static_assert(std::is_trivially_copyable_v< type >, \
                   "The vector type isn't trivially copyable."); \
+    static_assert(std::is_trivial_v< type >, \
+                  "The vector type isn't trivial."); \
     static_assert(std::equality_comparable< type >, \
                   "The vector type isn't equality comparable.")
 
@@ -67,9 +67,9 @@ ZIVC_CPUCL_VECTOR_TYPE_CHECK(long4);
 ZIVC_CPUCL_VECTOR_TYPE_CHECK(ulong2);
 ZIVC_CPUCL_VECTOR_TYPE_CHECK(ulong3);
 ZIVC_CPUCL_VECTOR_TYPE_CHECK(ulong4);
-//ZIVC_CPUCL_VECTOR_TYPE_CHECK(half2);
-//ZIVC_CPUCL_VECTOR_TYPE_CHECK(half3);
-//ZIVC_CPUCL_VECTOR_TYPE_CHECK(half4);
+ZIVC_CPUCL_VECTOR_TYPE_CHECK(half2);
+ZIVC_CPUCL_VECTOR_TYPE_CHECK(half3);
+ZIVC_CPUCL_VECTOR_TYPE_CHECK(half4);
 ZIVC_CPUCL_VECTOR_TYPE_CHECK(float2);
 ZIVC_CPUCL_VECTOR_TYPE_CHECK(float3);
 ZIVC_CPUCL_VECTOR_TYPE_CHECK(float4);

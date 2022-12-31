@@ -299,10 +299,8 @@ createPod() noexcept
   else {
     internal::KernelArgCache cache = createPodImpl(std::make_index_sequence<n>());
     using CacheT = decltype(cache);
-    static_assert(std::is_trivially_copyable_v<CacheT>,
-                  "The POD values aren't trivially copyable.");
-    static_assert(std::equality_comparable<CacheT>,
-                  "The POD values aren't equality comparable.");
+    static_assert(std::is_trivial_v<CacheT>, "The PODs aren't trivial.");
+    static_assert(std::equality_comparable<CacheT>, "The PODs aren't equal comparable.");
     return cache;
   }
 }

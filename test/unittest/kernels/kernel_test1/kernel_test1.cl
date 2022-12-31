@@ -445,9 +445,9 @@ namespace inner {
   */
 struct GlobalId3d
 {
-  uint32b x_ = 0;
-  uint32b y_ = 0;
-  uint32b z_ = 0;
+  uint32b x_;
+  uint32b y_;
+  uint32b z_;
 };
 
 } // namespace inner

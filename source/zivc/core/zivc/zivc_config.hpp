@@ -96,8 +96,8 @@ enum class BufferFlag : uint32b
 
 //! A kernel parameter is standard layout type and trivially copyable
 template <typename Type>
-concept KernelArg = std::is_standard_layout_v<Type> &&
-                    std::is_trivially_copyable_v<Type> &&
+concept KernelArg = std::is_trivial_v<Type> &&
+                    std::is_standard_layout_v<Type> &&
                     !std::is_same_v<bool, std::remove_cvref_t<Type>>;
 
 /*!

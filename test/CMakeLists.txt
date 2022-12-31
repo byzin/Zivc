@@ -196,22 +196,42 @@ macro(setTestProject)
   # Add tests for CMake
   add_test(NAME ${PROJECT_NAME}-cpu COMMAND ${PROJECT_NAME} --device cpu
                                     WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
-  add_test(NAME ${PROJECT_NAME}-vulkan0 COMMAND ${PROJECT_NAME} --device vulkan0
-                                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
-  add_test(NAME ${PROJECT_NAME}-vulkan1 COMMAND ${PROJECT_NAME} --device vulkan1
-                                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
-  add_test(NAME ${PROJECT_NAME}-vulkan2 COMMAND ${PROJECT_NAME} --device vulkan2
-                                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
-  add_test(NAME ${PROJECT_NAME}-vulkan3 COMMAND ${PROJECT_NAME} --device vulkan3
-                                        WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
+  add_test(NAME ${PROJECT_NAME}-vulkan0-debug
+               COMMAND ${PROJECT_NAME} --device vulkan0
+               WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
+  add_test(NAME ${PROJECT_NAME}-vulkan0-nodebug
+               COMMAND ${PROJECT_NAME} --device vulkan0 --nodebug
+               WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
+  add_test(NAME ${PROJECT_NAME}-vulkan1-debug
+               COMMAND ${PROJECT_NAME} --device vulkan1
+               WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
+  add_test(NAME ${PROJECT_NAME}-vulkan1-nodebug
+               COMMAND ${PROJECT_NAME} --device vulkan1 --nodebug
+               WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
+  add_test(NAME ${PROJECT_NAME}-vulkan2-debug
+               COMMAND ${PROJECT_NAME} --device vulkan2
+               WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
+  add_test(NAME ${PROJECT_NAME}-vulkan2-nodebug
+               COMMAND ${PROJECT_NAME} --device vulkan2 --nodebug
+               WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
+  add_test(NAME ${PROJECT_NAME}-vulkan3-debug
+               COMMAND ${PROJECT_NAME} --device vulkan3
+               WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
+  add_test(NAME ${PROJECT_NAME}-vulkan3-nodebug
+               COMMAND ${PROJECT_NAME} --device vulkan3 --nodebug
+               WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
   set(test_env_list "")
   list(APPEND test_env_list GTEST_COLOR=1
                             ZIVC_SUPPRESS_TRIVIAL_WARNINGS=1)
   set_tests_properties(${PROJECT_NAME}-cpu
-                       ${PROJECT_NAME}-vulkan0
-                       ${PROJECT_NAME}-vulkan1
-                       ${PROJECT_NAME}-vulkan2
-                       ${PROJECT_NAME}-vulkan3
+                       ${PROJECT_NAME}-vulkan0-debug
+                       ${PROJECT_NAME}-vulkan0-nodebug
+                       ${PROJECT_NAME}-vulkan1-debug
+                       ${PROJECT_NAME}-vulkan1-nodebug
+                       ${PROJECT_NAME}-vulkan2-debug
+                       ${PROJECT_NAME}-vulkan2-nodebug
+                       ${PROJECT_NAME}-vulkan3-debug
+                       ${PROJECT_NAME}-vulkan3-nodebug
                        PROPERTIES ENVIRONMENT "${test_env_list}")
 endmacro(setTestProject)
 

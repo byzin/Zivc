@@ -24,9 +24,7 @@
 #include "types.hpp"
 #include "zivc/zivc_config.hpp"
 
-namespace zivc {
-
-namespace cl {
+namespace zivc::cl {
 
 // Concepts
 //! Specity a type is implicitly convertible to another pointer of another type
@@ -252,9 +250,7 @@ bool operator>=(
     const AddressSpacePointer<kASpaceType, Type>& lhs,
     const AddressSpacePointer<kASpaceType, Type>& rhs) noexcept;
 
-} // namespace cl
-
-} // namespace zivc
+} // namespace zivc::cl
 
 #include "address_space_pointer-inl.hpp"
 

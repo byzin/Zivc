@@ -39,11 +39,10 @@ namespace inner {
 template <Scalar T, Scalar Type> inline
 Vector<T, 2> convertToVector(const Vector<Type, 2>& from) noexcept
 {
-  using zisc::cast;
   if constexpr (std::is_same_v<T, Type>)
     return from;
   else
-    return Vector<T, 2>{cast<T>(from.x), cast<T>(from.y)};
+    return Vector<T, 2>{static_cast<T>(from.x), static_cast<T>(from.y)};
 }
 
 /*!
@@ -57,11 +56,11 @@ Vector<T, 2> convertToVector(const Vector<Type, 2>& from) noexcept
 template <Scalar T, Scalar Type> inline
 Vector<T, 3> convertToVector(const Vector<Type, 3>& from) noexcept
 {
-  using zisc::cast;
   if constexpr (std::is_same_v<T, Type>)
     return from;
   else
-    return Vector<T, 3>{cast<T>(from.x), cast<T>(from.y), cast<T>(from.z)};
+    return Vector<T, 3>{static_cast<T>(from.x), static_cast<T>(from.y),
+                        static_cast<T>(from.z)};
 }
 
 /*!
@@ -75,12 +74,11 @@ Vector<T, 3> convertToVector(const Vector<Type, 3>& from) noexcept
 template <Scalar T, Scalar Type> inline
 Vector<T, 4> convertToVector(const Vector<Type, 4>& from) noexcept
 {
-  using zisc::cast;
   if constexpr (std::is_same_v<T, Type>)
     return from;
   else
-    return Vector<T, 4>{cast<T>(from.x), cast<T>(from.y),
-                        cast<T>(from.z), cast<T>(from.w)};
+    return Vector<T, 4>{static_cast<T>(from.x), static_cast<T>(from.y),
+                        static_cast<T>(from.z), static_cast<T>(from.w)};
 }
 
 } // namespace inner
@@ -95,7 +93,7 @@ Vector<T, 4> convertToVector(const Vector<Type, 4>& from) noexcept
 template <Scalar Type> inline
 int8b convert_char(const Type& from) noexcept
 {
-  return zisc::cast<int8b>(from);
+  return static_cast<int8b>(from);
 }
 
 /*!
@@ -147,7 +145,7 @@ char4 convert_char4(const Vector<Type, 4>& from) noexcept
 template <Scalar Type> inline
 uint8b convert_uchar(const Type& from) noexcept
 {
-  return zisc::cast<uint8b>(from);
+  return static_cast<uint8b>(from);
 }
 
 /*!
@@ -199,7 +197,7 @@ uchar4 convert_uchar4(const Vector<Type, 4>& from) noexcept
 template <Scalar Type> inline
 int16b convert_short(const Type& from) noexcept
 {
-  return zisc::cast<int16b>(from);
+  return static_cast<int16b>(from);
 }
 
 /*!
@@ -251,7 +249,7 @@ short4 convert_short4(const Vector<Type, 4>& from) noexcept
 template <Scalar Type> inline
 uint16b convert_ushort(const Type& from) noexcept
 {
-  return zisc::cast<uint16b>(from);
+  return static_cast<uint16b>(from);
 }
 
 /*!
@@ -303,7 +301,7 @@ ushort4 convert_ushort4(const Vector<Type, 4>& from) noexcept
 template <Scalar Type> inline
 int32b convert_int(const Type& from) noexcept
 {
-  return zisc::cast<int32b>(from);
+  return static_cast<int32b>(from);
 }
 
 /*!
@@ -355,7 +353,7 @@ int4 convert_int4(const Vector<Type, 4>& from) noexcept
 template <Scalar Type> inline
 uint32b convert_uint(const Type& from) noexcept
 {
-  return zisc::cast<uint32b>(from);
+  return static_cast<uint32b>(from);
 }
 
 /*!
@@ -407,7 +405,7 @@ uint4 convert_uint4(const Vector<Type, 4>& from) noexcept
 template <Scalar Type> inline
 int64b convert_long(const Type& from) noexcept
 {
-  return zisc::cast<int64b>(from);
+  return static_cast<int64b>(from);
 }
 
 /*!
@@ -459,7 +457,7 @@ long4 convert_long4(const Vector<Type, 4>& from) noexcept
 template <Scalar Type> inline
 uint64b convert_ulong(const Type& from) noexcept
 {
-  return zisc::cast<uint64b>(from);
+  return static_cast<uint64b>(from);
 }
 
 /*!
@@ -510,7 +508,7 @@ ulong4 convert_ulong4(const Vector<Type, 4>& from) noexcept
 template <Scalar Type> inline
 float convert_float(const Type& from) noexcept
 {
-  return zisc::cast<float>(from);
+  return static_cast<float>(from);
 }
 
 /*!
@@ -562,7 +560,7 @@ float4 convert_float4(const Vector<Type, 4>& from) noexcept
 template <Scalar Type> inline
 double convert_double(const Type& from) noexcept
 {
-  return zisc::cast<double>(from);
+  return static_cast<double>(from);
 }
 
 /*!

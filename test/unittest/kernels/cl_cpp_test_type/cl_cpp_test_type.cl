@@ -16,6 +16,7 @@
 #define ZIVC_TEST_OPENCL_CPP_TEST_VECTOR_CL
 
 // Zivc
+#include "zivc/cl/bit.hpp"
 #include "zivc/cl/boolean.hpp"
 #include "zivc/cl/types.hpp"
 #include "zivc/cl/type_traits.hpp"
@@ -1666,6 +1667,69 @@ __kernel void vector4CastTest(zivc::ConstGlobalPtr<int32b> in_int,
   test_vec4(in_int, in_float, in_int4, in_float4, out_int4);
   test_vec4(in_int, in_float, in_int4, in_float4, out_uint4);
   test_vec4(in_int, in_float, in_int4, in_float4, out_float4);
+}
+
+__kernel void bitCastTest(zivc::GlobalPtr<int32b> inout_int,
+                          zivc::GlobalPtr<float> inout_float,
+                          zivc::GlobalPtr<uint2> inout_uint2,
+                          zivc::GlobalPtr<float2> inout_float2,
+                          zivc::GlobalPtr<char3> inout_char3,
+                          zivc::GlobalPtr<uchar4> inout_uchar4,
+                          zivc::GlobalPtr<ushort3> inout_ushort3,
+                          zivc::GlobalPtr<short4> inout_short4,
+                          zivc::GlobalPtr<int3> inout_int3,
+                          zivc::GlobalPtr<int4> inout_int4,
+                          zivc::GlobalPtr<float3> inout_float3,
+                          zivc::GlobalPtr<float4> inout_float4)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (index == 0) {
+    // Scalar
+    {
+      const int32b a = inout_int[0];
+      const float b = inout_float[0];
+      inout_int[0] = zivc::castBit<int32b>(b);
+      inout_float[0] = zivc::castBit<float>(a);
+    }
+    // Vector2
+    {
+      const uint2 a = inout_uint2[0];
+      const float2 b = inout_float2[0];
+      inout_uint2[0] = zivc::castBit<uint2>(b);
+      inout_float2[0] = zivc::castBit<float2>(a);
+    }
+    // Vector3 
+    {
+      const char3 c3 = inout_char3[0];
+      const uchar4 uc4 = inout_uchar4[0];
+      inout_char3[0] = zivc::castBit<char3>(uc4);
+      inout_uchar4[0] = zivc::castBit<uchar4>(c3);
+    }
+    {
+      const ushort3 us3 = inout_ushort3[0];
+      const short4 s4 = inout_short4[0];
+      inout_ushort3[0] = zivc::castBit<ushort3>(s4);
+      inout_short4[0] = zivc::castBit<short4>(us3);
+    }
+    {
+      const int3 i3 = inout_int3[0];
+      const int4 i4 = inout_int4[0];
+      const float3 f3 = inout_float3[0];
+      const float4 f4 = inout_float4[0];
+      inout_int3[0] = zivc::castBit<int3>(i4);
+      inout_int3[1] = zivc::castBit<int3>(f3);
+      inout_int3[2] = zivc::castBit<int3>(f4);
+      inout_int4[0] = zivc::castBit<int4>(i3);
+      inout_int4[1] = zivc::castBit<int4>(f3);
+      inout_int4[2] = zivc::castBit<int4>(f4);
+      inout_float3[0] = zivc::castBit<float3>(i3);
+      inout_float3[1] = zivc::castBit<float3>(i4);
+      inout_float3[2] = zivc::castBit<float3>(f4);
+      inout_float4[0] = zivc::castBit<float4>(i3);
+      inout_float4[1] = zivc::castBit<float4>(i4);
+      inout_float4[2] = zivc::castBit<float4>(f3);
+    }
+  }
 }
 
 #endif /* ZIVC_TEST_OPENCL_CPP_TEST_VECTOR_CL */

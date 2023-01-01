@@ -16,6 +16,7 @@
 #define ZIVC_CL_BIT_INL_HPP
 
 #include "bit.hpp"
+#include "types.hpp"
 
 namespace zivc {
 
@@ -24,17 +25,67 @@ namespace zivc {
   struct Bit::CastImpl< type > \
   { \
     template <typename From> \
-    static type cast(const From from) noexcept \
+    static constexpr type cast(const From from) noexcept \
     { \
       return as_ ## type (from); \
     } \
   }
 
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(char);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(char2);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(char3);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(char4);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(uchar);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(uchar2);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(uchar3);
 ZIVC_CL_DEFINE_CAST_BIT_IMPL(uchar4);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(short);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(short2);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(short3);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(short4);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(ushort);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(ushort2);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(ushort3);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(ushort4);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(int);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(int2);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(int3);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(int4);
 ZIVC_CL_DEFINE_CAST_BIT_IMPL(uint);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(uint2);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(uint3);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(uint4);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(long);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(long2);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(long3);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(long4);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(ulong);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(ulong2);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(ulong3);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(ulong4);
+//ZIVC_CL_DEFINE_CAST_BIT_IMPL(half);
+//ZIVC_CL_DEFINE_CAST_BIT_IMPL(half2);
+//ZIVC_CL_DEFINE_CAST_BIT_IMPL(half3);
+//ZIVC_CL_DEFINE_CAST_BIT_IMPL(half4);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(float);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(float2);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(float3);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(float4);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(double);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(double2);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(double3);
+ZIVC_CL_DEFINE_CAST_BIT_IMPL(double4);
 
+/*!
+  \details No detailed description
+
+  \tparam To No description.
+  \tparam From No description.
+  \param [in] from No description.
+  \return No description
+  */
 template <typename To, typename From> inline
-To Bit::castBit(const From& from) noexcept
+constexpr To Bit::castBit(const From& from) noexcept
 {
   static_assert(sizeof(From) == sizeof(To),
                 "The 'From' and 'To' have different number of bytes.");
@@ -42,9 +93,16 @@ To Bit::castBit(const From& from) noexcept
   return to;
 }
 
-//! Reinterpret the object representation of one type as that of another
+/*!
+  \details No detailed description
+
+  \tparam To No description.
+  \tparam From No description.
+  \param [in] from No description.
+  \return No description
+  */
 template <typename To, typename From> inline
-To castBit(const From& from) noexcept
+constexpr To castBit(const From& from) noexcept
 {
   const To to = Bit::castBit<To>(from);
   return to;

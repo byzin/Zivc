@@ -588,7 +588,7 @@ constexpr Type make(const ArgTypes&... args) noexcept
   } \
   inline \
   constexpr vector_type ## 2 make ## vector_func ## 2(const scalar_type v0, \
-                                            const scalar_type v1) noexcept \
+                                                      const scalar_type v1) noexcept \
   { \
     return vector_type ## 2{v0, v1}; \
   } \
@@ -716,13 +716,13 @@ struct TypeConverter
   template <> \
   struct TypeConverter< type > \
   { \
-    static constexpr size_t kDestVectorN = kVectorSize< type >; \
     using ScalarT = ScalarTypeT< type >; \
+    static constexpr size_t kDestVectorN = kVectorSize< type >; \
     template <typename T> \
     static type cast(T&& value) noexcept \
     { \
-      using SourceType = RemoveCvRefAddressT<T>; \
-      constexpr size_t kSourceVectorN = kVectorSize<SourceType>; \
+      using SourceT = RemoveCvRefAddressT<T>; \
+      constexpr size_t kSourceVectorN = kVectorSize<SourceT>; \
       if constexpr (kSourceVectorN == kDestVectorN) \
         return convert_ ## type (value); \
       else \
@@ -785,11 +785,11 @@ struct TypeConverter<AddressSpacePointer<kASpaceType, Type>>
   template <typename T>
   static ASpacePointer cast(AddressSpacePointer<kASpaceType, T> value) noexcept
   {
-    return treatAs(value);
+    return reinterp(value);
   }
 
   template <typename T>
-  static ASpacePointer treatAs(AddressSpacePointer<kASpaceType, T> object) noexcept
+  static ASpacePointer reinterp(AddressSpacePointer<kASpaceType, T> object) noexcept
   {
     auto data = reinterpret_cast<typename ASpacePointer::Pointer>(object.get());
     return ASpacePointer{data};
@@ -845,15 +845,26 @@ constexpr bool equal(const Type1& lhs, const Type2& rhs) noexcept
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam T No description.
+  \param [in] object No description.
+  \return No description
   */
 template <typename Type, typename T> inline
-Type treatAs(T object) noexcept
+Type reinterp(T object) noexcept
 {
-  auto result = inner::TypeConverter<RemoveVolatileType<Type>>::treatAs(object);
+  auto result = inner::TypeConverter<RemoveVolatileType<Type>>::reinterp(object);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \param [in] t No description.
+  \return No description
   */
 template <typename Type> inline
 Type&& forward(RemoveReferenceType<Type>& t) noexcept
@@ -862,6 +873,11 @@ Type&& forward(RemoveReferenceType<Type>& t) noexcept
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \param [in] t No description.
+  \return No description
   */
 template <typename Type> inline
 Type&& forward(RemoveReferenceType<Type>&& t) noexcept

@@ -26,9 +26,7 @@
 #include "types.hpp"
 #include "zivc/zivc_config.hpp"
 
-namespace zivc {
-
-namespace cl {
+namespace zivc::cl {
 
 /*!
   \details No detailed description
@@ -47,7 +45,7 @@ AddressSpacePointer<kASpaceType, T>::AddressSpacePointer() noexcept
 template <AddressSpaceType kASpaceType, KernelArg T>
 template <ConvertibleToPointer<T> PointerT> inline
 AddressSpacePointer<kASpaceType, T>::AddressSpacePointer(PointerT p) noexcept :
-    data_{zisc::cast<Pointer>(p)}
+    data_{static_cast<Pointer>(p)}
 {
 }
 
@@ -87,7 +85,7 @@ template <ConvertibleToPointer<T> PointerT> inline
 auto AddressSpacePointer<kASpaceType, T>::operator=(PointerT p) noexcept
     -> ASpacePointerRef
 {
-  data_ = zisc::cast<Pointer>(p);
+  data_ = static_cast<Pointer>(p);
   return *this;
 }
 
@@ -141,7 +139,7 @@ template <AddressSpaceType kASpaceType, KernelArg T>
 template <zisc::Integer Integer> inline
 auto AddressSpacePointer<kASpaceType, T>::operator[](const Integer index) noexcept -> Reference
 {
-  auto p = get() + zisc::cast<ptrdiff_t>(index);
+  auto p = get() + static_cast<ptrdiff_t>(index);
   return *p;
 }
 
@@ -155,7 +153,7 @@ template <AddressSpaceType kASpaceType, KernelArg T>
 template <zisc::Integer Integer> inline
 auto AddressSpacePointer<kASpaceType, T>::operator[](const Integer index) const noexcept -> ConstReference
 {
-  auto p = get() + zisc::cast<ptrdiff_t>(index);
+  auto p = get() + static_cast<ptrdiff_t>(index);
   return *p;
 }
 
@@ -218,7 +216,7 @@ template <zisc::Integer Integer> inline
 auto AddressSpacePointer<kASpaceType, T>::operator+=(const Integer n) noexcept
     -> ASpacePointerRef
 {
-  auto data = get() + zisc::cast<ptrdiff_t>(n);
+  auto data = get() + static_cast<ptrdiff_t>(n);
   data_ = data;
   return *this;
 }
@@ -234,7 +232,7 @@ template <zisc::Integer Integer> inline
 auto AddressSpacePointer<kASpaceType, T>::operator-=(const Integer n) noexcept
     -> ASpacePointerRef
 {
-  auto data = get() - zisc::cast<ptrdiff_t>(n);
+  auto data = get() - static_cast<ptrdiff_t>(n);
   data_ = data;
   return *this;
 }
@@ -400,7 +398,7 @@ template <AddressSpaceType kASpaceType, KernelArg Type> inline
 ptrdiff_t operator-(const AddressSpacePointer<kASpaceType, Type>& lhs,
                     const AddressSpacePointer<kASpaceType, Type>& rhs) noexcept
 {
-  const ptrdiff_t diff = zisc::cast<ptrdiff_t>(lhs.get() - rhs.get());
+  const ptrdiff_t diff = static_cast<ptrdiff_t>(lhs.get() - rhs.get());
   return diff;
 }
 
@@ -574,8 +572,6 @@ bool operator>=(const AddressSpacePointer<kASpaceType, Type>& lhs,
   return result;
 }
 
-} // namespace cl
-
-} // namespace zivc
+} // namespace zivc::cl
 
 #endif // ZIVC_CPUCL_ADDRESS_SPACE_POINTER_INL_HPP

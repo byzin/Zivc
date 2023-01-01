@@ -578,7 +578,7 @@ Type cast(T&& value) noexcept;
 
 //! Treat T* as Type*
 template <typename Type, typename T>
-Type treatAs(T object) noexcept;
+Type reinterp(T object) noexcept;
 
 //
 

@@ -2,7 +2,7 @@
   \file synchronization.hpp
   \author Sho Ikeda
 
-  Copyright (c) 2015-2022 Sho Ikeda
+  Copyright (c) 2015-2023 Sho Ikeda
   This software is released under the MIT License.
   http://opensource.org/licenses/mit-license.php
   */
@@ -14,9 +14,7 @@
 #include "types.hpp"
 #include "zivc/zivc_config.hpp"
 
-namespace zivc {
-
-namespace cl {
+namespace zivc::cl {
 
 /*!
  \brief Memory address space
@@ -34,8 +32,6 @@ void barrier(const int32b /* flags */) noexcept;
 inline
 void barrier(const int32b /* flags */) noexcept {}
 
-} // namespace cl
-
-} // namespace zivc
+} // namespace zivc::cl
 
 #endif // ZIVC_CPUCL_SYNCHRONIZATION_HPP

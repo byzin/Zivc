@@ -2,7 +2,7 @@
   \file synchronization.hpp
   \author Sho Ikeda
 
-  Copyright (c) 2015-2022 Sho Ikeda
+  Copyright (c) 2015-2023 Sho Ikeda
   This software is released under the MIT License.
   http://opensource.org/licenses/mit-license.php
   */
@@ -16,7 +16,10 @@
 namespace zivc {
 
 /*!
- */
+  \brief No brief description
+
+  No detailed description.
+  */
 class Synchronization
 {
  public:

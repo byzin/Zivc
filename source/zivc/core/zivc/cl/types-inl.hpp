@@ -53,9 +53,9 @@ using ConstConstantPtr = AddressSpacePointer<AddressSpaceType::kConstant, const 
 template <typename Type>
 using Private = Type;
 template <typename Type>
-using PrivatePtr = typename AddressSpacePointer<AddressSpaceType::kPrivate, Type>::Pointer;
+using PrivatePtr = AddressSpacePointer<AddressSpaceType::kPrivate, Type>;
 template <typename Type>
-using ConstPrivatePtr = typename AddressSpacePointer<AddressSpaceType::kPrivate, const Type>::ConstPointer;
+using ConstPrivatePtr = AddressSpacePointer<AddressSpaceType::kPrivate, const Type>;
 // Generic
 template <typename Type>
 using Generic = Type;

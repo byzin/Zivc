@@ -17,6 +17,9 @@
 namespace zivc {
 
 /*!
+  \details No detailed description
+
+  \param [in] flags No description.
   */
 inline
 void Synchronization::barrier(const int32b flags) noexcept
@@ -25,6 +28,7 @@ void Synchronization::barrier(const int32b flags) noexcept
 }
 
 /*!
+  \details No detailed description
   */
 inline
 void Synchronization::barrierGlobal() noexcept
@@ -33,6 +37,7 @@ void Synchronization::barrierGlobal() noexcept
 }
 
 /*!
+  \details No detailed description
   */
 inline
 void Synchronization::barrierLocal() noexcept
@@ -41,6 +46,7 @@ void Synchronization::barrierLocal() noexcept
 }
 
 /*!
+  \details No detailed description
   */
 inline
 void Synchronization::barrierAll() noexcept
@@ -49,6 +55,9 @@ void Synchronization::barrierAll() noexcept
 }
 
 /*!
+  \details No detailed description
+
+  \param [in] flags No description.
   */
 inline
 void barrier(const int32b flags) noexcept

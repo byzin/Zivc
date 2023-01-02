@@ -173,6 +173,8 @@ template <typename T>
 struct AddressSpaceInfoHelper
 {
   using DataType = T;
+  using Pointer = PrivatePtr<DataType>;
+  using ConstPointer = ConstPrivatePtr<DataType>;
   static constexpr int32b kIsGlobal = kResultFalse;
   static constexpr int32b kIsLocal = kResultFalse;
   static constexpr int32b kIsConstant = kResultFalse;
@@ -186,6 +188,8 @@ template <AddressSpaceType kASpaceType, typename T>
 struct AddressSpaceInfoHelper<AddressSpacePointer<kASpaceType, T>>
 {
   using DataType = RemoveCvType<T>;
+  using Pointer = AddressSpacePointer<kASpaceType, DataType>;
+  using ConstPointer = AddressSpacePointer<kASpaceType, const DataType>;
   static constexpr int32b kIsGlobal = (kASpaceType == AddressSpaceType::kGlobal)
       ? kResultTrue<int32b>
       : kResultFalse;
@@ -207,6 +211,8 @@ template <typename T>
 struct AddressSpaceInfoHelper<Global<T>>
 {
   using DataType = T;
+  using Pointer = GlobalPtr<DataType>;
+  using ConstPointer = ConstGlobalPtr<DataType>;
   static constexpr int32b kIsGlobal = kResultTrue<int32b>;
   static constexpr int32b kIsLocal = kResultFalse;
   static constexpr int32b kIsConstant = kResultFalse;
@@ -218,6 +224,8 @@ template <typename T>
 struct AddressSpaceInfoHelper<GlobalPtr<T>>
 {
   using DataType = RemoveCvType<RemovePointerType<T>>;
+  using Pointer = GlobalPtr<DataType>;
+  using ConstPointer = ConstGlobalPtr<DataType>;
   static constexpr int32b kIsGlobal = kResultTrue<int32b>;
   static constexpr int32b kIsLocal = kResultFalse;
   static constexpr int32b kIsConstant = kResultFalse;
@@ -229,6 +237,8 @@ template <typename T>
 struct AddressSpaceInfoHelper<Local<T>>
 {
   using DataType = T;
+  using Pointer = LocalPtr<DataType>;
+  using ConstPointer = ConstLocalPtr<DataType>;
   static constexpr int32b kIsGlobal = kResultFalse;
   static constexpr int32b kIsLocal = kResultTrue<int32b>;
   static constexpr int32b kIsConstant = kResultFalse;
@@ -240,6 +250,8 @@ template <typename T>
 struct AddressSpaceInfoHelper<LocalPtr<T>>
 {
   using DataType = RemoveCvType<RemovePointerType<T>>;
+  using Pointer = LocalPtr<DataType>;
+  using ConstPointer = ConstLocalPtr<DataType>;
   static constexpr int32b kIsGlobal = kResultFalse;
   static constexpr int32b kIsLocal = kResultTrue<int32b>;
   static constexpr int32b kIsConstant = kResultFalse;
@@ -251,6 +263,8 @@ template <typename T>
 struct AddressSpaceInfoHelper<Constant<T>>
 {
   using DataType = T;
+  using Pointer = ConstantPtr<DataType>;
+  using ConstPointer = ConstConstantPtr<DataType>;
   static constexpr int32b kIsGlobal = kResultFalse;
   static constexpr int32b kIsLocal = kResultFalse;
   static constexpr int32b kIsConstant = kResultTrue<int32b>;
@@ -262,6 +276,8 @@ template <typename T>
 struct AddressSpaceInfoHelper<ConstantPtr<T>>
 {
   using DataType = RemoveCvType<RemovePointerType<T>>;
+  using Pointer = ConstantPtr<DataType>;
+  using ConstPointer = ConstConstantPtr<DataType>;
   static constexpr int32b kIsGlobal = kResultFalse;
   static constexpr int32b kIsLocal = kResultFalse;
   static constexpr int32b kIsConstant = kResultTrue<int32b>;
@@ -273,6 +289,8 @@ template <typename T>
 struct AddressSpaceInfoHelper<Private<T>>
 {
   using DataType = T;
+  using Pointer = PrivatePtr<DataType>;
+  using ConstPointer = ConstPrivatePtr<DataType>;
   static constexpr int32b kIsGlobal = kResultFalse;
   static constexpr int32b kIsLocal = kResultFalse;
   static constexpr int32b kIsConstant = kResultFalse;
@@ -284,6 +302,8 @@ template <typename T>
 struct AddressSpaceInfoHelper<PrivatePtr<T>>
 {
   using DataType = RemoveCvType<RemovePointerType<T>>;
+  using Pointer = PrivatePtr<DataType>;
+  using ConstPointer = ConstPrivatePtr<DataType>;
   static constexpr int32b kIsGlobal = kResultFalse;
   static constexpr int32b kIsLocal = kResultFalse;
   static constexpr int32b kIsConstant = kResultFalse;
@@ -295,6 +315,8 @@ template <typename T>
 struct AddressSpaceInfoHelper<Generic<T>>
 {
   using DataType = T;
+  using Pointer = GenericPtr<DataType>;
+  using ConstPointer = ConstGenericPtr<DataType>;
   static constexpr int32b kIsGlobal = kResultFalse;
   static constexpr int32b kIsLocal = kResultFalse;
   static constexpr int32b kIsConstant = kResultFalse;
@@ -306,6 +328,8 @@ template <typename T>
 struct AddressSpaceInfoHelper<GenericPtr<T>>
 {
   using DataType = RemoveCvType<RemovePointerType<T>>;
+  using Pointer = GenericPtr<DataType>;
+  using ConstPointer = ConstGenericPtr<DataType>;
   static constexpr int32b kIsGlobal = kResultFalse;
   static constexpr int32b kIsLocal = kResultFalse;
   static constexpr int32b kIsConstant = kResultFalse;
@@ -325,6 +349,8 @@ class AddressSpaceInfo
 
  public:
   using DataType = typename ASpaceInfo::DataType;
+  using Pointer = typename ASpaceInfo::Pointer;
+  using ConstPointer = typename ASpaceInfo::ConstPointer;
 
   //! Check if the Type is global address space type
   static constexpr int32b isGlobal() noexcept

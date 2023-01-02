@@ -1,5 +1,5 @@
 /*!
-  \file opencl_cpp_test_vector.cl
+  \file opencl_cpp_test_type.cl
   \author Sho Ikeda
   \brief No brief description
 
@@ -12,8 +12,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_TEST_OPENCL_CPP_TEST_VECTOR_CL
-#define ZIVC_TEST_OPENCL_CPP_TEST_VECTOR_CL
+#ifndef ZIVC_TEST_OPENCL_CPP_TEST_TYPE_CL
+#define ZIVC_TEST_OPENCL_CPP_TEST_TYPE_CL
 
 // Zivc
 #include "zivc/cl/bit.hpp"
@@ -21,6 +21,7 @@
 #include "zivc/cl/types.hpp"
 #include "zivc/cl/type_traits.hpp"
 #include "zivc/cl/utility.hpp"
+#include "zivc/cl/vector_data.hpp"
 
 using zivc::int8b;
 using zivc::int16b;
@@ -1732,4 +1733,205 @@ __kernel void bitCastTest(zivc::GlobalPtr<int32b> inout_int,
   }
 }
 
-#endif /* ZIVC_TEST_OPENCL_CPP_TEST_VECTOR_CL */
+namespace inner {
+
+struct LoadStoreStorage
+{
+  int8b i8_[4];
+  int8b pad1_[4];
+  uint16b u16_[4];
+  int32b i32_[4];
+  half h_[4];
+  half pad2_[4];
+  float f_[4];
+};
+
+static_assert(sizeof(LoadStoreStorage) % 16 == 0);
+
+} // namespace inner
+
+__kernel void vectorLoadStoreTest(zivc::GlobalPtr<int8b> inout_i8,
+                                  zivc::GlobalPtr<uint16b> inout_u16,
+                                  zivc::GlobalPtr<int32b> inout_i32,
+                                  zivc::GlobalPtr<float> inout_f,
+                                  zivc::LocalPtr<inner::LoadStoreStorage> storage)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (index == 0) {
+    // int8b
+    {
+      constexpr char k = 2;
+      // vector2
+      {
+        const char2 v1 = zivc::vload2(0, inout_i8);
+        zivc::vstore2(k * v1, 0, inout_i8);
+        zivc::LocalPtr<int8b> p = &storage[0].i8_[0];
+        zivc::vstore2(k * v1, 0, p);
+        const char2 v2 = zivc::vload2(0, p);
+        zivc::vstore2(k * v2, 1, inout_i8);
+      }
+      size_t offset = 4;
+      // vector3
+      {
+        const char3 v1 = zivc::vload3(0, inout_i8 + offset);
+        zivc::vstore3(k * v1, 0, inout_i8 + offset);
+        zivc::vstore3(k * v1, 0, &storage[0].i8_[0]);
+        const char3 v2 = zivc::vload3(0, &storage[0].i8_[0]);
+        zivc::vstore3(k * v2, 1, inout_i8 + offset);
+      }
+      offset += 6;
+      // vector4
+      {
+        const char4 v1 = zivc::vload4(0, inout_i8 + offset);
+        zivc::vstore4(k * v1, 0, inout_i8 + offset);
+        zivc::vstore4(k * v1, 0, &storage[0].i8_[0]);
+        const char4 v2 = zivc::vload4(0, &storage[0].i8_[0]);
+        zivc::vstore4(k * v2, 1, inout_i8 + offset);
+      }
+    }
+    // uint16b
+    {
+      constexpr ushort k = 2;
+      // vector2
+      {
+        const ushort2 v1 = zivc::vload2(0, inout_u16);
+        zivc::vstore2(k * v1, 0, inout_u16);
+        zivc::LocalPtr<uint16b> p = &storage[0].u16_[0];
+        zivc::vstore2(k * v1, 0, p);
+        const ushort2 v2 = zivc::vload2(0, p);
+        zivc::vstore2(k * v2, 1, inout_u16);
+      }
+      size_t offset = 4;
+      // vector3
+      {
+        const ushort3 v1 = zivc::vload3(0, inout_u16 + offset);
+        zivc::vstore3(k * v1, 0, inout_u16 + offset);
+        zivc::vstore3(k * v1, 0, &storage[0].u16_[0]);
+        const ushort3 v2 = zivc::vload3(0, &storage[0].u16_[0]);
+        zivc::vstore3(k * v2, 1, inout_u16 + offset);
+      }
+      offset += 6;
+      // vector4
+      {
+        const ushort4 v1 = zivc::vload4(0, inout_u16 + offset);
+        zivc::vstore4(k * v1, 0, inout_u16 + offset);
+        zivc::vstore4(k * v1, 0, &storage[0].u16_[0]);
+        const ushort4 v2 = zivc::vload4(0, &storage[0].u16_[0]);
+        zivc::vstore4(k * v2, 1, inout_u16 + offset);
+      }
+    }
+    // int32b
+    {
+      constexpr int32b k = 2;
+      // vector2
+      {
+        const int2 v1 = zivc::vload2(0, inout_i32);
+        zivc::vstore2(k * v1, 0, inout_i32);
+        zivc::LocalPtr<int32b> p = &storage[0].i32_[0];
+        zivc::vstore2(k * v1, 0, p);
+        const int2 v2 = zivc::vload2(0, p);
+        zivc::vstore2(k * v2, 1, inout_i32);
+      }
+      size_t offset = 4;
+      // vector3
+      {
+        const int3 v1 = zivc::vload3(0, inout_i32 + offset);
+        zivc::vstore3(k * v1, 0, inout_i32 + offset);
+        zivc::vstore3(k * v1, 0, &storage[0].i32_[0]);
+        const int3 v2 = zivc::vload3(0, &storage[0].i32_[0]);
+        zivc::vstore3(k * v2, 1, inout_i32 + offset);
+      }
+      offset += 6;
+      // vector4
+      {
+        const int4 v1 = zivc::vload4(0, inout_i32 + offset);
+        zivc::vstore4(k * v1, 0, inout_i32 + offset);
+        zivc::vstore4(k * v1, 0, &storage[0].i32_[0]);
+        const int4 v2 = zivc::vload4(0, &storage[0].i32_[0]);
+        zivc::vstore4(k * v2, 1, inout_i32 + offset);
+      }
+    }
+    // float 
+    {
+      constexpr float k = 2.0f;
+      // vector2
+      {
+        const float2 v1 = zivc::vload2(0, inout_f);
+        zivc::vstore2(k * v1, 0, inout_f);
+        zivc::LocalPtr<float> p = &storage[0].f_[0];
+        zivc::vstore2(k * v1, 0, p);
+        const float2 v2 = zivc::vload2(0, p);
+        zivc::vstore2(k * v2, 1, inout_f);
+      }
+      size_t offset = 4;
+      // vector3
+      {
+        const float3 v1 = zivc::vload3(0, inout_f + offset);
+        zivc::vstore3(k * v1, 0, inout_f + offset);
+        zivc::vstore3(k * v1, 0, &storage[0].f_[0]);
+        const float3 v2 = zivc::vload3(0, &storage[0].f_[0]);
+        zivc::vstore3(k * v2, 1, inout_f + offset);
+      }
+      offset += 6;
+      // vector4
+      {
+        const float4 v1 = zivc::vload4(0, inout_f + offset);
+        zivc::vstore4(k * v1, 0, inout_f + offset);
+        zivc::vstore4(k * v1, 0, &storage[0].f_[0]);
+        const float4 v2 = zivc::vload4(0, &storage[0].f_[0]);
+        zivc::vstore4(k * v2, 1, inout_f + offset);
+      }
+    }
+  }
+}
+
+__kernel void vectorLoadStoreHalfTest(zivc::GlobalPtr<half> inout_h,
+                                      zivc::LocalPtr<inner::LoadStoreStorage> storage)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (index == 0) {
+    // half 
+    {
+      constexpr float k = 2.0f;
+      // Scalar
+      {
+        const float v1 = zivc::vload_half(0, inout_h);
+        zivc::vstore_half(k * v1, 0, inout_h);
+        zivc::LocalPtr<half> p = &storage[0].h_[0];
+        zivc::vstore_half(k * v1, 0, p);
+        const float v2 = zivc::vload_half(0, p);
+        zivc::vstore_half(k * v2, 1, inout_h);
+      }
+      size_t offset = 2;
+      // vector2
+      {
+        const float2 v1 = zivc::vload_half2(0, inout_h + offset);
+        zivc::vstore_half2(k * v1, 0, inout_h + offset);
+        zivc::LocalPtr<half> p = &storage[0].h_[0];
+        zivc::vstore_half2(k * v1, 0, p);
+        const float2 v2 = zivc::vload_half2(0, p);
+        zivc::vstore_half2(k * v2, 1, inout_h + offset);
+      }
+      offset += 4;
+      // vector3
+      {
+        const float3 v1 = zivc::vload_half3(0, inout_h + offset);
+        zivc::vstore_half3(k * v1, 0, inout_h + offset);
+        zivc::vstore_half3(k * v1, 0, &storage[0].h_[0]);
+        const float3 v2 = zivc::vload_half3(0, &storage[0].h_[0]);
+        zivc::vstore_half3(k * v2, 1, inout_h + offset);
+      }
+      offset += 6;
+      // vector4
+      {
+        const float4 v1 = zivc::vload_half4(0, inout_h + offset);
+        zivc::vstore_half4(k * v1, 0, inout_h + offset);
+        zivc::vstore_half4(k * v1, 0, &storage[0].h_[0]);
+        const float4 v2 = zivc::vload_half4(0, &storage[0].h_[0]);
+        zivc::vstore_half4(k * v2, 1, inout_h + offset);
+      }
+    }
+  }
+}
+ 
+#endif /* ZIVC_TEST_OPENCL_CPP_TEST_TYPE_CL */

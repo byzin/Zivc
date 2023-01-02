@@ -12,7 +12,7 @@
 
 #include "vector_data.hpp"
 // Zivc
-#include "floating_point.hpp"
+//#include "floating_point.hpp"
 #include "types.hpp"
 #include "type_traits.hpp"
 
@@ -96,23 +96,24 @@ auto VectorData::loadHalfImpl(const size_t offset, AddressSpaceType p) noexcept
   using ASpaceInfo = AddressSpaceInfo<AddressSpaceType>;
   static_assert(ASpaceInfo::isPointer(), "The p isn't pointer type.");
   using ElemType = typename ASpaceInfo::DataType;
+  typename ASpaceInfo::Pointer ptr{p};
 
   if constexpr (kIsHalf<ElemType>) {
 #if defined(ZIVC_CL_CPU)
     if constexpr (kN == 1) {
-      const auto data = ZIVC_CL_GLOBAL_NAMESPACE::vload_half(offset, p);
+      const auto data = ZIVC_CL_GLOBAL_NAMESPACE::vload_half(offset, ptr);
       return data;
     }
     else if constexpr (kN == 2) {
-      const auto data = ZIVC_CL_GLOBAL_NAMESPACE::vload_half2(offset, p);
+      const auto data = ZIVC_CL_GLOBAL_NAMESPACE::vload_half2(offset, ptr);
       return data;
     }
     else if constexpr (kN == 3) {
-      const auto data = ZIVC_CL_GLOBAL_NAMESPACE::vload_half3(offset, p);
+      const auto data = ZIVC_CL_GLOBAL_NAMESPACE::vload_half3(offset, ptr);
       return data;
     }
     else if constexpr (kN == 4) {
-      const auto data = ZIVC_CL_GLOBAL_NAMESPACE::vload_half4(offset, p);
+      const auto data = ZIVC_CL_GLOBAL_NAMESPACE::vload_half4(offset, ptr);
       return data;
     }
     else {
@@ -140,15 +141,16 @@ template <size_t kN, typename AddressSpaceType> inline
 auto VectorData::loadHalfUImpl(const size_t offset, AddressSpaceType p) noexcept
 {
   // Address space type check
-  using ASpaceInfo = AddressSpaceInfo<AddressSpaceType>;
-  static_assert(ASpaceInfo::isPointer(), "The p isn't pointer type.");
-  using ElemType = typename ASpaceInfo::DataType;
-  static_assert(kIsSame<uint16b, ElemType>, "The Type isn't uint16b.");
-
-  const auto data = load<kN>(offset, p);
-  const auto udata = HalfFloat::upscale<FloatingPointFormat::kSingle, kN>(data);
-  const auto fdata = treatAs<FloatVec<kN>>(udata);
-  return fdata;
+//  using ASpaceInfo = AddressSpaceInfo<AddressSpaceType>;
+//  static_assert(ASpaceInfo::isPointer(), "The p isn't pointer type.");
+//  using ElemType = typename ASpaceInfo::DataType;
+//  static_assert(kIsSame<uint16b, ElemType>, "The Type isn't uint16b.");
+//
+//  const auto data = load<kN>(offset, p);
+//  const auto udata = HalfFloat::upscale<FloatingPointFormat::kSingle, kN>(data);
+//  const auto fdata = treatAs<FloatVec<kN>>(udata);
+//  return fdata;
+  return 0;
 }
 
 /*!
@@ -165,18 +167,19 @@ void VectorData::storeImpl(const VectorType data,
   // Address space type check
   using ASpaceInfo = AddressSpaceInfo<AddressSpaceType>;
   static_assert(ASpaceInfo::isPointer(), "The p isn't pointer type.");
+  typename ASpaceInfo::Pointer ptr{p};
 
   if constexpr (n == 1) {
-    p[offset] = data;
+    ptr[offset] = data;
   }
   else if constexpr (n == 2) {
-    ZIVC_CL_GLOBAL_NAMESPACE::vstore2(data, offset, p);
+    ZIVC_CL_GLOBAL_NAMESPACE::vstore2(data, offset, ptr);
   }
   else if constexpr (n == 3) {
-    ZIVC_CL_GLOBAL_NAMESPACE::vstore3(data, offset, p);
+    ZIVC_CL_GLOBAL_NAMESPACE::vstore3(data, offset, ptr);
   }
   else if constexpr (n == 4) {
-    ZIVC_CL_GLOBAL_NAMESPACE::vstore4(data, offset, p);
+    ZIVC_CL_GLOBAL_NAMESPACE::vstore4(data, offset, ptr);
   }
   else {
     static_assert(0 < n, "The size of vector is wrong.");
@@ -200,21 +203,22 @@ void VectorData::storeHalfImpl(const VectorType data,
   using ASpaceInfo = AddressSpaceInfo<AddressSpaceType>;
   static_assert(ASpaceInfo::isPointer(), "The p isn't pointer type.");
   using ElemType = typename ASpaceInfo::DataType;
+  typename ASpaceInfo::Pointer ptr{p};
 
   // Destination type
   if constexpr (kIsHalf<ElemType>) {
 #if defined(ZIVC_CL_CPU)
     if constexpr (n == 1) {
-      ZIVC_CL_GLOBAL_NAMESPACE::vstore_half(data, offset, p);
+      ZIVC_CL_GLOBAL_NAMESPACE::vstore_half(data, offset, ptr);
     }
     else if constexpr (n == 2) {
-      ZIVC_CL_GLOBAL_NAMESPACE::vstore_half2(data, offset, p);
+      ZIVC_CL_GLOBAL_NAMESPACE::vstore_half2(data, offset, ptr);
     }
     else if constexpr (n == 3) {
-      ZIVC_CL_GLOBAL_NAMESPACE::vstore_half3(data, offset, p);
+      ZIVC_CL_GLOBAL_NAMESPACE::vstore_half3(data, offset, ptr);
     }
     else if constexpr (n == 4) {
-      ZIVC_CL_GLOBAL_NAMESPACE::vstore_half4(data, offset, p);
+      ZIVC_CL_GLOBAL_NAMESPACE::vstore_half4(data, offset, ptr);
     }
     else {
       static_assert(0 < n, "The size of vector is wrong.");
@@ -241,21 +245,21 @@ void VectorData::storeHalfUImpl(const VectorType fdata,
                                 AddressSpaceType p) noexcept
 {
   // Source type check
-  using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
-  using FloatType = typename VecInfo::ElementType;
-  static_assert(kIsSingleFloat<FloatType>, "The VectorType isn't float type.");
-  constexpr size_t n = VecInfo::size();
-
-  // Address space type check
-  using ASpaceInfo = AddressSpaceInfo<AddressSpaceType>;
-  static_assert(ASpaceInfo::isPointer(), "The p isn't pointer type.");
-  using ElemType = typename ASpaceInfo::DataType;
-  static_assert(kIsSame<uint16b, ElemType>, "The Type isn't uint16b.");
-
-  using BitVec = SingleFloat::BitVec<n>;
-  const auto udata = treatAs<BitVec>(fdata);
-  const auto data = SingleFloat::downscale<FloatingPointFormat::kHalf, n>(udata);
-  store(data, offset, p);
+//  using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
+//  using FloatType = typename VecInfo::ElementType;
+//  static_assert(kIsSingleFloat<FloatType>, "The VectorType isn't float type.");
+//  constexpr size_t n = VecInfo::size();
+//
+//  // Address space type check
+//  using ASpaceInfo = AddressSpaceInfo<AddressSpaceType>;
+//  static_assert(ASpaceInfo::isPointer(), "The p isn't pointer type.");
+//  using ElemType = typename ASpaceInfo::DataType;
+//  static_assert(kIsSame<uint16b, ElemType>, "The Type isn't uint16b.");
+//
+//  using BitVec = SingleFloat::BitVec<n>;
+//  const auto udata = treatAs<BitVec>(fdata);
+//  const auto data = SingleFloat::downscale<FloatingPointFormat::kHalf, n>(udata);
+//  store(data, offset, p);
 }
 
 /*!
@@ -290,7 +294,8 @@ auto vload4(const size_t offset, AddressSpaceType p) noexcept
 template <typename AddressSpaceType> inline
 auto vload_half(const size_t offset, AddressSpaceType p) noexcept
 {
-  const auto data = VectorData::loadHalf<1>(offset, p);
+//  const auto data = VectorData::loadHalf<1>(offset, p);
+  const float data = ZIVC_CL_GLOBAL_NAMESPACE::vload_half(offset, p);
   return data;
 }
 

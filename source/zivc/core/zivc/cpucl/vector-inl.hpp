@@ -2365,12 +2365,11 @@ constexpr Vector<bool, kN> operator>=(const Vector<Type1, kN>& lhs,
   \return No description
   */
 template <zisc::Pointer Pointer> inline
-auto VectorData::vload2(
-    const size_t offset,
-    const Pointer p) noexcept
+auto VectorData::vload2(const size_t offset,
+                        const Pointer p) noexcept
 {
   using T = std::remove_cvref_t<std::remove_pointer_t<Pointer>>;
-  const auto result = Impl::vloadn<T, 2>(offset, p);
+  const Vector<T, 2> result = Impl::vloadn<T, 2>(offset, p);
   return result;
 }
 
@@ -2384,9 +2383,25 @@ auto VectorData::vload2(
   \return No description
   */
 template <AddressSpaceType kASpaceType, typename Type> inline
-auto VectorData::vload2(
-    const size_t offset,
-    const AddressSpacePointer<kASpaceType, Type>& p) noexcept
+auto VectorData::vload2(const size_t offset,
+                        const AddressSpacePointer<kASpaceType, Type>& p) noexcept
+{
+  const auto result = vload2(offset, p.get());
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \tparam Type No description.
+  \param [in] offset No description.
+  \param [in] p No description.
+  \return No description
+  */
+template <AddressSpaceType kASpaceType, typename Type> inline
+auto VectorData::vload2(const size_t offset,
+                        const AddressSpacePointer<kASpaceType, const Type>& p) noexcept
 {
   const auto result = vload2(offset, p.get());
   return result;
@@ -2401,12 +2416,11 @@ auto VectorData::vload2(
   \return No description
   */
 template <zisc::Pointer Pointer> inline
-auto VectorData::vload3(
-    const size_t offset,
-    const Pointer p) noexcept
+auto VectorData::vload3(const size_t offset,
+                        const Pointer p) noexcept
 {
   using T = std::remove_cvref_t<std::remove_pointer_t<Pointer>>;
-  const auto result = Impl::vloadn<T, 3>(offset, p);
+  const Vector<T, 3> result = Impl::vloadn<T, 3>(offset, p);
   return result;
 }
 
@@ -2420,9 +2434,25 @@ auto VectorData::vload3(
   \return No description
   */
 template <AddressSpaceType kASpaceType, typename Type> inline
-auto VectorData::vload3(
-    const size_t offset,
-    const AddressSpacePointer<kASpaceType, Type>& p) noexcept
+auto VectorData::vload3(const size_t offset,
+                        const AddressSpacePointer<kASpaceType, Type>& p) noexcept
+{
+  const auto result = vload3(offset, p.get());
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \tparam Type No description.
+  \param [in] offset No description.
+  \param [in] p No description.
+  \return No description
+  */
+template <AddressSpaceType kASpaceType, typename Type> inline
+auto VectorData::vload3(const size_t offset,
+                        const AddressSpacePointer<kASpaceType, const Type>& p) noexcept
 {
   const auto result = vload3(offset, p.get());
   return result;
@@ -2437,14 +2467,14 @@ auto VectorData::vload3(
   \return No description
   */
 template <zisc::Pointer Pointer> inline
-auto VectorData::vload4(
-    const size_t offset,
-    const Pointer p) noexcept
+auto VectorData::vload4(const size_t offset,
+                        const Pointer p) noexcept
 {
   using T = std::remove_cvref_t<std::remove_pointer_t<Pointer>>;
-  const auto result = Impl::vloadn<T, 4>(offset, p);
+  const Vector<T, 4> result = Impl::vloadn<T, 4>(offset, p);
   return result;
 }
+
 /*!
   \details No detailed description
 
@@ -2455,9 +2485,25 @@ auto VectorData::vload4(
   \return No description
   */
 template <AddressSpaceType kASpaceType, typename Type> inline
-auto VectorData::vload4(
-    const size_t offset,
-    const AddressSpacePointer<kASpaceType, Type>& p) noexcept
+auto VectorData::vload4(const size_t offset,
+                        const AddressSpacePointer<kASpaceType, Type>& p) noexcept
+{
+  const auto result = vload4(offset, p.get());
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \tparam Type No description.
+  \param [in] offset No description.
+  \param [in] p No description.
+  \return No description
+  */
+template <AddressSpaceType kASpaceType, typename Type> inline
+auto VectorData::vload4(const size_t offset,
+                        const AddressSpacePointer<kASpaceType, const Type>& p) noexcept
 {
   const auto result = vload4(offset, p.get());
   return result;
@@ -2471,9 +2517,8 @@ auto VectorData::vload4(
   \return No description
   */
 inline
-float VectorData::vload_half(
-    const size_t offset,
-    const half* p) noexcept
+float VectorData::vload_half(const size_t offset,
+                             const half* p) noexcept
 {
   const half* address = p + offset;
   const float result = static_cast<float>(*address);
@@ -2484,17 +2529,31 @@ float VectorData::vload_half(
   \details No detailed description
 
   \tparam kASpaceType No description.
-  \tparam Type No description.
   \param [in] offset No description.
   \param [in] p No description.
   \return No description
   */
-template <AddressSpaceType kASpaceType, Half Type> inline
-float VectorData::vload_half(
-    const size_t offset,
-    const AddressSpacePointer<kASpaceType, Type>& p) noexcept
+template <AddressSpaceType kASpaceType> inline
+float VectorData::vload_half(const size_t offset,
+                             const AddressSpacePointer<kASpaceType, half>& p) noexcept
 {
-  const auto result = vload_half(offset, p.get());
+  const float result = vload_half(offset, p.get());
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \param [in] offset No description.
+  \param [in] p No description.
+  \return No description
+  */
+template <AddressSpaceType kASpaceType> inline
+float VectorData::vload_half(const size_t offset,
+                             const AddressSpacePointer<kASpaceType, const half>& p) noexcept
+{
+  const float result = vload_half(offset, p.get());
   return result;
 }
 
@@ -2506,11 +2565,10 @@ float VectorData::vload_half(
   \return No description
   */
 inline
-float2 VectorData::vload_half2(
-    const size_t offset,
-    const half* p) noexcept
+float2 VectorData::vload_half2(const size_t offset,
+                               const half* p) noexcept
 {
-  const auto result = Impl::vload_halfn<2>(offset, p);
+  const float2 result = Impl::vload_halfn<2>(offset, p);
   return result;
 }
 
@@ -2518,17 +2576,31 @@ float2 VectorData::vload_half2(
   \details No detailed description
 
   \tparam kASpaceType No description.
-  \tparam Type No description.
   \param [in] offset No description.
   \param [in] p No description.
   \return No description
   */
-template <AddressSpaceType kASpaceType, Half Type> inline
-float2 VectorData::vload_half2(
-    const size_t offset,
-    const AddressSpacePointer<kASpaceType, Type>& p) noexcept
+template <AddressSpaceType kASpaceType> inline
+float2 VectorData::vload_half2(const size_t offset,
+                               const AddressSpacePointer<kASpaceType, half>& p) noexcept
 {
-  const auto result = vload_half2(offset, p.get());
+  const float2 result = vload_half2(offset, p.get());
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \param [in] offset No description.
+  \param [in] p No description.
+  \return No description
+  */
+template <AddressSpaceType kASpaceType> inline
+float2 VectorData::vload_half2(const size_t offset,
+                               const AddressSpacePointer<kASpaceType, const half>& p) noexcept
+{
+  const float2 result = vload_half2(offset, p.get());
   return result;
 }
 
@@ -2540,11 +2612,10 @@ float2 VectorData::vload_half2(
   \return No description
   */
 inline
-float3 VectorData::vload_half3(
-    const size_t offset,
-    const half* p) noexcept
+float3 VectorData::vload_half3(const size_t offset,
+                               const half* p) noexcept
 {
-  const auto result = Impl::vload_halfn<3>(offset, p);
+  const float3 result = Impl::vload_halfn<3>(offset, p);
   return result;
 }
 
@@ -2552,17 +2623,31 @@ float3 VectorData::vload_half3(
   \details No detailed description
 
   \tparam kASpaceType No description.
-  \tparam Type No description.
   \param [in] offset No description.
   \param [in] p No description.
   \return No description
   */
-template <AddressSpaceType kASpaceType, Half Type> inline
-float3 VectorData::vload_half3(
-    const size_t offset,
-    const AddressSpacePointer<kASpaceType, Type>& p) noexcept
+template <AddressSpaceType kASpaceType> inline
+float3 VectorData::vload_half3(const size_t offset,
+                               const AddressSpacePointer<kASpaceType, half>& p) noexcept
 {
-  const auto result = vload_half3(offset, p.get());
+  const float3 result = vload_half3(offset, p.get());
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \param [in] offset No description.
+  \param [in] p No description.
+  \return No description
+  */
+template <AddressSpaceType kASpaceType> inline
+float3 VectorData::vload_half3(const size_t offset,
+                               const AddressSpacePointer<kASpaceType, const half>& p) noexcept
+{
+  const float3 result = vload_half3(offset, p.get());
   return result;
 }
 
@@ -2575,11 +2660,10 @@ float3 VectorData::vload_half3(
   \return No description
   */
 inline
-float4 VectorData::vload_half4(
-    const size_t offset,
-    const half* p) noexcept
+float4 VectorData::vload_half4(const size_t offset,
+                               const half* p) noexcept
 {
-  const auto result = Impl::vload_halfn<4>(offset, p);
+  const float4 result = Impl::vload_halfn<4>(offset, p);
   return result;
 }
 
@@ -2587,17 +2671,31 @@ float4 VectorData::vload_half4(
   \details No detailed description
 
   \tparam kASpaceType No description.
-  \tparam Type No description.
   \param [in] offset No description.
   \param [in] p No description.
   \return No description
   */
-template <AddressSpaceType kASpaceType, Half Type> inline
-float4 VectorData::vload_half4(
-    const size_t offset,
-    const AddressSpacePointer<kASpaceType, Type>& p) noexcept
+template <AddressSpaceType kASpaceType> inline
+float4 VectorData::vload_half4(const size_t offset,
+                               const AddressSpacePointer<kASpaceType, half>& p) noexcept
 {
-  const auto result = vload_half4(offset, p.get());
+  const float4 result = vload_half4(offset, p.get());
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \param [in] offset No description.
+  \param [in] p No description.
+  \return No description
+  */
+template <AddressSpaceType kASpaceType> inline
+float4 VectorData::vload_half4(const size_t offset,
+                               const AddressSpacePointer<kASpaceType, const half>& p) noexcept
+{
+  const float4 result = vload_half4(offset, p.get());
   return result;
 }
 
@@ -2609,15 +2707,14 @@ float4 VectorData::vload_half4(
   \param [in] offset No description.
   \param [out] p No description.
   */
-//template <typename Type> inline
-//void VectorData::vstore2(
-//    const Vector<Type, 2>& data,
-//    const size_t offset,
-//    const std::add_pointer_t<Type> p) noexcept
-//{
-//  using T = std::remove_cv_t<Type>;
-//  Impl::vstoren<T, 2>(data, offset, p);
-//}
+template <typename Type> inline
+void VectorData::vstore2(const Vector<Type, 2>& data,
+                         const size_t offset,
+                         std::add_pointer_t<Type> p) noexcept
+{
+  using T = std::remove_cv_t<Type>;
+  Impl::vstoren<T, 2>(data, offset, p);
+}
 
 /*!
   \details No detailed description
@@ -2629,27 +2726,29 @@ float4 VectorData::vload_half4(
   \param [out] p No description.
   */
 template <AddressSpaceType kASpaceType, typename Type> inline
-void VectorData::vstore2(
-    const Vector<Type, 2>& data,
-    const size_t offset,
-    AddressSpacePointer<kASpaceType, Type> p) noexcept
+void VectorData::vstore2(const Vector<Type, 2>& data,
+                         const size_t offset,
+                         AddressSpacePointer<kASpaceType, Type> p) noexcept
 {
-  //vstore2(data, offset, p.get());
-  using T = std::remove_cv_t<Type>;
-  Impl::vstoren<T, 2>(data, offset, p.get());
+  vstore2(data, offset, p.get());
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \param [in] data No description.
+  \param [in] offset No description.
+  \param [out] p No description.
   */
-//template <typename Type> inline
-//void VectorData::vstore3(
-//    const Vector<Type, 3>& data,
-//    const size_t offset,
-//    const std::add_pointer_t<Type> p) noexcept
-//{
-//  using T = std::remove_cv_t<Type>;
-//  Impl::vstoren<T, 3>(data, offset, p);
-//}
+template <typename Type> inline
+void VectorData::vstore3(const Vector<Type, 3>& data,
+                         const size_t offset,
+                         std::add_pointer_t<Type> p) noexcept
+{
+  using T = std::remove_cv_t<Type>;
+  Impl::vstoren<T, 3>(data, offset, p);
+}
 
 /*!
   \details No detailed description
@@ -2660,27 +2759,29 @@ void VectorData::vstore2(
   \param [out] p No description.
   */
 template <AddressSpaceType kASpaceType, typename Type> inline
-void VectorData::vstore3(
-    const Vector<Type, 3>& data,
-    const size_t offset,
-    AddressSpacePointer<kASpaceType, Type> p) noexcept
+void VectorData::vstore3(const Vector<Type, 3>& data,
+                         const size_t offset,
+                         AddressSpacePointer<kASpaceType, Type> p) noexcept
 {
-  //vstore3(data, offset, p.get());
-  using T = std::remove_cv_t<Type>;
-  Impl::vstoren<T, 3>(data, offset, p.get());
+  vstore3(data, offset, p.get());
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \param [in] data No description.
+  \param [in] offset No description.
+  \param [out] p No description.
   */
-//template <typename Type> inline
-//void VectorData::vstore4(
-//    const Vector<Type, 4>& data,
-//    const size_t offset,
-//    const std::add_pointer_t<Type> p) noexcept
-//{
-//  using T = std::remove_cv_t<Type>;
-//  Impl::vstoren<T, 4>(data, offset, p);
-//}
+template <typename Type> inline
+void VectorData::vstore4(const Vector<Type, 4>& data,
+                         const size_t offset,
+                         std::add_pointer_t<Type> p) noexcept
+{
+  using T = std::remove_cv_t<Type>;
+  Impl::vstoren<T, 4>(data, offset, p);
+}
 
 /*!
   \details No detailed description
@@ -2692,61 +2793,31 @@ void VectorData::vstore3(
   \param [out] p No description.
   */
 template <AddressSpaceType kASpaceType, typename Type> inline
-void VectorData::vstore4(
-    const Vector<Type, 4>& data,
-    const size_t offset,
-    AddressSpacePointer<kASpaceType, Type> p) noexcept
+void VectorData::vstore4(const Vector<Type, 4>& data,
+                         const size_t offset,
+                         AddressSpacePointer<kASpaceType, Type> p) noexcept
 {
-  //vstore4(data, offset, p.get());
-  using T = std::remove_cv_t<Type>;
-  Impl::vstoren<T, 4>(data, offset, p.get());
+  vstore4(data, offset, p.get());
 }
-
-/*!
-  */
-//inline
-//void VectorData::vstore_half(
-//    const float data,
-//    const size_t offset,
-//    half* p) noexcept
-//{
-//  half* address = p + offset;
-//  const half fdata = static_cast<half>(data);
-//  *address = fdata;
-//}
 
 /*!
   \details No detailed description
 
-  \tparam kASpaceType No description.
   \param [in] data No description.
   \param [in] offset No description.
   \param [out] p No description.
   */
-template <AddressSpaceType kASpaceType> inline
-void VectorData::vstore_half(
-    const float data,
-    const size_t offset,
-    AddressSpacePointer<kASpaceType, half> p) noexcept
+inline
+void VectorData::vstore_half(const float data,
+                             const size_t offset,
+                             half* p) noexcept
 {
-//  vstore_half(data, offset, p.get());
-  half* address = p.get() + offset;
+  half* address = p + offset;
   const half fdata = static_cast<half>(data);
   *address = fdata;
 }
 
 /*!
-  */
-//inline
-//void VectorData::vstore_half2(
-//    const float2& data,
-//    const size_t offset,
-//    half* p) noexcept
-//{
-//  Impl::vstore_halfn(data, offset, p);
-//}
-
-/*!
   \details No detailed description
 
   \tparam kASpaceType No description.
@@ -2755,54 +2826,58 @@ void VectorData::vstore_half(
   \param [out] p No description.
   */
 template <AddressSpaceType kASpaceType> inline
-void VectorData::vstore_half2(
-    const float2& data,
-    const size_t offset,
-    AddressSpacePointer<kASpaceType, half> p) noexcept
+void VectorData::vstore_half(const float data,
+                             const size_t offset,
+                             AddressSpacePointer<kASpaceType, half> p) noexcept
 {
-//  vstore_half2(data, offset, p.get());
-  Impl::vstore_halfn(data, offset, p.get());
+  vstore_half(data, offset, p.get());
 }
 
 /*!
-  */
-//inline
-//void VectorData::vstore_half3(
-//    const float3& data,
-//    const size_t offset,
-//    half* p) noexcept
-//{
-//  Impl::vstore_halfn(data, offset, p);
-//}
-
-/*!
   \details No detailed description
 
-  \tparam kASpaceType No description.
   \param [in] data No description.
   \param [in] offset No description.
   \param [out] p No description.
   */
-template <AddressSpaceType kASpaceType> inline
-void VectorData::vstore_half3(
-    const float3& data,
-    const size_t offset,
-    AddressSpacePointer<kASpaceType, half> p) noexcept
+inline
+void VectorData::vstore_half2(const float2& data,
+                              const size_t offset,
+                              half* p) noexcept
 {
-//  vstore_half3(data, offset, p.get());
-  Impl::vstore_halfn(data, offset, p.get());
+  Impl::vstore_halfn(data, offset, p);
 }
 
 /*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \param [in] data No description.
+  \param [in] offset No description.
+  \param [out] p No description.
   */
-//inline
-//void VectorData::vstore_half4(
-//    const float4& data,
-//    const size_t offset,
-//    half* p) noexcept
-//{
-//  Impl::vstore_halfn(data, offset, p);
-//}
+template <AddressSpaceType kASpaceType> inline
+void VectorData::vstore_half2(const float2& data,
+                              const size_t offset,
+                              AddressSpacePointer<kASpaceType, half> p) noexcept
+{
+  vstore_half2(data, offset, p.get());
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] data No description.
+  \param [in] offset No description.
+  \param [out] p No description.
+  */
+inline
+void VectorData::vstore_half3(const float3& data,
+                              const size_t offset,
+                              half* p) noexcept
+{
+  Impl::vstore_halfn(data, offset, p);
+}
 
 /*!
   \details No detailed description
@@ -2813,13 +2888,42 @@ void VectorData::vstore_half3(
   \param [out] p No description.
   */
 template <AddressSpaceType kASpaceType> inline
-void VectorData::vstore_half4(
-    const float4& data,
-    const size_t offset,
-    AddressSpacePointer<kASpaceType, half> p) noexcept
+void VectorData::vstore_half3(const float3& data,
+                              const size_t offset,
+                              AddressSpacePointer<kASpaceType, half> p) noexcept
 {
-//  vstore_half4(data, offset, p.get());
-  Impl::vstore_halfn(data, offset, p.get());
+  vstore_half3(data, offset, p.get());
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] data No description.
+  \param [in] offset No description.
+  \param [out] p No description.
+  */
+inline
+void VectorData::vstore_half4(const float4& data,
+                              const size_t offset,
+                              half* p) noexcept
+{
+  Impl::vstore_halfn(data, offset, p);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \param [in] data No description.
+  \param [in] offset No description.
+  \param [out] p No description.
+  */
+template <AddressSpaceType kASpaceType> inline
+void VectorData::vstore_half4(const float4& data,
+                              const size_t offset,
+                              AddressSpacePointer<kASpaceType, half> p) noexcept
+{
+  vstore_half4(data, offset, p.get());
 }
 
 /*!
@@ -2832,9 +2936,8 @@ void VectorData::vstore_half4(
   \return No description
   */
 template <typename Type, size_t kN> inline
-Vector<Type, kN> VectorData::Impl::vloadn(
-    const size_t offset,
-    const Type* p) noexcept
+Vector<Type, kN> VectorData::Impl::vloadn(const size_t offset,
+                                          const Type* p) noexcept
 {
   Vector<Type, kN> data{};
   typename decltype(data)::Pointer d = data.data();
@@ -2853,9 +2956,8 @@ Vector<Type, kN> VectorData::Impl::vloadn(
   \return No description
   */
 template <size_t kN> inline
-Vector<float, kN> VectorData::Impl::vload_halfn(
-    const size_t offset,
-    const half* p) noexcept
+Vector<float, kN> VectorData::Impl::vload_halfn(const size_t offset,
+                                                const half* p) noexcept
 {
   Vector<float, kN> data{};
   typename decltype(data)::Pointer d = data.data();
@@ -2942,6 +3044,23 @@ auto vload2(const size_t offset,
 /*!
   \details No detailed description
 
+  \tparam kASpaceType No description.
+  \tparam Type No description.
+  \param [in] offset No description.
+  \param [in] p No description.
+  \return No description
+  */
+template <AddressSpaceType kASpaceType, typename Type> inline
+auto vload2(const size_t offset,
+            const AddressSpacePointer<kASpaceType, const Type>& p) noexcept
+{
+  const auto result = VectorData::vload2<kASpaceType, const Type>(offset, p);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
   \tparam Pointer No description.
   \param [in] offset No description.
   \param [in] p No description.
@@ -2969,6 +3088,23 @@ auto vload3(const size_t offset,
             const AddressSpacePointer<kASpaceType, Type>& p) noexcept
 {
   const auto result = VectorData::vload3<kASpaceType, Type>(offset, p);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \tparam Type No description.
+  \param [in] offset No description.
+  \param [in] p No description.
+  \return No description
+  */
+template <AddressSpaceType kASpaceType, typename Type> inline
+auto vload3(const size_t offset,
+            const AddressSpacePointer<kASpaceType, const Type>& p) noexcept
+{
+  const auto result = VectorData::vload3<kASpaceType, const Type>(offset, p);
   return result;
 }
 
@@ -3008,18 +3144,34 @@ auto vload4(const size_t offset,
 /*!
   \details No detailed description
 
+  \tparam kASpaceType No description.
+  \tparam Type No description.
   \param [in] offset No description.
   \param [in] p No description.
   \return No description
   */
-//inline
-//float vload_half(
-//    const size_t offset,
-//    const half* p) noexcept
-//{
-//  const auto result = VectorData::vload_half(offset, p);
-//  return result;
-//}
+template <AddressSpaceType kASpaceType, typename Type> inline
+auto vload4(const size_t offset,
+            const AddressSpacePointer<kASpaceType, const Type>& p) noexcept
+{
+  const auto result = VectorData::vload4<kASpaceType, const Type>(offset, p);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] offset No description.
+  \param [in] p No description.
+  \return No description
+  */
+inline
+float vload_half(const size_t offset,
+                 const half* p) noexcept
+{
+  const float result = VectorData::vload_half(offset, p);
+  return result;
+}
 
 /*!
   \details No detailed description
@@ -3033,20 +3185,40 @@ template <AddressSpaceType kASpaceType> inline
 float vload_half(const size_t offset,
                  const AddressSpacePointer<kASpaceType, half>& p) noexcept
 {
-  const auto result = VectorData::vload_half(offset, p);
+  const float result = VectorData::vload_half(offset, p);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \param [in] offset No description.
+  \param [in] p No description.
+  \return No description
   */
-//inline
-//float2 vload_half2(
-//    const size_t offset,
-//    const half* p) noexcept
-//{
-//  const auto result = VectorData::vload_half2(offset, p);
-//  return result;
-//}
+template <AddressSpaceType kASpaceType> inline
+float vload_half(const size_t offset,
+                 const AddressSpacePointer<kASpaceType, const half>& p) noexcept
+{
+  const float result = VectorData::vload_half(offset, p);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] offset No description.
+  \param [in] p No description.
+  \return No description
+  */
+inline
+float2 vload_half2(const size_t offset,
+                   const half* p) noexcept
+{
+  const float2 result = VectorData::vload_half2(offset, p);
+  return result;
+}
 
 /*!
   \details No detailed description
@@ -3060,20 +3232,40 @@ template <AddressSpaceType kASpaceType> inline
 float2 vload_half2(const size_t offset,
                    const AddressSpacePointer<kASpaceType, half>& p) noexcept
 {
-  const auto result = VectorData::vload_half2(offset, p);
+  const float2 result = VectorData::vload_half2(offset, p);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \param [in] offset No description.
+  \param [in] p No description.
+  \return No description
   */
-//inline
-//float3 vload_half3(
-//    const size_t offset,
-//    const half* p) noexcept
-//{
-//  const auto result = VectorData::vload_half3(offset, p);
-//  return result;
-//}
+template <AddressSpaceType kASpaceType> inline
+float2 vload_half2(const size_t offset,
+                   const AddressSpacePointer<kASpaceType, const half>& p) noexcept
+{
+  const float2 result = VectorData::vload_half2(offset, p);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] offset No description.
+  \param [in] p No description.
+  \return No description
+  */
+inline
+float3 vload_half3(const size_t offset,
+                   const half* p) noexcept
+{
+  const float3 result = VectorData::vload_half3(offset, p);
+  return result;
+}
 
 /*!
   \details No detailed description
@@ -3087,20 +3279,40 @@ template <AddressSpaceType kASpaceType> inline
 float3 vload_half3(const size_t offset,
                    const AddressSpacePointer<kASpaceType, half>& p) noexcept
 {
-  const auto result = VectorData::vload_half3(offset, p);
+  const float3 result = VectorData::vload_half3(offset, p);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \param [in] offset No description.
+  \param [in] p No description.
+  \return No description
   */
-//inline
-//float4 vload_half4(
-//    const size_t offset,
-//    const half* p) noexcept
-//{
-//  const auto result = VectorData::vload_half4(offset, p);
-//  return result;
-//}
+template <AddressSpaceType kASpaceType> inline
+float3 vload_half3(const size_t offset,
+                   const AddressSpacePointer<kASpaceType, const half>& p) noexcept
+{
+  const float3 result = VectorData::vload_half3(offset, p);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] offset No description.
+  \param [in] half No description.
+  \return No description
+  */
+inline
+float4 vload_half4(const size_t offset,
+                   const half* p) noexcept
+{
+  const float4 result = VectorData::vload_half4(offset, p);
+  return result;
+}
 
 /*!
   \details No detailed description
@@ -3114,19 +3326,41 @@ template <AddressSpaceType kASpaceType> inline
 float4 vload_half4(const size_t offset,
                    const AddressSpacePointer<kASpaceType, half>& p) noexcept
 {
-  const auto result = VectorData::vload_half4(offset, p);
+  const float4 result = VectorData::vload_half4(offset, p);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \param [in] offset No description.
+  \param [in] p No description.
+  \return No description
   */
-//template <typename Type> inline
-//void vstore2(const Vector<Type, 2>& data,
-//            const size_t offset,
-//            const std::add_pointer_t<Type> p) noexcept
-//{
-//  VectorData::vstore2(data, offset, p);
-//}
+template <AddressSpaceType kASpaceType> inline
+float4 vload_half4(const size_t offset,
+                   const AddressSpacePointer<kASpaceType, const half>& p) noexcept
+{
+  const float4 result = VectorData::vload_half4(offset, p);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \param [in] data No description.
+  \param [in] offset No description.
+  \param [out] p No description.
+  */
+template <typename Type> inline
+void vstore2(const Vector<Type, 2>& data,
+             const size_t offset,
+             std::add_pointer_t<Type> p) noexcept
+{
+  VectorData::vstore2(data, offset, p);
+}
 
 /*!
   \details No detailed description
@@ -3146,14 +3380,20 @@ void vstore2(const Vector<Type, 2>& data,
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \param [in] data No description.
+  \param [in] offset No description.
+  \param [out] p No description.
   */
-//template <typename Type> inline
-//void vstore3(const Vector<Type, 3>& data,
-//            const size_t offset,
-//            const std::add_pointer_t<Type> p) noexcept
-//{
-//  VectorData::vstore3(data, offset, p);
-//}
+template <typename Type> inline
+void vstore3(const Vector<Type, 3>& data,
+             const size_t offset,
+             std::add_pointer_t<Type> p) noexcept
+{
+  VectorData::vstore3(data, offset, p);
+}
 
 /*!
   \details No detailed description
@@ -3180,13 +3420,13 @@ void vstore3(const Vector<Type, 3>& data,
   \param [in] offset No description.
   \param [out] p No description.
   */
-//template <typename Type> inline
-//void vstore4(const Vector<Type, 4>& data,
-//            const size_t offset,
-//            const std::add_pointer_t<Type> p) noexcept
-//{
-//  VectorData::vstore4(data, offset, p);
-//}
+template <typename Type> inline
+void vstore4(const Vector<Type, 4>& data,
+             const size_t offset,
+             std::add_pointer_t<Type> p) noexcept
+{
+  VectorData::vstore4(data, offset, p);
+}
 
 /*!
   \details No detailed description
@@ -3206,45 +3446,21 @@ void vstore4(const Vector<Type, 4>& data,
 }
 
 /*!
-  */
-//inline
-//void vstore_half(
-//    const float data,
-//    const size_t offset,
-//    half* p) noexcept
-//{
-//  VectorData::vstore_half(data, offset, p);
-//}
-
-/*!
   \details No detailed description
 
-  \tparam kASpaceType No description.
   \param [in] data No description.
   \param [in] offset No description.
   \param [out] p No description.
   */
-template <AddressSpaceType kASpaceType> inline
-void vstore_half(
-    const float data,
-    const size_t offset,
-    AddressSpacePointer<kASpaceType, half> p) noexcept
+inline
+void vstore_half(const float data,
+                 const size_t offset,
+                 half* p) noexcept
 {
   VectorData::vstore_half(data, offset, p);
 }
 
 /*!
-  */
-//inline
-//void vstore_half2(
-//    const float2& data,
-//    const size_t offset,
-//    half* p) noexcept
-//{
-//  VectorData::vstore_half2(data, offset, p);
-//}
-
-/*!
   \details No detailed description
 
   \tparam kASpaceType No description.
@@ -3253,26 +3469,29 @@ void vstore_half(
   \param [out] p No description.
   */
 template <AddressSpaceType kASpaceType> inline
-void vstore_half2(
-    const float2& data,
-    const size_t offset,
-    AddressSpacePointer<kASpaceType, half> p) noexcept
+void vstore_half(const float data,
+                 const size_t offset,
+                 AddressSpacePointer<kASpaceType, half> p) noexcept
+{
+  VectorData::vstore_half(data, offset, p);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] data No description.
+  \param [in] offset No description.
+  \param [out] p No description.
+  */
+inline
+void vstore_half2(const float2& data,
+                  const size_t offset,
+                  half* p) noexcept
 {
   VectorData::vstore_half2(data, offset, p);
 }
 
 /*!
-  */
-//inline
-//void vstore_half3(
-//    const float3& data,
-//    const size_t offset,
-//    half* p) noexcept
-//{
-//  VectorData::vstore_half3(data, offset, p);
-//}
-
-/*!
   \details No detailed description
 
   \tparam kASpaceType No description.
@@ -3281,24 +3500,58 @@ void vstore_half2(
   \param [out] p No description.
   */
 template <AddressSpaceType kASpaceType> inline
-void vstore_half3(
-    const float3& data,
-    const size_t offset,
-    AddressSpacePointer<kASpaceType, half> p) noexcept
+void vstore_half2(const float2& data,
+                  const size_t offset,
+                  AddressSpacePointer<kASpaceType, half> p) noexcept
+{
+  VectorData::vstore_half2(data, offset, p);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] data No description.
+  \param [in] offset No description.
+  \param [out] p No description.
+  */
+inline
+void vstore_half3(const float3& data,
+                  const size_t offset,
+                  half* p) noexcept
 {
   VectorData::vstore_half3(data, offset, p);
 }
 
 /*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \param [in] data No description.
+  \param [in] offset No description.
+  \param [out] p No description.
   */
-//inline
-//void vstore_half4(
-//    const float4& data,
-//    const size_t offset,
-//    half* p) noexcept
-//{
-//  VectorData::vstore_half4(data, offset, p);
-//}
+template <AddressSpaceType kASpaceType> inline
+void vstore_half3(const float3& data,
+                  const size_t offset,
+                  AddressSpacePointer<kASpaceType, half> p) noexcept
+{
+  VectorData::vstore_half3(data, offset, p);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] data No description.
+  \param [in] offset No description.
+  \param [out] p No description.
+  */
+inline
+void vstore_half4(const float4& data,
+                  const size_t offset,
+                  half* p) noexcept
+{
+  VectorData::vstore_half4(data, offset, p);
+}
 
 /*!
   \details No detailed description
@@ -3309,10 +3562,9 @@ void vstore_half3(
   \param [out] p No description.
   */
 template <AddressSpaceType kASpaceType> inline
-void vstore_half4(
-    const float4& data,
-    const size_t offset,
-    AddressSpacePointer<kASpaceType, half> p) noexcept
+void vstore_half4(const float4& data,
+                  const size_t offset,
+                  AddressSpacePointer<kASpaceType, half> p) noexcept
 {
   VectorData::vstore_half4(data, offset, p);
 }

@@ -21,7 +21,7 @@ namespace zivc {
 template <typename T, T v>
 struct IntegralConstant;
 
-//! Helper alias template of IntegralConstant
+//! A helper alias template of IntegralConstant
 template <bool value>
 using BoolConstant = IntegralConstant<bool, value>;
 
@@ -52,11 +52,11 @@ using FalseType = BoolConstant<false>;
 //
 ////! Check if a type is a floating point type
 //template <typename T>
-//struct IsFloatingPoint;
+//struct IsFloat;
 //
-////! Helper variable template of IsFloatingPoint
+////! Helper variable template of IsFloat
 //template <typename T>
-//inline constexpr bool kIsFloatingPoint = IsFloatingPoint<T>::kValue;
+//inline constexpr bool kIsFloat = IsFloat<T>::kValue;
 //
 ////! Check if a type is an array type
 //template <typename T>
@@ -86,6 +86,7 @@ struct IntegerFromBytes
   static_assert(kBytes == 0, "The specified size is unsupported.");
 };
 
+//!
 template <size_t kBytes>
 using IntegerTypeFromBytes = typename IntegerFromBytes<kBytes>::Type;
 
@@ -97,6 +98,7 @@ struct UIntegerFromBytes
   static_assert(kBytes == 0, "The specified size is unsupported.");
 };
 
+//!
 template <size_t kBytes>
 using UIntegerTypeFromBytes = typename UIntegerFromBytes<kBytes>::Type;
 
@@ -108,60 +110,72 @@ struct FloatFromBytes
   static_assert(kBytes == 0, "The specified size is unsupported.");
 };
 
+//!
 template <size_t kBytes>
 using FloatTypeFromBytes = typename FloatFromBytes<kBytes>::Type;
 
 //! Information of a vector type
-template <typename Type>
+template <typename T>
 struct VectorTypeInfo
 {
-  using ElementType = int32b;
+  using ElementType = T;
+  using Type = T;
   //! Return the number of elements of the type
-  static constexpr size_t size() noexcept {return 0u;}
-  static_assert(sizeof(Type) == 0, "The 'Type' is unsupported type.");
+  static constexpr size_t size() noexcept {return 1u;}
 };
 
 //! Make a vector type
 template <typename ElementType, size_t kN>
 struct VectorFromElems
 {
-  using Type = int32b;
-  static_assert(sizeof(ElementType) == 0, "The vector type is unsupported type.");
+  using Type = ElementType;
 };
 
+//!
 template <typename ElementType, size_t kN>
 using VectorTypeFromElems = typename VectorFromElems<ElementType, kN>::Type;
 
+//!
 template <size_t kN>
 using Integer8VecType = VectorTypeFromElems<int8b, kN>;
 
+//!
 template <size_t kN>
 using Integer16VecType = VectorTypeFromElems<int16b, kN>;
 
+//!
 template <size_t kN>
 using Integer32VecType = VectorTypeFromElems<int32b, kN>;
 
+//!
 template <size_t kN>
 using Integer64VecType = VectorTypeFromElems<int64b, kN>;
 
+//!
 template <size_t kN>
 using UInteger8VecType = VectorTypeFromElems<uint8b, kN>;
 
+//!
 template <size_t kN>
 using UInteger16VecType = VectorTypeFromElems<uint16b, kN>;
 
+//!
 template <size_t kN>
 using UInteger32VecType = VectorTypeFromElems<uint32b, kN>;
 
+//!
 template <size_t kN>
 using UInteger64VecType = VectorTypeFromElems<uint64b, kN>;
 
+//!
 template <size_t kN>
 using Float16VecType = VectorTypeFromElems<half, kN>;
 
+//!
 template <size_t kN>
 using Float32VecType = VectorTypeFromElems<float, kN>;
 
+//!
 template <size_t kN>
 using Float64VecType = VectorTypeFromElems<double, kN>;
 
@@ -192,6 +206,7 @@ class AddressSpaceInfo;
 //  static constexpr int32b isLocal() noexcept;
 //  static constexpr int32b isConstant() noexcept;
 //  static constexpr int32b isPrivate() noexcept;
+//  static constexpr int32b isGeneric() noexcept;
 //  static constexpr int32b isPointer() noexcept;
 //};
 
@@ -200,54 +215,63 @@ class AddressSpaceInfo;
 //! Check if a type is integer scalar or vector type
 template <typename T> struct IsInteger;
 
+//!
 template <typename T>
 constexpr Constant<int32b> kIsInteger = IsInteger<T>::kValue;
 
 //! Check if a type is signed integer scalar or vector type
 template <typename T> struct IsSignedInteger;
 
+//!
 template <typename T>
 constexpr Constant<int32b> kIsSignedInteger = IsSignedInteger<T>::kValue;
 
 //! Check if a type is unsigned integer scalar or vector type
 template <typename T> struct IsUnsignedInteger;
 
+//!
 template <typename T>
 constexpr Constant<int32b> kIsUnsignedInteger = IsUnsignedInteger<T>::kValue;
 
 //! Check if a type is floating point scalar or vector type
-template <typename T> struct IsFloatingPoint;
+template <typename T> struct IsFloat;
 
+//!
 template <typename T>
-constexpr Constant<int32b> kIsFloatingPoint = IsFloatingPoint<T>::kValue;
+constexpr Constant<int32b> kIsFloat = IsFloat<T>::kValue;
 
 //! Check if a type is half scalar or vector type
 template <typename T> struct IsHalf;
 
+//!
 template <typename T>
 constexpr Constant<int32b> kIsHalf = IsHalf<T>::kValue;
 
 //! Check if a type is float scalar or vector type
-template <typename T> struct IsSingleFloat;
+template <typename T> struct IsSingle;
 
+//!
 template <typename T>
-constexpr Constant<int32b> kIsSingleFloat = IsSingleFloat<T>::kValue;
+constexpr Constant<int32b> kIsSingle = IsSingle<T>::kValue;
 
 //! Check if a type is double scalar or vector type
 template <typename T> struct IsDouble;
 
+//!
 template <typename T>
 constexpr Constant<int32b> kIsDouble = IsDouble<T>::kValue;
 
 //! Check if a type is an arithmetic type
 template <typename T> struct IsArithmetic;
 
+//!
 template <typename T>
 constexpr Constant<int32b> kIsArithmetic = IsArithmetic<T>::kValue;
 
 //! Check if a type is a signed arithmetic type
 template <typename T> struct IsSigned;
 
+//!
 template <typename T>
 constexpr Constant<int32b> kIsSigned = IsSigned<T>::kValue;
 
@@ -256,18 +280,35 @@ constexpr Constant<int32b> kIsSigned = IsSigned<T>::kValue;
 //! Check if a type is a pointer type
 template <typename T> struct IsPointer;
 
+//!
 template <typename T>
 constexpr Constant<int32b> kIsPointer = IsPointer<T>::kValue;
+
+//! Check if a type is scalar type
+template <typename T> struct IsScalar;
+
+//!
+template <typename T>
+constexpr Constant<int32b> kIsScalar = IsScalar<T>::kValue;
+
+//! Check if a type is vector type
+template <typename T> struct IsVector;
+
+//!
+template <typename T>
+constexpr Constant<int32b> kIsVector = IsVector<T>::kValue;
 
 //! Check if a type is lvalue reference
 template <typename T> struct IsLValueReference;
 
+//!
 template <typename T>
 constexpr Constant<int32b> kIsLValueReference = IsLValueReference<T>::kValue;
 
 //! Check if a type is rvalue reference
 template <typename T> struct IsRValueReference;
 
+//!
 template <typename T>
 constexpr Constant<int32b> kIsRValueReference = IsRValueReference<T>::kValue;
 
@@ -276,24 +317,28 @@ constexpr Constant<int32b> kIsRValueReference = IsRValueReference<T>::kValue;
 //! Add 'const' and/or 'volatile' specifiers to the given type
 template <typename T> struct AddCv;
 
+//!
 template <typename T>
 using AddCvType = typename AddCv<T>::Type;
 
 //! Add 'const' specifiers to the given type
 template <typename T> struct AddConst;
 
+//!
 template <typename T>
 using AddConstType = typename AddConst<T>::Type;
 
 //! Add 'volatile' specifiers to the given type
 template <typename T> struct AddVolatile;
 
+//!
 template <typename T>
 using AddVolatileType = typename AddVolatile<T>::Type;
 
 //! Remove 'const' and/or 'volatile' specifiers from the given type
 template <typename T> struct RemoveCv;
 
+//!
 template <typename T>
 using RemoveCvType = typename RemoveCv<T>::Type;
 
@@ -304,36 +349,42 @@ using RemoveCvT = typename RemoveCv<T>::Type;
 //! Remove 'const' specifiers from the given type
 template <typename T> struct RemoveConst;
 
+//!
 template <typename T>
 using RemoveConstType = typename RemoveConst<T>::Type;
 
 //! Remove 'volatile' specifiers from the given type
 template <typename T> struct RemoveVolatile;
 
+//!
 template <typename T>
 using RemoveVolatileType = typename RemoveVolatile<T>::Type;
 
 //! Add 'lvalue' reference to the given type
 template <typename T> struct AddLValueReference;
 
+//!
 template <typename T>
 using AddLValueReferenceType = typename AddLValueReference<T>::Type;
 
 //! Add 'rvalue' reference to the given type
 template <typename T> struct AddRValueReference;
 
+//!
 template <typename T>
 using AddRValueReferenceType = typename AddRValueReference<T>::Type;
 
 //! Remove a reference from the given type
 template <typename T> struct RemoveReference;
 
+//!
 template <typename T>
 using RemoveReferenceType = typename RemoveReference<T>::Type;
 
 //! Combine RemoveCv and RemoveReference
 template <typename T> struct RemoveCvref;
 
+//!
 template <typename T>
 using RemoveCvrefType = typename RemoveCvref<T>::Type;
 
@@ -344,78 +395,59 @@ using RemoveCvRefT = typename RemoveCvref<T>::Type;
 //! Add a pointer to the given type
 template <typename T> struct AddPointer;
 
+//!
 template <typename T>
 using AddPointerType = typename AddPointer<T>::Type;
 
 //! Remove a pointer from the given type
 template <typename T> struct RemovePointer;
 
+//!
 template <typename T>
 using RemovePointerType = typename RemovePointer<T>::Type;
 
 //! Choose one type or another based on compile-time boolean
 template <bool kCondition, typename T, typename F> struct Conditional;
 
+//!
 template <bool kCondition, typename T, typename F>
 using ConditionalType = typename Conditional<kCondition, T, F>::Type;
 
 //! Return the type argument unchanged
 template <typename T> struct TypeIdentity;
 
+//!
 template <typename T>
 using TypeIdentityType = typename TypeIdentity<T>::Type;
 
 // Comparison type
 
-//constexpr Constant<int32b> kResultFalse = 0b0;
-//
-//template <typename T>
-//constexpr Constant<int32b> kResultTrue = (VectorTypeInfo<T>::size() == 1)
-//    ? 0b1
-//    : ~0b0;
+constexpr int32b kSFalse = 0b0; //!< Represent 'false' for scalar operation
 
-//constexpr Constant<int32b> kSFalse = 0b0; //!< Represent 'false' for scalar
-//
-//constexpr Constant<int32b> kSTrue = 0b1; //!< Represent 'true' for scalar
-//
-//constexpr Constant<int32b> kVFalse = 0b0; //!< Represent 'false' for vector
-//
-//constexpr Constant<int32b> kVTrue = ~0b0; //!< Represent 'true' for vector
+constexpr int32b kSTrue = 0b1; //!< Represent 'true' for scalar operation
 
-constexpr int32b kSFalse = 0b0; //!< Represent 'false' for scalar
+constexpr int32b kVFalse = 0b0; //!< Represent 'false' for vector operation
 
-constexpr int32b kSTrue = 0b1; //!< Represent 'true' for scalar
+constexpr int32b kVTrue = ~0b0; //!< Represent 'true' for vector operation
 
-constexpr int32b kVFalse = 0b0; //!< Represent 'false' for vector
+constexpr int32b kFalse = kSFalse; //!< Represent 'false'
 
-constexpr int32b kVTrue = ~0b0; //!< Represent 'true' for vector
-
-constexpr int32b kResultFalse = kSFalse; //!< Represent 'false'
-
-template <typename Type>
-constexpr int32b kResultTrue = (VectorTypeInfo<Type>::size() == 1) ? kSTrue : kVTrue; //!< Represent 'true'
+template <typename Type = int32b>
+constexpr int32b kTrue = kIsScalar<Type> ? kSTrue : kVTrue; //!< Represent 'true'
 
 //! Integer type that is used as a comparison result of the given type
 template <typename T>
-using ComparisonResultType = IntegerTypeFromVec<RemoveCvType<T>>;
+using CompResultType = IntegerTypeFromVec<RemoveCvType<T>>;
 
 // Vector
 
 //! Provide the constant member variable value equal to the the number of elements of a vector T
 template <typename T>
-struct VectorSize;
-
-//! Helper variable template of VectorSize
-template <typename T>
-inline constexpr size_t kVectorSize = VectorSize<T>::kValue;
+inline constexpr size_t kVectorSize = VectorTypeInfo<T>::size();
 
 //! Provide the member variable type equal to the scalar type of a vector T
 template <typename T>
-struct ScalarType;
-
-//! Helper type template of ScalarType
-template <typename T>
-using ScalarTypeT = typename ScalarType<T>::Type;
+using ScalarType = typename VectorTypeInfo<T>::ElementType;
 
 // Address space
 

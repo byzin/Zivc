@@ -716,7 +716,7 @@ struct TypeConverter
   template <> \
   struct TypeConverter< type > \
   { \
-    using ScalarT = ScalarTypeT< type >; \
+    using ScalarT = ScalarType< type >; \
     static constexpr size_t kDestVectorN = kVectorSize< type >; \
     template <typename T> \
     static type cast(T&& value) noexcept \

@@ -110,6 +110,7 @@ ZIVC_FLOAT_FROM_BYTES_TEMPLATE_SPECIALIZATION_IMPL(double, 8);
   struct VectorTypeInfo< VecType > \
   { \
     using ElementType = ElemType; \
+    using Type = VecType; \
     static constexpr size_t size() noexcept {return n;} \
     static_assert(n <= sizeof( VecType ) / sizeof( ElemType ), \
                   "The number of elements is wrong."); \
@@ -122,68 +123,73 @@ ZIVC_FLOAT_FROM_BYTES_TEMPLATE_SPECIALIZATION_IMPL(double, 8);
                   "The number of elements is wrong."); \
   }
 
-ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(int8b, int8b, 1);
 ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(char2, int8b, 2);
 ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(char3, int8b, 3);
 ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(char4, int8b, 4);
-ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(int16b, int16b, 1);
 ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(short2, int16b, 2);
 ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(short3, int16b, 3);
 ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(short4, int16b, 4);
-ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(int32b, int32b, 1);
 ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(int2, int32b, 2);
 ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(int3, int32b, 3);
 ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(int4, int32b, 4);
-ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(int64b, int64b, 1);
 ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(long2, int64b, 2);
 ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(long3, int64b, 3);
 ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(long4, int64b, 4);
-ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(uint8b, uint8b, 1);
 ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(uchar2, uint8b, 2);
 ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(uchar3, uint8b, 3);
 ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(uchar4, uint8b, 4);
-ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(uint16b, uint16b, 1);
 ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(ushort2, uint16b, 2);
 ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(ushort3, uint16b, 3);
 ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(ushort4, uint16b, 4);
-ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(uint32b, uint32b, 1);
 ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(uint2, uint32b, 2);
 ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(uint3, uint32b, 3);
 ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(uint4, uint32b, 4);
-ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(uint64b, uint64b, 1);
 ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(ulong2, uint64b, 2);
 ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(ulong3, uint64b, 3);
 ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(ulong4, uint64b, 4);
-ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(half, half, 1);
 ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(half2, half, 2);
 ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(half3, half, 3);
 ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(half4, half, 4);
-ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(float, float, 1);
 ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(float2, float, 2);
 ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(float3, float, 3);
 ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(float4, float, 4);
-ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(double, double, 1);
 ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(double2, double, 2);
 ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(double3, double, 3);
 ZIVC_VECTOR_TYPE_TEMPLATE_SPECIALIZATION_IMPL(double4, double, 4);
 
 namespace inner {
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct AddressSpaceInfoHelper
 {
   using DataType = T;
   using Pointer = PrivatePtr<DataType>;
   using ConstPointer = ConstPrivatePtr<DataType>;
-  static constexpr int32b kIsGlobal = kResultFalse;
-  static constexpr int32b kIsLocal = kResultFalse;
-  static constexpr int32b kIsConstant = kResultFalse;
-  static constexpr int32b kIsPrivate = kResultTrue<int32b>;
-  static constexpr int32b kIsPointer = kResultFalse;
+  static constexpr int32b kIsGlobal = kSFalse;
+  static constexpr int32b kIsLocal = kSFalse;
+  static constexpr int32b kIsConstant = kSFalse;
+  static constexpr int32b kIsPrivate = kSTrue;
+  static constexpr int32b kIsGeneric = kSFalse;
+  static constexpr int32b kIsPointer = kSFalse;
 };
 
 #if defined(ZIVC_CL_CPU)
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam kASpaceType No description.
+  \tparam T No description.
+  */
 template <AddressSpaceType kASpaceType, typename T>
 struct AddressSpaceInfoHelper<AddressSpacePointer<kASpaceType, T>>
 {
@@ -191,156 +197,244 @@ struct AddressSpaceInfoHelper<AddressSpacePointer<kASpaceType, T>>
   using Pointer = AddressSpacePointer<kASpaceType, DataType>;
   using ConstPointer = AddressSpacePointer<kASpaceType, const DataType>;
   static constexpr int32b kIsGlobal = (kASpaceType == AddressSpaceType::kGlobal)
-      ? kResultTrue<int32b>
-      : kResultFalse;
+      ? kSTrue
+      : kSFalse;
   static constexpr int32b kIsLocal = (kASpaceType == AddressSpaceType::kLocal)
-      ? kResultTrue<int32b>
-      : kResultFalse;
+      ? kSTrue
+      : kSFalse;
   static constexpr int32b kIsConstant = (kASpaceType == AddressSpaceType::kConstant)
-      ? kResultTrue<int32b>
-      : kResultFalse;
+      ? kSTrue
+      : kSFalse;
   static constexpr int32b kIsPrivate = (kASpaceType == AddressSpaceType::kPrivate)
-      ? kResultTrue<int32b>
-      : kResultFalse;
-  static constexpr int32b kIsPointer = kResultTrue<int32b>;
+      ? kSTrue
+      : kSFalse;
+  static constexpr int32b kIsGeneric = kSFalse;
+  static constexpr int32b kIsPointer = kSTrue;
 };
 
 #else // ZIVC_CL_CPU
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct AddressSpaceInfoHelper<Global<T>>
 {
-  using DataType = T;
+  using DataType = RemoveCvType<T>;
   using Pointer = GlobalPtr<DataType>;
   using ConstPointer = ConstGlobalPtr<DataType>;
-  static constexpr int32b kIsGlobal = kResultTrue<int32b>;
-  static constexpr int32b kIsLocal = kResultFalse;
-  static constexpr int32b kIsConstant = kResultFalse;
-  static constexpr int32b kIsPrivate = kResultFalse;
-  static constexpr int32b kIsPointer = kResultFalse;
+  static constexpr int32b kIsGlobal = kSTrue;
+  static constexpr int32b kIsLocal = kSFalse;
+  static constexpr int32b kIsConstant = kSFalse;
+  static constexpr int32b kIsPrivate = kSFalse;
+  static constexpr int32b kIsGeneric = kSFalse;
+  static constexpr int32b kIsPointer = kSFalse;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct AddressSpaceInfoHelper<GlobalPtr<T>>
 {
-  using DataType = RemoveCvType<RemovePointerType<T>>;
+  using DataType = RemoveCvType<T>;
   using Pointer = GlobalPtr<DataType>;
   using ConstPointer = ConstGlobalPtr<DataType>;
-  static constexpr int32b kIsGlobal = kResultTrue<int32b>;
-  static constexpr int32b kIsLocal = kResultFalse;
-  static constexpr int32b kIsConstant = kResultFalse;
-  static constexpr int32b kIsPrivate = kResultFalse;
-  static constexpr int32b kIsPointer = kResultTrue<int32b>;
+  static constexpr int32b kIsGlobal = kSTrue;
+  static constexpr int32b kIsLocal = kSFalse;
+  static constexpr int32b kIsConstant = kSFalse;
+  static constexpr int32b kIsPrivate = kSFalse;
+  static constexpr int32b kIsGeneric = kSFalse;
+  static constexpr int32b kIsPointer = kSTrue;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct AddressSpaceInfoHelper<Local<T>>
 {
-  using DataType = T;
+  using DataType = RemoveCvType<T>;
   using Pointer = LocalPtr<DataType>;
   using ConstPointer = ConstLocalPtr<DataType>;
-  static constexpr int32b kIsGlobal = kResultFalse;
-  static constexpr int32b kIsLocal = kResultTrue<int32b>;
-  static constexpr int32b kIsConstant = kResultFalse;
-  static constexpr int32b kIsPrivate = kResultFalse;
-  static constexpr int32b kIsPointer = kResultFalse;
+  static constexpr int32b kIsGlobal = kSFalse;
+  static constexpr int32b kIsLocal = kSTrue;
+  static constexpr int32b kIsConstant = kSFalse;
+  static constexpr int32b kIsPrivate = kSFalse;
+  static constexpr int32b kIsGeneric = kSFalse;
+  static constexpr int32b kIsPointer = kSFalse;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct AddressSpaceInfoHelper<LocalPtr<T>>
 {
-  using DataType = RemoveCvType<RemovePointerType<T>>;
+  using DataType = RemoveCvType<T>;
   using Pointer = LocalPtr<DataType>;
   using ConstPointer = ConstLocalPtr<DataType>;
-  static constexpr int32b kIsGlobal = kResultFalse;
-  static constexpr int32b kIsLocal = kResultTrue<int32b>;
-  static constexpr int32b kIsConstant = kResultFalse;
-  static constexpr int32b kIsPrivate = kResultFalse;
-  static constexpr int32b kIsPointer = kResultTrue<int32b>;
+  static constexpr int32b kIsGlobal = kSFalse;
+  static constexpr int32b kIsLocal = kSTrue;
+  static constexpr int32b kIsConstant = kSFalse;
+  static constexpr int32b kIsPrivate = kSFalse;
+  static constexpr int32b kIsGeneric = kSFalse;
+  static constexpr int32b kIsPointer = kSTrue;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct AddressSpaceInfoHelper<Constant<T>>
 {
-  using DataType = T;
+  using DataType = RemoveCvType<T>;
   using Pointer = ConstantPtr<DataType>;
   using ConstPointer = ConstConstantPtr<DataType>;
-  static constexpr int32b kIsGlobal = kResultFalse;
-  static constexpr int32b kIsLocal = kResultFalse;
-  static constexpr int32b kIsConstant = kResultTrue<int32b>;
-  static constexpr int32b kIsPrivate = kResultFalse;
-  static constexpr int32b kIsPointer = kResultFalse;
+  static constexpr int32b kIsGlobal = kSFalse;
+  static constexpr int32b kIsLocal = kSFalse;
+  static constexpr int32b kIsConstant = kSTrue;
+  static constexpr int32b kIsPrivate = kSFalse;
+  static constexpr int32b kIsGeneric = kSFalse;
+  static constexpr int32b kIsPointer = kSFalse;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct AddressSpaceInfoHelper<ConstantPtr<T>>
 {
-  using DataType = RemoveCvType<RemovePointerType<T>>;
+  using DataType = RemoveCvType<T>;
   using Pointer = ConstantPtr<DataType>;
   using ConstPointer = ConstConstantPtr<DataType>;
-  static constexpr int32b kIsGlobal = kResultFalse;
-  static constexpr int32b kIsLocal = kResultFalse;
-  static constexpr int32b kIsConstant = kResultTrue<int32b>;
-  static constexpr int32b kIsPrivate = kResultFalse;
-  static constexpr int32b kIsPointer = kResultTrue<int32b>;
+  static constexpr int32b kIsGlobal = kSFalse;
+  static constexpr int32b kIsLocal = kSFalse;
+  static constexpr int32b kIsConstant = kSTrue;
+  static constexpr int32b kIsPrivate = kSFalse;
+  static constexpr int32b kIsGeneric = kSFalse;
+  static constexpr int32b kIsPointer = kSTrue;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct AddressSpaceInfoHelper<Private<T>>
 {
-  using DataType = T;
+  using DataType = RemoveCvType<T>;
   using Pointer = PrivatePtr<DataType>;
   using ConstPointer = ConstPrivatePtr<DataType>;
-  static constexpr int32b kIsGlobal = kResultFalse;
-  static constexpr int32b kIsLocal = kResultFalse;
-  static constexpr int32b kIsConstant = kResultFalse;
-  static constexpr int32b kIsPrivate = kResultTrue<int32b>;
-  static constexpr int32b kIsPointer = kResultFalse;
+  static constexpr int32b kIsGlobal = kSFalse;
+  static constexpr int32b kIsLocal = kSFalse;
+  static constexpr int32b kIsConstant = kSFalse;
+  static constexpr int32b kIsPrivate = kSTrue;
+  static constexpr int32b kIsGeneric = kSFalse;
+  static constexpr int32b kIsPointer = kSFalse;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct AddressSpaceInfoHelper<PrivatePtr<T>>
 {
-  using DataType = RemoveCvType<RemovePointerType<T>>;
+  using DataType = RemoveCvType<T>;
   using Pointer = PrivatePtr<DataType>;
   using ConstPointer = ConstPrivatePtr<DataType>;
-  static constexpr int32b kIsGlobal = kResultFalse;
-  static constexpr int32b kIsLocal = kResultFalse;
-  static constexpr int32b kIsConstant = kResultFalse;
-  static constexpr int32b kIsPrivate = kResultTrue<int32b>;
-  static constexpr int32b kIsPointer = kResultTrue<int32b>;
+  static constexpr int32b kIsGlobal = kSFalse;
+  static constexpr int32b kIsLocal = kSFalse;
+  static constexpr int32b kIsConstant = kSFalse;
+  static constexpr int32b kIsPrivate = kSTrue;
+  static constexpr int32b kIsGeneric = kSFalse;
+  static constexpr int32b kIsPointer = kSTrue;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct AddressSpaceInfoHelper<Generic<T>>
 {
-  using DataType = T;
+  using DataType = RemoveCvType<T>;
   using Pointer = GenericPtr<DataType>;
   using ConstPointer = ConstGenericPtr<DataType>;
-  static constexpr int32b kIsGlobal = kResultFalse;
-  static constexpr int32b kIsLocal = kResultFalse;
-  static constexpr int32b kIsConstant = kResultFalse;
-  static constexpr int32b kIsPrivate = kResultTrue<int32b>;
-  static constexpr int32b kIsPointer = kResultFalse;
+  static constexpr int32b kIsGlobal = kSFalse;
+  static constexpr int32b kIsLocal = kSFalse;
+  static constexpr int32b kIsConstant = kSFalse;
+  static constexpr int32b kIsPrivate = kSFalse;
+  static constexpr int32b kIsGeneric = kSTrue;;
+  static constexpr int32b kIsPointer = kSFalse;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct AddressSpaceInfoHelper<GenericPtr<T>>
 {
-  using DataType = RemoveCvType<RemovePointerType<T>>;
+  using DataType = RemoveCvType<T>;
   using Pointer = GenericPtr<DataType>;
   using ConstPointer = ConstGenericPtr<DataType>;
-  static constexpr int32b kIsGlobal = kResultFalse;
-  static constexpr int32b kIsLocal = kResultFalse;
-  static constexpr int32b kIsConstant = kResultFalse;
-  static constexpr int32b kIsPrivate = kResultTrue<int32b>;
-  static constexpr int32b kIsPointer = kResultTrue<int32b>;
+  static constexpr int32b kIsGlobal = kSFalse;
+  static constexpr int32b kIsLocal = kSFalse;
+  static constexpr int32b kIsConstant = kSFalse;
+  static constexpr int32b kIsPrivate = kSFalse;
+  static constexpr int32b kIsGeneric = kSTrue;;
+  static constexpr int32b kIsPointer = kSTrue;
 };
 
 #endif // ZIVC_CL_CPU
 
 } // namespace inner
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 class AddressSpaceInfo
 {
@@ -376,6 +470,12 @@ class AddressSpaceInfo
     return ASpaceInfo::kIsPrivate;
   }
 
+  //! Check if the Type is generic address space type
+  static constexpr int32b isGeneric() noexcept
+  {
+    return ASpaceInfo::kIsGeneric;
+  }
+
   //! Check if given address space type is pointer
   static constexpr int32b isPointer() noexcept
   {
@@ -386,17 +486,24 @@ class AddressSpaceInfo
 
 namespace inner {
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct IsSignedIntegerHelper
 {
-  static constexpr int32b kValue = kResultFalse;
+  static constexpr int32b kValue = kSFalse;
 };
 
 #define ZIVC_IS_SIGNED_INTEGER_TEMPLATE_SPECIALIZATION_IMPL(Type) \
   template <> \
   struct IsSignedIntegerHelper< Type > \
   { \
-    static constexpr int32b kValue = kResultTrue<int32b>; \
+    static constexpr int32b kValue = kSTrue; \
   }
 
 ZIVC_IS_SIGNED_INTEGER_TEMPLATE_SPECIALIZATION_IMPL(int8b);
@@ -416,17 +523,24 @@ ZIVC_IS_SIGNED_INTEGER_TEMPLATE_SPECIALIZATION_IMPL(long2);
 ZIVC_IS_SIGNED_INTEGER_TEMPLATE_SPECIALIZATION_IMPL(long3);
 ZIVC_IS_SIGNED_INTEGER_TEMPLATE_SPECIALIZATION_IMPL(long4);
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct IsUnsignedIntegerHelper
 {
-  static constexpr int32b kValue = kResultFalse;
+  static constexpr int32b kValue = kSFalse;
 };
 
 #define ZIVC_IS_UNSIGNED_INTEGER_TEMPLATE_SPECIALIZATION_IMPL(Type) \
   template <> \
   struct IsUnsignedIntegerHelper< Type > \
   { \
-    static constexpr int32b kValue = kResultTrue<int32b>; \
+    static constexpr int32b kValue = kSTrue; \
   }
 
 ZIVC_IS_UNSIGNED_INTEGER_TEMPLATE_SPECIALIZATION_IMPL(uint8b);
@@ -446,17 +560,24 @@ ZIVC_IS_UNSIGNED_INTEGER_TEMPLATE_SPECIALIZATION_IMPL(ulong2);
 ZIVC_IS_UNSIGNED_INTEGER_TEMPLATE_SPECIALIZATION_IMPL(ulong3);
 ZIVC_IS_UNSIGNED_INTEGER_TEMPLATE_SPECIALIZATION_IMPL(ulong4);
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct IsHalfHelper
 {
-  static constexpr int32b kValue = kResultFalse;
+  static constexpr int32b kValue = kSFalse;
 };
 
 #define ZIVC_IS_HALF_TEMPLATE_SPECIALIZATION_IMPL(Type) \
   template <> \
   struct IsHalfHelper< Type > \
   { \
-    static constexpr int32b kValue = kResultTrue<int32b>; \
+    static constexpr int32b kValue = kSTrue; \
   }
 
 ZIVC_IS_HALF_TEMPLATE_SPECIALIZATION_IMPL(half);
@@ -464,17 +585,24 @@ ZIVC_IS_HALF_TEMPLATE_SPECIALIZATION_IMPL(half2);
 ZIVC_IS_HALF_TEMPLATE_SPECIALIZATION_IMPL(half3);
 ZIVC_IS_HALF_TEMPLATE_SPECIALIZATION_IMPL(half4);
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
-struct IsSingleFloatHelper
+struct IsSingleHelper
 {
-  static constexpr int32b kValue = kResultFalse;
+  static constexpr int32b kValue = kSFalse;
 };
 
 #define ZIVC_IS_SINGLE_FLOAT_TEMPLATE_SPECIALIZATION_IMPL(Type) \
   template <> \
-  struct IsSingleFloatHelper< Type > \
+  struct IsSingleHelper< Type > \
   { \
-    static constexpr int32b kValue = kResultTrue<int32b>; \
+    static constexpr int32b kValue = kSTrue; \
   }
 
 ZIVC_IS_SINGLE_FLOAT_TEMPLATE_SPECIALIZATION_IMPL(float);
@@ -482,17 +610,24 @@ ZIVC_IS_SINGLE_FLOAT_TEMPLATE_SPECIALIZATION_IMPL(float2);
 ZIVC_IS_SINGLE_FLOAT_TEMPLATE_SPECIALIZATION_IMPL(float3);
 ZIVC_IS_SINGLE_FLOAT_TEMPLATE_SPECIALIZATION_IMPL(float4);
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct IsDoubleHelper
 {
-  static constexpr int32b kValue = kResultFalse;
+  static constexpr int32b kValue = kSFalse;
 };
 
 #define ZIVC_IS_DOUBLE_TEMPLATE_SPECIALIZATION_IMPL(Type) \
   template <> \
   struct IsDoubleHelper< Type > \
   { \
-    static constexpr int32b kValue = kResultTrue<int32b>; \
+    static constexpr int32b kValue = kSTrue; \
   }
 
 ZIVC_IS_DOUBLE_TEMPLATE_SPECIALIZATION_IMPL(double);
@@ -500,20 +635,41 @@ ZIVC_IS_DOUBLE_TEMPLATE_SPECIALIZATION_IMPL(double2);
 ZIVC_IS_DOUBLE_TEMPLATE_SPECIALIZATION_IMPL(double3);
 ZIVC_IS_DOUBLE_TEMPLATE_SPECIALIZATION_IMPL(double4);
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct IsPointerHelper
 {
-  static constexpr int32b kValue = kResultFalse;
+  static constexpr int32b kValue = kSFalse;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct IsPointerHelper<T*>
 {
-  static constexpr int32b kValue = kResultTrue<int32b>;
+  static constexpr int32b kValue = kSTrue;
 };
 
 } // namespace inner
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct IsSignedInteger
 {
@@ -521,6 +677,13 @@ struct IsSignedInteger
   static constexpr int32b kValue = inner::IsSignedIntegerHelper<Type>::kValue;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct IsUnsignedInteger
 {
@@ -528,12 +691,26 @@ struct IsUnsignedInteger
   static constexpr int32b kValue = inner::IsUnsignedIntegerHelper<Type>::kValue;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct IsInteger
 {
   static constexpr int32b kValue = kIsSignedInteger<T> | kIsUnsignedInteger<T>;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct IsHalf
 {
@@ -541,13 +718,27 @@ struct IsHalf
   static constexpr int32b kValue = inner::IsHalfHelper<Type>::kValue;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
-struct IsSingleFloat
+struct IsSingle
 {
   using Type = RemoveCvType<T>;
-  static constexpr int32b kValue = inner::IsSingleFloatHelper<Type>::kValue;
+  static constexpr int32b kValue = inner::IsSingleHelper<Type>::kValue;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct IsDouble
 {
@@ -555,102 +746,251 @@ struct IsDouble
   static constexpr int32b kValue = inner::IsDoubleHelper<Type>::kValue;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
-struct IsFloatingPoint
+struct IsFloat
 {
-  static constexpr int32b kValue = kIsHalf<T> | kIsSingleFloat<T> | kIsDouble<T>;
+  static constexpr int32b kValue = kIsHalf<T> | kIsSingle<T> | kIsDouble<T>;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct IsArithmetic
 {
-  static constexpr int32b kValue = kIsInteger<T> | kIsFloatingPoint<T>;
+  static constexpr int32b kValue = kIsInteger<T> | kIsFloat<T>;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct IsSigned
 {
-  static constexpr int32b kValue = kIsSignedInteger<T> | kIsFloatingPoint<T>;
+  static constexpr int32b kValue = kIsSignedInteger<T> | kIsFloat<T>;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct IsPointer
 {
   static constexpr int32b kValue = inner::IsPointerHelper<RemoveCvType<T>>::kValue;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
+template <typename T>
+struct IsScalar
+{
+  static constexpr int32b kValue = (VectorTypeInfo<RemoveCvType<T>>::size() == 1)
+      ? kSTrue
+      : kSFalse;
+};
+
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
+template <typename T>
+struct IsVector
+{
+  static constexpr int32b kValue = (1 < VectorTypeInfo<RemoveCvType<T>>::size())
+      ? kSTrue
+      : kSFalse;
+};
+
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct IsLValueReference
 {
-  static constexpr int32b kValue = kResultFalse;
+  static constexpr int32b kValue = kSFalse;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct IsLValueReference<T&>
 {
-  static constexpr int32b kValue = kResultTrue<int32b>;
+  static constexpr int32b kValue = kSTrue;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct IsRValueReference
 {
-  static constexpr int32b kValue = kResultFalse;
+  static constexpr int32b kValue = kSFalse;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct IsRValueReference<T&&>
 {
-  static constexpr int32b kValue = kResultTrue<int32b>;
+  static constexpr int32b kValue = kSTrue;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct RemoveConst
 {
   using Type = T;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct AddConst
 {
   using Type = const T;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct AddVolatile
 {
   using Type = volatile T;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct AddCv
 {
   using Type = AddConstType<AddVolatileType<T>>;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct RemoveConst<const T>
 {
   using Type = T;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct RemoveVolatile
 {
   using Type = T;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct RemoveVolatile<volatile T>
 {
   using Type = T;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct RemoveCv
 {
   using Type = RemoveConstType<RemoveVolatileType<T>>;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct AddLValueReference
 {
@@ -658,6 +998,13 @@ struct AddLValueReference
   using Type = NoRefType&;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct AddRValueReference
 {
@@ -665,30 +1012,65 @@ struct AddRValueReference
   using Type = NoRefType&&;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct RemoveReference
 {
   using Type = T;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct RemoveReference<T&>
 {
   using Type = T;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct RemoveReference<T&&>
 {
   using Type = T;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct RemoveCvref
 {
   using Type = RemoveCvType<RemoveReferenceType<T>>;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct AddPointer
 {
@@ -696,155 +1078,109 @@ struct AddPointer
   using Type = NoPointerType*;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct RemovePointer
 {
   using Type = T;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct RemovePointer<T*>
 {
   using Type = T;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct RemovePointer<T* const>
 {
   using Type = T;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct RemovePointer<T* volatile>
 {
   using Type = T;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct RemovePointer<T* const volatile>
 {
   using Type = T;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T, typename F>
 struct Conditional<true, T, F>
 {
   using Type = T;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T, typename F>
 struct Conditional<false, T, F>
 {
   using Type = F;
 };
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
 template <typename T>
 struct TypeIdentity
 {
   using Type = T;
 };
-
-/*!
-  \brief Provide the constant member variable value equal to the the number of elements of a vector T.
-
-  No detailed description.
-
-  \tparam T No description.
-  */
-template <typename T>
-struct VectorSize : public IntegralConstant<size_t, 0>
-{
-};
-
-template <> struct VectorSize<char2> : public IntegralConstant<size_t, 2> {};
-template <> struct VectorSize<char3> : public IntegralConstant<size_t, 3> {};
-template <> struct VectorSize<char4> : public IntegralConstant<size_t, 4> {};
-
-template <> struct VectorSize<uchar2> : public IntegralConstant<size_t, 2> {};
-template <> struct VectorSize<uchar3> : public IntegralConstant<size_t, 3> {};
-template <> struct VectorSize<uchar4> : public IntegralConstant<size_t, 4> {};
-
-template <> struct VectorSize<short2> : public IntegralConstant<size_t, 2> {};
-template <> struct VectorSize<short3> : public IntegralConstant<size_t, 3> {};
-template <> struct VectorSize<short4> : public IntegralConstant<size_t, 4> {};
-
-template <> struct VectorSize<ushort2> : public IntegralConstant<size_t, 2> {};
-template <> struct VectorSize<ushort3> : public IntegralConstant<size_t, 3> {};
-template <> struct VectorSize<ushort4> : public IntegralConstant<size_t, 4> {};
-
-template <> struct VectorSize<int2> : public IntegralConstant<size_t, 2> {};
-template <> struct VectorSize<int3> : public IntegralConstant<size_t, 3> {};
-template <> struct VectorSize<int4> : public IntegralConstant<size_t, 4> {};
-
-template <> struct VectorSize<uint2> : public IntegralConstant<size_t, 2> {};
-template <> struct VectorSize<uint3> : public IntegralConstant<size_t, 3> {};
-template <> struct VectorSize<uint4> : public IntegralConstant<size_t, 4> {};
-
-template <> struct VectorSize<long2> : public IntegralConstant<size_t, 2> {};
-template <> struct VectorSize<long3> : public IntegralConstant<size_t, 3> {};
-template <> struct VectorSize<long4> : public IntegralConstant<size_t, 4> {};
-
-template <> struct VectorSize<ulong2> : public IntegralConstant<size_t, 2> {};
-template <> struct VectorSize<ulong3> : public IntegralConstant<size_t, 3> {};
-template <> struct VectorSize<ulong4> : public IntegralConstant<size_t, 4> {};
-
-template <> struct VectorSize<half2> : public IntegralConstant<size_t, 2> {};
-template <> struct VectorSize<half3> : public IntegralConstant<size_t, 3> {};
-template <> struct VectorSize<half4> : public IntegralConstant<size_t, 4> {};
-
-template <> struct VectorSize<float2> : public IntegralConstant<size_t, 2> {};
-template <> struct VectorSize<float3> : public IntegralConstant<size_t, 3> {};
-template <> struct VectorSize<float4> : public IntegralConstant<size_t, 4> {};
-
-template <> struct VectorSize<double2> : public IntegralConstant<size_t, 2> {};
-template <> struct VectorSize<double3> : public IntegralConstant<size_t, 3> {};
-template <> struct VectorSize<double4> : public IntegralConstant<size_t, 4> {};
-
-
-/*!
-  \brief Provide the member variable type equal to the scalar type of a vector T
-
-  No detailed description.
-
-  \tparam T No description.
-  */
-template <typename T>
-struct ScalarType
-{
-  using Type = T;
-};
-
-template <> struct ScalarType<char2> {using Type = int8b;};
-template <> struct ScalarType<char3> {using Type = int8b;};
-template <> struct ScalarType<char4> {using Type = int8b;};
-
-template <> struct ScalarType<uchar2> {using Type = uint8b;};
-template <> struct ScalarType<uchar3> {using Type = uint8b;};
-template <> struct ScalarType<uchar4> {using Type = uint8b;};
-
-template <> struct ScalarType<short2> {using Type = int16b;};
-template <> struct ScalarType<short3> {using Type = int16b;};
-template <> struct ScalarType<short4> {using Type = int16b;};
-
-template <> struct ScalarType<ushort2> {using Type = uint16b;};
-template <> struct ScalarType<ushort3> {using Type = uint16b;};
-template <> struct ScalarType<ushort4> {using Type = uint16b;};
-
-template <> struct ScalarType<int2> {using Type = int32b;};
-template <> struct ScalarType<int3> {using Type = int32b;};
-template <> struct ScalarType<int4> {using Type = int32b;};
-
-template <> struct ScalarType<uint2> {using Type = uint32b;};
-template <> struct ScalarType<uint3> {using Type = uint32b;};
-template <> struct ScalarType<uint4> {using Type = uint32b;};
-
-template <> struct ScalarType<long2> {using Type = int64b;};
-template <> struct ScalarType<long3> {using Type = int64b;};
-template <> struct ScalarType<long4> {using Type = int64b;};
-
-template <> struct ScalarType<ulong2> {using Type = uint64b;};
-template <> struct ScalarType<ulong3> {using Type = uint64b;};
-template <> struct ScalarType<ulong4> {using Type = uint64b;};
 
 /*!
   \brief Provide the Type which is the same as T, except that its address space qualifier is removed
@@ -934,14 +1270,10 @@ struct RemoveAddressSpace<Generic<T>>
   No detailed description.
 
   \tparam T No description.
-
-  \note No notation.
-  \attention No attention.
   */
 template <typename T>
 struct RemoveCvRefAddress
 {
-//  using Type = RemoveCvRefT<RemoveAddressSpaceT<T>>;
   using Type = RemoveAddressSpaceT<RemoveCvRefT<T>>;
 };
 

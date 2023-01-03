@@ -21,32 +21,16 @@ namespace zivc {
   */
 class VectorData
 {
-  template <typename Type, size_t kN>
-  using VecType = VectorTypeFromElems<RemoveCvType<Type>, kN>;
-
-  template <size_t kN>
-  using FloatVec = Float32VecType<kN>;
-
  public:
   //! Return a vector data read from the given address p
   template <size_t kN, typename AddressSpaceType>
   static auto load(const size_t offset, AddressSpaceType p) noexcept;
-
-  //! Return a vector data read from the given address p
-  template <size_t kN, typename AddressSpaceType>
-  static auto loadHalf(const size_t offset, AddressSpaceType p) noexcept;
 
   //! Write a vector data to the given address p
   template <typename VectorType, typename AddressSpaceType>
   static void store(const VectorType data,
                     const size_t offset,
                     AddressSpaceType p) noexcept;
-
-  //! Write a vector data to the given address p
-  template <typename VectorType, typename AddressSpaceType>
-  static void storeHalf(const VectorType data,
-                        const size_t offset,
-                        AddressSpaceType p) noexcept;
 
  private:
   //! Return a vector data read from the given address p
@@ -56,10 +40,6 @@ class VectorData
   //! Return a vector data read from the given address p
   template <size_t kN, typename AddressSpaceType>
   static auto loadHalfImpl(const size_t offset, AddressSpaceType p) noexcept;
-
-  //! Return a vector data read from the given address p
-  template <size_t kN, typename AddressSpaceType>
-  static auto loadHalfUImpl(const size_t offset, AddressSpaceType p) noexcept;
 
   //! Write a vector data to the given address p
   template <typename VectorType, typename AddressSpaceType>
@@ -72,12 +52,6 @@ class VectorData
   static void storeHalfImpl(const VectorType data,
                             const size_t offset,
                             AddressSpaceType p) noexcept;
-
-  //! Write a vector data to the given address p
-  template <typename VectorType, typename AddressSpaceType>
-  static void storeHalfUImpl(const VectorType fdata,
-                             const size_t offset,
-                             AddressSpaceType p) noexcept;
 };
 
 // OpenCL function aliases

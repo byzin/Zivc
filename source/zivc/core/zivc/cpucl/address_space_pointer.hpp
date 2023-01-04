@@ -71,7 +71,7 @@ class AddressSpacePointer
   using Type = std::remove_volatile_t<T>;
   using ConstType = std::add_const_t<Type>;
   using Reference = std::add_lvalue_reference_t<Type>;
-  using ConstReference = std::add_lvalue_reference<ConstType>;
+  using ConstReference = std::add_lvalue_reference_t<ConstType>;
   using Pointer = std::add_pointer_t<Type>;
   using ConstPointer = std::add_pointer_t<ConstType>;
   using ASpacePointerRef = std::add_lvalue_reference_t<AddressSpacePointer>;

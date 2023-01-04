@@ -102,4 +102,48 @@ __kernel void reinterpTestKernel(zivc::GlobalPtr<float> inout,
   inout[index] *= 3.0f;
 }
 
+namespace inner {
+
+struct GlobalTestStruct
+{
+  void set(const int32b value) noexcept
+  {
+    zivc::GenericPtr<int32b> ptr = value_;
+    for (size_t i = 0; i < 4; ++i)
+      ptr[i] = value + static_cast<int32b>(i);
+  }
+
+  int32b sum() const noexcept
+  {
+    zivc::ConstGenericPtr<int32b> ptr = value_;
+    int32b sum = 0;
+    for (size_t i = 0; i < 4; ++i)
+      sum += ptr[i];
+    return sum;
+  }
+
+  int32b value_[4];
+};
+
+static_assert(sizeof(GlobalTestStruct) % 16 == 0);
+
+} // inner
+
+__kernel void testGlobalStructKernel(zivc::GlobalPtr<inner::GlobalTestStruct> inout)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (index == 0) {
+    {
+      const int32b sum = inout[0].sum();
+      inout[0].set(sum);
+    }
+    {
+      inner::GlobalTestStruct s = inout[1];
+      const int32b sum = s.sum();
+      s.set(sum);
+      inout[1] = s;
+    }
+  }
+}
+
 #endif // ZIVC_TEST_KERNEL_TEST2_CL

@@ -15,6 +15,10 @@
 #include <cstdio>
 #include <cstdlib>
 #endif // ZIVC_CL_CPU
+// Zisc
+#if defined(ZIVC_CL_CPU)
+#include "zisc/bit.hpp"
+#endif // ZIVC_CL_CPU
 // Zivc
 #include "types.hpp"
 #include "type_traits.hpp"
@@ -817,6 +821,30 @@ Type cast(T&& value) noexcept
   else {
     using DstType = RemoveAddressSpaceT<RemoveCvT<Type>>;
     auto result = inner::TypeConverter<DstType>::cast(forward<T>(value));
+    return result;
+  }
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam T No description.
+  \param [in] value No description.
+  \return No description
+  */
+template <typename Type, typename T> inline
+Type castPointer(T&& ptr) noexcept
+{
+  if constexpr (kIsSame<Type, T>) {
+    return forward<T>(ptr);
+  }
+  else {
+#if defined(ZIVC_CL_CPU)
+    auto result = zisc::bit_cast<Type>(ptr);
+#else // ZIVC_CL_CPU
+    auto* result = reinterpret_cast<Type>(ptr);
+#endif
     return result;
   }
 }

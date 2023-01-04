@@ -710,3 +710,62 @@ TEST(KernelTest, KernelReinterpBufferTest)
     }
   }
 }
+
+TEST(KernelTest, GlobalStructTest)
+{
+  using zivc::int32b;
+
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  [[maybe_unused]] const zivc::DeviceInfo& info = device->deviceInfo();
+
+  // Allocate buffers
+  using Test = zivc::cl::inner::GlobalTestStruct;
+  const zivc::SharedBuffer buff_host = device->createBuffer<Test>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+  buff_host->setSize(2);
+  const zivc::SharedBuffer buff_inout = device->createBuffer<Test>({zivc::BufferUsage::kPreferDevice});
+  buff_inout->setSize(2);
+
+  // Initialize buffer
+  {
+    zivc::MappedMemory mem = buff_host->mapMemory();
+    mem[0].set(0);
+    mem[1].set(1);
+  }
+  {
+    zivc::BufferLaunchOptions options = buff_host->createOptions();
+    options.requestFence(true);
+    const zivc::LaunchResult result = zivc::copy(*buff_host, buff_inout.get(), options);
+    device->waitForCompletion(result.fence());
+  }
+
+  // Make a kernels
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test2, testGlobalStructKernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(1, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernels
+  {
+    zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+    launch_options.setWorkSize({{1}});
+    launch_options.requestFence(true);
+    launch_options.setLabel("testGlobalStructKernel");
+    const zivc::LaunchResult result = kernel->run(*buff_inout, launch_options);
+    device->waitForCompletion(result.fence());
+  }
+  {
+    zivc::BufferLaunchOptions options = buff_inout->createOptions();
+    options.requestFence(true);
+    const zivc::LaunchResult result = zivc::copy(*buff_inout, buff_host.get(), options);
+    device->waitForCompletion(result.fence());
+  }
+
+  // Check the result
+  {
+    const zivc::MappedMemory mem = buff_host->mapMemory();
+    ASSERT_EQ(30, mem[0].sum()) << "Global struct operation failed.";
+    ASSERT_EQ(46, mem[1].sum()) << "Global struct operation failed.";
+  }
+}

@@ -157,6 +157,13 @@ macro(setTestProject)
       SOURCE_FILES ${kernel_test2_sources}
       INCLUDE_DIRS "${kernel_set_kernel_test2_dir}")
   target_link_libraries(${PROJECT_NAME} PRIVATE ${kernel_name})
+  ## kernelTest3
+  cmake_path(SET kernel_set_kernel_test3_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/kernel_test3")
+  file(GLOB_RECURSE kernel_test3_sources ${kernel_set_kernel_test3_dir}/*.cl)
+  Zivc_addKernelSet(kernel_test3 ${PROJECT_VERSION} kernel_name
+      SOURCE_FILES ${kernel_test3_sources}
+      INCLUDE_DIRS "${kernel_set_kernel_test3_dir}")
+  target_link_libraries(${PROJECT_NAME} PRIVATE ${kernel_name})
   ## kernelTestParams
   cmake_path(SET kernel_set_kernel_test_params_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/kernel_test_params")
   file(GLOB_RECURSE kernel_test_params_sources ${kernel_set_kernel_test_params_dir}/*.cl)

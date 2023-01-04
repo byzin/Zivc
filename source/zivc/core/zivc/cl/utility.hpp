@@ -576,6 +576,10 @@ constexpr double4 makeDouble4(const double v0, const double3 v1) noexcept;
 template <typename Type, typename T>
 Type cast(T&& value) noexcept;
 
+//! Convert an pointer type to another pointer type
+template <typename Type, typename T>
+Type castPointer(T&& ptr) noexcept;
+
 //! Treat T* as Type*
 template <typename Type, typename T>
 Type reinterp(T object) noexcept;

@@ -34,7 +34,7 @@
 
 TEST(ClCppTest, VectorComponentAccessTest)
 {
-  zivc::SharedContext context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
@@ -43,43 +43,43 @@ TEST(ClCppTest, VectorComponentAccessTest)
   using zivc::cl_float2;
   using zivc::cl_float3;
   using zivc::cl_float4;
-  zivc::SharedBuffer buffer_invec2 = device->createBuffer<cl_float2>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_invec2 = device->createBuffer<cl_float2>(zivc::BufferUsage::kPreferDevice);
   {
     const std::initializer_list<cl_float2> v = {cl_float2{1.0f, 2.0f},
                                                 cl_float2{3.0f, 4.0f}};
     ztest::setDeviceBuffer(*device, v, buffer_invec2.get());
   }
-  zivc::SharedBuffer buffer_invec3 = device->createBuffer<cl_float3>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_invec3 = device->createBuffer<cl_float3>(zivc::BufferUsage::kPreferDevice);
   {
     const std::initializer_list<cl_float3> v = {cl_float3{1.0f, 2.0f, 3.0f},
                                                 cl_float3{4.0f, 5.0f, 6.0f}};
     ztest::setDeviceBuffer(*device, v, buffer_invec3.get());
   }
-  zivc::SharedBuffer buffer_invec4 = device->createBuffer<cl_float4>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_invec4 = device->createBuffer<cl_float4>(zivc::BufferUsage::kPreferDevice);
   {
     const std::initializer_list<cl_float4> v = {cl_float4{1.0f, 2.0f, 3.0f, 4.0f},
                                                 cl_float4{5.0f, 6.0f, 7.0f, 8.0f}};
     ztest::setDeviceBuffer(*device, v, buffer_invec4.get());
   }
-  zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
   buffer_out1->setSize(18);
   {
     const cl_float v = 0.0f;
     ztest::fillDeviceBuffer(v, buffer_out1.get());
   }
-  zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_float2>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_float2>(zivc::BufferUsage::kPreferDevice);
   buffer_out2->setSize(2);
   {
     const cl_float2 v{0.0f, 0.0f};
     ztest::fillDeviceBuffer(v, buffer_out2.get());
   }
-  zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_float3>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_float3>(zivc::BufferUsage::kPreferDevice);
   buffer_out3->setSize(2);
   {
     const cl_float3 v{0.0f, 0.0f, 0.0f};
     ztest::fillDeviceBuffer(v, buffer_out3.get());
   }
-  zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_float4>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_float4>(zivc::BufferUsage::kPreferDevice);
   buffer_out4->setSize(2);
   {
     const cl_float4 v{0.0f, 0.0f, 0.0f, 0.0f};
@@ -88,8 +88,8 @@ TEST(ClCppTest, VectorComponentAccessTest)
   device->waitForCompletion();
 
   // Make a kernel
-  zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vectorComponentAccessKernel, 1);
-  zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vectorComponentAccessKernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(7, kernel->argSize()) << "Wrong kernel property.";
 
@@ -112,7 +112,7 @@ TEST(ClCppTest, VectorComponentAccessTest)
 
   // output1
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_float>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_float>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out1, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     std::size_t index = 0;
@@ -137,7 +137,7 @@ TEST(ClCppTest, VectorComponentAccessTest)
   }
   // output2
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_float2>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_float2>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out2, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     ASSERT_EQ(1.0f, mem[0].x) << "Vector float2 access failed.";
@@ -147,7 +147,7 @@ TEST(ClCppTest, VectorComponentAccessTest)
   }
   // output3
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_float3>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_float3>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out3, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     ASSERT_EQ(1.0f, mem[0].x) << "Vector float3 access failed.";
@@ -159,7 +159,7 @@ TEST(ClCppTest, VectorComponentAccessTest)
   }
   // output4
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_float4>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_float4>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out4, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     ASSERT_EQ(1.0f, mem[0].x) << "Vector float4 access failed.";
@@ -175,7 +175,7 @@ TEST(ClCppTest, VectorComponentAccessTest)
 
 TEST(ClCppTest, VectorConstructionTest)
 {
-  zivc::SharedContext context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
@@ -183,19 +183,19 @@ TEST(ClCppTest, VectorConstructionTest)
   using zivc::cl_int2;
   using zivc::cl_int3;
   using zivc::cl_int4;
-  zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_int2>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_int2>(zivc::BufferUsage::kPreferDevice);
   buffer_out2->setSize(3);
   {
     const cl_int2 v{0, 0};
     ztest::fillDeviceBuffer(v, buffer_out2.get());
   }
-  zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_int3>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_int3>(zivc::BufferUsage::kPreferDevice);
   buffer_out3->setSize(5);
   {
     const cl_int3 v{0, 0, 0};
     ztest::fillDeviceBuffer(v, buffer_out3.get());
   }
-  zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_int4>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_int4>(zivc::BufferUsage::kPreferDevice);
   buffer_out4->setSize(9);
   {
     const cl_int4 v{0, 0, 0, 0};
@@ -205,7 +205,7 @@ TEST(ClCppTest, VectorConstructionTest)
 
   // Make a kernel
   const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vectorConstructionKernel, 1);
-  zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(3, kernel->argSize()) << "Wrong kernel property.";
 
@@ -225,7 +225,7 @@ TEST(ClCppTest, VectorConstructionTest)
 
   // output2
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_int2>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_int2>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out2, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     ASSERT_EQ(0, mem[0].x) << "Vector int2 construction failed.";
@@ -237,7 +237,7 @@ TEST(ClCppTest, VectorConstructionTest)
   }
   // output3
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_int3>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_int3>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out3, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     ASSERT_EQ(0, mem[0].x) << "Vector int3 construction failed.";
@@ -258,7 +258,7 @@ TEST(ClCppTest, VectorConstructionTest)
   }
   // output4
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_int4>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_int4>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out4, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     ASSERT_EQ(0, mem[0].x) << "Vector int4 construction failed.";
@@ -302,7 +302,7 @@ TEST(ClCppTest, VectorConstructionTest)
 
 TEST(ClCppTest, VectorArithmeticOperatorTest)
 {
-  zivc::SharedContext context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
@@ -314,7 +314,7 @@ TEST(ClCppTest, VectorArithmeticOperatorTest)
   using zivc::cl_float3;
   using zivc::cl_float4;
 
-  zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_int2>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_int2>(zivc::BufferUsage::kPreferDevice);
   {
     const std::initializer_list<cl_int2> v = {cl_int2{1, -1},
                                               cl_int2{10, -10},
@@ -322,7 +322,7 @@ TEST(ClCppTest, VectorArithmeticOperatorTest)
                                               cl_int2{10, 2}};
     ztest::setDeviceBuffer(*device, v, buffer_in2.get());
   }
-  zivc::SharedBuffer buffer_in3 = device->createBuffer<cl_int3>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in3 = device->createBuffer<cl_int3>(zivc::BufferUsage::kPreferDevice);
   {
     const std::initializer_list<cl_int3> v = {cl_int3{1, -1, 4},
                                               cl_int3{10, -10, -4},
@@ -330,7 +330,7 @@ TEST(ClCppTest, VectorArithmeticOperatorTest)
                                               cl_int3{10, 2, 7}};
     ztest::setDeviceBuffer(*device, v, buffer_in3.get());
   }
-  zivc::SharedBuffer buffer_in4 = device->createBuffer<cl_int4>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in4 = device->createBuffer<cl_int4>(zivc::BufferUsage::kPreferDevice);
   {
     const std::initializer_list<cl_int4> v = {cl_int4{1, -1, 4, 12},
                                               cl_int4{10, -10, -4, -8},
@@ -338,56 +338,56 @@ TEST(ClCppTest, VectorArithmeticOperatorTest)
                                               cl_int4{10, 2, 7, 8}};
     ztest::setDeviceBuffer(*device, v, buffer_in4.get());
   }
-  zivc::SharedBuffer buffer_inf2 = device->createBuffer<cl_float2>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_inf2 = device->createBuffer<cl_float2>(zivc::BufferUsage::kPreferDevice);
   {
     const std::initializer_list<cl_float2> v = {cl_float2{1.0f, -1.0f},
                                                 cl_float2{10.0f, -10.0f}};
     ztest::setDeviceBuffer(*device, v, buffer_inf2.get());
   }
-  zivc::SharedBuffer buffer_inf3 = device->createBuffer<cl_float3>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_inf3 = device->createBuffer<cl_float3>(zivc::BufferUsage::kPreferDevice);
   {
     const std::initializer_list<cl_float3> v = {cl_float3{1.0f, -1.0f, 4.0f},
                                                 cl_float3{10.0f, -10.0f, -4.0f}};
     ztest::setDeviceBuffer(*device, v, buffer_inf3.get());
   }
-  zivc::SharedBuffer buffer_inf4 = device->createBuffer<cl_float4>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_inf4 = device->createBuffer<cl_float4>(zivc::BufferUsage::kPreferDevice);
   {
     const std::initializer_list<cl_float4> v = {cl_float4{1.0f, -1.0f, 4.0f, 12.0f},
                                                 cl_float4{10.0f, -10.0f, -4.0f, -8.0f}};
     ztest::setDeviceBuffer(*device, v, buffer_inf4.get());
   }
   const std::size_t n = 14;
-  zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_int2>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_int2>(zivc::BufferUsage::kPreferDevice);
   buffer_out2->setSize(n + 3);
   {
     const cl_int2 v{0, 0};
     ztest::fillDeviceBuffer(v, buffer_out2.get());
   }
-  zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_int3>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_int3>(zivc::BufferUsage::kPreferDevice);
   buffer_out3->setSize(n + 3);
   {
     const cl_int3 v{0, 0, 0};
     ztest::fillDeviceBuffer(v, buffer_out3.get());
   }
-  zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_int4>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_int4>(zivc::BufferUsage::kPreferDevice);
   buffer_out4->setSize(n + 3);
   {
     const cl_int4 v{0, 0, 0, 0};
     ztest::fillDeviceBuffer(v, buffer_out4.get());
   }
-  zivc::SharedBuffer buffer_outf2 = device->createBuffer<cl_float2>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_outf2 = device->createBuffer<cl_float2>(zivc::BufferUsage::kPreferDevice);
   buffer_outf2->setSize(n);
   {
     const cl_float2 v{0.0f, 0.0f};
     ztest::fillDeviceBuffer(v, buffer_outf2.get());
   }
-  zivc::SharedBuffer buffer_outf3 = device->createBuffer<cl_float3>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_outf3 = device->createBuffer<cl_float3>(zivc::BufferUsage::kPreferDevice);
   buffer_outf3->setSize(n);
   {
     const cl_float3 v{0.0f, 0.0f, 0.0f};
     ztest::fillDeviceBuffer(v, buffer_outf3.get());
   }
-  zivc::SharedBuffer buffer_outf4 = device->createBuffer<cl_float4>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_outf4 = device->createBuffer<cl_float4>(zivc::BufferUsage::kPreferDevice);
   buffer_outf4->setSize(n + 6);
   {
     const cl_float4 v{0.0f, 0.0f, 0.0f, 0.0f};
@@ -398,7 +398,7 @@ TEST(ClCppTest, VectorArithmeticOperatorTest)
 
   // Make a kernel
   const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vectorArithmeticOperatorTest, 1);
-  zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(12, kernel->argSize()) << "Wrong kernel property.";
 
@@ -422,7 +422,7 @@ TEST(ClCppTest, VectorArithmeticOperatorTest)
 
   // output2
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_int2>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_int2>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out2, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     EXPECT_EQ(1, mem[0].x) << "Vector int2 unary plus failed.";
@@ -461,7 +461,7 @@ TEST(ClCppTest, VectorArithmeticOperatorTest)
     EXPECT_EQ(5, mem[16].y) << "Vector int2 modulo failed.";
   }
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_float2>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_float2>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_outf2, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     EXPECT_FLOAT_EQ(1.0f, mem[0].x) << "Vector float2 unary plus failed.";
@@ -495,7 +495,7 @@ TEST(ClCppTest, VectorArithmeticOperatorTest)
   }
   // output3
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_int3>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_int3>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out3, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     EXPECT_EQ(1, mem[0].x) << "Vector int3 unary plus failed.";
@@ -551,7 +551,7 @@ TEST(ClCppTest, VectorArithmeticOperatorTest)
     EXPECT_EQ(4, mem[16].z) << "Vector int3 modulo failed.";
   }
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_float3>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_float3>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_outf3, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     EXPECT_FLOAT_EQ(1.0f, mem[0].x) << "Vector float3 unary plus failed.";
@@ -599,7 +599,7 @@ TEST(ClCppTest, VectorArithmeticOperatorTest)
   }
   // output4
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_int4>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_int4>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out4, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     EXPECT_EQ(1, mem[0].x) << "Vector int4 unary plus failed.";
@@ -672,7 +672,7 @@ TEST(ClCppTest, VectorArithmeticOperatorTest)
     EXPECT_EQ(2, mem[16].w) << "Vector int4 modulo failed.";
   }
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_float4>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_float4>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_outf4, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     EXPECT_FLOAT_EQ(1.0f, mem[0].x) << "Vector float4 unary plus failed.";
@@ -762,7 +762,7 @@ TEST(ClCppTest, VectorArithmeticOperatorTest)
 
 TEST(ClCppTest, VectorArithmeticAssignmentOperatorTest)
 {
-  zivc::SharedContext context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
@@ -771,7 +771,7 @@ TEST(ClCppTest, VectorArithmeticAssignmentOperatorTest)
   using zivc::cl_int3;
   using zivc::cl_int4;
 
-  zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_int2>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_int2>(zivc::BufferUsage::kPreferDevice);
   {
     const std::initializer_list<cl_int2> v = {cl_int2{1, -1},
                                               cl_int2{10, -10},
@@ -779,7 +779,7 @@ TEST(ClCppTest, VectorArithmeticAssignmentOperatorTest)
                                               cl_int2{10, 2}};
     ztest::setDeviceBuffer(*device, v, buffer_in2.get());
   }
-  zivc::SharedBuffer buffer_in3 = device->createBuffer<cl_int3>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in3 = device->createBuffer<cl_int3>(zivc::BufferUsage::kPreferDevice);
   {
     const std::initializer_list<cl_int3> v = {cl_int3{1, -1, 4},
                                               cl_int3{10, -10, -4},
@@ -787,7 +787,7 @@ TEST(ClCppTest, VectorArithmeticAssignmentOperatorTest)
                                               cl_int3{10, 2, 7}};
     ztest::setDeviceBuffer(*device, v, buffer_in3.get());
   }
-  zivc::SharedBuffer buffer_in4 = device->createBuffer<cl_int4>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in4 = device->createBuffer<cl_int4>(zivc::BufferUsage::kPreferDevice);
   {
     const std::initializer_list<cl_int4> v = {cl_int4{1, -1, 4, 12},
                                               cl_int4{10, -10, -4, -8},
@@ -796,19 +796,19 @@ TEST(ClCppTest, VectorArithmeticAssignmentOperatorTest)
     ztest::setDeviceBuffer(*device, v, buffer_in4.get());
   }
   const std::size_t n = 10;
-  zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_int2>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_int2>(zivc::BufferUsage::kPreferDevice);
   buffer_out2->setSize(n + 3);
   {
     const cl_int2 v{0, 0};
     ztest::fillDeviceBuffer(v, buffer_out2.get());
   }
-  zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_int3>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_int3>(zivc::BufferUsage::kPreferDevice);
   buffer_out3->setSize(n + 3);
   {
     const cl_int3 v{0, 0, 0};
     ztest::fillDeviceBuffer(v, buffer_out3.get());
   }
-  zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_int4>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_int4>(zivc::BufferUsage::kPreferDevice);
   buffer_out4->setSize(n + 3 + 4);
   {
     const cl_int4 v{0, 0, 0, 0};
@@ -819,7 +819,7 @@ TEST(ClCppTest, VectorArithmeticAssignmentOperatorTest)
 
   // Make a kernel
   const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vectorArithmeticAssignmentOperatorTest, 1);
-  zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(6, kernel->argSize()) << "Wrong kernel property.";
 
@@ -841,7 +841,7 @@ TEST(ClCppTest, VectorArithmeticAssignmentOperatorTest)
 
   // output2
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_int2>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_int2>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out2, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     EXPECT_EQ(11, mem[0].x) << "Vector int2 addition failed.";
@@ -867,7 +867,7 @@ TEST(ClCppTest, VectorArithmeticAssignmentOperatorTest)
   }
   // output3
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_int3>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_int3>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out3, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     EXPECT_EQ(11, mem[0].x) << "Vector int3 addition failed.";
@@ -903,7 +903,7 @@ TEST(ClCppTest, VectorArithmeticAssignmentOperatorTest)
   }
   // output4
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_int4>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_int4>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out4, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     EXPECT_EQ(11, mem[0].x) << "Vector int4 addition failed.";
@@ -969,7 +969,7 @@ TEST(ClCppTest, VectorArithmeticAssignmentOperatorTest)
 
 TEST(ClCppTest, VectorBitwiseOperatorTest)
 {
-  zivc::SharedContext context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
@@ -985,7 +985,7 @@ TEST(ClCppTest, VectorBitwiseOperatorTest)
   constexpr uint32b mask04 = 0b0000'0000'0000'0000'1111'1111'1111'1111u;
   constexpr uint32b mask05 = 0b1111'1111'1111'1111'0000'0000'0000'0000u;
 
-  zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_uint2>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_uint2>(zivc::BufferUsage::kPreferDevice);
   {
     const std::initializer_list<cl_uint2> v = {cl_uint2{mask01, mask01},
                                                cl_uint2{mask02, mask03},
@@ -994,7 +994,7 @@ TEST(ClCppTest, VectorBitwiseOperatorTest)
                                                cl_uint2{2u, 4u}};
     ztest::setDeviceBuffer(*device, v, buffer_in2.get());
   }
-  zivc::SharedBuffer buffer_in3 = device->createBuffer<cl_uint3>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in3 = device->createBuffer<cl_uint3>(zivc::BufferUsage::kPreferDevice);
   {
     const std::initializer_list<cl_uint3> v = {cl_uint3{mask01, mask01, mask01},
                                                cl_uint3{mask02, mask03, mask02},
@@ -1003,7 +1003,7 @@ TEST(ClCppTest, VectorBitwiseOperatorTest)
                                                cl_uint3{2u, 4u, 6u}};
     ztest::setDeviceBuffer(*device, v, buffer_in3.get());
   }
-  zivc::SharedBuffer buffer_in4 = device->createBuffer<cl_uint4>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in4 = device->createBuffer<cl_uint4>(zivc::BufferUsage::kPreferDevice);
   {
     const std::initializer_list<cl_uint4> v = {cl_uint4{mask01, mask01, mask01, mask01},
                                                cl_uint4{mask02, mask03, mask02, mask03},
@@ -1013,19 +1013,19 @@ TEST(ClCppTest, VectorBitwiseOperatorTest)
     ztest::setDeviceBuffer(*device, v, buffer_in4.get());
   }
   const std::size_t n = 14;
-  zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_uint2>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_uint2>(zivc::BufferUsage::kPreferDevice);
   buffer_out2->setSize(n + 6);
   {
     const cl_uint2 v{0, 0};
     ztest::fillDeviceBuffer(v, buffer_out2.get());
   }
-  zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_uint3>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_uint3>(zivc::BufferUsage::kPreferDevice);
   buffer_out3->setSize(n);
   {
     const cl_uint3 v{0, 0, 0};
     ztest::fillDeviceBuffer(v, buffer_out3.get());
   }
-  zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_uint4>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_uint4>(zivc::BufferUsage::kPreferDevice);
   buffer_out4->setSize(n);
   {
     const cl_uint4 v{0, 0, 0, 0};
@@ -1036,7 +1036,7 @@ TEST(ClCppTest, VectorBitwiseOperatorTest)
 
   // Make a kernel
   const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vectorBitwiseOperatorTest, 1);
-  zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(6, kernel->argSize()) << "Wrong kernel property.";
 
@@ -1058,7 +1058,7 @@ TEST(ClCppTest, VectorBitwiseOperatorTest)
 
   // output2
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_uint2>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_uint2>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out2, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     EXPECT_EQ(compl mask02, mem[0].x) << "Vector uint2 bitwise NOT failed.";
@@ -1106,7 +1106,7 @@ TEST(ClCppTest, VectorBitwiseOperatorTest)
   }
   // output3
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_uint3>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_uint3>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out3, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     EXPECT_EQ(compl mask02, mem[0].x) << "Vector uint3 bitwise NOT failed.";
@@ -1154,7 +1154,7 @@ TEST(ClCppTest, VectorBitwiseOperatorTest)
   }
   // output4
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_uint4>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_uint4>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out4, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     EXPECT_EQ(compl mask02, mem[0].x) << "Vector uint4 bitwise NOT failed.";
@@ -1218,7 +1218,7 @@ TEST(ClCppTest, VectorBitwiseOperatorTest)
 
 TEST(ClCppTest, VectorBitwiseAssignmentOperatorTest)
 {
-  zivc::SharedContext context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
@@ -1234,7 +1234,7 @@ TEST(ClCppTest, VectorBitwiseAssignmentOperatorTest)
   constexpr uint32b mask04 = 0b0000'0000'0000'0000'1111'1111'1111'1111u;
   constexpr uint32b mask05 = 0b1111'1111'1111'1111'0000'0000'0000'0000u;
 
-  zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_uint2>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_uint2>(zivc::BufferUsage::kPreferDevice);
   {
     const std::initializer_list<cl_uint2> v = {cl_uint2{mask01, mask01},
                                                cl_uint2{mask02, mask03},
@@ -1243,7 +1243,7 @@ TEST(ClCppTest, VectorBitwiseAssignmentOperatorTest)
                                                cl_uint2{2u, 4u}};
     ztest::setDeviceBuffer(*device, v, buffer_in2.get());
   }
-  zivc::SharedBuffer buffer_in3 = device->createBuffer<cl_uint3>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in3 = device->createBuffer<cl_uint3>(zivc::BufferUsage::kPreferDevice);
   {
     const std::initializer_list<cl_uint3> v = {cl_uint3{mask01, mask01, mask01},
                                                cl_uint3{mask02, mask03, mask02},
@@ -1252,7 +1252,7 @@ TEST(ClCppTest, VectorBitwiseAssignmentOperatorTest)
                                                cl_uint3{2u, 4u, 6u}};
     ztest::setDeviceBuffer(*device, v, buffer_in3.get());
   }
-  zivc::SharedBuffer buffer_in4 = device->createBuffer<cl_uint4>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in4 = device->createBuffer<cl_uint4>(zivc::BufferUsage::kPreferDevice);
   {
     const std::initializer_list<cl_uint4> v = {cl_uint4{mask01, mask01, mask01, mask01},
                                                cl_uint4{mask02, mask03, mask02, mask03},
@@ -1262,19 +1262,19 @@ TEST(ClCppTest, VectorBitwiseAssignmentOperatorTest)
     ztest::setDeviceBuffer(*device, v, buffer_in4.get());
   }
   const std::size_t n = 14;
-  zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_uint2>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_uint2>(zivc::BufferUsage::kPreferDevice);
   buffer_out2->setSize(n + 5);
   {
     const cl_uint2 v{0, 0};
     ztest::fillDeviceBuffer(v, buffer_out2.get());
   }
-  zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_uint3>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_uint3>(zivc::BufferUsage::kPreferDevice);
   buffer_out3->setSize(n);
   {
     const cl_uint3 v{0, 0, 0};
     ztest::fillDeviceBuffer(v, buffer_out3.get());
   }
-  zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_uint4>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_uint4>(zivc::BufferUsage::kPreferDevice);
   buffer_out4->setSize(n);
   {
     const cl_uint4 v{0, 0, 0, 0};
@@ -1285,7 +1285,7 @@ TEST(ClCppTest, VectorBitwiseAssignmentOperatorTest)
 
   // Make a kernel
   const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vectorBitwiseAssignmentOperatorTest, 1);
-  zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(6, kernel->argSize()) << "Wrong kernel property.";
 
@@ -1307,7 +1307,7 @@ TEST(ClCppTest, VectorBitwiseAssignmentOperatorTest)
 
   // output2
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_uint2>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_uint2>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out2, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     EXPECT_EQ(mask01 bitand mask02, mem[0].x) << "Vector uint2 bitwise AND failed.";
@@ -1345,7 +1345,7 @@ TEST(ClCppTest, VectorBitwiseAssignmentOperatorTest)
   }
   // output3
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_uint3>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_uint3>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out3, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     EXPECT_EQ(mask01 bitand mask02, mem[0].x) << "Vector uint3 bitwise AND failed.";
@@ -1381,7 +1381,7 @@ TEST(ClCppTest, VectorBitwiseAssignmentOperatorTest)
   }
   // output4
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_uint4>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_uint4>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out4, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     EXPECT_EQ(mask01 bitand mask02, mem[0].x) << "Vector uint4 bitwise AND failed.";
@@ -1429,14 +1429,14 @@ TEST(ClCppTest, VectorBitwiseAssignmentOperatorTest)
 
 TEST(ClCppTest, VectorIncrementDecrementTest)
 {
-  zivc::SharedContext context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   // Allocate buffers
   using zivc::cl_int4;
 
-  zivc::SharedBuffer buffer_inout4 = device->createBuffer<cl_int4>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_inout4 = device->createBuffer<cl_int4>(zivc::BufferUsage::kPreferDevice);
   {
     const std::initializer_list<cl_int4> v = {cl_int4{0, 1, 2, 3},
                                               cl_int4{0, 0, 0, 0},
@@ -1453,7 +1453,7 @@ TEST(ClCppTest, VectorIncrementDecrementTest)
 
   // Make a kernel
   const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vectorIncrementDecrementTest, 1);
-  zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(1, kernel->argSize()) << "Wrong kernel property.";
 
@@ -1473,7 +1473,7 @@ TEST(ClCppTest, VectorIncrementDecrementTest)
 
   // output4
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_int4>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_int4>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_inout4, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     EXPECT_EQ( 1, mem[0].x) << "Vector int4 incremenet failed.";
@@ -1513,14 +1513,14 @@ TEST(ClCppTest, VectorIncrementDecrementTest)
 
 TEST(ClCppTest, VectorConditionalOperatorTest)
 {
-  zivc::SharedContext context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
   // Allocate buffers
   using zivc::cl_int4;
 
-  zivc::SharedBuffer buffer_inout4 = device->createBuffer<cl_int4>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_inout4 = device->createBuffer<cl_int4>(zivc::BufferUsage::kPreferDevice);
   {
     const std::initializer_list<cl_int4> v = {cl_int4{1, 0, 0, 0},
                                               cl_int4{1, 2, 3, 4},
@@ -1534,7 +1534,7 @@ TEST(ClCppTest, VectorConditionalOperatorTest)
 
   // Make a kernel
   const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vectorConditionalOperatorTest, 1);
-  zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(1, kernel->argSize()) << "Wrong kernel property.";
 
@@ -1554,7 +1554,7 @@ TEST(ClCppTest, VectorConditionalOperatorTest)
 
   // output4
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_int4>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_int4>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_inout4, buffer.get());
     const auto mem = buffer->mapMemory();
     EXPECT_EQ( 1, mem[3].x) << "Vector int4 conditional operator failed.";
@@ -1570,7 +1570,7 @@ TEST(ClCppTest, VectorConditionalOperatorTest)
 
 TEST(ClCppTest, VectorComparisonOperatorTest)
 {
-  zivc::SharedContext context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
@@ -1578,13 +1578,13 @@ TEST(ClCppTest, VectorComparisonOperatorTest)
   using zivc::cl_int4;
   using zivc::cl_Boolean;
 
-  zivc::SharedBuffer buffer_in4 = device->createBuffer<cl_int4>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in4 = device->createBuffer<cl_int4>(zivc::BufferUsage::kPreferDevice);
   {
     const std::initializer_list<cl_int4> v = {cl_int4{1, 1, 1, 1},
                                               cl_int4{-1, 0, 1, 2}};
     ztest::setDeviceBuffer(*device, v, buffer_in4.get());
   }
-  zivc::SharedBuffer buffer_out = device->createBuffer<cl_Boolean>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out = device->createBuffer<cl_Boolean>(zivc::BufferUsage::kPreferDevice);
   buffer_out->setSize(72 + 24);
   {
     cl_Boolean v;
@@ -1596,7 +1596,7 @@ TEST(ClCppTest, VectorComparisonOperatorTest)
 
   // Make a kernel
   const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vectorComparisonOperatorTest, 1);
-  zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel->argSize()) << "Wrong kernel property.";
 
@@ -1616,7 +1616,7 @@ TEST(ClCppTest, VectorComparisonOperatorTest)
 
   // output
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_Boolean>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_Boolean>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     std::size_t index = 0;
@@ -1723,7 +1723,7 @@ TEST(ClCppTest, VectorComparisonOperatorTest)
 
 TEST(ClCppTest, VectorLogicalOperatorTest)
 {
-  zivc::SharedContext context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
@@ -1731,14 +1731,14 @@ TEST(ClCppTest, VectorLogicalOperatorTest)
   using zivc::cl_int4;
   using zivc::cl_Boolean;
 
-  zivc::SharedBuffer buffer_in4 = device->createBuffer<cl_int4>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in4 = device->createBuffer<cl_int4>(zivc::BufferUsage::kPreferDevice);
   {
     const std::initializer_list<cl_int4> v = {cl_int4{1, 1, 1, 1},
                                               cl_int4{1, 0, 1, 0},
                                               cl_int4{0, 0, 1, 0}};
     ztest::setDeviceBuffer(*device, v, buffer_in4.get());
   }
-  zivc::SharedBuffer buffer_out = device->createBuffer<cl_Boolean>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out = device->createBuffer<cl_Boolean>(zivc::BufferUsage::kPreferDevice);
   buffer_out->setSize(28 + 12);
   {
     cl_Boolean v;
@@ -1750,7 +1750,7 @@ TEST(ClCppTest, VectorLogicalOperatorTest)
 
   // Make a kernel
   const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vectorLogicalOperatorTest, 1);
-  zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(2, kernel->argSize()) << "Wrong kernel property.";
 
@@ -1770,7 +1770,7 @@ TEST(ClCppTest, VectorLogicalOperatorTest)
 
   // output
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_Boolean>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_Boolean>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     std::size_t index = 0;
@@ -1821,7 +1821,7 @@ TEST(ClCppTest, VectorLogicalOperatorTest)
 
 TEST(ClCppTest, ScalarCastTest)
 {
-  zivc::SharedContext context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
@@ -1834,14 +1834,14 @@ TEST(ClCppTest, ScalarCastTest)
   using zivc::cl_uint;
   using zivc::cl_float;
 
-  zivc::SharedBuffer buffer_in0 = device->createBuffer<cl_int>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in0 = device->createBuffer<cl_int>(zivc::BufferUsage::kPreferDevice);
   {
     constexpr cl_int vmax = (std::numeric_limits<cl_int>::max)();
     constexpr cl_int vmin = (std::numeric_limits<cl_int>::min)();
     const std::initializer_list<cl_int> v = {0, 100, -100, vmax, vmin};
     ztest::setDeviceBuffer(*device, v, buffer_in0.get());
   }
-  zivc::SharedBuffer buffer_in1 = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in1 = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
   {
     const std::initializer_list<cl_float> v = {0.0f, 100.0f, -100.0f, 3.14f};
     ztest::setDeviceBuffer(*device, v, buffer_in1.get());
@@ -1851,43 +1851,43 @@ TEST(ClCppTest, ScalarCastTest)
   const auto float_n = static_cast<zivc::uint32b>(buffer_in1->size());
   const std::size_t n = int_n + float_n;
 
-  zivc::SharedBuffer buffer_out0 = device->createBuffer<cl_char>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out0 = device->createBuffer<cl_char>(zivc::BufferUsage::kPreferDevice);
   buffer_out0->setSize(n);
   {
     const cl_char v = 0;
     ztest::fillDeviceBuffer(v, buffer_out0.get());
   }
-  zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_uchar>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_uchar>(zivc::BufferUsage::kPreferDevice);
   buffer_out1->setSize(n);
   {
     const cl_uchar v = 0;
     ztest::fillDeviceBuffer(v, buffer_out1.get());
   }
-  zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_short>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_short>(zivc::BufferUsage::kPreferDevice);
   buffer_out2->setSize(n);
   {
     const cl_short v = 0;
     ztest::fillDeviceBuffer(v, buffer_out2.get());
   }
-  zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_ushort>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_ushort>(zivc::BufferUsage::kPreferDevice);
   buffer_out3->setSize(n);
   {
     const cl_ushort v = 0;
     ztest::fillDeviceBuffer(v, buffer_out3.get());
   }
-  zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_int>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_int>(zivc::BufferUsage::kPreferDevice);
   buffer_out4->setSize(n);
   {
     const cl_int v = 0;
     ztest::fillDeviceBuffer(v, buffer_out4.get());
   }
-  zivc::SharedBuffer buffer_out5 = device->createBuffer<cl_uint>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out5 = device->createBuffer<cl_uint>(zivc::BufferUsage::kPreferDevice);
   buffer_out5->setSize(n);
   {
     const cl_uint v = 0;
     ztest::fillDeviceBuffer(v, buffer_out5.get());
   }
-  zivc::SharedBuffer buffer_out6 = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out6 = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
   buffer_out6->setSize(n);
   {
     const cl_float v = 0.0f;
@@ -1898,7 +1898,7 @@ TEST(ClCppTest, ScalarCastTest)
 
   // Make a kernel
   const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, scalarCastTest, 1);
-  zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(11, kernel->argSize()) << "Wrong kernel property.";
 
@@ -1922,7 +1922,7 @@ TEST(ClCppTest, ScalarCastTest)
 
   // output
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_char>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_char>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out0, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     std::size_t index = 0;
@@ -1937,7 +1937,7 @@ TEST(ClCppTest, ScalarCastTest)
     EXPECT_EQ(3, mem[index++]) << "int8b cast failed";
   }
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_uchar>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_uchar>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out1, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     std::size_t index = 0;
@@ -1956,7 +1956,7 @@ TEST(ClCppTest, ScalarCastTest)
     EXPECT_EQ(3, mem[index++]) << "uint8b cast failed";
   }
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_short>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_short>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out2, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     std::size_t index = 0;
@@ -1971,7 +1971,7 @@ TEST(ClCppTest, ScalarCastTest)
     EXPECT_EQ(3, mem[index++]) << "int16b cast failed";
   }
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_ushort>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_ushort>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out3, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     std::size_t index = 0;
@@ -1990,7 +1990,7 @@ TEST(ClCppTest, ScalarCastTest)
     EXPECT_EQ(3, mem[index++]) << "uint16b cast failed";
   }
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_int>({zivc::BufferUsage::kPreferHost,
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_int>({zivc::BufferUsage::kPreferHost,
                                                 zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out4, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
@@ -2008,7 +2008,7 @@ TEST(ClCppTest, ScalarCastTest)
     EXPECT_EQ(3, mem[index++]) << "int32b cast failed";
   }
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_uint>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_uint>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out5, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     std::size_t index = 0;
@@ -2027,7 +2027,7 @@ TEST(ClCppTest, ScalarCastTest)
     EXPECT_EQ(3, mem[index++]) << "uint32b cast failed";
   }
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_float>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_float>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out6, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     std::size_t index = 0;
@@ -2047,7 +2047,7 @@ TEST(ClCppTest, ScalarCastTest)
 
 TEST(ClCppTest, ScalarBoolCastTest)
 {
-  zivc::SharedContext context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
@@ -2060,14 +2060,14 @@ TEST(ClCppTest, ScalarBoolCastTest)
   using zivc::cl_uint;
   using zivc::cl_float;
 
-  zivc::SharedBuffer buffer_in0 = device->createBuffer<cl_int>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in0 = device->createBuffer<cl_int>(zivc::BufferUsage::kPreferDevice);
   {
     constexpr cl_int vmax = (std::numeric_limits<cl_int>::max)();
     constexpr cl_int vmin = (std::numeric_limits<cl_int>::min)();
     const std::initializer_list<cl_int> v = {0, 1, -1, 100, -100, vmax, vmin};
     ztest::setDeviceBuffer(*device, v, buffer_in0.get());
   }
-  zivc::SharedBuffer buffer_in1 = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in1 = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
   {
     const std::initializer_list<cl_float> v = {0.0f, 100.0f, -100.0f, 3.14f};
     ztest::setDeviceBuffer(*device, v, buffer_in1.get());
@@ -2077,7 +2077,7 @@ TEST(ClCppTest, ScalarBoolCastTest)
   const auto float_n = static_cast<zivc::uint32b>(buffer_in1->size());
   const std::size_t n = int_n + float_n;
 
-  zivc::SharedBuffer buffer_out0 = device->createBuffer<zivc::cl_Boolean>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out0 = device->createBuffer<zivc::cl_Boolean>(zivc::BufferUsage::kPreferDevice);
   buffer_out0->setSize(n);
   {
     zivc::cl_Boolean v;
@@ -2089,7 +2089,7 @@ TEST(ClCppTest, ScalarBoolCastTest)
 
   // Make a kernel
   const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, scalarBoolCastTest, 1);
-  zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(5, kernel->argSize()) << "Wrong kernel property.";
 
@@ -2110,7 +2110,7 @@ TEST(ClCppTest, ScalarBoolCastTest)
 
   // output
   {
-    zivc::SharedBuffer buffer = device->createBuffer<zivc::cl_Boolean>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<zivc::cl_Boolean>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out0, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     std::size_t index = 0;
@@ -2130,7 +2130,7 @@ TEST(ClCppTest, ScalarBoolCastTest)
 
 TEST(ClCppTest, Vector2CastTest)
 {
-  zivc::SharedContext context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
@@ -2150,19 +2150,19 @@ TEST(ClCppTest, Vector2CastTest)
   using zivc::cl_uint2;
   using zivc::cl_float2;
 
-  zivc::SharedBuffer buffer_in0 = device->createBuffer<cl_int>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in0 = device->createBuffer<cl_int>(zivc::BufferUsage::kPreferDevice);
   {
     constexpr cl_int vmax = (std::numeric_limits<cl_int>::max)();
     constexpr cl_int vmin = (std::numeric_limits<cl_int>::min)();
     const std::initializer_list<cl_int> v = {0, 100, -100, vmax, vmin};
     ztest::setDeviceBuffer(*device, v, buffer_in0.get());
   }
-  zivc::SharedBuffer buffer_in1 = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in1 = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
   {
     const std::initializer_list<cl_float> v = {0.0f, 100.0f, -100.0f, 3.14f};
     ztest::setDeviceBuffer(*device, v, buffer_in1.get());
   }
-  zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_int2>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_int2>(zivc::BufferUsage::kPreferDevice);
   {
     constexpr cl_int vmax = (std::numeric_limits<cl_int>::max)();
     constexpr cl_int vmin = (std::numeric_limits<cl_int>::min)();
@@ -2170,7 +2170,7 @@ TEST(ClCppTest, Vector2CastTest)
                                               cl_int2{vmax, vmin}};
     ztest::setDeviceBuffer(*device, v, buffer_in2.get());
   }
-  zivc::SharedBuffer buffer_in3 = device->createBuffer<cl_float2>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in3 = device->createBuffer<cl_float2>(zivc::BufferUsage::kPreferDevice);
   {
     const std::initializer_list<cl_float2> v = {cl_float2{0.0f, 100.0f},
                                                 cl_float2{-100.0f, 3.14f}};
@@ -2183,43 +2183,43 @@ TEST(ClCppTest, Vector2CastTest)
   const auto float2_n = static_cast<zivc::uint32b>(buffer_in3->size());
   const std::size_t n = int_n + float_n + int2_n + float2_n;
 
-  zivc::SharedBuffer buffer_out0 = device->createBuffer<cl_char2>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out0 = device->createBuffer<cl_char2>(zivc::BufferUsage::kPreferDevice);
   buffer_out0->setSize(n);
   {
     const cl_char2 v = 0;
     ztest::fillDeviceBuffer(v, buffer_out0.get());
   }
-  zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_uchar2>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_uchar2>(zivc::BufferUsage::kPreferDevice);
   buffer_out1->setSize(n);
   {
     const cl_uchar2 v = 0;
     ztest::fillDeviceBuffer(v, buffer_out1.get());
   }
-  zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_short2>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_short2>(zivc::BufferUsage::kPreferDevice);
   buffer_out2->setSize(n);
   {
     const cl_short2 v = 0;
     ztest::fillDeviceBuffer(v, buffer_out2.get());
   }
-  zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_ushort2>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_ushort2>(zivc::BufferUsage::kPreferDevice);
   buffer_out3->setSize(n);
   {
     const cl_ushort2 v = 0;
     ztest::fillDeviceBuffer(v, buffer_out3.get());
   }
-  zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_int2>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_int2>(zivc::BufferUsage::kPreferDevice);
   buffer_out4->setSize(n);
   {
     const cl_int2 v = 0;
     ztest::fillDeviceBuffer(v, buffer_out4.get());
   }
-  zivc::SharedBuffer buffer_out5 = device->createBuffer<cl_uint2>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out5 = device->createBuffer<cl_uint2>(zivc::BufferUsage::kPreferDevice);
   buffer_out5->setSize(n);
   {
     const cl_uint2 v = 0;
     ztest::fillDeviceBuffer(v, buffer_out5.get());
   }
-  zivc::SharedBuffer buffer_out6 = device->createBuffer<cl_float2>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out6 = device->createBuffer<cl_float2>(zivc::BufferUsage::kPreferDevice);
   buffer_out6->setSize(n);
   {
     const cl_float2 v = 0.0f;
@@ -2230,7 +2230,7 @@ TEST(ClCppTest, Vector2CastTest)
 
   // Make a kernel
   const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vector2CastTest, 1);
-  zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(15, kernel->argSize()) << "Wrong kernel property.";
 
@@ -2255,7 +2255,7 @@ TEST(ClCppTest, Vector2CastTest)
 
   // output
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_char2>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_char2>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out0, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     std::size_t index = 0;
@@ -2299,7 +2299,7 @@ TEST(ClCppTest, Vector2CastTest)
     EXPECT_EQ(3, mem[index].y) << "char2 cast failed";
   }
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_uchar2>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_uchar2>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out1, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     std::size_t index = 0;
@@ -2345,7 +2345,7 @@ TEST(ClCppTest, Vector2CastTest)
     EXPECT_EQ(3, mem[index].y) << "uchar2 cast failed";
   }
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_short2>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_short2>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out2, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     std::size_t index = 0;
@@ -2389,7 +2389,7 @@ TEST(ClCppTest, Vector2CastTest)
     EXPECT_EQ(3, mem[index].y) << "short2 cast failed";
   }
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_ushort2>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_ushort2>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out3, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     std::size_t index = 0;
@@ -2435,7 +2435,7 @@ TEST(ClCppTest, Vector2CastTest)
     EXPECT_EQ(3, mem[index].y) << "ushort2 cast failed";
   }
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_int2>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_int2>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out4, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     std::size_t index = 0;
@@ -2481,7 +2481,7 @@ TEST(ClCppTest, Vector2CastTest)
     EXPECT_EQ(3, mem[index].y) << "int2 cast failed";
   }
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_uint2>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_uint2>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out5, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     std::size_t index = 0;
@@ -2527,7 +2527,7 @@ TEST(ClCppTest, Vector2CastTest)
     EXPECT_EQ(3, mem[index].y) << "uint2 cast failed";
   }
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_float2>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_float2>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out6, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     std::size_t index = 0;
@@ -2576,7 +2576,7 @@ TEST(ClCppTest, Vector2CastTest)
 
 TEST(ClCppTest, Vector3CastTest)
 {
-  zivc::SharedContext context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
@@ -2596,25 +2596,25 @@ TEST(ClCppTest, Vector3CastTest)
   using zivc::cl_uint3;
   using zivc::cl_float3;
 
-  zivc::SharedBuffer buffer_in0 = device->createBuffer<cl_int>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in0 = device->createBuffer<cl_int>(zivc::BufferUsage::kPreferDevice);
   {
     constexpr cl_int vmax = (std::numeric_limits<cl_int>::max)();
     constexpr cl_int vmin = (std::numeric_limits<cl_int>::min)();
     const std::initializer_list<cl_int> v = {0, 100, -100, vmax, vmin};
     ztest::setDeviceBuffer(*device, v, buffer_in0.get());
   }
-  zivc::SharedBuffer buffer_in1 = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in1 = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
   {
     const std::initializer_list<cl_float> v = {0.0f, 100.0f, -100.0f, 3.14f};
     ztest::setDeviceBuffer(*device, v, buffer_in1.get());
   }
-  zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_int3>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_int3>(zivc::BufferUsage::kPreferDevice);
   {
     constexpr cl_int vmax = (std::numeric_limits<cl_int>::max)();
     const std::initializer_list<cl_int3> v = {cl_int3{0, 100, vmax}};
     ztest::setDeviceBuffer(*device, v, buffer_in2.get());
   }
-  zivc::SharedBuffer buffer_in3 = device->createBuffer<cl_float3>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in3 = device->createBuffer<cl_float3>(zivc::BufferUsage::kPreferDevice);
   {
     const std::initializer_list<cl_float3> v = {cl_float3{0.0f, 100.0f, -100.0f}};
     ztest::setDeviceBuffer(*device, v, buffer_in3.get());
@@ -2626,43 +2626,43 @@ TEST(ClCppTest, Vector3CastTest)
   const auto float3_n = static_cast<zivc::uint32b>(buffer_in3->size());
   const std::size_t n = int_n + float_n + int3_n + float3_n;
 
-  zivc::SharedBuffer buffer_out0 = device->createBuffer<cl_char3>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out0 = device->createBuffer<cl_char3>(zivc::BufferUsage::kPreferDevice);
   buffer_out0->setSize(n);
   {
     const cl_char3 v = 0;
     ztest::fillDeviceBuffer(v, buffer_out0.get());
   }
-  zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_uchar3>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_uchar3>(zivc::BufferUsage::kPreferDevice);
   buffer_out1->setSize(n);
   {
     const cl_uchar3 v = 0;
     ztest::fillDeviceBuffer(v, buffer_out1.get());
   }
-  zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_short3>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_short3>(zivc::BufferUsage::kPreferDevice);
   buffer_out2->setSize(n);
   {
     const cl_short3 v = 0;
     ztest::fillDeviceBuffer(v, buffer_out2.get());
   }
-  zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_ushort3>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_ushort3>(zivc::BufferUsage::kPreferDevice);
   buffer_out3->setSize(n);
   {
     const cl_ushort3 v = 0;
     ztest::fillDeviceBuffer(v, buffer_out3.get());
   }
-  zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_int3>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_int3>(zivc::BufferUsage::kPreferDevice);
   buffer_out4->setSize(n);
   {
     const cl_int3 v = 0;
     ztest::fillDeviceBuffer(v, buffer_out4.get());
   }
-  zivc::SharedBuffer buffer_out5 = device->createBuffer<cl_uint3>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out5 = device->createBuffer<cl_uint3>(zivc::BufferUsage::kPreferDevice);
   buffer_out5->setSize(n);
   {
     const cl_uint3 v = 0;
     ztest::fillDeviceBuffer(v, buffer_out5.get());
   }
-  zivc::SharedBuffer buffer_out6 = device->createBuffer<cl_float3>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out6 = device->createBuffer<cl_float3>(zivc::BufferUsage::kPreferDevice);
   buffer_out6->setSize(n);
   {
     const cl_float3 v = 0.0f;
@@ -2673,7 +2673,7 @@ TEST(ClCppTest, Vector3CastTest)
 
   // Make a kernel
   const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vector3CastTest, 1);
-  zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(15, kernel->argSize()) << "Wrong kernel property.";
 
@@ -2698,7 +2698,7 @@ TEST(ClCppTest, Vector3CastTest)
 
   // output
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_char3>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_char3>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out0, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     std::size_t index = 0;
@@ -2747,7 +2747,7 @@ TEST(ClCppTest, Vector3CastTest)
     EXPECT_EQ(-100, mem[index].z) << "char3 cast failed";
   }
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_uchar3>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_uchar3>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out1, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     std::size_t index = 0;
@@ -2798,7 +2798,7 @@ TEST(ClCppTest, Vector3CastTest)
     //EXPECT_EQ(0, mem[index].z) << "uchar3 cast failed";
   }
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_short3>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_short3>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out2, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     std::size_t index = 0;
@@ -2847,7 +2847,7 @@ TEST(ClCppTest, Vector3CastTest)
     EXPECT_EQ(-100, mem[index].z) << "short3 cast failed";
   }
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_ushort3>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_ushort3>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out3, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     std::size_t index = 0;
@@ -2898,7 +2898,7 @@ TEST(ClCppTest, Vector3CastTest)
     //EXPECT_EQ(0, mem[index].z) << "ushort3 cast failed";
   }
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_int3>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_int3>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out4, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     std::size_t index = 0;
@@ -2949,7 +2949,7 @@ TEST(ClCppTest, Vector3CastTest)
     EXPECT_EQ(-100, mem[index].z) << "int3 cast failed";
   }
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_uint3>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_uint3>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out5, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     std::size_t index = 0;
@@ -3000,7 +3000,7 @@ TEST(ClCppTest, Vector3CastTest)
     //EXPECT_EQ(0, mem[index].z) << "uint3 cast failed";
   }
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_float3>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_float3>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out6, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     std::size_t index = 0;
@@ -3054,7 +3054,7 @@ TEST(ClCppTest, Vector3CastTest)
 
 TEST(ClCppTest, Vector4CastTest)
 {
-  zivc::SharedContext context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
@@ -3074,26 +3074,26 @@ TEST(ClCppTest, Vector4CastTest)
   using zivc::cl_uint4;
   using zivc::cl_float4;
 
-  zivc::SharedBuffer buffer_in0 = device->createBuffer<cl_int>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in0 = device->createBuffer<cl_int>(zivc::BufferUsage::kPreferDevice);
   {
     constexpr cl_int vmax = (std::numeric_limits<cl_int>::max)();
     constexpr cl_int vmin = (std::numeric_limits<cl_int>::min)();
     const std::initializer_list<cl_int> v = {0, 100, -100, vmax, vmin};
     ztest::setDeviceBuffer(*device, v, buffer_in0.get());
   }
-  zivc::SharedBuffer buffer_in1 = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in1 = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
   {
     const std::initializer_list<cl_float> v = {0.0f, 100.0f, -100.0f, 3.14f};
     ztest::setDeviceBuffer(*device, v, buffer_in1.get());
   }
-  zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_int4>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_int4>(zivc::BufferUsage::kPreferDevice);
   {
     constexpr cl_int vmax = (std::numeric_limits<cl_int>::max)();
     constexpr cl_int vmin = (std::numeric_limits<cl_int>::min)();
     const std::initializer_list<cl_int4> v = {cl_int4{0, 100, vmax, vmin}};
     ztest::setDeviceBuffer(*device, v, buffer_in2.get());
   }
-  zivc::SharedBuffer buffer_in3 = device->createBuffer<cl_float4>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in3 = device->createBuffer<cl_float4>(zivc::BufferUsage::kPreferDevice);
   {
     const std::initializer_list<cl_float4> v = {cl_float4{0.0f, 100.0f, -100.0f, 3.14f}};
     ztest::setDeviceBuffer(*device, v, buffer_in3.get());
@@ -3105,43 +3105,43 @@ TEST(ClCppTest, Vector4CastTest)
   const auto float4_n = static_cast<zivc::uint32b>(buffer_in3->size());
   const std::size_t n = int_n + float_n + int4_n + float4_n;
 
-  zivc::SharedBuffer buffer_out0 = device->createBuffer<cl_char4>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out0 = device->createBuffer<cl_char4>(zivc::BufferUsage::kPreferDevice);
   buffer_out0->setSize(n);
   {
     const cl_char4 v = 0;
     ztest::fillDeviceBuffer(v, buffer_out0.get());
   }
-  zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_uchar4>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_uchar4>(zivc::BufferUsage::kPreferDevice);
   buffer_out1->setSize(n);
   {
     const cl_uchar4 v = 0;
     ztest::fillDeviceBuffer(v, buffer_out1.get());
   }
-  zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_short4>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_short4>(zivc::BufferUsage::kPreferDevice);
   buffer_out2->setSize(n);
   {
     const cl_short4 v = 0;
     ztest::fillDeviceBuffer(v, buffer_out2.get());
   }
-  zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_ushort4>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_ushort4>(zivc::BufferUsage::kPreferDevice);
   buffer_out3->setSize(n);
   {
     const cl_ushort4 v = 0;
     ztest::fillDeviceBuffer(v, buffer_out3.get());
   }
-  zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_int4>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_int4>(zivc::BufferUsage::kPreferDevice);
   buffer_out4->setSize(n);
   {
     const cl_int4 v = 0;
     ztest::fillDeviceBuffer(v, buffer_out4.get());
   }
-  zivc::SharedBuffer buffer_out5 = device->createBuffer<cl_uint4>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out5 = device->createBuffer<cl_uint4>(zivc::BufferUsage::kPreferDevice);
   buffer_out5->setSize(n);
   {
     const cl_uint4 v = 0;
     ztest::fillDeviceBuffer(v, buffer_out5.get());
   }
-  zivc::SharedBuffer buffer_out6 = device->createBuffer<cl_float4>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_out6 = device->createBuffer<cl_float4>(zivc::BufferUsage::kPreferDevice);
   buffer_out6->setSize(n);
   {
     const cl_float4 v = 0.0f;
@@ -3152,7 +3152,7 @@ TEST(ClCppTest, Vector4CastTest)
 
   // Make a kernel
   const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vector4CastTest, 1);
-  zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(15, kernel->argSize()) << "Wrong kernel property.";
 
@@ -3177,7 +3177,7 @@ TEST(ClCppTest, Vector4CastTest)
 
   // output
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_char4>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_char4>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out0, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     std::size_t index = 0;
@@ -3237,7 +3237,7 @@ TEST(ClCppTest, Vector4CastTest)
     EXPECT_EQ(3, mem[index].w) << "char4 cast failed";
   }
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_uchar4>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_uchar4>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out1, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     std::size_t index = 0;
@@ -3299,7 +3299,7 @@ TEST(ClCppTest, Vector4CastTest)
     EXPECT_EQ(3, mem[index].w) << "uchar4 cast failed";
   }
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_short4>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_short4>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out2, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     std::size_t index = 0;
@@ -3359,7 +3359,7 @@ TEST(ClCppTest, Vector4CastTest)
     EXPECT_EQ(3, mem[index].w) << "short4 cast failed";
   }
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_ushort4>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_ushort4>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out3, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     std::size_t index = 0;
@@ -3421,7 +3421,7 @@ TEST(ClCppTest, Vector4CastTest)
     EXPECT_EQ(3, mem[index].w) << "ushort4 cast failed";
   }
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_int4>({zivc::BufferUsage::kPreferHost,
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_int4>({zivc::BufferUsage::kPreferHost,
                                                  zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out4, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
@@ -3484,7 +3484,7 @@ TEST(ClCppTest, Vector4CastTest)
     EXPECT_EQ(3, mem[index].w) << "int4 cast failed";
   }
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_uint4>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_uint4>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out5, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     std::size_t index = 0;
@@ -3546,7 +3546,7 @@ TEST(ClCppTest, Vector4CastTest)
     EXPECT_EQ(3, mem[index].w) << "uint4 cast failed";
   }
   {
-    zivc::SharedBuffer buffer = device->createBuffer<cl_float4>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_float4>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out6, buffer.get());
     const zivc::MappedMemory mem = buffer->mapMemory();
     std::size_t index = 0;
@@ -3611,7 +3611,7 @@ TEST(ClCppTest, Vector4CastTest)
 
 TEST(ClCppTest, BitCastTest)
 {
-  zivc::SharedContext context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
@@ -3645,14 +3645,14 @@ TEST(ClCppTest, BitCastTest)
   using zivc::cl_float4;
 
   constexpr cl_int ei = zisc::bit_cast<cl_int>(std::numbers::pi_v<float>);
-  zivc::SharedBuffer inout_int = device->createBuffer<cl_int>(
+  const zivc::SharedBuffer inout_int = device->createBuffer<cl_int>(
       {zivc::BufferUsage::kPreferDevice,
        zivc::BufferFlag::kRandomAccessible});
   inout_int->setSize(1);
   ztest::setDeviceBuffer(*device, {ei}, inout_int.get());
 
   constexpr float ef = std::numbers::e_v<float>;
-  zivc::SharedBuffer inout_float = device->createBuffer<float>(
+  const zivc::SharedBuffer inout_float = device->createBuffer<float>(
       {zivc::BufferUsage::kPreferDevice,
        zivc::BufferFlag::kRandomAccessible});
   inout_float->setSize(1);
@@ -3660,7 +3660,7 @@ TEST(ClCppTest, BitCastTest)
 
   constexpr cl_uint2 eu2 = cl_uint2{zisc::bit_cast<cl_uint>(std::numbers::pi_v<float>),
                                     zisc::bit_cast<cl_uint>(std::numbers::e_v<float>)};
-  zivc::SharedBuffer inout_uint2 = device->createBuffer<cl_uint2>(
+  const zivc::SharedBuffer inout_uint2 = device->createBuffer<cl_uint2>(
       {zivc::BufferUsage::kPreferDevice,
        zivc::BufferFlag::kRandomAccessible});
   inout_uint2->setSize(1);
@@ -3668,35 +3668,35 @@ TEST(ClCppTest, BitCastTest)
 
   constexpr cl_float2 ef2 = cl_float2{std::numbers::e_v<float>,
                                       std::numbers::pi_v<float>};
-  zivc::SharedBuffer inout_float2 = device->createBuffer<cl_float2>(
+  const zivc::SharedBuffer inout_float2 = device->createBuffer<cl_float2>(
       {zivc::BufferUsage::kPreferDevice,
        zivc::BufferFlag::kRandomAccessible});
   inout_float2->setSize(1);
   ztest::setDeviceBuffer(*device, {ef2}, inout_float2.get());
 
   constexpr cl_char3 ec3 = cl_char3{1, 2, 3};
-  zivc::SharedBuffer inout_char3 = device->createBuffer<cl_char3>(
+  const zivc::SharedBuffer inout_char3 = device->createBuffer<cl_char3>(
       {zivc::BufferUsage::kPreferDevice,
        zivc::BufferFlag::kRandomAccessible});
   inout_char3->setSize(1);
   ztest::setDeviceBuffer(*device, {ec3}, inout_char3.get());
 
   constexpr cl_uchar4 euc4 = cl_uchar4{4, 5, 6, 7};
-  zivc::SharedBuffer inout_uchar4 = device->createBuffer<cl_uchar4>(
+  const zivc::SharedBuffer inout_uchar4 = device->createBuffer<cl_uchar4>(
       {zivc::BufferUsage::kPreferDevice,
        zivc::BufferFlag::kRandomAccessible});
   inout_uchar4->setSize(1);
   ztest::setDeviceBuffer(*device, {euc4}, inout_uchar4.get());
 
   constexpr cl_ushort3 eus3 = cl_ushort3{1, 2, 3};
-  zivc::SharedBuffer inout_ushort3 = device->createBuffer<cl_ushort3>(
+  const zivc::SharedBuffer inout_ushort3 = device->createBuffer<cl_ushort3>(
       {zivc::BufferUsage::kPreferDevice,
        zivc::BufferFlag::kRandomAccessible});
   inout_ushort3->setSize(1);
   ztest::setDeviceBuffer(*device, {eus3}, inout_ushort3.get());
 
   constexpr cl_short4 es4 = cl_short4{4, 5, 6, 7};
-  zivc::SharedBuffer inout_short4 = device->createBuffer<cl_short4>(
+  const zivc::SharedBuffer inout_short4 = device->createBuffer<cl_short4>(
       {zivc::BufferUsage::kPreferDevice,
        zivc::BufferFlag::kRandomAccessible});
   inout_short4->setSize(1);
@@ -3705,7 +3705,7 @@ TEST(ClCppTest, BitCastTest)
   constexpr cl_int3 ei3 = cl_int3{zisc::bit_cast<cl_int>(std::numbers::pi_v<float>),
                                   zisc::bit_cast<cl_int>(std::numbers::e_v<float>),
                                   zisc::bit_cast<cl_int>(std::numbers::ln2_v<float>)};
-  zivc::SharedBuffer inout_int3 = device->createBuffer<cl_int3>(
+  const zivc::SharedBuffer inout_int3 = device->createBuffer<cl_int3>(
       {zivc::BufferUsage::kPreferDevice,
        zivc::BufferFlag::kRandomAccessible});
   inout_int3->setSize(3);
@@ -3715,7 +3715,7 @@ TEST(ClCppTest, BitCastTest)
                                   zisc::bit_cast<cl_int>(std::numbers::e_v<float>),
                                   zisc::bit_cast<cl_int>(std::numbers::ln2_v<float>),
                                   zisc::bit_cast<cl_int>(std::numbers::sqrt2_v<float>)};
-  zivc::SharedBuffer inout_int4 = device->createBuffer<cl_int4>(
+  const zivc::SharedBuffer inout_int4 = device->createBuffer<cl_int4>(
       {zivc::BufferUsage::kPreferDevice,
        zivc::BufferFlag::kRandomAccessible});
   inout_int4->setSize(3);
@@ -3724,7 +3724,7 @@ TEST(ClCppTest, BitCastTest)
   constexpr cl_float3 ef3 = cl_float3{std::numbers::ln2_v<float>,
                                       std::numbers::pi_v<float>,
                                       std::numbers::e_v<float>};
-  zivc::SharedBuffer inout_float3 = device->createBuffer<cl_float3>(
+  const zivc::SharedBuffer inout_float3 = device->createBuffer<cl_float3>(
       {zivc::BufferUsage::kPreferDevice,
        zivc::BufferFlag::kRandomAccessible});
   inout_float3->setSize(3);
@@ -3734,7 +3734,7 @@ TEST(ClCppTest, BitCastTest)
                                       std::numbers::ln2_v<float>,
                                       std::numbers::e_v<float>,
                                       std::numbers::pi_v<float>};
-  zivc::SharedBuffer inout_float4 = device->createBuffer<cl_float4>(
+  const zivc::SharedBuffer inout_float4 = device->createBuffer<cl_float4>(
       {zivc::BufferUsage::kPreferDevice,
        zivc::BufferFlag::kRandomAccessible});
   inout_float4->setSize(3);
@@ -3744,7 +3744,7 @@ TEST(ClCppTest, BitCastTest)
 
   // Make a kernel
   const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, bitCastTest, 1);
-  zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(12, kernel->argSize()) << "Wrong kernel property.";
 
@@ -3907,7 +3907,7 @@ TEST(ClCppTest, BitCastTest)
 
 TEST(ClCppTest, VectorLoadStoreTest)
 {
-  zivc::SharedContext context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
@@ -3947,7 +3947,7 @@ TEST(ClCppTest, VectorLoadStoreTest)
   const std::initializer_list<cl_char> ei8 = {1, 2, 1, 2,
                                               1, 2, 3, 1, 2, 3,
                                               1, 2, 3, 4, 1, 2, 3, 4};
-  zivc::SharedBuffer inout_i8 = device->createBuffer<cl_char>(
+  const zivc::SharedBuffer inout_i8 = device->createBuffer<cl_char>(
       {zivc::BufferUsage::kPreferDevice,
        zivc::BufferFlag::kRandomAccessible});
   ztest::setDeviceBuffer(*device, ei8, inout_i8.get());
@@ -3955,7 +3955,7 @@ TEST(ClCppTest, VectorLoadStoreTest)
   const std::initializer_list<cl_ushort> eu16 = {1, 2, 1, 2,
                                                  1, 2, 3, 1, 2, 3,
                                                  1, 2, 3, 4, 1, 2, 3, 4};
-  zivc::SharedBuffer inout_u16 = device->createBuffer<cl_ushort>(
+  const zivc::SharedBuffer inout_u16 = device->createBuffer<cl_ushort>(
       {zivc::BufferUsage::kPreferDevice,
        zivc::BufferFlag::kRandomAccessible});
   ztest::setDeviceBuffer(*device, eu16, inout_u16.get());
@@ -3963,7 +3963,7 @@ TEST(ClCppTest, VectorLoadStoreTest)
   const std::initializer_list<cl_int> ei32 = {1, 2, 1, 2,
                                               1, 2, 3, 1, 2, 3,
                                               1, 2, 3, 4, 1, 2, 3, 4};
-  zivc::SharedBuffer inout_i32 = device->createBuffer<cl_int>(
+  const zivc::SharedBuffer inout_i32 = device->createBuffer<cl_int>(
       {zivc::BufferUsage::kPreferDevice,
        zivc::BufferFlag::kRandomAccessible});
   ztest::setDeviceBuffer(*device, ei32, inout_i32.get());
@@ -3971,7 +3971,7 @@ TEST(ClCppTest, VectorLoadStoreTest)
   const std::initializer_list<float> ef = {1.0f, 2.0f, 1.0f, 2.0f,
                                            1.0f, 2.0f ,4.0f, 1.0f, 2.0f, 4.0f,
                                            1.0f, 2.0f, 4.0f, 8.0f, 1.0f, 2.0f, 4.0f, 8.0f};
-  zivc::SharedBuffer inout_f = device->createBuffer<float>(
+  const zivc::SharedBuffer inout_f = device->createBuffer<float>(
       {zivc::BufferUsage::kPreferDevice,
        zivc::BufferFlag::kRandomAccessible});
   ztest::setDeviceBuffer(*device, ef, inout_f.get());
@@ -3980,7 +3980,7 @@ TEST(ClCppTest, VectorLoadStoreTest)
 
   // Make a kernel
   const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vectorLoadStoreTest, 1);
-  zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(4, kernel->argSize()) << "Wrong kernel property.";
 
@@ -4073,7 +4073,7 @@ TEST(ClCppTest, VectorLoadStoreTest)
 
 TEST(ClCppTest, VectorLoadStoreClTest)
 {
-  zivc::SharedContext context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
@@ -4113,7 +4113,7 @@ TEST(ClCppTest, VectorLoadStoreClTest)
   const std::initializer_list<cl_char> ei8 = {1, 2, 1, 2,
                                               1, 2, 3, 1, 2, 3,
                                               1, 2, 3, 4, 1, 2, 3, 4};
-  zivc::SharedBuffer inout_i8 = device->createBuffer<cl_char>(
+  const zivc::SharedBuffer inout_i8 = device->createBuffer<cl_char>(
       {zivc::BufferUsage::kPreferDevice,
        zivc::BufferFlag::kRandomAccessible});
   ztest::setDeviceBuffer(*device, ei8, inout_i8.get());
@@ -4121,7 +4121,7 @@ TEST(ClCppTest, VectorLoadStoreClTest)
   const std::initializer_list<cl_ushort> eu16 = {1, 2, 1, 2,
                                                  1, 2, 3, 1, 2, 3,
                                                  1, 2, 3, 4, 1, 2, 3, 4};
-  zivc::SharedBuffer inout_u16 = device->createBuffer<cl_ushort>(
+  const zivc::SharedBuffer inout_u16 = device->createBuffer<cl_ushort>(
       {zivc::BufferUsage::kPreferDevice,
        zivc::BufferFlag::kRandomAccessible});
   ztest::setDeviceBuffer(*device, eu16, inout_u16.get());
@@ -4129,7 +4129,7 @@ TEST(ClCppTest, VectorLoadStoreClTest)
   const std::initializer_list<cl_int> ei32 = {1, 2, 1, 2,
                                               1, 2, 3, 1, 2, 3,
                                               1, 2, 3, 4, 1, 2, 3, 4};
-  zivc::SharedBuffer inout_i32 = device->createBuffer<cl_int>(
+  const zivc::SharedBuffer inout_i32 = device->createBuffer<cl_int>(
       {zivc::BufferUsage::kPreferDevice,
        zivc::BufferFlag::kRandomAccessible});
   ztest::setDeviceBuffer(*device, ei32, inout_i32.get());
@@ -4137,7 +4137,7 @@ TEST(ClCppTest, VectorLoadStoreClTest)
   const std::initializer_list<float> ef = {1.0f, 2.0f, 1.0f, 2.0f,
                                            1.0f, 2.0f ,4.0f, 1.0f, 2.0f, 4.0f,
                                            1.0f, 2.0f, 4.0f, 8.0f, 1.0f, 2.0f, 4.0f, 8.0f};
-  zivc::SharedBuffer inout_f = device->createBuffer<float>(
+  const zivc::SharedBuffer inout_f = device->createBuffer<float>(
       {zivc::BufferUsage::kPreferDevice,
        zivc::BufferFlag::kRandomAccessible});
   ztest::setDeviceBuffer(*device, ef, inout_f.get());
@@ -4146,7 +4146,7 @@ TEST(ClCppTest, VectorLoadStoreClTest)
 
   // Make a kernel
   const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vectorLoadStoreClTest, 1);
-  zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(4, kernel->argSize()) << "Wrong kernel property.";
 
@@ -4239,7 +4239,7 @@ TEST(ClCppTest, VectorLoadStoreClTest)
 
 TEST(ClCppTest, VectorLoadStoreHalfTest)
 {
-  zivc::SharedContext context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
@@ -4284,7 +4284,7 @@ TEST(ClCppTest, VectorLoadStoreHalfTest)
                                              h1, h2, h1, h2,
                                              h1, h2, h3, h1, h2, h3,
                                              h1, h2, h3, h4, h1, h2, h3, h4};
-  zivc::SharedBuffer inout_h = device->createBuffer<cl_half>(
+  const zivc::SharedBuffer inout_h = device->createBuffer<cl_half>(
       {zivc::BufferUsage::kPreferDevice,
        zivc::BufferFlag::kRandomAccessible});
   ztest::setDeviceBuffer(*device, eh, inout_h.get());
@@ -4293,7 +4293,7 @@ TEST(ClCppTest, VectorLoadStoreHalfTest)
 
   // Make a kernel
   const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vectorLoadStoreHalfTest, 1);
-  zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(1, kernel->argSize()) << "Wrong kernel property.";
 
@@ -4361,7 +4361,7 @@ TEST(ClCppTest, VectorLoadStoreHalfTest)
 
 TEST(ClCppTest, VectorLoadStoreHalfClTest)
 {
-  zivc::SharedContext context = ztest::createContext();
+  const zivc::SharedContext context = ztest::createContext();
   const ztest::Config& config = ztest::Config::globalConfig();
   const zivc::SharedDevice device = context->queryDevice(config.deviceId());
 
@@ -4406,7 +4406,7 @@ TEST(ClCppTest, VectorLoadStoreHalfClTest)
                                              h1, h2, h1, h2,
                                              h1, h2, h3, h1, h2, h3,
                                              h1, h2, h3, h4, h1, h2, h3, h4};
-  zivc::SharedBuffer inout_h = device->createBuffer<cl_half>(
+  const zivc::SharedBuffer inout_h = device->createBuffer<cl_half>(
       {zivc::BufferUsage::kPreferDevice,
        zivc::BufferFlag::kRandomAccessible});
   ztest::setDeviceBuffer(*device, eh, inout_h.get());
@@ -4415,7 +4415,7 @@ TEST(ClCppTest, VectorLoadStoreHalfClTest)
 
   // Make a kernel
   const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vectorLoadStoreHalfClTest, 1);
-  zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(1, kernel->argSize()) << "Wrong kernel property.";
 

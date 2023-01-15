@@ -129,6 +129,8 @@
 !/test/unittest/kernels/cl_cpp_test1/*.cl
 !/test/unittest/kernels/cl_cpp_test_type/
 !/test/unittest/kernels/cl_cpp_test_type/*.cl
+!/test/unittest/kernels/cl_cpp_test_geometry/
+!/test/unittest/kernels/cl_cpp_test_geometry/*.cl
 !/test/unittest/utility/
 !/test/unittest/utility/*.hpp
 !/test/unittest/utility/*.cpp

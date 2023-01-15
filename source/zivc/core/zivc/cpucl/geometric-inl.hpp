@@ -12,6 +12,7 @@
 
 #include "geometric.hpp"
 // Standard C++ library
+#include <concepts>
 #include <cstddef>
 #include <type_traits>
 // Zisc
@@ -21,118 +22,266 @@
 #include "vector.hpp"
 #include "zivc/zivc_config.hpp"
 
-namespace zivc {
-
-namespace cl {
+namespace zivc::cl {
 
 /*!
+  \details No detailed description
+
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
   */
-template <typename FloatN> inline
-FloatN Geometry::cross(const FloatN& p0, const FloatN& p1) noexcept
+inline
+float3 Geometry::cross(const float3& p0, const float3& p1) noexcept
 {
-  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN> ||
-                                  std::is_integral_v<FloatN>;
-  static_assert(!is_scalar_type, "FloatN should be vector3 or vector4 type.");
-  const auto result = Vec::cross(p0, p1);
+  return crossImpl(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+inline
+float4 Geometry::cross(const float4& p0, const float4& p1) noexcept
+{
+  return crossImpl(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+inline
+double3 Geometry::cross(const double3& p0, const double3& p1) noexcept
+{
+  return crossImpl(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+inline
+double4 Geometry::cross(const double4& p0, const double4& p1) noexcept
+{
+  return crossImpl(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kN No description.
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+template <std::size_t kN> inline
+float Geometry::dot(const Vector<float, kN>& p0,
+                    const Vector<float, kN>& p1) noexcept
+{
+  return dotImpl(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kN No description.
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+template <std::size_t kN> inline
+double Geometry::dot(const Vector<double, kN>& p0,
+                     const Vector<double, kN>& p1) noexcept
+{
+  return dotImpl(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kN No description.
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+template <std::size_t kN> inline
+float Geometry::distance(const Vector<float, kN>& p0,
+                         const Vector<float, kN>& p1) noexcept
+{
+  return distanceImpl(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kN No description.
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+template <std::size_t kN> inline
+double Geometry::distance(const Vector<double, kN>& p0,
+                          const Vector<double, kN>& p1) noexcept
+{
+  return distanceImpl(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kN No description.
+  \param [in] p No description.
+  \return No description
+  */
+template <std::size_t kN> inline
+float Geometry::length(const Vector<float, kN>& p) noexcept
+{
+  return lengthImpl(p);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kN No description.
+  \param [in] p No description.
+  \return No description
+  */
+template <std::size_t kN> inline
+double Geometry::length(const Vector<double, kN>& p) noexcept
+{
+  return lengthImpl(p);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kN No description.
+  \param [in] p No description.
+  \return No description
+  */
+template <std::size_t kN> inline
+Vector<float, kN> Geometry::normalize(const Vector<float, kN>& p) noexcept
+{
+  return normalizeImpl(p);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kN No description.
+  \param [in] p No description.
+  \return No description
+  */
+template <std::size_t kN> inline
+Vector<double, kN> Geometry::normalize(const Vector<double, kN>& p) noexcept
+{
+  return normalizeImpl(p);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+template <std::floating_point Float, size_t kN> inline
+Vector<Float, kN> Geometry::crossImpl(const Vector<Float, kN>& p0,
+                                      const Vector<Float, kN>& p1) noexcept
+{
+  Vector<Float, kN> result{};
+  {
+    Float* d = result.data();
+    const Float* l = p0.data();
+    const Float* r = p1.data();
+    d[0] = l[1] * r[2] - l[2] * r[1];
+    d[1] = l[2] * r[0] - l[0] * r[2];
+    d[2] = l[0] * r[1] - l[1] * r[0];
+  }
   return result;
 }
 
 /*!
-  */
-template <typename FloatN> inline
-auto Geometry::dot(const FloatN& p0, const FloatN& p1) noexcept
-{
-  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN> ||
-                                  std::is_integral_v<FloatN>;
-  if constexpr (is_scalar_type) {
-    const auto result = p0 * p1;
-    return result;
-  }
-  else {
-    const auto result = Vec::dot(p0, p1);
-    return result;
-  }
-}
+  \details No detailed description
 
-/*!
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
   */
-template <typename FloatN> inline
-auto Geometry::distance(const FloatN& p0, const FloatN& p1) noexcept
-{
-  const auto result = length(p0 - p1);
-  return result;
-}
-
-/*!
-  */
-template <typename FloatN> inline
-auto Geometry::length(const FloatN& p) noexcept
-{
-  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN> ||
-                                  std::is_integral_v<FloatN>;
-  if constexpr (is_scalar_type) {
-    const auto result = abs(p);
-    return result;
-  }
-  else {
-    const auto d2 = dot(p, p);
-    const auto result = Math::sqrt(d2);
-    return result;
-  }
-}
-
-/*!
-  */
-template <typename FloatN> inline
-FloatN Geometry::normalize(const FloatN& p) noexcept
-{
-  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN> ||
-                                  std::is_integral_v<FloatN>;
-  if constexpr (is_scalar_type) {
-    constexpr FloatN zero = zisc::cast<FloatN>(0);
-    constexpr FloatN one = zisc::cast<FloatN>(1);
-    const auto result = (p < zero) ? -one : one;
-    return result;
-  }
-  else {
-    const auto result = Vec::normalize(p);
-    return result;
-  }
-}
-
-/*!
-  */
-template <typename Float, size_t kN> inline
-auto Geometry::Vec::cross(const Vector<Float, kN>& p0,
-                          const Vector<Float, kN>& p1) noexcept
-{
-  static_assert((kN == 3) || (kN == 4), "The kN should be 3 or 4.");
-  Vector<Float, kN> result;
-  result[0] = p0[1] * p1[2] - p0[2] * p1[1];
-  result[1] = p0[2] * p1[0] - p0[0] * p1[2];
-  result[2] = p0[0] * p1[1] - p0[1] * p1[0];
-  return result;
-}
-
-/*!
-  */
-template <typename Float, size_t kN> inline
-auto Geometry::Vec::dot(const Vector<Float, kN>& p0,
+template <std::floating_point Float, size_t kN> inline
+Float Geometry::dotImpl(const Vector<Float, kN>& p0,
                         const Vector<Float, kN>& p1) noexcept
 {
-  Float result = zisc::cast<Float>(0);
-  for (size_t i = 0; i < kN; ++i)
-    result += Geometry::dot(p0[i], p1[i]);
+  Float result = static_cast<Float>(0);
+  {
+    const Float* l = p0.data();
+    const Float* r = p1.data();
+    for (size_t i = 0; i < kN; ++i)
+      result += l[i] * r[i];
+  }
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
   */
-template <typename Float, size_t kN> inline
-auto Geometry::Vec::normalize(const Vector<Float, kN>& p) noexcept
+template <std::floating_point Float, size_t kN> inline
+Float Geometry::distanceImpl(const Vector<Float, kN>& p0,
+                             const Vector<Float, kN>& p1) noexcept
 {
-  const auto d2 = Geometry::dot(p, p);
-  const auto result = p * Math::rsqrt(d2);
+  const Float result = length(p0 - p1);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] p No description.
+  \return No description
+  */
+template <std::floating_point Float, size_t kN> inline
+Float Geometry::lengthImpl(const Vector<Float, kN>& p) noexcept
+{
+  const Float d2 = dot(p, p);
+  const Float result = Math::sqrt(d2);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] p No description.
+  \return No description
+  */
+template <std::floating_point Float, size_t kN> inline
+Vector<Float, kN> Geometry::normalizeImpl(const Vector<Float, kN>& p) noexcept
+{
+  const Float d2 = dot(p, p);
+  const Vector<Float, kN> result = p * Math::rsqrt(d2);
   return result;
 }
 
@@ -181,8 +330,171 @@ FloatN normalize(const FloatN& p) noexcept
   return result;
 }
 
-} // namespace cl
+/*!
+  \details No detailed description
 
-} // namespace zivc
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+inline
+float3 cross(const float3& p0, const float3& p1) noexcept
+{
+  return Geometry::cross(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+inline
+float4 cross(const float4& p0, const float4& p1) noexcept
+{
+  return Geometry::cross(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+inline
+double3 cross(const double3& p0, const double3& p1) noexcept
+{
+  return Geometry::cross(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+inline
+double4 cross(const double4& p0, const double4& p1) noexcept
+{
+  return Geometry::cross(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kN No description.
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+template <std::size_t kN> inline
+float dot(const Vector<float, kN>& p0,
+          const Vector<float, kN>& p1) noexcept
+{
+  return Geometry::dot(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kN No description.
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+template <std::size_t kN> inline
+double dot(const Vector<double, kN>& p0,
+           const Vector<double, kN>& p1) noexcept
+{
+  return Geometry::dot(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kN No description.
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+template <std::size_t kN> inline
+float distance(const Vector<float, kN>& p0,
+               const Vector<float, kN>& p1) noexcept
+{
+  return Geometry::distance(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kN No description.
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+template <std::size_t kN> inline
+double distance(const Vector<double, kN>& p0,
+                const Vector<double, kN>& p1) noexcept
+{
+  return Geometry::distance(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kN No description.
+  \param [in] p No description.
+  \return No description
+  */
+template <std::size_t kN> inline
+float length(const Vector<float, kN>& p) noexcept
+{
+  return Geometry::length(p);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kN No description.
+  \param [in] p No description.
+  \return No description
+  */
+template <std::size_t kN> inline
+double length(const Vector<double, kN>& p) noexcept
+{
+  return Geometry::length(p);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kN No description.
+  \param [in] p No description.
+  \return No description
+  */
+template <std::size_t kN> inline
+Vector<float, kN> normalize(const Vector<float, kN>& p) noexcept
+{
+  return Geometry::normalize(p);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kN No description.
+  \param [in] p No description.
+  \return No description
+  */
+template <std::size_t kN> inline
+Vector<double, kN> normalize(const Vector<double, kN>& p) noexcept
+{
+  return Geometry::normalize(p);
+}
+
+
+} // namespace zivc::cl
 
 #endif // ZIVC_CPUCL_GEOMETRIC_INL_HPP

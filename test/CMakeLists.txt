@@ -199,6 +199,13 @@ macro(setTestProject)
       SOURCE_FILES ${cl_cpp_test_type_sources}
       INCLUDE_DIRS "${kernel_set_cl_cpp_test_type_dir}")
   target_link_libraries(${PROJECT_NAME} PRIVATE ${kernel_name})
+  ## opencl C++ geometry
+  cmake_path(SET kernel_set_cl_cpp_test_geometry_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/cl_cpp_test_geometry")
+  file(GLOB_RECURSE cl_cpp_test_geometry_sources ${kernel_set_cl_cpp_test_geometry_dir}/*.cl)
+  Zivc_addKernelSet(cl_cpp_test_geometry ${PROJECT_VERSION} kernel_name
+      SOURCE_FILES ${cl_cpp_test_geometry_sources}
+      INCLUDE_DIRS "${kernel_set_cl_cpp_test_geometry_dir}")
+  target_link_libraries(${PROJECT_NAME} PRIVATE ${kernel_name})
 
   # Add tests for CMake
   add_test(NAME ${PROJECT_NAME}-cpu COMMAND ${PROJECT_NAME} --device cpu

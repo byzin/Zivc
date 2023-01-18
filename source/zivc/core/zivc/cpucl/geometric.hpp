@@ -40,40 +40,22 @@ class Geometry
   static double4 cross(const double4& p0, const double4& p1) noexcept;
 
   //! Compute dot product
-  template <std::size_t kN>
-  static float dot(const Vector<float, kN>& p0,
-                   const Vector<float, kN>& p1) noexcept;
-
-  //! Compute dot product
-  template <std::size_t kN>
-  static double dot(const Vector<double, kN>& p0,
-                    const Vector<double, kN>& p1) noexcept;
+  template <std::floating_point Float, std::size_t kN>
+  static Float dot(const Vector<Float, kN>& p0,
+                   const Vector<Float, kN>& p1) noexcept;
 
   //! Return the distance between p0 and p1
-  template <std::size_t kN>
-  static float distance(const Vector<float, kN>& p0,
-                        const Vector<float, kN>& p1) noexcept;
-
-  //! Return the distance between p0 and p1
-  template <std::size_t kN>
-  static double distance(const Vector<double, kN>& p0,
-                         const Vector<double, kN>& p1) noexcept;
+  template <std::floating_point Float, std::size_t kN>
+  static Float distance(const Vector<Float, kN>& p0,
+                        const Vector<Float, kN>& p1) noexcept;
 
   //! Return the length of vector p
-  template <std::size_t kN>
-  static float length(const Vector<float, kN>& p) noexcept;
-
-  //! Return the length of vector p
-  template <std::size_t kN>
-  static double length(const Vector<double, kN>& p) noexcept;
+  template <std::floating_point Float, std::size_t kN>
+  static Float length(const Vector<Float, kN>& p) noexcept;
 
   //! Return a vector in the same direction as p but with a length of 1
-  template <std::size_t kN>
-  static Vector<float, kN> normalize(const Vector<float, kN>& p) noexcept;
-
-  //! Return a vector in the same direction as p but with a length of 1
-  template <std::size_t kN>
-  static Vector<double, kN> normalize(const Vector<double, kN>& p) noexcept;
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> normalize(const Vector<Float, kN>& p) noexcept;
 
  private:
   //! Return the cross product of p0.xyz and p1.xyz
@@ -101,52 +83,34 @@ class Geometry
 };
 
 //! Return the cross product of p0.xyz and p1.xyz
-static float3 cross(const float3& p0, const float3& p1) noexcept;
+float3 cross(const float3& p0, const float3& p1) noexcept;
 
 //! Return the cross product of p0.xyz and p1.xyz
-static float4 cross(const float4& p0, const float4& p1) noexcept;
+float4 cross(const float4& p0, const float4& p1) noexcept;
 
 //! Return the cross product of p0.xyz and p1.xyz
-static double3 cross(const double3& p0, const double3& p1) noexcept;
+double3 cross(const double3& p0, const double3& p1) noexcept;
 
 //! Return the cross product of p0.xyz and p1.xyz
-static double4 cross(const double4& p0, const double4& p1) noexcept;
+double4 cross(const double4& p0, const double4& p1) noexcept;
 
 //! Compute dot product
-template <std::size_t kN>
-static float dot(const Vector<float, kN>& p0,
-                 const Vector<float, kN>& p1) noexcept;
-
-//! Compute dot product
-template <std::size_t kN>
-static double dot(const Vector<double, kN>& p0,
-                  const Vector<double, kN>& p1) noexcept;
+template <std::floating_point Float, std::size_t kN>
+Float dot(const Vector<Float, kN>& p0,
+          const Vector<Float, kN>& p1) noexcept;
 
 //! Return the distance between p0 and p1
-template <std::size_t kN>
-static float distance(const Vector<float, kN>& p0,
-                      const Vector<float, kN>& p1) noexcept;
-
-//! Return the distance between p0 and p1
-template <std::size_t kN>
-static double distance(const Vector<double, kN>& p0,
-                       const Vector<double, kN>& p1) noexcept;
+template <std::floating_point Float, std::size_t kN>
+Float distance(const Vector<Float, kN>& p0,
+               const Vector<Float, kN>& p1) noexcept;
 
 //! Return the length of vector p
-template <std::size_t kN>
-static float length(const Vector<float, kN>& p) noexcept;
-
-//! Return the length of vector p
-template <std::size_t kN>
-static double length(const Vector<double, kN>& p) noexcept;
+template <std::floating_point Float, std::size_t kN>
+Float length(const Vector<Float, kN>& p) noexcept;
 
 //! Return a vector in the same direction as p but with a length of 1
-template <std::size_t kN>
-static Vector<float, kN> normalize(const Vector<float, kN>& p) noexcept;
-
-//! Return a vector in the same direction as p but with a length of 1
-template <std::size_t kN>
-static Vector<double, kN> normalize(const Vector<double, kN>& p) noexcept;
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> normalize(const Vector<Float, kN>& p) noexcept;
 
 } // namespace zivc::cl
 

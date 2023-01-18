@@ -78,6 +78,21 @@ concept Scalar = std::same_as<bool, std::remove_cvref_t<Type>> ||
 template <typename T, typename U>
 concept SameSizeAs = sizeof(T) == sizeof(U);
 
+// Comparisoin type
+
+constexpr int32b kSFalse = 0b0; //!< Represent 'false' for scalar operation
+                                //
+constexpr int32b kSTrue = 0b1; //!< Represent 'true' for scalar operation
+
+constexpr int32b kVFalse = 0b0; //!< Represent 'false' for vector operation
+                                //
+constexpr int32b kVTrue = ~0b0; //!< Represent 'true' for vector operation
+
+constexpr int32b kFalse = kSFalse; //!< Represent 'false'
+
+template <typename Type = int32b>
+constexpr int32b kTrue = std::is_scalar_v<Type> ? kSTrue : kVTrue; //!< Represent 'true'
+
 } // namespace zivc::cl
 
 #include "types-inl.hpp"

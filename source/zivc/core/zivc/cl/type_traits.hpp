@@ -437,7 +437,9 @@ constexpr int32b kTrue = kIsScalar<Type> ? kSTrue : kVTrue; //!< Represent 'true
 
 //! Integer type that is used as a comparison result of the given type
 template <typename T>
-using CompResultType = IntegerTypeFromVec<RemoveCvType<T>>;
+using CompResult = ConditionalType<kIsScalar<RemoveCvType<T>>,
+                                   int32b,
+                                   IntegerTypeFromVec<RemoveCvType<T>>>;
 
 // Vector
 

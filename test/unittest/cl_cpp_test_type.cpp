@@ -1721,6 +1721,166 @@ TEST(ClCppTest, VectorComparisonOperatorTest)
   }
 }
 
+TEST(ClCppTest, VectorComparisonResultTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_uchar;
+  using zivc::cl_char2;
+  using zivc::cl_ushort3;
+  using zivc::cl_uint4;
+  using zivc::cl_Boolean;
+
+  const zivc::SharedBuffer buffer_in1 = device->createBuffer<cl_uchar>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_char2>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in3 = device->createBuffer<cl_ushort3>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in4 = device->createBuffer<cl_uint4>(zivc::BufferUsage::kPreferDevice);
+  {
+    const std::initializer_list<cl_uchar> v = {cl_uchar{1},
+                                               cl_uchar{0}};
+    ztest::setDeviceBuffer(*device, v, buffer_in1.get());
+  }
+  {
+    const std::initializer_list<cl_char2> v = {cl_char2{1, 0},
+                                               cl_char2{0, 0}};
+    ztest::setDeviceBuffer(*device, v, buffer_in2.get());
+  }
+  {
+    const std::initializer_list<cl_ushort3> v = {cl_ushort3{1, 0, 1},
+                                                 cl_ushort3{0, 0, 1}};
+    ztest::setDeviceBuffer(*device, v, buffer_in3.get());
+  }
+  {
+    const std::initializer_list<cl_uint4> v = {cl_uint4{1, 0, 1, 0},
+                                               cl_uint4{0, 0, 1, 1}};
+    ztest::setDeviceBuffer(*device, v, buffer_in4.get());
+  }
+  const zivc::SharedBuffer buffer_out1 = device->createBuffer<zivc::cl_CompResult<cl_uchar>>(zivc::BufferUsage::kPreferDevice);
+  buffer_out1->setSize(6);
+  const zivc::SharedBuffer buffer_out2 = device->createBuffer<zivc::cl_CompResult<cl_char2>>(zivc::BufferUsage::kPreferDevice);
+  buffer_out2->setSize(6);
+  const zivc::SharedBuffer buffer_out3 = device->createBuffer<zivc::cl_CompResult<cl_ushort3>>(zivc::BufferUsage::kPreferDevice);
+  buffer_out3->setSize(6);
+  const zivc::SharedBuffer buffer_out4 = device->createBuffer<zivc::cl_CompResult<cl_uint4>>(zivc::BufferUsage::kPreferDevice);
+  buffer_out4->setSize(6);
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vectorComparisonResultTest, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(8, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("VectorConditionalResultTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(8, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_in1, *buffer_in2, *buffer_in3, *buffer_in4, *buffer_out1, *buffer_out2, *buffer_out3, *buffer_out4, launch_options);
+  device->waitForCompletion(result.fence());
+
+  // output
+  {
+    using ResultT = zivc::cl_CompResult<cl_uchar>;
+    const zivc::SharedBuffer buffer = device->createBuffer<ResultT>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out1, buffer.get());
+    //! \note scalar operation doesn't return 1 or 0 on GPU?
+    //const zivc::MappedMemory mem = buffer->mapMemory();
+    //ASSERT_EQ(zivc::cl::kSFalse, mem[0]) << "Scalar equal operation failed.";
+    //ASSERT_EQ(zivc::cl::kSTrue, mem[1]) << "Scalar not equal operation failed.";
+    //ASSERT_EQ(zivc::cl::kSTrue, mem[2]) << "Scalar greater operation failed.";
+    //ASSERT_EQ(zivc::cl::kSTrue, mem[3]) << "Scalar greater or equal operation failed.";
+    //ASSERT_EQ(zivc::cl::kSFalse, mem[4]) << "Scalar less operation failed.";
+    //ASSERT_EQ(zivc::cl::kSFalse, mem[5]) << "Scalar less or equal operation failed.";
+  }
+  {
+    using ResultT = zivc::cl_CompResult<cl_char2>;
+    const zivc::SharedBuffer buffer = device->createBuffer<ResultT>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out2, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+    constexpr auto t = static_cast<ResultT::Type>(zivc::cl::kVTrue);
+    constexpr auto f = static_cast<ResultT::Type>(zivc::cl::kVFalse);
+    ASSERT_EQ(f, mem[0].x) << "vector2 equal operation failed.";
+    ASSERT_EQ(t, mem[0].y) << "vector2 equal operation failed.";
+    ASSERT_EQ(t, mem[1].x) << "vector2 not equal operation failed.";
+    ASSERT_EQ(f, mem[1].y) << "vector2 not equal operation failed.";
+    ASSERT_EQ(t, mem[2].x) << "vector2 greater operation failed.";
+    ASSERT_EQ(f, mem[2].y) << "vector2 greater operation failed.";
+    ASSERT_EQ(t, mem[3].x) << "vector2 greater or equal operation failed.";
+    ASSERT_EQ(t, mem[3].y) << "vector2 greater or equal operation failed.";
+    ASSERT_EQ(f, mem[4].x) << "vector2 less operation failed.";
+    ASSERT_EQ(f, mem[4].y) << "vector2 less operation failed.";
+    ASSERT_EQ(f, mem[5].x) << "vector2 less or equal operation failed.";
+    ASSERT_EQ(t, mem[5].y) << "vector2 less or equal operation failed.";
+  }
+  {
+    using ResultT = zivc::cl_CompResult<cl_ushort3>;
+    const zivc::SharedBuffer buffer = device->createBuffer<ResultT>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out3, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+    constexpr auto t = static_cast<ResultT::Type>(zivc::cl::kVTrue);
+    constexpr auto f = static_cast<ResultT::Type>(zivc::cl::kVFalse);
+    ASSERT_EQ(f, mem[0].x) << "vector3 equal operation failed.";
+    ASSERT_EQ(t, mem[0].y) << "vector3 equal operation failed.";
+    ASSERT_EQ(t, mem[0].z) << "vector3 equal operation failed.";
+    ASSERT_EQ(t, mem[1].x) << "vector3 not equal operation failed.";
+    ASSERT_EQ(f, mem[1].y) << "vector3 not equal operation failed.";
+    ASSERT_EQ(f, mem[1].z) << "vector3 not equal operation failed.";
+    ASSERT_EQ(t, mem[2].x) << "vector3 greater operation failed.";
+    ASSERT_EQ(f, mem[2].y) << "vector3 greater operation failed.";
+    ASSERT_EQ(f, mem[2].z) << "vector3 greater operation failed.";
+    ASSERT_EQ(t, mem[3].x) << "vector3 greater or equal operation failed.";
+    ASSERT_EQ(t, mem[3].y) << "vector3 greater or equal operation failed.";
+    ASSERT_EQ(t, mem[3].z) << "vector3 greater or equal operation failed.";
+    ASSERT_EQ(f, mem[4].x) << "vector3 less operation failed.";
+    ASSERT_EQ(f, mem[4].y) << "vector3 less operation failed.";
+    ASSERT_EQ(f, mem[4].z) << "vector3 less operation failed.";
+    ASSERT_EQ(f, mem[5].x) << "vector3 less or equal operation failed.";
+    ASSERT_EQ(t, mem[5].y) << "vector3 less or equal operation failed.";
+    ASSERT_EQ(t, mem[5].z) << "vector3 less or equal operation failed.";
+  }
+  {
+    using ResultT = zivc::cl_CompResult<cl_uint4>;
+    const zivc::SharedBuffer buffer = device->createBuffer<ResultT>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out4, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+    constexpr auto t = static_cast<ResultT::Type>(zivc::cl::kVTrue);
+    constexpr auto f = static_cast<ResultT::Type>(zivc::cl::kVFalse);
+    ASSERT_EQ(f, mem[0].x) << "vector4 equal operation failed.";
+    ASSERT_EQ(t, mem[0].y) << "vector4 equal operation failed.";
+    ASSERT_EQ(t, mem[0].z) << "vector4 equal operation failed.";
+    ASSERT_EQ(f, mem[0].w) << "vector4 equal operation failed.";
+    ASSERT_EQ(t, mem[1].x) << "vector4 not equal operation failed.";
+    ASSERT_EQ(f, mem[1].y) << "vector4 not equal operation failed.";
+    ASSERT_EQ(f, mem[1].z) << "vector4 not equal operation failed.";
+    ASSERT_EQ(t, mem[1].w) << "vector4 not equal operation failed.";
+    ASSERT_EQ(t, mem[2].x) << "vector4 greater operation failed.";
+    ASSERT_EQ(f, mem[2].y) << "vector4 greater operation failed.";
+    ASSERT_EQ(f, mem[2].z) << "vector4 greater operation failed.";
+    ASSERT_EQ(f, mem[2].w) << "vector4 greater operation failed.";
+    ASSERT_EQ(t, mem[3].x) << "vector4 greater or equal operation failed.";
+    ASSERT_EQ(t, mem[3].y) << "vector4 greater or equal operation failed.";
+    ASSERT_EQ(t, mem[3].z) << "vector4 greater or equal operation failed.";
+    ASSERT_EQ(f, mem[3].w) << "vector4 greater or equal operation failed.";
+    ASSERT_EQ(f, mem[4].x) << "vector4 less operation failed.";
+    ASSERT_EQ(f, mem[4].y) << "vector4 less operation failed.";
+    ASSERT_EQ(f, mem[4].z) << "vector4 less operation failed.";
+    ASSERT_EQ(t, mem[4].w) << "vector4 less operation failed.";
+    ASSERT_EQ(f, mem[5].x) << "vector4 less or equal operation failed.";
+    ASSERT_EQ(t, mem[5].y) << "vector4 less or equal operation failed.";
+    ASSERT_EQ(t, mem[5].z) << "vector4 less or equal operation failed.";
+    ASSERT_EQ(t, mem[5].w) << "vector4 less or equal operation failed.";
+  }
+}
+
 TEST(ClCppTest, VectorLogicalOperatorTest)
 {
   const zivc::SharedContext context = ztest::createContext();

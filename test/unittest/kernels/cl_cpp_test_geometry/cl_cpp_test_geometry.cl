@@ -12,8 +12,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_TEST_OPENCL_CPP_TEST_TYPE_GEOMETRY
-#define ZIVC_TEST_OPENCL_CPP_TEST_TYPE_GEOMETRY
+#ifndef ZIVC_TEST_OPENCL_CPP_TEST_GEOMETRY
+#define ZIVC_TEST_OPENCL_CPP_TEST_GEOMETRY
 
 // Zivc
 #include "zivc/cl/geometric.hpp"
@@ -228,4 +228,4 @@ __kernel void normalizeV4C3TestKernel(zivc::ConstGlobalPtr<float4> in,
   out[index] = zivc::normalize3(in[index]);
 }
 
-#endif /* ZIVC_TEST_OPENCL_CPP_TEST_TYPE_GEOMETRY */
+#endif /* ZIVC_TEST_OPENCL_CPP_TEST_GEOMETRY */

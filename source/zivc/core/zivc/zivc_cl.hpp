@@ -73,8 +73,10 @@ using cl_double2 = cl::double2; //!< Corresponding to 'double2' in OpenCL
 using cl_double3 = cl::double3; //!< Corresponding to 'double3' in OpenCL
 using cl_double4 = cl::double4; //!< Corresponding to 'double4' in OpenCL
 
-//
+// Auxiliary types
 using cl_Boolean = cl::zivc::Boolean;
+template <typename Type>
+using cl_CompResult = cl::CompResult<Type>;
 
 } /* namespace zivc */
 

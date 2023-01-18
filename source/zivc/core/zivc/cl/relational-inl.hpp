@@ -19,120 +19,247 @@
 namespace zivc {
 
 /*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
 template <typename FloatN> inline
-ComparisonResultType<FloatN> Relation::isEqual(const FloatN x,
-                                               const FloatN y) noexcept
+CompResult<FloatN> Relation::isEqual(const FloatN lhs, const FloatN rhs) noexcept
 {
-  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point type.");
-  using ResultType = ComparisonResultType<FloatN>;
-  const auto result = cast<ResultType>(ZIVC_CL_GLOBAL_NAMESPACE::isequal(x, y));
+  static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
+  const CompResult<FloatN> result = ZIVC_CL_GLOBAL_NAMESPACE::isequal(lhs, rhs);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
 template <typename FloatN> inline
-ComparisonResultType<FloatN> Relation::isNotEqual(const FloatN x,
-                                                  const FloatN y) noexcept
+CompResult<FloatN> Relation::isNotEqual(const FloatN lhs, const FloatN rhs) noexcept
 {
-  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point type.");
-  using ResultType = ComparisonResultType<FloatN>;
-  const auto result = cast<ResultType>(ZIVC_CL_GLOBAL_NAMESPACE::isnotequal(x, y));
+  static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
+  const CompResult<FloatN> result = ZIVC_CL_GLOBAL_NAMESPACE::isnotequal(lhs, rhs);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
 template <typename FloatN> inline
-ComparisonResultType<FloatN> Relation::isGreater(const FloatN x,
-                                                 const FloatN y) noexcept
+CompResult<FloatN> Relation::isGreater(const FloatN lhs, const FloatN rhs) noexcept
 {
-  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point type.");
-  using ResultType = ComparisonResultType<FloatN>;
-  const auto result = cast<ResultType>(ZIVC_CL_GLOBAL_NAMESPACE::isgreater(x, y));
+  static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
+  const CompResult<FloatN> result = ZIVC_CL_GLOBAL_NAMESPACE::isgreater(lhs, rhs);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
 template <typename FloatN> inline
-ComparisonResultType<FloatN> Relation::isGreaterEqual(const FloatN x,
-                                                      const FloatN y) noexcept
+CompResult<FloatN> Relation::isGreaterEqual(const FloatN lhs, const FloatN rhs) noexcept
 {
-  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point type.");
-  using ResultType = ComparisonResultType<FloatN>;
-  const auto result = cast<ResultType>(ZIVC_CL_GLOBAL_NAMESPACE::isgreaterequal(x, y));
+  static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
+  const CompResult<FloatN> result = ZIVC_CL_GLOBAL_NAMESPACE::isgreaterequal(lhs, rhs);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
 template <typename FloatN> inline
-ComparisonResultType<FloatN> Relation::isLess(const FloatN x,
-                                              const FloatN y) noexcept
+CompResult<FloatN> Relation::isLess(const FloatN lhs, const FloatN rhs) noexcept
 {
-  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point type.");
-  using ResultType = ComparisonResultType<FloatN>;
-  const auto result = cast<ResultType>(ZIVC_CL_GLOBAL_NAMESPACE::isless(x, y));
+  static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
+  const CompResult<FloatN> result = ZIVC_CL_GLOBAL_NAMESPACE::isless(lhs, rhs);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
 template <typename FloatN> inline
-ComparisonResultType<FloatN> Relation::isLessEqual(const FloatN x,
-                                                   const FloatN y) noexcept
+CompResult<FloatN> Relation::isLessEqual(const FloatN lhs, const FloatN rhs) noexcept
 {
-  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point type.");
-  using ResultType = ComparisonResultType<FloatN>;
-  const auto result = cast<ResultType>(ZIVC_CL_GLOBAL_NAMESPACE::islessequal(x, y));
+  static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
+  const CompResult<FloatN> result = ZIVC_CL_GLOBAL_NAMESPACE::islessequal(lhs, rhs);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
 template <typename FloatN> inline
-ComparisonResultType<FloatN> Relation::isInf(const FloatN arg) noexcept
+CompResult<FloatN> Relation::isLessGreater(const FloatN lhs, const FloatN rhs) noexcept
 {
-  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point type.");
-  using ResultType = ComparisonResultType<FloatN>;
-  const auto result = cast<ResultType>(ZIVC_CL_GLOBAL_NAMESPACE::isinf(arg));
+  static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
+  const CompResult<FloatN> result = ZIVC_CL_GLOBAL_NAMESPACE::islessgreater(lhs, rhs);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] arg No description.
+  \return No description
   */
 template <typename FloatN> inline
-ComparisonResultType<FloatN> Relation::isNan(const FloatN arg) noexcept
+CompResult<FloatN> Relation::isFinite(const FloatN arg) noexcept
 {
-  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point type.");
-  using ResultType = ComparisonResultType<FloatN>;
-  const auto result = cast<ResultType>(ZIVC_CL_GLOBAL_NAMESPACE::isnan(arg));
+  static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
+  const CompResult<FloatN> result = ZIVC_CL_GLOBAL_NAMESPACE::isfinite(arg);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] arg No description.
+  \return No description
   */
 template <typename FloatN> inline
-ComparisonResultType<FloatN> Relation::isSignBitSet(const FloatN arg) noexcept
+CompResult<FloatN> Relation::isInf(const FloatN arg) noexcept
 {
-  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point type.");
-  using ResultType = ComparisonResultType<FloatN>;
-  const auto result = cast<ResultType>(ZIVC_CL_GLOBAL_NAMESPACE::signbit(arg));
+  static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
+  const CompResult<FloatN> result = ZIVC_CL_GLOBAL_NAMESPACE::isinf(arg);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] arg No description.
+  \return No description
+  */
+template <typename FloatN> inline
+CompResult<FloatN> Relation::isNan(const FloatN arg) noexcept
+{
+  static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
+  const CompResult<FloatN> result = ZIVC_CL_GLOBAL_NAMESPACE::isnan(arg);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] arg No description.
+  \return No description
+  */
+template <typename FloatN> inline
+CompResult<FloatN> Relation::isNormal(const FloatN arg) noexcept
+{
+  static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
+  const CompResult<FloatN> result = ZIVC_CL_GLOBAL_NAMESPACE::isnormal(arg);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] arg No description.
+  \return No description
+  */
+template <typename FloatN> inline
+CompResult<FloatN> Relation::isSignBitSet(const FloatN arg) noexcept
+{
+  static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
+  const CompResult<FloatN> result = ZIVC_CL_GLOBAL_NAMESPACE::signbit(arg);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam IntegerN No description.
+  \param [in] arg No description.
+  \return No description
+  */
+template <typename IntegerN> inline
+int32b Relation::hasAnyMsb(const IntegerN arg) noexcept
+{
+  static_assert(kIsInteger<IntegerN>, "The IntegerN isn't integer type.");
+  const int32b result = ZIVC_CL_GLOBAL_NAMESPACE::any(arg);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam IntegerN No description.
+  \param [in] arg No description.
+  \return No description
+  */
+template <typename IntegerN> inline
+int32b Relation::hasAllMsb(const IntegerN arg) noexcept
+{
+  static_assert(kIsInteger<IntegerN>, "The IntegerN isn't integer type.");
+  const int32b result = ZIVC_CL_GLOBAL_NAMESPACE::all(arg);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam TypeN No description.
+  \param [in] a No description.
+  \param [in] b No description.
+  \param [in] c No description.
+  \return No description
   */
 template <typename TypeN> inline
 TypeN Relation::selectBit(const TypeN a, const TypeN b, const TypeN c) noexcept
 {
-  const auto result = ZIVC_CL_GLOBAL_NAMESPACE::bitselect(a, b, c);
+  const TypeN result = ZIVC_CL_GLOBAL_NAMESPACE::bitselect(a, b, c);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam TypeN No description.
+  \tparam IntegerN No description.
+  \param [in] a No description.
+  \param [in] b No description.
+  \param [in] c No description.
+  \return No description
   */
 template <typename TypeN, typename IntegerN> inline
 TypeN Relation::selectValue(const TypeN a,
@@ -140,116 +267,258 @@ TypeN Relation::selectValue(const TypeN a,
                             const IntegerN c) noexcept
 {
   static_assert(kIsInteger<IntegerN>, "The IntegerN isn't integer type.");
-  const auto result = ZIVC_CL_GLOBAL_NAMESPACE::select(a, b, c);
+  const TypeN result = ZIVC_CL_GLOBAL_NAMESPACE::select(a, b, c);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
 template <typename FloatN> inline
-ComparisonResultType<FloatN> isequal(const FloatN x, const FloatN y) noexcept
+CompResult<FloatN> isequal(const FloatN lhs, const FloatN rhs) noexcept
 {
-  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point type.");
-  const auto result = Relation::isEqual(x, y);
+  static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
+  const CompResult<FloatN> result = Relation::isEqual(lhs, rhs);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
 template <typename FloatN> inline
-ComparisonResultType<FloatN> isnotequal(const FloatN x, const FloatN y) noexcept
+CompResult<FloatN> isnotequal(const FloatN lhs, const FloatN rhs) noexcept
 {
-  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point type.");
-  const auto result = Relation::isNotEqual(x, y);
+  static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
+  const CompResult<FloatN> result = Relation::isNotEqual(lhs, rhs);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
 template <typename FloatN> inline
-ComparisonResultType<FloatN> isgreater(const FloatN x, const FloatN y) noexcept
+CompResult<FloatN> isgreater(const FloatN lhs, const FloatN rhs) noexcept
 {
-  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point type.");
-  const auto result = Relation::isGreater(x, y);
+  static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
+  const CompResult<FloatN> result = Relation::isGreater(lhs, rhs);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
 template <typename FloatN> inline
-ComparisonResultType<FloatN> isgreaterequal(const FloatN x, const FloatN y) noexcept
+CompResult<FloatN> isgreaterequal(const FloatN lhs, const FloatN rhs) noexcept
 {
-  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point type.");
-  const auto result = Relation::isGreaterEqual(x, y);
+  static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
+  const CompResult<FloatN> result = Relation::isGreaterEqual(lhs, rhs);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
 template <typename FloatN> inline
-ComparisonResultType<FloatN> isless(const FloatN x, const FloatN y) noexcept
+CompResult<FloatN> isless(const FloatN lhs, const FloatN rhs) noexcept
 {
-  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point type.");
-  const auto result = Relation::isLess(x, y);
+  static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
+  const CompResult<FloatN> result = Relation::isLess(lhs, rhs);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
 template <typename FloatN> inline
-ComparisonResultType<FloatN> islessequal(const FloatN x, const FloatN y) noexcept
+CompResult<FloatN> islessequal(const FloatN lhs, const FloatN rhs) noexcept
 {
-  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point type.");
-  const auto result = Relation::isLessEqual(x, y);
+  static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
+  const CompResult<FloatN> result = Relation::isLessEqual(lhs, rhs);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
   */
 template <typename FloatN> inline
-ComparisonResultType<FloatN> isinf(const FloatN arg) noexcept
+CompResult<FloatN> islessgreater(const FloatN lhs, const FloatN rhs) noexcept
 {
-  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point type.");
-  const auto result = Relation::isInf(arg);
+  static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
+  const CompResult<FloatN> result = Relation::isLessGreater(lhs, rhs);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] arg No description.
+  \return No description
   */
 template <typename FloatN> inline
-ComparisonResultType<FloatN> isnan(const FloatN arg) noexcept
+CompResult<FloatN> isfinite(const FloatN arg) noexcept
 {
-  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point type.");
-  const auto result = Relation::isNan(arg);
+  static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
+  const CompResult<FloatN> result = Relation::isFinite(arg);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] arg No description.
+  \return No description
   */
 template <typename FloatN> inline
-ComparisonResultType<FloatN> signbit(const FloatN arg) noexcept
+CompResult<FloatN> isinf(const FloatN arg) noexcept
 {
-  static_assert(kIsFloatingPoint<FloatN>, "The FloatN isn't floating point type.");
-  const auto result = Relation::isSignBitSet(arg);
+  static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
+  const CompResult<FloatN> result = Relation::isInf(arg);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] arg No description.
+  \return No description
+  */
+template <typename FloatN> inline
+CompResult<FloatN> isnan(const FloatN arg) noexcept
+{
+  static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
+  const CompResult<FloatN> result = Relation::isNan(arg);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] arg No description.
+  \return No description
+  */
+template <typename FloatN> inline
+CompResult<FloatN> isnormal(const FloatN arg) noexcept
+{
+  static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
+  const CompResult<FloatN> result = Relation::isNormal(arg);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] arg No description.
+  \return No description
+  */
+template <typename FloatN> inline
+CompResult<FloatN> signbit(const FloatN arg) noexcept
+{
+  static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
+  const CompResult<FloatN> result = Relation::isSignBitSet(arg);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam IntegerN No description.
+  \param [in] arg No description.
+  \return No description
+  */
+template <typename IntegerN> inline
+int32b any(const IntegerN arg) noexcept
+{
+  static_assert(kIsInteger<IntegerN>, "The IntegerN isn't integer.");
+  const int32b result = Relation::hasAnyMsb(arg);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam IntegerN No description.
+  \param [in] arg No description.
+  \return No description
+  */
+template <typename IntegerN> inline
+int32b all(const IntegerN arg) noexcept
+{
+  static_assert(kIsInteger<IntegerN>, "The IntegerN isn't integer.");
+  const int32b result = Relation::hasAllMsb(arg);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam TypeN No description.
+  \param [in] a No description.
+  \param [in] b No description.
+  \param [in] c No description.
+  \return No description
   */
 template <typename TypeN> inline
 TypeN bitselect(const TypeN a, const TypeN b, const TypeN c) noexcept
 {
-  const auto result = Relation::selectBit(a, b, c);
+  const TypeN result = Relation::selectBit(a, b, c);
   return result;
 }
 
 /*!
+  \details No detailed description
+
+  \tparam TypeN No description.
+  \tparam IntegerN No description.
+  \param [in] a No description.
+  \param [in] b No description.
+  \param [in] c No description.
+  \return No description
   */
 template <typename TypeN, typename IntegerN> inline
 TypeN select(const TypeN a, const TypeN b, const IntegerN c) noexcept
 {
-  static_assert(kIsInteger<IntegerN>, "The IntegerN isn't integer type.");
-  const auto result = Relation::selectValue(a, b, c);
+  static_assert(kIsInteger<IntegerN>, "The IntegerN isn't integer.");
+  const TypeN result = Relation::selectValue(a, b, c);
   return result;
 }
 

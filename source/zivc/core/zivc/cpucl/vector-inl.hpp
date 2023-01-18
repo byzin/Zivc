@@ -741,6 +741,39 @@ constexpr auto Vector<T, 4>::size() noexcept -> size_type
 }
 
 /*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam Type No description.
+  */
+template <Arithmetic Type>
+struct CompResultType<Type>
+{
+  using IntegerT = int32b;
+  using ResultT = IntegerT;
+};
+
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam Type No description.
+  \tparam kN No description.
+  */
+template <Arithmetic Type, std::size_t kN>
+struct CompResultType<Vector<Type, kN>>
+{
+  using IntegerT = std::conditional_t<sizeof(Type) == 1, int8b,
+                   std::conditional_t<sizeof(Type) == 2, int16b,
+                   std::conditional_t<sizeof(Type) == 4, int32b,
+                                                         int64b>>>;
+  using ResultT = Vector<IntegerT, kN>;
+};
+
+
+/*!
   \details No detailed description
 
   \tparam Type No description.
@@ -1858,13 +1891,16 @@ constexpr Vector<Type1, kN> operator>>(const Vector<Type1, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type, size_t kN> inline
-constexpr Vector<bool, kN> operator!(const Vector<Type, kN>& value) noexcept
+constexpr CompResultVec<Type, kN> operator!(const Vector<Type, kN>& value) noexcept
 {
-  Vector<bool, kN> result{false};
+  using ResultT = CompResultVec<Type, kN>;
+  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
+  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
+  ResultT result{f};
   typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
   typename std::remove_reference_t<decltype(value)>::ConstPointer v = value.data();
   for (size_t index = 0; index < kN; ++index)
-    res[index] = !v[index];
+    res[index] = !v[index] ? t : f;
   return result;
 }
 
@@ -1878,15 +1914,18 @@ constexpr Vector<bool, kN> operator!(const Vector<Type, kN>& value) noexcept
   \return No description
   */
 template <Arithmetic Type, size_t kN> inline
-constexpr Vector<bool, kN> operator&&(const Vector<Type, kN>& lhs,
-                                      const Vector<Type, kN>& rhs) noexcept
+constexpr CompResultVec<Type, kN> operator&&(const Vector<Type, kN>& lhs,
+                                             const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<bool, kN> result{false};
+  using ResultT = CompResultVec<Type, kN>;
+  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
+  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
+  ResultT result{f};
   typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
   typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
   typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    res[index] = l[index] && r[index];
+    res[index] = (l[index] && r[index]) ? t : f;
   return result;
 }
 
@@ -1901,14 +1940,17 @@ constexpr Vector<bool, kN> operator&&(const Vector<Type, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-constexpr Vector<bool, kN> operator&&(const Type1& lhs,
-                                      const Vector<Type2, kN>& rhs) noexcept
+constexpr CompResultVec<Type2, kN> operator&&(const Type1& lhs,
+                                              const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<bool, kN> result{false};
+  using ResultT = CompResultVec<Type2, kN>;
+  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
+  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
+  ResultT result{f};
   typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
   typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    res[index] = lhs && r[index];
+    res[index] = (lhs && r[index]) ? t : f;
   return result;
 }
 
@@ -1923,8 +1965,8 @@ constexpr Vector<bool, kN> operator&&(const Type1& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-constexpr Vector<bool, kN> operator&&(const Vector<Type1, kN>& lhs,
-                                      const Type2& rhs) noexcept
+constexpr CompResultVec<Type1, kN> operator&&(const Vector<Type1, kN>& lhs,
+                                              const Type2& rhs) noexcept
 {
   return (rhs && lhs);
 }
@@ -1939,15 +1981,18 @@ constexpr Vector<bool, kN> operator&&(const Vector<Type1, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type, size_t kN> inline
-constexpr Vector<bool, kN> operator||(const Vector<Type, kN>& lhs,
-                                      const Vector<Type, kN>& rhs) noexcept
+constexpr CompResultVec<Type, kN> operator||(const Vector<Type, kN>& lhs,
+                                             const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<bool, kN> result{false};
+  using ResultT = CompResultVec<Type, kN>;
+  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
+  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
+  ResultT result{f};
   typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
   typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
   typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    res[index] = l[index] || r[index];
+    res[index] = (l[index] || r[index]) ? t : f;
   return result;
 }
 
@@ -1962,14 +2007,17 @@ constexpr Vector<bool, kN> operator||(const Vector<Type, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-constexpr Vector<bool, kN> operator||(const Type1& lhs,
-                                      const Vector<Type2, kN>& rhs) noexcept
+constexpr CompResultVec<Type2, kN> operator||(const Type1& lhs,
+                                              const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<bool, kN> result{false};
+  using ResultT = CompResultVec<Type2, kN>;
+  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
+  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
+  ResultT result{f};
   typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
   typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    res[index] = lhs || r[index];
+    res[index] = (lhs || r[index]) ? t : f;
   return result;
 }
 
@@ -1984,8 +2032,8 @@ constexpr Vector<bool, kN> operator||(const Type1& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-constexpr Vector<bool, kN> operator||(const Vector<Type1, kN>& lhs,
-                                      const Type2& rhs) noexcept
+constexpr CompResultVec<Type1, kN> operator||(const Vector<Type1, kN>& lhs,
+                                              const Type2& rhs) noexcept
 {
   return (rhs || lhs);
 }
@@ -2000,15 +2048,18 @@ constexpr Vector<bool, kN> operator||(const Vector<Type1, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type, size_t kN> inline
-constexpr Vector<bool, kN> operator==(const Vector<Type, kN>& lhs,
-                                      const Vector<Type, kN>& rhs) noexcept
+constexpr CompResultVec<Type, kN> operator==(const Vector<Type, kN>& lhs,
+                                             const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<bool, kN> result{false};
+  using ResultT = CompResultVec<Type, kN>;
+  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
+  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
+  ResultT result{f};
   typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
   typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
   typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    res[index] = zisc::equal(l[index], r[index]);
+    res[index] = zisc::equal(l[index], r[index]) ? t : f;
   return result;
 }
 
@@ -2023,14 +2074,17 @@ constexpr Vector<bool, kN> operator==(const Vector<Type, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-constexpr Vector<bool, kN> operator==(const Type1& lhs,
-                                      const Vector<Type2, kN>& rhs) noexcept
+constexpr CompResultVec<Type2, kN> operator==(const Type1& lhs,
+                                              const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<bool, kN> result{false};
+  using ResultT = CompResultVec<Type2, kN>;
+  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
+  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
+  ResultT result{f};
   typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
   typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    res[index] = zisc::equal(lhs, r[index]);
+    res[index] = zisc::equal(lhs, r[index]) ? t : f;
   return result;
 }
 
@@ -2045,8 +2099,8 @@ constexpr Vector<bool, kN> operator==(const Type1& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-constexpr Vector<bool, kN> operator==(const Vector<Type1, kN>& lhs,
-                                      const Type2& rhs) noexcept
+constexpr CompResultVec<Type1, kN> operator==(const Vector<Type1, kN>& lhs,
+                                              const Type2& rhs) noexcept
 {
   return (rhs == lhs);
 }
@@ -2061,15 +2115,18 @@ constexpr Vector<bool, kN> operator==(const Vector<Type1, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type, size_t kN> inline
-constexpr Vector<bool, kN> operator!=(const Vector<Type, kN>& lhs,
-                                      const Vector<Type, kN>& rhs) noexcept
+constexpr CompResultVec<Type, kN> operator!=(const Vector<Type, kN>& lhs,
+                                             const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<bool, kN> result{false};
+  using ResultT = CompResultVec<Type, kN>;
+  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
+  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
+  ResultT result{f};
   typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
   typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
   typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    res[index] = !zisc::equal(l[index], r[index]);
+    res[index] = !zisc::equal(l[index], r[index]) ? t : f;
   return result;
 }
 
@@ -2084,14 +2141,17 @@ constexpr Vector<bool, kN> operator!=(const Vector<Type, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-constexpr Vector<bool, kN> operator!=(const Type1& lhs,
-                                      const Vector<Type2, kN>& rhs) noexcept
+constexpr CompResultVec<Type2, kN> operator!=(const Type1& lhs,
+                                              const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<bool, kN> result{false};
+  using ResultT = CompResultVec<Type2, kN>;
+  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
+  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
+  ResultT result{f};
   typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
   typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    res[index] = !zisc::equal(lhs, r[index]);
+    res[index] = !zisc::equal(lhs, r[index]) ? t : f;
   return result;
 }
 
@@ -2106,8 +2166,8 @@ constexpr Vector<bool, kN> operator!=(const Type1& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-constexpr Vector<bool, kN> operator!=(const Vector<Type1, kN>& lhs,
-                                      const Type2& rhs) noexcept
+constexpr CompResultVec<Type1, kN> operator!=(const Vector<Type1, kN>& lhs,
+                                              const Type2& rhs) noexcept
 {
   return (rhs != lhs);
 }
@@ -2122,15 +2182,18 @@ constexpr Vector<bool, kN> operator!=(const Vector<Type1, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type, size_t kN> inline
-constexpr Vector<bool, kN> operator<(const Vector<Type, kN>& lhs,
-                                     const Vector<Type, kN>& rhs) noexcept
+constexpr CompResultVec<Type, kN> operator<(const Vector<Type, kN>& lhs,
+                                            const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<bool, kN> result{false};
+  using ResultT = CompResultVec<Type, kN>;
+  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
+  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
+  ResultT result{f};
   typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
   typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
   typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    res[index] = l[index] < r[index];
+    res[index] = (l[index] < r[index]) ? t : f;
   return result;
 }
 
@@ -2145,14 +2208,17 @@ constexpr Vector<bool, kN> operator<(const Vector<Type, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-constexpr Vector<bool, kN> operator<(const Type1& lhs,
-                                     const Vector<Type2, kN>& rhs) noexcept
+constexpr CompResultVec<Type2, kN> operator<(const Type1& lhs,
+                                             const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<bool, kN> result{false};
+  using ResultT = CompResultVec<Type2, kN>;
+  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
+  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
+  ResultT result{f};
   typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
   typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    res[index] = lhs < r[index];
+    res[index] = (lhs < r[index]) ? t : f;
   return result;
 }
 
@@ -2167,8 +2233,8 @@ constexpr Vector<bool, kN> operator<(const Type1& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-constexpr Vector<bool, kN> operator<(const Vector<Type1, kN>& lhs,
-                                     const Type2& rhs) noexcept
+constexpr CompResultVec<Type1, kN> operator<(const Vector<Type1, kN>& lhs,
+                                             const Type2& rhs) noexcept
 {
   return (rhs > lhs);
 }
@@ -2183,15 +2249,18 @@ constexpr Vector<bool, kN> operator<(const Vector<Type1, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type, size_t kN> inline
-constexpr Vector<bool, kN> operator<=(const Vector<Type, kN>& lhs,
-                                      const Vector<Type, kN>& rhs) noexcept
+constexpr CompResultVec<Type, kN> operator<=(const Vector<Type, kN>& lhs,
+                                             const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<bool, kN> result{false};
+  using ResultT = CompResultVec<Type, kN>;
+  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
+  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
+  ResultT result{f};
   typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
   typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
   typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    res[index] = l[index] <= r[index];
+    res[index] = (l[index] <= r[index]) ? t : f;
   return result;
 }
 
@@ -2206,14 +2275,17 @@ constexpr Vector<bool, kN> operator<=(const Vector<Type, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-constexpr Vector<bool, kN> operator<=(const Type1& lhs,
-                                      const Vector<Type2, kN>& rhs) noexcept
+constexpr CompResultVec<Type2, kN> operator<=(const Type1& lhs,
+                                              const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<bool, kN> result{false};
+  using ResultT = CompResultVec<Type2, kN>;
+  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
+  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
+  ResultT result{f};
   typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
   typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    res[index] = lhs <= r[index];
+    res[index] = (lhs <= r[index]) ? t : f;
   return result;
 }
 
@@ -2228,8 +2300,8 @@ constexpr Vector<bool, kN> operator<=(const Type1& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-constexpr Vector<bool, kN> operator<=(const Vector<Type1, kN>& lhs,
-                                      const Type2& rhs) noexcept
+constexpr CompResultVec<Type1, kN> operator<=(const Vector<Type1, kN>& lhs,
+                                              const Type2& rhs) noexcept
 {
   return (rhs >= lhs);
 }
@@ -2244,15 +2316,18 @@ constexpr Vector<bool, kN> operator<=(const Vector<Type1, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type, size_t kN> inline
-constexpr Vector<bool, kN> operator>(const Vector<Type, kN>& lhs,
-                                     const Vector<Type, kN>& rhs) noexcept
+constexpr CompResultVec<Type, kN> operator>(const Vector<Type, kN>& lhs,
+                                            const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<bool, kN> result{false};
+  using ResultT = CompResultVec<Type, kN>;
+  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
+  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
+  ResultT result{f};
   typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
   typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
   typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    res[index] = l[index] > r[index];
+    res[index] = (l[index] > r[index]) ? t : f;
   return result;
 }
 
@@ -2267,14 +2342,17 @@ constexpr Vector<bool, kN> operator>(const Vector<Type, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-constexpr Vector<bool, kN> operator>(const Type1& lhs,
-                                     const Vector<Type2, kN>& rhs) noexcept
+constexpr CompResultVec<Type2, kN> operator>(const Type1& lhs,
+                                             const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<bool, kN> result{false};
+  using ResultT = CompResultVec<Type2, kN>;
+  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
+  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
+  ResultT result{f};
   typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
   typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    res[index] = lhs > r[index];
+    res[index] = (lhs > r[index]) ? t : f;
   return result;
 }
 
@@ -2289,8 +2367,8 @@ constexpr Vector<bool, kN> operator>(const Type1& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-constexpr Vector<bool, kN> operator>(const Vector<Type1, kN>& lhs,
-                                     const Type2& rhs) noexcept
+constexpr CompResultVec<Type1, kN> operator>(const Vector<Type1, kN>& lhs,
+                                             const Type2& rhs) noexcept
 {
   return (rhs < lhs);
 }
@@ -2305,15 +2383,18 @@ constexpr Vector<bool, kN> operator>(const Vector<Type1, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type, size_t kN> inline
-constexpr Vector<bool, kN> operator>=(const Vector<Type, kN>& lhs,
-                                      const Vector<Type, kN>& rhs) noexcept
+constexpr CompResultVec<Type, kN> operator>=(const Vector<Type, kN>& lhs,
+                                             const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<bool, kN> result{false};
+  using ResultT = CompResultVec<Type, kN>;
+  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
+  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
+  ResultT result{f};
   typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
   typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
   typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    res[index] = l[index] >= r[index];
+    res[index] = (l[index] >= r[index]) ? t : f;
   return result;
 }
 
@@ -2328,14 +2409,17 @@ constexpr Vector<bool, kN> operator>=(const Vector<Type, kN>& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-constexpr Vector<bool, kN> operator>=(const Type1& lhs,
-                                      const Vector<Type2, kN>& rhs) noexcept
+constexpr CompResultVec<Type2, kN> operator>=(const Type1& lhs,
+                                              const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<bool, kN> result{false};
+  using ResultT = CompResultVec<Type2, kN>;
+  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
+  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
+  ResultT result{f};
   typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
   typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
   for (size_t index = 0; index < kN; ++index)
-    res[index] = lhs >= r[index];
+    res[index] = (lhs >= r[index]) ? t : f;
   return result;
 }
 
@@ -2350,8 +2434,8 @@ constexpr Vector<bool, kN> operator>=(const Type1& lhs,
   \return No description
   */
 template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
-constexpr Vector<bool, kN> operator>=(const Vector<Type1, kN>& lhs,
-                                      const Type2& rhs) noexcept
+constexpr CompResultVec<Type1, kN> operator>=(const Vector<Type1, kN>& lhs,
+                                              const Type2& rhs) noexcept
 {
   return (rhs <= lhs);
 }

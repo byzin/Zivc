@@ -11,308 +11,305 @@
 #define ZIVC_CPUCL_RELATIONAL_HPP
 
 // Standard C++ library
+#include <concepts>
 #include <cstddef>
 // Zisc
-#include "zisc/utility.hpp"
+#include "zisc/concepts.hpp"
 // Zivc
 #include "types.hpp"
 #include "vector.hpp"
 #include "zivc/zivc_config.hpp"
 
-//namespace zivc {
-//
-//namespace cl {
-//
-///*!
-//  */
-//class Relation
-//{
-// public:
-//  //! Return the component-wize compare of lhs == rhs
-//  static int32b isequal(const float lhs, const float rhs) noexcept;
-//
-//  //! Return the component-wize compare of lhs == rhs
-//  static int32b isequal(const double lhs, const double rhs) noexcept;
-//
-//  //! Return the component-wize compare of lhs == rhs
-//  template <typename Float, size_t kN>
-//  static Vector<Config::ComparisonResultType<Float>, kN> isequal(
-//      const Vector<Float, kN>& lhs,
-//      const Vector<Float, kN>& rhs) noexcept;
-//
-//  //! Return the component-wize compare of lhs != rhs
-//  static int32b isnotequal(const float lhs, const float rhs) noexcept;
-//
-//  //! Return the component-wize compare of lhs != rhs
-//  static int32b isnotequal(const double lhs, const double rhs) noexcept;
-//
-//  //! Return the component-wize compare of lhs != rhs
-//  template <typename Float, size_t kN>
-//  static Vector<Config::ComparisonResultType<Float>, kN> isnotequal(
-//      const Vector<Float, kN>& lhs,
-//      const Vector<Float, kN>& rhs) noexcept;
-//
-//  //! Return the component-wize compare of lhs > rhs
-//  static int32b isgreater(const float lhs, const float rhs) noexcept;
-//
-//  //! Return the component-wize compare of lhs > rhs
-//  static int32b isgreater(const double lhs, const double rhs) noexcept;
-//
-//  //! Return the component-wize compare of lhs > rhs
-//  template <typename Float, size_t kN>
-//  static Vector<Config::ComparisonResultType<Float>, kN> isgreater(
-//      const Vector<Float, kN>& lhs,
-//      const Vector<Float, kN>& rhs) noexcept;
-//
-//  //! Return the component-wize compare of lhs >= rhs
-//  static int32b isgreaterequal(const float lhs, const float rhs) noexcept;
-//
-//  //! Return the component-wize compare of lhs >= rhs
-//  static int32b isgreaterequal(const double lhs, const double rhs) noexcept;
-//
-//  //! Return the component-wize compare of lhs >= rhs
-//  template <typename Float, size_t kN>
-//  static Vector<Config::ComparisonResultType<Float>, kN> isgreaterequal(
-//      const Vector<Float, kN>& lhs,
-//      const Vector<Float, kN>& rhs) noexcept;
-//
-//  //! Return the component-wize compare of lhs < rhs
-//  static int32b isless(const float lhs, const float rhs) noexcept;
-//
-//  //! Return the component-wize compare of lhs < rhs
-//  static int32b isless(const double lhs, const double rhs) noexcept;
-//
-//  //! Return the component-wize compare of lhs < rhs
-//  template <typename Float, size_t kN>
-//  static Vector<Config::ComparisonResultType<Float>, kN> isless(
-//      const Vector<Float, kN>& lhs,
-//      const Vector<Float, kN>& rhs) noexcept;
-//
-//  //! Return the component-wize compare of lhs <= rhs
-//  static int32b islessequal(const float lhs, const float rhs) noexcept;
-//
-//  //! Return the component-wize compare of lhs <= rhs
-//  static int32b islessequal(const double lhs, const double rhs) noexcept;
-//
-//  //! Return the component-wize compare of lhs <= rhs
-//  template <typename Float, size_t kN>
-//  static Vector<Config::ComparisonResultType<Float>, kN> islessequal(
-//      const Vector<Float, kN>& lhs,
-//      const Vector<Float, kN>& rhs) noexcept;
-//
-//  //! Determin if the given floating point is a positive or negative infinity
-//  static int32b isinf(const float value) noexcept;
-//
-//  //! Determin if the given floating point is a positive or negative infinity
-//  static int32b isinf(const double value) noexcept;
-//
-//  //! Determin if the given floating point is a positive or negative infinity
-//  template <typename Float, size_t kN>
-//  static Vector<Config::ComparisonResultType<Float>, kN> isinf(
-//      const Vector<Float, kN>& value) noexcept;
-//
-//  //! Determin if the given floating point is a Nan
-//  static int32b isnan(const float value) noexcept;
-//
-//  //! Determin if the given floating point is a Nan
-//  static int32b isnan(const double value) noexcept;
-//
-//  //! Determin if the given floating point is a Nan
-//  template <typename Float, size_t kN>
-//  static Vector<Config::ComparisonResultType<Float>, kN> isnan(
-//      const Vector<Float, kN>& value) noexcept;
-//
-//  //! Determin if the given floating point is negative
-//  static int32b signbit(const float value) noexcept;
-//
-//  //! Determin if the given floating point is negative
-//  static int32b signbit(const double value) noexcept;
-//
-//  //! Determin if the given floating point is negative
-//  template <typename Float, size_t kN>
-//  static Vector<Config::ComparisonResultType<Float>, kN> signbit(
-//      const Vector<Float, kN>& value) noexcept;
-//
-//  //! Each component of the result is set to (a[i] ^ c[i]) | (b[i] & c[i])
-//  template <typename TypeN>
-//  static TypeN bitselect(const TypeN& a, const TypeN& b, const TypeN& c) noexcept;
-//
-//  //! Each component of the result is set to c[i] ? b[i] : a[i]
-//  template <typename TypeN, typename IntegerN>
-//  static TypeN select(const TypeN& a, const TypeN& b, const IntegerN& c) noexcept;
-//
-// private:
-//  //! Return the component-wize compare of lhs == rhs
-//  template <typename Float>
-//  static int32b isequalImpl(const Float lhs, const Float rhs) noexcept;
-//
-//  //! Return the component-wize compare of lhs != rhs
-//  template <typename Float>
-//  static int32b isnotequalImpl(const Float lhs, const Float rhs) noexcept;
-//
-//  //! Return the component-wize compare of lhs > rhs
-//  template <typename Float>
-//  static int32b isgreaterImpl(const Float lhs, const Float rhs) noexcept;
-//
-//  //! Return the component-wize compare of lhs >= rhs
-//  template <typename Float>
-//  static int32b isgreaterequalImpl(const Float lhs, const Float rhs) noexcept;
-//
-//  //! Return the component-wize compare of lhs < rhs
-//  template <typename Float>
-//  static int32b islessImpl(const Float lhs, const Float rhs) noexcept;
-//
-//  //! Return the component-wize compare of lhs <= rhs
-//  template <typename Float>
-//  static int32b islessequalImpl(const Float lhs, const Float rhs) noexcept;
-//
-//  //! Determin if the given floating point is a positive or negative infinity
-//  template <typename Float>
-//  static int32b isinfImpl(const Float value) noexcept;
-//
-//  //! Determin if the given floating point is a Nan
-//  template <typename Float>
-//  static int32b isnanImpl(const Float value) noexcept;
-//
-//  //! Determin if the given floating point is negative
-//  template <typename Float>
-//  static int32b signbitImpl(const Float value) noexcept;
-//
-//  /*!
-//    */
-//  class Vec
-//  {
-//   public:
-//    //! Each component of the result is set to (a[i] ^ c[i]) | (b[i] & c[i])
-//    template <typename Type, size_t kN>
-//    static Vector<Type, kN> bitselect(const Vector<Type, kN>& a,
-//                                      const Vector<Type, kN>& b,
-//                                      const Vector<Type, kN>& c) noexcept;
-//
-//    //! Each component of the result is set to c[i] ? b[i] : a[i]
-//    template <typename Type, typename Integer, size_t kN>
-//    static Vector<Type, kN> select(const Vector<Type, kN>& a,
-//                                   const Vector<Type, kN>& b,
-//                                   const Vector<Integer, kN>& c) noexcept;
-//  };
-//};
-//
-////! Return the component-wize compare of lhs == rhs
-//int32b isequal(const float lhs, const float rhs) noexcept;
-//
-////! Return the component-wize compare of lhs == rhs
-//int32b isequal(const double lhs, const double rhs) noexcept;
-//
-////! Return the component-wize compare of lhs == rhs
-//template <typename Float, size_t kN>
-//Vector<Config::ComparisonResultType<Float>, kN> isequal(
-//    const Vector<Float, kN>& lhs,
-//    const Vector<Float, kN>& rhs) noexcept;
-//
-////! Return the component-wize compare of lhs != rhs
-//int32b isnotequal(const float lhs, const float rhs) noexcept;
-//
-////! Return the component-wize compare of lhs != rhs
-//int32b isnotequal(const double lhs, const double rhs) noexcept;
-//
-////! Return the component-wize compare of lhs != rhs
-//template <typename Float, size_t kN>
-//Vector<Config::ComparisonResultType<Float>, kN> isnotequal(
-//    const Vector<Float, kN>& lhs,
-//    const Vector<Float, kN>& rhs) noexcept;
-//
-////! Return the component-wize compare of lhs > rhs
-//int32b isgreater(const float lhs, const float rhs) noexcept;
-//
-////! Return the component-wize compare of lhs > rhs
-//int32b isgreater(const double lhs, const double rhs) noexcept;
-//
-////! Return the component-wize compare of lhs > rhs
-//template <typename Float, size_t kN>
-//Vector<Config::ComparisonResultType<Float>, kN> isgreater(
-//    const Vector<Float, kN>& lhs,
-//    const Vector<Float, kN>& rhs) noexcept;
-//
-////! Return the component-wize compare of lhs >= rhs
-//int32b isgreaterequal(const float lhs, const float rhs) noexcept;
-//
-////! Return the component-wize compare of lhs >= rhs
-//int32b isgreaterequal(const double lhs, const double rhs) noexcept;
-//
-////! Return the component-wize compare of lhs >= rhs
-//template <typename Float, size_t kN>
-//Vector<Config::ComparisonResultType<Float>, kN> isgreaterequal(
-//    const Vector<Float, kN>& lhs,
-//    const Vector<Float, kN>& rhs) noexcept;
-//
-////! Return the component-wize compare of lhs < rhs
-//int32b isless(const float lhs, const float rhs) noexcept;
-//
-////! Return the component-wize compare of lhs < rhs
-//int32b isless(const double lhs, const double rhs) noexcept;
-//
-////! Return the component-wize compare of lhs < rhs
-//template <typename Float, size_t kN>
-//Vector<Config::ComparisonResultType<Float>, kN> isless(
-//    const Vector<Float, kN>& lhs,
-//    const Vector<Float, kN>& rhs) noexcept;
-//
-////! Return the component-wize compare of lhs <= rhs
-//int32b islessequal(const float lhs, const float rhs) noexcept;
-//
-////! Return the component-wize compare of lhs <= rhs
-//int32b islessequal(const double lhs, const double rhs) noexcept;
-//
-////! Return the component-wize compare of lhs <= rhs
-//template <typename Float, size_t kN>
-//Vector<Config::ComparisonResultType<Float>, kN> islessequal(
-//    const Vector<Float, kN>& lhs,
-//    const Vector<Float, kN>& rhs) noexcept;
-//
-////! Determin if the given floating point is a positive or negative infinity
-//int32b isinf(const float value) noexcept;
-//
-////! Determin if the given floating point is a positive or negative infinity
-//int32b isinf(const double value) noexcept;
-//
-////! Determin if the given floating point is a positive or negative infinity
-//template <typename Float, size_t kN>
-//Vector<Config::ComparisonResultType<Float>, kN> isinf(
-//    const Vector<Float, kN>& value) noexcept;
-//
-////! Determin if the given floating point is a Nan
-//int32b isnan(const float value) noexcept;
-//
-////! Determin if the given floating point is a Nan
-//int32b isnan(const double value) noexcept;
-//
-////! Determin if the given floating point is a Nan
-//template <typename Float, size_t kN>
-//Vector<Config::ComparisonResultType<Float>, kN> isnan(
-//    const Vector<Float, kN>& value) noexcept;
-//
-////! Determin if the given floating point is negative
-//int32b signbit(const float value) noexcept;
-//
-////! Determin if the given floating point is negative
-//int32b signbit(const double value) noexcept;
-//
-////! Determin if the given floating point is negative
-//template <typename Float, size_t kN>
-//Vector<Config::ComparisonResultType<Float>, kN> signbit(
-//    const Vector<Float, kN>& value) noexcept;
-//
-////! Each component of the result is set to (a[i] ^ c[i]) | (b[i] & c[i])
-//template <typename TypeN>
-//TypeN bitselect(const TypeN& a, const TypeN& b, const TypeN& c) noexcept;
-//
-////! Each component of the result is set to c[i] ? b[i] : a[i]
-//template <typename TypeN, typename IntegerN>
-//TypeN select(const TypeN& a, const TypeN& b, const IntegerN& c) noexcept;
-//
-//} // namespace cl
-//
-//} // namespace zivc
+namespace zivc::cl {
+
+/*!
+  \brief No brief description
+
+  No detailed description.
+  */
+class Relation
+{
+ public:
+  //! Return the component-wize compare of lhs == rhs
+  template <std::floating_point Float>
+  static CompResult<Float> isequal(const Float lhs, const Float rhs) noexcept;
+
+  //! Return the component-wize compare of lhs == rhs
+  template <std::floating_point Float, size_t kN>
+  static CompResultVec<Float, kN> isequal(const Vector<Float, kN>& lhs,
+                                          const Vector<Float, kN>& rhs) noexcept;
+
+  //! Return the component-wize compare of lhs != rhs
+  template <std::floating_point Float>
+  static CompResult<Float> isnotequal(const Float lhs, const Float rhs) noexcept;
+
+  //! Return the component-wize compare of lhs != rhs
+  template <std::floating_point Float, size_t kN>
+  static CompResultVec<Float, kN> isnotequal(const Vector<Float, kN>& lhs,
+                                             const Vector<Float, kN>& rhs) noexcept;
+
+  //! Return the component-wize compare of lhs > rhs
+  template <std::floating_point Float>
+  static CompResult<Float> isgreater(const Float lhs, const Float rhs) noexcept;
+
+  //! Return the component-wize compare of lhs > rhs
+  template <std::floating_point Float, size_t kN>
+  static CompResultVec<Float, kN> isgreater(const Vector<Float, kN>& lhs,
+                                            const Vector<Float, kN>& rhs) noexcept;
+
+  //! Return the component-wize compare of lhs >= rhs
+  template <std::floating_point Float>
+  static CompResult<Float> isgreaterequal(const Float lhs, const Float rhs) noexcept;
+
+  //! Return the component-wize compare of lhs >= rhs
+  template <std::floating_point Float, size_t kN>
+  static CompResultVec<Float, kN> isgreaterequal(const Vector<Float, kN>& lhs,
+                                                 const Vector<Float, kN>& rhs) noexcept;
+
+  //! Return the component-wize compare of lhs < rhs
+  template <std::floating_point Float>
+  static CompResult<Float> isless(const Float lhs, const Float rhs) noexcept;
+
+  //! Return the component-wize compare of lhs < rhs
+  template <std::floating_point Float, size_t kN>
+  static CompResultVec<Float, kN> isless(const Vector<Float, kN>& lhs,
+                                         const Vector<Float, kN>& rhs) noexcept;
+
+  //! Return the component-wize compare of lhs <= rhs
+  template <std::floating_point Float>
+  static CompResult<Float> islessequal(const Float lhs, const Float rhs) noexcept;
+
+  //! Return the component-wize compare of lhs <= rhs
+  template <std::floating_point Float, size_t kN>
+  static CompResultVec<Float, kN> islessequal(const Vector<Float, kN>& lhs,
+                                              const Vector<Float, kN>& rhs) noexcept;
+
+  //! Return the component-wize compare of (lhs < rhs) || (lhs > rhs)
+  template <std::floating_point Float>
+  static CompResult<Float> islessgreater(const Float lhs, const Float rhs) noexcept;
+
+  //! Return the component-wize compare of (lhs < rhs) || (lhs > rhs)
+  template <std::floating_point Float, size_t kN>
+  static CompResultVec<Float, kN> islessgreater(const Vector<Float, kN>& lhs,
+                                                const Vector<Float, kN>& rhs) noexcept;
+
+  //! Determin if the given floating point is a finite value 
+  template <std::floating_point Float>
+  static CompResult<Float> isfinite(const Float value) noexcept;
+
+  //! Determin if the given floating point is a finite value
+  template <std::floating_point Float, size_t kN>
+  static CompResultVec<Float, kN> isfinite(const Vector<Float, kN>& value) noexcept;
+
+  //! Determin if the given floating point is a positive or negative infinity
+  template <std::floating_point Float>
+  static CompResult<Float> isinf(const Float value) noexcept;
+
+  //! Determin if the given floating point is a positive or negative infinity
+  template <std::floating_point Float, size_t kN>
+  static CompResultVec<Float, kN> isinf(const Vector<Float, kN>& value) noexcept;
+
+  //! Determin if the given floating point is a Nan
+  template <std::floating_point Float>
+  static CompResult<Float> isnan(const Float value) noexcept;
+
+  //! Determin if the given floating point is a Nan
+  template <std::floating_point Float, size_t kN>
+  static CompResultVec<Float, kN> isnan(const Vector<Float, kN>& value) noexcept;
+
+  //! Determin if the given floating point is a normal value 
+  template <std::floating_point Float>
+  static CompResult<Float> isnormal(const Float value) noexcept;
+
+  //! Determin if the given floating point is a normal value
+  template <std::floating_point Float, size_t kN>
+  static CompResultVec<Float, kN> isnormal(const Vector<Float, kN>& value) noexcept;
+
+  //! Determin if the given floating point is negative
+  template <std::floating_point Float>
+  static CompResult<Float> signbit(const Float value) noexcept;
+
+  //! Determin if the given floating point is negative
+  template <std::floating_point Float, size_t kN>
+  static CompResultVec<Float, kN> signbit(const Vector<Float, kN>& value) noexcept;
+
+  //! Return 1 if the msb in any component of x is set; otherwise return 0
+  template <std::integral Integer>
+  static int32b any(const Integer x) noexcept;
+
+  //! Return 1 if the msb in any component of x is set; otherwise return 0
+  template <std::integral Integer, size_t kN>
+  static int32b any(const Vector<Integer, kN>& x) noexcept;
+
+  //! Return 1 if the msb in all component of x is set; otherwise return 0
+  template <std::integral Integer>
+  static int32b all(const Integer x) noexcept;
+
+  //! Return 1 if the msb in all component of x is set; otherwise return 0
+  template <std::integral Integer, size_t kN>
+  static int32b all(const Vector<Integer, kN>& x) noexcept;
+
+  //! Each component of the result is set to (a[i] ^ c[i]) | (b[i] & c[i])
+  template <zisc::Scalar Type>
+  static Type bitselect(const Type a, const Type b, const Type c) noexcept;
+
+  //! Each component of the result is set to (a[i] ^ c[i]) | (b[i] & c[i])
+  template <zisc::Scalar Type, size_t kN>
+  static Vector<Type, kN> bitselect(const Vector<Type, kN>& a,
+                                    const Vector<Type, kN>& b,
+                                    const Vector<Type, kN>& c) noexcept;
+
+  //! Each component of the result is set to c[i] ? b[i] : a[i]
+  template <zisc::Scalar Type, std::integral Integer>
+  static Type select(const Type a, const Type b, const Integer c) noexcept;
+
+  //! Each component of the result is set to c[i] ? b[i] : a[i]
+  template <zisc::Scalar Type, std::integral Integer, size_t kN>
+  static Vector<Type, kN> select(const Vector<Type, kN>& a,
+                                 const Vector<Type, kN>& b,
+                                 const Vector<Integer, kN>& c) noexcept;
+};
+
+//! Return the component-wize compare of lhs == rhs
+template <std::floating_point Float>
+CompResult<Float> isequal(const Float lhs, const Float rhs) noexcept;
+
+//! Return the component-wize compare of lhs == rhs
+template <std::floating_point Float, size_t kN>
+CompResultVec<Float, kN> isequal(const Vector<Float, kN>& lhs,
+                                 const Vector<Float, kN>& rhs) noexcept;
+
+//! Return the component-wize compare of lhs != rhs
+template <std::floating_point Float>
+CompResult<Float> isnotequal(const Float lhs, const Float rhs) noexcept;
+
+//! Return the component-wize compare of lhs != rhs
+template <std::floating_point Float, size_t kN>
+CompResultVec<Float, kN> isnotequal(const Vector<Float, kN>& lhs,
+                                    const Vector<Float, kN>& rhs) noexcept;
+
+//! Return the component-wize compare of lhs > rhs
+template <std::floating_point Float>
+CompResult<Float> isgreater(const Float lhs, const Float rhs) noexcept;
+
+//! Return the component-wize compare of lhs > rhs
+template <std::floating_point Float, size_t kN>
+CompResultVec<Float, kN> isgreater(const Vector<Float, kN>& lhs,
+                                   const Vector<Float, kN>& rhs) noexcept;
+
+//! Return the component-wize compare of lhs >= rhs
+template <std::floating_point Float>
+CompResult<Float> isgreaterequal(const Float lhs, const Float rhs) noexcept;
+
+//! Return the component-wize compare of lhs >= rhs
+template <std::floating_point Float, size_t kN>
+CompResultVec<Float, kN> isgreaterequal(const Vector<Float, kN>& lhs,
+                                        const Vector<Float, kN>& rhs) noexcept;
+
+//! Return the component-wize compare of lhs < rhs
+template <std::floating_point Float>
+CompResult<Float> isless(const Float lhs, const Float rhs) noexcept;
+
+//! Return the component-wize compare of lhs < rhs
+template <std::floating_point Float, size_t kN>
+CompResultVec<Float, kN> isless(const Vector<Float, kN>& lhs,
+                                const Vector<Float, kN>& rhs) noexcept;
+
+//! Return the component-wize compare of lhs <= rhs
+template <std::floating_point Float>
+CompResult<Float> islessequal(const Float lhs, const Float rhs) noexcept;
+
+//! Return the component-wize compare of lhs <= rhs
+template <std::floating_point Float, size_t kN>
+CompResultVec<Float, kN> islessequal(const Vector<Float, kN>& lhs,
+                                     const Vector<Float, kN>& rhs) noexcept;
+
+//! Return the component-wize compare of (lhs < rhs) || (lhs > rhs)
+template <std::floating_point Float>
+CompResult<Float> islessgreater(const Float lhs, const Float rhs) noexcept;
+
+//! Return the component-wize compare of (lhs < rhs) || (lhs > rhs)
+template <std::floating_point Float, size_t kN>
+CompResultVec<Float, kN> islessgreater(const Vector<Float, kN>& lhs,
+                                       const Vector<Float, kN>& rhs) noexcept;
+
+//! Determin if the given floating point is a finite value 
+template <std::floating_point Float>
+CompResult<Float> isfinite(const Float value) noexcept;
+
+//! Determin if the given floating point is a finite value
+template <std::floating_point Float, size_t kN>
+CompResultVec<Float, kN> isfinite(const Vector<Float, kN>& value) noexcept;
+
+//! Determin if the given floating point is a positive or negative infinity
+template <std::floating_point Float>
+CompResult<Float> isinf(const Float value) noexcept;
+
+//! Determin if the given floating point is a positive or negative infinity
+template <std::floating_point Float, size_t kN>
+CompResultVec<Float, kN> isinf(const Vector<Float, kN>& value) noexcept;
+
+//! Determin if the given floating point is a Nan
+template <std::floating_point Float>
+CompResult<Float> isnan(const Float value) noexcept;
+
+//! Determin if the given floating point is a Nan
+template <std::floating_point Float, size_t kN>
+CompResultVec<Float, kN> isnan(const Vector<Float, kN>& value) noexcept;
+
+//! Determin if the given floating point is a normal value 
+template <std::floating_point Float>
+CompResult<Float> isnormal(const Float value) noexcept;
+
+//! Determin if the given floating point is a normal value
+template <std::floating_point Float, size_t kN>
+CompResultVec<Float, kN> isnormal(const Vector<Float, kN>& value) noexcept;
+
+//! Determin if the given floating point is negative
+template <std::floating_point Float>
+CompResult<Float> signbit(const Float value) noexcept;
+
+//! Determin if the given floating point is negative
+template <std::floating_point Float, size_t kN>
+CompResultVec<Float, kN> signbit(const Vector<Float, kN>& value) noexcept;
+
+//! Return 1 if the msb in any component of x is set; otherwise return 0
+template <std::integral Integer>
+int32b any(const Integer x) noexcept;
+
+//! Return 1 if the msb in any component of x is set; otherwise return 0
+template <std::integral Integer, size_t kN>
+int32b any(const Vector<Integer, kN>& x) noexcept;
+
+//! Return 1 if the msb in all component of x is set; otherwise return 0
+template <std::integral Integer>
+int32b all(const Integer x) noexcept;
+
+//! Return 1 if the msb in all component of x is set; otherwise return 0
+template <std::integral Integer, size_t kN>
+int32b all(const Vector<Integer, kN>& x) noexcept;
+
+//! Each component of the result is set to (a[i] ^ c[i]) | (b[i] & c[i])
+template <zisc::Scalar Type>
+Type bitselect(const Type a, const Type b, const Type c) noexcept;
+
+//! Each component of the result is set to (a[i] ^ c[i]) | (b[i] & c[i])
+template <zisc::Scalar Type, size_t kN>
+Vector<Type, kN> bitselect(const Vector<Type, kN>& a,
+                           const Vector<Type, kN>& b,
+                           const Vector<Type, kN>& c) noexcept;
+
+//! Each component of the result is set to c[i] ? b[i] : a[i]
+template <zisc::Scalar Type, std::integral Integer>
+Type select(const Type a, const Type b, const Integer c) noexcept;
+
+//! Each component of the result is set to c[i] ? b[i] : a[i]
+template <zisc::Scalar Type, std::integral Integer, size_t kN>
+Vector<Type, kN> select(const Vector<Type, kN>& a,
+                        const Vector<Type, kN>& b,
+                        const Vector<Integer, kN>& c) noexcept;
+
+} // namespace zivc::cl
 
 #include "relational-inl.hpp"
 

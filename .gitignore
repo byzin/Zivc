@@ -127,10 +127,12 @@
 !/test/unittest/kernels/kernel_test_pod/*.cl
 !/test/unittest/kernels/cl_cpp_test1/
 !/test/unittest/kernels/cl_cpp_test1/*.cl
-!/test/unittest/kernels/cl_cpp_test_type/
-!/test/unittest/kernels/cl_cpp_test_type/*.cl
 !/test/unittest/kernels/cl_cpp_test_geometry/
 !/test/unittest/kernels/cl_cpp_test_geometry/*.cl
+!/test/unittest/kernels/cl_cpp_test_relation/
+!/test/unittest/kernels/cl_cpp_test_relation/*.cl
+!/test/unittest/kernels/cl_cpp_test_type/
+!/test/unittest/kernels/cl_cpp_test_type/*.cl
 !/test/unittest/utility/
 !/test/unittest/utility/*.hpp
 !/test/unittest/utility/*.cpp

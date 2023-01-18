@@ -366,6 +366,20 @@ struct alignas(4 * sizeof(T)) Vector<T, 4>
   };
 };
 
+// Comparison type
+
+//! Integer type that is used as a comparison result of the given type
+template <typename Type>
+struct CompResultType;
+
+//! Integer type that is used as a comparison result of the given type
+template <typename Type>
+using CompResult = typename CompResultType<std::remove_cvref_t<Type>>::ResultT;
+
+//! Integer type that is used as a comparison result of the given type
+template <Arithmetic Type, std::size_t kN>
+using CompResultVec = CompResult<Vector<Type, kN>>;
+
 #if defined(Z_CLANG)
 #pragma GCC diagnostic pop
 #pragma GCC diagnostic pop
@@ -653,129 +667,129 @@ constexpr Vector<Type1, kN> operator>>(const Vector<Type1, kN>& lhs,
 
 //! Logical NOT
 template <Arithmetic Type, size_t kN>
-constexpr Vector<bool, kN> operator!(const Vector<Type, kN>& value) noexcept;
+constexpr CompResultVec<Type, kN> operator!(const Vector<Type, kN>& value) noexcept;
 
 //! Logical AND
 template <Arithmetic Type, size_t kN>
-constexpr Vector<bool, kN> operator&&(const Vector<Type, kN>& lhs,
-                                      const Vector<Type, kN>& rhs) noexcept;
+constexpr CompResultVec<Type, kN> operator&&(const Vector<Type, kN>& lhs,
+                                             const Vector<Type, kN>& rhs) noexcept;
 
 //! Logical AND
 template <Arithmetic Type1, Arithmetic Type2, size_t kN>
-constexpr Vector<bool, kN> operator&&(const Type1& lhs,
-                                      const Vector<Type2, kN>& rhs) noexcept;
+constexpr CompResultVec<Type2, kN> operator&&(const Type1& lhs,
+                                              const Vector<Type2, kN>& rhs) noexcept;
 
 //! Logical AND
 template <Arithmetic Type1, Arithmetic Type2, size_t kN>
-constexpr Vector<bool, kN> operator&&(const Vector<Type1, kN>& lhs,
-                                      const Type2& rhs) noexcept;
+constexpr CompResultVec<Type1, kN> operator&&(const Vector<Type1, kN>& lhs,
+                                              const Type2& rhs) noexcept;
 
 //! Logical OR
 template <Arithmetic Type, size_t kN>
-constexpr Vector<bool, kN> operator||(const Vector<Type, kN>& lhs,
-                                      const Vector<Type, kN>& rhs) noexcept;
+constexpr CompResultVec<Type, kN> operator||(const Vector<Type, kN>& lhs,
+                                             const Vector<Type, kN>& rhs) noexcept;
 
 //! Logical OR
 template <Arithmetic Type1, Arithmetic Type2, size_t kN>
-constexpr Vector<bool, kN> operator||(const Type1& lhs,
-                                      const Vector<Type2, kN>& rhs) noexcept;
+constexpr CompResultVec<Type2, kN> operator||(const Type1& lhs,
+                                              const Vector<Type2, kN>& rhs) noexcept;
 
 //! Logical OR
 template <Arithmetic Type1, Arithmetic Type2, size_t kN>
-constexpr Vector<bool, kN> operator||(const Vector<Type1, kN>& lhs,
-                                      const Type2& rhs) noexcept;
+constexpr CompResultVec<Type1, kN> operator||(const Vector<Type1, kN>& lhs,
+                                              const Type2& rhs) noexcept;
 
 // Comparison
 
 //! Check if two values are equal in value
 template <Arithmetic Type, size_t kN>
-constexpr Vector<bool, kN> operator==(const Vector<Type, kN>& lhs,
-                                      const Vector<Type, kN>& rhs) noexcept;
+constexpr CompResultVec<Type, kN> operator==(const Vector<Type, kN>& lhs,
+                                             const Vector<Type, kN>& rhs) noexcept;
 
 //! Check if two values are equal in value
 template <Arithmetic Type1, Arithmetic Type2, size_t kN>
-constexpr Vector<bool, kN> operator==(const Type1& lhs,
-                                      const Vector<Type2, kN>& rhs) noexcept;
+constexpr CompResultVec<Type2, kN> operator==(const Type1& lhs,
+                                              const Vector<Type2, kN>& rhs) noexcept;
 
 //! Check if two values are equal in value
 template <Arithmetic Type1, Arithmetic Type2, size_t kN>
-constexpr Vector<bool, kN> operator==(const Vector<Type1, kN>& lhs,
-                                      const Type2& rhs) noexcept;
+constexpr CompResultVec<Type1, kN> operator==(const Vector<Type1, kN>& lhs,
+                                              const Type2& rhs) noexcept;
 
 //! Check if two values are equal in value
 template <Arithmetic Type, size_t kN>
-constexpr Vector<bool, kN> operator!=(const Vector<Type, kN>& lhs,
-                                      const Vector<Type, kN>& rhs) noexcept;
+constexpr CompResultVec<Type, kN> operator!=(const Vector<Type, kN>& lhs,
+                                             const Vector<Type, kN>& rhs) noexcept;
 
 //! Check if two values are equal in value
 template <Arithmetic Type1, Arithmetic Type2, size_t kN>
-constexpr Vector<bool, kN> operator!=(const Type1& lhs,
-                                      const Vector<Type2, kN>& rhs) noexcept;
+constexpr CompResultVec<Type2, kN> operator!=(const Type1& lhs,
+                                              const Vector<Type2, kN>& rhs) noexcept;
 
 //! Check if two values are equal in value
 template <Arithmetic Type1, Arithmetic Type2, size_t kN>
-constexpr Vector<bool, kN> operator!=(const Vector<Type1, kN>& lhs,
-                                      const Type2& rhs) noexcept;
+constexpr CompResultVec<Type1, kN> operator!=(const Vector<Type1, kN>& lhs,
+                                              const Type2& rhs) noexcept;
 
 //!
 template <Arithmetic Type, size_t kN>
-constexpr Vector<bool, kN> operator<(const Vector<Type, kN>& lhs,
-                                     const Vector<Type, kN>& rhs) noexcept;
+constexpr CompResultVec<Type, kN> operator<(const Vector<Type, kN>& lhs,
+                                            const Vector<Type, kN>& rhs) noexcept;
 
 //!
 template <Arithmetic Type1, Arithmetic Type2, size_t kN>
-constexpr Vector<bool, kN> operator<(const Type1& lhs,
-                                     const Vector<Type2, kN>& rhs) noexcept;
+constexpr CompResultVec<Type2, kN> operator<(const Type1& lhs,
+                                             const Vector<Type2, kN>& rhs) noexcept;
 
 //!
 template <Arithmetic Type1, Arithmetic Type2, size_t kN>
-constexpr Vector<bool, kN> operator<(const Vector<Type1, kN>& lhs,
-                                     const Type2& rhs) noexcept;
+constexpr CompResultVec<Type1, kN> operator<(const Vector<Type1, kN>& lhs,
+                                             const Type2& rhs) noexcept;
 
 //!
 template <Arithmetic Type, size_t kN>
-constexpr Vector<bool, kN> operator<=(const Vector<Type, kN>& lhs,
-                                      const Vector<Type, kN>& rhs) noexcept;
+constexpr CompResultVec<Type, kN> operator<=(const Vector<Type, kN>& lhs,
+                                             const Vector<Type, kN>& rhs) noexcept;
 
 //!
 template <Arithmetic Type1, Arithmetic Type2, size_t kN>
-constexpr Vector<bool, kN> operator<=(const Type1& lhs,
-                                      const Vector<Type2, kN>& rhs) noexcept;
+constexpr CompResultVec<Type2, kN> operator<=(const Type1& lhs,
+                                              const Vector<Type2, kN>& rhs) noexcept;
 
 //!
 template <Arithmetic Type1, Arithmetic Type2, size_t kN>
-constexpr Vector<bool, kN> operator<=(const Vector<Type1, kN>& lhs,
-                                      const Type2& rhs) noexcept;
+constexpr CompResultVec<Type1, kN> operator<=(const Vector<Type1, kN>& lhs,
+                                              const Type2& rhs) noexcept;
 
 //!
 template <Arithmetic Type, size_t kN>
-constexpr Vector<bool, kN> operator>(const Vector<Type, kN>& lhs,
-                                     const Vector<Type, kN>& rhs) noexcept;
+constexpr CompResultVec<Type, kN> operator>(const Vector<Type, kN>& lhs,
+                                            const Vector<Type, kN>& rhs) noexcept;
 
 //!
 template <Arithmetic Type1, Arithmetic Type2, size_t kN>
-constexpr Vector<bool, kN> operator>(const Type1& lhs,
-                                     const Vector<Type2, kN>& rhs) noexcept;
+constexpr CompResultVec<Type2, kN> operator>(const Type1& lhs,
+                                             const Vector<Type2, kN>& rhs) noexcept;
 
 //!
 template <Arithmetic Type1, Arithmetic Type2, size_t kN>
-constexpr Vector<bool, kN> operator>(const Vector<Type1, kN>& lhs,
-                                     const Type2& rhs) noexcept;
+constexpr CompResultVec<Type1, kN> operator>(const Vector<Type1, kN>& lhs,
+                                             const Type2& rhs) noexcept;
 
 //!
 template <Arithmetic Type, size_t kN>
-constexpr Vector<bool, kN> operator>=(const Vector<Type, kN>& lhs,
-                                      const Vector<Type, kN>& rhs) noexcept;
+constexpr CompResultVec<Type, kN> operator>=(const Vector<Type, kN>& lhs,
+                                             const Vector<Type, kN>& rhs) noexcept;
 
 //!
 template <Arithmetic Type1, Arithmetic Type2, size_t kN>
-constexpr Vector<bool, kN> operator>=(const Type1& lhs,
-                                      const Vector<Type2, kN>& rhs) noexcept;
+constexpr CompResultVec<Type2, kN> operator>=(const Type1& lhs,
+                                              const Vector<Type2, kN>& rhs) noexcept;
 
 //!
 template <Arithmetic Type1, Arithmetic Type2, size_t kN>
-constexpr Vector<bool, kN> operator>=(const Vector<Type1, kN>& lhs,
-                                      const Type2& rhs) noexcept;
+constexpr CompResultVec<Type1, kN> operator>=(const Vector<Type1, kN>& lhs,
+                                              const Type2& rhs) noexcept;
 
 // Type aliases
 using char2 = Vector<int8b, 2>;

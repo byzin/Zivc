@@ -1419,6 +1419,66 @@ __kernel void vectorComparisonOperatorTest(zivc::ConstGlobalPtr<int4> in_int4,
   }
 }
 
+__kernel void vectorComparisonResultTest(
+    zivc::ConstGlobalPtr<uchar> in1,
+    zivc::ConstGlobalPtr<char2> in2,
+    zivc::ConstGlobalPtr<ushort3> in3,
+    zivc::ConstGlobalPtr<uint4> in4,
+    zivc::GlobalPtr<zivc::CompResult<uchar>> out1,
+    zivc::GlobalPtr<zivc::CompResult<char2>> out2,
+    zivc::GlobalPtr<zivc::CompResult<ushort3>> out3,
+    zivc::GlobalPtr<zivc::CompResult<uint4>> out4)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (0 < index)
+    return;
+
+  // scalar
+  {
+    const uchar v1 = in1[0];
+    const uchar v2 = in1[1];
+    out1[0] = v1 == v2;
+    out1[1] = v1 != v2;
+    out1[2] = v1 > v2;
+    out1[3] = v1 >= v2;
+    out1[4] = v1 < v2;
+    out1[5] = v1 <= v2;
+  }
+  // vector2
+  {
+    const char2 v1 = in2[0];
+    const char2 v2 = in2[1];
+    out2[0] = v1 == v2;
+    out2[1] = v1 != v2;
+    out2[2] = v1 > v2;
+    out2[3] = v1 >= v2;
+    out2[4] = v1 < v2;
+    out2[5] = v1 <= v2;
+  }
+  // vector3
+  {
+    const ushort3 v1 = in3[0];
+    const ushort3 v2 = in3[1];
+    out3[0] = v1 == v2;
+    out3[1] = v1 != v2;
+    out3[2] = v1 > v2;
+    out3[3] = v1 >= v2;
+    out3[4] = v1 < v2;
+    out3[5] = v1 <= v2;
+  }
+  // vector4
+  {
+    const uint4 v1 = in4[0];
+    const uint4 v2 = in4[1];
+    out4[0] = v1 == v2;
+    out4[1] = v1 != v2;
+    out4[2] = v1 > v2;
+    out4[3] = v1 >= v2;
+    out4[4] = v1 < v2;
+    out4[5] = v1 <= v2;
+  }
+}
+
 __kernel void vectorLogicalOperatorTest(zivc::ConstGlobalPtr<int4> in_int4,
                                         zivc::GlobalPtr<zivc::Boolean> out)
 {

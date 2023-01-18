@@ -13,740 +13,1129 @@
 #include "relational.hpp"
 // Standard C++ library
 #include <cmath>
+#include <concepts>
 #include <cstddef>
-#include <memory>
+#include <limits>
 #include <type_traits>
 // Zisc
-#include "zisc/ieee_754_binary.hpp"
+#include "zisc/bit.hpp"
+#include "zisc/concepts.hpp"
 #include "zisc/utility.hpp"
 // Zivc
 #include "types.hpp"
 #include "vector.hpp"
 #include "zivc/zivc_config.hpp"
 
-//namespace zivc {
-//
-//namespace cl {
-//
-///*!
-//  */
-//inline
-//int32b Relation::isequal(const float lhs, const float rhs) noexcept
-//{
-//  const auto result = isequalImpl(lhs, rhs);
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b Relation::isequal(const double lhs, const double rhs) noexcept
-//{
-//  const auto result = isequalImpl(lhs, rhs);
-//  return result;
-//}
-//
-///*!
-//  */
-//template <typename Float, size_t kN> inline
-//Vector<Config::ComparisonResultType<Float>, kN> Relation::isequal(
-//    const Vector<Float, kN>& lhs,
-//    const Vector<Float, kN>& rhs) noexcept
-//{
-//  static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-//  const auto result = lhs == rhs;
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b Relation::isnotequal(const float lhs, const float rhs) noexcept
-//{
-//  const auto result = isnotequalImpl(lhs, rhs);
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b Relation::isnotequal(const double lhs, const double rhs) noexcept
-//{
-//  const auto result = isnotequalImpl(lhs, rhs);
-//  return result;
-//}
-//
-///*!
-//  */
-//template <typename Float, size_t kN> inline
-//Vector<Config::ComparisonResultType<Float>, kN> Relation::isnotequal(
-//    const Vector<Float, kN>& lhs,
-//    const Vector<Float, kN>& rhs) noexcept
-//{
-//  static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-//  const auto result = lhs != rhs;
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b Relation::isgreater(const float lhs, const float rhs) noexcept
-//{
-//  const auto result = isgreaterImpl(lhs, rhs);
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b Relation::isgreater(const double lhs, const double rhs) noexcept
-//{
-//  const auto result = isgreaterImpl(lhs, rhs);
-//  return result;
-//}
-//
-///*!
-//  */
-//template <typename Float, size_t kN> inline
-//Vector<Config::ComparisonResultType<Float>, kN> Relation::isgreater(
-//    const Vector<Float, kN>& lhs,
-//    const Vector<Float, kN>& rhs) noexcept
-//{
-//  static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-//  const auto result = lhs > rhs;
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b Relation::isgreaterequal(const float lhs, const float rhs) noexcept
-//{
-//  const auto result = isgreaterequalImpl(lhs, rhs);
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b Relation::isgreaterequal(const double lhs, const double rhs) noexcept
-//{
-//  const auto result = isgreaterequalImpl(lhs, rhs);
-//  return result;
-//}
-//
-///*!
-//  */
-//template <typename Float, size_t kN> inline
-//Vector<Config::ComparisonResultType<Float>, kN> Relation::isgreaterequal(
-//    const Vector<Float, kN>& lhs,
-//    const Vector<Float, kN>& rhs) noexcept
-//{
-//  static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-//  const auto result = lhs >= rhs;
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b Relation::isless(const float lhs, const float rhs) noexcept
-//{
-//  const auto result = islessImpl(lhs, rhs);
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b Relation::isless(const double lhs, const double rhs) noexcept
-//{
-//  const auto result = islessImpl(lhs, rhs);
-//  return result;
-//}
-//
-///*!
-//  */
-//template <typename Float, size_t kN> inline
-//Vector<Config::ComparisonResultType<Float>, kN> Relation::isless(
-//    const Vector<Float, kN>& lhs,
-//    const Vector<Float, kN>& rhs) noexcept
-//{
-//  static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-//  const auto result = lhs < rhs;
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b Relation::islessequal(const float lhs, const float rhs) noexcept
-//{
-//  const auto result = islessequalImpl(lhs, rhs);
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b Relation::islessequal(const double lhs, const double rhs) noexcept
-//{
-//  const auto result = islessequalImpl(lhs, rhs);
-//  return result;
-//}
-//
-///*!
-//  */
-//template <typename Float, size_t kN> inline
-//Vector<Config::ComparisonResultType<Float>, kN> Relation::islessequal(
-//    const Vector<Float, kN>& lhs,
-//    const Vector<Float, kN>& rhs) noexcept
-//{
-//  static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-//  const auto result = lhs <= rhs;
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b Relation::isinf(const float value) noexcept
-//{
-//  const auto result = isinfImpl(value);
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b Relation::isinf(const double value) noexcept
-//{
-//  const auto result = isinfImpl(value);
-//  return result;
-//}
-//
-///*!
-//  */
-//template <typename Float, size_t kN> inline
-//Vector<Config::ComparisonResultType<Float>, kN> Relation::isinf(
-//    const Vector<Float, kN>& value) noexcept
-//{
-//  static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-//  Vector<Config::ComparisonResultType<Float>, kN> result;
-//  for (size_t i = 0; i < kN; ++i)
-//    result[i] = std::isinf(value[i])
-//        ? Config::vecResultTrue<Float>()
-//        : Config::vecResultFalse<Float>();
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b Relation::isnan(const float value) noexcept
-//{
-//  const auto result = isnanImpl(value);
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b Relation::isnan(const double value) noexcept
-//{
-//  const auto result = isnanImpl(value);
-//  return result;
-//}
-//
-///*!
-//  */
-//template <typename Float, size_t kN> inline
-//Vector<Config::ComparisonResultType<Float>, kN> Relation::isnan(
-//    const Vector<Float, kN>& value) noexcept
-//{
-//  static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-//  Vector<Config::ComparisonResultType<Float>, kN> result;
-//  for (size_t i = 0; i < kN; ++i)
-//    result[i] = std::isnan(value[i])
-//        ? Config::vecResultTrue<Float>()
-//        : Config::vecResultFalse<Float>();
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b Relation::signbit(const float value) noexcept
-//{
-//  const auto result = signbitImpl(value);
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b Relation::signbit(const double value) noexcept
-//{
-//  const auto result = signbitImpl(value);
-//  return result;
-//}
-//
-///*!
-//  */
-//template <typename Float, size_t kN> inline
-//Vector<Config::ComparisonResultType<Float>, kN> Relation::signbit(
-//    const Vector<Float, kN>& value) noexcept
-//{
-//  static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-//  Vector<Config::ComparisonResultType<Float>, kN> result;
-//  for (size_t i = 0; i < kN; ++i)
-//    result[i] = std::signbit(value[i])
-//        ? Config::vecResultTrue<Float>()
-//        : Config::vecResultFalse<Float>();
-//  return result;
-//}
-//
-///*!
-//  */
-//template <typename TypeN> inline
-//TypeN Relation::bitselect(const TypeN& a, const TypeN& b, const TypeN& c) noexcept
-//{
-//  constexpr bool is_scalar_value = std::is_integral_v<TypeN> ||
-//                                   std::is_floating_point_v<TypeN>;
-//  if constexpr (is_scalar_value) {
-//    if constexpr (std::is_integral_v<TypeN>) {
-//      const auto result = zisc::cast<TypeN>((a ^ c) | (b & c));
-//      return result;
-//    }
-//    else {
-//      // Floating point pattern
-//      using BitType = typename zisc::BinaryFromBytes<sizeof(TypeN)>::BitType;
-//      const auto data = bitselect(*zisc::reinterp<const BitType*>(&a),
-//                                  *zisc::reinterp<const BitType*>(&b),
-//                                  *zisc::reinterp<const BitType*>(&c));
-//      const auto result = *zisc::reinterp<const TypeN*>(&data);
-//      return result;
-//    }
-//  }
-//  else {
-//    const auto result = Vec::bitselect(a, b, c);
-//    return result;
-//  }
-//}
-//
-///*!
-//  */
-//template <typename TypeN, typename IntegerN> inline
-//TypeN Relation::select(const TypeN& a, const TypeN& b, const IntegerN& c) noexcept
-//{
-//  constexpr bool is_scalar_value = std::is_integral_v<TypeN> ||
-//                                   std::is_floating_point_v<TypeN>;
-//  constexpr bool is_scalar_condition = std::is_integral_v<IntegerN> ||
-//                                       std::is_floating_point_v<IntegerN>;
-//  static_assert((is_scalar_value && is_scalar_condition) ||
-//                (!is_scalar_value && !is_scalar_condition),
-//                "The TypeN and IntegerN don't have same n component.");
-//  if constexpr (is_scalar_value) {
-//    const auto result =  c ? b : a;
-//    return result;
-//  }
-//  else {
-//    const auto result = Vec::select(a, b, c);
-//    return result;
-//  }
-//}
-//
-//template <typename Float> inline
-//int32b Relation::isequalImpl(const Float lhs, const Float rhs) noexcept
-//{
-//  static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-//  const auto result = zisc::equal(lhs, rhs) ? Config::scalarResultTrue()
-//                                            : Config::scalarResultFalse();
-//  return result;
-//}
-//
-//template <typename Float> inline
-//int32b Relation::isnotequalImpl(const Float lhs, const Float rhs) noexcept
-//{
-//  static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-//  const auto result = !zisc::equal(lhs, rhs) ? Config::scalarResultTrue()
-//                                             : Config::scalarResultFalse();
-//  return result;
-//}
-//
-//template <typename Float> inline
-//int32b Relation::isgreaterImpl(const Float lhs, const Float rhs) noexcept
-//{
-//  static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-//  const auto result = (lhs > rhs) ? Config::scalarResultTrue()
-//                                  : Config::scalarResultFalse();
-//  return result;
-//}
-//
-//template <typename Float> inline
-//int32b Relation::isgreaterequalImpl(const Float lhs, const Float rhs) noexcept
-//{
-//  static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-//  const auto result = (lhs >= rhs) ? Config::scalarResultTrue()
-//                                   : Config::scalarResultFalse();
-//  return result;
-//}
-//
-//template <typename Float> inline
-//int32b Relation::islessImpl(const Float lhs, const Float rhs) noexcept
-//{
-//  static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-//  const auto result = (lhs < rhs) ? Config::scalarResultTrue()
-//                                  : Config::scalarResultFalse();
-//  return result;
-//}
-//
-//template <typename Float> inline
-//int32b Relation::islessequalImpl(const Float lhs, const Float rhs) noexcept
-//{
-//  static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-//  const auto result = (lhs <= rhs) ? Config::scalarResultTrue()
-//                                   : Config::scalarResultFalse();
-//  return result;
-//}
-//
-//template <typename Float> inline
-//int32b Relation::isinfImpl(const Float value) noexcept
-//{
-//  static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-//  const auto result = std::isinf(value) ? Config::scalarResultTrue()
-//                                        : Config::scalarResultFalse();
-//  return result;
-//}
-//
-//template <typename Float> inline
-//int32b Relation::isnanImpl(const Float value) noexcept
-//{
-//  static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-//  const auto result = std::isnan(value) ? Config::scalarResultTrue()
-//                                        : Config::scalarResultFalse();
-//  return result;
-//}
-//
-//template <typename Float> inline
-//int32b Relation::signbitImpl(const Float value) noexcept
-//{
-//  static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-//  const auto result = std::signbit(value) ? Config::scalarResultTrue()
-//                                          : Config::scalarResultFalse();
-//  return result;
-//}
-//
-//template <typename Type, size_t kN> inline
-//Vector<Type, kN> Relation::Vec::bitselect(const Vector<Type, kN>& a,
-//                                          const Vector<Type, kN>& b,
-//                                          const Vector<Type, kN>& c) noexcept
-//{
-//  Vector<Type, kN> result;
-//  for (size_t i = 0; i < kN; ++i)
-//    result[i] = Relation::bitselect(a[i], b[i], c[i]);
-//  return result;
-//}
-//
-//template <typename Type, typename Integer, size_t kN> inline
-//Vector<Type, kN> Relation::Vec::select(const Vector<Type, kN>& a,
-//                                       const Vector<Type, kN>& b,
-//                                       const Vector<Integer, kN>& c) noexcept
-//{
-//  Vector<Type, kN> result;
-//  for (size_t i = 0; i < kN; ++i)
-//    result[i] = Relation::select(a[i], b[i], c[i]);
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b isequal(const float lhs, const float rhs) noexcept
-//{
-//  const auto result = Relation::isequal(lhs, rhs);
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b isequal(const double lhs, const double rhs) noexcept
-//{
-//  const auto result = Relation::isequal(lhs, rhs);
-//  return result;
-//}
-//
-///*!
-//  */
-//template <typename Float, size_t kN> inline
-//Vector<Config::ComparisonResultType<Float>, kN> isequal(
-//    const Vector<Float, kN>& lhs,
-//    const Vector<Float, kN>& rhs) noexcept
-//{
-//  static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-//  const auto result = Relation::isequal(lhs, rhs);
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b isnotequal(const float lhs, const float rhs) noexcept
-//{
-//  const auto result = Relation::isnotequal(lhs, rhs);
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b isnotequal(const double lhs, const double rhs) noexcept
-//{
-//  const auto result = Relation::isnotequal(lhs, rhs);
-//  return result;
-//}
-//
-///*!
-//  */
-//template <typename Float, size_t kN> inline
-//Vector<Config::ComparisonResultType<Float>, kN> isnotequal(
-//    const Vector<Float, kN>& lhs,
-//    const Vector<Float, kN>& rhs) noexcept
-//{
-//  static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-//  const auto result = Relation::isnotequal(lhs, rhs);
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b isgreater(const float lhs, const float rhs) noexcept
-//{
-//  const auto result = Relation::isgreater(lhs, rhs);
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b isgreater(const double lhs, const double rhs) noexcept
-//{
-//  const auto result = Relation::isgreater(lhs, rhs);
-//  return result;
-//}
-//
-///*!
-//  */
-//template <typename Float, size_t kN> inline
-//Vector<Config::ComparisonResultType<Float>, kN> isgreater(
-//    const Vector<Float, kN>& lhs,
-//    const Vector<Float, kN>& rhs) noexcept
-//{
-//  static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-//  const auto result = Relation::isgreater(lhs, rhs);
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b isgreaterequal(const float lhs, const float rhs) noexcept
-//{
-//  const auto result = Relation::isgreaterequal(lhs, rhs);
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b isgreaterequal(const double lhs, const double rhs) noexcept
-//{
-//  const auto result = Relation::isgreaterequal(lhs, rhs);
-//  return result;
-//}
-//
-///*!
-//  */
-//template <typename Float, size_t kN> inline
-//Vector<Config::ComparisonResultType<Float>, kN> isgreaterequal(
-//    const Vector<Float, kN>& lhs,
-//    const Vector<Float, kN>& rhs) noexcept
-//{
-//  static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-//  const auto result = Relation::isgreaterequal(lhs, rhs);
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b isless(const float lhs, const float rhs) noexcept
-//{
-//  const auto result = Relation::isless(lhs, rhs);
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b isless(const double lhs, const double rhs) noexcept
-//{
-//  const auto result = Relation::isless(lhs, rhs);
-//  return result;
-//}
-//
-///*!
-//  */
-//template <typename Float, size_t kN> inline
-//Vector<Config::ComparisonResultType<Float>, kN> isless(
-//    const Vector<Float, kN>& lhs,
-//    const Vector<Float, kN>& rhs) noexcept
-//{
-//  static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-//  const auto result = Relation::isless(lhs, rhs);
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b islessequal(const float lhs, const float rhs) noexcept
-//{
-//  const auto result = Relation::islessequal(lhs, rhs);
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b islessequal(const double lhs, const double rhs) noexcept
-//{
-//  const auto result = Relation::islessequal(lhs, rhs);
-//  return result;
-//}
-//
-///*!
-//  */
-//template <typename Float, size_t kN> inline
-//Vector<Config::ComparisonResultType<Float>, kN> islessequal(
-//    const Vector<Float, kN>& lhs,
-//    const Vector<Float, kN>& rhs) noexcept
-//{
-//  static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-//  const auto result = Relation::islessequal(lhs, rhs);
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b isinf(const float value) noexcept
-//{
-//  const auto result = Relation::isinf(value);
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b isinf(const double value) noexcept
-//{
-//  const auto result = Relation::isinf(value);
-//  return result;
-//}
-//
-///*!
-//  */
-//template <typename Float, size_t kN> inline
-//Vector<Config::ComparisonResultType<Float>, kN> isinf(
-//    const Vector<Float, kN>& value) noexcept
-//{
-//  static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-//  const auto result = Relation::isinf(value);
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b isnan(const float value) noexcept
-//{
-//  const auto result = Relation::isnan(value);
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b isnan(const double value) noexcept
-//{
-//  const auto result = Relation::isnan(value);
-//  return result;
-//}
-//
-///*!
-//  */
-//template <typename Float, size_t kN> inline
-//Vector<Config::ComparisonResultType<Float>, kN> isnan(
-//    const Vector<Float, kN>& value) noexcept
-//{
-//  static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-//  const auto result = Relation::isnan(value);
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b signbit(const float value) noexcept
-//{
-//  const auto result = Relation::signbit(value);
-//  return result;
-//}
-//
-///*!
-//  */
-//inline
-//int32b signbit(const double value) noexcept
-//{
-//  const auto result = Relation::signbit(value);
-//  return result;
-//}
-//
-///*!
-//  */
-//template <typename Float, size_t kN> inline
-//Vector<Config::ComparisonResultType<Float>, kN> signbit(
-//    const Vector<Float, kN>& value) noexcept
-//{
-//  static_assert(std::is_floating_point_v<Float>, "The Float isn't float type.");
-//  const auto result = Relation::signbit(value);
-//  return result;
-//}
-//
-///*!
-//  */
-//template <typename TypeN> inline
-//TypeN bitselect(const TypeN& a, const TypeN& b, const TypeN& c) noexcept
-//{
-//  const auto result = Relation::bitselect(a, b, c);
-//  return result;
-//}
-//
-///*!
-//  */
-//template <typename TypeN, typename IntegerN> inline
-//TypeN select(const TypeN& a, const TypeN& b, const IntegerN& c) noexcept
-//{
-//  const auto result = Relation::select(a, b, c);
-//  return result;
-//}
-//
-//} // namespace cl
-//
-//} // namespace zivc
+namespace zivc::cl {
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+CompResult<Float> Relation::isequal(const Float lhs, const Float rhs) noexcept
+{
+  const CompResult<Float> result = zisc::equal(lhs, rhs) ? kSTrue : kSFalse;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <std::floating_point Float, size_t kN> inline
+CompResultVec<Float, kN> Relation::isequal(const Vector<Float, kN>& lhs,
+                                           const Vector<Float, kN>& rhs) noexcept
+{
+  using ResultT = CompResultVec<Float, kN>;
+  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
+  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
+  ResultT result{f};
+  {
+    using VectorT = std::remove_cvref_t<decltype(lhs)>;
+    typename decltype(result)::Pointer d = result.data();
+    typename VectorT::ConstPointer l = lhs.data();
+    typename VectorT::ConstPointer r = rhs.data();
+    for (std::size_t i = 0; i < kN; ++i)
+      d[i] = zisc::equal(l[i], r[i]) ? t : f;
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+CompResult<Float> Relation::isnotequal(const Float lhs, const Float rhs) noexcept
+{
+  const CompResult<Float> result = !zisc::equal(lhs, rhs) ? kSTrue : kSFalse;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <std::floating_point Float, size_t kN> inline
+CompResultVec<Float, kN> Relation::isnotequal(const Vector<Float, kN>& lhs,
+                                              const Vector<Float, kN>& rhs) noexcept
+{
+  using ResultT = CompResultVec<Float, kN>;
+  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
+  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
+  ResultT result{f};
+  {
+    using VectorT = std::remove_cvref_t<decltype(lhs)>;
+    typename decltype(result)::Pointer d = result.data();
+    typename VectorT::ConstPointer l = lhs.data();
+    typename VectorT::ConstPointer r = rhs.data();
+    for (std::size_t i = 0; i < kN; ++i)
+      d[i] = !zisc::equal(l[i], r[i]) ? t : f;
+  }
+  return result;
+
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+CompResult<Float> Relation::isgreater(const Float lhs, const Float rhs) noexcept
+{
+  const CompResult<Float> result = (rhs < lhs) ? kSTrue : kSFalse;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <std::floating_point Float, size_t kN> inline
+CompResultVec<Float, kN> Relation::isgreater(const Vector<Float, kN>& lhs,
+                                             const Vector<Float, kN>& rhs) noexcept
+{
+  using ResultT = CompResultVec<Float, kN>;
+  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
+  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
+  ResultT result{f};
+  {
+    using VectorT = std::remove_cvref_t<decltype(lhs)>;
+    typename decltype(result)::Pointer d = result.data();
+    typename VectorT::ConstPointer l = lhs.data();
+    typename VectorT::ConstPointer r = rhs.data();
+    for (std::size_t i = 0; i < kN; ++i)
+      d[i] = (r[i] < l[i]) ? t : f;
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template<std::floating_point Float> inline
+CompResult<Float> Relation::isgreaterequal(const Float lhs, const Float rhs) noexcept
+{
+  const CompResult<Float> result = (rhs <= lhs) ? kSTrue : kSFalse;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <std::floating_point Float, size_t kN> inline
+CompResultVec<Float, kN> Relation::isgreaterequal(const Vector<Float, kN>& lhs,
+                                                  const Vector<Float, kN>& rhs) noexcept
+{
+  using ResultT = CompResultVec<Float, kN>;
+  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
+  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
+  ResultT result{f};
+  {
+    using VectorT = std::remove_cvref_t<decltype(lhs)>;
+    typename decltype(result)::Pointer d = result.data();
+    typename VectorT::ConstPointer l = lhs.data();
+    typename VectorT::ConstPointer r = rhs.data();
+    for (std::size_t i = 0; i < kN; ++i)
+      d[i] = (r[i] <= l[i]) ? t : f;
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+CompResult<Float> Relation::isless(const Float lhs, const Float rhs) noexcept
+{
+  return isgreater(rhs, lhs);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <std::floating_point Float, size_t kN> inline
+CompResultVec<Float, kN> Relation::isless(const Vector<Float, kN>& lhs,
+                                          const Vector<Float, kN>& rhs) noexcept
+{
+  return isgreater(rhs, lhs);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+CompResult<Float> Relation::islessequal(const Float lhs, const Float rhs) noexcept
+{
+  return isgreaterequal(rhs, lhs);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <std::floating_point Float, size_t kN> inline
+CompResultVec<Float, kN> Relation::islessequal(const Vector<Float, kN>& lhs,
+                                               const Vector<Float, kN>& rhs) noexcept
+{
+  return isgreaterequal(rhs, lhs);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+CompResult<Float> Relation::islessgreater(const Float lhs, const Float rhs) noexcept
+{
+  const CompResult<Float> result = ((lhs < rhs) || (rhs < lhs)) ? kSTrue : kSFalse;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <std::floating_point Float, size_t kN> inline
+CompResultVec<Float, kN> Relation::islessgreater(const Vector<Float, kN>& lhs,
+                                                 const Vector<Float, kN>& rhs) noexcept
+{
+  using ResultT = CompResultVec<Float, kN>;
+  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
+  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
+  ResultT result{f};
+  {
+    using VectorT = std::remove_cvref_t<decltype(lhs)>;
+    typename decltype(result)::Pointer d = result.data();
+    typename VectorT::ConstPointer l = lhs.data();
+    typename VectorT::ConstPointer r = rhs.data();
+    for (std::size_t i = 0; i < kN; ++i)
+      d[i] = ((l[i] < r[i]) || (r[i] < l[i])) ? t : f;
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] value No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+CompResult<Float> Relation::isfinite(const Float value) noexcept
+{
+  const CompResult<Float> result = std::isfinite(value) ? kSTrue : kSFalse;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] value No description.
+  \return No description
+  */
+template <std::floating_point Float, size_t kN> inline
+CompResultVec<Float, kN> Relation::isfinite(const Vector<Float, kN>& value) noexcept
+{
+  using ResultT = CompResultVec<Float, kN>;
+  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
+  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
+  ResultT result{f};
+  {
+    using VectorT = std::remove_cvref_t<decltype(value)>;
+    typename decltype(result)::Pointer d = result.data();
+    typename VectorT::ConstPointer v = value.data();
+    for (std::size_t i = 0; i < kN; ++i)
+      d[i] = std::isfinite(v[i]) ? t : f;
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] value No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+CompResult<Float> Relation::isinf(const Float value) noexcept
+{
+  const CompResult<Float> result = std::isinf(value) ? kSTrue : kSFalse;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] value No description.
+  \return No description
+  */
+template <std::floating_point Float, size_t kN> inline
+CompResultVec<Float, kN> Relation::isinf(const Vector<Float, kN>& value) noexcept
+{
+  using ResultT = CompResultVec<Float, kN>;
+  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
+  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
+  ResultT result{f};
+  {
+    using VectorT = std::remove_cvref_t<decltype(value)>;
+    typename decltype(result)::Pointer d = result.data();
+    typename VectorT::ConstPointer v = value.data();
+    for (std::size_t i = 0; i < kN; ++i)
+      d[i] = std::isinf(v[i]) ? t : f;
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] value No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+CompResult<Float> Relation::isnan(const Float value) noexcept
+{
+  const CompResult<Float> result = std::isnan(value) ? kSTrue : kSFalse;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] value No description.
+  \return No description
+  */
+template <std::floating_point Float, size_t kN> inline
+CompResultVec<Float, kN> Relation::isnan(const Vector<Float, kN>& value) noexcept
+{
+  using ResultT = CompResultVec<Float, kN>;
+  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
+  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
+  ResultT result{f};
+  {
+    using VectorT = std::remove_cvref_t<decltype(value)>;
+    typename decltype(result)::Pointer d = result.data();
+    typename VectorT::ConstPointer v = value.data();
+    for (std::size_t i = 0; i < kN; ++i)
+      d[i] = std::isnan(v[i]) ? t : f;
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] value No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+CompResult<Float> Relation::isnormal(const Float value) noexcept
+{
+  const CompResult<Float> result = std::isnormal(value) ? kSTrue : kSFalse;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] value No description.
+  \return No description
+  */
+template <std::floating_point Float, size_t kN> inline
+CompResultVec<Float, kN> Relation::isnormal(const Vector<Float, kN>& value) noexcept
+{
+  using ResultT = CompResultVec<Float, kN>;
+  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
+  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
+  ResultT result{f};
+  {
+    using VectorT = std::remove_cvref_t<decltype(value)>;
+    typename decltype(result)::Pointer d = result.data();
+    typename VectorT::ConstPointer v = value.data();
+    for (std::size_t i = 0; i < kN; ++i)
+      d[i] = std::isnormal(v[i]) ? t : f;
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] value No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+CompResult<Float> Relation::signbit(const Float value) noexcept
+{
+  const CompResult<Float> result = std::signbit(value) ? kSTrue : kSFalse;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] value No description.
+  \return No description
+  */
+template <std::floating_point Float, size_t kN> inline
+CompResultVec<Float, kN> Relation::signbit(const Vector<Float, kN>& value) noexcept
+{
+  using ResultT = CompResultVec<Float, kN>;
+  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
+  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
+  ResultT result{f};
+  {
+    using VectorT = std::remove_cvref_t<decltype(value)>;
+    typename decltype(result)::Pointer d = result.data();
+    typename VectorT::ConstPointer v = value.data();
+    for (std::size_t i = 0; i < kN; ++i)
+      d[i] = std::signbit(v[i]) ? t : f;
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Integer No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::integral Integer> inline
+int32b Relation::any(const Integer x) noexcept
+{
+  using BitT = std::conditional_t<sizeof(Integer) == 1, uint8b,
+               std::conditional_t<sizeof(Integer) == 2, uint16b,
+               std::conditional_t<sizeof(Integer) == 4, uint32b,
+                                                        uint64b>>>;
+  const auto bit = zisc::bit_cast<BitT>(x);
+  constexpr std::size_t shift = std::numeric_limits<BitT>::digits - 1;
+  const auto result = static_cast<int32b>(bit >> shift);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Integer No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::integral Integer, size_t kN> inline
+int32b Relation::any(const Vector<Integer, kN>& x) noexcept
+{
+  int32b result = 0b00;
+  {
+    using VectorT = std::remove_cvref_t<decltype(x)>;
+    typename VectorT::ConstPointer v = x.data();
+    for (std::size_t i = 0; (i < kN) && (result == 0); ++i)
+      result = result | any(v[i]);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Integer No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::integral Integer> inline
+int32b Relation::all(const Integer x) noexcept
+{
+  return any(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Integer No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::integral Integer, size_t kN> inline
+int32b Relation::all(const Vector<Integer, kN>& x) noexcept
+{
+  int32b result = 0b01;
+  {
+    using VectorT = std::remove_cvref_t<decltype(x)>;
+    typename VectorT::ConstPointer v = x.data();
+    for (std::size_t i = 0; (i < kN) && (result == 1); ++i)
+      result = result & all(v[i]);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \param [in] a No description.
+  \param [in] b No description.
+  \param [in] c No description.
+  \return No description
+  */
+template <zisc::Scalar Type> inline
+Type Relation::bitselect(const Type a, const Type b, const Type c) noexcept
+{
+  using BitT = std::conditional_t<sizeof(Type) == 1, uint8b,
+               std::conditional_t<sizeof(Type) == 2, uint16b,
+               std::conditional_t<sizeof(Type) == 4, uint32b,
+                                                     uint64b>>>;
+  const auto x = zisc::bit_cast<BitT>(a);
+  const auto y = zisc::bit_cast<BitT>(b);
+  const auto z = zisc::bit_cast<BitT>(c);
+  const BitT result = (x ^ z) | (y & z);
+  return zisc::bit_cast<Type>(result);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in] a No description.
+  \param [in] b No description.
+  \param [in] c No description.
+  \return No description
+  */
+template <zisc::Scalar Type, size_t kN> inline
+Vector<Type, kN> Relation::bitselect(const Vector<Type, kN>& a,
+                                     const Vector<Type, kN>& b,
+                                     const Vector<Type, kN>& c) noexcept
+{
+  Vector<Type, kN> result{};
+  {
+    using VectorT = decltype(result);
+    typename VectorT::Pointer d = result.data();
+    typename VectorT::ConstPointer x = a.data();
+    typename VectorT::ConstPointer y = b.data();
+    typename VectorT::ConstPointer z = c.data();
+    for (std::size_t i = 0; i < kN; ++i)
+      d[i] = bitselect(x[i], y[i], z[i]);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam Integer No description.
+  \param [in] a No description.
+  \param [in] b No description.
+  \param [in] c No description.
+  \return No description
+  */
+template <zisc::Scalar Type, std::integral Integer> inline
+Type Relation::select(const Type a, const Type b, const Integer c) noexcept
+{
+  constexpr auto zero = static_cast<Integer>(0);
+  const Type result = (c == zero) ? a : b;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam Integer No description.
+  \tparam kN No description.
+  \param [in] a No description.
+  \param [in] b No description.
+  \param [in] c No description.
+  \return No description
+  */
+template <zisc::Scalar Type, std::integral Integer, size_t kN> inline
+Vector<Type, kN> Relation::select(const Vector<Type, kN>& a,
+                                  const Vector<Type, kN>& b,
+                                  const Vector<Integer, kN>& c) noexcept
+{
+  Vector<Type, kN> result{};
+  {
+    using VectorT = decltype(result);
+    using IntegerT = std::remove_cvref_t<decltype(c)>;
+    typename VectorT::Pointer d = result.data();
+    typename VectorT::ConstPointer x = a.data();
+    typename VectorT::ConstPointer y = b.data();
+    typename IntegerT::ConstPointer z = c.data();
+    for (std::size_t i = 0; i < kN; ++i)
+      d[i] = select(x[i], y[i], z[i]);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+CompResult<Float> isequal(const Float lhs, const Float rhs) noexcept
+{
+  return Relation::isequal(lhs, rhs);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <std::floating_point Float, size_t kN> inline
+CompResultVec<Float, kN> isequal(const Vector<Float, kN>& lhs,
+                                 const Vector<Float, kN>& rhs) noexcept
+{
+  return Relation::isequal(lhs, rhs);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+CompResult<Float> isnotequal(const Float lhs, const Float rhs) noexcept
+{
+  return Relation::isnotequal(lhs, rhs);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <std::floating_point Float, size_t kN> inline
+CompResultVec<Float, kN> isnotequal(const Vector<Float, kN>& lhs,
+                                    const Vector<Float, kN>& rhs) noexcept
+{
+  return Relation::isnotequal(lhs, rhs);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+CompResult<Float> isgreater(const Float lhs, const Float rhs) noexcept
+{
+  return Relation::isgreater(lhs, rhs);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <std::floating_point Float, size_t kN> inline
+CompResultVec<Float, kN> isgreater(const Vector<Float, kN>& lhs,
+                                   const Vector<Float, kN>& rhs) noexcept
+{
+  return Relation::isgreater(lhs, rhs);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+CompResult<Float> isgreaterequal(const Float lhs, const Float rhs) noexcept
+{
+  return Relation::isgreaterequal(lhs, rhs);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <std::floating_point Float, size_t kN> inline
+CompResultVec<Float, kN> isgreaterequal(const Vector<Float, kN>& lhs,
+                                        const Vector<Float, kN>& rhs) noexcept
+{
+  return Relation::isgreaterequal(lhs, rhs);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+CompResult<Float> isless(const Float lhs, const Float rhs) noexcept
+{
+  return Relation::isless(lhs, rhs);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <std::floating_point Float, size_t kN> inline
+CompResultVec<Float, kN> isless(const Vector<Float, kN>& lhs,
+                                const Vector<Float, kN>& rhs) noexcept
+{
+  return Relation::isless(lhs, rhs);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+CompResult<Float> islessequal(const Float lhs, const Float rhs) noexcept
+{
+  return Relation::islessequal(lhs, rhs);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <std::floating_point Float, size_t kN> inline
+CompResultVec<Float, kN> islessequal(const Vector<Float, kN>& lhs,
+                                     const Vector<Float, kN>& rhs) noexcept
+{
+  return Relation::islessequal(lhs, rhs);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+CompResult<Float> islessgreater(const Float lhs, const Float rhs) noexcept
+{
+  return Relation::islessgreater(lhs, rhs);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <std::floating_point Float, size_t kN> inline
+CompResultVec<Float, kN> islessgreater(const Vector<Float, kN>& lhs,
+                                       const Vector<Float, kN>& rhs) noexcept
+{
+  return Relation::islessgreater(lhs, rhs);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] value No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+CompResult<Float> isfinite(const Float value) noexcept
+{
+  return Relation::isfinite(value);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] value No description.
+  \return No description
+  */
+template <std::floating_point Float, size_t kN> inline
+CompResultVec<Float, kN> isfinite(const Vector<Float, kN>& value) noexcept
+{
+  return Relation::isfinite(value);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] value No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+CompResult<Float> isinf(const Float value) noexcept
+{
+  return Relation::isinf(value);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] value No description.
+  \return No description
+  */
+template <std::floating_point Float, size_t kN> inline
+CompResultVec<Float, kN> isinf(const Vector<Float, kN>& value) noexcept
+{
+  return Relation::isinf(value);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] value No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+CompResult<Float> isnan(const Float value) noexcept
+{
+  return Relation::isnan(value);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] value No description.
+  \return No description
+  */
+template <std::floating_point Float, size_t kN> inline
+CompResultVec<Float, kN> isnan(const Vector<Float, kN>& value) noexcept
+{
+  return Relation::isnan(value);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] value No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+CompResult<Float> isnormal(const Float value) noexcept
+{
+  return Relation::isnormal(value);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] value No description.
+  \return No description
+  */
+template <std::floating_point Float, size_t kN> inline
+CompResultVec<Float, kN> isnormal(const Vector<Float, kN>& value) noexcept
+{
+  return Relation::isnormal(value);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] value No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+CompResult<Float> signbit(const Float value) noexcept
+{
+  return Relation::signbit(value);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] value No description.
+  \return No description
+  */
+template <std::floating_point Float, size_t kN> inline
+CompResultVec<Float, kN> signbit(const Vector<Float, kN>& value) noexcept
+{
+  return Relation::signbit(value);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Integer No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::integral Integer> inline
+int32b any(const Integer x) noexcept
+{
+  return Relation::any(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Integer No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::integral Integer, size_t kN> inline
+int32b any(const Vector<Integer, kN>& x) noexcept
+{
+  return Relation::any(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Integer No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::integral Integer> inline
+int32b all(const Integer x) noexcept
+{
+  return Relation::all(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Integer No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::integral Integer, size_t kN> inline
+int32b all(const Vector<Integer, kN>& x) noexcept
+{
+  return Relation::all(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \param [in] a No description.
+  \param [in] b No description.
+  \param [in] c No description.
+  \return No description
+  */
+template <zisc::Scalar Type> inline
+Type bitselect(const Type a, const Type b, const Type c) noexcept
+{
+  return Relation::bitselect(a, b, c);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in] a No description.
+  \param [in] b No description.
+  \param [in] c No description.
+  \return No description
+  */
+template <zisc::Scalar Type, size_t kN> inline
+Vector<Type, kN> bitselect(const Vector<Type, kN>& a,
+                           const Vector<Type, kN>& b,
+                           const Vector<Type, kN>& c) noexcept
+{
+  return Relation::bitselect(a, b, c);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam Integer No description.
+  \param [in] a No description.
+  \param [in] b No description.
+  \param [in] c No description.
+  \return No description
+  */
+template <zisc::Scalar Type, std::integral Integer> inline
+Type select(const Type a, const Type b, const Integer c) noexcept
+{
+  return Relation::select(a, b, c);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam Integer No description.
+  \tparam kN No description.
+  \param [in] a No description.
+  \param [in] b No description.
+  \param [in] c No description.
+  \return No description
+  */
+template <zisc::Scalar Type, std::integral Integer, size_t kN> inline
+Vector<Type, kN> select(const Vector<Type, kN>& a,
+                        const Vector<Type, kN>& b,
+                        const Vector<Integer, kN>& c) noexcept
+{
+  return Relation::select(a, b, c);
+}
+
+} // namespace zivc::cl
 
 #endif // ZIVC_CPUCL_RELATIONAL_INL_HPP

@@ -76,7 +76,7 @@ Float makeNormalT(const Float x) noexcept
 template <std::floating_point Float>
 Float makeSubnormalT(const Float x) noexcept
 {
-  constexpr Float subnormal_max = std::numeric_limits<Float>::min() -
+  constexpr Float subnormal_max = (std::numeric_limits<Float>::min)() -
                                   std::numeric_limits<Float>::denorm_min();
   static_assert(zisc::isSubnormal(subnormal_max), "The sub max isn't subnormal.");
 

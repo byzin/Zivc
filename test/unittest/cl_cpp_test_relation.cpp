@@ -2340,3 +2340,239 @@ TEST(ClCppTest, RelationSignbitTest)
     ASSERT_EQ(f, mem[6].w) << "signbit failed.";
   }
 }
+
+TEST(ClCppTest, RelationAnyTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_float;
+  using zivc::cl_float2;
+  using zivc::cl_float3;
+  using zivc::cl_float4;
+  using zivc::cl_char;
+  using zivc::cl_short;
+  using zivc::cl_short2;
+  using zivc::cl_int;
+  using zivc::cl_int3;
+  using zivc::cl_int4;
+
+  const zivc::SharedBuffer buffer_in1 = device->createBuffer<cl_char>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_short2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_in3 = device->createBuffer<cl_int3>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_in4 = device->createBuffer<cl_int4>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_out1 = device->createBuffer<zivc::int32b>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out1->setSize(15);
+
+  {
+    constexpr cl_char imax = (std::numeric_limits<cl_char>::max)();
+    constexpr cl_char imin = (std::numeric_limits<cl_char>::min)();
+    const std::initializer_list<cl_char> v = {
+        0u,
+        imax,
+        imin 
+    };
+    ztest::setDeviceBuffer(*device, v, buffer_in1.get());
+  }
+  {
+    constexpr cl_short imax = (std::numeric_limits<cl_short>::max)();
+    constexpr cl_short imin = (std::numeric_limits<cl_short>::min)();
+    const std::initializer_list<cl_short2> v = {
+        cl_short2{0, 0},
+        cl_short2{imax, imax},
+        cl_short2{-1, 0},
+        cl_short2{imin, imin}
+    };
+    ztest::setDeviceBuffer(*device, v, buffer_in2.get());
+  }
+  {
+    constexpr cl_int imax = (std::numeric_limits<cl_int>::max)();
+    constexpr cl_int imin = (std::numeric_limits<cl_int>::min)();
+    const std::initializer_list<cl_int3> v = {
+        cl_int3{0, 0, 0},
+        cl_int3{imax, imax, imax},
+        cl_int3{0, -1, 0},
+        cl_int3{imin, imin, imin}
+    };
+    ztest::setDeviceBuffer(*device, v, buffer_in3.get());
+  }
+  {
+    constexpr cl_int imax = (std::numeric_limits<cl_int>::max)();
+    constexpr cl_int imin = (std::numeric_limits<cl_int>::min)();
+    const std::initializer_list<cl_int4> v = {
+        cl_int4{0, 0, 0, 0},
+        cl_int4{imax, imax, imax, imax},
+        cl_int4{0, 0, 0, -1},
+        cl_int4{imin, imin, imin, imin}
+    };
+    ztest::setDeviceBuffer(*device, v, buffer_in4.get());
+  }
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_relation, anyTestKernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(5, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("anyTestKernel");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(5, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_in1, *buffer_in2, *buffer_in3, *buffer_in4, *buffer_out1, launch_options);
+  device->waitForCompletion(result.fence());
+
+  using zivc::cl_int;
+
+  // output1
+  {
+    constexpr cl_int t = zivc::cl::kSTrue;
+    constexpr cl_int f = zivc::cl::kSFalse;
+    const zivc::MappedMemory mem = buffer_out1->mapMemory();
+    // scalar
+    ASSERT_EQ(f, mem[0]) << "any failed.";
+    ASSERT_EQ(f, mem[1]) << "any failed.";
+    ASSERT_EQ(t, mem[2]) << "any failed.";
+    // vector2
+    ASSERT_EQ(f, mem[3]) << "any failed.";
+    ASSERT_EQ(f, mem[4]) << "any failed.";
+    ASSERT_EQ(t, mem[5]) << "any failed.";
+    ASSERT_EQ(t, mem[6]) << "any failed.";
+    // vector3
+    ASSERT_EQ(f, mem[7]) << "any failed.";
+    ASSERT_EQ(f, mem[8]) << "any failed.";
+    ASSERT_EQ(t, mem[9]) << "any failed.";
+    ASSERT_EQ(t, mem[10]) << "any failed.";
+    // vector4
+    ASSERT_EQ(f, mem[11]) << "any failed.";
+    ASSERT_EQ(f, mem[12]) << "any failed.";
+    ASSERT_EQ(t, mem[13]) << "any failed.";
+    ASSERT_EQ(t, mem[14]) << "any failed.";
+  }
+}
+
+TEST(ClCppTest, RelationAllTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_float;
+  using zivc::cl_float2;
+  using zivc::cl_float3;
+  using zivc::cl_float4;
+  using zivc::cl_char;
+  using zivc::cl_short;
+  using zivc::cl_short2;
+  using zivc::cl_int;
+  using zivc::cl_int3;
+  using zivc::cl_int4;
+
+  const zivc::SharedBuffer buffer_in1 = device->createBuffer<cl_char>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_short2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_in3 = device->createBuffer<cl_int3>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_in4 = device->createBuffer<cl_int4>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_out1 = device->createBuffer<zivc::int32b>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out1->setSize(15);
+
+  {
+    constexpr cl_char imax = (std::numeric_limits<cl_char>::max)();
+    constexpr cl_char imin = (std::numeric_limits<cl_char>::min)();
+    const std::initializer_list<cl_char> v = {
+        0u,
+        imax,
+        imin 
+    };
+    ztest::setDeviceBuffer(*device, v, buffer_in1.get());
+  }
+  {
+    constexpr cl_short imax = (std::numeric_limits<cl_short>::max)();
+    constexpr cl_short imin = (std::numeric_limits<cl_short>::min)();
+    const std::initializer_list<cl_short2> v = {
+        cl_short2{0, 0},
+        cl_short2{imax, imax},
+        cl_short2{-1, 0},
+        cl_short2{imin, imin}
+    };
+    ztest::setDeviceBuffer(*device, v, buffer_in2.get());
+  }
+  {
+    constexpr cl_int imax = (std::numeric_limits<cl_int>::max)();
+    constexpr cl_int imin = (std::numeric_limits<cl_int>::min)();
+    const std::initializer_list<cl_int3> v = {
+        cl_int3{0, 0, 0},
+        cl_int3{imax, imax, imax},
+        cl_int3{0, -1, 0},
+        cl_int3{imin, imin, imin}
+    };
+    ztest::setDeviceBuffer(*device, v, buffer_in3.get());
+  }
+  {
+    constexpr cl_int imax = (std::numeric_limits<cl_int>::max)();
+    constexpr cl_int imin = (std::numeric_limits<cl_int>::min)();
+    const std::initializer_list<cl_int4> v = {
+        cl_int4{0, 0, 0, 0},
+        cl_int4{imax, imax, imax, imax},
+        cl_int4{0, 0, 0, -1},
+        cl_int4{imin, imin, imin, imin}
+    };
+    ztest::setDeviceBuffer(*device, v, buffer_in4.get());
+  }
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_relation, allTestKernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(5, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("allTestKernel");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(5, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_in1, *buffer_in2, *buffer_in3, *buffer_in4, *buffer_out1, launch_options);
+  device->waitForCompletion(result.fence());
+
+  using zivc::cl_int;
+
+  // output1
+  {
+    constexpr cl_int t = zivc::cl::kSTrue;
+    constexpr cl_int f = zivc::cl::kSFalse;
+    const zivc::MappedMemory mem = buffer_out1->mapMemory();
+    // scalar
+    ASSERT_EQ(f, mem[0]) << "all failed.";
+    ASSERT_EQ(f, mem[1]) << "all failed.";
+    ASSERT_EQ(t, mem[2]) << "all failed.";
+    // vector2
+    ASSERT_EQ(f, mem[3]) << "all failed.";
+    ASSERT_EQ(f, mem[4]) << "all failed.";
+    ASSERT_EQ(f, mem[5]) << "all failed.";
+    ASSERT_EQ(t, mem[6]) << "all failed.";
+    // vector3
+    ASSERT_EQ(f, mem[7]) << "all failed.";
+    ASSERT_EQ(f, mem[8]) << "all failed.";
+    ASSERT_EQ(f, mem[9]) << "all failed.";
+    ASSERT_EQ(t, mem[10]) << "all failed.";
+    // vector4
+    ASSERT_EQ(f, mem[11]) << "all failed.";
+    ASSERT_EQ(f, mem[12]) << "all failed.";
+    ASSERT_EQ(f, mem[13]) << "all failed.";
+    ASSERT_EQ(t, mem[14]) << "all failed.";
+  }
+}

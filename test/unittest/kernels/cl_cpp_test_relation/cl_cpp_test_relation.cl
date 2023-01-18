@@ -1340,4 +1340,82 @@ __kernel void signbitTestKernel(zivc::ConstGlobalPtr<float> in1,
   }
 }
 
+__kernel void anyTestKernel(zivc::ConstGlobalPtr<int8b> in1,
+                            zivc::ConstGlobalPtr<short2> in2,
+                            zivc::ConstGlobalPtr<int3> in3,
+                            zivc::ConstGlobalPtr<int4> in4,
+                            zivc::GlobalPtr<int32b> out1)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (index != 0)
+    return;
+
+  // scalar
+  {
+    out1[0] = zivc::any(in1[0]);
+    out1[1] = zivc::any(in1[1]);
+    out1[2] = zivc::any(in1[2]);
+  }
+  // vector2
+  {
+    out1[3] = zivc::any(in2[0]);
+    out1[4] = zivc::any(in2[1]);
+    out1[5] = zivc::any(in2[2]);
+    out1[6] = zivc::any(in2[3]);
+  }
+  // vector2
+  {
+    out1[7] = zivc::any(in3[0]);
+    out1[8] = zivc::any(in3[1]);
+    out1[9] = zivc::any(in3[2]);
+    out1[10] = zivc::any(in3[3]);
+  }
+  // vector2
+  {
+    out1[11] = zivc::any(in4[0]);
+    out1[12] = zivc::any(in4[1]);
+    out1[13] = zivc::any(in4[2]);
+    out1[14] = zivc::any(in4[3]);
+  }
+}
+
+__kernel void allTestKernel(zivc::ConstGlobalPtr<int8b> in1,
+                            zivc::ConstGlobalPtr<short2> in2,
+                            zivc::ConstGlobalPtr<int3> in3,
+                            zivc::ConstGlobalPtr<int4> in4,
+                            zivc::GlobalPtr<int32b> out1)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (index != 0)
+    return;
+
+  // scalar
+  {
+    out1[0] = zivc::all(in1[0]);
+    out1[1] = zivc::all(in1[1]);
+    out1[2] = zivc::all(in1[2]);
+  }
+  // vector2
+  {
+    out1[3] = zivc::all(in2[0]);
+    out1[4] = zivc::all(in2[1]);
+    out1[5] = zivc::all(in2[2]);
+    out1[6] = zivc::all(in2[3]);
+  }
+  // vector2
+  {
+    out1[7] = zivc::all(in3[0]);
+    out1[8] = zivc::all(in3[1]);
+    out1[9] = zivc::all(in3[2]);
+    out1[10] = zivc::all(in3[3]);
+  }
+  // vector2
+  {
+    out1[11] = zivc::all(in4[0]);
+    out1[12] = zivc::all(in4[1]);
+    out1[13] = zivc::all(in4[2]);
+    out1[14] = zivc::all(in4[3]);
+  }
+}
+
 #endif /* ZIVC_TEST_OPENCL_CPP_TEST_RELATION */

@@ -298,7 +298,7 @@ __kernel void workItem1dKernel(zivc::GlobalPtr<uint32b> outputs,
   if (index < resolution) {
     if (wx == 0) {
       zivc::GlobalPtr<uint32b> num_of_work_groups = outputs + (resolution + 1);
-      zivc::atomic_inc(num_of_work_groups);
+      zivc::atomic_fetch_inc(num_of_work_groups);
     }
 
     if (index == 0) {
@@ -309,11 +309,11 @@ __kernel void workItem1dKernel(zivc::GlobalPtr<uint32b> outputs,
     }
 
     zivc::GlobalPtr<uint32b> ptr = &outputs[index];
-    zivc::atomic_inc(ptr);
+    zivc::atomic_fetch_inc(ptr);
   }
   else {
     zivc::GlobalPtr<uint32b> outlier = outputs + resolution;
-    zivc::atomic_inc(outlier);
+    zivc::atomic_fetch_inc(outlier);
   }
 
   // Local ID test
@@ -324,7 +324,7 @@ __kernel void workItem1dKernel(zivc::GlobalPtr<uint32b> outputs,
   const size_t index2 = local_id + group_size * group_id;
   if (index2 < resolution) {
     zivc::GlobalPtr<uint32b> ptr = &outputs[index2];
-    zivc::atomic_inc(ptr);
+    zivc::atomic_fetch_inc(ptr);
   }
 }
 
@@ -347,7 +347,7 @@ __kernel void workItem2dKernel(zivc::GlobalPtr<uint32b> outputs,
   if (index < resolution) {
     if ((wx + wy) == 0) {
       zivc::GlobalPtr<uint32b> num_of_work_groups = outputs + (resolution + 1);
-      zivc::atomic_inc(num_of_work_groups);
+      zivc::atomic_fetch_inc(num_of_work_groups);
     }
 
     if (index == 0) {
@@ -359,11 +359,11 @@ __kernel void workItem2dKernel(zivc::GlobalPtr<uint32b> outputs,
     }
 
     zivc::GlobalPtr<uint32b> ptr = &outputs[index];
-    zivc::atomic_inc(ptr);
+    zivc::atomic_fetch_inc(ptr);
   }
   else {
     zivc::GlobalPtr<uint32b> outlier = outputs + resolution;
-    zivc::atomic_inc(outlier);
+    zivc::atomic_fetch_inc(outlier);
   }
 
   // Local ID test
@@ -376,7 +376,7 @@ __kernel void workItem2dKernel(zivc::GlobalPtr<uint32b> outputs,
   const size_t index2 = local_id + group_size * group_id;
   if (index2 < resolution) {
     zivc::GlobalPtr<uint32b> ptr = &outputs[index2];
-    zivc::atomic_inc(ptr);
+    zivc::atomic_fetch_inc(ptr);
   }
 }
 
@@ -400,7 +400,7 @@ __kernel void workItem3dKernel(zivc::GlobalPtr<uint32b> outputs,
   if (index < resolution) {
     if ((wx + wy + wz) == 0) {
       zivc::GlobalPtr<uint32b> num_of_work_groups = outputs + (resolution + 1);
-      zivc::atomic_inc(num_of_work_groups);
+      zivc::atomic_fetch_inc(num_of_work_groups);
     }
 
     if (index == 0) {
@@ -413,11 +413,11 @@ __kernel void workItem3dKernel(zivc::GlobalPtr<uint32b> outputs,
     }
 
     zivc::GlobalPtr<uint32b> ptr = &outputs[index];
-    zivc::atomic_inc(ptr);
+    zivc::atomic_fetch_inc(ptr);
   }
   else {
     zivc::GlobalPtr<uint32b> outlier = outputs + resolution;
-    zivc::atomic_inc(outlier);
+    zivc::atomic_fetch_inc(outlier);
   }
 
   // Local ID test
@@ -432,7 +432,7 @@ __kernel void workItem3dKernel(zivc::GlobalPtr<uint32b> outputs,
   const size_t index2 = local_id + group_size * group_id;
   if (index2 < resolution) {
     zivc::GlobalPtr<uint32b> ptr = &outputs[index2];
-    zivc::atomic_inc(ptr);
+    zivc::atomic_fetch_inc(ptr);
   }
 }
 
@@ -473,7 +473,7 @@ __kernel void workItemOffset1dKernel(zivc::GlobalPtr<uint32b> outputs,
   }
   if (index < resolution) {
     zivc::GlobalPtr<uint32b> ptr = &outputs[index];
-    zivc::atomic_inc(ptr);
+    zivc::atomic_fetch_inc(ptr);
     ids[2 * index + 0] = static_cast<uint32b>(zivc::getGlobalIdX() -
                                               zivc::getGlobalOffsetX());
     ids[2 * index + 1] = static_cast<uint32b>(zivc::getGlobalIdX());
@@ -494,7 +494,7 @@ __kernel void workItemOffset1dKernel(zivc::GlobalPtr<uint32b> outputs,
   const size_t index2 = local_id + group_size * group_id;
   if (index2 < resolution) {
     zivc::GlobalPtr<uint32b> ptr = &outputs[index2];
-    zivc::atomic_inc(ptr);
+    zivc::atomic_fetch_inc(ptr);
   }
 }
 
@@ -526,7 +526,7 @@ __kernel void workItemOffset3dKernel(zivc::GlobalPtr<uint32b> outputs,
   const size_t z = zivc::getGlobalIdZ();
   if ((offset_x <= x) && (offset_y <= y) && (offset_z <= z) && (index < resolution)) {
     zivc::GlobalPtr<uint32b> ptr = &outputs[index];
-    zivc::atomic_inc(ptr);
+    zivc::atomic_fetch_inc(ptr);
     ids[2 * index + 0].x_ = static_cast<uint32b>(x - offset_x);
     ids[2 * index + 0].y_ = static_cast<uint32b>(y - offset_y);
     ids[2 * index + 0].z_ = static_cast<uint32b>(z - offset_z);

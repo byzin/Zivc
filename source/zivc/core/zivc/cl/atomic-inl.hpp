@@ -19,415 +19,587 @@
 namespace zivc {
 
 /*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam Type No description.
   */
-template <typename AddressSpaceInteger, typename Integer> inline
-Integer Atomic::add(AddressSpaceInteger p, const Integer value) noexcept
+template <typename AddressSpacePointer>
+class Atomic::AtomicObject
 {
-  const auto old = addImpl(p, value);
-  return old;
+  using T = RemoveCvrefAddressT<RemovePointerT<AddressSpacePointer>>;
+  static_assert(sizeof(atomic_int) == 4);
+  static_assert(sizeof(atomic_long) == 8);
+  static_assert(sizeof(atomic_uint) == 4);
+  static_assert(sizeof(atomic_ulong) == 8);
+  static_assert(sizeof(atomic_float) == 4);
+  static_assert(sizeof(atomic_double) == 8);
+  using AtomicT = ConditionalT<kIsSignedInteger<T>,
+                      ConditionalT<sizeof(T) == 4, atomic_int,
+                      ConditionalT<sizeof(T) == 8, atomic_long,
+                                                   void>>,
+                  ConditionalT<kIsUnsignedInteger<T>,
+                      ConditionalT<sizeof(T) == 4, atomic_uint,
+                      ConditionalT<sizeof(T) == 8, atomic_ulong,
+                                                   void>>,
+                  ConditionalT<kIsFloat<T>,
+                      ConditionalT<sizeof(T) == 4, atomic_float,
+                      ConditionalT<sizeof(T) == 8, atomic_double,
+                                                   void>>,
+                  void>>>;
+  static_assert(!kIsSame<void, AtomicT>, "The pointer is unsupported atomic type.");
+  using ASpaceInfo = AddressSpaceInfo<AddressSpacePointer>;
+#if !defined(ZIVC_CL_CPU)
+  static_assert((ASpaceInfo::isGlobal() != 0) || (ASpaceInfo::isLocal() != 0),
+                "The address space is unsupported.");
+#endif // ZIVC_CL_CPU
+  using TypeIn = typename ASpaceInfo::template AddressSpacePointerT<T>;
+  using ConstTIn = typename ASpaceInfo::template ConstAddressSpacePointerT<T>;
+
+ public:
+  using Type = typename ASpaceInfo::template AddressSpacePointerT<AtomicT>;
+  using ConstT = typename ASpaceInfo::template ConstAddressSpacePointerT<AtomicT>;
+  using MemoryOrderT = ZIVC_CL_GLOBAL_NAMESPACE::memory_order;
+
+
+  //! Convert to the built-in memory_order type
+  static MemoryOrderT convert(const MemoryOrder order) noexcept
+  {
+    return static_cast<MemoryOrderT>(order);
+  }
+};
+
+/*!
+  \details No detailed description
+
+  \tparam AddressSpacePointer No description.
+  \tparam Type No description.
+  \param [out] object No description.
+  \param [in] desired No description.
+  \param [in] order No description.
+  */
+template <typename AddressSpacePointer, typename Type> inline
+void Atomic::store(AddressSpacePointer object,
+                   const Type desired,
+                   const MemoryOrder order) noexcept
+{
+  using Object = AtomicObject<AddressSpacePointer>;
+  ZIVC_CL_GLOBAL_NAMESPACE::atomic_store_explicit(
+      castPointer<typename Object::Type>(object),
+      desired,
+      Object::convert(order));
 }
 
 /*!
+  \details No detailed description
+
+  \tparam AddressSpacePointer No description.
+  \param [in] object No description.
+  \return No description
   */
-template <typename AddressSpaceInteger, typename Integer> inline
-Integer Atomic::sub(AddressSpaceInteger p, const Integer value) noexcept
+template <typename AddressSpacePointer> inline
+auto Atomic::load(AddressSpacePointer object,
+                  const MemoryOrder order) noexcept
 {
-  const auto old = subImpl(p, value);
-  return old;
+  using Object = AtomicObject<AddressSpacePointer>;
+  return ZIVC_CL_GLOBAL_NAMESPACE::atomic_load_explicit(
+      castPointer<typename Object::Type>(object),
+      Object::convert(order));
 }
 
 /*!
+  \details No detailed description
+
+  \tparam AddressSpacePointer No description.
+  \tparam Type No description.
+  \param [in] desired No description.
+  \param [in] order No description.
+  \return No description
   */
-template <typename AddressSpaceType, typename Type> inline
-Type Atomic::swap(AddressSpaceType p, const Type value) noexcept
+template <typename AddressSpacePointer, typename Type> inline
+Type Atomic::exchange(AddressSpacePointer object,
+                      const Type desired,
+                      const MemoryOrder order) noexcept
 {
-  const auto old = swapImpl(p, value);
-  return old;
+  using Object = AtomicObject<AddressSpacePointer>;
+  return ZIVC_CL_GLOBAL_NAMESPACE::atomic_exchange_explicit(
+      castPointer<typename Object::Type>(object),
+      desired,
+      Object::convert(order));
 }
 
 /*!
+  \details No detailed description
+
+  \tparam AddressSpacePointer No description.
+  \tparam Type No description.
+  \param [in,out] object No description.
+  \param [in,out] expected No description.
+  \param [in] desired No description.
+  \param [in] success No description.
+  \param [in] failure No description.
+  \return No description
   */
-template <typename AddressSpaceInteger> inline
-auto Atomic::increment(AddressSpaceInteger p) noexcept
+template <typename AddressSpacePointer, typename Type> inline
+bool Atomic::compareExchange(AddressSpacePointer object,
+                             Type* expected,
+                             const Type desired,
+                             const MemoryOrder success,
+                             const MemoryOrder failure) noexcept
 {
-  const auto old = incrementImpl(p);
-  return old;
+  using Object = AtomicObject<AddressSpacePointer>;
+  return ZIVC_CL_GLOBAL_NAMESPACE::atomic_compare_exchange_strong_explicit(
+      castPointer<typename Object::Type>(object),
+      expected,
+      desired,
+      Object::convert(success),
+      Object::convert(failure));
 }
 
 /*!
+  \details No detailed description
+
+  \tparam AddressSpacePointer No description.
+  \param [in,out] object No description.
+  \param [in] order No description.
+  \return No description
   */
-template <typename AddressSpaceInteger> inline
-auto Atomic::decrement(AddressSpaceInteger p) noexcept
+template <typename AddressSpacePointer> inline
+auto Atomic::fetchInc(AddressSpacePointer object,
+                      const MemoryOrder order) noexcept
 {
-  const auto old = decrementImpl(p);
-  return old;
+  using T = RemoveCvrefAddressT<decltype(object[0])>;
+  return fetchAdd(object, T{1}, order);
 }
 
 /*!
+  \details No detailed description
+
+  \tparam AddressSpacePointer No description.
+  \param [in,out] object No description.
+  \param [in] order No description.
+  \return No description
   */
-template <typename AddressSpaceInteger, typename Integer> inline
-Integer Atomic::compareAndSwap(AddressSpaceInteger p,
-                               const Integer comp,
-                               const Integer value) noexcept
+template <typename AddressSpacePointer> inline
+auto Atomic::fetchDec(AddressSpacePointer object,
+                      const MemoryOrder order) noexcept
 {
-  const auto old = compareAndSwapImpl(p, comp, value);
-  return old;
+  using T = RemoveCvrefAddressT<decltype(object[0])>;
+  return fetchSub(object, T{1}, order);
 }
 
 /*!
+  \details No detailed description
+
+  \tparam AddressSpacePointer No description.
+  \tparam Type No description.
+  \param [in,out] object No description.
+  \param [in] operand No description.
+  \param [in] order No description.
+  \return No description
   */
-template <typename AddressSpaceInteger, typename Integer> inline
-Integer Atomic::min(AddressSpaceInteger p, const Integer value) noexcept
+template <typename AddressSpacePointer, typename Type> inline
+Type Atomic::fetchAdd(AddressSpacePointer object,
+                      const Type operand,
+                      const MemoryOrder order) noexcept
 {
-  const auto old = minImpl(p, value);
-  return old;
+  using Object = AtomicObject<AddressSpacePointer>;
+  return ZIVC_CL_GLOBAL_NAMESPACE::atomic_fetch_add_explicit(
+      castPointer<typename Object::Type>(object),
+      operand,
+      Object::convert(order));
 }
 
 /*!
+  \details No detailed description
+
+  \tparam AddressSpacePointer No description.
+  \tparam Type No description.
+  \param [in,out] object No description.
+  \param [in] operand No description.
+  \param [in] order No description.
+  \return No description
   */
-template <typename AddressSpaceInteger, typename Integer> inline
-Integer Atomic::max(AddressSpaceInteger p, const Integer value) noexcept
+template <typename AddressSpacePointer, typename Type> inline
+Type Atomic::fetchSub(AddressSpacePointer object,
+                      const Type operand,
+                      const MemoryOrder order) noexcept
 {
-  const auto old = maxImpl(p, value);
-  return old;
+  using Object = AtomicObject<AddressSpacePointer>;
+  return ZIVC_CL_GLOBAL_NAMESPACE::atomic_fetch_sub_explicit(
+      castPointer<typename Object::Type>(object),
+      operand,
+      Object::convert(order));
 }
 
 /*!
+  \details No detailed description
+
+  \tparam AddressSpacePointer No description.
+  \tparam Type No description.
+  \param [in,out] object No description.
+  \param [in] operand No description.
+  \param [in] order No description.
+  \return No description
   */
-template <typename AddressSpaceInteger, typename Integer> inline
-Integer Atomic::bitAnd(AddressSpaceInteger p, const Integer value) noexcept
+template <typename AddressSpacePointer, typename Type> inline
+Type Atomic::fetchAnd(AddressSpacePointer object,
+                      const Type operand,
+                      const MemoryOrder order) noexcept
 {
-  const auto old = bitAndImpl(p, value);
-  return old;
+  using Object = AtomicObject<AddressSpacePointer>;
+  return ZIVC_CL_GLOBAL_NAMESPACE::atomic_fetch_and_explicit(
+      castPointer<typename Object::Type>(object),
+      operand,
+      Object::convert(order));
 }
 
 /*!
+  \details No detailed description
+
+  \tparam AddressSpacePointer No description.
+  \tparam Type No description.
+  \param [in,out] object No description.
+  \param [in] operand No description.
+  \param [in] order No description.
+  \return No description
   */
-template <typename AddressSpaceInteger, typename Integer> inline
-Integer Atomic::bitOr(AddressSpaceInteger p, const Integer value) noexcept
+template <typename AddressSpacePointer, typename Type> inline
+Type Atomic::fetchOr(AddressSpacePointer object,
+                     const Type operand,
+                     const MemoryOrder order) noexcept
 {
-  const auto old = bitOrImpl(p, value);
-  return old;
+  using Object = AtomicObject<AddressSpacePointer>;
+  return ZIVC_CL_GLOBAL_NAMESPACE::atomic_fetch_or_explicit(
+      castPointer<typename Object::Type>(object),
+      operand,
+      Object::convert(order));
 }
 
 /*!
+  \details No detailed description
+
+  \tparam AddressSpacePointer No description.
+  \tparam Type No description.
+  \param [in,out] object No description.
+  \param [in] operand No description.
+  \param [in] order No description.
+  \return No description
   */
-template <typename AddressSpaceInteger, typename Integer> inline
-Integer Atomic::bitXor(AddressSpaceInteger p, const Integer value) noexcept
+template <typename AddressSpacePointer, typename Type> inline
+Type Atomic::fetchXor(AddressSpacePointer object,
+                      const Type operand,
+                      const MemoryOrder order) noexcept
 {
-  const auto old = bitXorImpl(p, value);
-  return old;
+  using Object = AtomicObject<AddressSpacePointer>;
+  return ZIVC_CL_GLOBAL_NAMESPACE::atomic_fetch_xor_explicit(
+      castPointer<typename Object::Type>(object),
+      operand,
+      Object::convert(order));
 }
 
 /*!
+  \details No detailed description
+
+  \tparam AddressSpacePointer No description.
+  \tparam Type No description.
+  \param [in,out] object No description.
+  \param [in] operand No description.
+  \param [in] order No description.
+  \return No description
   */
-template <typename AddressSpaceInteger, typename Function, typename ...Types> inline
-auto Atomic::perform(AddressSpaceInteger p,
+template <typename AddressSpacePointer, typename Type> inline
+Type Atomic::fetchMin(AddressSpacePointer object,
+                      const Type operand,
+                      const MemoryOrder order) noexcept
+{
+  using Object = AtomicObject<AddressSpacePointer>;
+  return ZIVC_CL_GLOBAL_NAMESPACE::atomic_fetch_min_explicit(
+      castPointer<typename Object::Type>(object),
+      operand,
+      Object::convert(order));
+}
+
+/*!
+  \details No detailed description
+
+  \tparam AddressSpacePointer No description.
+  \tparam Type No description.
+  \param [in,out] object No description.
+  \param [in] operand No description.
+  \param [in] order No description.
+  \return No description
+  */
+template <typename AddressSpacePointer, typename Type> inline
+Type Atomic::fetchMax(AddressSpacePointer object,
+                      const Type operand,
+                      const MemoryOrder order) noexcept
+{
+  using Object = AtomicObject<AddressSpacePointer>;
+  return ZIVC_CL_GLOBAL_NAMESPACE::atomic_fetch_max_explicit(
+      castPointer<typename Object::Type>(object),
+      operand,
+      Object::convert(order));
+}
+
+/*!
+  \details No detailed description
+
+  \tparam AddressSpacePointer No description.
+  \tparam Function No description.
+  \tparam Types No description.
+  \param [in,out] p No description.
+  \param [in] expression No description.
+  \param [in] arguments No description.
+  \return No description
+  */
+template <typename AddressSpacePointer, typename Function, typename ...Types> inline
+auto Atomic::perform(AddressSpacePointer p,
                      Function expression,
-                     Types&&... arguments) noexcept
+                     Types&&... arguments,
+                     const MemoryOrder success,
+                     const MemoryOrder failure) noexcept
 {
-  const auto old = performImpl(p, expression, forward<Types>(arguments)...);
-  return old;
-}
-
-/*!
-  */
-template <typename AddressSpaceInteger, typename Integer> inline
-Integer Atomic::addImpl(AddressSpaceInteger p, const Integer value) noexcept
-{
-  static_assert(isGlobalOrLocalInteger32Ptr<AddressSpaceInteger>(),
-                "The given p isn't global or local 32bit integer.");
-  static_assert(isInteger32<Integer>(),
-                "The Integer isn't 32bit integer type.");
-  const auto old = ZIVC_CL_GLOBAL_NAMESPACE::atomic_add(p, value);
-  return old;
-}
-
-/*!
-  */
-template <typename AddressSpaceInteger, typename Integer> inline
-Integer Atomic::subImpl(AddressSpaceInteger p, const Integer value) noexcept
-{
-  static_assert(isGlobalOrLocalInteger32Ptr<AddressSpaceInteger>(),
-                "The given p isn't global or local 32bit integer.");
-  static_assert(isInteger32<Integer>(),
-                "The Integer isn't 32bit integer type.");
-  const auto old = ZIVC_CL_GLOBAL_NAMESPACE::atomic_sub(p, value);
-  return old;
-}
-
-/*!
-  */
-template <typename AddressSpaceType, typename Type> inline
-Type Atomic::swapImpl(AddressSpaceType p, const Type value) noexcept
-{
-  static_assert(isGlobalOrLocalInteger32Ptr<AddressSpaceType>(),
-                "The given p isn't global or local 32bit integer.");
-  static_assert(isInteger32<Type>(),
-                "The Integer isn't 32bit integer type.");
-  const auto old = ZIVC_CL_GLOBAL_NAMESPACE::atomic_xchg(p, value);
-  return old;
-}
-
-/*!
-  */
-template <typename AddressSpaceInteger> inline
-auto Atomic::incrementImpl(AddressSpaceInteger p) noexcept
-{
-  static_assert(isGlobalOrLocalInteger32Ptr<AddressSpaceInteger>(),
-                "The given p isn't global or local 32bit integer.");
-  const auto old = ZIVC_CL_GLOBAL_NAMESPACE::atomic_inc(p);
-  return old;
-}
-
-/*!
-  */
-template <typename AddressSpaceInteger> inline
-auto Atomic::decrementImpl(AddressSpaceInteger p) noexcept
-{
-  static_assert(isGlobalOrLocalInteger32Ptr<AddressSpaceInteger>(),
-                "The given p isn't global or local 32bit integer.");
-  const auto old = ZIVC_CL_GLOBAL_NAMESPACE::atomic_dec(p);
-  return old;
-}
-
-/*!
-  */
-template <typename AddressSpaceInteger, typename Integer> inline
-Integer Atomic::compareAndSwapImpl(AddressSpaceInteger p,
-                                   const Integer comp,
-                                   const Integer value) noexcept
-{
-  static_assert(isGlobalOrLocalInteger32Ptr<AddressSpaceInteger>(),
-                "The given p isn't global or local 32bit integer.");
-  static_assert(isInteger32<Integer>(),
-                "The Integer isn't 32bit integer type.");
-  const auto old = ZIVC_CL_GLOBAL_NAMESPACE::atomic_cmpxchg(p, comp, value);
-  return old;
-}
-
-/*!
-  */
-template <typename AddressSpaceInteger, typename Integer> inline
-Integer Atomic::minImpl(AddressSpaceInteger p, const Integer value) noexcept
-{
-  static_assert(isGlobalOrLocalInteger32Ptr<AddressSpaceInteger>(),
-                "The given p isn't global or local 32bit integer.");
-  static_assert(isInteger32<Integer>(),
-                "The Integer isn't 32bit integer type.");
-  const auto old = ZIVC_CL_GLOBAL_NAMESPACE::atomic_min(p, value);
-  return old;
-}
-
-/*!
-  */
-template <typename AddressSpaceInteger, typename Integer> inline
-Integer Atomic::maxImpl(AddressSpaceInteger p, const Integer value) noexcept
-{
-  static_assert(isGlobalOrLocalInteger32Ptr<AddressSpaceInteger>(),
-                "The given p isn't global or local 32bit integer.");
-  static_assert(isInteger32<Integer>(),
-                "The Integer isn't 32bit integer type.");
-  const auto old = ZIVC_CL_GLOBAL_NAMESPACE::atomic_max(p, value);
-  return old;
-}
-
-/*!
-  */
-template <typename AddressSpaceInteger, typename Integer> inline
-Integer Atomic::bitAndImpl(AddressSpaceInteger p, const Integer value) noexcept
-{
-  static_assert(isGlobalOrLocalInteger32Ptr<AddressSpaceInteger>(),
-                "The given p isn't global or local 32bit integer.");
-  static_assert(isInteger32<Integer>(),
-                "The Integer isn't 32bit integer type.");
-  const auto old = ZIVC_CL_GLOBAL_NAMESPACE::atomic_and(p, value);
-  return old;
-}
-
-/*!
-  */
-template <typename AddressSpaceInteger, typename Integer> inline
-Integer Atomic::bitOrImpl(AddressSpaceInteger p, const Integer value) noexcept
-{
-  static_assert(isGlobalOrLocalInteger32Ptr<AddressSpaceInteger>(),
-                "The given p isn't global or local 32bit integer.");
-  static_assert(isInteger32<Integer>(),
-                "The Integer isn't 32bit integer type.");
-  const auto old = ZIVC_CL_GLOBAL_NAMESPACE::atomic_or(p, value);
-  return old;
-}
-
-/*!
-  */
-template <typename AddressSpaceInteger, typename Integer> inline
-Integer Atomic::bitXorImpl(AddressSpaceInteger p, const Integer value) noexcept
-{
-  static_assert(isGlobalOrLocalInteger32Ptr<AddressSpaceInteger>(),
-                "The given p isn't global or local 32bit integer.");
-  static_assert(isInteger32<Integer>(),
-                "The Integer isn't 32bit integer type.");
-  const auto old = ZIVC_CL_GLOBAL_NAMESPACE::atomic_xor(p, value);
-  return old;
-}
-
-/*!
-  */
-template <typename AddressSpaceInteger, typename Function, typename ...Types> inline
-auto Atomic::performImpl(AddressSpaceInteger p,
-                         Function expression,
-                         Types&&... arguments) noexcept
-{
-  static_assert(isGlobalOrLocalInteger32Ptr<AddressSpaceInteger>(),
-                "The given p isn't global or local 32bit integer.");
-  using Integer = RemoveCvrefType<decltype(expression(*p, arguments...))>;
-  static_assert(isInteger32<Integer>(),
+  using ReturnT = RemoveCvrefT<decltype(expression(*p, arguments...))>;
+  static_assert(isInteger32<ReturnT>(),
                 "The return type of the expression isn't 32bit integer type.");
   // Perform an expression atomically
   auto old = *p;
   auto cmp = old;
-#if !(defined(Z_MAC) && defined(ZIVC_CL_VULKAN))
   do {
-#endif
     cmp = old;
-    const auto value = expression(cmp, forward<Types>(arguments)...);
-    old = compareAndSwap(p, cmp, value);
-#if !(defined(Z_MAC) && defined(ZIVC_CL_VULKAN))
+    const ReturnT value = expression(cmp, forward<Types>(arguments)...);
+    old = compareExchange(p, cmp, value, success, failure);
   } while (old != cmp);
-#endif
   return old;
 }
 
+
 /*!
+  \details No detailed description
+
+  \tparam AddressSpacePointer No description.
+  \tparam Type No description.
+  \param [out] object No description.
+  \param [in] desired No description.
+  \param [in] order No description.
   */
-template <typename Type> inline
-constexpr bool Atomic::isGlobalOrLocalPtr() noexcept
+template <typename AddressSpacePointer, typename Type> inline
+void atomic_store(AddressSpacePointer object,
+                  const Type desired,
+                  const MemoryOrder order) noexcept
 {
-  using ASpaceInfo = AddressSpaceInfo<Type>;
-  const bool is_global_or_local = (ASpaceInfo::isGlobal() != 0) ||
-                                  (ASpaceInfo::isLocal() != 0);
-  const bool is_pointer = ASpaceInfo::isPointer() != 0;
-  return is_global_or_local && is_pointer;
+  Atomic::store(object, desired, order);
 }
 
 /*!
+  \details No detailed description
+
+  \tparam AddressSpacePointer No description.
+  \param [in] object No description.
+  \return No description
   */
-template <typename Type> inline
-constexpr bool Atomic::isGlobalOrLocalInteger32Ptr() noexcept
+template <typename AddressSpacePointer> inline
+auto atomic_load(AddressSpacePointer object,
+                 const MemoryOrder order) noexcept
 {
-  using ASpaceInfo = AddressSpaceInfo<Type>;
-  using DataType = typename ASpaceInfo::DataType;
-  return isGlobalOrLocalPtr<Type>() && isInteger32<DataType>();
+  return Atomic::load(object, order);
 }
 
 /*!
+  \details No detailed description
+
+  \tparam AddressSpacePointer No description.
+  \tparam Type No description.
+  \param [in] desired No description.
+  \param [in] order No description.
+  \return No description
   */
-template <typename Type> inline
-constexpr bool Atomic::isInteger32() noexcept
+template <typename AddressSpacePointer, typename Type> inline
+Type atomic_exchange(AddressSpacePointer object,
+                     const Type desired,
+                     const MemoryOrder order) noexcept
 {
-  const bool is_integer32 = (kIsInteger<Type> != 0) && (sizeof(Type) == 4);
-  return is_integer32;
+  return Atomic::exchange(object, desired, order);
 }
 
 /*!
+  \details No detailed description
+
+  \tparam AddressSpacePointer No description.
+  \tparam Type No description.
+  \param [in,out] object No description.
+  \param [in,out] expected No description.
+  \param [in] desired No description.
+  \param [in] success No description.
+  \param [in] failure No description.
+  \return No description
   */
-template <typename AddressSpaceInteger, typename Integer> inline
-Integer atomic_add(AddressSpaceInteger p, const Integer value) noexcept
+template <typename AddressSpacePointer, typename Type> inline
+bool atomic_compare_exchange(AddressSpacePointer object,
+                             Type* expected,
+                             const Type desired,
+                             const MemoryOrder success,
+                             const MemoryOrder failure) noexcept
 {
-  const auto old = Atomic::add(p, value);
-  return old;
+  return Atomic::compareExchange(object, expected, desired, success, failure);
 }
 
 /*!
+  \details No detailed description
+
+  \tparam AddressSpacePointer No description.
+  \param [in,out] object No description.
+  \param [in] order No description.
+  \return No description
   */
-template <typename AddressSpaceInteger, typename Integer> inline
-Integer atomic_sub(AddressSpaceInteger p, const Integer value) noexcept
+template <typename AddressSpacePointer> inline
+auto atomic_fetch_inc(AddressSpacePointer object,
+                      const MemoryOrder order) noexcept
 {
-  const auto old = Atomic::sub(p, value);
-  return old;
+  return Atomic::fetchInc(object, order);
 }
 
 /*!
+  \details No detailed description
+
+  \tparam AddressSpacePointer No description.
+  \param [in,out] object No description.
+  \param [in] order No description.
+  \return No description
   */
-template <typename AddressSpaceType, typename Type> inline
-Type atomic_xchg(AddressSpaceType p, const Type value) noexcept
+template <typename AddressSpacePointer> inline
+auto atomic_fetch_dec(AddressSpacePointer object,
+                      const MemoryOrder order) noexcept
 {
-  const auto old = Atomic::swap(p, value);
-  return old;
+  return Atomic::fetchDec(object, order);
 }
 
 /*!
+  \details No detailed description
+
+  \tparam AddressSpacePointer No description.
+  \tparam Type No description.
+  \param [in,out] object No description.
+  \param [in] operand No description.
+  \param [in] order No description.
+  \return No description
   */
-template <typename AddressSpaceInteger> inline
-auto atomic_inc(AddressSpaceInteger p) noexcept
+template <typename AddressSpacePointer, typename Type> inline
+Type atomic_fetch_add(AddressSpacePointer object,
+                      const Type operand,
+                      const MemoryOrder order) noexcept
 {
-  const auto old = Atomic::increment(p);
-  return old;
+  return Atomic::fetchAdd(object, operand, order);
 }
 
 /*!
+  \details No detailed description
+
+  \tparam AddressSpacePointer No description.
+  \tparam Type No description.
+  \param [in,out] object No description.
+  \param [in] operand No description.
+  \param [in] order No description.
+  \return No description
   */
-template <typename AddressSpaceInteger> inline
-auto atomic_dec(AddressSpaceInteger p) noexcept
+template <typename AddressSpacePointer, typename Type> inline
+Type atomic_fetch_sub(AddressSpacePointer object,
+                      const Type operand,
+                      const MemoryOrder order) noexcept
 {
-  const auto old = Atomic::decrement(p);
-  return old;
+  return Atomic::fetchSub(object, operand, order);
 }
 
 /*!
+  \details No detailed description
+
+  \tparam AddressSpacePointer No description.
+  \tparam Type No description.
+  \param [in,out] object No description.
+  \param [in] operand No description.
+  \param [in] order No description.
+  \return No description
   */
-template <typename AddressSpaceInteger, typename Integer> inline
-Integer atomic_cmpxchg(AddressSpaceInteger p,
-                       const Integer comp,
-                       const Integer value) noexcept
+template <typename AddressSpacePointer, typename Type> inline
+Type atomic_fetch_and(AddressSpacePointer object,
+                      const Type operand,
+                      const MemoryOrder order) noexcept
 {
-  const auto old = Atomic::compareAndSwap(p, comp, value);
-  return old;
+  return Atomic::fetchAnd(object, operand, order);
 }
 
 /*!
+  \details No detailed description
+
+  \tparam AddressSpacePointer No description.
+  \tparam Type No description.
+  \param [in,out] object No description.
+  \param [in] operand No description.
+  \param [in] order No description.
+  \return No description
   */
-template <typename AddressSpaceInteger, typename Integer> inline
-Integer atomic_min(AddressSpaceInteger p, const Integer value) noexcept
+template <typename AddressSpacePointer, typename Type> inline
+Type atomic_fetch_or(AddressSpacePointer object,
+                     const Type operand,
+                     const MemoryOrder order) noexcept
 {
-  const auto old = Atomic::min(p, value);
-  return old;
+  return Atomic::fetchOr(object, operand, order);
 }
 
 /*!
+  \details No detailed description
+
+  \tparam AddressSpacePointer No description.
+  \tparam Type No description.
+  \param [in,out] object No description.
+  \param [in] operand No description.
+  \param [in] order No description.
+  \return No description
   */
-template <typename AddressSpaceInteger, typename Integer> inline
-Integer atomic_max(AddressSpaceInteger p, const Integer value) noexcept
+template <typename AddressSpacePointer, typename Type> inline
+Type atomic_fetch_xor(AddressSpacePointer object,
+                      const Type operand,
+                      const MemoryOrder order) noexcept
 {
-  const auto old = Atomic::max(p, value);
-  return old;
+  return Atomic::fetchXor(object, operand, order);
 }
 
 /*!
+  \details No detailed description
+
+  \tparam AddressSpacePointer No description.
+  \tparam Type No description.
+  \param [in,out] object No description.
+  \param [in] operand No description.
+  \param [in] order No description.
+  \return No description
   */
-template <typename AddressSpaceInteger, typename Integer> inline
-Integer atomic_and(AddressSpaceInteger p, const Integer value) noexcept
+template <typename AddressSpacePointer, typename Type> inline
+Type atomic_fetch_min(AddressSpacePointer object,
+                      const Type operand,
+                      const MemoryOrder order) noexcept
 {
-  const auto old = Atomic::bitAnd(p, value);
-  return old;
+  return Atomic::fetchMin(object, operand, order);
 }
 
 /*!
-  */
-template <typename AddressSpaceInteger, typename Integer> inline
-Integer atomic_or(AddressSpaceInteger p, const Integer value) noexcept
-{
-  const auto old = Atomic::bitOr(p, value);
-  return old;
-}
+  \details No detailed description
 
-/*!
+  \tparam AddressSpacePointer No description.
+  \tparam Type No description.
+  \param [in,out] object No description.
+  \param [in] operand No description.
+  \param [in] order No description.
+  \return No description
   */
-template <typename AddressSpaceInteger, typename Integer> inline
-Integer atoic_xor(AddressSpaceInteger p, const Integer value) noexcept
+template <typename AddressSpacePointer, typename Type> inline
+Type atomic_fetch_max(AddressSpacePointer object,
+                      const Type operand,
+                      const MemoryOrder order) noexcept
 {
-  const auto old = Atomic::bitXor(p, value);
-  return old;
+  return Atomic::fetchMax(object, operand, order);
 }
 
 } // namespace zivc

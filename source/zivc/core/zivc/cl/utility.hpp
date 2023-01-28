@@ -592,10 +592,10 @@ constexpr bool equal(const Type1& lhs, const Type2& rhs) noexcept;
 
 //!
 template <typename Type>
-Type&& forward(RemoveReferenceType<Type>& t) noexcept;
+Type&& forward(RemoveReferenceT<Type>& t) noexcept;
 
 template <typename Type>
-Type&& forward(RemoveReferenceType<Type>&& t) noexcept;
+Type&& forward(RemoveReferenceT<Type>&& t) noexcept;
 
 } // namespace zivc
 

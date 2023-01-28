@@ -32,6 +32,9 @@ using uint64b = inner::uint64b; //!< 64bit unsigned integer type
 //! Alias of '__global'
 template <typename Type>
 using Global = inner::Global<Type>;
+//! Alias of 'const __global'
+template <typename Type>
+using ConstGlobal = inner::ConstGlobal<Type>;
 //! Alias of '__global*'
 template <typename Type>
 using GlobalPtr = inner::GlobalPtr<Type>;
@@ -42,6 +45,9 @@ using ConstGlobalPtr = inner::ConstGlobalPtr<Type>;
 //! Alias of '__local'
 template <typename Type>
 using Local = inner::Local<Type>;
+//! Alias of 'const __local'
+template <typename Type>
+using ConstLocal = inner::ConstLocal<Type>;
 //! Alias of '__local*'
 template <typename Type>
 using LocalPtr = inner::LocalPtr<Type>;
@@ -62,6 +68,9 @@ using ConstConstantPtr = inner::ConstConstantPtr<Type>;
 //! Alias of '__private'
 template <typename Type>
 using Private = inner::Private<Type>;
+//! Alias of 'const __private'
+template <typename Type>
+using ConstPrivate = inner::ConstPrivate<Type>;
 //! Alias of '__private*'
 template <typename Type>
 using PrivatePtr = inner::PrivatePtr<Type>;
@@ -72,6 +81,9 @@ using ConstPrivatePtr = inner::ConstPrivatePtr<Type>;
 //! Alias of '__generic'
 template <typename Type>
 using Generic = inner::Generic<Type>;
+//! Alias of 'const __generic'
+template <typename Type>
+using ConstGeneric = inner::ConstGeneric<Type>;
 //! Alias of '__generic*'
 template <typename Type>
 using GenericPtr = inner::GenericPtr<Type>;

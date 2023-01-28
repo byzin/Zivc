@@ -32,12 +32,16 @@ using uint64b = ::zivc::uint64b;
 template <typename Type>
 using Global = Type;
 template <typename Type>
+using ConstGlobal = const Global<Type>;
+template <typename Type>
 using GlobalPtr = AddressSpacePointer<AddressSpaceType::kGlobal, Type>;
 template <typename Type>
 using ConstGlobalPtr = AddressSpacePointer<AddressSpaceType::kGlobal, const Type>;
 // Local
 template <typename Type>
 using Local = Type;
+template <typename Type>
+using ConstLocal = const Local<Type>;
 template <typename Type>
 using LocalPtr = AddressSpacePointer<AddressSpaceType::kLocal, Type>;
 template <typename Type>
@@ -53,12 +57,16 @@ using ConstConstantPtr = AddressSpacePointer<AddressSpaceType::kConstant, const 
 template <typename Type>
 using Private = Type;
 template <typename Type>
+using ConstPrivate = const Private<Type>;
+template <typename Type>
 using PrivatePtr = AddressSpacePointer<AddressSpaceType::kPrivate, Type>;
 template <typename Type>
 using ConstPrivatePtr = AddressSpacePointer<AddressSpaceType::kPrivate, const Type>;
 // Generic
 template <typename Type>
 using Generic = Type;
+template <typename Type>
+using ConstGeneric = const Generic<Type>;
 template <typename Type>
 using GenericPtr = PrivatePtr<Type>;
 template <typename Type>
@@ -79,12 +87,16 @@ using uint64b = unsigned long;
 template <typename Type>
 using Global = __global Type;
 template <typename Type>
+using ConstGlobal = const Global<Type>;
+template <typename Type>
 using GlobalPtr = Global<Type>*;
 template <typename Type>
 using ConstGlobalPtr = const Global<Type>*;
 // Local
 template <typename Type>
 using Local = __local Type;
+template <typename Type>
+using ConstLocal = const Local<Type>;
 template <typename Type>
 using LocalPtr = Local<Type>*;
 template <typename Type>
@@ -100,12 +112,16 @@ using ConstConstantPtr = const Constant<Type>*;
 template <typename Type>
 using Private = __private Type;
 template <typename Type>
+using ConstPrivate = const Private<Type>;
+template <typename Type>
 using PrivatePtr = Private<Type>*;
 template <typename Type>
 using ConstPrivatePtr = const Private<Type>*;
 // Generic
 template <typename Type>
 using Generic = __generic Type;
+template <typename Type>
+using ConstGeneric = const Generic<Type>;
 template <typename Type>
 using GenericPtr = Generic<Type>*;
 template <typename Type>

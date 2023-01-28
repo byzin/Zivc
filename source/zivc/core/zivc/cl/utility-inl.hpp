@@ -720,17 +720,16 @@ struct TypeConverter
   template <> \
   struct TypeConverter< type > \
   { \
-    using ScalarT = ScalarType< type >; \
     static constexpr size_t kDestVectorN = kVectorSize< type >; \
     template <typename T> \
     static type cast(T&& value) noexcept \
     { \
-      using SourceT = RemoveCvRefAddressT<T>; \
+      using SourceT = RemoveCvrefAddressT<T>; \
       constexpr size_t kSourceVectorN = kVectorSize<SourceT>; \
       if constexpr (kSourceVectorN == kDestVectorN) \
         return convert_ ## type (value); \
       else \
-        return static_cast< type >(static_cast<ScalarT>(forward<T>(value))); \
+        return static_cast< type >(static_cast<ScalarT< type >>(forward<T>(value))); \
     } \
   }
 
@@ -883,7 +882,7 @@ constexpr bool equal(const Type1& lhs, const Type2& rhs) noexcept
 template <typename Type, typename T> inline
 Type reinterp(T object) noexcept
 {
-  auto result = inner::TypeConverter<RemoveVolatileType<Type>>::reinterp(object);
+  auto result = inner::TypeConverter<RemoveVolatileT<Type>>::reinterp(object);
   return result;
 }
 
@@ -895,7 +894,7 @@ Type reinterp(T object) noexcept
   \return No description
   */
 template <typename Type> inline
-Type&& forward(RemoveReferenceType<Type>& t) noexcept
+Type&& forward(RemoveReferenceT<Type>& t) noexcept
 {
   return static_cast<Type&&>(t);
 }
@@ -908,7 +907,7 @@ Type&& forward(RemoveReferenceType<Type>& t) noexcept
   \return No description
   */
 template <typename Type> inline
-Type&& forward(RemoveReferenceType<Type>&& t) noexcept
+Type&& forward(RemoveReferenceT<Type>&& t) noexcept
 {
   static_assert(!kIsLValueReference<Type>, "The Type is lvalue reference.");
   return static_cast<Type&&>(t);

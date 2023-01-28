@@ -1553,7 +1553,7 @@ __kernel void scalarCastTest(zivc::ConstGlobalPtr<int32b> in_int,
                                       auto out) noexcept
   {
     size_t index = 0;
-    using Type = zivc::RemoveCvRefAddressT<decltype(out[0])>;
+    using Type = zivc::RemoveCvrefAddressT<decltype(out[0])>;
     for (size_t i = 0; i < int_n; ++i)
       out[index++] = zivc::cast<Type>(in0[i]);
     for (size_t i = 0; i < float_n; ++i)
@@ -1616,7 +1616,7 @@ __kernel void vector2CastTest(zivc::ConstGlobalPtr<int32b> in_int,
                                                       auto out) noexcept
   {
     size_t index = 0;
-    using Type = zivc::RemoveCvRefAddressT<decltype(out[0])>;
+    using Type = zivc::RemoveCvrefAddressT<decltype(out[0])>;
     for (size_t i = 0; i < int_n; ++i)
       out[index++] = zivc::cast<Type>(in0[i]);
     for (size_t i = 0; i < float_n; ++i)
@@ -1663,7 +1663,7 @@ __kernel void vector3CastTest(zivc::ConstGlobalPtr<int32b> in_int,
                                                       auto out) noexcept
   {
     size_t index = 0;
-    using Type = zivc::RemoveCvRefAddressT<decltype(out[0])>;
+    using Type = zivc::RemoveCvrefAddressT<decltype(out[0])>;
     for (size_t i = 0; i < int_n; ++i)
       out[index++] = zivc::cast<Type>(in0[i]);
     for (size_t i = 0; i < float_n; ++i)
@@ -1710,7 +1710,7 @@ __kernel void vector4CastTest(zivc::ConstGlobalPtr<int32b> in_int,
                                                       auto out) noexcept
   {
     size_t index = 0;
-    using Type = zivc::RemoveCvRefAddressT<decltype(out[0])>;
+    using Type = zivc::RemoveCvrefAddressT<decltype(out[0])>;
     for (size_t i = 0; i < int_n; ++i)
       out[index++] = zivc::cast<Type>(in0[i]);
     for (size_t i = 0; i < float_n; ++i)

@@ -213,6 +213,13 @@ macro(setTestProject)
       SOURCE_FILES ${cl_cpp_test_relation_sources}
       INCLUDE_DIRS "${kernel_set_cl_cpp_test_relation_dir}")
   target_link_libraries(${PROJECT_NAME} PRIVATE ${kernel_name})
+  ## opencl C++ atomic
+  cmake_path(SET kernel_set_cl_cpp_test_atomic_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/cl_cpp_test_atomic")
+  file(GLOB_RECURSE cl_cpp_test_atomic_sources ${kernel_set_cl_cpp_test_atomic_dir}/*.cl)
+  Zivc_addKernelSet(cl_cpp_test_atomic ${PROJECT_VERSION} kernel_name
+      SOURCE_FILES ${cl_cpp_test_atomic_sources}
+      INCLUDE_DIRS "${kernel_set_cl_cpp_test_atomic_dir}")
+  target_link_libraries(${PROJECT_NAME} PRIVATE ${kernel_name})
 
   # Add tests for CMake
   add_test(NAME ${PROJECT_NAME}-cpu COMMAND ${PROJECT_NAME} --device cpu
@@ -223,11 +230,17 @@ macro(setTestProject)
   add_test(NAME ${PROJECT_NAME}-vulkan0-nodebug
                COMMAND ${PROJECT_NAME} --device vulkan0 --nodebug
                WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
+  add_test(NAME ${PROJECT_NAME}-vulkan0-full
+               COMMAND ${PROJECT_NAME} --device vulkan0
+               WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
   add_test(NAME ${PROJECT_NAME}-vulkan1-debug
                COMMAND ${PROJECT_NAME} --device vulkan1
                WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
   add_test(NAME ${PROJECT_NAME}-vulkan1-nodebug
                COMMAND ${PROJECT_NAME} --device vulkan1 --nodebug
+               WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
+  add_test(NAME ${PROJECT_NAME}-vulkan1-full
+               COMMAND ${PROJECT_NAME} --device vulkan1
                WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
   add_test(NAME ${PROJECT_NAME}-vulkan2-debug
                COMMAND ${PROJECT_NAME} --device vulkan2
@@ -235,17 +248,29 @@ macro(setTestProject)
   add_test(NAME ${PROJECT_NAME}-vulkan2-nodebug
                COMMAND ${PROJECT_NAME} --device vulkan2 --nodebug
                WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
+  add_test(NAME ${PROJECT_NAME}-vulkan2-full
+               COMMAND ${PROJECT_NAME} --device vulkan2
+               WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
   add_test(NAME ${PROJECT_NAME}-vulkan3-debug
                COMMAND ${PROJECT_NAME} --device vulkan3
                WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
   add_test(NAME ${PROJECT_NAME}-vulkan3-nodebug
                COMMAND ${PROJECT_NAME} --device vulkan3 --nodebug
                WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
+  add_test(NAME ${PROJECT_NAME}-vulkan3-full
+               COMMAND ${PROJECT_NAME} --device vulkan3
+               WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
   set(test_env_list "")
   list(APPEND test_env_list GTEST_COLOR=1
                             ZIVC_SUPPRESS_TRIVIAL_WARNINGS=1)
   set_tests_properties(${PROJECT_NAME}-cpu
-                       ${PROJECT_NAME}-vulkan0-debug
+                       ${PROJECT_NAME}-vulkan0-full
+                       ${PROJECT_NAME}-vulkan1-full
+                       ${PROJECT_NAME}-vulkan2-full
+                       ${PROJECT_NAME}-vulkan3-full
+                       PROPERTIES ENVIRONMENT "${test_env_list}")
+  list(APPEND test_env_list GTEST_FILTER=-*AllocationExceptionTest*:*Geometry*)
+  set_tests_properties(${PROJECT_NAME}-vulkan0-debug
                        ${PROJECT_NAME}-vulkan0-nodebug
                        ${PROJECT_NAME}-vulkan1-debug
                        ${PROJECT_NAME}-vulkan1-nodebug

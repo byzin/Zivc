@@ -26,10 +26,10 @@ template <bool value>
 using BoolConstant = IntegralConstant<bool, value>;
 
 //!
-using TrueType = BoolConstant<true>;
+using TrueT = BoolConstant<true>;
 
 //!
-using FalseType = BoolConstant<false>;
+using FalseT = BoolConstant<false>;
 
 
 // Primary type categories
@@ -88,7 +88,7 @@ struct IntegerFromBytes
 
 //!
 template <size_t kBytes>
-using IntegerTypeFromBytes = typename IntegerFromBytes<kBytes>::Type;
+using IntegerTFromBytes = typename IntegerFromBytes<kBytes>::Type;
 
 //! Make an unsigned integer type from byte size
 template <size_t kBytes>
@@ -100,7 +100,7 @@ struct UIntegerFromBytes
 
 //!
 template <size_t kBytes>
-using UIntegerTypeFromBytes = typename UIntegerFromBytes<kBytes>::Type;
+using UIntegerTFromBytes = typename UIntegerFromBytes<kBytes>::Type;
 
 //! Make a floating point type from byte size
 template <size_t kBytes>
@@ -112,13 +112,13 @@ struct FloatFromBytes
 
 //!
 template <size_t kBytes>
-using FloatTypeFromBytes = typename FloatFromBytes<kBytes>::Type;
+using FloatTFromBytes = typename FloatFromBytes<kBytes>::Type;
 
 //! Information of a vector type
 template <typename T>
 struct VectorTypeInfo
 {
-  using ElementType = T;
+  using ElementT = T;
   using Type = T;
   //! Return the number of elements of the type
   static constexpr size_t size() noexcept {return 1u;}
@@ -133,75 +133,81 @@ struct VectorFromElems
 
 //!
 template <typename ElementType, size_t kN>
-using VectorTypeFromElems = typename VectorFromElems<ElementType, kN>::Type;
+using VectorTFromElems = typename VectorFromElems<ElementType, kN>::Type;
 
 //!
 template <size_t kN>
-using Integer8VecType = VectorTypeFromElems<int8b, kN>;
+using Integer8VecT = VectorTFromElems<int8b, kN>;
 
 //!
 template <size_t kN>
-using Integer16VecType = VectorTypeFromElems<int16b, kN>;
+using Integer16VecT = VectorTFromElems<int16b, kN>;
 
 //!
 template <size_t kN>
-using Integer32VecType = VectorTypeFromElems<int32b, kN>;
+using Integer32VecT = VectorTFromElems<int32b, kN>;
 
 //!
 template <size_t kN>
-using Integer64VecType = VectorTypeFromElems<int64b, kN>;
+using Integer64VecT = VectorTFromElems<int64b, kN>;
 
 //!
 template <size_t kN>
-using UInteger8VecType = VectorTypeFromElems<uint8b, kN>;
+using UInteger8VecT = VectorTFromElems<uint8b, kN>;
 
 //!
 template <size_t kN>
-using UInteger16VecType = VectorTypeFromElems<uint16b, kN>;
+using UInteger16VecT = VectorTFromElems<uint16b, kN>;
 
 //!
 template <size_t kN>
-using UInteger32VecType = VectorTypeFromElems<uint32b, kN>;
+using UInteger32VecT = VectorTFromElems<uint32b, kN>;
 
 //!
 template <size_t kN>
-using UInteger64VecType = VectorTypeFromElems<uint64b, kN>;
+using UInteger64VecT = VectorTFromElems<uint64b, kN>;
 
 //!
 template <size_t kN>
-using Float16VecType = VectorTypeFromElems<half, kN>;
+using Float16VecT = VectorTFromElems<half, kN>;
 
 //!
 template <size_t kN>
-using Float32VecType = VectorTypeFromElems<float, kN>;
+using Float32VecT = VectorTFromElems<float, kN>;
 
 //!
 template <size_t kN>
-using Float64VecType = VectorTypeFromElems<double, kN>;
+using Float64VecT = VectorTFromElems<double, kN>;
 
 //! Integer vector type that has same element size and alignment as the given type
 template <typename T>
-using IntegerTypeFromVec = VectorTypeFromElems<
-    IntegerTypeFromBytes<sizeof(typename VectorTypeInfo<T>::ElementType)>,
+using IntegerTFromVec = VectorTFromElems<
+    IntegerTFromBytes<sizeof(typename VectorTypeInfo<T>::ElementT)>,
     VectorTypeInfo<T>::size()>;
 
 //! Unsigned integer type that has same element size and alignment as the given type
 template <typename T>
-using UIntegerTypeFromVec = VectorTypeFromElems<
-    UIntegerTypeFromBytes<sizeof(typename VectorTypeInfo<T>::ElementType)>,
+using UIntegerTFromVec = VectorTFromElems<
+    UIntegerTFromBytes<sizeof(typename VectorTypeInfo<T>::ElementT)>,
     VectorTypeInfo<T>::size()>;
 
 //! Floating point type that has same element size and alignment as the given type
 template <typename T>
-using FloatTypeFrom = VectorTypeFromElems<
-    FloatTypeFromBytes<sizeof(typename VectorTypeInfo<T>::ElementType)>,
+using FloatTFrom = VectorTFromElems<
+    FloatTFromBytes<sizeof(typename VectorTypeInfo<T>::ElementT)>,
     VectorTypeInfo<T>::size()>;
 
 //! Information of an address space type
 template <typename T>
 class AddressSpaceInfo;
 //{
-//  using DataType = typename ASpaceInfo::DataType;
+//  using DataT = typename ASpaceInfo::DataT;
+//  using Pointer = PrivatePtr<DataT>;
+//  using ConstPointer = ConstPrivatePtr<DataT>;
+//  template <typename Type>
+//  using AddressSpacePointerT = PrivatePtr<Type>;
+//  template <typename Type>
+//  using ConstAddressSpacePointerT = ConstPrivatePtr<Type>;
 //  static constexpr int32b isGlobal() noexcept;
 //  static constexpr int32b isLocal() noexcept;
 //  static constexpr int32b isConstant() noexcept;
@@ -319,28 +325,24 @@ template <typename T> struct AddCv;
 
 //!
 template <typename T>
-using AddCvType = typename AddCv<T>::Type;
+using AddCvT = typename AddCv<T>::Type;
 
 //! Add 'const' specifiers to the given type
 template <typename T> struct AddConst;
 
 //!
 template <typename T>
-using AddConstType = typename AddConst<T>::Type;
+using AddConstT = typename AddConst<T>::Type;
 
 //! Add 'volatile' specifiers to the given type
 template <typename T> struct AddVolatile;
 
 //!
 template <typename T>
-using AddVolatileType = typename AddVolatile<T>::Type;
+using AddVolatileT = typename AddVolatile<T>::Type;
 
 //! Remove 'const' and/or 'volatile' specifiers from the given type
 template <typename T> struct RemoveCv;
-
-//!
-template <typename T>
-using RemoveCvType = typename RemoveCv<T>::Type;
 
 //! Helper type template of RemoveCv
 template <typename T>
@@ -351,74 +353,70 @@ template <typename T> struct RemoveConst;
 
 //!
 template <typename T>
-using RemoveConstType = typename RemoveConst<T>::Type;
+using RemoveConstT = typename RemoveConst<T>::Type;
 
 //! Remove 'volatile' specifiers from the given type
 template <typename T> struct RemoveVolatile;
 
 //!
 template <typename T>
-using RemoveVolatileType = typename RemoveVolatile<T>::Type;
+using RemoveVolatileT = typename RemoveVolatile<T>::Type;
 
 //! Add 'lvalue' reference to the given type
 template <typename T> struct AddLValueReference;
 
 //!
 template <typename T>
-using AddLValueReferenceType = typename AddLValueReference<T>::Type;
+using AddLValueReferenceT = typename AddLValueReference<T>::Type;
 
 //! Add 'rvalue' reference to the given type
 template <typename T> struct AddRValueReference;
 
 //!
 template <typename T>
-using AddRValueReferenceType = typename AddRValueReference<T>::Type;
+using AddRValueReferenceT = typename AddRValueReference<T>::Type;
 
 //! Remove a reference from the given type
 template <typename T> struct RemoveReference;
 
 //!
 template <typename T>
-using RemoveReferenceType = typename RemoveReference<T>::Type;
+using RemoveReferenceT = typename RemoveReference<T>::Type;
 
 //! Combine RemoveCv and RemoveReference
 template <typename T> struct RemoveCvref;
 
-//!
-template <typename T>
-using RemoveCvrefType = typename RemoveCvref<T>::Type;
-
 //! Helper type of RemoveCvRef
 template <typename T>
-using RemoveCvRefT = typename RemoveCvref<T>::Type;
+using RemoveCvrefT = typename RemoveCvref<T>::Type;
 
 //! Add a pointer to the given type
 template <typename T> struct AddPointer;
 
 //!
 template <typename T>
-using AddPointerType = typename AddPointer<T>::Type;
+using AddPointerT = typename AddPointer<T>::Type;
 
 //! Remove a pointer from the given type
 template <typename T> struct RemovePointer;
 
 //!
 template <typename T>
-using RemovePointerType = typename RemovePointer<T>::Type;
+using RemovePointerT = typename RemovePointer<T>::Type;
 
 //! Choose one type or another based on compile-time boolean
 template <bool kCondition, typename T, typename F> struct Conditional;
 
 //!
 template <bool kCondition, typename T, typename F>
-using ConditionalType = typename Conditional<kCondition, T, F>::Type;
+using ConditionalT = typename Conditional<kCondition, T, F>::Type;
 
 //! Return the type argument unchanged
 template <typename T> struct TypeIdentity;
 
 //!
 template <typename T>
-using TypeIdentityType = typename TypeIdentity<T>::Type;
+using TypeIdentityT = typename TypeIdentity<T>::Type;
 
 // Comparison type
 
@@ -437,9 +435,9 @@ constexpr int32b kTrue = kIsScalar<Type> ? kSTrue : kVTrue; //!< Represent 'true
 
 //! Integer type that is used as a comparison result of the given type
 template <typename T>
-using CompResult = ConditionalType<kIsScalar<RemoveCvType<T>>,
-                                   int32b,
-                                   IntegerTypeFromVec<RemoveCvType<T>>>;
+using CompResult = ConditionalT<kIsScalar<RemoveCvT<T>>,
+                                int32b,
+                                IntegerTFromVec<RemoveCvT<T>>>;
 
 // Vector
 
@@ -449,7 +447,7 @@ inline constexpr size_t kVectorSize = VectorTypeInfo<T>::size();
 
 //! Provide the member variable type equal to the scalar type of a vector T
 template <typename T>
-using ScalarType = typename VectorTypeInfo<T>::ElementType;
+using ScalarT = typename VectorTypeInfo<T>::ElementT;
 
 // Address space
 
@@ -463,11 +461,11 @@ using RemoveAddressSpaceT = typename RemoveAddressSpace<T>::Type;
 
 //! Combine RemoveCvRef and RemoveAddressSpace
 template <typename T>
-struct RemoveCvRefAddress;
+struct RemoveCvrefAddress;
 
 //! Helper type template of RemoveCvRefAddress
 template <typename T>
-using RemoveCvRefAddressT = typename RemoveCvRefAddress<T>::Type;
+using RemoveCvrefAddressT = typename RemoveCvrefAddress<T>::Type;
 
 } // namespace zivc
 

@@ -426,7 +426,7 @@ auto Geometry::Fallback::dot(const FloatN p0, const FloatN p1) noexcept
 {
   static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
   using VecInfo = VectorTypeInfo<FloatN>;
-  typename VecInfo::ElementType result = p0.x * p1.x + p0.y * p1.y;
+  typename VecInfo::ElementT result = p0.x * p1.x + p0.y * p1.y;
   if constexpr (3 <= VecInfo::size())
     result += p0.z * p1.z;
   if constexpr (4 <= VecInfo::size())

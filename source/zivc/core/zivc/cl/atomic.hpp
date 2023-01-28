@@ -15,174 +15,209 @@
 namespace zivc {
 
 /*!
+  \brief No brief description
+
+  No detailed description.
+  */
+enum class MemoryOrder : int32b
+{
+  kRelaxed = static_cast<int32b>(ZIVC_CL_GLOBAL_NAMESPACE::memory_order_relaxed),
+  kAcquire = static_cast<int32b>(ZIVC_CL_GLOBAL_NAMESPACE::memory_order_acquire),
+  kRelease = static_cast<int32b>(ZIVC_CL_GLOBAL_NAMESPACE::memory_order_release),
+  kAcqRel = static_cast<int32b>(ZIVC_CL_GLOBAL_NAMESPACE::memory_order_acq_rel),
+  kSeqCst = static_cast<int32b>(ZIVC_CL_GLOBAL_NAMESPACE::memory_order_seq_cst)
+};
+
+inline constexpr MemoryOrder kMemoryOrderRelaxed = MemoryOrder::kRelaxed;
+inline constexpr MemoryOrder kMemoryOrderAcquire = MemoryOrder::kAcquire;
+inline constexpr MemoryOrder kMemoryOrderRelease = MemoryOrder::kRelease;
+inline constexpr MemoryOrder kMemoryOrderAcqRel = MemoryOrder::kAcqRel;
+inline constexpr MemoryOrder kMemoryOrderSeqCst = MemoryOrder::kSeqCst;
+
+/*!
+  \brief No brief description
+
+  No detailed description.
   */
 class Atomic
 {
  public:
-  //! Perform atomic addition for global or local integer buffer
-  template <typename AddressSpaceInteger, typename Integer>
-  static Integer add(AddressSpaceInteger p, const Integer value) noexcept;
+  //! Aomically replace the value pointed by object with the value of desired
+  template <typename AddressSpacePointer, typename Type>
+  static void store(AddressSpacePointer object,
+                    const Type desired,
+                    const MemoryOrder order = kMemoryOrderRelease) noexcept;
 
-  //! Perform atomic subtraction for global or local integer buffer
-  template <typename AddressSpaceInteger, typename Integer>
-  static Integer sub(AddressSpaceInteger p, const Integer value) noexcept;
+  //! Atomically returns the value pointed to by object.
+  template <typename AddressSpacePointer>
+  static auto load(AddressSpacePointer object,
+                   const MemoryOrder order = kMemoryOrderAcquire) noexcept;
 
-  //! Perform atomic swapping for global or local buffer
-  template <typename AddressSpaceType, typename Type>
-  static Type swap(AddressSpaceType p, const Type value) noexcept;
+  //! Atomically replace the value pointed to by object with desired.
+  template <typename AddressSpacePointer, typename Type>
+  static Type exchange(AddressSpacePointer object,
+                       const Type desired,
+                       const MemoryOrder order = kMemoryOrderAcqRel) noexcept;
 
-  //! Perform atomic post-increment for global or local integer buffer
-  template <typename AddressSpaceInteger>
-  static auto increment(AddressSpaceInteger p) noexcept;
+  //! Atomically, compares the value pointed to by object for equality with that in expected, and if true, replaces the value pointed to by object with desired
+  template <typename AddressSpacePointer, typename Type>
+  static bool compareExchange(AddressSpacePointer object,
+                              Type* expected,
+                              const Type desired,
+                              const MemoryOrder success = kMemoryOrderAcqRel,
+                              const MemoryOrder failure = kMemoryOrderAcquire) noexcept;
 
-  //! Perform atomic post-decrement for global or local integer buffer
-  template <typename AddressSpaceInteger>
-  static auto decrement(AddressSpaceInteger p) noexcept;
+  //! Compute (old + 1) and store result at location pointed by object, return old
+  template <typename AddressSpacePointer>
+  static auto fetchInc(AddressSpacePointer object,
+                       const MemoryOrder order = kMemoryOrderAcqRel) noexcept;
 
-  //! Perform atomic comparison and swapping for global or local integer buffer
-  template <typename AddressSpaceInteger, typename Integer>
-  static Integer compareAndSwap(AddressSpaceInteger p,
-                                const Integer comp,
-                                const Integer value) noexcept;
+  //! Compute (old - 1) and store result at location pointed by object, return old
+  template <typename AddressSpacePointer>
+  static auto fetchDec(AddressSpacePointer object,
+                       const MemoryOrder order = kMemoryOrderAcqRel) noexcept;
 
-  //! Perform atomic min
-  template <typename AddressSpaceInteger, typename Integer>
-  static Integer min(AddressSpaceInteger p, const Integer value) noexcept;
+  //! Compute (old + operand) and store result at location pointed by object, return old
+  template <typename AddressSpacePointer, typename Type>
+  static Type fetchAdd(AddressSpacePointer object,
+                       const Type operand,
+                       const MemoryOrder order = kMemoryOrderAcqRel) noexcept;
 
-  //! Perform atomic max
-  template <typename AddressSpaceInteger, typename Integer>
-  static Integer max(AddressSpaceInteger p, const Integer value) noexcept;
+  //! Compute (old - operand) and store result at location pointed by object, return old
+  template <typename AddressSpacePointer, typename Type>
+  static Type fetchSub(AddressSpacePointer object,
+                       const Type operand,
+                       const MemoryOrder order = kMemoryOrderAcqRel) noexcept;
 
-  //! Perform atomic bit and
-  template <typename AddressSpaceInteger, typename Integer>
-  static Integer bitAnd(AddressSpaceInteger p, const Integer value) noexcept;
+  //! Compute (old & operand) and store result at location pointed by object, return old
+  template <typename AddressSpacePointer, typename Type>
+  static Type fetchAnd(AddressSpacePointer object,
+                       const Type operand,
+                       const MemoryOrder order = kMemoryOrderAcqRel) noexcept;
 
-  //! Perform atomic bit or
-  template <typename AddressSpaceInteger, typename Integer>
-  static Integer bitOr(AddressSpaceInteger p, const Integer value) noexcept;
+  //! Compute (old | operand) and store result at location pointed by object, return old
+  template <typename AddressSpacePointer, typename Type>
+  static Type fetchOr(AddressSpacePointer object,
+                      const Type operand,
+                      const MemoryOrder order = kMemoryOrderAcqRel) noexcept;
 
-  //! Perform atomic bit xor
-  template <typename AddressSpaceInteger, typename Integer>
-  static Integer bitXor(AddressSpaceInteger p, const Integer value) noexcept;
+  //! Compute (old ^ operand) and store result at location pointed by object, return old
+  template <typename AddressSpacePointer, typename Type>
+  static Type fetchXor(AddressSpacePointer object,
+                       const Type operand,
+                       const MemoryOrder order = kMemoryOrderAcqRel) noexcept;
+
+  //! Compute min(old, operand) and store result at location pointed by object, return old
+  template <typename AddressSpacePointer, typename Type>
+  static Type fetchMin(AddressSpacePointer object,
+                       const Type operand,
+                       const MemoryOrder order = kMemoryOrderAcqRel) noexcept;
+
+  //! Compute max(old, operand) and store result at location pointed by object, return old
+  template <typename AddressSpacePointer, typename Type>
+  static Type fetchMax(AddressSpacePointer object,
+                       const Type operand,
+                       const MemoryOrder order = kMemoryOrderAcqRel) noexcept;
 
   //! Perform an expression atomically
-  template <typename AddressSpaceInteger, typename Function, typename ...Types>
-  static auto perform(AddressSpaceInteger p,
+  template <typename AddressSpacePointer, typename Function, typename ...Types>
+  static auto perform(AddressSpacePointer p,
                       Function expression,
-                      Types&&... arguments) noexcept;
+                      Types&&... arguments,
+                      const MemoryOrder success = kMemoryOrderAcqRel,
+                      const MemoryOrder failure = kMemoryOrderAcquire) noexcept;
+
  private:
-  //! Perform atomic addition
-  template <typename AddressSpaceInteger, typename Integer>
-  static Integer addImpl(AddressSpaceInteger p, const Integer value) noexcept;
+  //! Get atomic type by the given type
+  template <typename Type>
+  class AtomicObject;
 
-  //! Perform atomic subtraction
-  template <typename AddressSpaceInteger, typename Integer>
-  static Integer subImpl(AddressSpaceInteger p, const Integer value) noexcept;
-
-  //! Perform atomic swapping
-  template <typename AddressSpaceType, typename Type>
-  static Type swapImpl(AddressSpaceType p, const Type value) noexcept;
-
-  //! Perform atomic post-increment
-  template <typename AddressSpaceInteger>
-  static auto incrementImpl(AddressSpaceInteger p) noexcept;
-
-  //! Perform atomic post-decrement
-  template <typename AddressSpaceInteger>
-  static auto decrementImpl(AddressSpaceInteger p) noexcept;
-
-  //! Perform atomic comparison and swapping
-  template <typename AddressSpaceInteger, typename Integer>
-  static Integer compareAndSwapImpl(AddressSpaceInteger p,
-                                    const Integer comp,
-                                    const Integer value) noexcept;
-
-  //! Perform atomic min
-  template <typename AddressSpaceInteger, typename Integer>
-  static Integer minImpl(AddressSpaceInteger p, const Integer value) noexcept;
-
-  //! Perform atomic max
-  template <typename AddressSpaceInteger, typename Integer>
-  static Integer maxImpl(AddressSpaceInteger p, const Integer value) noexcept;
-
-  //! Perform atomic bit and
-  template <typename AddressSpaceInteger, typename Integer>
-  static Integer bitAndImpl(AddressSpaceInteger p, const Integer value) noexcept;
-
-  //! Perform atomic bit or
-  template <typename AddressSpaceInteger, typename Integer>
-  static Integer bitOrImpl(AddressSpaceInteger p, const Integer value) noexcept;
-
-  //! Perform atomic bit xor
-  template <typename AddressSpaceInteger, typename Integer>
-  static Integer bitXorImpl(AddressSpaceInteger p, const Integer value) noexcept;
 
   //! Perform an expression atomically
   template <typename AddressSpaceInteger, typename Function, typename ...Types>
   static auto performImpl(AddressSpaceInteger p,
                           Function expression,
                           Types&&... arguments) noexcept;
-
-  //! Check if the given type is global or local integer pointer
-  template <typename Type>
-  static constexpr bool isGlobalOrLocalPtr() noexcept;
-
-  //! Check if the given type is global or local integer pointer
-  template <typename Type>
-  static constexpr bool isGlobalOrLocalInteger32Ptr() noexcept;
-
-  //! Check if the given type is 32bit integer type
-  template <typename Type>
-  static constexpr bool isInteger32() noexcept;
 };
 
-// CL function aliases
+// CL style function aliases
 
-//! Perform atomic addition
-template <typename AddressSpaceInteger, typename Integer>
-Integer atomic_add(AddressSpaceInteger p, const Integer value) noexcept;
+//! Aomically replace the value pointed by object with the value of desired
+template <typename AddressSpacePointer, typename Type>
+void atomic_store(AddressSpacePointer object,
+                  const Type desired,
+                  const MemoryOrder order = kMemoryOrderRelease) noexcept;
 
-//! Perform atomic subtraction
-template <typename AddressSpaceInteger, typename Integer>
-Integer atomic_sub(AddressSpaceInteger p, const Integer value) noexcept;
+//! Atomically returns the value pointed to by object.
+template <typename AddressSpacePointer>
+auto atomic_load(AddressSpacePointer object,
+                 const MemoryOrder order = kMemoryOrderAcquire) noexcept;
 
-//! Perform atomic swapping
-template <typename AddressSpaceType, typename Type>
-Type atomic_xchg(AddressSpaceType p, const Type value) noexcept;
+//! Atomically replace the value pointed to by object with desired.
+template <typename AddressSpacePointer, typename Type>
+Type atomic_exchange(AddressSpacePointer object,
+                     const Type desired,
+                     const MemoryOrder order = kMemoryOrderAcqRel) noexcept;
 
-//! Perform atomic post-increment
-template <typename AddressSpaceInteger>
-auto atomic_inc(AddressSpaceInteger p) noexcept;
+//! Atomically, compares the value pointed to by object for equality with that in expected, and if true, replaces the value pointed to by object with desired
+template <typename AddressSpacePointer, typename Type>
+bool atomic_compare_exchange(AddressSpacePointer object,
+                             Type* expected,
+                             const Type desired,
+                             const MemoryOrder success = kMemoryOrderAcqRel,
+                             const MemoryOrder failure = kMemoryOrderAcquire) noexcept;
 
-//! Perform atomic post-decrement
-template <typename AddressSpaceInteger>
-auto atomic_dec(AddressSpaceInteger p) noexcept;
+//! Compute (old + 1) and store result at location pointed by object, return old
+template <typename AddressSpacePointer>
+auto atomic_fetch_inc(AddressSpacePointer object,
+                      const MemoryOrder order = kMemoryOrderAcqRel) noexcept;
 
-//! Perform atomic comparison and swapping
-template <typename AddressSpaceInteger, typename Integer>
-Integer atomic_cmpxchg(AddressSpaceInteger p,
-                       const Integer comp,
-                       const Integer value) noexcept;
+//! Compute (old - 1) and store result at location pointed by object, return old
+template <typename AddressSpacePointer>
+auto atomic_fetch_dec(AddressSpacePointer object,
+                      const MemoryOrder order = kMemoryOrderAcqRel) noexcept;
 
-//! Perform atomic min
-template <typename AddressSpaceInteger, typename Integer>
-Integer atomic_min(AddressSpaceInteger p, const Integer value) noexcept;
+//! Compute (old + operand) and store result at location pointed by object, return old
+template <typename AddressSpacePointer, typename Type>
+Type atomic_fetch_add(AddressSpacePointer object,
+                      const Type operand,
+                      const MemoryOrder order = kMemoryOrderAcqRel) noexcept;
 
-//! Perform atomic max
-template <typename AddressSpaceInteger, typename Integer>
-Integer atomic_max(AddressSpaceInteger p, const Integer value) noexcept;
+//! Compute (old - operand) and store result at location pointed by object, return old
+template <typename AddressSpacePointer, typename Type>
+Type atomic_fetch_sub(AddressSpacePointer object,
+                      const Type operand,
+                      const MemoryOrder order = kMemoryOrderAcqRel) noexcept;
 
-//! Perform atomic bit and
-template <typename AddressSpaceInteger, typename Integer>
-Integer atomic_and(AddressSpaceInteger p, const Integer value) noexcept;
+//! Compute (old & operand) and store result at location pointed by object, return old
+template <typename AddressSpacePointer, typename Type>
+Type atomic_fetch_and(AddressSpacePointer object,
+                      const Type operand,
+                      const MemoryOrder order = kMemoryOrderAcqRel) noexcept;
 
-//! Perform atomic bit or
-template <typename AddressSpaceInteger, typename Integer>
-Integer atomic_or(AddressSpaceInteger p, const Integer value) noexcept;
+//! Compute (old | operand) and store result at location pointed by object, return old
+template <typename AddressSpacePointer, typename Type>
+Type atomic_fetch_or(AddressSpacePointer object,
+                     const Type operand,
+                     const MemoryOrder order = kMemoryOrderAcqRel) noexcept;
 
-//! Perform atomic bit xor
-template <typename AddressSpaceInteger, typename Integer>
-Integer atoic_xor(AddressSpaceInteger p, const Integer value) noexcept;
+//! Compute (old ^ operand) and store result at location pointed by object, return old
+template <typename AddressSpacePointer, typename Type>
+Type atomic_fetch_xor(AddressSpacePointer object,
+                      const Type operand,
+                      const MemoryOrder order = kMemoryOrderAcqRel) noexcept;
+
+//! Compute min(old, operand) and store result at location pointed by object, return old
+template <typename AddressSpacePointer, typename Type>
+Type atomic_fetch_min(AddressSpacePointer object,
+                      const Type operand,
+                      const MemoryOrder order = kMemoryOrderAcqRel) noexcept;
+
+//! Compute max(old, operand) and store result at location pointed by object, return old
+template <typename AddressSpacePointer, typename Type>
+Type atomic_fetch_max(AddressSpacePointer object,
+                      const Type operand,
+                      const MemoryOrder order = kMemoryOrderAcqRel) noexcept;
 
 } // namespace zivc
 

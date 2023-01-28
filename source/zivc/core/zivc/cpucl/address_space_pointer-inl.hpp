@@ -123,6 +123,28 @@ auto AddressSpacePointer<kASpaceType, T>::operator=(ASpacePointerT<ValueT>&& p) 
   \return No description
   */
 template <AddressSpaceType kASpaceType, KernelArg T> inline
+AddressSpacePointer<kASpaceType, T>::operator Pointer() noexcept
+{
+  return data_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <AddressSpaceType kASpaceType, KernelArg T> inline
+AddressSpacePointer<kASpaceType, T>::operator ConstPointer() const noexcept
+{
+  return data_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <AddressSpaceType kASpaceType, KernelArg T> inline
 AddressSpacePointer<kASpaceType, T>::operator bool() const noexcept
 {
   const bool result = get() != nullptr;

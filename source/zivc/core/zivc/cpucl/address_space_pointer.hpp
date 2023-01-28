@@ -105,6 +105,11 @@ class AddressSpacePointer
   template <ConvertiblePointerToPointer<T> ValueT>
   ASpacePointerRef operator=(ASpacePointerT<ValueT>&& p) noexcept;
 
+  //! Return a pointer to the managed object
+  explicit operator Pointer() noexcept;
+
+  //! Return a pointer to the managed object
+  explicit operator ConstPointer() const noexcept;
 
   //! Check whether this owns an object
   explicit operator bool() const noexcept;

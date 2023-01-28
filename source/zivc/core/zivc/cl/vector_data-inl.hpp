@@ -35,7 +35,7 @@ auto VectorData::load(const size_t offset, AddressSpaceType p) noexcept
   static_assert(ASpaceInfo::isPointer(), "The p isn't pointer type.");
 
   // Type check
-  using ElemT = typename ASpaceInfo::DataType;
+  using ElemT = typename ASpaceInfo::DataT;
   if constexpr (kIsHalf<ElemT>)
     return loadHalfImpl<kN>(offset, p);
   else
@@ -61,7 +61,7 @@ void VectorData::store(const VectorType data,
   static_assert(ASpaceInfo::isPointer(), "The p isn't pointer type.");
 
   // Type check
-  using ElemT = typename ASpaceInfo::DataType;
+  using ElemT = typename ASpaceInfo::DataT;
   if constexpr (kIsHalf<ElemT>)
     storeHalfImpl(data, offset, p);
   else
@@ -84,7 +84,7 @@ auto VectorData::loadImpl(const size_t offset, AddressSpaceType p) noexcept
   using ASpaceInfo = AddressSpaceInfo<AddressSpaceType>;
   static_assert(ASpaceInfo::isPointer(), "The p isn't pointer type.");
 
-  using VectorT = VectorTypeFromElems<typename ASpaceInfo::DataType, kN>;
+  using VectorT = VectorTFromElems<typename ASpaceInfo::DataT, kN>;
   VectorT data{};
   if constexpr (kN == 1)
     data = p[offset];
@@ -115,7 +115,7 @@ auto VectorData::loadHalfImpl(const size_t offset, AddressSpaceType p) noexcept
   using ASpaceInfo = AddressSpaceInfo<AddressSpaceType>;
   static_assert(ASpaceInfo::isPointer(), "The p isn't pointer type.");
 
-  using VectorT = VectorTypeFromElems<float, kN>;
+  using VectorT = VectorTFromElems<float, kN>;
   VectorT data{};
   if constexpr (kN == 1)
     data = ZIVC_CL_GLOBAL_NAMESPACE::vload_half(offset, p);
@@ -145,7 +145,7 @@ void VectorData::storeImpl(const VectorType data,
                            AddressSpaceType p) noexcept
 {
   // Source type check
-  using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
+  using VecInfo = VectorTypeInfo<RemoveCvT<VectorType>>;
   constexpr size_t n = VecInfo::size();
 
   // Address space type check
@@ -179,7 +179,7 @@ void VectorData::storeHalfImpl(const VectorType data,
                                AddressSpaceType p) noexcept
 {
   // Source type check
-  using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
+  using VecInfo = VectorTypeInfo<RemoveCvT<VectorType>>;
   constexpr size_t n = VecInfo::size();
 
   // Address space type check
@@ -319,7 +319,7 @@ void vstore2(const VectorType data,
              AddressSpaceType p) noexcept
 {
   // Vector check
-  using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
+  using VecInfo = VectorTypeInfo<RemoveCvT<VectorType>>;
   constexpr size_t n = VecInfo::size();
   static_assert(n == 2, "The size of VectorType is wrong.");
 
@@ -341,7 +341,7 @@ void vstore3(const VectorType data,
              AddressSpaceType p) noexcept
 {
   // Vector check
-  using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
+  using VecInfo = VectorTypeInfo<RemoveCvT<VectorType>>;
   constexpr size_t n = VecInfo::size();
   static_assert(n == 3, "The size of VectorType is wrong.");
 
@@ -363,7 +363,7 @@ void vstore4(const VectorType data,
              AddressSpaceType p) noexcept
 {
   // Vector check
-  using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
+  using VecInfo = VectorTypeInfo<RemoveCvT<VectorType>>;
   constexpr size_t n = VecInfo::size();
   static_assert(n == 4, "The size of VectorType is wrong.");
 
@@ -385,7 +385,7 @@ void vstore_half(const VectorType data,
                  AddressSpaceType p) noexcept
 {
   // Vector check
-  using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
+  using VecInfo = VectorTypeInfo<RemoveCvT<VectorType>>;
   constexpr size_t n = VecInfo::size();
   static_assert(n == 1, "The size of VectorType is wrong.");
 
@@ -407,7 +407,7 @@ void vstore_half2(const VectorType data,
                   AddressSpaceType p) noexcept
 {
   // Vector check
-  using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
+  using VecInfo = VectorTypeInfo<RemoveCvT<VectorType>>;
   constexpr size_t n = VecInfo::size();
   static_assert(n == 2, "The size of VectorType is wrong.");
 
@@ -429,7 +429,7 @@ void vstore_half3(const VectorType data,
                   AddressSpaceType p) noexcept
 {
   // Vector check
-  using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
+  using VecInfo = VectorTypeInfo<RemoveCvT<VectorType>>;
   constexpr size_t n = VecInfo::size();
   static_assert(n == 3, "The size of VectorType is wrong.");
 
@@ -451,7 +451,7 @@ void vstore_half4(const VectorType data,
                   AddressSpaceType p) noexcept
 {
   // Vector check
-  using VecInfo = VectorTypeInfo<RemoveCvType<VectorType>>;
+  using VecInfo = VectorTypeInfo<RemoveCvT<VectorType>>;
   constexpr size_t n = VecInfo::size();
   static_assert(n == 4, "The size of VectorType is wrong.");
 

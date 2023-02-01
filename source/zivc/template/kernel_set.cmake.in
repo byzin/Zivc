@@ -310,6 +310,18 @@ function(Zivc_getKernelBakeCommand bake_command spv_file_path baked_spv_file_pat
 endfunction(Zivc_getKernelBakeCommand)
 
 
+function(Zivc_getDescriptorBakeCommand bake_command map_file_path baked_map_file_path)
+  include("@zivc_path@/cmake/general.cmake")
+  Zivc_checkTarget(DescriptorMapBaker)
+
+  # Invoke DescriptorMapBaker
+  set(command DescriptorMapBaker ${map_file_path} ${baked_map_file_path})
+
+  # Output
+  set(${bake_command} ${command} PARENT_SCOPE)
+endfunction(Zivc_getDescriptorBakeCommand)
+
+
 function(Zivc_prepareSpirVAnalysis target spv_org_file_path spv_file_path)
   cmake_path(GET spv_file_path PARENT_PATH spv_dir)
   cmake_path(SET spv_analysis_dir "${spv_dir}/analysis")
@@ -393,6 +405,12 @@ function(Zivc_initVulkanBackend target)
         COMMAND ${bake_command})
     list(APPEND clspv_output_files "${baked_spv_file_path}")
   endif()
+  ## Bake descriptor map
+  Zivc_getDescriptorBakeCommand(bake_command "${map_path}" "${baked_map_path}")
+  list(APPEND build_commands
+      COMMAND ${CMAKE_COMMAND} -E echo "-- descriptor-map-baker"
+      COMMAND ${bake_command})
+  list(APPEND clspv_output_files "${baked_map_path}")
   ## Create a build command
   add_custom_command(OUTPUT ${clspv_output_files}
     ${build_commands}
@@ -440,6 +458,7 @@ macro(Zivc_setKernelSet_@kernel_set_name@Project)
   set(set_name ${kernel_set_prefix}-@kernel_set_name@)
   cmake_path(SET spv_file_path "${PROJECT_BINARY_DIR}/spv/${set_name}.spv")
   cmake_path(SET baked_spv_file_path "${PROJECT_BINARY_DIR}/cpp/${set_name}-bake.hpp")
+  cmake_path(SET baked_map_path "${PROJECT_BINARY_DIR}/cpp/${set_name}-descmap.hpp")
 
   set(target ${PROJECT_NAME})
   include("@zivc_path@/cmake/kernel.cmake")

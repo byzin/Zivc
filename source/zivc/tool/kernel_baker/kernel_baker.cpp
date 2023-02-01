@@ -53,12 +53,10 @@ struct Parameters
 
 //! Output the given debug message
 template <typename Type>
-void printDebugMessageImpl(Type&& message) noexcept
+void printDebugMessageImpl([[maybe_unused]] Type&& message) noexcept
 {
 #if defined(Z_DEBUG_MODE)
   std::cout << message;
-#else // Z_DEBUG_MODE
-  static_cast<void>(message);
 #endif // Z_DEBUG_MODE
 }
 
@@ -332,5 +330,5 @@ int main([[maybe_unused]] int argc, char** argv)
                       ::toMegaBytes(mem_resource.peakMemoryUsage()),
                       " MB.");
 
-  return 0;
+  return EXIT_SUCCESS;
 }

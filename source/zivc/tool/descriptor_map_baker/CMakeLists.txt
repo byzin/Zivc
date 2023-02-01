@@ -10,14 +10,12 @@ cmake_minimum_required(VERSION 3.22)
 
 
 #
-macro(Zivc_setKernelBakerProject)
-  set(project_description "Kernel baker.")
-  project(KernelBaker VERSION ${ZivcProject_VERSION} DESCRIPTION "${project_description}" LANGUAGES CXX)
+macro(Zivc_setDescriptorMapBakerProject)
+  set(project_description "Descriptor map baker.")
+  project(DescriptorMapBaker VERSION ${ZivcProject_VERSION} DESCRIPTION "${project_description}" LANGUAGES CXX)
   message(STATUS "${PROJECT_NAME} version: ${PROJECT_VERSION}")
 
-  cmake_path(SET dependencies_dir NORMALIZE "${PROJECT_SOURCE_DIR}/../../dependencies")
-  cmake_path(SET zivc_cmake_dir NORMALIZE "${PROJECT_SOURCE_DIR}/../cmake")
-
+  cmake_path(SET zivc_cmake_dir NORMALIZE "${PROJECT_SOURCE_DIR}/../../cmake")
   include("${zivc_cmake_dir}/general.cmake")
   include("${zivc_cmake_dir}/platform.cmake")
   Zivc_getPlatformFlags(platform_definitions)
@@ -25,9 +23,8 @@ macro(Zivc_setKernelBakerProject)
 
   # Check dependencies
   Zivc_checkTarget(Zisc::Zisc)
-  Zivc_checkTarget(Zstd::Zstd)
 
-  set(source_files "${PROJECT_SOURCE_DIR}/kernel_baker.cpp")
+  set(source_files "${PROJECT_SOURCE_DIR}/descriptor_map_baker.cpp")
   source_group(${PROJECT_NAME} FILES ${source_files})
 
   #
@@ -44,7 +41,7 @@ macro(Zivc_setKernelBakerProject)
                                                  ${zivc_compile_flags}
                                                  ${zivc_warning_flags})
   target_include_directories(${PROJECT_NAME} PRIVATE ${zivc_core_dir})
-  target_link_libraries(${PROJECT_NAME} PRIVATE Zisc::Zisc Zstd::Zstd)
+  target_link_libraries(${PROJECT_NAME} PRIVATE Zisc::Zisc)
   target_link_options(${PROJECT_NAME} PRIVATE ${zivc_linker_flags})
   target_compile_definitions(${PROJECT_NAME} PRIVATE ${zivc_definitions})
   Zivc_enableIpo(${PROJECT_NAME})
@@ -55,8 +52,8 @@ macro(Zivc_setKernelBakerProject)
                                   )
   Zivc_setStaticAnalyzer(${PROJECT_NAME}
                          CLANG_TIDY_EXCLUSION_CHECKS ${clang_tidy_exclusion_checks})
-endmacro(Zivc_setKernelBakerProject)
+endmacro(Zivc_setDescriptorMapBakerProject)
 
 
 ##
-Zivc_setKernelBakerProject()
+Zivc_setDescriptorMapBakerProject()

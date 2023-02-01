@@ -35,9 +35,13 @@
 !/source/zivc/internal_kernel/zivc/kernel/*.cl
 !/source/zivc/internal_kernel/zivc/utility/
 !/source/zivc/internal_kernel/zivc/utility/*.hpp
-!/source/zivc/kernel_baker/
-!/source/zivc/kernel_baker/CMakeLists.txt
-!/source/zivc/kernel_baker/kernel_baker.cpp
+!/source/zivc/tool/
+!/source/zivc/tool/descriptor_map_baker/
+!/source/zivc/tool/descriptor_map_baker/CMakeLists.txt
+!/source/zivc/tool/descriptor_map_baker/descriptor_map_baker.cpp
+!/source/zivc/tool/kernel_baker/
+!/source/zivc/tool/kernel_baker/CMakeLists.txt
+!/source/zivc/tool/kernel_baker/kernel_baker.cpp
 !/source/zivc/template/
 !/source/zivc/template/*.hpp.in
 !/source/zivc/template/*.cpp.in

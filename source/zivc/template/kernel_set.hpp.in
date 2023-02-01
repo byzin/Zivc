@@ -28,6 +28,11 @@
 
 namespace zivc {
 
+namespace internal {
+// Forward declaration
+class ShaderDescMap;
+} /* namespace internal */
+
 /*!
   \namespace @kernel_set_name@
   \brief No brief description
@@ -73,6 +78,9 @@ class KernelSet_@kernel_set_name@ : public KernelSet<KernelSet_@kernel_set_name@
   {
     return 0x@kernel_set_number@u;
   }
+
+  //! Load the shader desc map
+  static void loadShaderDescMap(internal::ShaderDescMap* desc_map) noexcept;
 
   //! Load the SPIR-V code
   static void loadSpirVCode(zisc::pmr::vector<uint32b>* spirv_code_out);

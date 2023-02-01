@@ -24,6 +24,7 @@
 // Zisc
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
+#include "internal/shader_desc_map.hpp"
 #include "zivc/zivc_config.hpp"
 
 namespace zivc {
@@ -52,6 +53,12 @@ class KernelSet
   //! Return the kernel set name
   static constexpr std::string_view name() noexcept;
 
+  //! Return the underlying shader desc map
+  internal::ShaderDescMap& shaderDescMap() noexcept;
+
+  //! Return the underlying shader desc map
+  const internal::ShaderDescMap& shaderDescMap() const noexcept;
+
   //! Return the SPIR-V code of the kernel set
   std::span<const uint32b> spirVCode() const noexcept;
 
@@ -63,11 +70,15 @@ class KernelSet
   const zisc::pmr::memory_resource* memoryResource() const noexcept;
 
  private:
+  //! Load the shader description map
+  static void loadShaderDescMap(internal::ShaderDescMap* desc_map) noexcept;
+
   //! Load the SPIR-V code
   static void loadSpirVCode(zisc::pmr::vector<uint32b>* spirv_code_out);
 
 
   zisc::pmr::vector<uint32b> spirv_code_;
+  internal::ShaderDescMap shader_desc_map_;
 };
 
 //! Specify a type is derived from KernelSet

@@ -24,6 +24,7 @@
 // Zisc
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
+#include "internal/shader_desc_map.hpp"
 #include "zivc/zivc_config.hpp"
 
 namespace zivc {
@@ -35,7 +36,8 @@ namespace zivc {
   */
 template <typename SetType> inline
 KernelSet<SetType>::KernelSet(zisc::pmr::memory_resource* mem_resource) noexcept :
-    spirv_code_{typename decltype(spirv_code_)::allocator_type{mem_resource}}
+    spirv_code_{typename decltype(spirv_code_)::allocator_type{mem_resource}},
+    shader_desc_map_{mem_resource}
 {
 }
 
@@ -59,6 +61,8 @@ void KernelSet<SetType>::initialize()
 {
   spirv_code_.clear();
   loadSpirVCode(std::addressof(spirv_code_));
+  shader_desc_map_.initialize();
+  loadShaderDescMap(std::addressof(shader_desc_map_));
 }
 
 /*!
@@ -71,6 +75,28 @@ constexpr std::string_view KernelSet<SetType>::name() noexcept
 {
   constexpr std::string_view n = SetType::name();
   return n;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <typename SetType> inline
+internal::ShaderDescMap& KernelSet<SetType>::shaderDescMap() noexcept
+{
+  return shader_desc_map_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <typename SetType> inline
+const internal::ShaderDescMap& KernelSet<SetType>::shaderDescMap() const noexcept
+{
+  return shader_desc_map_;
 }
 
 /*!
@@ -106,6 +132,17 @@ const zisc::pmr::memory_resource* KernelSet<SetType>::memoryResource() const noe
 {
   auto alloc = spirv_code_.get_allocator();
   return alloc.resource();
+}
+
+/*!
+  \details No detailed description
+
+  \param [out] desc_map No description.
+  */
+template <typename SetType> inline
+void KernelSet<SetType>::loadShaderDescMap(internal::ShaderDescMap* desc_map) noexcept
+{
+  SetType::loadShaderDescMap(desc_map);
 }
 
 /*!

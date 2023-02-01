@@ -27,6 +27,7 @@
 #include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/auxiliary/error.hpp"
+#include "zivc/internal/shader_desc_map.hpp"
 #include "zivc/internal/zstd.hpp"
 
 namespace {
@@ -123,6 +124,15 @@ using KernelSetT = KernelSet_@kernel_set_name@;
   */
 KernelSetT::KernelSet_@kernel_set_name@(zisc::pmr::memory_resource* mem_resource) noexcept :
     KernelSet(mem_resource)
+{
+}
+
+/*!
+  \details No detailed description
+
+  \param [out] desc_map No description.
+  */
+void KernelSetT::loadShaderDescMap(internal::ShaderDescMap* desc_map) noexcept
 {
 }
 

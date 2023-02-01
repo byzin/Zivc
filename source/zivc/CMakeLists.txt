@@ -151,9 +151,12 @@ macro(Zivc_setZivcProject)
     endif()
     ## Kernel baker
     if(ZIVC_BAKE_KERNELS)
-      add_subdirectory("${PROJECT_SOURCE_DIR}/kernel_baker"
+      add_subdirectory("${PROJECT_SOURCE_DIR}/tool/kernel_baker"
                        "${PROJECT_BINARY_DIR}/KernelBaker")
     endif()
+    ## Descriptor map baker
+    add_subdirectory("${PROJECT_SOURCE_DIR}/tool/descriptor_map_baker"
+                     "${PROJECT_BINARY_DIR}/DescriptorMapBaker")
     ## Internal kernels
     Zivc_addZivcKernels()
   endif()

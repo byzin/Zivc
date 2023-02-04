@@ -25,6 +25,7 @@
 // Zivc
 #include "utility/vulkan.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/internal/shader_desc_map.hpp"
 
 namespace zivc {
 
@@ -38,6 +39,8 @@ class VulkanDevice;
   */
 class VulkanKernelImpl : private zisc::NonCopyable<VulkanKernelImpl>
 {
+  using BufferMapT = internal::ShaderDescMap::KernelDescMap::BufferMap;
+
  public:
   //! Initialize the vulkan kernel impl
   VulkanKernelImpl(VulkanDevice* device) noexcept;
@@ -73,19 +76,6 @@ class VulkanKernelImpl : private zisc::NonCopyable<VulkanKernelImpl>
                        const std::size_t offset,
                        const Type& data);
 
-  //! Update the given descriptor set with the given buffers
-  template <std::size_t kN>
-  void updateDescriptorSet(const VkDescriptorSet& descriptor_set,
-                           const std::array<VkBuffer, kN>& buffer_list,
-                           const std::array<VkDescriptorType, kN>& desc_type_list);
-
- private:
-  //! Return the underlying device object
-  VulkanDevice& device() noexcept;
-
-  //! Return the underlying device object
-  const VulkanDevice& device() const noexcept;
-
   //! Record push constant command
   void pushConstantCmd(const VkCommandBuffer& command_buffer,
                        const void* kernel_data,
@@ -94,12 +84,26 @@ class VulkanKernelImpl : private zisc::NonCopyable<VulkanKernelImpl>
                        const void* data);
 
   //! Update the given descriptor set with the given buffers
+  template <std::size_t kN>
   void updateDescriptorSet(const VkDescriptorSet& descriptor_set,
-                           const std::size_t n,
-                           const VkBuffer* buffer_list,
-                           const VkDescriptorType* desc_type_list,
-                           VkDescriptorBufferInfo* desc_info_list,
-                           VkWriteDescriptorSet* write_desc_list);
+                           const std::array<VkBuffer, kN>& buffer_list,
+                           const std::array<VkDescriptorType, kN>& desc_type_list,
+                           const std::span<const BufferMapT> buffer_map_list);
+
+ private:
+  //! Return the underlying device object
+  VulkanDevice& device() noexcept;
+
+  //! Return the underlying device object
+  const VulkanDevice& device() const noexcept;
+
+  //! Update the given descriptor set with the given buffers
+  void updateDescriptorSet(const VkDescriptorSet& descriptor_set,
+                           const std::span<const VkBuffer> buffer_list,
+                           const std::span<const VkDescriptorType> desc_type_list,
+                           const std::span<const BufferMapT> buffer_map_list,
+                           std::span<VkDescriptorBufferInfo> desc_info_list,
+                           std::span<VkWriteDescriptorSet> write_desc_list);
 
 
   VulkanDevice* device_ = nullptr;

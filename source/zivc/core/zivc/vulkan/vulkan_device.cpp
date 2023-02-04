@@ -269,6 +269,7 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
                                         SpecConstantType::kWorkgroupSizeY,
                                         SpecConstantType::kWorkgroupSizeZ,
                                         SpecConstantType::kWorkDim};
+    static_assert(spec_type_list.size() == static_cast<std::size_t>(SpecConstantType::kMax));
     for (std::size_t i = 0; i < spec_type_list.size(); ++i) {
       const SpecConstantType type = spec_type_list[i];
       if (desc_map.hasSpecConstantMpa(type)) {
@@ -332,6 +333,9 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
         zisc::cast<VkDescriptorSetLayout>(desc_set_layout);
     kernel_data->pipeline_layout_ = zisc::cast<VkPipelineLayout>(pline_layout);
     kernel_data->pipeline_ = zisc::cast<VkPipeline>(pline);
+
+    const uint64b kernel_id = zisc::Fnv1aHash64::hash(kernel_name.data());
+    kernel_data->desc_map_ = std::addressof(module.desc_map_.kernelDescMap(kernel_id));;
 
     [[maybe_unused]] const std::optional<std::size_t> result = kernelDataList().add(id, std::move(kernel_data));
     //! \todo Raise an exception

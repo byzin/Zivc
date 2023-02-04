@@ -17,6 +17,7 @@
 #include <array>
 #include <cstddef>
 #include <memory>
+#include <span>
 #include <string_view>
 #include <utility>
 #include <vector>
@@ -29,6 +30,7 @@
 #include "utility/vulkan_hpp.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/auxiliary/error.hpp"
+#include "zivc/internal/shader_desc_map.hpp"
 
 namespace zivc {
 
@@ -198,28 +200,6 @@ void VulkanKernelImpl::initDescriptorSet(
 /*!
   \details No detailed description
 
-  \return No description
-  */
-inline
-VulkanDevice& VulkanKernelImpl::device() noexcept
-{
-  return *device_;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-inline
-const VulkanDevice& VulkanKernelImpl::device() const noexcept
-{
-  return *device_;
-}
-
-/*!
-  \details No detailed description
-
   \param [in] command_buffer No description.
   \param [in] kernel_data No description.
   \param [in] offset No description.
@@ -245,29 +225,54 @@ void VulkanKernelImpl::pushConstantCmd(const VkCommandBuffer& command_buffer,
 /*!
   \details No detailed description
 
+  \return No description
+  */
+inline
+VulkanDevice& VulkanKernelImpl::device() noexcept
+{
+  return *device_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+const VulkanDevice& VulkanKernelImpl::device() const noexcept
+{
+  return *device_;
+}
+
+/*!
+  \details No detailed description
+
   \param [in] descriptor_set No description.
   \param [in] n No description.
   \param [in] buffer_list No description.
   \param [in] desc_type_list No description.
+  \param [in] buffer_map_list No description.
   \param [in] desc_info_list No description.
   \param [in] write_desc_list No description.
   */
-void VulkanKernelImpl::updateDescriptorSet(const VkDescriptorSet& descriptor_set,
-                                           const std::size_t n,
-                                           const VkBuffer* buffer_list,
-                                           const VkDescriptorType* desc_type_list,
-                                           VkDescriptorBufferInfo* desc_info_list,
-                                           VkWriteDescriptorSet* write_desc_list)
+void VulkanKernelImpl::updateDescriptorSet(
+    const VkDescriptorSet& descriptor_set,
+    const std::span<const VkBuffer> buffer_list,
+    const std::span<const VkDescriptorType> desc_type_list,
+    const std::span<const BufferMapT> buffer_map_list,
+    std::span<VkDescriptorBufferInfo> desc_info_list,
+    std::span<VkWriteDescriptorSet> write_desc_list)
 {
+  const std::size_t n = buffer_list.size();
   for (std::size_t i = 0; i < n; ++i) {
-    auto* desc_info = ::new (desc_info_list + i) vk::DescriptorBufferInfo{};
+    auto* desc_info = ::new (&desc_info_list[i]) vk::DescriptorBufferInfo{};
     desc_info->buffer= zisc::cast<const vk::Buffer>(buffer_list[i]);
     desc_info->offset = 0;
     desc_info->range = VK_WHOLE_SIZE;
 
-    auto* write_desc = ::new (write_desc_list + i) vk::WriteDescriptorSet{};
+    auto* write_desc = ::new (&write_desc_list[i]) vk::WriteDescriptorSet{};
     write_desc->dstSet = zisc::cast<const vk::DescriptorSet>(descriptor_set);
-    write_desc->dstBinding = zisc::cast<uint32b>(i);
+    write_desc->dstBinding = buffer_map_list[i].binding_;
     write_desc->dstArrayElement = 0;
     write_desc->descriptorCount = 1;
     const auto desc_type = static_cast<vk::DescriptorType>(desc_type_list[i]);
@@ -277,7 +282,7 @@ void VulkanKernelImpl::updateDescriptorSet(const VkDescriptorSet& descriptor_set
 
   const vk::Device d{device().device()};
   VulkanDispatchLoader::ConstLoaderReference loader = device().dispatcher().loader();
-  const auto* descs = zisc::reinterp<const vk::WriteDescriptorSet*>(write_desc_list);
+  const auto* descs = zisc::reinterp<const vk::WriteDescriptorSet*>(write_desc_list.data());
   d.updateDescriptorSets(zisc::cast<uint32b>(n), descs, 0, nullptr, loader);
 }
 

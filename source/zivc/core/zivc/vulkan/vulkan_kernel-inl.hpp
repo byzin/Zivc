@@ -17,11 +17,13 @@
 
 #include "vulkan_kernel.hpp"
 // Standard C++ library
+#include <algorithm>
 #include <array>
 #include <concepts>
 #include <cstddef>
 #include <cstdio>
 #include <cstring>
+#include <limits>
 #include <memory>
 #include <span>
 #include <string_view>
@@ -51,6 +53,7 @@
 #include "zivc/auxiliary/launch_result.hpp"
 #include "zivc/internal/kernel_arg_cache.hpp"
 #include "zivc/internal/kernel_arg_parser.hpp"
+#include "zivc/internal/shader_desc_map.hpp"
 
 namespace zivc {
 
@@ -551,8 +554,14 @@ updateArgCache(Args... args)
     buffer_list[n - 1] = getBufferHandle(*pod_buffer_);
     desc_type_list[n - 1] = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
   }
-  VulkanKernelImpl impl{std::addressof(parentImpl())};
-  impl.updateDescriptorSet(desc_set_, buffer_list, desc_type_list);
+  // Update descriptor set
+  {
+    VulkanKernelImpl impl{std::addressof(parentImpl())};
+    using KernelDataT = VulkanDevice::KernelData;
+    const auto* kernel_data = static_cast<const KernelDataT*>(kernel_data_);
+    const auto& buffer_map_list = kernel_data->desc_map_->buffer_map_list_;
+    impl.updateDescriptorSet(desc_set_, buffer_list, desc_type_list, buffer_map_list);
+  }
 
   // Check if update of POD cache buffer is needed
   const bool has_new_pod = updatePodCacheIfNeeded(pod_cache);
@@ -621,39 +630,63 @@ void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 updateModuleScopePushConstantsCmd(const std::span<const uint32b, 3>& work_size,
                                   const LaunchOptionsT& launch_options)
 {
-  std::array<uint32b, 23> constans = {0};
-  constans.fill(0);
+  using KernelDataT = VulkanDevice::KernelData;
+  const auto* data = static_cast<const KernelDataT*>(kernel_data_);
+  const internal::ShaderDescMap& desc_map = data->module_->desc_map_;
 
-  const VulkanDevice& device = parentImpl();
-  const std::span group_size = device.workGroupSizeDim(BaseKernelT::dimension());
+  std::array<uint32b, 23> constans{};
+  constans.fill(0);
+  std::size_t coffset = (std::numeric_limits<std::size_t>::max)();
+  std::size_t csize = (std::numeric_limits<std::size_t>::min)();
+
+  using PushConstantType = internal::ShaderDescMap::PushConstantType;
+  const auto set_push_constants = [&desc_map, &constans, &coffset, &csize]
+  (const PushConstantType type, const std::span<const uint32b>& v) noexcept
+  {
+    using PushConstantMapT = internal::ShaderDescMap::PushConstantMap;
+    if (desc_map.hasPushConstantMpa(type)) {
+      const PushConstantMapT& map = desc_map.pushConstantMap(type);
+
+      const std::size_t offset = map.offset_ / sizeof(uint32b);
+      ZISC_ASSERT(map.size_ == v.size() * sizeof(uint32b),
+                  "The size of push constants is wrong.");
+      for (std::size_t i = 0; i < v.size(); ++i)
+        constans[offset + i] = v[i];
+
+      coffset = (std::min)(coffset, static_cast<std::size_t>(map.offset_));
+      csize = (std::max)(csize, static_cast<std::size_t>(map.offset_ + map.size_));
+    }
+  };
+
   // Global offset
   {
     const std::array global_offset = BaseKernelT::expandWorkSize(launch_options.globalIdOffset(), 0);
-    constexpr std::size_t offset = 0;
-    for (std::size_t i = 0; i < global_offset.size(); ++i)
-      constans[offset + i] = global_offset[i];
+    set_push_constants(PushConstantType::kGlobalOffset, global_offset);
   }
+
+  const VulkanDevice& device = parentImpl();
+  const std::span group_size = device.workGroupSizeDim(BaseKernelT::dimension());
+
   // Enqueued local size
   {
-    constexpr std::size_t offset = 4;
-    for (std::size_t i = 0; i < group_size.size(); ++i)
-      constans[offset + i] = group_size[i];
+    set_push_constants(PushConstantType::kEnqueuedLocalSize, group_size);
   }
+
   // Global size
   {
-    constexpr std::size_t offset = 8;
-    for (std::size_t i = 0; i < work_size.size(); ++i)
-      constans[offset + i] = work_size[i] * group_size[i];
+    std::array<uint32b, 3> global_size{};
+    for (std::size_t i = 0; i < global_size.size(); ++i)
+      global_size[i] = work_size[i] * group_size[i];
+    set_push_constants(PushConstantType::kGlobalSize, global_size);
   }
+
   // Num of workgroups
   {
-    constexpr std::size_t offset = 16;
-    for (std::size_t i = 0; i < work_size.size(); ++i)
-      constans[offset + i] = work_size[i];
+    set_push_constants(PushConstantType::kNumWorkgroups, work_size);
   }
 
   VulkanKernelImpl impl{std::addressof(parentImpl())};
-  impl.pushConstantCmd(commandBuffer(), kernel_data_, 0, constans);
+  impl.pushConstantCmd(commandBuffer(), data, coffset, csize - coffset, constans.data());
 }
 
 /*!

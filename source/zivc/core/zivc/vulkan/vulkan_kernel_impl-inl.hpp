@@ -23,6 +23,7 @@
 // Zivc
 #include "utility/vulkan.hpp"
 #include "zivc/zivc_config.hpp"
+#include "zivc/internal/shader_desc_map.hpp"
 
 namespace zivc {
 
@@ -52,21 +53,23 @@ void VulkanKernelImpl::pushConstantCmd(const VkCommandBuffer& command_buffer,
   \param [in] descriptor_set No description.
   \param [in] buffer_list No description.
   \param [in] desc_type_list No description.
+  \param [in] buffer_map_list No description.
   */
 template <std::size_t kN> inline
 void VulkanKernelImpl::updateDescriptorSet(
     const VkDescriptorSet& descriptor_set,
     const std::array<VkBuffer, kN>& buffer_list,
-    const std::array<VkDescriptorType, kN>& desc_type_list)
+    const std::array<VkDescriptorType, kN>& desc_type_list,
+    const std::span<const BufferMapT> buffer_map_list)
 {
   std::array<VkDescriptorBufferInfo, kN> desc_info_list{};
   std::array<VkWriteDescriptorSet, kN> write_desc_list{};
   updateDescriptorSet(descriptor_set,
-                      kN,
-                      buffer_list.data(),
-                      desc_type_list.data(),
-                      desc_info_list.data(),
-                      write_desc_list.data());
+                      buffer_list,
+                      desc_type_list,
+                      buffer_map_list,
+                      desc_info_list,
+                      write_desc_list);
 }
 
 } // namespace zivc

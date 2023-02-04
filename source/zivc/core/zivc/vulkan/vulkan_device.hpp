@@ -87,6 +87,7 @@ class VulkanDevice : public Device
   struct KernelData
   {
     const ModuleData* module_ = nullptr;
+    const internal::ShaderDescMap::KernelDescMap* desc_map_ = nullptr;
     IdData::NameT kernel_name_;
     VkDescriptorSetLayout desc_set_layout_ = ZIVC_VK_NULL_HANDLE;
     VkPipelineLayout pipeline_layout_ = ZIVC_VK_NULL_HANDLE;

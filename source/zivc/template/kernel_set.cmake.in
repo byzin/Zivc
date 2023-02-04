@@ -11,6 +11,7 @@ cmake_minimum_required(VERSION 3.22)
 
 # Global constants
 set(kernel_set_prefix kernel_set)
+set(desc_map_prefix desc_map)
 set(zstd_compression_level 19)
 
 # Get absolute pathes of the given kernel files
@@ -74,7 +75,7 @@ function(Zivc_initCpuBackend target)
   set_target_properties(${target} PROPERTIES CXX_STANDARD 20
                                              CXX_STANDARD_REQUIRED ON)
   Zivc_getCxxWarningFlags(cxx_compile_warning_flags)
-  Zivc_getZivcKernelFlags(zivc_compile_flags zivc_definitions)
+  Zivc_getZivcFlags(zivc_compile_flags zivc_linker_flags zivc_definitions)
   list(APPEND zivc_definitions ZIVC_CL_CPU=1)
   Zivc_getZivcWarningFlags(zivc_warning_flags)
   target_compile_options(${target} PUBLIC ${zivc_compile_flags}
@@ -82,6 +83,7 @@ function(Zivc_initCpuBackend target)
                                            ${zivc_warning_flags})
   target_compile_definitions(${target} PUBLIC ${zivc_definitions}
                                               @kernel_set_definitions@) # TODO Should not populate the definitions with public?
+  target_link_libraries(${target} PUBLIC ${zivc_linker_flags})
   target_include_directories(${target} PUBLIC ${include_dirs})
 
   # Dependencies
@@ -316,6 +318,8 @@ function(Zivc_getDescriptorBakeCommand bake_command map_file_path baked_map_file
 
   # Invoke DescriptorMapBaker
   set(command DescriptorMapBaker ${map_file_path} ${baked_map_file_path})
+  # Add parameters
+  list(APPEND command "@kernel_set_name@")
 
   # Output
   set(${bake_command} ${command} PARENT_SCOPE)
@@ -384,12 +388,12 @@ function(Zivc_initVulkanBackend target)
   ## Clspv descriptor map
   Zivc_findClspvReflection(reflection_command)
   Zivc_getClspvReflectionFlags(reflection_options)
-  cmake_path(SET map_path "${output_dir}/${set_name}-org-descmap.csv")
-  list(APPEND reflection_options -o ${map_path})
+  cmake_path(SET map_file_path "${output_dir}/${set_name}-org-descmap.csv")
+  list(APPEND reflection_options -o ${map_file_path})
   list(APPEND build_commands
       COMMAND ${CMAKE_COMMAND} -E echo "-- clspv-reflection"
       COMMAND ${reflection_command} ${reflection_options} ${spv_org_file_path})
-  list(APPEND clspv_output_files "${map_path}")
+  list(APPEND clspv_output_files "${map_file_path}")
   ## Strip reflection info and optimize SPIR-V
   Zivc_findSpirvOpt(spirv_opt_command)
   Zivc_getSpirvOptOptions(opt_options)
@@ -406,11 +410,11 @@ function(Zivc_initVulkanBackend target)
     list(APPEND clspv_output_files "${baked_spv_file_path}")
   endif()
   ## Bake descriptor map
-  Zivc_getDescriptorBakeCommand(bake_command "${map_path}" "${baked_map_path}")
+  Zivc_getDescriptorBakeCommand(bake_command "${map_file_path}" "${baked_map_file_path}")
   list(APPEND build_commands
       COMMAND ${CMAKE_COMMAND} -E echo "-- descriptor-map-baker"
       COMMAND ${bake_command})
-  list(APPEND clspv_output_files "${baked_map_path}")
+  list(APPEND clspv_output_files "${baked_map_file_path}")
   ## Create a build command
   add_custom_command(OUTPUT ${clspv_output_files}
     ${build_commands}
@@ -456,9 +460,10 @@ macro(Zivc_setKernelSet_@kernel_set_name@Project)
 
   # SPIR-V pathes
   set(set_name ${kernel_set_prefix}-@kernel_set_name@)
+  set(desc_map_name ${desc_map_prefix}-@kernel_set_name@)
   cmake_path(SET spv_file_path "${PROJECT_BINARY_DIR}/spv/${set_name}.spv")
   cmake_path(SET baked_spv_file_path "${PROJECT_BINARY_DIR}/cpp/${set_name}-bake.hpp")
-  cmake_path(SET baked_map_path "${PROJECT_BINARY_DIR}/cpp/${set_name}-descmap.hpp")
+  cmake_path(SET baked_map_file_path "${PROJECT_BINARY_DIR}/cpp/${desc_map_name}.hpp")
 
   set(target ${PROJECT_NAME})
   include("@zivc_path@/cmake/kernel.cmake")

@@ -16,8 +16,15 @@
 // Standard C++ library
 #include <array>
 #include <cstddef>
+#include <cstdlib>
+#include <exception>
 #include <fstream>
+#include <initializer_list>
+#include <iostream>
+#include <map>
 #include <memory>
+#include <type_traits>
+#include <utility>
 #include <vector>
 // Zisc
 #include "zisc/binary_serializer.hpp"
@@ -32,6 +39,14 @@
 
 namespace {
 
+using ShaderDescMap = zivc::internal::ShaderDescMap;
+
+#if defined(ZIVC_ENABLE_VULKAN_BACKEND)
+
+#include "@baked_map_file_path@"
+
+#endif // ZIVC_ENABLE_VULKAN_BACKEND
+
 #if defined(ZIVC_BAKE_KERNELS)
 
 #include "@baked_spv_file_path@"
@@ -39,7 +54,7 @@ namespace {
 //! Allocate a memory
 void* allocateMemory(void* opaque, size_t size)
 {
-  auto mem_resource = zisc::cast<zisc::pmr::memory_resource*>(opaque);
+  auto* mem_resource = static_cast<zisc::pmr::memory_resource*>(opaque);
   void* address = mem_resource->allocate(size);
   return address;
 }
@@ -47,7 +62,7 @@ void* allocateMemory(void* opaque, size_t size)
 //! Deallocate a memory
 void freeMemory(void* opaque, void* address)
 {
-  auto mem_resource = zisc::cast<zisc::pmr::memory_resource*>(opaque);
+  auto* mem_resource = static_cast<zisc::pmr::memory_resource*>(opaque);
   const std::size_t size = 0; //! \todo Retrieve the actual memory size
   mem_resource->deallocate(address, size);
 }
@@ -64,20 +79,18 @@ void loadBakedSpirvCode(zisc::pmr::vector<zivc::uint32b>* spirv_code_out)
   static_assert((expected_raw_size % 4) == 0,
                 "The size of the SPIR-V code isn't valid.");
 
-  zisc::pmr::polymorphic_allocator alloc = spirv_code_out->get_allocator();
-  zisc::pmr::memory_resource* mem_resource = alloc.resource();
-
   // Get the raw size of the SPIR-V code
   constexpr std::array encoded_code = BakedKernelSet::encodedData();
   static_assert(encoded_code.size() == BakedKernelSet::size(),
                 "The size of the encoded SPIR-V code isn't valid.");
-  std::size_t raw_size = ZSTD_getFrameContentSize(encoded_code.data(),
-                                                  encoded_code.size());
+  [[maybe_unused]] std::size_t raw_size = ZSTD_getFrameContentSize(encoded_code.data(),
+                                                                   encoded_code.size());
   ZIVC_ASSERT(raw_size == expected_raw_size,
               "The header of the encoded kernel set isn't valid.");
 
   // Create a Zstd context
-  ZSTD_customMem mem{allocateMemory, freeMemory, mem_resource};
+  zisc::pmr::memory_resource* mem_resource = spirv_code_out->get_allocator().resource();
+  const ZSTD_customMem mem{allocateMemory, freeMemory, mem_resource};
   ZSTD_DCtx* context = ZSTD_createDCtx_advanced(mem);
 
   // Decompress the SPIR-V code
@@ -104,7 +117,7 @@ void loadSpirvCodeFile(zisc::pmr::vector<zivc::uint32b>* spirv_code_out)
   ZIVC_ASSERT(spv_file.is_open(), "The SPIR-V file not found.");
   const std::streamsize spv_size = zisc::BSerializer::getDistance(&spv_file);
   ZIVC_ASSERT((spv_size % 4) == 0, "The size of the SPIR-V code isn't valid.");
-  spirv_code_out->resize(zisc::cast<std::size_t>(spv_size / 4));
+  spirv_code_out->resize(static_cast<std::size_t>(spv_size / 4));
   spv_file.read(reinterpret_cast<char*>(spirv_code_out->data()), spv_size);
 }
 
@@ -132,8 +145,18 @@ KernelSetT::KernelSet_@kernel_set_name@(zisc::pmr::memory_resource* mem_resource
 
   \param [out] desc_map No description.
   */
-void KernelSetT::loadShaderDescMap(internal::ShaderDescMap* desc_map) noexcept
+void KernelSetT::loadShaderDescMap([[maybe_unused]] ::ShaderDescMap* desc_map) noexcept
 {
+#if defined(ZIVC_ENABLE_VULKAN_BACKEND)
+  try {
+    using BakedDescMap = ::BakedDescMap_@kernel_set_name@;
+    BakedDescMap::setDescMap(desc_map);
+  }
+  catch (const std::exception& error) {
+    std::cerr << error.what() << std::endl;
+    std::abort();
+  }
+#endif // ZIVC_ENABLE_VULKAN_BACKEND
 }
 
 /*!

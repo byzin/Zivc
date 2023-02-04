@@ -203,6 +203,18 @@ auto ShaderDescMap::kernelDescMap(const HashT id) const noexcept
   \return No description
   */
 inline
+auto ShaderDescMap::kernelDescMapList() noexcept
+    -> zisc::pmr::map<HashT, KernelDescMap>&
+{
+  return kernel_desc_map_list_;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
 auto ShaderDescMap::kernelDescMapList() const noexcept
     -> const zisc::pmr::map<HashT, KernelDescMap>&
 {

@@ -99,6 +99,9 @@ class ShaderDescMap
   const KernelDescMap& kernelDescMap(const HashT id) const noexcept;
 
   //! Return the underlying kernel desc map list
+  zisc::pmr::map<HashT, KernelDescMap>& kernelDescMapList() noexcept;
+
+  //! Return the underlying kernel desc map list
   const zisc::pmr::map<HashT, KernelDescMap>& kernelDescMapList() const noexcept;
 
   //! Return the underlying push constant map by the given type

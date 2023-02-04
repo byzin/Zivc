@@ -15,19 +15,18 @@
 // Standard C++ library
 #include <cctype>
 #include <cstddef>
-//#include <cstdint>
+#include <cstdio>
 #include <cstdlib>
-//#include <cstring>
 #include <fstream>
-//#include <iomanip>
 #include <iostream>
 #include <istream>
-//#include <iterator>
-//#include <memory>
-//#include <ostream>
-//#include <sstream>
+#include <map>
+#include <memory>
+#include <ostream>
+#include <sstream>
 #include <string>
 #include <string_view>
+#include <type_traits>
 #include <utility>
 #include <vector>
 // Zisc
@@ -50,6 +49,7 @@ using ShaderDescMap = zivc::internal::ShaderDescMap;
 struct Parameters
 {
   zisc::pmr::memory_resource* mem_resource_ = nullptr;
+  std::string_view kernel_set_name_;
 };
 
 //! Output the given debug message
@@ -535,117 +535,132 @@ std::ifstream loadMapFile(std::string_view file_path) noexcept
   return map_file;
 }
 
-//void writeEncodedData(const zisc::pmr::vector<std::byte>& encoded_data,
-//                      std::ostream* bake_code) noexcept
-//{
-//  constexpr std::size_t bytes_per_line = 8;
-//  const char* indent = "        ";
-//  std::ostream& code = *bake_code;
-//  for (std::size_t index = 0; index < encoded_data.size(); ++index) {
-//    if ((index % bytes_per_line == 0))
-//      code << indent;
-//    code << "b(0x" << std::hex << std::setfill('0') << std::setw(2)
-//              << std::to_integer<int>(encoded_data[index])
-//              << ")";
-//    if (index != (encoded_data.size() - 1))
-//      code << ",";
-//    if ((index % bytes_per_line) == (bytes_per_line - 1))
-//      code << std::endl;
-//  }
-//  code << std::dec << std::setw(0) << std::endl;
-//}
-//
-//void generateBakeCode(const zisc::pmr::vector<std::byte>& spv_data,
-//                      const zisc::pmr::vector<std::byte>& encoded_data,
-//                      Parameters& params,
-//                      std::ostream* bake_code)
-//{
-//  auto add_line = [bake_code](const std::string_view line) noexcept
-//  {
-//    (*bake_code) << line << std::endl;
-//  };
-//
-//  auto set_include_guard = [&params](const std::string_view prefix,
-//                                     zisc::pmr::string* str) noexcept
-//  {
-//    (*str) = prefix;
-//    (*str) += "ZIVC_KERNEL_SET_";
-//    (*str) += params.kernel_set_name_.data();
-//    (*str) += "_BAKE_HPP";
-//  };
-//
-//  add_line("/*!");
-//  add_line("  \\brief Baked Kernel set code.");
-//  add_line("");
-//  add_line("  \\details");
-//  add_line("  No detailed description.");
-//  add_line("  */");
-//  add_line("");
-//  const zisc::pmr::string::allocator_type alloc{params.mem_resource_};
-//  zisc::pmr::string include_guard_name{alloc};
-//  set_include_guard("#ifndef ", &include_guard_name);
-//  add_line(include_guard_name);
-//  set_include_guard("#define ", &include_guard_name);
-//  add_line(include_guard_name);
-//  add_line("");
-//  add_line("// Standard C++ library");
-//  add_line("// #include <array>");
-//  add_line("// #include <cstddef>");
-//  add_line("");
-//  add_line("/*!");
-//  add_line("  \\brief Baked kernel set info.");
-//  add_line("");
-//  add_line("  No detailed description.");
-//  add_line("  */");
-//  zisc::pmr::string tmp{alloc};
-//  tmp = "class BakedKernelSet_";
-//  tmp += params.kernel_set_name_.data();
-//  add_line(tmp);
-//  add_line("{");
-//  add_line(" public:");
-//  add_line("  static constexpr std::size_t kRawSize = " + std::to_string(spv_data.size()) + ";");
-//  add_line("  static constexpr std::size_t kSize = " + std::to_string(encoded_data.size()) + ";");
-//  add_line("");
-//  add_line("  //! Return the encoded SPIR-V code");
-//  add_line("  static constexpr std::array<std::byte, kSize> encodedData() noexcept");
-//  add_line("  {");
-//  add_line("    const std::array<std::byte, kSize> data = encodedDataImpl();");
-//  add_line("    return data;");
-//  add_line("  }");
-//  add_line("");
-//  add_line("  //! Return the data size of raw SPIR-V code in bytes");
-//  add_line("  static constexpr std::size_t rawSize() noexcept");
-//  add_line("  {");
-//  add_line("    return kRawSize;");
-//  add_line("  }");
-//  add_line("");
-//  add_line("  //! Return the data size of encoded SPIR-V code in bytes");
-//  add_line("  static constexpr std::size_t size() noexcept");
-//  add_line("  {");
-//  add_line("    return kSize;");
-//  add_line("  }");
-//  add_line("");
-//  add_line(" private:");
-//  add_line("  //! Convert an integer value to a byte");
-//  add_line("  static constexpr std::byte b(const int value) noexcept");
-//  add_line("  {");
-//  add_line("    return std::byte{static_cast<unsigned char>(value)};");
-//  add_line("  }");
-//  add_line("");
-//  add_line("  //! Return the encoded SPIR-V code");
-//  add_line("  static constexpr std::array<std::byte, kSize> encodedDataImpl() noexcept");
-//  add_line("  {");
-//  add_line("    const std::array<std::byte, kSize> data{{");
-//  writeEncodedData(encoded_data, bake_code);
-//  add_line("    }};");
-//  add_line("    return data;");
-//  add_line("  }");
-//  add_line("};");
-//
-//  add_line("");
-//  set_include_guard("#endif // ", &include_guard_name);
-//  add_line(include_guard_name);
-//}
+void generateBakeCode(const ShaderDescMap& desc_map,
+                      Parameters& params,
+                      std::ostream* bake_code)
+{
+  auto add_line = [bake_code](const std::string_view line) noexcept
+  {
+    (*bake_code) << line << std::endl;
+  };
+
+  auto set_include_guard = [&params](const std::string_view prefix,
+                                     zisc::pmr::string* str) noexcept
+  {
+    (*str) = prefix;
+    (*str) += "ZIVC_DESC_MAP_";
+    (*str) += params.kernel_set_name_.data();
+    (*str) += "_HPP";
+  };
+
+  add_line("/*!");
+  add_line("  \\brief Baked descriptor map.");
+  add_line("");
+  add_line("  \\details");
+  add_line("  No detailed description.");
+  add_line("  */");
+  add_line("");
+  const zisc::pmr::string::allocator_type alloc{params.mem_resource_};
+  zisc::pmr::string include_guard_name{alloc};
+  set_include_guard("#ifndef ", &include_guard_name);
+  add_line(include_guard_name);
+  set_include_guard("#define ", &include_guard_name);
+  add_line(include_guard_name);
+  add_line("");
+  add_line("// Standard C++ library");
+  add_line("// #include <array>");
+  add_line("// #include <cstddef>");
+  add_line("");
+  add_line("/*!");
+  add_line("  \\brief Baked descriptor map.");
+  add_line("");
+  add_line("  No detailed description.");
+  add_line("  */");
+  zisc::pmr::string tmp{alloc};
+  tmp = "class BakedDescMap_";
+  tmp += params.kernel_set_name_.data();
+  add_line(tmp);
+  add_line("{");
+  add_line(" public:");
+  add_line("");
+  add_line("  //! Set the given shader descriptor map for the kernel set");
+  add_line("  static void setDescMap(ShaderDescMap* desc_map)");
+  add_line("  {");
+
+  tmp.clear();
+  constexpr std::size_t n = 256;
+  tmp.resize(n);
+
+  // push constant map
+  using PushConstantType = ShaderDescMap::PushConstantType;
+  add_line("    using PushConstantType = ShaderDescMap::PushConstantType;");
+  for (std::size_t i = 0; i < static_cast<std::size_t>(PushConstantType::kMax); ++i) {
+    const auto type = static_cast<PushConstantType>(i);
+    if (desc_map.hasPushConstantMpa(type)) {
+      const ShaderDescMap::PushConstantMap& map = desc_map.pushConstantMap(type);
+      add_line("    desc_map->setPushConstantMap(");
+      std::snprintf(tmp.data(), n, "        static_cast<PushConstantType>(%zu),", i);
+      add_line(tmp.data());
+      std::snprintf(tmp.data(), n, "        {%u, %u}", map.offset_, map.size_);
+      add_line(tmp.data());
+      add_line("    );");
+    }
+  }
+
+  // kernel desc map
+  const auto& kernel_desc_map_list = desc_map.kernelDescMapList();
+  using ValueT = std::remove_cvref_t<decltype(kernel_desc_map_list)>::value_type;
+  add_line("    auto& kernel_desc_map_list = desc_map->kernelDescMapList();");
+  add_line("    zisc::pmr::memory_resource* mem = kernel_desc_map_list.get_allocator().resource();");
+  for (const ValueT& value : kernel_desc_map_list) {
+    add_line("    {");
+    const auto id = static_cast<unsigned long long>(value.first);
+    std::snprintf(tmp.data(), n, "      auto [it, result] = kernel_desc_map_list.emplace(0x%llx, mem);", id);
+    add_line(tmp.data());
+    const ShaderDescMap::KernelDescMap& map = value.second;
+    add_line("      it->second.buffer_map_list_ = {");
+    for (auto it = map.buffer_map_list_.begin(); it != map.buffer_map_list_.end(); ) {
+      const ShaderDescMap::KernelDescMap::BufferMap& bmap = *it;
+      ++it;
+      const char delimiter = (it != map.buffer_map_list_.end()) ? ',' : ' ';
+      std::snprintf(tmp.data(), n, "      {%u}%c", bmap.binding_, delimiter);
+      add_line(tmp.data());
+    }
+    add_line("      };");
+    add_line("      it->second.local_map_list_ = {");
+    for (auto it = map.local_map_list_.begin(); it != map.local_map_list_.end(); ) {
+      const ShaderDescMap::KernelDescMap::LocalMap& lmap = *it;
+      ++it;
+      const char delimiter = (it != map.local_map_list_.end()) ? ',' : ' ';
+      std::snprintf(tmp.data(), n, "      {%u}%c", lmap.spec_id_, delimiter);
+      add_line(tmp.data());
+    }
+    add_line("      };");
+    add_line("    }");
+  }
+
+  // spec constant map
+  using SpecConstantType = ShaderDescMap::SpecConstantType;
+  add_line("    using SpecConstantType = ShaderDescMap::SpecConstantType;");
+  for (std::size_t i = 0; i < static_cast<std::size_t>(SpecConstantType::kMax); ++i) {
+    const auto type = static_cast<SpecConstantType>(i);
+    if (desc_map.hasSpecConstantMpa(type)) {
+      const ShaderDescMap::SpecConstantMap& map = desc_map.specConstantMap(type);
+      add_line("    desc_map->setSpecConstantMap(");
+      std::snprintf(tmp.data(), n, "        static_cast<SpecConstantType>(%zu),", i);
+      add_line(tmp.data());
+      std::snprintf(tmp.data(), n, "        {%u}", map.spec_id_);
+      add_line(tmp.data());
+      add_line("    );");
+    }
+  }
+
+  add_line("  }");
+  add_line("};");
+  add_line("");
+  set_include_guard("#endif // ", &include_guard_name);
+  add_line(include_guard_name);
+}
 
 //! Save the bake code
 void saveBakeCode(std::string_view file_path, std::istream& bake_code) noexcept
@@ -682,16 +697,18 @@ int main([[maybe_unused]] int argc, char** argv)
   ::Parameters params;
   zisc::AllocFreeResource mem_resource;
   params.mem_resource_ = std::addressof(mem_resource);
+  params.kernel_set_name_ = argv[3];
+  ::printDebugMessage("        Kernel set name: '", params.kernel_set_name_.data(), "'");
 
   std::ifstream map_file = ::loadMapFile(map_file_path);
-  ::parse(map_file, params);
+  const ::ShaderDescMap desc_map = ::parse(map_file, params);
 
   // Generate a hpp file of the bake code
   {
     const zisc::pmr::string::allocator_type alloc{params.mem_resource_};
     const zisc::pmr::string tmp{alloc};
     zisc::pmr::stringstream bake_code{tmp};
-//    ::generateBakeCode(spv_data, encoded_data, params, std::addressof(bake_code));
+    ::generateBakeCode(desc_map, params, std::addressof(bake_code));
     zisc::BSerializer::backToBegin(std::addressof(bake_code));
     ::saveBakeCode(baked_map_file_path, bake_code);
   }

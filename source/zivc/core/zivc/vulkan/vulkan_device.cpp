@@ -51,6 +51,7 @@
 #include "zivc/auxiliary/error.hpp"
 #include "zivc/auxiliary/fence.hpp"
 #include "zivc/auxiliary/id_data.hpp"
+#include "zivc/internal/shader_desc_map.hpp"
 
 namespace {
 
@@ -137,6 +138,16 @@ namespace zivc {
 
 static_assert(std::alignment_of_v<Fence::DataT> % std::alignment_of_v<vk::Fence> == 0U);
 static_assert(sizeof(vk::Fence) <= sizeof(Fence::DataT));
+
+/*!
+  \details No detailed description
+
+  \param [in] desc_map No description.
+  */
+VulkanDevice::ModuleData::ModuleData(internal::ShaderDescMap&& desc_map) noexcept :
+    desc_map_{std::move(desc_map)}
+{
+}
 
 /*!
   \details No detailed description
@@ -238,55 +249,50 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
     // For clspv work group size
     for (const uint32b s : work_group_size)
       spec_constants.emplace_back(s);
+    // Work dimension
+    spec_constants.emplace_back(zisc::cast<uint32b>(work_dimension));
     // For clspv local element size
     const VulkanDeviceInfo& info = deviceInfoImpl();
     spec_constants.emplace_back(info.workGroupSize());
-    // Work dimension
-    spec_constants.emplace_back(zisc::cast<uint32b>(work_dimension));
   }
   using MapEntryList = zisc::pmr::vector<vk::SpecializationMapEntry>;
   const MapEntryList::allocator_type entry_alloc{mem_resource};
   MapEntryList entries{entry_alloc};
   {
-    constexpr std::size_t max_local_size = 8;
-    ZIVC_ASSERT(num_of_local_args <= max_local_size,
-                "The number of local args exceeded the limit.");
-    constexpr std::size_t num_of_specs = work_group_size.size() + 1 + max_local_size;
-
+    using ShaderDescMapT = internal::ShaderDescMap;
+    const ShaderDescMapT& desc_map = module.desc_map_;
     entries.reserve(work_group_size.size() + 1 + num_of_local_args);
+    constexpr std::size_t u32_size = sizeof(uint32b);
     // For clspv work group size
-    for (std::size_t i = 0; i < work_group_size.size(); ++i) {
-      const vk::SpecializationMapEntry entry{
-          zisc::cast<uint32b>(i),
-          zisc::cast<uint32b>(i * sizeof(uint32b)),
-          sizeof(uint32b)};
-      entries.emplace_back(entry);
+    using SpecConstantType = ShaderDescMapT::SpecConstantType;
+    constexpr std::array spec_type_list{SpecConstantType::kWorkgroupSizeX,
+                                        SpecConstantType::kWorkgroupSizeY,
+                                        SpecConstantType::kWorkgroupSizeZ,
+                                        SpecConstantType::kWorkDim};
+    for (std::size_t i = 0; i < spec_type_list.size(); ++i) {
+      const SpecConstantType type = spec_type_list[i];
+      if (desc_map.hasSpecConstantMpa(type)) {
+        const ShaderDescMapT::SpecConstantMap& map = desc_map.specConstantMap(type);
+        const vk::SpecializationMapEntry entry{map.spec_id_,
+                                               static_cast<uint32b>(i * u32_size),
+                                               u32_size};
+        entries.emplace_back(entry);
+      }
     }
     // For clspv local element size
-    constexpr std::size_t local_size_offset = work_group_size.size();
-    for (std::size_t i = 0; i < num_of_local_args; ++i) {
-      const auto local_size_index = zisc::cast<uint32b>(entries.size());
-      const vk::SpecializationMapEntry entry{
-          local_size_index,
-          zisc::cast<uint32b>(local_size_offset * sizeof(uint32b)),
-          sizeof(uint32b)};
-      entries.emplace_back(entry);
-    }
-    // Work dimension
-    constexpr std::size_t work_dim_offset = local_size_offset + 1;
-    for (std::size_t i = entries.size(); i < num_of_specs; ++i) {
-      const auto work_dim_index = zisc::cast<uint32b>(entries.size());
-      const vk::SpecializationMapEntry entry{
-          work_dim_index,
-          zisc::cast<uint32b>(work_dim_offset * sizeof(uint32b)),
-          sizeof(uint32b)};
+    using LocalMapT = ShaderDescMapT::KernelDescMap::LocalMap;
+    const uint64b kernel_id = zisc::Fnv1aHash64::hash(kernel_name.data());
+    for (const LocalMapT& map : desc_map.kernelDescMap(kernel_id).local_map_list_) {
+      const vk::SpecializationMapEntry entry{map.spec_id_,
+                                             static_cast<uint32b>(4 * u32_size),
+                                             u32_size};
       entries.emplace_back(entry);
     }
   }
-  const vk::SpecializationInfo spec_info{zisc::cast<uint32b>(entries.size()),
-                                             entries.data(),
-                                             spec_constants.size() * sizeof(uint32b),
-                                             spec_constants.data()};
+  const vk::SpecializationInfo spec_info{static_cast<uint32b>(entries.size()),
+                                         entries.data(),
+                                         spec_constants.size() * sizeof(uint32b),
+                                         spec_constants.data()};
   // Compute pipeline
   vk::Pipeline pline;
   {
@@ -975,7 +981,8 @@ void VulkanDevice::Callbacks::notifyOfDeviceMemoryDeallocation(
   */
 auto VulkanDevice::addShaderModule(const uint64b id,
                                    const std::span<const uint32b> spirv_code,
-                                   const std::string_view module_name)
+                                   const std::string_view module_name,
+                                   internal::ShaderDescMap&& desc_map)
     -> const ModuleData&
 {
   const vk::Device d{device()};
@@ -992,7 +999,8 @@ auto VulkanDevice::addShaderModule(const uint64b id,
 
   const ModuleData* data = nullptr;
   {
-    auto module_data = zisc::pmr::allocateUnique<ModuleData>(mem_resource);
+    auto module_data = zisc::pmr::allocateUnique<ModuleData>(mem_resource,
+                                                             std::move(desc_map));
     data = module_data.get();
     module_data->name_ = module_name;
     module_data->module_ = zisc::cast<VkShaderModule>(module);

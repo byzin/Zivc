@@ -24,6 +24,7 @@
 #include <optional>
 #include <string_view>
 #include <type_traits>
+#include <utility>
 #include <vector>
 // Zisc
 #include "zisc/utility.hpp"
@@ -42,6 +43,7 @@
 #include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/auxiliary/error.hpp"
+#include "zivc/internal/shader_desc_map.hpp"
 
 namespace zivc {
 
@@ -60,7 +62,8 @@ auto VulkanDevice::addShaderModule(KernelSet<SetType>& kernel_set) -> const Modu
   kernel_set.initialize();
   const std::span<const uint32b> spirv_code = kernel_set.spirVCode();
   const std::string_view module_name = kernel_set.name();
-  return addShaderModule(id, spirv_code, module_name);
+  internal::ShaderDescMap& desc_map = kernel_set.shaderDescMap();
+  return addShaderModule(id, spirv_code, module_name, std::move(desc_map));
 }
 
 /*!

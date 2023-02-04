@@ -41,6 +41,7 @@
 #include "zivc/kernel_set.hpp"
 #include "zivc/zivc_config.hpp"
 #include "zivc/auxiliary/id_data.hpp"
+#include "zivc/internal/shader_desc_map.hpp"
 
 namespace zivc {
 
@@ -71,8 +72,11 @@ class VulkanDevice : public Device
     */
   struct ModuleData
   {
+    ModuleData(internal::ShaderDescMap&& desc_map) noexcept;
+
     std::string_view name_;
     VkShaderModule module_ = ZIVC_VK_NULL_HANDLE;
+    internal::ShaderDescMap desc_map_;
   };
 
   /*!
@@ -314,7 +318,8 @@ class VulkanDevice : public Device
   //! Add a shader module of the given kernel set
   const ModuleData& addShaderModule(const uint64b id,
                                     const std::span<const uint32b> spirv_code,
-                                    const std::string_view module_name);
+                                    const std::string_view module_name,
+                                    internal::ShaderDescMap&& desc_map);
 
   //! Return the capability of the index
   static constexpr CapabilityT getCapability(const std::size_t index) noexcept;

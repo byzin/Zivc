@@ -99,94 +99,99 @@ TEST(ClCppTest, AtomicFetchAddTest)
   }
 }
 
-//TEST(ClCppTest, AtomicFetchAddLocalTest)
-//{
-//  const zivc::SharedContext context = ztest::createContext();
-//  const ztest::Config& config = ztest::Config::globalConfig();
-//  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
-//  const zivc::DeviceInfo& info = device->deviceInfo();
-//
-//  // Allocate buffers
-//  using zivc::cl_int;
-//  using zivc::cl_uint;
-//  using zivc::cl_float;
-//  using zivc::cl_float2;
-//  using zivc::cl_float3;
-//  using zivc::cl_float4;
-//
-//  constexpr std::size_t n = 0b01 << 14;
-//  constexpr std::size_t loop = 10;
-//
-//  const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_int>(zivc::BufferUsage::kPreferDevice);
-//  buffer_out1->setSize(n / info.workGroupSize());
-//  {
-//    zivc::LaunchResult result = zivc::fill(0, buffer_out1.get(), buffer_out1->createOptions());
-//    result.fence().wait();
-//  }
-//  const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_uint>(zivc::BufferUsage::kPreferDevice);
-//  buffer_out2->setSize(n / info.workGroupSize());
-//  {
-//    zivc::LaunchResult result = zivc::fill(0, buffer_out2.get(), buffer_out2->createOptions());
-//    result.fence().wait();
-//  }
-//
-//  // Make a kernel
-//  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_atomic, atomicFetchAddLocalTest1Kernel, 1);
-//  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
-//  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
-//  ASSERT_EQ(3, kernel->argSize()) << "Wrong kernel property.";
-//
-//  const zivc::KernelInitParams kernel_params2 = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_atomic, atomicFetchAddLocalTest2Kernel, 1);
-//  const zivc::SharedKernel kernel2 = device->createKernel(kernel_params2);
-//  ASSERT_EQ(1, kernel2->dimensionSize()) << "Wrong kernel property.";
-//  ASSERT_EQ(3, kernel2->argSize()) << "Wrong kernel property.";
-//
-//  // Launch the kernel1
-//  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
-//  launch_options.setQueueIndex(0);
-//  launch_options.setWorkSize({{n}});
-//  launch_options.requestFence(true);
-//  launch_options.setLabel("atomicFetchAddLocalTest1Kernel");
-//  ASSERT_EQ(1, launch_options.dimension());
-//  ASSERT_EQ(3, launch_options.numOfArgs());
-//  ASSERT_EQ(0, launch_options.queueIndex());
-//  ASSERT_EQ(n, launch_options.workSize()[0]);
-//  ASSERT_TRUE(launch_options.isFenceRequested());
-//  zivc::LaunchResult result = kernel->run(*buffer_out1, n, loop, launch_options);
-//
-//  // Launch the kernel2
-//  zivc::KernelLaunchOptions launch_options2 = kernel2->createOptions();
-//  launch_options2.setQueueIndex(0);
-//  launch_options2.setWorkSize({{n}});
-//  launch_options2.requestFence(true);
-//  launch_options2.setLabel("atomicFetchAddLocalTest2Kernel");
-//  ASSERT_EQ(1, launch_options2.dimension());
-//  ASSERT_EQ(3, launch_options2.numOfArgs());
-//  ASSERT_EQ(0, launch_options2.queueIndex());
-//  ASSERT_EQ(n, launch_options2.workSize()[0]);
-//  ASSERT_TRUE(launch_options2.isFenceRequested());
-//  zivc::LaunchResult result2 = kernel2->run(*buffer_out2, n, loop, launch_options2);
-//
-//  device->waitForCompletion(result.fence());
-//  device->waitForCompletion(result2.fence());
-//
-//  // output1
-//  {
-//    const zivc::SharedBuffer tmp = device->createBuffer<cl_int>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
-//    ztest::copyBuffer(*buffer_out1, tmp.get());
-//    const zivc::MappedMemory mem = tmp->mapMemory();
-//    const auto expected = static_cast<zivc::int32b>(info.workGroupSize() * loop);
-//    ASSERT_EQ(expected, mem[0]) << "atomic_fetch_add of local int failed.";
-//  }
-//  // output2
-//  {
-//    const zivc::SharedBuffer tmp = device->createBuffer<cl_uint>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
-//    ztest::copyBuffer(*buffer_out2, tmp.get());
-//    const zivc::MappedMemory mem = tmp->mapMemory();
-//    const auto expected = static_cast<zivc::uint32b>(info.workGroupSize() * loop);
-//    ASSERT_EQ(expected, mem[0]) << "atomic_fetch_add of int failed.";
-//  }
-//}
+TEST(ClCppTest, AtomicFetchAddLocalTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  const zivc::DeviceInfo& info = device->deviceInfo();
+
+  // Allocate buffers
+  using zivc::cl_int;
+  using zivc::cl_uint;
+  using zivc::cl_float;
+  using zivc::cl_float2;
+  using zivc::cl_float3;
+  using zivc::cl_float4;
+
+  constexpr std::size_t n = 0b01 << 14;
+  constexpr std::size_t loop = 10;
+
+  const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_int>(zivc::BufferUsage::kPreferDevice);
+  buffer_out1->setSize(n / info.workGroupSize());
+  {
+    zivc::BufferLaunchOptions options = buffer_out1->createOptions();
+    options.requestFence(true);
+    zivc::LaunchResult result = zivc::fill(0, buffer_out1.get(), options);
+    result.fence().wait();
+  }
+  const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_uint>(zivc::BufferUsage::kPreferDevice);
+  buffer_out2->setSize(n / info.workGroupSize());
+  {
+    zivc::BufferLaunchOptions options = buffer_out2->createOptions();
+    options.requestFence(true);
+    zivc::LaunchResult result = zivc::fill(0, buffer_out2.get(), options);
+    result.fence().wait();
+  }
+
+  device->setFenceSize(2);
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_atomic, atomicFetchAddLocalTest1Kernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(3, kernel->argSize()) << "Wrong kernel property.";
+
+  const zivc::KernelInitParams kernel_params2 = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_atomic, atomicFetchAddLocalTest2Kernel, 1);
+  const zivc::SharedKernel kernel2 = device->createKernel(kernel_params2);
+  ASSERT_EQ(1, kernel2->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(3, kernel2->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel1
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{n}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("atomicFetchAddLocalTest1Kernel");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(3, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(n, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_out1, n, loop, launch_options);
+
+  // Launch the kernel2
+  zivc::KernelLaunchOptions launch_options2 = kernel2->createOptions();
+  launch_options2.setQueueIndex(0);
+  launch_options2.setWorkSize({{n}});
+  launch_options2.requestFence(true);
+  launch_options2.setLabel("atomicFetchAddLocalTest2Kernel");
+  ASSERT_EQ(1, launch_options2.dimension());
+  ASSERT_EQ(3, launch_options2.numOfArgs());
+  ASSERT_EQ(0, launch_options2.queueIndex());
+  ASSERT_EQ(n, launch_options2.workSize()[0]);
+  ASSERT_TRUE(launch_options2.isFenceRequested());
+  zivc::LaunchResult result2 = kernel2->run(*buffer_out2, n, loop, launch_options2);
+
+  device->waitForCompletion(result.fence());
+  device->waitForCompletion(result2.fence());
+
+  // output1
+  {
+    const zivc::SharedBuffer tmp = device->createBuffer<cl_int>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out1, tmp.get());
+    const zivc::MappedMemory mem = tmp->mapMemory();
+    const auto expected = static_cast<zivc::int32b>(info.workGroupSize() * loop);
+    ASSERT_EQ(expected, mem[0]) << "atomic_fetch_add of local int failed.";
+  }
+  // output2
+  {
+    const zivc::SharedBuffer tmp = device->createBuffer<cl_uint>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out2, tmp.get());
+    const zivc::MappedMemory mem = tmp->mapMemory();
+    const auto expected = static_cast<zivc::uint32b>(info.workGroupSize() * loop);
+    ASSERT_EQ(expected, mem[0]) << "atomic_fetch_add of int failed.";
+  }
+}
 
 TEST(ClCppTest, AtomicFetchDecTest)
 {

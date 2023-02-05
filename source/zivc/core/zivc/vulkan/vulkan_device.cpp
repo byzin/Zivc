@@ -194,17 +194,27 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
   zisc::pmr::memory_resource* mem_resource = memoryResource();
   const vk::AllocationCallbacks alloc{createAllocator()};
 
+  // Get the kernel descriptor map
+  using ShaderDescMapT = internal::ShaderDescMap;
+  const ShaderDescMapT& desc_map = module.desc_map_;
+  const uint64b kernel_id = zisc::Fnv1aHash64::hash(kernel_name.data());
+  const ShaderDescMapT::KernelDescMap& kernel_desc_map = desc_map.kernelDescMap(kernel_id);
+
   // Initialize descriptor set layout
   vk::DescriptorSetLayout desc_set_layout;
   {
+    using BufferMapT = ShaderDescMapT::KernelDescMap::BufferMap;
     using BindingList = zisc::pmr::vector<vk::DescriptorSetLayoutBinding>;
     const BindingList::allocator_type bindings_alloc{mem_resource};
     BindingList layout_bindings{bindings_alloc};
     layout_bindings.resize(num_of_storage_buffers + num_of_uniform_buffers);
+    ZIVC_ASSERT(layout_bindings.size() == kernel_desc_map.buffer_map_list_.size(),
+                "The number of buffers is wrong.");
     // Storage buffers
     for (std::size_t index = 0; index < num_of_storage_buffers; ++index) {
+      const BufferMapT& map = kernel_desc_map.buffer_map_list_[index];
       layout_bindings[index] = vk::DescriptorSetLayoutBinding{
-          zisc::cast<uint32b>(index),
+          map.binding_,
           vk::DescriptorType::eStorageBuffer,
           1,
           vk::ShaderStageFlagBits::eCompute};
@@ -212,8 +222,9 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
     // Uniform buffer
     for (std::size_t i = 0; i < num_of_uniform_buffers; ++i) {
       const std::size_t index = num_of_storage_buffers + i;
+      const BufferMapT& map = kernel_desc_map.buffer_map_list_[index];
       layout_bindings[index] = vk::DescriptorSetLayoutBinding{
-          zisc::cast<uint32b>(index),
+          map.binding_,
           vk::DescriptorType::eUniformBuffer,
           1,
           vk::ShaderStageFlagBits::eCompute};
@@ -228,9 +239,28 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
   // Pipeline
   vk::PipelineLayout pline_layout;
   {
+    // Calculate the range of push constants
+    using PushConstantType = ShaderDescMapT::PushConstantType;
+    uint32b offset = (std::numeric_limits<uint32b>::max)();;
+    uint32b size = (std::numeric_limits<uint32b>::min)();
+    constexpr std::array types = {PushConstantType::kGlobalOffset,
+                                  PushConstantType::kEnqueuedLocalSize,
+                                  PushConstantType::kGlobalSize,
+                                  PushConstantType::kRegionOffset,
+                                  PushConstantType::kNumWorkgroups,
+                                  PushConstantType::kRegionGroupOffset};
+    static_assert(types.size() == static_cast<std::size_t>(PushConstantType::kMax));
+    for (const PushConstantType type : types) {
+      if (desc_map.hasPushConstantMpa(type)) {
+        const ShaderDescMapT::PushConstantMap& map = desc_map.pushConstantMap(type);
+        offset = (std::min)(offset, map.offset_);
+        size = (std::max)(size, map.offset_ + map.size_);
+      }
+    }
+
     // For clspv module scope push constants
     const vk::PushConstantRange push_constant_range{
-        vk::ShaderStageFlagBits::eCompute, 0, 92};
+        vk::ShaderStageFlagBits::eCompute, offset, size - offset};
 
     const vk::PipelineLayoutCreateInfo create_info{
         vk::PipelineLayoutCreateFlags{},
@@ -259,8 +289,6 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
   const MapEntryList::allocator_type entry_alloc{mem_resource};
   MapEntryList entries{entry_alloc};
   {
-    using ShaderDescMapT = internal::ShaderDescMap;
-    const ShaderDescMapT& desc_map = module.desc_map_;
     entries.reserve(work_group_size.size() + 1 + num_of_local_args);
     constexpr std::size_t u32_size = sizeof(uint32b);
     // For clspv work group size
@@ -282,8 +310,7 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
     }
     // For clspv local element size
     using LocalMapT = ShaderDescMapT::KernelDescMap::LocalMap;
-    const uint64b kernel_id = zisc::Fnv1aHash64::hash(kernel_name.data());
-    for (const LocalMapT& map : desc_map.kernelDescMap(kernel_id).local_map_list_) {
+    for (const LocalMapT& map : kernel_desc_map.local_map_list_) {
       const vk::SpecializationMapEntry entry{map.spec_id_,
                                              static_cast<uint32b>(4 * u32_size),
                                              u32_size};
@@ -308,8 +335,8 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
       pipeline_flags |= vk::PipelineCreateFlagBits::eCaptureStatisticsKHR;
     }
     const vk::ComputePipelineCreateInfo pipeline_info{pipeline_flags,
-                                                          stage_info,
-                                                          pline_layout};
+                                                      stage_info,
+                                                      pline_layout};
     const vk::ResultValue result = d.createComputePipeline(vk::PipelineCache{},
                                                            pipeline_info,
                                                            alloc,
@@ -328,14 +355,12 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
     auto kernel_data = zisc::pmr::allocateUnique<KernelData>(mem_resource);
     data = kernel_data.get();
     kernel_data->module_ = std::addressof(module);
+    kernel_data->desc_map_ = std::addressof(kernel_desc_map);;
     copyStr(kernel_name, kernel_data->kernel_name_.data());
     kernel_data->desc_set_layout_ =
         zisc::cast<VkDescriptorSetLayout>(desc_set_layout);
     kernel_data->pipeline_layout_ = zisc::cast<VkPipelineLayout>(pline_layout);
     kernel_data->pipeline_ = zisc::cast<VkPipeline>(pline);
-
-    const uint64b kernel_id = zisc::Fnv1aHash64::hash(kernel_name.data());
-    kernel_data->desc_map_ = std::addressof(module.desc_map_.kernelDescMap(kernel_id));;
 
     [[maybe_unused]] const std::optional<std::size_t> result = kernelDataList().add(id, std::move(kernel_data));
     //! \todo Raise an exception
@@ -647,6 +672,7 @@ void VulkanDevice::setFenceSize(const std::size_t s)
     d.destroyFence(fence, alloc, loader);
     fence_list.pop_back();
   }
+  std::sort(fence_list.begin(), fence_list.end());
   // Reset fences
   for (VkFence& fence : fence_list) {
     auto f = zisc::cast<vk::Fence>(fence);

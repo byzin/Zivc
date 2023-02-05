@@ -658,14 +658,14 @@ updateModuleScopePushConstantsCmd(const std::span<const uint32b, 3>& work_size,
     }
   };
 
+  const VulkanDevice& device = parentImpl();
+  const std::span group_size = device.workGroupSizeDim(BaseKernelT::dimension());
+
   // Global offset
   {
     const std::array global_offset = BaseKernelT::expandWorkSize(launch_options.globalIdOffset(), 0);
     set_push_constants(PushConstantType::kGlobalOffset, global_offset);
   }
-
-  const VulkanDevice& device = parentImpl();
-  const std::span group_size = device.workGroupSizeDim(BaseKernelT::dimension());
 
   // Enqueued local size
   {
@@ -680,9 +680,21 @@ updateModuleScopePushConstantsCmd(const std::span<const uint32b, 3>& work_size,
     set_push_constants(PushConstantType::kGlobalSize, global_size);
   }
 
+  // Region offset
+  {
+    std::array<uint32b, 3> v{0, 0, 0};
+    set_push_constants(PushConstantType::kRegionOffset, v);
+  }
+
   // Num of workgroups
   {
     set_push_constants(PushConstantType::kNumWorkgroups, work_size);
+  }
+
+  // Region group offset
+  {
+    std::array<uint32b, 3> v{0, 0, 0};
+    set_push_constants(PushConstantType::kRegionGroupOffset, v);
   }
 
   VulkanKernelImpl impl{std::addressof(parentImpl())};

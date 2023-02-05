@@ -308,9 +308,10 @@ TEST(KernelTest, LargeNumOfParametersTest)
 #endif // Z_MAC
 
   // Make a kernel
-  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test_params,
-                                                      largeNumOfParametersKernel,
-                                                      1);
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(
+      kernel_test_params,
+      largeNumOfParametersKernel,
+      1);
   const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   constexpr std::size_t num_of_args =
@@ -330,32 +331,32 @@ TEST(KernelTest, LargeNumOfParametersTest)
     const zivc::LaunchResult result = kernel->run(
                               *buff_device1, *buff_device2, *buff_device3,
                               *buff_device4, *buff_device5, *buff_device6,
-                              *buff_device7, *buff_device8, 0,
+                              *buff_device7, *buff_device8, 1,
                               *buff_device9, *buff_device10, *buff_device11,
                               *buff_device12, *buff_device13, *buff_device14,
                               *buff_device15, *buff_device16, 1,
                               *buff_device17, *buff_device18, *buff_device19,
                               *buff_device20, *buff_device21, *buff_device22,
-                              *buff_device23, *buff_device24, 2.0f,
+                              *buff_device23, *buff_device24, 1.0f,
                               *buff_device25, *buff_device26, *buff_device27,
                               *buff_device28,
 #if !defined(Z_MAC)
                               *buff_device29, *buff_device30,
-                              *buff_device31, *buff_device32, 3,
+                              *buff_device31, *buff_device32, 1,
                               *buff_device33, *buff_device34, *buff_device35,
                               *buff_device36, *buff_device37, *buff_device38,
-                              *buff_device39, *buff_device40, 4,
+                              *buff_device39, *buff_device40, 1,
                               *buff_device41, *buff_device42, *buff_device43,
                               *buff_device44, *buff_device45, *buff_device46,
-                              *buff_device47, *buff_device48, 5.0f,
+                              *buff_device47, *buff_device48, 1.0f,
                               *buff_device49, *buff_device50, *buff_device51,
                               *buff_device52, *buff_device53, *buff_device54,
-                              *buff_device55, *buff_device56, 6,
+                              *buff_device55, *buff_device56, 1,
                               *buff_device57, *buff_device58, *buff_device59,
                               *buff_device60, *buff_device61, *buff_device62,
                               *buff_device63, *buff_device64,
 #endif // Z_MAC
-                              7,
+                              1,
                               launch_options);
     device->waitForCompletion();
   }

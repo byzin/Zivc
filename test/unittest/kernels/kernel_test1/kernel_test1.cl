@@ -40,10 +40,9 @@ void writeWorkItemProperties(zivc::GlobalPtr<uint32b> properties) noexcept;
 
   \param [in] inputs No description.
   */
-__kernel void simpleKernel(zivc::ConstGlobalPtr<int32b> inputs)
+__kernel void simpleKernel(zivc::GlobalPtr<int32b> inputs)
 {
-  static_cast<void>(inputs); //!< Remove me
-  // Do nothing here
+  inputs[0] = 0;
 }
 
 /*!

@@ -125,9 +125,8 @@ __kernel void largeNumOfParametersKernel(
   o4[0] = 1;
   o5[0] = 1;
   o6[0] = 1;
-  o7[0] = 1.0f;
+  o7[0] = static_cast<float>(s1);
   o8[0] = ParamTest{1, 1, 1.0f};
-  static_cast<void>(s1);
 
   o9[0] = 1;
   o10[0] = 1;
@@ -135,9 +134,8 @@ __kernel void largeNumOfParametersKernel(
   o12[0] = 1;
   o13[0] = 1;
   o14[0] = 1;
-  o15[0] = 1.0f;
+  o15[0] = static_cast<float>(s2);
   o16[0] = ParamTest{1, 1, 1.0f};
-  static_cast<void>(s2);
 
   o17[0] = 1;
   o18[0] = 1;
@@ -145,9 +143,8 @@ __kernel void largeNumOfParametersKernel(
   o20[0] = 1;
   o21[0] = 1;
   o22[0] = 1;
-  o23[0] = 1.0f;
+  o23[0] = static_cast<float>(s3);
   o24[0] = ParamTest{1, 1, 1.0f};
-  static_cast<void>(s3);
 
   o25[0] = 1;
   o26[0] = 1;
@@ -156,9 +153,8 @@ __kernel void largeNumOfParametersKernel(
 #if !defined(Z_MAC)
   o29[0] = 1;
   o30[0] = 1;
-  o31[0] = 1.0f;
+  o31[0] = static_cast<float>(s4);
   o32[0] = ParamTest{1, 1, 1.0f};
-  static_cast<void>(s4);
 
   o33[0] = 1;
   o34[0] = 1;
@@ -166,9 +162,8 @@ __kernel void largeNumOfParametersKernel(
   o36[0] = 1;
   o37[0] = 1;
   o38[0] = 1;
-  o39[0] = 1.0f;
+  o39[0] = static_cast<float>(s5);
   o40[0] = ParamTest{1, 1, 1.0f};
-  static_cast<void>(s5);
 
   o41[0] = 1;
   o42[0] = 1;
@@ -176,9 +171,8 @@ __kernel void largeNumOfParametersKernel(
   o44[0] = 1;
   o45[0] = 1;
   o46[0] = 1;
-  o47[0] = 1.0f;
+  o47[0] = static_cast<float>(s6);
   o48[0] = ParamTest{1, 1, 1.0f};
-  static_cast<void>(s6);
 
   o49[0] = 1;
   o50[0] = 1;
@@ -186,9 +180,8 @@ __kernel void largeNumOfParametersKernel(
   o52[0] = 1;
   o53[0] = 1;
   o54[0] = 1;
-  o55[0] = 1.0f;
+  o55[0] = static_cast<float>(s7);
   o56[0] = ParamTest{1, 1, 1.0f};
-  static_cast<void>(s7);
 
   o57[0] = 1;
   o58[0] = 1;
@@ -196,10 +189,9 @@ __kernel void largeNumOfParametersKernel(
   o60[0] = 1;
   o61[0] = 1;
   o62[0] = 1;
-  o63[0] = 1.0f;
+  o63[0] = static_cast<float>(s8);
   o64[0] = ParamTest{1, 1, 1.0f};
 #endif // Z_MAC
-  static_cast<void>(s8);
 }
 
 #endif // ZIVC_TEST_KERNEL_TEST_PARAMS_CL

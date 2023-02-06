@@ -192,6 +192,7 @@ __kernel void largeNumOfParametersKernel(
   o63[0] = static_cast<float>(s8);
   o64[0] = ParamTest{1, 1, 1.0f};
 #endif // Z_MAC
+  static_cast<void>(s8);
 }
 
 #endif // ZIVC_TEST_KERNEL_TEST_PARAMS_CL

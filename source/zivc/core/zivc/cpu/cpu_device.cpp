@@ -17,11 +17,11 @@
 #include <array>
 #include <atomic>
 #include <cstddef>
+#include <future>
 #include <limits>
 #include <memory>
 // Zisc
 #include "zisc/utility.hpp"
-#include "zisc/concurrency/future.hpp"
 #include "zisc/concurrency/thread_manager.hpp"
 #include "zisc/memory/memory.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
@@ -37,7 +37,7 @@
 
 namespace {
 
-using CpuFence = zisc::Future<void>;
+using CpuFence = std::future<void>;
 
 }
 
@@ -160,8 +160,7 @@ void CpuDevice::submit(const CommandT& command,
   zisc::ThreadManager& manager = threadManager();
   constexpr int64b start = 0;
   const int64b end = manager.numOfThreads();
-  constexpr int64b parent_id = zisc::ThreadManager::kAllPrecedences;
-  zisc::Future result = manager.enqueueLoop(std::move(task), start, end, parent_id);
+  std::future result = manager.enqueueLoop(std::move(task), start, end, true);
   // Set a fence
   if (fence->isActive()) {
     auto* fen = zisc::reinterp<CpuFence*>(std::addressof(fence->data()));

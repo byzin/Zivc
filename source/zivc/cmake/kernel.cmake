@@ -159,8 +159,8 @@ function(Zivc_addKernelSet kernel_set_name kernel_set_version target)
   endif()
   set(supported_spirv_versions 1.0 1.3 1.5)
   if(NOT (kernel_set_spirv_version IN_LIST supported_spirv_versions))
-    message(WARNING "The specified SPIR-V version '${kernel_set_spirv_version}' isn't supported. Use '1.3' instead.")
-    set(kernel_set_spirv_version 1.3)
+    message(WARNING "The specified SPIR-V version '${kernel_set_spirv_version}' isn't supported. Use '1.5' instead.")
+    set(kernel_set_spirv_version 1.5)
   endif()
 
   # Make a CMakeLists.txt of the given kernel set

@@ -226,12 +226,15 @@ function(Zivc_getClspvCompileFlags clspv_compile_flags)
   list(APPEND options --color
                       --cl-std=CLC++
                       --cluster-pod-kernel-args
+                      --enable-opaque-pointers
                       --fp16
                       --fp64
                       --global-offset-push-constant
                       --inline-entry-points
                       --int8
                       # --long-vector
+                      --no-vec3-to-vec4
+                      --opaque-pointers
                       --pod-ubo
                       --spv-version=${spv_version}
                       --work-dim
@@ -240,6 +243,7 @@ function(Zivc_getClspvCompileFlags clspv_compile_flags)
   list(APPEND options -O 3
                       --cl-native-math
                       --cost-kind=throughput
+                      --force-tail-folding-style=data-and-control
                       --enable-gvn-hoist
                       --enable-gvn-memdep
                       --enable-gvn-sink
@@ -249,10 +253,16 @@ function(Zivc_getClspvCompileFlags clspv_compile_flags)
                       --enable-split-backedge-in-load-pre
                       --hot-cold-split
                       --instcombine-code-sinking
+                      --runtime-counter-relocation
                       )
   # For debug
-  list(APPEND options --debugify-level=location+variables
-                      )
+  if(Z_DEBUG_MODE)
+    list(APPEND options # -g
+                        --debugify-level=location+variables
+                        --experimental-debug-variable-locations
+                        --sanitizer-early-opt-ep
+                        )
+  endif()
   # For float debug
   #  list(APPEND options --cl-denorms-are-zero
   #                      --cl-finite-math-only

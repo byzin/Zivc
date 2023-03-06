@@ -23,7 +23,7 @@ function(Zivc_initZivcOptions)
   Zivc_setBooleanOption(ZIVC_USES_OWN_CLSPV OFF ${option_description})
 
   set(option_description "Specify the default SPIR-V version used in Zivc.")
-  Zivc_setStringOption(ZIVC_DEFAULT_SPIRV_VERSION "1.3" ${option_description})
+  Zivc_setStringOption(ZIVC_DEFAULT_SPIRV_VERSION "1.5" ${option_description})
 
   set(option_description "Bake Vulkan SPIR-V kernels into it's library.")
   Zivc_setBooleanOption(ZIVC_BAKE_KERNELS OFF ${option_description})

@@ -827,30 +827,6 @@ Type cast(T&& value) noexcept
 /*!
   \details No detailed description
 
-  \tparam Type No description.
-  \tparam T No description.
-  \param [in] value No description.
-  \return No description
-  */
-template <typename Type, typename T> inline
-Type castPointer(T&& ptr) noexcept
-{
-  if constexpr (kIsSame<Type, T>) {
-    return forward<T>(ptr);
-  }
-  else {
-#if defined(ZIVC_CL_CPU)
-    auto result = zisc::bit_cast<Type>(ptr);
-#else // ZIVC_CL_CPU
-    auto* result = reinterpret_cast<Type>(ptr);
-#endif
-    return result;
-  }
-}
-
-/*!
-  \details No detailed description
-
   \tparam Type1 No description.
   \tparam Type2 No description.
   \param [in] lhs No description.
@@ -885,6 +861,38 @@ Type reinterp(T object) noexcept
   auto result = inner::TypeConverter<RemoveVolatileT<Type>>::reinterp(object);
   return result;
 }
+
+#undef ZIVC_CAST_POINTER
+
+#if defined(ZIVC_CL_CPU)
+
+/*!
+  \def ZIVC_CAST_POINTER
+  \brief No brief description
+
+  No detailed description.
+
+  \param [in] type No description.
+  \param [in] ptr No description.
+  \return No description
+  */
+#define ZIVC_CAST_POINTER(type, ptr) zisc::bit_cast< type >( ptr )
+
+#else // vulkan case
+
+/*!
+  \def ZIVC_CAST_POINTER
+  \brief No brief description
+
+  No detailed description.
+
+  \param [in] type No description.
+  \param [in] ptr No description.
+  \return No description
+  */
+#define ZIVC_CAST_POINTER(type, ptr) reinterpret_cast< type >( ptr )
+
+#endif
 
 /*!
   \details No detailed description

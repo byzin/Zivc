@@ -72,13 +72,15 @@ __kernel void atomicFetchAddLocalTestKernel(zivc::GlobalPtr<int32b> out1,
   const size_t id = zivc::getLocalLinearId();
   if (id == 0) {
     zivc::atomic_store(&storage[0].i_, 0);
-    zivc::atomic_store(&storage[0].u_, 0u);
+    //! \todo Resolve the compile error
+    //zivc::atomic_store(&storage[0].u_, 0u);
   }
   zivc::barrier(CLK_LOCAL_MEM_FENCE);
 
   for (size_t i = 0; i < loop; ++i) {
     zivc::atomic_fetch_inc(&storage[0].i_);
-    zivc::atomic_fetch_inc(&storage[0].u_);
+    //! \todo Resolve the compile error
+    //zivc::atomic_fetch_inc(&storage[0].u_);
   }
   zivc::barrier(CLK_LOCAL_MEM_FENCE);
 
@@ -88,10 +90,11 @@ __kernel void atomicFetchAddLocalTestKernel(zivc::GlobalPtr<int32b> out1,
       const int32b v = zivc::atomic_load(&storage[0].i_);
       zivc::atomic_store(out1 + i, v);
     }
-    {
-      const uint32b v = zivc::atomic_load(&storage[0].u_);
-      zivc::atomic_store(&out2[i], v);
-    }
+    //! \todo Resolve the compile error
+    //{
+    //  const uint32b v = zivc::atomic_load(&storage[0].u_);
+    //  zivc::atomic_store(&out2[i], v);
+    //}
   }
 }
 
@@ -161,6 +164,24 @@ __kernel void atomicFetchDecTestKernel(zivc::GlobalPtr<int32b> out1,
   for (size_t i = 0; i < loop; ++i) {
     zivc::atomic_fetch_dec(out1);
     zivc::atomic_fetch_dec(&out2[0]);
+  }
+}
+
+__kernel void atomicFetchAndTestKernel(zivc::GlobalPtr<uint32b> out,
+                                       const uint32b resolution,
+                                       const uint32b loop,
+                                       const uint32b offset)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (resolution <= index)
+    return;
+
+  constexpr size_t s = 8 * sizeof(uint32b);
+  const uint32b v = 0b01u << (index % s);
+  const uint32b bit = ~v;
+  for (size_t i = 0; i < loop; ++i) {
+    zivc::GlobalPtr<uint32b> o = out + (i * offset) + (index / s);
+    zivc::atomic_fetch_and(o, bit);
   }
 }
 

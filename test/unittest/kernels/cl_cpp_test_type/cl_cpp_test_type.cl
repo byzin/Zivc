@@ -1821,6 +1821,7 @@ __kernel void vectorLoadStoreTest(zivc::GlobalPtr<int8b> inout_i8,
     // int8b
     {
       //! \todo Resolve the compile error
+      inout_i8[0] = 0;
 //      constexpr char k = 2;
 //      // vector2
 //      {
@@ -1957,6 +1958,7 @@ __kernel void vectorLoadStoreClTest(zivc::GlobalPtr<int8b> inout_i8,
     // int8b
     {
       //! \todo Resolve the compile error
+      inout_i8[0] = 0;
 //      constexpr char k = 2;
 //      // vector2
 //      {

@@ -15,6 +15,7 @@
 #include <array>
 #include <concepts>
 #include <cstddef>
+#include <functional>
 #include <type_traits>
 // Zisc
 #include "zisc/concepts.hpp"
@@ -79,6 +80,38 @@ ZIVC_CPUCL_VECTOR_TYPE_CHECK(double4);
 
 
 /*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam Type No description.
+  */
+template <Arithmetic Type>
+struct CompResultType<Type>
+{
+  using IntegerT = int32b;
+  using ResultT = IntegerT;
+};
+
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam Type No description.
+  \tparam kN No description.
+  */
+template <Arithmetic Type, std::size_t kN>
+struct CompResultType<Vector<Type, kN>>
+{
+  using IntegerT = std::conditional_t<sizeof(Type) == 1, int8b,
+                   std::conditional_t<sizeof(Type) == 2, int16b,
+                   std::conditional_t<sizeof(Type) == 4, int32b,
+                                                         int64b>>>;
+  using ResultT = Vector<IntegerT, kN>;
+};
+
+/*!
   \details No detailed description
 
   \param [in] v No description.
@@ -96,32 +129,9 @@ constexpr Vector<T, 2>::Vector(ConstReference v) noexcept : Vector(v, v)
   */
 template <Arithmetic T> inline
 constexpr Vector<T, 2>::Vector(ConstReference v0, ConstReference v1) noexcept :
-    data_{{v0, v1}}
+    x{v0},
+    y{v1}
 {
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] index No description.
-  \return No description
-  */
-template <Arithmetic T> inline
-constexpr auto Vector<T, 2>::operator[](const size_type index) noexcept -> Reference
-{
-  return get(index);
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] index No description.
-  \return No description
-  */
-template <Arithmetic T> inline
-constexpr auto Vector<T, 2>::operator[](const size_type index) const noexcept -> ConstReference
-{
-  return get(index);
 }
 
 /*!
@@ -142,31 +152,11 @@ constexpr Vector<T, 2>::operator bool() const noexcept
   \return No description
   */
 template <Arithmetic T> inline
-constexpr auto Vector<T, 2>::begin() noexcept -> iterator
+constexpr auto Vector<T, 2>::alignedThis() noexcept -> Vector*
 {
-  return data();
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <Arithmetic T> inline
-constexpr auto Vector<T, 2>::begin() const noexcept -> const_iterator
-{
-  return data();
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <Arithmetic T> inline
-constexpr auto Vector<T, 2>::end() noexcept -> iterator
-{
-  Pointer p = data() + size();
+  Vector* p = std::is_constant_evaluated()
+      ? this
+      : zisc::assume_aligned<alignment()>(this);
   return p;
 }
 
@@ -176,9 +166,11 @@ constexpr auto Vector<T, 2>::end() noexcept -> iterator
   \return No description
   */
 template <Arithmetic T> inline
-constexpr auto Vector<T, 2>::end() const noexcept -> const_iterator
+constexpr auto Vector<T, 2>::alignedThis() const noexcept -> const Vector*
 {
-  ConstPointer p = data() + size();
+  const Vector* p = std::is_constant_evaluated()
+      ? this
+      : zisc::assume_aligned<alignment()>(this);
   return p;
 }
 
@@ -190,67 +182,9 @@ constexpr auto Vector<T, 2>::end() const noexcept -> const_iterator
 template <Arithmetic T> inline
 constexpr auto Vector<T, 2>::alignment() noexcept -> size_type
 {
-  constexpr size_type align_s = std::alignment_of_v<Vector>;
-  constexpr size_type s = sizeof(Vector);
-  static_assert(s == size() * sizeof(Type), "The size of Vector isn't correct.");
-  static_assert(align_s == s, "The alignment of Vector isn't correct.");
-  return align_s;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <Arithmetic T> inline
-constexpr auto Vector<T, 2>::data() noexcept -> Pointer
-{
-  constexpr size_type align_s = alignment();
-  Pointer p = std::is_constant_evaluated()
-      ? data_.data()
-      : zisc::assume_aligned<align_s>(data_.data());
-  return p;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <Arithmetic T> inline
-constexpr auto Vector<T, 2>::data() const noexcept -> ConstPointer
-{
-  constexpr size_type align_s = alignment();
-  ConstPointer p = std::is_constant_evaluated()
-      ? data_.data()
-      : zisc::assume_aligned<align_s>(data_.data());
-  return p;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] index No description.
-  \return No description
-  */
-template <Arithmetic T> inline
-constexpr auto Vector<T, 2>::get(const size_type index) noexcept -> Reference
-{
-  Pointer p = data();
-  return p[index];
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] index No description.
-  \return No description
-  */
-template <Arithmetic T> inline
-constexpr auto Vector<T, 2>::get(const size_type index) const noexcept -> ConstReference
-{
-  ConstPointer p = data();
-  return p[index];
+  constexpr size_type a = std::alignment_of_v<Vector>;
+  static_assert(a == sizeof(Vector), "The alignment isn't correct.");
+  return a;
 }
 
 /*!
@@ -261,7 +195,268 @@ constexpr auto Vector<T, 2>::get(const size_type index) const noexcept -> ConstR
 template <Arithmetic T> inline
 constexpr auto Vector<T, 2>::size() noexcept -> size_type
 {
-  return 2;
+  constexpr std::size_t s = 2;
+  static_assert(s * sizeof(Type) == sizeof(Vector), "The size isn't correct.");
+  return s;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, zisc::InvocableR<R, T> Func> inline
+constexpr Vector<R, 2> Vector<T, 2>::apply(const Func& func,
+                                           const Vector& x) noexcept
+{
+  using ReturnVecT = Vector<R, 2>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    rptr->x = func(xptr->x);
+    rptr->y = func(xptr->y);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1> Func> inline
+constexpr Vector<R, 2> Vector<T, 2>::apply(const Func& func,
+                                           const Vector& x,
+                                           const Vector<T1, 2>& y) noexcept
+{
+  using ReturnVecT = Vector<R, 2>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    const Vector<T1, 2>* yptr = y.alignedThis();
+    rptr->x = func(xptr->x, yptr->x);
+    rptr->y = func(xptr->y, yptr->y);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in,out] y No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1*> Func> inline
+constexpr Vector<R, 2> Vector<T, 2>::apply(const Func& func,
+                                           const Vector& x,
+                                           Vector<T1, 2>* y) noexcept
+{
+  using ReturnVecT = Vector<R, 2>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    Vector<T1, 2>* yptr = y->alignedThis();
+    rptr->x = func(xptr->x, &yptr->x);
+    rptr->y = func(xptr->y, &yptr->y);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T1, T> Func> inline
+constexpr Vector<R, 2> Vector<T, 2>::apply(const Func& func,
+                                           const T1& x,
+                                           const Vector& y) noexcept
+{
+  using ReturnVecT = Vector<R, 2>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* yptr = y.alignedThis();
+    rptr->x = func(x, yptr->x);
+    rptr->y = func(x, yptr->y);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1> Func> inline
+constexpr Vector<R, 2> Vector<T, 2>::apply(const Func& func,
+                                           const Vector& x,
+                                           const T1& y) noexcept
+{
+  using ReturnVecT = Vector<R, 2>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    rptr->x = func(xptr->x, y);
+    rptr->y = func(xptr->y, y);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \param [in] z No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T, T1> Func> inline
+constexpr Vector<R, 2> Vector<T, 2>::apply(const Func& func,
+                                           const Vector& x,
+                                           const Vector& y,
+                                           const Vector<T1, 2>& z) noexcept
+{
+  using ReturnVecT = Vector<R, 2>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    const Vector* yptr = y.alignedThis();
+    const Vector<T1, 2>* zptr = z.alignedThis();
+    rptr->x = func(xptr->x, yptr->x, zptr->x);
+    rptr->y = func(xptr->y, yptr->y, zptr->y);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \param [in,out] z No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T, T1*> Func> inline
+constexpr Vector<R, 2> Vector<T, 2>::apply(const Func& func,
+                                           const Vector& x,
+                                           const Vector& y,
+                                           Vector<T1, 2>* z) noexcept
+{
+  using ReturnVecT = Vector<R, 2>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    const Vector* yptr = y.alignedThis();
+    Vector<T1, 2>* zptr = z->alignedThis();
+    rptr->x = func(xptr->x, yptr->x, &zptr->x);
+    rptr->y = func(xptr->y, yptr->y, &zptr->y);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \param [in] z No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T1, T1, T> Func> inline
+constexpr Vector<R, 2> Vector<T, 2>::apply(const Func& func,
+                                           const T1& x,
+                                           const T1& y,
+                                           const Vector& z) noexcept
+{
+  using ReturnVecT = Vector<R, 2>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* zptr = z.alignedThis();
+    rptr->x = func(x, y, zptr->x);
+    rptr->y = func(x, y, zptr->y);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \param [in] z No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1, T1> Func> inline
+constexpr Vector<R, 2> Vector<T, 2>::apply(const Func& func,
+                                           const Vector& x,
+                                           const T1& y,
+                                           const T1& z) noexcept
+{
+  using ReturnVecT = Vector<R, 2>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    rptr->x = func(xptr->x, y, z);
+    rptr->y = func(xptr->y, y, z);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+constexpr auto Vector<T, 2>::sum() const noexcept -> Type
+{
+  const Vector* ptr = alignedThis();
+  const Type s = ptr->x + ptr->y;
+  return s;
 }
 
 /*!
@@ -283,7 +478,10 @@ constexpr Vector<T, 3>::Vector(ConstReference v) noexcept : Vector(v, v, v)
   */
 template <Arithmetic T> inline
 constexpr Vector<T, 3>::Vector(ConstReference v0, ConstReference v1, ConstReference v2) noexcept :
-    data_{{v0, v1, v2, static_cast<Type>(0)}}
+    x{v0},
+    y{v1},
+    z{v2},
+    pad_{static_cast<Type>(0.0)}
 {
 }
 
@@ -314,30 +512,6 @@ constexpr Vector<T, 3>::Vector(ConstReference v0, const Vector2& v1) noexcept :
 /*!
   \details No detailed description
 
-  \param [in] index No description.
-  \return No description
-  */
-template <Arithmetic Type> inline
-constexpr auto Vector<Type, 3>::operator[](const size_type index) noexcept -> Reference
-{
-  return get(index);
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] index No description.
-  \return No description
-  */
-template <Arithmetic T> inline
-constexpr auto Vector<T, 3>::operator[](const size_type index) const noexcept -> ConstReference
-{
-  return get(index);
-}
-
-/*!
-  \details No detailed description
-
   \return No description
   */
 template <Arithmetic T> inline
@@ -354,31 +528,11 @@ constexpr Vector<T, 3>::operator bool() const noexcept
   \return No description
   */
 template <Arithmetic T> inline
-constexpr auto Vector<T, 3>::begin() noexcept -> iterator
+constexpr auto Vector<T, 3>::alignedThis() noexcept -> Vector*
 {
-  return data();
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <Arithmetic T> inline
-constexpr auto Vector<T, 3>::begin() const noexcept -> const_iterator
-{
-  return data();
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <Arithmetic T> inline
-constexpr auto Vector<T, 3>::end() noexcept -> iterator
-{
-  Pointer p = data() + size();
+  Vector* p = std::is_constant_evaluated()
+      ? this
+      : zisc::assume_aligned<alignment()>(this);
   return p;
 }
 
@@ -388,9 +542,11 @@ constexpr auto Vector<T, 3>::end() noexcept -> iterator
   \return No description
   */
 template <Arithmetic T> inline
-constexpr auto Vector<T, 3>::end() const noexcept -> const_iterator
+constexpr auto Vector<T, 3>::alignedThis() const noexcept -> const Vector*
 {
-  ConstPointer p = data() + size();
+  const Vector* p = std::is_constant_evaluated()
+      ? this
+      : zisc::assume_aligned<alignment()>(this);
   return p;
 }
 
@@ -402,67 +558,9 @@ constexpr auto Vector<T, 3>::end() const noexcept -> const_iterator
 template <Arithmetic T> inline
 constexpr auto Vector<T, 3>::alignment() noexcept -> size_type
 {
-  constexpr size_type align_s = std::alignment_of_v<Vector>;
-  constexpr size_type s = sizeof(Vector);
-  static_assert(s == 4 * sizeof(Type), "The size of Vector isn't correct.");
-  static_assert(align_s == s, "The alignment of Vector isn't correct.");
-  return align_s;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <Arithmetic T> inline
-constexpr auto Vector<T, 3>::data() noexcept -> Pointer
-{
-  constexpr size_type align_s = alignment();
-  Pointer p = std::is_constant_evaluated()
-      ? data_.data()
-      : zisc::assume_aligned<align_s>(data_.data());
-  return p;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <Arithmetic T> inline
-constexpr auto Vector<T, 3>::data() const noexcept -> ConstPointer
-{
-  constexpr size_type align_s = alignment();
-  ConstPointer p = std::is_constant_evaluated()
-      ? data_.data()
-      : zisc::assume_aligned<align_s>(data_.data());
-  return p;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] index No description.
-  \return No description
-  */
-template <Arithmetic T> inline
-constexpr auto Vector<T, 3>::get(const size_type index) noexcept -> Reference
-{
-  Pointer p = data();
-  return p[index];
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] index No description.
-  \return No description
-  */
-template <Arithmetic T> inline
-constexpr auto Vector<T, 3>::get(const size_type index) const noexcept -> ConstReference
-{
-  ConstPointer p = data();
-  return p[index];
+  constexpr size_type a = std::alignment_of_v<Vector>;
+  static_assert(a == sizeof(Vector), "The alignment isn't correct.");
+  return a;
 }
 
 /*!
@@ -474,6 +572,274 @@ template <Arithmetic T> inline
 constexpr auto Vector<T, 3>::size() noexcept -> size_type
 {
   return 3;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, zisc::InvocableR<R, T> Func> inline
+constexpr Vector<R, 3> Vector<T, 3>::apply(const Func& func,
+                                           const Vector& x) noexcept
+{
+  using ReturnVecT = Vector<R, 3>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    rptr->x = func(xptr->x);
+    rptr->y = func(xptr->y);
+    rptr->z = func(xptr->z);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1> Func> inline
+constexpr Vector<R, 3> Vector<T, 3>::apply(const Func& func,
+                                           const Vector& x,
+                                           const Vector<T1, 3>& y) noexcept
+{
+  using ReturnVecT = Vector<R, 3>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    const Vector<T1, 3>* yptr = y.alignedThis();
+    rptr->x = func(xptr->x, yptr->x);
+    rptr->y = func(xptr->y, yptr->y);
+    rptr->z = func(xptr->z, yptr->z);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in,out] y No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1*> Func> inline
+constexpr Vector<R, 3> Vector<T, 3>::apply(const Func& func,
+                                           const Vector& x,
+                                           Vector<T1, 3>* y) noexcept
+{
+  using ReturnVecT = Vector<R, 3>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    Vector<T1, 3>* yptr = y->alignedThis();
+    rptr->x = func(xptr->x, &yptr->x);
+    rptr->y = func(xptr->y, &yptr->y);
+    rptr->z = func(xptr->z, &yptr->z);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T1, T> Func> inline
+constexpr Vector<R, 3> Vector<T, 3>::apply(const Func& func,
+                                           const T1& x,
+                                           const Vector& y) noexcept
+{
+  using ReturnVecT = Vector<R, 3>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* yptr = y.alignedThis();
+    rptr->x = func(x, yptr->x);
+    rptr->y = func(x, yptr->y);
+    rptr->z = func(x, yptr->z);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1> Func> inline
+constexpr Vector<R, 3> Vector<T, 3>::apply(const Func& func,
+                                           const Vector& x,
+                                           const T1& y) noexcept
+{
+  using ReturnVecT = Vector<R, 3>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    rptr->x = func(xptr->x, y);
+    rptr->y = func(xptr->y, y);
+    rptr->z = func(xptr->z, y);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \param [in] z No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T, T1> Func> inline
+constexpr Vector<R, 3> Vector<T, 3>::apply(const Func& func,
+                                           const Vector& x,
+                                           const Vector& y,
+                                           const Vector<T1, 3>& z) noexcept
+{
+  using ReturnVecT = Vector<R, 3>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    const Vector* yptr = y.alignedThis();
+    const Vector<T1, 3>* zptr = z.alignedThis();
+    rptr->x = func(xptr->x, yptr->x, zptr->x);
+    rptr->y = func(xptr->y, yptr->y, zptr->y);
+    rptr->z = func(xptr->z, yptr->z, zptr->z);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \param [in,out] z No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T, T1*> Func> inline
+constexpr Vector<R, 3> Vector<T, 3>::apply(const Func& func,
+                                           const Vector& x,
+                                           const Vector& y,
+                                           Vector<T1, 3>* z) noexcept
+{
+  using ReturnVecT = Vector<R, 3>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    const Vector* yptr = y.alignedThis();
+    Vector<T1, 3>* zptr = z->alignedThis();
+    rptr->x = func(xptr->x, yptr->x, &zptr->x);
+    rptr->y = func(xptr->y, yptr->y, &zptr->y);
+    rptr->z = func(xptr->z, yptr->z, &zptr->z);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \param [in] z No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T1, T1, T> Func> inline
+constexpr Vector<R, 3> Vector<T, 3>::apply(const Func& func,
+                                           const T1& x,
+                                           const T1& y,
+                                           const Vector& z) noexcept
+{
+  using ReturnVecT = Vector<R, 3>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* zptr = z.alignedThis();
+    rptr->x = func(x, y, zptr->x);
+    rptr->y = func(x, y, zptr->y);
+    rptr->z = func(x, y, zptr->z);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \param [in] z No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1, T1> Func> inline
+constexpr Vector<R, 3> Vector<T, 3>::apply(const Func& func,
+                                           const Vector& x,
+                                           const T1& y,
+                                           const T1& z) noexcept
+{
+  using ReturnVecT = Vector<R, 3>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    rptr->x = func(xptr->x, y, z);
+    rptr->y = func(xptr->y, y, z);
+    rptr->z = func(xptr->z, y, z);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+constexpr auto Vector<T, 3>::sum() const noexcept -> Type
+{
+  const Vector* ptr = alignedThis();
+  const Type s = ptr->x + ptr->y + ptr->z;
+  return s;
 }
 
 /*!
@@ -496,7 +862,10 @@ constexpr Vector<T, 4>::Vector(ConstReference v) noexcept : Vector(v, v, v, v)
   */
 template <Arithmetic T> inline
 constexpr Vector<T, 4>::Vector(ConstReference v0, ConstReference v1, ConstReference v2, ConstReference v3) noexcept :
-    data_{{v0, v1, v2, v3}}
+    x{v0},
+    y{v1},
+    z{v2},
+    w{v3}
 {
 }
 
@@ -578,30 +947,6 @@ constexpr Vector<T, 4>::Vector(ConstReference v0, const Vector3& v1) noexcept :
 /*!
   \details No detailed description
 
-  \param [in] index No description.
-  \return No description
-  */
-template <Arithmetic T> inline
-constexpr auto Vector<T, 4>::operator[](const size_type index) noexcept -> Reference
-{
-  return get(index);
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] index No description.
-  \return No description
-  */
-template <Arithmetic T> inline
-constexpr auto Vector<T, 4>::operator[](const size_type index) const noexcept -> ConstReference
-{
-  return get(index);
-}
-
-/*!
-  \details No detailed description
-
   \return No description
   */
 template <Arithmetic T> inline
@@ -618,31 +963,11 @@ constexpr Vector<T, 4>::operator bool() const noexcept
   \return No description
   */
 template <Arithmetic T> inline
-constexpr auto Vector<T, 4>::begin() noexcept -> iterator
+constexpr auto Vector<T, 4>::alignedThis() noexcept -> Vector*
 {
-  return data();
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <Arithmetic T> inline
-constexpr auto Vector<T, 4>::begin() const noexcept -> const_iterator
-{
-  return data();
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <Arithmetic T> inline
-constexpr auto Vector<T, 4>::end() noexcept -> iterator
-{
-  Pointer p = data() + size();
+  Vector* p = std::is_constant_evaluated()
+      ? this
+      : zisc::assume_aligned<alignment()>(this);
   return p;
 }
 
@@ -652,9 +977,11 @@ constexpr auto Vector<T, 4>::end() noexcept -> iterator
   \return No description
   */
 template <Arithmetic T> inline
-constexpr auto Vector<T, 4>::end() const noexcept -> const_iterator
+constexpr auto Vector<T, 4>::alignedThis() const noexcept -> const Vector*
 {
-  ConstPointer p = data() + size();
+  const Vector* p = std::is_constant_evaluated()
+      ? this
+      : zisc::assume_aligned<alignment()>(this);
   return p;
 }
 
@@ -666,67 +993,9 @@ constexpr auto Vector<T, 4>::end() const noexcept -> const_iterator
 template <Arithmetic T> inline
 constexpr auto Vector<T, 4>::alignment() noexcept -> size_type
 {
-  constexpr size_type align_s = std::alignment_of_v<Vector>;
-  constexpr size_type s = sizeof(Vector);
-  static_assert(s == size() * sizeof(Type), "The size of Vector isn't correct.");
-  static_assert(align_s == s, "The alignment of Vector isn't correct.");
-  return align_s;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <Arithmetic T> inline
-constexpr auto Vector<T, 4>::data() noexcept -> Pointer
-{
-  constexpr size_type align_s = alignment();
-  Pointer p = std::is_constant_evaluated()
-      ? data_.data()
-      : zisc::assume_aligned<align_s>(data_.data());
-  return p;
-}
-
-/*!
-  \details No detailed description
-
-  \return No description
-  */
-template <Arithmetic T> inline
-constexpr auto Vector<T, 4>::data() const noexcept -> ConstPointer
-{
-  constexpr size_type align_s = alignment();
-  ConstPointer p = std::is_constant_evaluated()
-      ? data_.data()
-      : zisc::assume_aligned<align_s>(data_.data());
-  return p;
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] index No description.
-  \return No description
-  */
-template <Arithmetic T> inline
-constexpr auto Vector<T, 4>::get(const size_type index) noexcept -> Reference
-{
-  Pointer p = data();
-  return p[index];
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] index No description.
-  \return No description
-  */
-template <Arithmetic T> inline
-constexpr auto Vector<T, 4>::get(const size_type index) const noexcept -> ConstReference
-{
-  ConstPointer p = data();
-  return p[index];
+  constexpr size_type a = std::alignment_of_v<Vector>;
+  static_assert(a == sizeof(Vector), "The alignment isn't correct.");
+  return a;
 }
 
 /*!
@@ -737,41 +1006,1307 @@ constexpr auto Vector<T, 4>::get(const size_type index) const noexcept -> ConstR
 template <Arithmetic T> inline
 constexpr auto Vector<T, 4>::size() noexcept -> size_type
 {
-  return 4;
+  constexpr std::size_t s = 4;
+  static_assert(s * sizeof(Type) == sizeof(Vector), "The size isn't correct.");
+  return s;
 }
 
 /*!
-  \brief No brief description
+  \details No detailed description
 
-  No detailed description.
-
-  \tparam Type No description.
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \return No description
   */
-template <Arithmetic Type>
-struct CompResultType<Type>
+template <Arithmetic T>
+template <Arithmetic R, zisc::InvocableR<R, T> Func> inline
+constexpr Vector<R, 4> Vector<T, 4>::apply(const Func& func,
+                                           const Vector& x) noexcept
 {
-  using IntegerT = int32b;
-  using ResultT = IntegerT;
-};
+  using ReturnVecT = Vector<R, 4>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    rptr->x = func(xptr->x);
+    rptr->y = func(xptr->y);
+    rptr->z = func(xptr->z);
+    rptr->w = func(xptr->w);
+  }
+  return result;
+}
 
 /*!
-  \brief No brief description
+  \details No detailed description
 
-  No detailed description.
-
-  \tparam Type No description.
-  \tparam kN No description.
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
   */
-template <Arithmetic Type, std::size_t kN>
-struct CompResultType<Vector<Type, kN>>
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1> Func> inline
+constexpr Vector<R, 4> Vector<T, 4>::apply(const Func& func,
+                                           const Vector& x,
+                                           const Vector<T1, 4>& y) noexcept
 {
-  using IntegerT = std::conditional_t<sizeof(Type) == 1, int8b,
-                   std::conditional_t<sizeof(Type) == 2, int16b,
-                   std::conditional_t<sizeof(Type) == 4, int32b,
-                                                         int64b>>>;
-  using ResultT = Vector<IntegerT, kN>;
-};
+  using ReturnVecT = Vector<R, 4>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    const Vector<T1, 4>* yptr = y.alignedThis();
+    rptr->x = func(xptr->x, yptr->x);
+    rptr->y = func(xptr->y, yptr->y);
+    rptr->z = func(xptr->z, yptr->z);
+    rptr->w = func(xptr->w, yptr->w);
+  }
+  return result;
+}
 
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in,out] y No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1*> Func> inline
+constexpr Vector<R, 4> Vector<T, 4>::apply(const Func& func,
+                                           const Vector& x,
+                                           Vector<T1, 4>* y) noexcept
+{
+  using ReturnVecT = Vector<R, 4>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    Vector<T1, 4>* yptr = y->alignedThis();
+    rptr->x = func(xptr->x, &yptr->x);
+    rptr->y = func(xptr->y, &yptr->y);
+    rptr->z = func(xptr->z, &yptr->z);
+    rptr->w = func(xptr->w, &yptr->w);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T1, T> Func> inline
+constexpr Vector<R, 4> Vector<T, 4>::apply(const Func& func,
+                                           const T1& x,
+                                           const Vector& y) noexcept
+{
+  using ReturnVecT = Vector<R, 4>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* yptr = y.alignedThis();
+    rptr->x = func(x, yptr->x);
+    rptr->y = func(x, yptr->y);
+    rptr->z = func(x, yptr->z);
+    rptr->w = func(x, yptr->w);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1> Func> inline
+constexpr Vector<R, 4> Vector<T, 4>::apply(const Func& func,
+                                           const Vector& x,
+                                           const T1& y) noexcept
+{
+  using ReturnVecT = Vector<R, 4>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    rptr->x = func(xptr->x, y);
+    rptr->y = func(xptr->y, y);
+    rptr->z = func(xptr->z, y);
+    rptr->w = func(xptr->w, y);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \param [in] z No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T, T1> Func> inline
+constexpr Vector<R, 4> Vector<T, 4>::apply(const Func& func,
+                                           const Vector& x,
+                                           const Vector& y,
+                                           const Vector<T1, 4>& z) noexcept
+{
+  using ReturnVecT = Vector<R, 4>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    const Vector* yptr = y.alignedThis();
+    const Vector<T1, 4>* zptr = z.alignedThis();
+    rptr->x = func(xptr->x, yptr->x, zptr->x);
+    rptr->y = func(xptr->y, yptr->y, zptr->y);
+    rptr->z = func(xptr->z, yptr->z, zptr->z);
+    rptr->w = func(xptr->w, yptr->w, zptr->w);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \param [in,out] z No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T, T1*> Func> inline
+constexpr Vector<R, 4> Vector<T, 4>::apply(const Func& func,
+                                           const Vector& x,
+                                           const Vector& y,
+                                           Vector<T1, 4>* z) noexcept
+{
+  using ReturnVecT = Vector<R, 4>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    const Vector* yptr = y.alignedThis();
+    Vector<T1, 4>* zptr = z->alignedThis();
+    rptr->x = func(xptr->x, yptr->x, &zptr->x);
+    rptr->y = func(xptr->y, yptr->y, &zptr->y);
+    rptr->z = func(xptr->z, yptr->z, &zptr->z);
+    rptr->w = func(xptr->w, yptr->w, &zptr->w);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \param [in] z No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T1, T1, T> Func> inline
+constexpr Vector<R, 4> Vector<T, 4>::apply(const Func& func,
+                                           const T1& x,
+                                           const T1& y,
+                                           const Vector& z) noexcept
+{
+  using ReturnVecT = Vector<R, 4>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* zptr = z.alignedThis();
+    rptr->x = func(x, y, zptr->x);
+    rptr->y = func(x, y, zptr->y);
+    rptr->z = func(x, y, zptr->z);
+    rptr->w = func(x, y, zptr->w);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \param [in] z No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1, T1> Func> inline
+constexpr Vector<R, 4> Vector<T, 4>::apply(const Func& func,
+                                           const Vector& x,
+                                           const T1& y,
+                                           const T1& z) noexcept
+{
+  using ReturnVecT = Vector<R, 4>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    rptr->x = func(xptr->x, y, z);
+    rptr->y = func(xptr->y, y, z);
+    rptr->z = func(xptr->z, y, z);
+    rptr->w = func(xptr->w, y, z);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+constexpr auto Vector<T, 4>::sum() const noexcept -> Type
+{
+  const Vector* ptr = alignedThis();
+  const Type s = ptr->x + ptr->y + ptr->z + ptr->w;
+  return s;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] v No description.
+  */
+template <Arithmetic T> inline
+constexpr Vector<T, 8>::Vector(ConstReference v) noexcept :
+    Vector(v, v, v, v, v, v, v, v)
+{
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] v0 No description.
+  \param [in] v1 No description.
+  \param [in] v2 No description.
+  \param [in] v3 No description.
+  \param [in] v4 No description.
+  \param [in] v5 No description.
+  \param [in] v6 No description.
+  \param [in] v7 No description.
+  */
+template <Arithmetic T> inline
+constexpr Vector<T, 8>::Vector(ConstReference v0, ConstReference v1,
+                               ConstReference v2, ConstReference v3,
+                               ConstReference v4, ConstReference v5,
+                               ConstReference v6, ConstReference v7) noexcept :
+    s0{v0},
+    s1{v1},
+    s2{v2},
+    s3{v3},
+    s4{v4},
+    s5{v5},
+    s6{v6},
+    s7{v7}
+{
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] v0 No description.
+  \param [in] v1 No description.
+  \param [in] v2 No description.
+  \param [in] v3 No description.
+  */
+template <Arithmetic T> inline
+constexpr Vector<T, 8>::Vector(const Vector2& v0, const Vector2& v1,
+                               const Vector2& v2, const Vector2& v3) noexcept :
+    Vector(v0.x, v0.y, v1.x, v1.y, v2.x, v2.y, v3.x, v3.y)
+{
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] v0 No description.
+  \param [in] v1 No description.
+  */
+template <Arithmetic T> inline
+constexpr Vector<T, 8>::Vector(const Vector4& v0, const Vector4& v1) noexcept :
+    Vector(v0.x, v0.y, v0.w, v0.z, v1.x, v1.y, v1.z, v1.w)
+{
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+constexpr Vector<T, 8>::operator bool() const noexcept
+{
+  const bool result = static_cast<bool>(s0) && static_cast<bool>(s1) &&
+                      static_cast<bool>(s2) && static_cast<bool>(s3) &&
+                      static_cast<bool>(s4) && static_cast<bool>(s5) &&
+                      static_cast<bool>(s6) && static_cast<bool>(s7);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+constexpr auto Vector<T, 8>::alignedThis() noexcept -> Vector*
+{
+  Vector* p = std::is_constant_evaluated()
+      ? this
+      : zisc::assume_aligned<alignment()>(this);
+  return p;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+constexpr auto Vector<T, 8>::alignedThis() const noexcept -> const Vector*
+{
+  const Vector* p = std::is_constant_evaluated()
+      ? this
+      : zisc::assume_aligned<alignment()>(this);
+  return p;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+constexpr auto Vector<T, 8>::alignment() noexcept -> size_type
+{
+  constexpr size_type a = std::alignment_of_v<Vector>;
+  static_assert(a == sizeof(Vector), "The alignment isn't correct.");
+  return a;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+constexpr auto Vector<T, 8>::size() noexcept -> size_type
+{
+  constexpr std::size_t s = 8;
+  static_assert(s * sizeof(Type) == sizeof(Vector), "The size isn't correct.");
+  return s;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, zisc::InvocableR<R, T> Func> inline
+constexpr Vector<R, 8> Vector<T, 8>::apply(const Func& func,
+                                           const Vector& x) noexcept
+{
+  using ReturnVecT = Vector<R, 8>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    rptr->s0 = func(xptr->s0);
+    rptr->s1 = func(xptr->s1);
+    rptr->s2 = func(xptr->s2);
+    rptr->s3 = func(xptr->s3);
+    rptr->s4 = func(xptr->s4);
+    rptr->s5 = func(xptr->s5);
+    rptr->s6 = func(xptr->s6);
+    rptr->s7 = func(xptr->s7);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1> Func> inline
+constexpr Vector<R, 8> Vector<T, 8>::apply(const Func& func,
+                                           const Vector& x,
+                                           const Vector<T1, 8>& y) noexcept
+{
+  using ReturnVecT = Vector<R, 8>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    const Vector<T1, 8>* yptr = y.alignedThis();
+    rptr->s0 = func(xptr->s0, yptr->s0);
+    rptr->s1 = func(xptr->s1, yptr->s1);
+    rptr->s2 = func(xptr->s2, yptr->s2);
+    rptr->s3 = func(xptr->s3, yptr->s3);
+    rptr->s4 = func(xptr->s4, yptr->s4);
+    rptr->s5 = func(xptr->s5, yptr->s5);
+    rptr->s6 = func(xptr->s6, yptr->s6);
+    rptr->s7 = func(xptr->s7, yptr->s7);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in,out] y No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1*> Func> inline
+constexpr Vector<R, 8> Vector<T, 8>::apply(const Func& func,
+                                           const Vector& x,
+                                           Vector<T1, 8>* y) noexcept
+{
+  using ReturnVecT = Vector<R, 8>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    Vector<T1, 8>* yptr = y->alignedThis();
+    rptr->s0 = func(xptr->s0, &yptr->s0);
+    rptr->s1 = func(xptr->s1, &yptr->s1);
+    rptr->s2 = func(xptr->s2, &yptr->s2);
+    rptr->s3 = func(xptr->s3, &yptr->s3);
+    rptr->s4 = func(xptr->s4, &yptr->s4);
+    rptr->s5 = func(xptr->s5, &yptr->s5);
+    rptr->s6 = func(xptr->s6, &yptr->s6);
+    rptr->s7 = func(xptr->s7, &yptr->s7);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T1, T> Func> inline
+constexpr Vector<R, 8> Vector<T, 8>::apply(const Func& func,
+                                           const T1& x,
+                                           const Vector& y) noexcept
+{
+  using ReturnVecT = Vector<R, 8>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* yptr = y.alignedThis();
+    rptr->s0 = func(x, yptr->s0);
+    rptr->s1 = func(x, yptr->s1);
+    rptr->s2 = func(x, yptr->s2);
+    rptr->s3 = func(x, yptr->s3);
+    rptr->s4 = func(x, yptr->s4);
+    rptr->s5 = func(x, yptr->s5);
+    rptr->s6 = func(x, yptr->s6);
+    rptr->s7 = func(x, yptr->s7);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1> Func> inline
+constexpr Vector<R, 8> Vector<T, 8>::apply(const Func& func,
+                                           const Vector& x,
+                                           const T1& y) noexcept
+{
+  using ReturnVecT = Vector<R, 8>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    rptr->s0 = func(xptr->s0, y);
+    rptr->s1 = func(xptr->s1, y);
+    rptr->s2 = func(xptr->s2, y);
+    rptr->s3 = func(xptr->s3, y);
+    rptr->s4 = func(xptr->s4, y);
+    rptr->s5 = func(xptr->s5, y);
+    rptr->s6 = func(xptr->s6, y);
+    rptr->s7 = func(xptr->s7, y);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \param [in] z No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T, T1> Func> inline
+constexpr Vector<R, 8> Vector<T, 8>::apply(const Func& func,
+                                           const Vector& x,
+                                           const Vector& y,
+                                           const Vector<T1, 8>& z) noexcept
+{
+  using ReturnVecT = Vector<R, 8>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    const Vector* yptr = y.alignedThis();
+    const Vector<T1, 8>* zptr = z.alignedThis();
+    rptr->s0 = func(xptr->s0, yptr->s0, zptr->s0);
+    rptr->s1 = func(xptr->s1, yptr->s1, zptr->s1);
+    rptr->s2 = func(xptr->s2, yptr->s2, zptr->s2);
+    rptr->s3 = func(xptr->s3, yptr->s3, zptr->s3);
+    rptr->s4 = func(xptr->s4, yptr->s4, zptr->s4);
+    rptr->s5 = func(xptr->s5, yptr->s5, zptr->s5);
+    rptr->s6 = func(xptr->s6, yptr->s6, zptr->s6);
+    rptr->s7 = func(xptr->s7, yptr->s7, zptr->s7);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \param [in,out] z No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T, T1*> Func> inline
+constexpr Vector<R, 8> Vector<T, 8>::apply(const Func& func,
+                                           const Vector& x,
+                                           const Vector& y,
+                                           Vector<T1, 8>* z) noexcept
+{
+  using ReturnVecT = Vector<R, 8>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    const Vector* yptr = y.alignedThis();
+    Vector<T1, 8>* zptr = z->alignedThis();
+    rptr->s0 = func(xptr->s0, yptr->s0, &zptr->s0);
+    rptr->s1 = func(xptr->s1, yptr->s1, &zptr->s1);
+    rptr->s2 = func(xptr->s2, yptr->s2, &zptr->s2);
+    rptr->s3 = func(xptr->s3, yptr->s3, &zptr->s3);
+    rptr->s4 = func(xptr->s4, yptr->s4, &zptr->s4);
+    rptr->s5 = func(xptr->s5, yptr->s5, &zptr->s5);
+    rptr->s6 = func(xptr->s6, yptr->s6, &zptr->s6);
+    rptr->s7 = func(xptr->s7, yptr->s7, &zptr->s7);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \param [in] z No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T1, T1, T> Func> inline
+constexpr Vector<R, 8> Vector<T, 8>::apply(const Func& func,
+                                           const T1& x,
+                                           const T1& y,
+                                           const Vector& z) noexcept
+{
+  using ReturnVecT = Vector<R, 8>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* zptr = z.alignedThis();
+    rptr->s0 = func(x, y, zptr->s0);
+    rptr->s1 = func(x, y, zptr->s1);
+    rptr->s2 = func(x, y, zptr->s2);
+    rptr->s3 = func(x, y, zptr->s3);
+    rptr->s4 = func(x, y, zptr->s4);
+    rptr->s5 = func(x, y, zptr->s5);
+    rptr->s6 = func(x, y, zptr->s6);
+    rptr->s7 = func(x, y, zptr->s7);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \param [in] z No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1, T1> Func> inline
+constexpr Vector<R, 8> Vector<T, 8>::apply(const Func& func,
+                                           const Vector& x,
+                                           const T1& y,
+                                           const T1& z) noexcept
+{
+  using ReturnVecT = Vector<R, 8>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    rptr->s0 = func(xptr->s0, y, z);
+    rptr->s1 = func(xptr->s1, y, z);
+    rptr->s2 = func(xptr->s2, y, z);
+    rptr->s3 = func(xptr->s3, y, z);
+    rptr->s4 = func(xptr->s4, y, z);
+    rptr->s5 = func(xptr->s5, y, z);
+    rptr->s6 = func(xptr->s6, y, z);
+    rptr->s7 = func(xptr->s7, y, z);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+constexpr auto Vector<T, 8>::sum() const noexcept -> Type
+{
+  const Vector* ptr = alignedThis();
+  const Type s = ptr->s0 + ptr->s1 + ptr->s2 + ptr->s3 +
+                 ptr->s4 + ptr->s5 + ptr->s6 + ptr->s7;
+  return s;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] v No description.
+  */
+template <Arithmetic T> inline
+constexpr Vector<T, 16>::Vector(ConstReference v) noexcept :
+    Vector(v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v)
+{
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] v0 No description.
+  \param [in] v1 No description.
+  \param [in] v2 No description.
+  \param [in] v3 No description.
+  \param [in] v4 No description.
+  \param [in] v5 No description.
+  \param [in] v6 No description.
+  \param [in] v7 No description.
+  \param [in] v8 No description.
+  \param [in] v9 No description.
+  \param [in] va No description.
+  \param [in] vb No description.
+  \param [in] vc No description.
+  \param [in] vd No description.
+  \param [in] ve No description.
+  \param [in] vf No description.
+  */
+template <Arithmetic T> inline
+constexpr Vector<T, 16>::Vector(ConstReference v0, ConstReference v1,
+                                ConstReference v2, ConstReference v3,
+                                ConstReference v4, ConstReference v5,
+                                ConstReference v6, ConstReference v7,
+                                ConstReference v8, ConstReference v9,
+                                ConstReference va, ConstReference vb,
+                                ConstReference vc, ConstReference vd,
+                                ConstReference ve, ConstReference vf) noexcept :
+    s0{v0},
+    s1{v1},
+    s2{v2},
+    s3{v3},
+    s4{v4},
+    s5{v5},
+    s6{v6},
+    s7{v7},
+    s8{v8},
+    s9{v9},
+    sa{va},
+    sb{vb},
+    sc{vc},
+    sd{vd},
+    se{ve},
+    sf{vf}
+{
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] v0 No description.
+  \param [in] v1 No description.
+  \param [in] v2 No description.
+  \param [in] v3 No description.
+  \param [in] v4 No description.
+  \param [in] v5 No description.
+  \param [in] v6 No description.
+  \param [in] v7 No description.
+  */
+template <Arithmetic T> inline
+constexpr Vector<T, 16>::Vector(const Vector2& v0, const Vector2& v1,
+                                const Vector2& v2, const Vector2& v3,
+                                const Vector2& v4, const Vector2& v5,
+                                const Vector2& v6, const Vector2& v7) noexcept :
+    Vector(v0.x, v0.y, v1.x, v1.y, v2.x, v2.y, v3.x, v3.y,
+           v4.x, v4.y, v5.x, v5.y, v6.x, v6.y, v7.x, v7.y)
+{
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] v0 No description.
+  \param [in] v1 No description.
+  \param [in] v2 No description.
+  \param [in] v3 No description.
+  */
+template <Arithmetic T> inline
+constexpr Vector<T, 16>::Vector(const Vector4& v0, const Vector4& v1,
+                                const Vector4& v2, const Vector4& v3) noexcept :
+    Vector(v0.x, v0.y, v0.z, v0.w, v1.x, v1.y, v1.z, v1.w,
+           v2.x, v2.y, v2.z, v2.w, v3.x, v3.y, v3.z, v3.w)
+{
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] v0 No description.
+  \param [in] v1 No description.
+  */
+template <Arithmetic T> inline
+constexpr Vector<T, 16>::Vector(const Vector8& v0, const Vector8& v1) noexcept :
+    Vector(v0.s0, v0.s1, v0.s2, v0.s3, v0.s4, v0.s5, v0.s6, v0.s7,
+           v1.s0, v1.s1, v1.s2, v1.s3, v1.s4, v1.s5, v1.s6, v1.s7)
+{
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+constexpr Vector<T, 16>::operator bool() const noexcept
+{
+  const bool result = static_cast<bool>(s0) && static_cast<bool>(s1) &&
+                      static_cast<bool>(s2) && static_cast<bool>(s3) &&
+                      static_cast<bool>(s4) && static_cast<bool>(s5) &&
+                      static_cast<bool>(s6) && static_cast<bool>(s7) &&
+                      static_cast<bool>(s8) && static_cast<bool>(s9) &&
+                      static_cast<bool>(sa) && static_cast<bool>(sb) &&
+                      static_cast<bool>(sc) && static_cast<bool>(sd) &&
+                      static_cast<bool>(se) && static_cast<bool>(sf);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+constexpr auto Vector<T, 16>::alignedThis() noexcept -> Vector*
+{
+  Vector* p = std::is_constant_evaluated()
+      ? this
+      : zisc::assume_aligned<alignment()>(this);
+  return p;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+constexpr auto Vector<T, 16>::alignedThis() const noexcept -> const Vector*
+{
+  const Vector* p = std::is_constant_evaluated()
+      ? this
+      : zisc::assume_aligned<alignment()>(this);
+  return p;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+constexpr auto Vector<T, 16>::alignment() noexcept -> size_type
+{
+  constexpr size_type a = std::alignment_of_v<Vector>;
+  static_assert(a == sizeof(Vector), "The alignment isn't correct.");
+  return a;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+constexpr auto Vector<T, 16>::size() noexcept -> size_type
+{
+  constexpr std::size_t s = 16;
+  static_assert(s * sizeof(Type) == sizeof(Vector), "The size isn't correct.");
+  return s;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, zisc::InvocableR<R, T> Func> inline
+constexpr Vector<R, 16> Vector<T, 16>::apply(const Func& func,
+                                             const Vector& x) noexcept
+{
+  using ReturnVecT = Vector<R, 16>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    rptr->s0 = func(xptr->s0);
+    rptr->s1 = func(xptr->s1);
+    rptr->s2 = func(xptr->s2);
+    rptr->s3 = func(xptr->s3);
+    rptr->s4 = func(xptr->s4);
+    rptr->s5 = func(xptr->s5);
+    rptr->s6 = func(xptr->s6);
+    rptr->s7 = func(xptr->s7);
+    rptr->s8 = func(xptr->s8);
+    rptr->s9 = func(xptr->s9);
+    rptr->sa = func(xptr->sa);
+    rptr->sb = func(xptr->sb);
+    rptr->sc = func(xptr->sc);
+    rptr->sd = func(xptr->sd);
+    rptr->se = func(xptr->se);
+    rptr->sf = func(xptr->sf);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1> Func> inline
+constexpr Vector<R, 16> Vector<T, 16>::apply(const Func& func,
+                                             const Vector& x,
+                                             const Vector<T1, 16>& y) noexcept
+{
+  using ReturnVecT = Vector<R, 16>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    const Vector<T1, 16>* yptr = y.alignedThis();
+    rptr->s0 = func(xptr->s0, yptr->s0);
+    rptr->s1 = func(xptr->s1, yptr->s1);
+    rptr->s2 = func(xptr->s2, yptr->s2);
+    rptr->s3 = func(xptr->s3, yptr->s3);
+    rptr->s4 = func(xptr->s4, yptr->s4);
+    rptr->s5 = func(xptr->s5, yptr->s5);
+    rptr->s6 = func(xptr->s6, yptr->s6);
+    rptr->s7 = func(xptr->s7, yptr->s7);
+    rptr->s8 = func(xptr->s8, yptr->s8);
+    rptr->s9 = func(xptr->s9, yptr->s9);
+    rptr->sa = func(xptr->sa, yptr->sa);
+    rptr->sb = func(xptr->sb, yptr->sb);
+    rptr->sc = func(xptr->sc, yptr->sc);
+    rptr->sd = func(xptr->sd, yptr->sd);
+    rptr->se = func(xptr->se, yptr->se);
+    rptr->sf = func(xptr->sf, yptr->sf);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in,out] y No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1*> Func> inline
+constexpr Vector<R, 16> Vector<T, 16>::apply(const Func& func,
+                                             const Vector& x,
+                                             Vector<T1, 16>* y) noexcept
+{
+  using ReturnVecT = Vector<R, 16>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    Vector<T1, 16>* yptr = y->alignedThis();
+    rptr->s0 = func(xptr->s0, &yptr->s0);
+    rptr->s1 = func(xptr->s1, &yptr->s1);
+    rptr->s2 = func(xptr->s2, &yptr->s2);
+    rptr->s3 = func(xptr->s3, &yptr->s3);
+    rptr->s4 = func(xptr->s4, &yptr->s4);
+    rptr->s5 = func(xptr->s5, &yptr->s5);
+    rptr->s6 = func(xptr->s6, &yptr->s6);
+    rptr->s7 = func(xptr->s7, &yptr->s7);
+    rptr->s8 = func(xptr->s8, &yptr->s8);
+    rptr->s9 = func(xptr->s9, &yptr->s9);
+    rptr->sa = func(xptr->sa, &yptr->sa);
+    rptr->sb = func(xptr->sb, &yptr->sb);
+    rptr->sc = func(xptr->sc, &yptr->sc);
+    rptr->sd = func(xptr->sd, &yptr->sd);
+    rptr->se = func(xptr->se, &yptr->se);
+    rptr->sf = func(xptr->sf, &yptr->sf);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T1, T> Func> inline
+constexpr Vector<R, 16> Vector<T, 16>::apply(const Func& func,
+                                           const T1& x,
+                                           const Vector& y) noexcept
+{
+  using ReturnVecT = Vector<R, 16>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* yptr = y.alignedThis();
+    rptr->s0 = func(x, yptr->s0);
+    rptr->s1 = func(x, yptr->s1);
+    rptr->s2 = func(x, yptr->s2);
+    rptr->s3 = func(x, yptr->s3);
+    rptr->s4 = func(x, yptr->s4);
+    rptr->s5 = func(x, yptr->s5);
+    rptr->s6 = func(x, yptr->s6);
+    rptr->s7 = func(x, yptr->s7);
+    rptr->s8 = func(x, yptr->s8);
+    rptr->s9 = func(x, yptr->s9);
+    rptr->sa = func(x, yptr->sa);
+    rptr->sb = func(x, yptr->sb);
+    rptr->sc = func(x, yptr->sc);
+    rptr->sd = func(x, yptr->sd);
+    rptr->se = func(x, yptr->se);
+    rptr->sf = func(x, yptr->sf);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1> Func> inline
+constexpr Vector<R, 16> Vector<T, 16>::apply(const Func& func,
+                                             const Vector& x,
+                                             const T1& y) noexcept
+{
+  using ReturnVecT = Vector<R, 16>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    rptr->s0 = func(xptr->s0, y);
+    rptr->s1 = func(xptr->s1, y);
+    rptr->s2 = func(xptr->s2, y);
+    rptr->s3 = func(xptr->s3, y);
+    rptr->s4 = func(xptr->s4, y);
+    rptr->s5 = func(xptr->s5, y);
+    rptr->s6 = func(xptr->s6, y);
+    rptr->s7 = func(xptr->s7, y);
+    rptr->s8 = func(xptr->s8, y);
+    rptr->s9 = func(xptr->s9, y);
+    rptr->sa = func(xptr->sa, y);
+    rptr->sb = func(xptr->sb, y);
+    rptr->sc = func(xptr->sc, y);
+    rptr->sd = func(xptr->sd, y);
+    rptr->se = func(xptr->se, y);
+    rptr->sf = func(xptr->sf, y);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \param [in] z No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T, T1> Func> inline
+constexpr Vector<R, 16> Vector<T, 16>::apply(const Func& func,
+                                             const Vector& x,
+                                             const Vector& y,
+                                             const Vector<T1, 16>& z) noexcept
+{
+  using ReturnVecT = Vector<R, 16>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    const Vector* yptr = y.alignedThis();
+    const Vector<T1, 16>* zptr = z.alignedThis();
+    rptr->s0 = func(xptr->s0, yptr->s0, zptr->s0);
+    rptr->s1 = func(xptr->s1, yptr->s1, zptr->s1);
+    rptr->s2 = func(xptr->s2, yptr->s2, zptr->s2);
+    rptr->s3 = func(xptr->s3, yptr->s3, zptr->s3);
+    rptr->s4 = func(xptr->s4, yptr->s4, zptr->s4);
+    rptr->s5 = func(xptr->s5, yptr->s5, zptr->s5);
+    rptr->s6 = func(xptr->s6, yptr->s6, zptr->s6);
+    rptr->s7 = func(xptr->s7, yptr->s7, zptr->s7);
+    rptr->s8 = func(xptr->s8, yptr->s8, zptr->s8);
+    rptr->s9 = func(xptr->s9, yptr->s9, zptr->s9);
+    rptr->sa = func(xptr->sa, yptr->sa, zptr->sa);
+    rptr->sb = func(xptr->sb, yptr->sb, zptr->sb);
+    rptr->sc = func(xptr->sc, yptr->sc, zptr->sc);
+    rptr->sd = func(xptr->sd, yptr->sd, zptr->sd);
+    rptr->se = func(xptr->se, yptr->se, zptr->se);
+    rptr->sf = func(xptr->sf, yptr->sf, zptr->sf);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \param [in,out] z No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T, T1*> Func> inline
+constexpr Vector<R, 16> Vector<T, 16>::apply(const Func& func,
+                                             const Vector& x,
+                                             const Vector& y,
+                                             Vector<T1, 16>* z) noexcept
+{
+  using ReturnVecT = Vector<R, 16>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    const Vector* yptr = y.alignedThis();
+    Vector<T1, 16>* zptr = z->alignedThis();
+    rptr->s0 = func(xptr->s0, yptr->s0, &zptr->s0);
+    rptr->s1 = func(xptr->s1, yptr->s1, &zptr->s1);
+    rptr->s2 = func(xptr->s2, yptr->s2, &zptr->s2);
+    rptr->s3 = func(xptr->s3, yptr->s3, &zptr->s3);
+    rptr->s4 = func(xptr->s4, yptr->s4, &zptr->s4);
+    rptr->s5 = func(xptr->s5, yptr->s5, &zptr->s5);
+    rptr->s6 = func(xptr->s6, yptr->s6, &zptr->s6);
+    rptr->s7 = func(xptr->s7, yptr->s7, &zptr->s7);
+    rptr->s8 = func(xptr->s8, yptr->s8, &zptr->s8);
+    rptr->s9 = func(xptr->s9, yptr->s9, &zptr->s9);
+    rptr->sa = func(xptr->sa, yptr->sa, &zptr->sa);
+    rptr->sb = func(xptr->sb, yptr->sb, &zptr->sb);
+    rptr->sc = func(xptr->sc, yptr->sc, &zptr->sc);
+    rptr->sd = func(xptr->sd, yptr->sd, &zptr->sd);
+    rptr->se = func(xptr->se, yptr->se, &zptr->se);
+    rptr->sf = func(xptr->sf, yptr->sf, &zptr->sf);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \param [in] z No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T1, T1, T> Func> inline
+constexpr Vector<R, 16> Vector<T, 16>::apply(const Func& func,
+                                             const T1& x,
+                                             const T1& y,
+                                             const Vector& z) noexcept
+{
+  using ReturnVecT = Vector<R, 16>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* zptr = z.alignedThis();
+    rptr->s0 = func(x, y, zptr->s0);
+    rptr->s1 = func(x, y, zptr->s1);
+    rptr->s2 = func(x, y, zptr->s2);
+    rptr->s3 = func(x, y, zptr->s3);
+    rptr->s4 = func(x, y, zptr->s4);
+    rptr->s5 = func(x, y, zptr->s5);
+    rptr->s6 = func(x, y, zptr->s6);
+    rptr->s7 = func(x, y, zptr->s7);
+    rptr->s8 = func(x, y, zptr->s8);
+    rptr->s9 = func(x, y, zptr->s9);
+    rptr->sa = func(x, y, zptr->sa);
+    rptr->sb = func(x, y, zptr->sb);
+    rptr->sc = func(x, y, zptr->sc);
+    rptr->sd = func(x, y, zptr->sd);
+    rptr->se = func(x, y, zptr->se);
+    rptr->sf = func(x, y, zptr->sf);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Func No description.
+  \param [in] func No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \param [in] z No description.
+  \return No description
+  */
+template <Arithmetic T>
+template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1, T1> Func> inline
+constexpr Vector<R, 16> Vector<T, 16>::apply(const Func& func,
+                                             const Vector& x,
+                                             const T1& y,
+                                             const T1& z) noexcept
+{
+  using ReturnVecT = Vector<R, 16>;
+  ReturnVecT result{};
+  {
+    ReturnVecT* rptr = result.alignedThis();
+    const Vector* xptr = x.alignedThis();
+    rptr->s0 = func(xptr->s0, y, z);
+    rptr->s1 = func(xptr->s1, y, z);
+    rptr->s2 = func(xptr->s2, y, z);
+    rptr->s3 = func(xptr->s3, y, z);
+    rptr->s4 = func(xptr->s4, y, z);
+    rptr->s5 = func(xptr->s5, y, z);
+    rptr->s6 = func(xptr->s6, y, z);
+    rptr->s7 = func(xptr->s7, y, z);
+    rptr->s8 = func(xptr->s8, y, z);
+    rptr->s9 = func(xptr->s9, y, z);
+    rptr->sa = func(xptr->sa, y, z);
+    rptr->sb = func(xptr->sb, y, z);
+    rptr->sc = func(xptr->sc, y, z);
+    rptr->sd = func(xptr->sd, y, z);
+    rptr->se = func(xptr->se, y, z);
+    rptr->sf = func(xptr->sf, y, z);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+template <Arithmetic T> inline
+constexpr auto Vector<T, 16>::sum() const noexcept -> Type
+{
+  const Vector* ptr = alignedThis();
+  const Type s = ptr->s0 + ptr->s1 + ptr->s2 + ptr->s3 +
+                 ptr->s4 + ptr->s5 + ptr->s6 + ptr->s7 +
+                 ptr->s8 + ptr->s9 + ptr->sa + ptr->sb +
+                 ptr->sc + ptr->sd + ptr->se + ptr->sf;
+  return s;
+}
 
 /*!
   \details No detailed description
@@ -786,10 +2321,7 @@ template <Arithmetic Type, size_t kN> inline
 constexpr Vector<Type, kN>& operator+=(Vector<Type, kN>& lhs,
                                        const Vector<Type, kN>& rhs) noexcept
 {
-  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    l[index] += r[index];
+  lhs = lhs + rhs;
   return lhs;
 }
 
@@ -807,9 +2339,7 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr Vector<Type1, kN>& operator+=(Vector<Type1, kN>& lhs,
                                         const Type2& rhs) noexcept
 {
-  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    l[index] += rhs;
+  lhs = lhs + rhs;
   return lhs;
 }
 
@@ -826,11 +2356,9 @@ template <Arithmetic Type, size_t kN> inline
 constexpr Vector<Type, kN>& operator-=(Vector<Type, kN>& lhs,
                                        const Vector<Type, kN>& rhs) noexcept
 {
-  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    l[index] -= r[index];
+  lhs = lhs - rhs;
   return lhs;
+
 }
 
 /*!
@@ -847,9 +2375,7 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr Vector<Type1, kN>& operator-=(Vector<Type1, kN>& lhs,
                                         const Type2& rhs) noexcept
 {
-  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    l[index] -= rhs;
+  lhs = lhs - rhs;
   return lhs;
 }
 
@@ -866,10 +2392,7 @@ template <Arithmetic Type, size_t kN> inline
 constexpr Vector<Type, kN>& operator*=(Vector<Type, kN>& lhs,
                                        const Vector<Type, kN>& rhs) noexcept
 {
-  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    l[index] *= r[index];
+  lhs = lhs * rhs;
   return lhs;
 }
 
@@ -887,9 +2410,7 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr Vector<Type1, kN>& operator*=(Vector<Type1, kN>& lhs,
                                         const Type2& rhs) noexcept
 {
-  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    l[index] *= rhs;
+  lhs = lhs * rhs;
   return lhs;
 }
 
@@ -906,10 +2427,7 @@ template <Arithmetic Type, size_t kN> inline
 constexpr Vector<Type, kN>& operator/=(Vector<Type, kN>& lhs,
                                        const Vector<Type, kN>& rhs) noexcept
 {
-  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    l[index] /= r[index];
+  lhs = lhs / rhs;
   return lhs;
 }
 
@@ -927,9 +2445,7 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr Vector<Type1, kN>& operator/=(Vector<Type1, kN>& lhs,
                                         const Type2& rhs) noexcept
 {
-  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    l[index] /= rhs;
+  lhs = lhs / rhs;
   return lhs;
 }
 
@@ -946,10 +2462,7 @@ template <zisc::Integer Type, size_t kN> inline
 constexpr Vector<Type, kN>& operator%=(Vector<Type, kN>& lhs,
                                        const Vector<Type, kN>& rhs) noexcept
 {
-  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    l[index] %= r[index];
+  lhs = lhs % rhs;
   return lhs;
 }
 
@@ -967,9 +2480,7 @@ template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 constexpr Vector<Type1, kN>& operator%=(Vector<Type1, kN>& lhs,
                                         const Type2& rhs) noexcept
 {
-  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    l[index] %= rhs;
+  lhs = lhs % rhs;
   return lhs;
 }
 
@@ -986,10 +2497,7 @@ template <zisc::Integer Type, size_t kN> inline
 constexpr Vector<Type, kN>& operator&=(Vector<Type, kN>& lhs,
                                        const Vector<Type, kN>& rhs) noexcept
 {
-  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    l[index] &= r[index];
+  lhs = lhs & rhs;
   return lhs;
 }
 
@@ -1007,9 +2515,7 @@ template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 constexpr Vector<Type1, kN>& operator&=(Vector<Type1, kN>& lhs,
                                         const Type2& rhs) noexcept
 {
-  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    l[index] &= rhs;
+  lhs = lhs & rhs;
   return lhs;
 }
 
@@ -1026,10 +2532,7 @@ template <zisc::Integer Type, size_t kN> inline
 constexpr Vector<Type, kN>& operator|=(Vector<Type, kN>& lhs,
                                        const Vector<Type, kN>& rhs) noexcept
 {
-  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    l[index] |= r[index];
+  lhs = lhs | rhs;
   return lhs;
 }
 
@@ -1047,9 +2550,7 @@ template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 constexpr Vector<Type1, kN>& operator|=(Vector<Type1, kN>& lhs,
                                         const Type2& rhs) noexcept
 {
-  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    l[index] |= rhs;
+  lhs = lhs | rhs;
   return lhs;
 }
 
@@ -1066,10 +2567,7 @@ template <zisc::Integer Type, size_t kN> inline
 constexpr Vector<Type, kN>& operator^=(Vector<Type, kN>& lhs,
                                        const Vector<Type, kN>& rhs) noexcept
 {
-  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    l[index] ^= r[index];
+  lhs = lhs ^ rhs;
   return lhs;
 }
 
@@ -1087,9 +2585,7 @@ template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 constexpr Vector<Type1, kN>& operator^=(Vector<Type1, kN>& lhs,
                                         const Type2& rhs) noexcept
 {
-  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    l[index] ^= rhs;
+  lhs = lhs ^ rhs;
   return lhs;
 }
 
@@ -1107,10 +2603,7 @@ template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 constexpr Vector<Type1, kN>& operator<<=(Vector<Type1, kN>& lhs,
                                          const Vector<Type2, kN>& rhs) noexcept
 {
-  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    l[index] <<= r[index];
+  lhs = lhs << rhs;
   return lhs;
 }
 
@@ -1128,9 +2621,7 @@ template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 constexpr Vector<Type1, kN>& operator<<=(Vector<Type1, kN>& lhs,
                                          const Type2& rhs) noexcept
 {
-  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    l[index] <<= rhs;
+  lhs = lhs << rhs;
   return lhs;
 }
 
@@ -1148,10 +2639,7 @@ template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 constexpr Vector<Type1, kN>& operator>>=(Vector<Type1, kN>& lhs,
                                          const Vector<Type2, kN>& rhs) noexcept
 {
-  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    l[index] >>= r[index];
+  lhs = lhs >> rhs;
   return lhs;
 }
 
@@ -1169,9 +2657,7 @@ template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 constexpr Vector<Type1, kN>& operator>>=(Vector<Type1, kN>& lhs,
                                          const Type2& rhs) noexcept
 {
-  typename std::remove_reference_t<decltype(lhs)>::Pointer l = lhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    l[index] >>= rhs;
+  lhs = lhs >> rhs;
   return lhs;
 }
 
@@ -1262,11 +2748,9 @@ constexpr Vector<Type, kN> operator+(const Vector<Type, kN>& value) noexcept
 template <Arithmetic Type, size_t kN> inline
 constexpr Vector<Type, kN> operator-(const Vector<Type, kN>& value) noexcept
 {
-  Vector<Type, kN> result{static_cast<Type>(0)};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(value)>::ConstPointer v = value.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = -v[index];
+  using VectorT = Vector<Type, kN>;
+  const VectorT result = VectorT::template apply<Type>(std::negate<Type>{},
+                                                       value);
   return result;
 }
 
@@ -1283,12 +2767,10 @@ template <Arithmetic Type, size_t kN> inline
 constexpr Vector<Type, kN> operator+(const Vector<Type, kN>& lhs,
                                      const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<Type, kN> result{static_cast<Type>(0)};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = l[index] + r[index];
+  using VectorT = Vector<Type, kN>;
+  const VectorT result = VectorT::template apply<Type, Type>(std::plus<Type>{},
+                                                             lhs,
+                                                             rhs);
   return result;
 }
 
@@ -1306,11 +2788,10 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr Vector<Type2, kN> operator+(const Type1& lhs,
                                       const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<Type2, kN> result{static_cast<Type2>(0)};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = lhs + r[index];
+  using VectorT = Vector<Type2, kN>;
+  const VectorT result = VectorT::template apply<Type2, Type1>(std::plus<Type2>{},
+                                                               lhs,
+                                                               rhs);
   return result;
 }
 
@@ -1344,12 +2825,10 @@ template <Arithmetic Type, size_t kN> inline
 constexpr Vector<Type, kN> operator-(const Vector<Type, kN>& lhs,
                                      const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<Type, kN> result{static_cast<Type>(0)};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = l[index] - r[index];
+  using VectorT = Vector<Type, kN>;
+  const VectorT result = VectorT::template apply<Type, Type>(std::minus<Type>{},
+                                                             lhs,
+                                                             rhs);
   return result;
 }
 
@@ -1367,11 +2846,10 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr Vector<Type2, kN> operator-(const Type1& lhs,
                                       const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<Type2, kN> result{static_cast<Type2>(0)};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = lhs - r[index];
+  using VectorT = Vector<Type2, kN>;
+  const VectorT result = VectorT::template apply<Type2, Type1>(std::minus<Type2>{},
+                                                               lhs,
+                                                               rhs);
   return result;
 }
 
@@ -1389,11 +2867,10 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr Vector<Type1, kN> operator-(const Vector<Type1, kN>& lhs,
                                       const Type2& rhs) noexcept
 {
-  Vector<Type2, kN> result{static_cast<Type2>(0)};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = l[index] - rhs;
+  using VectorT = Vector<Type1, kN>;
+  const VectorT result = VectorT::template apply<Type1, Type2>(std::minus<Type1>{},
+                                                               lhs,
+                                                               rhs);
   return result;
 }
 
@@ -1410,12 +2887,10 @@ template <Arithmetic Type, size_t kN> inline
 constexpr Vector<Type, kN> operator*(const Vector<Type, kN>& lhs,
                                      const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<Type, kN> result{static_cast<Type>(0)};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = l[index] * r[index];
+  using VectorT = Vector<Type, kN>;
+  const VectorT result = VectorT::template apply<Type, Type>(std::multiplies<Type>{},
+                                                             lhs,
+                                                             rhs);
   return result;
 }
 
@@ -1433,11 +2908,10 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr Vector<Type2, kN> operator*(const Type1& lhs,
                                       const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<Type2, kN> result{static_cast<Type2>(0)};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = lhs * r[index];
+  using VectorT = Vector<Type2, kN>;
+  const VectorT result = VectorT::template apply<Type2, Type1>(std::multiplies<Type2>{},
+                                                               lhs,
+                                                               rhs);
   return result;
 }
 
@@ -1471,12 +2945,10 @@ template <Arithmetic Type, size_t kN> inline
 constexpr Vector<Type, kN> operator/(const Vector<Type, kN>& lhs,
                                      const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<Type, kN> result{static_cast<Type>(0)};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = l[index] / r[index];
+  using VectorT = Vector<Type, kN>;
+  const VectorT result = VectorT::template apply<Type, Type>(std::divides<Type>{},
+                                                             lhs,
+                                                             rhs);
   return result;
 }
 
@@ -1494,11 +2966,10 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr Vector<Type2, kN> operator/(const Type1& lhs,
                                       const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<Type2, kN> result{static_cast<Type2>(0)};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = lhs / r[index];
+  using VectorT = Vector<Type2, kN>;
+  const VectorT result = VectorT::template apply<Type2, Type1>(std::divides<Type2>{},
+                                                               lhs,
+                                                               rhs);
   return result;
 }
 
@@ -1516,11 +2987,10 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr Vector<Type1, kN> operator/(const Vector<Type1, kN>& lhs,
                                       const Type2& rhs) noexcept
 {
-  Vector<Type1, kN> result{static_cast<Type2>(0)};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = l[index] / rhs;
+  using VectorT = Vector<Type1, kN>;
+  const VectorT result = VectorT::template apply<Type1, Type2>(std::divides<Type1>{},
+                                                               lhs,
+                                                               rhs);
   return result;
 }
 
@@ -1537,12 +3007,10 @@ template <zisc::Integer Type, size_t kN> inline
 constexpr Vector<Type, kN> operator%(const Vector<Type, kN>& lhs,
                                      const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<Type, kN> result{static_cast<Type>(0)};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = l[index] % r[index];
+  using VectorT = Vector<Type, kN>;
+  const VectorT result = VectorT::template apply<Type, Type>(std::modulus<Type>{},
+                                                             lhs,
+                                                             rhs);
   return result;
 }
 
@@ -1560,11 +3028,10 @@ template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 constexpr Vector<Type2, kN> operator%(const Type1& lhs,
                                       const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<Type2, kN> result{static_cast<Type2>(0)};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = lhs % r[index];
+  using VectorT = Vector<Type2, kN>;
+  const VectorT result = VectorT::template apply<Type2, Type1>(std::modulus<Type2>{},
+                                                               lhs,
+                                                               rhs);
   return result;
 }
 
@@ -1582,11 +3049,10 @@ template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 constexpr Vector<Type1, kN> operator%(const Vector<Type1, kN>& lhs,
                                       const Type2& rhs) noexcept
 {
-  Vector<Type1, kN> result{static_cast<Type1>(0)};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = l[index] % rhs;
+  using VectorT = Vector<Type1, kN>;
+  const VectorT result = VectorT::template apply<Type1, Type2>(std::modulus<Type1>{},
+                                                               lhs,
+                                                               rhs);
   return result;
 }
 
@@ -1601,11 +3067,9 @@ constexpr Vector<Type1, kN> operator%(const Vector<Type1, kN>& lhs,
 template <zisc::Integer Type, size_t kN> inline
 constexpr Vector<Type, kN> operator~(const Vector<Type, kN>& value) noexcept
 {
-  Vector<Type, kN> result{static_cast<Type>(0)};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(value)>::ConstPointer v = value.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = ~v[index];
+  using VectorT = Vector<Type, kN>;
+  const VectorT result = VectorT::template apply<Type>(std::bit_not<Type>{},
+                                                       value);
   return result;
 }
 
@@ -1622,12 +3086,10 @@ template <zisc::Integer Type, size_t kN> inline
 constexpr Vector<Type, kN> operator&(const Vector<Type, kN>& lhs,
                                      const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<Type, kN> result{static_cast<Type>(0)};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = l[index] & r[index];
+  using VectorT = Vector<Type, kN>;
+  const VectorT result = VectorT::template apply<Type, Type>(std::bit_and<Type>{},
+                                                             lhs,
+                                                             rhs);
   return result;
 }
 
@@ -1645,11 +3107,10 @@ template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 constexpr Vector<Type2, kN> operator&(const Type1& lhs,
                                       const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<Type2, kN> result{static_cast<Type2>(0)};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = lhs & r[index];
+  using VectorT = Vector<Type2, kN>;
+  const VectorT result = VectorT::template apply<Type2, Type1>(std::bit_and<Type2>{},
+                                                               lhs,
+                                                               rhs);
   return result;
 }
 
@@ -1683,12 +3144,10 @@ template <zisc::Integer Type, size_t kN> inline
 constexpr Vector<Type, kN> operator|(const Vector<Type, kN>& lhs,
                                      const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<Type, kN> result{static_cast<Type>(0)};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = l[index] | r[index];
+  using VectorT = Vector<Type, kN>;
+  const VectorT result = VectorT::template apply<Type, Type>(std::bit_or<Type>{},
+                                                             lhs,
+                                                             rhs);
   return result;
 }
 
@@ -1706,11 +3165,10 @@ template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 constexpr Vector<Type2, kN> operator|(const Type1& lhs,
                                       const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<Type2, kN> result{static_cast<Type2>(0)};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = lhs | r[index];
+  using VectorT = Vector<Type2, kN>;
+  const VectorT result = VectorT::template apply<Type2, Type1>(std::bit_or<Type2>{},
+                                                               lhs,
+                                                               rhs);
   return result;
 }
 
@@ -1744,12 +3202,10 @@ template <zisc::Integer Type, size_t kN> inline
 constexpr Vector<Type, kN> operator^(const Vector<Type, kN>& lhs,
                                      const Vector<Type, kN>& rhs) noexcept
 {
-  Vector<Type, kN> result{static_cast<Type>(0)};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = l[index] ^ r[index];
+  using VectorT = Vector<Type, kN>;
+  const VectorT result = VectorT::template apply<Type, Type>(std::bit_xor<Type>{},
+                                                             lhs,
+                                                             rhs);
   return result;
 }
 
@@ -1767,11 +3223,10 @@ template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 constexpr Vector<Type2, kN> operator^(const Type1& lhs,
                                       const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<Type2, kN> result{static_cast<Type2>(0)};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = lhs ^ r[index];
+  using VectorT = Vector<Type2, kN>;
+  const VectorT result = VectorT::template apply<Type2, Type1>(std::bit_xor<Type2>{},
+                                                               lhs,
+                                                               rhs);
   return result;
 }
 
@@ -1806,12 +3261,15 @@ template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 constexpr Vector<Type1, kN> operator<<(const Vector<Type1, kN>& lhs,
                                        const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<Type1, kN> result{static_cast<Type1>(0)};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = static_cast<Type1>(l[index] << r[index]);
+  using VectorT = Vector<Type1, kN>;
+  const auto left_shift = [](const Type1& x, const Type2& y) noexcept -> Type1
+  {
+    const Type1 result = x << y;
+    return result;
+  };
+  const VectorT result = VectorT::template apply<Type1, Type2>(left_shift,
+                                                               lhs,
+                                                               rhs);
   return result;
 }
 
@@ -1829,11 +3287,15 @@ template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 constexpr Vector<Type1, kN> operator<<(const Vector<Type1, kN>& lhs,
                                        const Type2& rhs) noexcept
 {
-  Vector<Type1, kN> result{static_cast<Type1>(0)};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = static_cast<Type1>(l[index] << rhs);
+  using VectorT = Vector<Type1, kN>;
+  const auto left_shift = [](const Type1& x, const Type2& y) noexcept -> Type1
+  {
+    const Type1 result = x << y;
+    return result;
+  };
+  const VectorT result = VectorT::template apply<Type1, Type2>(left_shift,
+                                                               lhs,
+                                                               rhs);
   return result;
 }
 
@@ -1851,12 +3313,15 @@ template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 constexpr Vector<Type1, kN> operator>>(const Vector<Type1, kN>& lhs,
                                        const Vector<Type2, kN>& rhs) noexcept
 {
-  Vector<Type1, kN> result{static_cast<Type1>(0)};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = static_cast<Type1>(l[index] >> r[index]);
+  using VectorT = Vector<Type1, kN>;
+  const auto right_shift = [](const Type1& x, const Type2& y) noexcept -> Type1
+  {
+    const Type1 result = x >> y;
+    return result;
+  };
+  const VectorT result = VectorT::template apply<Type1, Type2>(right_shift,
+                                                               lhs,
+                                                               rhs);
   return result;
 }
 
@@ -1874,11 +3339,15 @@ template <zisc::Integer Type1, zisc::Integer Type2, size_t kN> inline
 constexpr Vector<Type1, kN> operator>>(const Vector<Type1, kN>& lhs,
                                        const Type2& rhs) noexcept
 {
-  Vector<Type1, kN> result{static_cast<Type1>(0)};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = static_cast<Type1>(l[index] >> rhs);
+  using VectorT = Vector<Type1, kN>;
+  const auto right_shift = [](const Type1& x, const Type2& y) noexcept -> Type1
+  {
+    const Type1 result = x >> y;
+    return result;
+  };
+  const VectorT result = VectorT::template apply<Type1, Type2>(right_shift,
+                                                               lhs,
+                                                               rhs);
   return result;
 }
 
@@ -1893,14 +3362,16 @@ constexpr Vector<Type1, kN> operator>>(const Vector<Type1, kN>& lhs,
 template <Arithmetic Type, size_t kN> inline
 constexpr CompResultVec<Type, kN> operator!(const Vector<Type, kN>& value) noexcept
 {
+  using VectorT = Vector<Type, kN>;
   using ResultT = CompResultVec<Type, kN>;
-  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
-  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
-  ResultT result{f};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(value)>::ConstPointer v = value.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = !v[index] ? t : f;
+  using IntegerT = typename ResultT::Type;
+  const auto logical_not = [](const Type& x) noexcept -> IntegerT
+  {
+    const int32b result = std::logical_not<Type>{}(x) ? kVTrue : kVFalse;
+    return static_cast<IntegerT>(result);
+  };
+  const ResultT result = VectorT::template apply<IntegerT>(logical_not,
+                                                           value);
   return result;
 }
 
@@ -1917,15 +3388,17 @@ template <Arithmetic Type, size_t kN> inline
 constexpr CompResultVec<Type, kN> operator&&(const Vector<Type, kN>& lhs,
                                              const Vector<Type, kN>& rhs) noexcept
 {
+  using VectorT = Vector<Type, kN>;
   using ResultT = CompResultVec<Type, kN>;
-  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
-  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
-  ResultT result{f};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = (l[index] && r[index]) ? t : f;
+  using IntegerT = typename ResultT::Type;
+  const auto logical_and = [](const Type& x, const Type& y) noexcept -> IntegerT
+  {
+    const int32b result = std::logical_and<Type>{}(x, y) ? kVTrue : kVFalse;
+    return static_cast<IntegerT>(result);
+  };
+  const ResultT result = VectorT::template apply<IntegerT, Type>(logical_and,
+                                                                 lhs,
+                                                                 rhs);
   return result;
 }
 
@@ -1943,14 +3416,17 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr CompResultVec<Type2, kN> operator&&(const Type1& lhs,
                                               const Vector<Type2, kN>& rhs) noexcept
 {
+  using VectorT = Vector<Type2, kN>;
   using ResultT = CompResultVec<Type2, kN>;
-  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
-  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
-  ResultT result{f};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = (lhs && r[index]) ? t : f;
+  using IntegerT = typename ResultT::Type;
+  const auto logical_and = [](const Type1& x, const Type2& y) noexcept -> IntegerT
+  {
+    const int32b result = std::logical_and<Type2>{}(x, y) ? kVTrue : kVFalse;
+    return static_cast<IntegerT>(result);
+  };
+  const ResultT result = VectorT::template apply<IntegerT, Type1>(logical_and,
+                                                                  lhs,
+                                                                  rhs);
   return result;
 }
 
@@ -1984,15 +3460,17 @@ template <Arithmetic Type, size_t kN> inline
 constexpr CompResultVec<Type, kN> operator||(const Vector<Type, kN>& lhs,
                                              const Vector<Type, kN>& rhs) noexcept
 {
+  using VectorT = Vector<Type, kN>;
   using ResultT = CompResultVec<Type, kN>;
-  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
-  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
-  ResultT result{f};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = (l[index] || r[index]) ? t : f;
+  using IntegerT = typename ResultT::Type;
+  const auto logical_or = [](const Type& x, const Type& y) noexcept -> IntegerT
+  {
+    const int32b result = std::logical_or<Type>{}(x, y) ? kVTrue : kVFalse;
+    return static_cast<IntegerT>(result);
+  };
+  const ResultT result = VectorT::template apply<IntegerT, Type>(logical_or,
+                                                                 lhs,
+                                                                 rhs);
   return result;
 }
 
@@ -2010,14 +3488,17 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr CompResultVec<Type2, kN> operator||(const Type1& lhs,
                                               const Vector<Type2, kN>& rhs) noexcept
 {
+  using VectorT = Vector<Type2, kN>;
   using ResultT = CompResultVec<Type2, kN>;
-  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
-  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
-  ResultT result{f};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = (lhs || r[index]) ? t : f;
+  using IntegerT = typename ResultT::Type;
+  const auto logical_or = [](const Type1& x, const Type2& y) noexcept -> IntegerT
+  {
+    const int32b result = std::logical_or<Type2>{}(x, y) ? kVTrue : kVFalse;
+    return static_cast<IntegerT>(result);
+  };
+  const ResultT result = VectorT::template apply<IntegerT, Type1>(logical_or,
+                                                                  lhs,
+                                                                  rhs);
   return result;
 }
 
@@ -2051,15 +3532,17 @@ template <Arithmetic Type, size_t kN> inline
 constexpr CompResultVec<Type, kN> operator==(const Vector<Type, kN>& lhs,
                                              const Vector<Type, kN>& rhs) noexcept
 {
+  using VectorT = Vector<Type, kN>;
   using ResultT = CompResultVec<Type, kN>;
-  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
-  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
-  ResultT result{f};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = zisc::equal(l[index], r[index]) ? t : f;
+  using IntegerT = typename ResultT::Type;
+  const auto equal_to = [](const Type& x, const Type& y) noexcept -> IntegerT
+  {
+    const int32b result = std::equal_to<Type>{}(x, y) ? kVTrue : kVFalse;
+    return static_cast<IntegerT>(result);
+  };
+  const ResultT result = VectorT::template apply<IntegerT, Type>(equal_to,
+                                                                 lhs,
+                                                                 rhs);
   return result;
 }
 
@@ -2077,14 +3560,17 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr CompResultVec<Type2, kN> operator==(const Type1& lhs,
                                               const Vector<Type2, kN>& rhs) noexcept
 {
+  using VectorT = Vector<Type2, kN>;
   using ResultT = CompResultVec<Type2, kN>;
-  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
-  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
-  ResultT result{f};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = zisc::equal(lhs, r[index]) ? t : f;
+  using IntegerT = typename ResultT::Type;
+  const auto equal_to = [](const Type1& x, const Type2& y) noexcept -> IntegerT
+  {
+    const int32b result = std::equal_to<Type2>{}(x, y) ? kVTrue : kVFalse;
+    return static_cast<IntegerT>(result);
+  };
+  const ResultT result = VectorT::template apply<IntegerT, Type1>(equal_to,
+                                                                  lhs,
+                                                                  rhs);
   return result;
 }
 
@@ -2118,15 +3604,17 @@ template <Arithmetic Type, size_t kN> inline
 constexpr CompResultVec<Type, kN> operator!=(const Vector<Type, kN>& lhs,
                                              const Vector<Type, kN>& rhs) noexcept
 {
+  using VectorT = Vector<Type, kN>;
   using ResultT = CompResultVec<Type, kN>;
-  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
-  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
-  ResultT result{f};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = !zisc::equal(l[index], r[index]) ? t : f;
+  using IntegerT = typename ResultT::Type;
+  const auto not_equal_to = [](const Type& x, const Type& y) noexcept -> IntegerT
+  {
+    const int32b result = std::not_equal_to<Type>{}(x, y) ? kVTrue : kVFalse;
+    return static_cast<IntegerT>(result);
+  };
+  const ResultT result = VectorT::template apply<IntegerT, Type>(not_equal_to,
+                                                                 lhs,
+                                                                 rhs);
   return result;
 }
 
@@ -2144,14 +3632,17 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr CompResultVec<Type2, kN> operator!=(const Type1& lhs,
                                               const Vector<Type2, kN>& rhs) noexcept
 {
+  using VectorT = Vector<Type2, kN>;
   using ResultT = CompResultVec<Type2, kN>;
-  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
-  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
-  ResultT result{f};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = !zisc::equal(lhs, r[index]) ? t : f;
+  using IntegerT = typename ResultT::Type;
+  const auto not_equal_to = [](const Type1& x, const Type2& y) noexcept -> IntegerT
+  {
+    const int32b result = std::not_equal_to<Type2>{}(x, y) ? kVTrue : kVFalse;
+    return static_cast<IntegerT>(result);
+  };
+  const ResultT result = VectorT::template apply<IntegerT, Type1>(not_equal_to,
+                                                                 lhs,
+                                                                 rhs);
   return result;
 }
 
@@ -2185,15 +3676,17 @@ template <Arithmetic Type, size_t kN> inline
 constexpr CompResultVec<Type, kN> operator<(const Vector<Type, kN>& lhs,
                                             const Vector<Type, kN>& rhs) noexcept
 {
+  using VectorT = Vector<Type, kN>;
   using ResultT = CompResultVec<Type, kN>;
-  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
-  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
-  ResultT result{f};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = (l[index] < r[index]) ? t : f;
+  using IntegerT = typename ResultT::Type;
+  const auto less = [](const Type& x, const Type& y) noexcept -> IntegerT
+  {
+    const int32b result = std::less<Type>{}(x, y) ? kVTrue : kVFalse;
+    return static_cast<IntegerT>(result);
+  };
+  const ResultT result = VectorT::template apply<IntegerT, Type>(less,
+                                                                 lhs,
+                                                                 rhs);
   return result;
 }
 
@@ -2211,14 +3704,17 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr CompResultVec<Type2, kN> operator<(const Type1& lhs,
                                              const Vector<Type2, kN>& rhs) noexcept
 {
+  using VectorT = Vector<Type2, kN>;
   using ResultT = CompResultVec<Type2, kN>;
-  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
-  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
-  ResultT result{f};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = (lhs < r[index]) ? t : f;
+  using IntegerT = typename ResultT::Type;
+  const auto less = [](const Type1& x, const Type2& y) noexcept -> IntegerT
+  {
+    const int32b result = std::less<Type2>{}(x, y) ? kVTrue : kVFalse;
+    return static_cast<IntegerT>(result);
+  };
+  const ResultT result = VectorT::template apply<IntegerT, Type1>(less,
+                                                                  lhs,
+                                                                  rhs);
   return result;
 }
 
@@ -2252,15 +3748,17 @@ template <Arithmetic Type, size_t kN> inline
 constexpr CompResultVec<Type, kN> operator<=(const Vector<Type, kN>& lhs,
                                              const Vector<Type, kN>& rhs) noexcept
 {
+  using VectorT = Vector<Type, kN>;
   using ResultT = CompResultVec<Type, kN>;
-  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
-  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
-  ResultT result{f};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = (l[index] <= r[index]) ? t : f;
+  using IntegerT = typename ResultT::Type;
+  const auto less_equal = [](const Type& x, const Type& y) noexcept -> IntegerT
+  {
+    const int32b result = std::less_equal<Type>{}(x, y) ? kVTrue : kVFalse;
+    return static_cast<IntegerT>(result);
+  };
+  const ResultT result = VectorT::template apply<IntegerT, Type>(less_equal,
+                                                                 lhs,
+                                                                 rhs);
   return result;
 }
 
@@ -2278,14 +3776,17 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr CompResultVec<Type2, kN> operator<=(const Type1& lhs,
                                               const Vector<Type2, kN>& rhs) noexcept
 {
+  using VectorT = Vector<Type2, kN>;
   using ResultT = CompResultVec<Type2, kN>;
-  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
-  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
-  ResultT result{f};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = (lhs <= r[index]) ? t : f;
+  using IntegerT = typename ResultT::Type;
+  const auto less_equal = [](const Type1& x, const Type2& y) noexcept -> IntegerT
+  {
+    const int32b result = std::less_equal<Type2>{}(x, y) ? kVTrue : kVFalse;
+    return static_cast<IntegerT>(result);
+  };
+  const ResultT result = VectorT::template apply<IntegerT, Type1>(less_equal,
+                                                                  lhs,
+                                                                  rhs);
   return result;
 }
 
@@ -2319,15 +3820,17 @@ template <Arithmetic Type, size_t kN> inline
 constexpr CompResultVec<Type, kN> operator>(const Vector<Type, kN>& lhs,
                                             const Vector<Type, kN>& rhs) noexcept
 {
+  using VectorT = Vector<Type, kN>;
   using ResultT = CompResultVec<Type, kN>;
-  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
-  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
-  ResultT result{f};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = (l[index] > r[index]) ? t : f;
+  using IntegerT = typename ResultT::Type;
+  const auto greater = [](const Type& x, const Type& y) noexcept -> IntegerT
+  {
+    const int32b result = std::greater<Type>{}(x, y) ? kVTrue : kVFalse;
+    return static_cast<IntegerT>(result);
+  };
+  const ResultT result = VectorT::template apply<IntegerT, Type>(greater,
+                                                                 lhs,
+                                                                 rhs);
   return result;
 }
 
@@ -2345,14 +3848,17 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr CompResultVec<Type2, kN> operator>(const Type1& lhs,
                                              const Vector<Type2, kN>& rhs) noexcept
 {
+  using VectorT = Vector<Type2, kN>;
   using ResultT = CompResultVec<Type2, kN>;
-  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
-  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
-  ResultT result{f};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = (lhs > r[index]) ? t : f;
+  using IntegerT = typename ResultT::Type;
+  const auto greater = [](const Type1& x, const Type2& y) noexcept -> IntegerT
+  {
+    const int32b result = std::greater<Type2>{}(x, y) ? kVTrue : kVFalse;
+    return static_cast<IntegerT>(result);
+  };
+  const ResultT result = VectorT::template apply<IntegerT, Type1>(greater,
+                                                                  lhs,
+                                                                  rhs);
   return result;
 }
 
@@ -2386,15 +3892,17 @@ template <Arithmetic Type, size_t kN> inline
 constexpr CompResultVec<Type, kN> operator>=(const Vector<Type, kN>& lhs,
                                              const Vector<Type, kN>& rhs) noexcept
 {
+  using VectorT = Vector<Type, kN>;
   using ResultT = CompResultVec<Type, kN>;
-  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
-  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
-  ResultT result{f};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(lhs)>::ConstPointer l = lhs.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = (l[index] >= r[index]) ? t : f;
+  using IntegerT = typename ResultT::Type;
+  const auto greater_equal = [](const Type& x, const Type& y) noexcept -> IntegerT
+  {
+    const int32b result = std::greater_equal<Type>{}(x, y) ? kVTrue : kVFalse;
+    return static_cast<IntegerT>(result);
+  };
+  const ResultT result = VectorT::template apply<IntegerT, Type>(greater_equal,
+                                                                 lhs,
+                                                                 rhs);
   return result;
 }
 
@@ -2412,14 +3920,17 @@ template <Arithmetic Type1, Arithmetic Type2, size_t kN> inline
 constexpr CompResultVec<Type2, kN> operator>=(const Type1& lhs,
                                               const Vector<Type2, kN>& rhs) noexcept
 {
+  using VectorT = Vector<Type2, kN>;
   using ResultT = CompResultVec<Type2, kN>;
-  constexpr auto t = static_cast<typename ResultT::Type>(kVTrue);
-  constexpr auto f = static_cast<typename ResultT::Type>(kVFalse);
-  ResultT result{f};
-  typename std::remove_reference_t<decltype(result)>::Pointer res = result.data();
-  typename std::remove_reference_t<decltype(rhs)>::ConstPointer r = rhs.data();
-  for (size_t index = 0; index < kN; ++index)
-    res[index] = (lhs >= r[index]) ? t : f;
+  using IntegerT = typename ResultT::Type;
+  const auto greater_equal = [](const Type1& x, const Type2& y) noexcept -> IntegerT
+  {
+    const int32b result = std::greater_equal<Type2>{}(x, y) ? kVTrue : kVFalse;
+    return static_cast<IntegerT>(result);
+  };
+  const ResultT result = VectorT::template apply<IntegerT, Type1>(greater_equal,
+                                                                  lhs,
+                                                                  rhs);
   return result;
 }
 
@@ -3024,10 +4535,36 @@ Vector<Type, kN> VectorData::Impl::vloadn(const size_t offset,
                                           const Type* p) noexcept
 {
   Vector<Type, kN> data{};
-  typename decltype(data)::Pointer d = data.data();
   const Type* address = p + offset * kN;
-  for (size_t i = 0; i < kN; ++i)
-    d[i] = address[i];
+  if constexpr ((kN == 2) || (kN == 3) || (kN == 4)) {
+    data.x = address[0];
+    data.y = address[1];
+    if constexpr (3 <= kN) data.z = address[2];
+    if constexpr (4 <= kN) data.w = address[3];
+  }
+  else if constexpr ((kN == 8) || (kN == 16)) {
+    data.s0 = address[0];
+    data.s1 = address[1];
+    data.s2 = address[2];
+    data.s3 = address[3];
+    data.s4 = address[4];
+    data.s5 = address[5];
+    data.s6 = address[6];
+    data.s7 = address[7];
+    if constexpr (kN == 16) {
+      data.s8 = address[8];
+      data.s9 = address[9];
+      data.sa = address[10];
+      data.sb = address[11];
+      data.sc = address[12];
+      data.sd = address[13];
+      data.se = address[14];
+      data.sf = address[15];
+    }
+  }
+  else {
+    static_assert(kN == 0, "The  size N isn't supported.");
+  }
   return data;
 }
 
@@ -3044,10 +4581,36 @@ Vector<float, kN> VectorData::Impl::vload_halfn(const size_t offset,
                                                 const half* p) noexcept
 {
   Vector<float, kN> data{};
-  typename decltype(data)::Pointer d = data.data();
   const half* address = p + offset * kN;
-  for (size_t i = 0; i < kN; ++i)
-    d[i] = static_cast<float>(address[i]);
+  if constexpr ((kN == 2) || (kN == 3) || (kN == 4)) {
+    data.x = static_cast<float>(address[0]);
+    data.y = static_cast<float>(address[1]);
+    if constexpr (3 <= kN) data.z = static_cast<float>(address[2]);
+    if constexpr (4 <= kN) data.w = static_cast<float>(address[3]);
+  }
+  else if constexpr ((kN == 8) || (kN == 16)) {
+    data.s0 = static_cast<float>(address[0]);
+    data.s1 = static_cast<float>(address[1]);
+    data.s2 = static_cast<float>(address[2]);
+    data.s3 = static_cast<float>(address[3]);
+    data.s4 = static_cast<float>(address[4]);
+    data.s5 = static_cast<float>(address[5]);
+    data.s6 = static_cast<float>(address[6]);
+    data.s7 = static_cast<float>(address[7]);
+    if constexpr (kN == 16) {
+      data.s8 = static_cast<float>(address[8]);
+      data.s9 = static_cast<float>(address[9]);
+      data.sa = static_cast<float>(address[10]);
+      data.sb = static_cast<float>(address[11]);
+      data.sc = static_cast<float>(address[12]);
+      data.sd = static_cast<float>(address[13]);
+      data.se = static_cast<float>(address[14]);
+      data.sf = static_cast<float>(address[15]);
+    }
+  }
+  else {
+    static_assert(kN == 0, "The  size N isn't supported.");
+  }
   return data;
 }
 
@@ -3066,10 +4629,36 @@ void VectorData::Impl::vstoren(
     const size_t offset,
     Type* p) noexcept
 {
-  typename std::remove_reference_t<decltype(data)>::ConstPointer d = data.data();
   Type* address = p + offset * kN;
-  for (size_t i = 0; i < kN; ++i)
-    address[i] = d[i];
+  if constexpr ((kN == 2) || (kN == 3) || (kN == 4)) {
+    address[0] = data.x;
+    address[1] = data.y;
+    if constexpr (3 <= kN) address[2] = data.z;
+    if constexpr (4 <= kN) address[3] = data.w;
+  }
+  else if constexpr ((kN == 8) || (kN == 16)) {
+    address[0] = data.s0;
+    address[1] = data.s1;
+    address[2] = data.s2;
+    address[3] = data.s3;
+    address[4] = data.s4;
+    address[5] = data.s5;
+    address[6] = data.s6;
+    address[7] = data.s7;
+    if constexpr (kN == 16) {
+      address[8] = data.s8;
+      address[9] = data.s9;
+      address[10] = data.sa;
+      address[11] = data.sb;
+      address[12] = data.sc;
+      address[13] = data.sd;
+      address[14] = data.se;
+      address[15] = data.sf;
+    }
+  }
+  else {
+    static_assert(kN == 0, "The  size N isn't supported.");
+  }
 }
 
 /*!
@@ -3086,10 +4675,36 @@ void VectorData::Impl::vstore_halfn(
     const size_t offset,
     half* p) noexcept
 {
-  typename std::remove_reference_t<decltype(data)>::ConstPointer d = data.data();
   half* address = p + offset * kN;
-  for (size_t i = 0; i < kN; ++i)
-    address[i] = static_cast<half>(d[i]);
+  if constexpr ((kN == 2) || (kN == 3) || (kN == 4)) {
+    address[0] = static_cast<half>(data.x);
+    address[1] = static_cast<half>(data.y);
+    if constexpr (3 <= kN) address[2] = static_cast<half>(data.z);
+    if constexpr (4 <= kN) address[3] = static_cast<half>(data.w);
+  }
+  else if constexpr ((kN == 8) || (kN == 16)) {
+    address[0] = static_cast<half>(data.s0);
+    address[1] = static_cast<half>(data.s1);
+    address[2] = static_cast<half>(data.s2);
+    address[3] = static_cast<half>(data.s3);
+    address[4] = static_cast<half>(data.s4);
+    address[5] = static_cast<half>(data.s5);
+    address[6] = static_cast<half>(data.s6);
+    address[7] = static_cast<half>(data.s7);
+    if constexpr (kN == 16) {
+      address[8] = static_cast<half>(data.s8);
+      address[9] = static_cast<half>(data.s9);
+      address[10] = static_cast<half>(data.sa);
+      address[11] = static_cast<half>(data.sb);
+      address[12] = static_cast<half>(data.sc);
+      address[13] = static_cast<half>(data.sd);
+      address[14] = static_cast<half>(data.se);
+      address[15] = static_cast<half>(data.sf);
+    }
+  }
+  else {
+    static_assert(kN == 0, "The  size N isn't supported.");
+  }
 }
 
 /*!

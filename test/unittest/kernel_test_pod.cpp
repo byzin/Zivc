@@ -51,7 +51,7 @@ testing::AssertionResult testVectorBuffer(zivc::Device& device,
   }
   {
     const zivc::MappedMemory mem = buff_host->mapMemory();
-    auto* ptr = std::addressof(mem[0][0]);
+    auto* ptr = std::addressof(mem[0].x);
     using ScalarT = std::remove_cvref_t<decltype(ptr[0])>;
     auto expected = static_cast<ScalarT>(1);
     const std::size_t n =  mem.size() * mem[0].size();
@@ -1096,23 +1096,23 @@ TEST(KernelTest, PodVectorTypeTest)
         }
         return testing::AssertionSuccess();
       };
-      ASSERT_TRUE(test_vec(std::addressof(mem[0].u8v2_1_[0]), 4));
-      ASSERT_TRUE(test_vec(std::addressof(mem[0].u8v4_1_[0]), 8));
-      ASSERT_TRUE(test_vec(std::addressof(mem[0].i16v2_1_[0]), 4));
-      ASSERT_TRUE(test_vec(std::addressof(mem[0].i16v4_1_[0]), 8));
-      ASSERT_TRUE(test_vec(std::addressof(mem[0].i32v2_1_[0]), 4));
-      ASSERT_TRUE(test_vec(std::addressof(mem[0].i32v4_1_[0]), 8));
-      ASSERT_TRUE(test_vec(std::addressof(mem[0].f32v2_1_[0]), 4));
-      ASSERT_TRUE(test_vec(std::addressof(mem[0].f32v4_1_[0]), 8));
+      ASSERT_TRUE(test_vec(std::addressof(mem[0].u8v2_1_.x), 4));
+      ASSERT_TRUE(test_vec(std::addressof(mem[0].u8v4_1_.x), 8));
+      ASSERT_TRUE(test_vec(std::addressof(mem[0].i16v2_1_.x), 4));
+      ASSERT_TRUE(test_vec(std::addressof(mem[0].i16v4_1_.x), 8));
+      ASSERT_TRUE(test_vec(std::addressof(mem[0].i32v2_1_.x), 4));
+      ASSERT_TRUE(test_vec(std::addressof(mem[0].i32v4_1_.x), 8));
+      ASSERT_TRUE(test_vec(std::addressof(mem[0].f32v2_1_.x), 4));
+      ASSERT_TRUE(test_vec(std::addressof(mem[0].f32v4_1_.x), 8));
 
-      ASSERT_TRUE(test_vec(std::addressof(mem[1].u8v2_1_[0]), 4));
-      ASSERT_TRUE(test_vec(std::addressof(mem[1].u8v4_1_[0]), 8));
-      ASSERT_TRUE(test_vec(std::addressof(mem[1].i16v2_1_[0]), 4));
-      ASSERT_TRUE(test_vec(std::addressof(mem[1].i16v4_1_[0]), 8));
-      ASSERT_TRUE(test_vec(std::addressof(mem[1].i32v2_1_[0]), 4));
-      ASSERT_TRUE(test_vec(std::addressof(mem[1].i32v4_1_[0]), 8));
-      ASSERT_TRUE(test_vec(std::addressof(mem[1].f32v2_1_[0]), 4));
-      ASSERT_TRUE(test_vec(std::addressof(mem[1].f32v4_1_[0]), 8));
+      ASSERT_TRUE(test_vec(std::addressof(mem[1].u8v2_1_.x), 4));
+      ASSERT_TRUE(test_vec(std::addressof(mem[1].u8v4_1_.x), 8));
+      ASSERT_TRUE(test_vec(std::addressof(mem[1].i16v2_1_.x), 4));
+      ASSERT_TRUE(test_vec(std::addressof(mem[1].i16v4_1_.x), 8));
+      ASSERT_TRUE(test_vec(std::addressof(mem[1].i32v2_1_.x), 4));
+      ASSERT_TRUE(test_vec(std::addressof(mem[1].i32v4_1_.x), 8));
+      ASSERT_TRUE(test_vec(std::addressof(mem[1].f32v2_1_.x), 4));
+      ASSERT_TRUE(test_vec(std::addressof(mem[1].f32v4_1_.x), 8));
     }
   }
 }

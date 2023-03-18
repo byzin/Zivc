@@ -232,7 +232,7 @@ function(Zivc_getClspvCompileFlags clspv_compile_flags)
                       --global-offset-push-constant
                       --inline-entry-points
                       --int8
-                      # --long-vector
+                      --long-vector
                       --no-vec3-to-vec4
                       --opaque-pointers
                       --pod-ubo

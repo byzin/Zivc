@@ -38,6 +38,14 @@ using uint16b = zisc::uint16b;
 using uint32b = zisc::uint32b;
 using uint64b = zisc::uint64b;
 
+//! Represent bits of a type
+template <typename Type>
+using BitT = std::conditional_t<sizeof(Type) == 1, uint8b,
+             std::conditional_t<sizeof(Type) == 2, uint16b,
+             std::conditional_t<sizeof(Type) == 4, uint32b,
+             std::conditional_t<sizeof(Type) == 8, uint64b,
+                                                   void>>>>;
+
 //! Represent a padding for structure
 template <std::size_t kSize>
 using Padding = zisc::Padding<kSize>;

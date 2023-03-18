@@ -151,12 +151,12 @@ Vector<Float, kN> Geometry::crossImpl(const Vector<Float, kN>& p0,
 {
   Vector<Float, kN> result{};
   {
-    Float* d = result.data();
-    const Float* l = p0.data();
-    const Float* r = p1.data();
-    d[0] = l[1] * r[2] - l[2] * r[1];
-    d[1] = l[2] * r[0] - l[0] * r[2];
-    d[2] = l[0] * r[1] - l[1] * r[0];
+    Vector<Float, kN>* rptr = result.alignedThis();
+    const Vector<Float, kN>* xptr = p0.alignedThis();
+    const Vector<Float, kN>* yptr = p1.alignedThis();
+    rptr->x = xptr->y * yptr->z - xptr->z * yptr->y;
+    rptr->y = xptr->z * yptr->x - xptr->x * yptr->z;
+    rptr->z = xptr->x * yptr->y - xptr->y * yptr->x;
   }
   return result;
 }
@@ -174,13 +174,8 @@ template <std::floating_point Float, size_t kN> inline
 Float Geometry::dotImpl(const Vector<Float, kN>& p0,
                         const Vector<Float, kN>& p1) noexcept
 {
-  Float result = static_cast<Float>(0);
-  {
-    const Float* l = p0.data();
-    const Float* r = p1.data();
-    for (size_t i = 0; i < kN; ++i)
-      result += l[i] * r[i];
-  }
+  const Vector d = p0 * p1;
+  const Float result = d.sum();
   return result;
 }
 

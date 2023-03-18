@@ -34,17 +34,19 @@ namespace zivc::cl {
   */
 template <Arithmetic Type, size_t kN> struct Vector;
 
-#if defined(Z_CLANG)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wgnu-anonymous-struct"
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wnested-anon-types"
-#endif /* Z_CLANG */
+// Comparison type
 
-#if defined(Z_GCC)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpedantic"
-#endif /* Z_GCC */
+//! Integer type that is used as a comparison result of the given type
+template <typename Type>
+struct CompResultType;
+
+//! Integer type that is used as a comparison result of the given type
+template <typename Type>
+using CompResult = typename CompResultType<std::remove_cvref_t<Type>>::ResultT;
+
+//! Integer type that is used as a comparison result of the given type
+template <Arithmetic Type, std::size_t kN>
+using CompResultVec = CompResult<Vector<Type, kN>>;
 
 /*!
   \brief No brief description
@@ -58,11 +60,11 @@ struct alignas(2 * sizeof(T)) Vector<T, 2>
 {
   //
   using Type = std::remove_cvref_t<T>;
-  using ConstType = std::add_const_t<Type>;
+  using ConstT = std::add_const_t<Type>;
   using Pointer = std::add_pointer_t<Type>;
-  using ConstPointer = std::add_pointer_t<ConstType>;
+  using ConstPointer = std::add_pointer_t<ConstT>;
   using Reference = std::add_lvalue_reference_t<Type>;
-  using ConstReference = std::add_lvalue_reference_t<ConstType>;
+  using ConstReference = std::add_lvalue_reference_t<ConstT>;
 
 
   // STL conpatible member types
@@ -73,8 +75,6 @@ struct alignas(2 * sizeof(T)) Vector<T, 2>
   using const_reference = ConstReference;
   using pointer = Pointer;
   using const_pointer = ConstPointer;
-  using iterator = Pointer;
-  using const_iterator = ConstPointer;
 
 
   //! Initialize a vector
@@ -87,59 +87,87 @@ struct alignas(2 * sizeof(T)) Vector<T, 2>
   constexpr Vector(ConstReference v0, ConstReference v1) noexcept;
 
 
-  //! Return the reference to the element by the index
-  constexpr Reference operator[](const size_type index) noexcept;
-
-  //! Return the reference to the element by the index
-  constexpr ConstReference operator[](const size_type index) const noexcept;
-
   //! Check if all elements are true
   constexpr operator bool() const noexcept;
 
 
-  // Iterators
+  //! Return this pointer that is informed as aligned to at least 2 * sizeof(T)
+  constexpr Vector* alignedThis() noexcept;
 
-  //! Return an iterator to the beginning
-  constexpr iterator begin() noexcept;
-
-  //! Return an iterator to the beginning
-  constexpr const_iterator begin() const noexcept;
-
-  //! Return an iterator to the endif
-  constexpr iterator end() noexcept;
-
-  //! Return an iterator to the endif
-  constexpr const_iterator end() const noexcept;
-
+  //! Return this pointer that is informed as aligned to at least 2 * sizeof(T)
+  constexpr const Vector* alignedThis() const noexcept;
 
   //! Return the alignment of the vector
   static constexpr size_type alignment() noexcept;
 
-  //! Return the direct access to the underlying array
-  constexpr Pointer data() noexcept;
-
-  //! Return the direct access to the underlying array
-  constexpr ConstPointer data() const noexcept;
-
-  //! Return the reference to the element by the index
-  constexpr Reference get(const size_type index) noexcept; 
-
-  //! Return the reference to the element by the index
-  constexpr ConstReference get(const size_type index) const noexcept; 
-
   //! Return the size of the vector
   static constexpr size_type size() noexcept;
 
+  //
 
-  union
-  {
-    struct
-    {
-      Type x;
-      Type y;
-    };
-    std::array<Type, 2> data_;
-  };
+  //! Apply the given function to all elements
+  template <Arithmetic R, zisc::InvocableR<R, T> Func>
+  static constexpr Vector<R, 2> apply(const Func& func,
+                                      const Vector& x) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1> Func>
+  static constexpr Vector<R, 2> apply(const Func& func,
+                                      const Vector& x,
+                                      const Vector<T1, 2>& y) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1*> Func>
+  static constexpr Vector<R, 2> apply(const Func& func,
+                                      const Vector& x,
+                                      Vector<T1, 2>* y) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T1, T> Func>
+  static constexpr Vector<R, 2> apply(const Func& func,
+                                      const T1& x,
+                                      const Vector& y) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1> Func>
+  static constexpr Vector<R, 2> apply(const Func& func,
+                                      const Vector& x,
+                                      const T1& y) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T, T1> Func>
+  static constexpr Vector<R, 2> apply(const Func& func,
+                                      const Vector& x,
+                                      const Vector& y,
+                                      const Vector<T1, 2>& z) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T, T1*> Func>
+  static constexpr Vector<R, 2> apply(const Func& func,
+                                      const Vector& x,
+                                      const Vector& y,
+                                      Vector<T1, 2>* z) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T1, T1, T> Func>
+  static constexpr Vector<R, 2> apply(const Func& func,
+                                      const T1& x,
+                                      const T1& y,
+                                      const Vector& z) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1, T1> Func>
+  static constexpr Vector<R, 2> apply(const Func& func,
+                                      const Vector& x,
+                                      const T1& y,
+                                      const T1& z) noexcept;
+
+  //! Sum up the elements
+  constexpr Type sum() const noexcept;
+
+
+  Type x,
+       y;
 };
 
 /*!
@@ -154,11 +182,11 @@ struct alignas(4 * sizeof(T)) Vector<T, 3>
 {
   //
   using Type = std::remove_cvref_t<T>;
-  using ConstType = std::add_const_t<Type>;
+  using ConstT = std::add_const_t<Type>;
   using Pointer = std::add_pointer_t<Type>;
-  using ConstPointer = std::add_pointer_t<ConstType>;
+  using ConstPointer = std::add_pointer_t<ConstT>;
   using Reference = std::add_lvalue_reference_t<Type>;
-  using ConstReference = std::add_lvalue_reference_t<ConstType>;
+  using ConstReference = std::add_lvalue_reference_t<ConstT>;
   using Vector2 = Vector<T, 2>;
 
 
@@ -170,8 +198,6 @@ struct alignas(4 * sizeof(T)) Vector<T, 3>
   using const_reference = ConstReference;
   using pointer = Pointer;
   using const_pointer = ConstPointer;
-  using iterator = Pointer;
-  using const_iterator = ConstPointer;
 
 
   //! Initialize a vector
@@ -190,61 +216,89 @@ struct alignas(4 * sizeof(T)) Vector<T, 3>
   constexpr Vector(ConstReference v0, const Vector2& v1) noexcept;
 
 
-  //! Return the reference to the element by the index
-  constexpr Reference operator[](const size_type index) noexcept;
-
-  //! Return the reference to the element by the index
-  constexpr ConstReference operator[](const size_type index) const noexcept;
-
   //! Check if all elements are true
   constexpr operator bool() const noexcept;
 
 
-  // Iterators
+  //! Return this pointer that is informed as aligned to at least 2 * sizeof(T)
+  constexpr Vector* alignedThis() noexcept;
 
-  //! Return an iterator to the beginning
-  constexpr iterator begin() noexcept;
-
-  //! Return an iterator to the beginning
-  constexpr const_iterator begin() const noexcept;
-
-  //! Return an iterator to the endif
-  constexpr iterator end() noexcept;
-
-  //! Return an iterator to the endif
-  constexpr const_iterator end() const noexcept;
-
+  //! Return this pointer that is informed as aligned to at least 2 * sizeof(T)
+  constexpr const Vector* alignedThis() const noexcept;
 
   //! Return the alignment of the vector
   static constexpr size_type alignment() noexcept;
 
-  //! Return the direct access to the underlying array
-  constexpr Pointer data() noexcept;
-
-  //! Return the direct access to the underlying array
-  constexpr ConstPointer data() const noexcept;
-
-  //! Return the reference to the element by the index
-  constexpr Reference get(const size_type index) noexcept; 
-
-  //! Return the reference to the element by the index
-  constexpr ConstReference get(const size_type index) const noexcept; 
-
   //! Return the size of the vector
   static constexpr size_type size() noexcept;
 
+  //
 
-  union
-  {
-    struct
-    {
-      Type x;
-      Type y;
-      Type z;
-      [[maybe_unused]] Type pad_;
-    };
-    std::array<Type, 4> data_;
-  };
+  //! Apply the given function to all elements
+  template <Arithmetic R, zisc::InvocableR<R, T> Func>
+  static constexpr Vector<R, 3> apply(const Func& func,
+                                      const Vector& x) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1> Func>
+  static constexpr Vector<R, 3> apply(const Func& func,
+                                      const Vector& x,
+                                      const Vector<T1, 3>& y) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1*> Func>
+  static constexpr Vector<R, 3> apply(const Func& func,
+                                      const Vector& x,
+                                      Vector<T1, 3>* y) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T1, T> Func>
+  static constexpr Vector<R, 3> apply(const Func& func,
+                                      const T1& x,
+                                      const Vector& y) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1> Func>
+  static constexpr Vector<R, 3> apply(const Func& func,
+                                      const Vector& x,
+                                      const T1& y) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T, T1> Func>
+  static constexpr Vector<R, 3> apply(const Func& func,
+                                      const Vector& x,
+                                      const Vector& y,
+                                      const Vector<T1, 3>& z) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T, T1*> Func>
+  static constexpr Vector<R, 3> apply(const Func& func,
+                                      const Vector& x,
+                                      const Vector& y,
+                                      Vector<T1, 3>* z) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T1, T1, T> Func>
+  static constexpr Vector<R, 3> apply(const Func& func,
+                                      const T1& x,
+                                      const T1& y,
+                                      const Vector& z) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1, T1> Func>
+  static constexpr Vector<R, 3> apply(const Func& func,
+                                      const Vector& x,
+                                      const T1& y,
+                                      const T1& z) noexcept;
+
+  //! Sum up the elements
+  constexpr Type sum() const noexcept;
+
+
+  Type x,
+       y,
+       z;
+  [[maybe_unused]] Type pad_;
 };
 
 /*!
@@ -259,11 +313,11 @@ struct alignas(4 * sizeof(T)) Vector<T, 4>
 {
   //
   using Type = std::remove_cvref_t<T>;
-  using ConstType = std::add_const_t<Type>;
+  using ConstT = std::add_const_t<Type>;
   using Pointer = std::add_pointer_t<Type>;
-  using ConstPointer = std::add_pointer_t<ConstType>;
+  using ConstPointer = std::add_pointer_t<ConstT>;
   using Reference = std::add_lvalue_reference_t<Type>;
-  using ConstReference = std::add_lvalue_reference_t<ConstType>;
+  using ConstReference = std::add_lvalue_reference_t<ConstT>;
   using Vector2 = Vector<T, 2>;
   using Vector3 = Vector<T, 3>;
 
@@ -276,8 +330,6 @@ struct alignas(4 * sizeof(T)) Vector<T, 4>
   using const_reference = ConstReference;
   using pointer = Pointer;
   using const_pointer = ConstPointer;
-  using iterator = Pointer;
-  using const_iterator = ConstPointer;
 
 
   //! Initialize a vector
@@ -309,85 +361,391 @@ struct alignas(4 * sizeof(T)) Vector<T, 4>
   constexpr Vector(ConstReference v0, const Vector3& v1) noexcept;
 
 
-  //! Return the reference to the element by the index
-  constexpr Reference operator[](const size_type index) noexcept;
+  //! Check if all elements are true
+  constexpr operator bool() const noexcept;
 
-  //! Return the reference to the element by the index
-  constexpr ConstReference operator[](const size_type index) const noexcept;
+
+  //! Return this pointer that is informed as aligned to at least 2 * sizeof(T)
+  constexpr Vector* alignedThis() noexcept;
+
+  //! Return this pointer that is informed as aligned to at least 2 * sizeof(T)
+  constexpr const Vector* alignedThis() const noexcept;
+
+  //! Return the alignment of the vector
+  static constexpr size_type alignment() noexcept;
+
+  //! Return the size of the vector
+  static constexpr size_type size() noexcept;
+
+  //
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, zisc::InvocableR<R, T> Func>
+  static constexpr Vector<R, 4> apply(const Func& func,
+                                      const Vector& x) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1> Func>
+  static constexpr Vector<R, 4> apply(const Func& func,
+                                      const Vector& x,
+                                      const Vector<T1, 4>& y) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1*> Func>
+  static constexpr Vector<R, 4> apply(const Func& func,
+                                      const Vector& x,
+                                      Vector<T1, 4>* y) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T1, T> Func>
+  static constexpr Vector<R, 4> apply(const Func& func,
+                                      const T1& x,
+                                      const Vector& y) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1> Func>
+  static constexpr Vector<R, 4> apply(const Func& func,
+                                      const Vector& x,
+                                      const T1& y) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T, T1> Func>
+  static constexpr Vector<R, 4> apply(const Func& func,
+                                      const Vector& x,
+                                      const Vector& y,
+                                      const Vector<T1, 4>& z) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T, T1*> Func>
+  static constexpr Vector<R, 4> apply(const Func& func,
+                                      const Vector& x,
+                                      const Vector& y,
+                                      Vector<T1, 4>* z) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T1, T1, T> Func>
+  static constexpr Vector<R, 4> apply(const Func& func,
+                                      const T1& x,
+                                      const T1& y,
+                                      const Vector& z) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1, T1> Func>
+  static constexpr Vector<R, 4> apply(const Func& func,
+                                      const Vector& x,
+                                      const T1& y,
+                                      const T1& z) noexcept;
+
+  //! Sum up the elements
+  constexpr Type sum() const noexcept;
+
+
+  Type x,
+       y,
+       z,
+       w;
+};
+
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
+template <Arithmetic T>
+struct alignas(8 * sizeof(T)) Vector<T, 8>
+{
+  //
+  using Type = std::remove_cvref_t<T>;
+  using ConstT = std::add_const_t<Type>;
+  using Pointer = std::add_pointer_t<Type>;
+  using ConstPointer = std::add_pointer_t<ConstT>;
+  using Reference = std::add_lvalue_reference_t<Type>;
+  using ConstReference = std::add_lvalue_reference_t<ConstT>;
+  using Vector2 = Vector<T, 2>;
+  using Vector3 = Vector<T, 3>;
+  using Vector4 = Vector<T, 4>;
+
+
+  // STL conpatible member types
+  using value_type = Type;
+  using size_type = size_t;
+  using difference_type = ptrdiff_t;
+  using reference = Reference;
+  using const_reference = ConstReference;
+  using pointer = Pointer;
+  using const_pointer = ConstPointer;
+
+
+  //! Initialize a vector
+  constexpr Vector() noexcept = default;
+
+  //! Fill all elements with the given value v
+  constexpr Vector(ConstReference v) noexcept;
+
+  //! Initialize a vector
+  constexpr Vector(ConstReference v0, ConstReference v1,
+                   ConstReference v2, ConstReference v3,
+                   ConstReference v4, ConstReference v5,
+                   ConstReference v6, ConstReference v7) noexcept;
+
+  //! Initialize a vector
+  constexpr Vector(const Vector2& v0, const Vector2& v1,
+                   const Vector2& v2, const Vector2& v3) noexcept;
+
+  //! Initialize a vector
+  constexpr Vector(const Vector4& v0, const Vector4& v1) noexcept;
+
 
   //! Check if all elements are true
   constexpr operator bool() const noexcept;
 
 
-  // Iterators
+  //! Return this pointer that is informed as aligned to at least 2 * sizeof(T)
+  constexpr Vector* alignedThis() noexcept;
 
-  //! Return an iterator to the beginning
-  constexpr iterator begin() noexcept;
-
-  //! Return an iterator to the beginning
-  constexpr const_iterator begin() const noexcept;
-
-  //! Return an iterator to the endif
-  constexpr iterator end() noexcept;
-
-  //! Return an iterator to the endif
-  constexpr const_iterator end() const noexcept;
-
+  //! Return this pointer that is informed as aligned to at least 2 * sizeof(T)
+  constexpr const Vector* alignedThis() const noexcept;
 
   //! Return the alignment of the vector
   static constexpr size_type alignment() noexcept;
 
-  //! Return the direct access to the underlying array
-  constexpr Pointer data() noexcept;
+  //! Return the size of the vector
+  static constexpr size_type size() noexcept;
 
-  //! Return the direct access to the underlying array
-  constexpr ConstPointer data() const noexcept;
+  //
 
-  //! Return the reference to the element by the index
-  constexpr Reference get(const size_type index) noexcept; 
+  //! Apply the given function to all elements
+  template <Arithmetic R, zisc::InvocableR<R, T> Func>
+  static constexpr Vector<R, 8> apply(const Func& func,
+                                      const Vector& x) noexcept;
 
-  //! Return the reference to the element by the index
-  constexpr ConstReference get(const size_type index) const noexcept; 
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1> Func>
+  static constexpr Vector<R, 8> apply(const Func& func,
+                                      const Vector& x,
+                                      const Vector<T1, 8>& y) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1*> Func>
+  static constexpr Vector<R, 8> apply(const Func& func,
+                                      const Vector& x,
+                                      Vector<T1, 8>* y) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T1, T> Func>
+  static constexpr Vector<R, 8> apply(const Func& func,
+                                      const T1& x,
+                                      const Vector& y) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1> Func>
+  static constexpr Vector<R, 8> apply(const Func& func,
+                                      const Vector& x,
+                                      const T1& y) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T, T1> Func>
+  static constexpr Vector<R, 8> apply(const Func& func,
+                                      const Vector& x,
+                                      const Vector& y,
+                                      const Vector<T1, 8>& z) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T, T1*> Func>
+  static constexpr Vector<R, 8> apply(const Func& func,
+                                      const Vector& x,
+                                      const Vector& y,
+                                      Vector<T1, 8>* z) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T1, T1, T> Func>
+  static constexpr Vector<R, 8> apply(const Func& func,
+                                      const T1& x,
+                                      const T1& y,
+                                      const Vector& z) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1, T1> Func>
+  static constexpr Vector<R, 8> apply(const Func& func,
+                                      const Vector& x,
+                                      const T1& y,
+                                      const T1& z) noexcept;
+
+  //! Sum up the elements
+  constexpr Type sum() const noexcept;
+
+
+  Type s0,
+       s1,
+       s2,
+       s3,
+       s4,
+       s5,
+       s6,
+       s7;
+};
+
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam T No description.
+  */
+template <Arithmetic T>
+struct alignas(16 * sizeof(T)) Vector<T, 16>
+{
+  //
+  using Type = std::remove_cvref_t<T>;
+  using ConstT = std::add_const_t<Type>;
+  using Pointer = std::add_pointer_t<Type>;
+  using ConstPointer = std::add_pointer_t<ConstT>;
+  using Reference = std::add_lvalue_reference_t<Type>;
+  using ConstReference = std::add_lvalue_reference_t<ConstT>;
+  using Vector2 = Vector<T, 2>;
+  using Vector3 = Vector<T, 3>;
+  using Vector4 = Vector<T, 4>;
+  using Vector8 = Vector<T, 8>;
+
+
+  // STL conpatible member types
+  using value_type = Type;
+  using size_type = size_t;
+  using difference_type = ptrdiff_t;
+  using reference = Reference;
+  using const_reference = ConstReference;
+  using pointer = Pointer;
+  using const_pointer = ConstPointer;
+
+
+  //! Initialize a vector
+  constexpr Vector() noexcept = default;
+
+  //! Fill all elements with the given value v
+  constexpr Vector(ConstReference v) noexcept;
+
+  //! Initialize a vector
+  constexpr Vector(ConstReference v0, ConstReference v1,
+                   ConstReference v2, ConstReference v3,
+                   ConstReference v4, ConstReference v5,
+                   ConstReference v6, ConstReference v7,
+                   ConstReference v8, ConstReference v9,
+                   ConstReference va, ConstReference vb,
+                   ConstReference vc, ConstReference vd,
+                   ConstReference ve, ConstReference vf) noexcept;
+
+  //! Initialize a vector
+  constexpr Vector(const Vector2& v0, const Vector2& v1,
+                   const Vector2& v2, const Vector2& v3,
+                   const Vector2& v4, const Vector2& v5,
+                   const Vector2& v6, const Vector2& v7) noexcept;
+
+  //! Initialize a vector
+  constexpr Vector(const Vector4& v0, const Vector4& v1,
+                   const Vector4& v2, const Vector4& v3) noexcept;
+
+  //! Initialize a vector
+  constexpr Vector(const Vector8& v0, const Vector8& v1) noexcept;
+
+
+  //! Check if all elements are true
+  constexpr operator bool() const noexcept;
+
+
+  //! Return this pointer that is informed as aligned to at least 2 * sizeof(T)
+  constexpr Vector* alignedThis() noexcept;
+
+  //! Return this pointer that is informed as aligned to at least 2 * sizeof(T)
+  constexpr const Vector* alignedThis() const noexcept;
+
+  //! Return the alignment of the vector
+  static constexpr size_type alignment() noexcept;
 
   //! Return the size of the vector
   static constexpr size_type size() noexcept;
 
+  //
 
-  union
-  {
-    struct
-    {
-      Type x;
-      Type y;
-      Type z;
-      Type w;
-    };
-    std::array<Type, 4> data_;
-  };
+  //! Apply the given function to all elements
+  template <Arithmetic R, zisc::InvocableR<R, T> Func>
+  static constexpr Vector<R, 16> apply(const Func& func,
+                                       const Vector& x) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1> Func>
+  static constexpr Vector<R, 16> apply(const Func& func,
+                                       const Vector& x,
+                                       const Vector<T1, 16>& y) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1*> Func>
+  static constexpr Vector<R, 16> apply(const Func& func,
+                                       const Vector& x,
+                                       Vector<T1, 16>* y) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T1, T> Func>
+  static constexpr Vector<R, 16> apply(const Func& func,
+                                       const T1& x,
+                                       const Vector& y) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1> Func>
+  static constexpr Vector<R, 16> apply(const Func& func,
+                                       const Vector& x,
+                                       const T1& y) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T, T1> Func>
+  static constexpr Vector<R, 16> apply(const Func& func,
+                                       const Vector& x,
+                                       const Vector& y,
+                                       const Vector<T1, 16>& z) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T, T1*> Func>
+  static constexpr Vector<R, 16> apply(const Func& func,
+                                       const Vector& x,
+                                       const Vector& y,
+                                       Vector<T1, 16>* z) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T1, T1, T> Func>
+  static constexpr Vector<R, 16> apply(const Func& func,
+                                       const T1& x,
+                                       const T1& y,
+                                       const Vector& z) noexcept;
+
+  //! Apply the given function to all elements
+  template <Arithmetic R, Arithmetic T1, zisc::InvocableR<R, T, T1, T1> Func>
+  static constexpr Vector<R, 16> apply(const Func& func,
+                                       const Vector& x,
+                                       const T1& y,
+                                       const T1& z) noexcept;
+
+  //! Sum up the elements
+  constexpr Type sum() const noexcept;
+
+
+  Type s0,
+       s1,
+       s2,
+       s3,
+       s4,
+       s5,
+       s6,
+       s7,
+       s8,
+       s9,
+       sa,
+       sb,
+       sc,
+       sd,
+       se,
+       sf;
 };
-
-// Comparison type
-
-//! Integer type that is used as a comparison result of the given type
-template <typename Type>
-struct CompResultType;
-
-//! Integer type that is used as a comparison result of the given type
-template <typename Type>
-using CompResult = typename CompResultType<std::remove_cvref_t<Type>>::ResultT;
-
-//! Integer type that is used as a comparison result of the given type
-template <Arithmetic Type, std::size_t kN>
-using CompResultVec = CompResult<Vector<Type, kN>>;
-
-#if defined(Z_CLANG)
-#pragma GCC diagnostic pop
-#pragma GCC diagnostic pop
-#endif /* Z_CLANG */
-
-#if defined(Z_GCC)
-#pragma GCC diagnostic pop
-#endif /* Z_GCC */
 
 // Assignment
 

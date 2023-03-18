@@ -16,6 +16,7 @@
 #include <concepts>
 #include <cstddef>
 #include <functional>
+#include <span>
 #include <type_traits>
 // Zisc
 #include "zisc/concepts.hpp"
@@ -449,6 +450,40 @@ constexpr Vector<R, 2> Vector<T, 2>::apply(const Func& func,
 /*!
   \details No detailed description
 
+  \tparam T1 No description.
+  \param [in] data No description.
+  \return No description
+  */
+template <Arithmetic T> template <Arithmetic T1> inline
+constexpr auto Vector<T, 2>::load(const std::span<T1> data) noexcept -> Vector
+{
+  Vector result{};
+  {
+    Vector* rptr = result.alignedThis();
+    rptr->x = static_cast<Type>(data[0]);
+    rptr->y = static_cast<Type>(data[1]);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam T1 No description.
+  \param [in] v No description.
+  \param [out] data No description.
+  */
+template <Arithmetic T> template <Arithmetic T1> inline
+constexpr void Vector<T, 2>::store(const Vector& v, std::span<T1> data) noexcept
+{
+  const Vector* vptr = v.alignedThis();
+  data[0] = static_cast<T1>(vptr->x);
+  data[1] = static_cast<T1>(vptr->y);
+}
+
+/*!
+  \details No detailed description
+
   \return No description
   */
 template <Arithmetic T> inline
@@ -827,6 +862,42 @@ constexpr Vector<R, 3> Vector<T, 3>::apply(const Func& func,
     rptr->z = func(xptr->z, y, z);
   }
   return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam T1 No description.
+  \param [in] data No description.
+  \return No description
+  */
+template <Arithmetic T> template <Arithmetic T1> inline
+constexpr auto Vector<T, 3>::load(const std::span<T1> data) noexcept -> Vector
+{
+  Vector result{};
+  {
+    Vector* rptr = result.alignedThis();
+    rptr->x = static_cast<Type>(data[0]);
+    rptr->y = static_cast<Type>(data[1]);
+    rptr->z = static_cast<Type>(data[2]);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam T1 No description.
+  \param [in] v No description.
+  \param [out] data No description.
+  */
+template <Arithmetic T> template <Arithmetic T1> inline
+constexpr void Vector<T, 3>::store(const Vector& v, std::span<T1> data) noexcept
+{
+  const Vector* vptr = v.alignedThis();
+  data[0] = static_cast<T1>(vptr->x);
+  data[1] = static_cast<T1>(vptr->y);
+  data[2] = static_cast<T1>(vptr->z);
 }
 
 /*!
@@ -1278,6 +1349,44 @@ constexpr Vector<R, 4> Vector<T, 4>::apply(const Func& func,
 /*!
   \details No detailed description
 
+  \tparam T1 No description.
+  \param [in] data No description.
+  \return No description
+  */
+template <Arithmetic T> template <Arithmetic T1> inline
+constexpr auto Vector<T, 4>::load(const std::span<T1> data) noexcept -> Vector
+{
+  Vector result{};
+  {
+    Vector* rptr = result.alignedThis();
+    rptr->x = static_cast<Type>(data[0]);
+    rptr->y = static_cast<Type>(data[1]);
+    rptr->z = static_cast<Type>(data[2]);
+    rptr->w = static_cast<Type>(data[3]);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam T1 No description.
+  \param [in] v No description.
+  \param [out] data No description.
+  */
+template <Arithmetic T> template <Arithmetic T1> inline
+constexpr void Vector<T, 4>::store(const Vector& v, std::span<T1> data) noexcept
+{
+  const Vector* vptr = v.alignedThis();
+  data[0] = static_cast<T1>(vptr->x);
+  data[1] = static_cast<T1>(vptr->y);
+  data[2] = static_cast<T1>(vptr->z);
+  data[3] = static_cast<T1>(vptr->w);
+}
+
+/*!
+  \details No detailed description
+
   \return No description
   */
 template <Arithmetic T> inline
@@ -1721,6 +1830,52 @@ constexpr Vector<R, 8> Vector<T, 8>::apply(const Func& func,
     rptr->s7 = func(xptr->s7, y, z);
   }
   return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam T1 No description.
+  \param [in] data No description.
+  \return No description
+  */
+template <Arithmetic T> template <Arithmetic T1> inline
+constexpr auto Vector<T, 8>::load(const std::span<T1> data) noexcept -> Vector
+{
+  Vector result{};
+  {
+    Vector* rptr = result.alignedThis();
+    rptr->s0 = static_cast<Type>(data[0]);
+    rptr->s1 = static_cast<Type>(data[1]);
+    rptr->s2 = static_cast<Type>(data[2]);
+    rptr->s3 = static_cast<Type>(data[3]);
+    rptr->s4 = static_cast<Type>(data[4]);
+    rptr->s5 = static_cast<Type>(data[5]);
+    rptr->s6 = static_cast<Type>(data[6]);
+    rptr->s7 = static_cast<Type>(data[7]);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam T1 No description.
+  \param [in] v No description.
+  \param [out] data No description.
+  */
+template <Arithmetic T> template <Arithmetic T1> inline
+constexpr void Vector<T, 8>::store(const Vector& v, std::span<T1> data) noexcept
+{
+  const Vector* vptr = v.alignedThis();
+  data[0] = static_cast<T1>(vptr->s0);
+  data[1] = static_cast<T1>(vptr->s1);
+  data[2] = static_cast<T1>(vptr->s2);
+  data[3] = static_cast<T1>(vptr->s3);
+  data[4] = static_cast<T1>(vptr->s4);
+  data[5] = static_cast<T1>(vptr->s5);
+  data[6] = static_cast<T1>(vptr->s6);
+  data[7] = static_cast<T1>(vptr->s7);
 }
 
 /*!
@@ -2290,6 +2445,68 @@ constexpr Vector<R, 16> Vector<T, 16>::apply(const Func& func,
     rptr->sf = func(xptr->sf, y, z);
   }
   return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam T1 No description.
+  \param [in] data No description.
+  \return No description
+  */
+template <Arithmetic T> template <Arithmetic T1> inline
+constexpr auto Vector<T, 16>::load(const std::span<T1> data) noexcept -> Vector
+{
+  Vector result{};
+  {
+    Vector* rptr = result.alignedThis();
+    rptr->s0 = static_cast<Type>(data[0]);
+    rptr->s1 = static_cast<Type>(data[1]);
+    rptr->s2 = static_cast<Type>(data[2]);
+    rptr->s3 = static_cast<Type>(data[3]);
+    rptr->s4 = static_cast<Type>(data[4]);
+    rptr->s5 = static_cast<Type>(data[5]);
+    rptr->s6 = static_cast<Type>(data[6]);
+    rptr->s7 = static_cast<Type>(data[7]);
+    rptr->s8 = static_cast<Type>(data[8]);
+    rptr->s9 = static_cast<Type>(data[9]);
+    rptr->sa = static_cast<Type>(data[10]);
+    rptr->sb = static_cast<Type>(data[11]);
+    rptr->sc = static_cast<Type>(data[12]);
+    rptr->sd = static_cast<Type>(data[13]);
+    rptr->se = static_cast<Type>(data[14]);
+    rptr->sf = static_cast<Type>(data[15]);
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam T1 No description.
+  \param [in] v No description.
+  \param [out] data No description.
+  */
+template <Arithmetic T> template <Arithmetic T1> inline
+constexpr void Vector<T, 16>::store(const Vector& v, std::span<T1> data) noexcept
+{
+  const Vector* vptr = v.alignedThis();
+  data[0] = static_cast<T1>(vptr->s0);
+  data[1] = static_cast<T1>(vptr->s1);
+  data[2] = static_cast<T1>(vptr->s2);
+  data[3] = static_cast<T1>(vptr->s3);
+  data[4] = static_cast<T1>(vptr->s4);
+  data[5] = static_cast<T1>(vptr->s5);
+  data[6] = static_cast<T1>(vptr->s6);
+  data[7] = static_cast<T1>(vptr->s7);
+  data[8] = static_cast<T1>(vptr->s8);
+  data[9] = static_cast<T1>(vptr->s9);
+  data[10] = static_cast<T1>(vptr->sa);
+  data[11] = static_cast<T1>(vptr->sb);
+  data[12] = static_cast<T1>(vptr->sc);
+  data[13] = static_cast<T1>(vptr->sd);
+  data[14] = static_cast<T1>(vptr->se);
+  data[15] = static_cast<T1>(vptr->sf);
 }
 
 /*!
@@ -4534,38 +4751,10 @@ template <typename Type, size_t kN> inline
 Vector<Type, kN> VectorData::Impl::vloadn(const size_t offset,
                                           const Type* p) noexcept
 {
-  Vector<Type, kN> data{};
+  using VectorT = Vector<Type, kN>;
   const Type* address = p + offset * kN;
-  if constexpr ((kN == 2) || (kN == 3) || (kN == 4)) {
-    data.x = address[0];
-    data.y = address[1];
-    if constexpr (3 <= kN) data.z = address[2];
-    if constexpr (4 <= kN) data.w = address[3];
-  }
-  else if constexpr ((kN == 8) || (kN == 16)) {
-    data.s0 = address[0];
-    data.s1 = address[1];
-    data.s2 = address[2];
-    data.s3 = address[3];
-    data.s4 = address[4];
-    data.s5 = address[5];
-    data.s6 = address[6];
-    data.s7 = address[7];
-    if constexpr (kN == 16) {
-      data.s8 = address[8];
-      data.s9 = address[9];
-      data.sa = address[10];
-      data.sb = address[11];
-      data.sc = address[12];
-      data.sd = address[13];
-      data.se = address[14];
-      data.sf = address[15];
-    }
-  }
-  else {
-    static_assert(kN == 0, "The  size N isn't supported.");
-  }
-  return data;
+  const VectorT result = VectorT::template load<const Type>({address, kN});
+  return result;
 }
 
 /*!
@@ -4580,38 +4769,10 @@ template <size_t kN> inline
 Vector<float, kN> VectorData::Impl::vload_halfn(const size_t offset,
                                                 const half* p) noexcept
 {
-  Vector<float, kN> data{};
+  using VectorT = Vector<float, kN>;
   const half* address = p + offset * kN;
-  if constexpr ((kN == 2) || (kN == 3) || (kN == 4)) {
-    data.x = static_cast<float>(address[0]);
-    data.y = static_cast<float>(address[1]);
-    if constexpr (3 <= kN) data.z = static_cast<float>(address[2]);
-    if constexpr (4 <= kN) data.w = static_cast<float>(address[3]);
-  }
-  else if constexpr ((kN == 8) || (kN == 16)) {
-    data.s0 = static_cast<float>(address[0]);
-    data.s1 = static_cast<float>(address[1]);
-    data.s2 = static_cast<float>(address[2]);
-    data.s3 = static_cast<float>(address[3]);
-    data.s4 = static_cast<float>(address[4]);
-    data.s5 = static_cast<float>(address[5]);
-    data.s6 = static_cast<float>(address[6]);
-    data.s7 = static_cast<float>(address[7]);
-    if constexpr (kN == 16) {
-      data.s8 = static_cast<float>(address[8]);
-      data.s9 = static_cast<float>(address[9]);
-      data.sa = static_cast<float>(address[10]);
-      data.sb = static_cast<float>(address[11]);
-      data.sc = static_cast<float>(address[12]);
-      data.sd = static_cast<float>(address[13]);
-      data.se = static_cast<float>(address[14]);
-      data.sf = static_cast<float>(address[15]);
-    }
-  }
-  else {
-    static_assert(kN == 0, "The  size N isn't supported.");
-  }
-  return data;
+  const VectorT result = VectorT::template load<const half>({address, kN});
+  return result;
 }
 
 /*!
@@ -4629,36 +4790,9 @@ void VectorData::Impl::vstoren(
     const size_t offset,
     Type* p) noexcept
 {
+  using VectorT = Vector<Type, kN>;
   Type* address = p + offset * kN;
-  if constexpr ((kN == 2) || (kN == 3) || (kN == 4)) {
-    address[0] = data.x;
-    address[1] = data.y;
-    if constexpr (3 <= kN) address[2] = data.z;
-    if constexpr (4 <= kN) address[3] = data.w;
-  }
-  else if constexpr ((kN == 8) || (kN == 16)) {
-    address[0] = data.s0;
-    address[1] = data.s1;
-    address[2] = data.s2;
-    address[3] = data.s3;
-    address[4] = data.s4;
-    address[5] = data.s5;
-    address[6] = data.s6;
-    address[7] = data.s7;
-    if constexpr (kN == 16) {
-      address[8] = data.s8;
-      address[9] = data.s9;
-      address[10] = data.sa;
-      address[11] = data.sb;
-      address[12] = data.sc;
-      address[13] = data.sd;
-      address[14] = data.se;
-      address[15] = data.sf;
-    }
-  }
-  else {
-    static_assert(kN == 0, "The  size N isn't supported.");
-  }
+  VectorT::template store<Type>(data, {address, kN});
 }
 
 /*!
@@ -4675,36 +4809,9 @@ void VectorData::Impl::vstore_halfn(
     const size_t offset,
     half* p) noexcept
 {
+  using VectorT = Vector<float, kN>;
   half* address = p + offset * kN;
-  if constexpr ((kN == 2) || (kN == 3) || (kN == 4)) {
-    address[0] = static_cast<half>(data.x);
-    address[1] = static_cast<half>(data.y);
-    if constexpr (3 <= kN) address[2] = static_cast<half>(data.z);
-    if constexpr (4 <= kN) address[3] = static_cast<half>(data.w);
-  }
-  else if constexpr ((kN == 8) || (kN == 16)) {
-    address[0] = static_cast<half>(data.s0);
-    address[1] = static_cast<half>(data.s1);
-    address[2] = static_cast<half>(data.s2);
-    address[3] = static_cast<half>(data.s3);
-    address[4] = static_cast<half>(data.s4);
-    address[5] = static_cast<half>(data.s5);
-    address[6] = static_cast<half>(data.s6);
-    address[7] = static_cast<half>(data.s7);
-    if constexpr (kN == 16) {
-      address[8] = static_cast<half>(data.s8);
-      address[9] = static_cast<half>(data.s9);
-      address[10] = static_cast<half>(data.sa);
-      address[11] = static_cast<half>(data.sb);
-      address[12] = static_cast<half>(data.sc);
-      address[13] = static_cast<half>(data.sd);
-      address[14] = static_cast<half>(data.se);
-      address[15] = static_cast<half>(data.sf);
-    }
-  }
-  else {
-    static_assert(kN == 0, "The  size N isn't supported.");
-  }
+  VectorT::template store<half>(data, {address, kN});
 }
 
 /*!

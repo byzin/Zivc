@@ -13,6 +13,7 @@
 // Standard C++ library
 #include <array>
 #include <cstddef>
+#include <span>
 #include <type_traits>
 // Zisc
 #include "zisc/concepts.hpp"
@@ -162,6 +163,14 @@ struct alignas(2 * sizeof(T)) Vector<T, 2>
                                       const T1& y,
                                       const T1& z) noexcept;
 
+  //! Read a data
+  template <Arithmetic T1>
+  static constexpr Vector load(const std::span<T1> data) noexcept;
+
+  //! Write to the data
+  template <Arithmetic T1>
+  static constexpr void store(const Vector& v, std::span<T1> data) noexcept;
+
   //! Sum up the elements
   constexpr Type sum() const noexcept;
 
@@ -290,6 +299,14 @@ struct alignas(4 * sizeof(T)) Vector<T, 3>
                                       const Vector& x,
                                       const T1& y,
                                       const T1& z) noexcept;
+
+  //! Read a data
+  template <Arithmetic T1>
+  static constexpr Vector load(const std::span<T1> data) noexcept;
+
+  //! Write to the data
+  template <Arithmetic T1>
+  static constexpr void store(const Vector& v, std::span<T1> data) noexcept;
 
   //! Sum up the elements
   constexpr Type sum() const noexcept;
@@ -436,6 +453,14 @@ struct alignas(4 * sizeof(T)) Vector<T, 4>
                                       const T1& y,
                                       const T1& z) noexcept;
 
+  //! Read a data
+  template <Arithmetic T1>
+  static constexpr Vector load(const std::span<T1> data) noexcept;
+
+  //! Write to the data
+  template <Arithmetic T1>
+  static constexpr void store(const Vector& v, std::span<T1> data) noexcept;
+
   //! Sum up the elements
   constexpr Type sum() const noexcept;
 
@@ -572,6 +597,14 @@ struct alignas(8 * sizeof(T)) Vector<T, 8>
                                       const Vector& x,
                                       const T1& y,
                                       const T1& z) noexcept;
+
+  //! Read a data
+  template <Arithmetic T1>
+  static constexpr Vector load(const std::span<T1> data) noexcept;
+
+  //! Write to the data
+  template <Arithmetic T1>
+  static constexpr void store(const Vector& v, std::span<T1> data) noexcept;
 
   //! Sum up the elements
   constexpr Type sum() const noexcept;
@@ -724,6 +757,14 @@ struct alignas(16 * sizeof(T)) Vector<T, 16>
                                        const Vector& x,
                                        const T1& y,
                                        const T1& z) noexcept;
+
+  //! Read a data
+  template <Arithmetic T1>
+  static constexpr Vector load(const std::span<T1> data) noexcept;
+
+  //! Write to the data
+  template <Arithmetic T1>
+  static constexpr void store(const Vector& v, std::span<T1> data) noexcept;
 
   //! Sum up the elements
   constexpr Type sum() const noexcept;

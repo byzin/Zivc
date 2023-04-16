@@ -78,6 +78,18 @@ class Buffer : public BufferCommon
   [[nodiscard("The result can have a fence when external sync mode is on.")]]
   LaunchResult copyFrom(const Buffer& source, const LaunchOptionsT& launch_options);
 
+  //! Copy from the given buffer
+  template <template<typename> typename Derived, KernelArg SrcType>
+  [[nodiscard("The result can have a fence when external sync mode is on.")]]
+  LaunchResult copyFromDerived(const Buffer<SrcType>& source,
+                               const LaunchOptionsT& launch_options);
+
+  //! Fill the buffer with specified value
+  template <template<typename> typename Derived>
+  [[nodiscard("The result can have a fence when external sync mode is on.")]]
+  LaunchResult fillDerived(ConstReference value,
+                           const LaunchOptionsT& launch_options);
+
   //! Create launch options
   LaunchOptionsT createOptions() const noexcept;
 
@@ -115,30 +127,8 @@ class Buffer : public BufferCommon
   constexpr std::size_t typeSizeInBytes() const noexcept override;
 
  protected:
-  template <KernelArg SrcType, std::same_as<std::remove_const_t<SrcType>> DstType>
-  friend LaunchResult copy(const Buffer<SrcType>&,
-                           Buffer<DstType>*,
-                           const BufferLaunchOptions<DstType>&);
-  template <KernelArg Type>
-  friend LaunchResult fill(typename Buffer<Type>::ConstReference,
-                           Buffer<Type>*,
-                           const BufferLaunchOptions<Type>&);
-
-
-  //! Copy from the given buffer
-  template <template<typename> typename Derived, KernelArg SrcType>
-  [[nodiscard("The result can have a fence when external sync mode is on.")]]
-  LaunchResult copyFromDerived(const Buffer<SrcType>& source,
-                               const LaunchOptionsT& launch_options);
-
   //! Clear the contents of the buffer
   virtual void destroyData() noexcept = 0;
-
-  //! Fill the buffer with specified value
-  template <template<typename> typename Derived>
-  [[nodiscard("The result can have a fence when external sync mode is on.")]]
-  LaunchResult fillDerived(ConstReference value,
-                           const LaunchOptionsT& launch_options);
 
   //! Initialize the buffer common data
   void initCommon(const BufferInitParams& params) noexcept;

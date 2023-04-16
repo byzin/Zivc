@@ -301,8 +301,7 @@ __kernel void localStruct3Kernel(zivc::GlobalPtr<uint32b> outputs,
 
   const size_t index = zivc::getGlobalLinearId();
   if (index < resolution) {
-    //! \todo Resolve the compile error
-    // s.set(index);
+    s.set(index);
     outputs[index] = static_cast<uint32b>(s.sum());
   }
 }

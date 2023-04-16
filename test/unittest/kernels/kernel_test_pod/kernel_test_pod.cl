@@ -280,8 +280,7 @@ __kernel void podSizeAlignment2Kernel(zivc::GlobalPtr<uint8b> output1,
     output5[1] = test.u16_;
     output6[0] = i32;
     output6[1] = test.i32_;
-    //! \todo Resolve the compile error
-//    output7[0].u8_ = u8;
+    output7[0].u8_ = u8;
     output7[0].setF(f);
     output7[0].setI8(i8);
     output7[0].i16_ = i16;
@@ -407,11 +406,10 @@ __kernel void podVectorKernel(zivc::GlobalPtr<uchar2> output1,
     output8[2] = test.f32v4_1_;
     output8[3] = test.f32v4_2_;
 
-    //! \todo Resolve the compile error
-//    output9[0].u8v2_1_ = u8v2_1;
-//    output9[0].u8v2_2_ = u8v2_2;
-//    output9[0].u8v4_1_ = u8v4_1;
-//    output9[0].u8v4_2_ = u8v4_2;
+    output9[0].u8v2_1_ = u8v2_1;
+    output9[0].u8v2_2_ = u8v2_2;
+    output9[0].u8v4_1_ = u8v4_1;
+    output9[0].u8v4_2_ = u8v4_2;
     output9[0].i16v2_1_ = i16v2_1;
     output9[0].i16v2_2_ = i16v2_2;
     output9[0].i16v4_1_ = i16v4_1;

@@ -546,6 +546,8 @@ LaunchResult VulkanBuffer<T>::copyOnHost(
     auto* dst_ptr = static_cast<DataPtr>(dest->mapMemoryData());
     dst_ptr = dst_ptr + launch_options.destOffset();
     std::copy_n(src_ptr, launch_options.size(), dst_ptr);
+    dest->unmapMemoryData();
+    source.unmapMemoryData();
   }
   LaunchResult result{};
   return result;
@@ -706,6 +708,7 @@ LaunchResult VulkanBuffer<T>::fillOnHost(
     auto* dst_ptr = static_cast<DataPtr>(dest->mapMemoryData());
     dst_ptr = dst_ptr + launch_options.destOffset();
     std::fill_n(dst_ptr, launch_options.size(), value);
+    dest->unmapMemoryData();
   }
   LaunchResult result{};
   return result;

@@ -598,6 +598,9 @@ inline
 void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 updateCommandBufferDebugInfo()
 {
+  if (!ZivcObject::isDebugMode())
+    return;
+
   VulkanDevice& device = parentImpl();
   const IdData& id_data = ZivcObject::id();
   const std::string_view kernel_name = id_data.name();

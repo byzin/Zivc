@@ -394,6 +394,8 @@ void VulkanDeviceInfo::fetchFeatures(const VulkanDispatchLoader& dispatcher)
           props.image_compression_control_swapchain_),
        initProp<vk::PhysicalDeviceImageRobustnessFeatures>(
           props.image_robustness_),
+       initProp<vk::PhysicalDeviceImageSlicedViewOf3DFeaturesEXT>(
+          props.image_sliced_view_of_3d_),
        initProp<vk::PhysicalDeviceImageViewMinLodFeaturesEXT>(
           props.image_view_min_lod_),
        initProp<vk::PhysicalDeviceImagelessFramebufferFeatures>(
@@ -438,6 +440,8 @@ void VulkanDeviceInfo::fetchFeatures(const VulkanDispatchLoader& dispatcher)
           props.pipeline_properties_),
        initProp<vk::PhysicalDevicePipelineProtectedAccessFeaturesEXT>(
           props.pipeline_protected_access_),
+       initProp<vk::PhysicalDevicePipelineLibraryGroupHandlesFeaturesEXT>(
+          props.pipeline_library_group_handles_),
        initProp<vk::PhysicalDevicePipelineRobustnessFeaturesEXT>(
           props.pipeline_robustness_),
        initProp<vk::PhysicalDevicePresentIdFeaturesKHR>(
@@ -492,16 +496,22 @@ void VulkanDeviceInfo::fetchFeatures(const VulkanDispatchLoader& dispatcher)
           props.shader_integer_dot_product_),
        initProp<vk::PhysicalDeviceShaderModuleIdentifierFeaturesEXT>(
           props.shader_module_identifier_),
+       //initProp<vk::PhysicalDeviceShaderObjectFeaturesEXT>(
+       //   props.shader_object_),
        initProp<vk::PhysicalDeviceShaderSubgroupExtendedTypesFeatures>(
           props.shader_subgroup_extended_types_),
        initProp<vk::PhysicalDeviceShaderSubgroupUniformControlFlowFeaturesKHR>(
           props.shader_subgroup_uniform_control_flow_),
        initProp<vk::PhysicalDeviceShaderTerminateInvocationFeatures>(
           props.shader_terminate_invocation_),
+       //initProp<vk::PhysicalDeviceShaderTileImageFeaturesEXT>(
+       //   props.shader_tile_image_),
        initProp<vk::PhysicalDeviceSubgroupSizeControlFeatures>(
           props.subgroup_size_control_),
        initProp<vk::PhysicalDeviceSubpassMergeFeedbackFeaturesEXT>(
           props.subpass_merge_feedback_),
+       initProp<vk::PhysicalDeviceSwapchainMaintenance1FeaturesEXT>(
+          props.swapchain_maintenance1_),
        initProp<vk::PhysicalDeviceSynchronization2Features>(
           props.synchronization2_),
        initProp<vk::PhysicalDeviceTexelBufferAlignmentFeaturesEXT>(
@@ -698,6 +708,10 @@ void VulkanDeviceInfo::fetchProperties(const VulkanDispatchLoader& dispatcher)
           props.shader_integer_dot_product_),
        initProp<vk::PhysicalDeviceShaderModuleIdentifierPropertiesEXT>(
           props.shader_module_identifier_),
+//       initProp<vk::PhysicalDeviceShaderObjectPropertiesEXT>(
+//          props.shader_object_),
+//       initProp<vk::PhysicalDeviceShaderTileImagePropertiesEXT>(
+//          props.shader_tile_image_),
        initProp<vk::PhysicalDeviceSubgroupProperties>(
           props.subgroup_),
        initProp<vk::PhysicalDeviceSubgroupSizeControlProperties>(

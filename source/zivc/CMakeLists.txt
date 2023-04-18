@@ -163,6 +163,10 @@ macro(Zivc_setZivcProject)
 
   # Compiler flags
   include("${PROJECT_SOURCE_DIR}/cmake/compiler.cmake")
+  Zivc_getCxxWarningFlags(cxx_compile_warning_flags)
+  Zivc_getSanitizerFlags(compile_sanitizer_flags linker_sanitizer_flags)
+  Zivc_getZivcFlags(zivc_compile_flags zivc_linker_flags zivc_definitions)
+  Zivc_getZivcWarningFlags(zivc_warning_flags)
   # Get architecture
   Zivc_getArchitectureName(FALSE arch_name_list)
   foreach(architecture IN LISTS arch_name_list)
@@ -174,15 +178,14 @@ macro(Zivc_setZivcProject)
     add_library(${library_name} STATIC "${zivc_source_files}")
     set_target_properties(${library_name} PROPERTIES CXX_STANDARD 20
                                                      CXX_STANDARD_REQUIRED ON)
-    Zivc_getCxxWarningFlags(cxx_compile_warning_flags)
-    Zivc_getZivcFlags(zivc_compile_flags zivc_linker_flags zivc_definitions)
-    Zivc_getZivcWarningFlags(zivc_warning_flags)
     target_compile_options(${library_name} PUBLIC ${zivc_compile_flags}
                                            PRIVATE ${cxx_compile_warning_flags}
+                                                   ${compile_sanitizer_flags}
                                                    ${zivc_warning_flags})
     target_link_libraries(${library_name} PUBLIC ${zisc_library_name}
                                           PRIVATE CpuFeature::cpu_features)
-    target_link_options(${library_name} PUBLIC ${zivc_linker_flags})
+    target_link_options(${library_name} PUBLIC ${zivc_linker_flags}
+                                        PRIVATE ${linker_sanitizer_flags})
     target_compile_definitions(${library_name} PUBLIC ${zivc_definitions})
     target_include_directories(${library_name} PUBLIC "${zivc_core_dir}"
                                                       "${PROJECT_BINARY_DIR}/include")

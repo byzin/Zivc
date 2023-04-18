@@ -35,14 +35,17 @@ macro(Zivc_setDescriptorMapBakerProject)
   set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20
                                                    CXX_STANDARD_REQUIRED ON)
   Zivc_getCxxWarningFlags(cxx_compile_warning_flags)
+  Zivc_getSanitizerFlags(compile_sanitizer_flags linker_sanitizer_flags)
   Zivc_getZivcFlags(zivc_compile_flags zivc_linker_flags zivc_definitions)
   Zivc_getZivcWarningFlags(zivc_warning_flags)
   target_compile_options(${PROJECT_NAME} PRIVATE ${cxx_compile_warning_flags}
+                                                 ${compile_sanitizer_flags}
                                                  ${zivc_compile_flags}
                                                  ${zivc_warning_flags})
   target_include_directories(${PROJECT_NAME} PRIVATE ${zivc_core_dir})
   target_link_libraries(${PROJECT_NAME} PRIVATE Zisc::Zisc)
-  target_link_options(${PROJECT_NAME} PRIVATE ${zivc_linker_flags})
+  target_link_options(${PROJECT_NAME} PRIVATE ${linker_sanitizer_flags}
+                                              ${zivc_linker_flags})
   target_compile_definitions(${PROJECT_NAME} PRIVATE ${zivc_definitions})
   Zivc_enableIpo(${PROJECT_NAME})
 

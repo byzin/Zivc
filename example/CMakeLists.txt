@@ -116,7 +116,12 @@ function(addGui)
   # Compiler flags
   include("${__zivc_dir__}/cmake/compiler.cmake")
   Zivc_populateTargetOptions(Zisc::Zisc gui)
+  Zivc_getCxxWarningFlags(cxx_compile_warning_flags)
+  Zivc_getSanitizerFlags(compile_sanitizer_flags linker_sanitizer_flags)
+  target_compile_options(gui PRIVATE ${cxx_compile_warning_flags}
+                                     ${compile_sanitizer_flags})
   target_link_libraries(gui PRIVATE Zivc::Zivc PUBLIC Glfw::glfw Imgui::imgui)
+  target_link_options(gui PRIVATE ${linker_sanitizer_flags})
   target_include_directories(gui INTERFACE ${gui_path})
   Zivc_enableIpo(gui)
   set(clang_tidy_exclusion_checks bugprone-branch-clone
@@ -156,10 +161,13 @@ function(addExample target save_dependency_list)
                                              CXX_STANDARD_REQUIRED ON)
   include("${__zivc_dir__}/cmake/compiler.cmake")
   Zivc_getCxxWarningFlags(cxx_compile_warning_flags)
+  Zivc_getSanitizerFlags(compile_sanitizer_flags linker_sanitizer_flags)
   getExampleWarningFlags(example_warning_flags)
   target_compile_options(${target} PRIVATE ${cxx_compile_warning_flags}
+                                           ${compile_sanitizer_flags}
                                            ${example_warning_flags})
   target_link_libraries(${target} PRIVATE Zivc::Zivc ${ZIVC_DEPENDS})
+  target_link_options(${target} PRIVATE ${linker_sanitizer_flags})
   Zivc_enableIpo(${target})
 
   #

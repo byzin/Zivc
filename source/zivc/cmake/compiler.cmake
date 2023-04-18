@@ -55,6 +55,25 @@ function(Zivc_setStaticAnalyzer target)
 endfunction(Zivc_setStaticAnalyzer)
 
 
+function(Zivc_getSanitizerFlags compile_sanitizer_flags linker_sanitizer_flags)
+  include("${__zisc_compiler_cmake_path}")
+  Zisc_getSanitizerFlags(compile_flags linker_flags)
+
+  # Output
+  set(${compile_sanitizer_flags} ${compile_flags} PARENT_SCOPE)
+  set(${linker_sanitizer_flags} ${linker_flags} PARENT_SCOPE)
+endfunction(Zivc_getSanitizerFlags)
+
+
+function(Zivc_createSanitizerIgnoreList source_files output_dir list_name cxx_compile_flags)
+  include("${__zisc_compiler_cmake_path}")
+  Zisc_createSanitizerIgnoreList(${source_files} ${output_dir} ${list_name} compile_flags)
+
+  # Output
+  set(${cxx_compile_flags} ${compile_flags} PARENT_SCOPE)
+endfunction(Zivc_createSanitizerIgnoreList)
+
+
 function(Zivc_createLinkToTarget target output_dir)
   include("${__zisc_compiler_cmake_path}")
   Zisc_createLinkToTarget(${target} "${output_dir}")

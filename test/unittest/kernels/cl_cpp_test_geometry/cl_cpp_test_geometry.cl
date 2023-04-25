@@ -85,6 +85,28 @@ __kernel void dotV4TestKernel(zivc::ConstGlobalPtr<float4> in,
   out[index] = zivc::dot(in[2 * index], in[2 * index + 1]);
 }
 
+//__kernel void dotV8TestKernel(zivc::ConstGlobalPtr<float8> in,
+//                              zivc::GlobalPtr<float> out,
+//                              const uint32b resolution)
+//{
+//  const size_t index = zivc::getGlobalLinearId();
+//  if (resolution <= index)
+//    return;
+//
+//  out[index] = zivc::dot(in[2 * index], in[2 * index + 1]);
+//}
+//
+//__kernel void dotV16TestKernel(zivc::ConstGlobalPtr<float16> in,
+//                               zivc::GlobalPtr<float> out,
+//                               const uint32b resolution)
+//{
+//  const size_t index = zivc::getGlobalLinearId();
+//  if (resolution <= index)
+//    return;
+//
+//  out[index] = zivc::dot(in[2 * index], in[2 * index + 1]);
+//}
+
 __kernel void dotV4C3TestKernel(zivc::ConstGlobalPtr<float4> in,
                                 zivc::GlobalPtr<float> out,
                                 const uint32b resolution)
@@ -128,6 +150,28 @@ __kernel void distanceV4TestKernel(zivc::ConstGlobalPtr<float4> in,
 
   out[index] = zivc::distance(in[2 * index], in[2 * index + 1]);
 }
+
+//__kernel void distanceV8TestKernel(zivc::ConstGlobalPtr<float8> in,
+//                                   zivc::GlobalPtr<float> out,
+//                                   const uint32b resolution)
+//{
+//  const size_t index = zivc::getGlobalLinearId();
+//  if (resolution <= index)
+//    return;
+//
+//  out[index] = zivc::distance(in[2 * index], in[2 * index + 1]);
+//}
+//
+//__kernel void distanceV16TestKernel(zivc::ConstGlobalPtr<float16> in,
+//                                    zivc::GlobalPtr<float> out,
+//                                    const uint32b resolution)
+//{
+//  const size_t index = zivc::getGlobalLinearId();
+//  if (resolution <= index)
+//    return;
+//
+//  out[index] = zivc::distance(in[2 * index], in[2 * index + 1]);
+//}
 
 __kernel void distanceV4C3TestKernel(zivc::ConstGlobalPtr<float4> in,
                                      zivc::GlobalPtr<float> out,
@@ -173,6 +217,28 @@ __kernel void lengthV4TestKernel(zivc::ConstGlobalPtr<float4> in,
   out[index] = zivc::length(in[index]);
 }
 
+//__kernel void lengthV8TestKernel(zivc::ConstGlobalPtr<float8> in,
+//                                 zivc::GlobalPtr<float> out,
+//                                 const uint32b resolution)
+//{
+//  const size_t index = zivc::getGlobalLinearId();
+//  if (resolution <= index)
+//    return;
+//
+//  out[index] = zivc::length(in[index]);
+//}
+//
+//__kernel void lengthV16TestKernel(zivc::ConstGlobalPtr<float16> in,
+//                                  zivc::GlobalPtr<float> out,
+//                                  const uint32b resolution)
+//{
+//  const size_t index = zivc::getGlobalLinearId();
+//  if (resolution <= index)
+//    return;
+//
+//  out[index] = zivc::length(in[index]);
+//}
+
 __kernel void lengthV4C3TestKernel(zivc::ConstGlobalPtr<float4> in,
                                    zivc::GlobalPtr<float> out,
                                    const uint32b resolution)
@@ -216,6 +282,28 @@ __kernel void normalizeV4TestKernel(zivc::ConstGlobalPtr<float4> in,
 
   out[index] = zivc::normalize(in[index]);
 }
+
+//__kernel void normalizeV8TestKernel(zivc::ConstGlobalPtr<float8> in,
+//                                    zivc::GlobalPtr<float8> out,
+//                                    const uint32b resolution)
+//{
+//  const size_t index = zivc::getGlobalLinearId();
+//  if (resolution <= index)
+//    return;
+//
+//  out[index] = zivc::normalize(in[index]);
+//}
+//
+//__kernel void normalizeV16TestKernel(zivc::ConstGlobalPtr<float16> in,
+//                                     zivc::GlobalPtr<float16> out,
+//                                     const uint32b resolution)
+//{
+//  const size_t index = zivc::getGlobalLinearId();
+//  if (resolution <= index)
+//    return;
+//
+//  out[index] = zivc::normalize(in[index]);
+//}
 
 __kernel void normalizeV4C3TestKernel(zivc::ConstGlobalPtr<float4> in,
                                       zivc::GlobalPtr<float4> out,

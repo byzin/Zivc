@@ -33,6 +33,37 @@
 #include "utility/test.hpp"
 #include "zivc/kernel_set/kernel_set-cl_cpp_test_relation.hpp"
 
+#define ZIVC_TEST_V8(v0, v1, v2, v3, mem, test_name) \
+    static_assert(std::remove_cvref_t<decltype(mem)>::size() == 8); \
+    ASSERT_EQ(v0, mem.s0) << test_name << " failed."; \
+    ASSERT_EQ(v1, mem.s1) << test_name << " failed."; \
+    ASSERT_EQ(v2, mem.s2) << test_name << " failed."; \
+    ASSERT_EQ(v3, mem.s3) << test_name << " failed."; \
+    ASSERT_EQ(v0, mem.s4) << test_name << " failed."; \
+    ASSERT_EQ(v1, mem.s5) << test_name << " failed."; \
+    ASSERT_EQ(v2, mem.s6) << test_name << " failed."; \
+    ASSERT_EQ(v3, mem.s7) << test_name << " failed."
+
+#define ZIVC_TEST_V16(v0, v1, v2, v3, mem, test_name) \
+    static_assert(std::remove_cvref_t<decltype(mem)>::size() == 16); \
+    ASSERT_EQ(v0, mem.s0) << test_name << " failed."; \
+    ASSERT_EQ(v1, mem.s1) << test_name << " failed."; \
+    ASSERT_EQ(v2, mem.s2) << test_name << " failed."; \
+    ASSERT_EQ(v3, mem.s3) << test_name << " failed."; \
+    ASSERT_EQ(v0, mem.s4) << test_name << " failed."; \
+    ASSERT_EQ(v1, mem.s5) << test_name << " failed."; \
+    ASSERT_EQ(v2, mem.s6) << test_name << " failed."; \
+    ASSERT_EQ(v3, mem.s7) << test_name << " failed."; \
+    ASSERT_EQ(v0, mem.s8) << test_name << " failed."; \
+    ASSERT_EQ(v1, mem.s9) << test_name << " failed."; \
+    ASSERT_EQ(v2, mem.sa) << test_name << " failed."; \
+    ASSERT_EQ(v3, mem.sb) << test_name << " failed."; \
+    ASSERT_EQ(v0, mem.sc) << test_name << " failed."; \
+    ASSERT_EQ(v1, mem.sd) << test_name << " failed."; \
+    ASSERT_EQ(v2, mem.se) << test_name << " failed."; \
+    ASSERT_EQ(v3, mem.sf) << test_name << " failed."
+
+
 TEST(ClCppTest, RelationIsEqualTest)
 {
   const zivc::SharedContext context = ztest::createContext();
@@ -111,6 +142,7 @@ TEST(ClCppTest, RelationIsEqualTest)
         cl_float4{fnan, fnan, fnan, fnan}};
     ztest::setDeviceBuffer(*device, v, buffer_in4.get());
   }
+
 
   // Make a kernel
   const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_relation, isEqualTestKernel, 1);
@@ -281,6 +313,145 @@ TEST(ClCppTest, RelationIsEqualTest)
   }
 }
 
+TEST(ClCppTest, RelationIsEqualLongVecTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_float;
+  using zivc::cl_float2;
+  using zivc::cl_float3;
+  using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
+
+  const zivc::SharedBuffer buffer_in8 = device->createBuffer<cl_float8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_in16 = device->createBuffer<cl_float16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_out8 = device->createBuffer<zivc::cl_CompResult<cl_float8>>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out8->setSize(11);
+  const zivc::SharedBuffer buffer_out16 = device->createBuffer<zivc::cl_CompResult<cl_float16>>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out16->setSize(11);
+
+  constexpr cl_float fmax = (std::numeric_limits<cl_float>::max)();
+  constexpr cl_float fmin = (std::numeric_limits<cl_float>::min)();
+  constexpr cl_float subnormal_min = std::numeric_limits<cl_float>::denorm_min();
+  constexpr cl_float subnormal_max = fmin - subnormal_min;
+  constexpr cl_float finf = std::numeric_limits<cl_float>::infinity();
+  const cl_float fnan = std::numeric_limits<cl_float>::quiet_NaN();
+
+  {
+    const std::initializer_list<cl_float8> v = {
+        cl_float8{0.0f, -0.0f, 0.0f, -0.0f,
+                  0.0f, -0.0f, 0.0f, -0.0f},
+        cl_float8{1.0f, -1.0f, 1.0f, -1.0f,
+                  1.0f, -1.0f, 1.0f, -1.0f},
+        cl_float8{fmax, -fmax, fmax, -fmax,
+                  fmax, -fmax, fmax, -fmax},
+        cl_float8{fmin, -fmin, fmin, -fmin,
+                  fmin, -fmin, fmin, -fmin},
+        cl_float8{subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                  subnormal_max, subnormal_min, subnormal_max, subnormal_min},
+        cl_float8{finf, -finf, finf, -finf,
+                  finf, -finf, finf, -finf},
+        cl_float8{fnan, fnan, fnan, fnan,
+                  fnan, fnan, fnan, fnan}};
+    ztest::setDeviceBuffer(*device, v, buffer_in8.get());
+  }
+  {
+    const std::initializer_list<cl_float16> v = {
+        cl_float16{0.0f, -0.0f, 0.0f, -0.0f,
+                   0.0f, -0.0f, 0.0f, -0.0f,
+                   0.0f, -0.0f, 0.0f, -0.0f,
+                   0.0f, -0.0f, 0.0f, -0.0f},
+        cl_float16{1.0f, -1.0f, 1.0f, -1.0f,
+                   1.0f, -1.0f, 1.0f, -1.0f,
+                   1.0f, -1.0f, 1.0f, -1.0f,
+                   1.0f, -1.0f, 1.0f, -1.0f},
+        cl_float16{fmax, -fmax, fmax, -fmax,
+                   fmax, -fmax, fmax, -fmax,
+                   fmax, -fmax, fmax, -fmax,
+                   fmax, -fmax, fmax, -fmax},
+        cl_float16{fmin, -fmin, fmin, -fmin,
+                   fmin, -fmin, fmin, -fmin,
+                   fmin, -fmin, fmin, -fmin,
+                   fmin, -fmin, fmin, -fmin},
+        cl_float16{subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                   subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                   subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                   subnormal_max, subnormal_min, subnormal_max, subnormal_min},
+        cl_float16{finf, -finf, finf, -finf,
+                   finf, -finf, finf, -finf,
+                   finf, -finf, finf, -finf,
+                   finf, -finf, finf, -finf},
+        cl_float16{fnan, fnan, fnan, fnan,
+                   fnan, fnan, fnan, fnan,
+                   fnan, fnan, fnan, fnan,
+                   fnan, fnan, fnan, fnan}};
+    ztest::setDeviceBuffer(*device, v, buffer_in16.get());
+  }
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_relation, isEqualLongVecTestKernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(4, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("isEqualLongVecTestKernel");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(4, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_in8, *buffer_in16, *buffer_out8, *buffer_out16, launch_options);
+  device->waitForCompletion(result.fence());
+
+  using zivc::cl_int;
+
+  // output8
+  {
+    constexpr cl_int t = zivc::cl::kVTrue;
+    constexpr cl_int f = zivc::cl::kVFalse;
+    const zivc::MappedMemory mem = buffer_out8->mapMemory();
+    ZIVC_TEST_V8(t, t, t, t, mem[0], "isequal");
+    ZIVC_TEST_V8(t, t, t, t, mem[1], "isequal");
+    ZIVC_TEST_V8(f, f, f, f, mem[2], "isequal");
+    ZIVC_TEST_V8(t, t, t, t, mem[3], "isequal");
+    ZIVC_TEST_V8(t, t, t, t, mem[4], "isequal");
+    ZIVC_TEST_V8(f, f, f, f, mem[5], "isequal");
+    //! \todo subnormal won't work on GPU
+    //ZIVC_TEST_V8(t, t, t, t, mem[6], "isequal");
+    //ZIVC_TEST_V8(f, f, f, f, mem[7], "isequal");
+    ZIVC_TEST_V8(t, t, t, t, mem[8], "isequal");
+    ZIVC_TEST_V8(f, f, f, f, mem[9], "isequal");
+    ZIVC_TEST_V8(f, f, f, f, mem[10], "isequal");
+  }
+  // output16
+  {
+    constexpr cl_int t = zivc::cl::kVTrue;
+    constexpr cl_int f = zivc::cl::kVFalse;
+    const zivc::MappedMemory mem = buffer_out16->mapMemory();
+    ZIVC_TEST_V16(t, t, t, t, mem[0], "isequal");
+    ZIVC_TEST_V16(t, t, t, t, mem[1], "isequal");
+    ZIVC_TEST_V16(f, f, f, f, mem[2], "isequal");
+    ZIVC_TEST_V16(t, t, t, t, mem[3], "isequal");
+    ZIVC_TEST_V16(t, t, t, t, mem[4], "isequal");
+    ZIVC_TEST_V16(f, f, f, f, mem[5], "isequal");
+    //! \todo subnormal won't work on GPU
+    //ZIVC_TEST_V16(t, t, t, t, mem[6], "isequal");
+    //ZIVC_TEST_V16(f, f, f, f, mem[7], "isequal");
+    ZIVC_TEST_V16(t, t, t, t, mem[8], "isequal");
+    ZIVC_TEST_V16(f, f, f, f, mem[9], "isequal");
+    ZIVC_TEST_V16(f, f, f, f, mem[10], "isequal");
+  }
+}
+
 TEST(ClCppTest, RelationIsNotEqualTest)
 {
   const zivc::SharedContext context = ztest::createContext();
@@ -292,6 +463,8 @@ TEST(ClCppTest, RelationIsNotEqualTest)
   using zivc::cl_float2;
   using zivc::cl_float3;
   using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
 
   const zivc::SharedBuffer buffer_in1 = device->createBuffer<cl_float>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
   const zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_float2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
@@ -529,6 +702,144 @@ TEST(ClCppTest, RelationIsNotEqualTest)
   }
 }
 
+TEST(ClCppTest, RelationIsNotEqualLongVecTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_float;
+  using zivc::cl_float2;
+  using zivc::cl_float3;
+  using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
+
+  const zivc::SharedBuffer buffer_in8 = device->createBuffer<cl_float8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_in16 = device->createBuffer<cl_float16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_out8 = device->createBuffer<zivc::cl_CompResult<cl_float8>>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out8->setSize(11);
+  const zivc::SharedBuffer buffer_out16 = device->createBuffer<zivc::cl_CompResult<cl_float16>>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out16->setSize(11);
+
+  constexpr cl_float fmax = (std::numeric_limits<cl_float>::max)();
+  constexpr cl_float fmin = (std::numeric_limits<cl_float>::min)();
+  constexpr cl_float subnormal_min = std::numeric_limits<cl_float>::denorm_min();
+  constexpr cl_float subnormal_max = fmin - subnormal_min;
+  constexpr cl_float finf = std::numeric_limits<cl_float>::infinity();
+  const cl_float fnan = std::numeric_limits<cl_float>::quiet_NaN();
+  {
+    const std::initializer_list<cl_float8> v = {
+        cl_float8{0.0f, -0.0f, 0.0f, -0.0f,
+                  0.0f, -0.0f, 0.0f, -0.0f},
+        cl_float8{1.0f, -1.0f, 1.0f, -1.0f,
+                  1.0f, -1.0f, 1.0f, -1.0f},
+        cl_float8{fmax, -fmax, fmax, -fmax,
+                  fmax, -fmax, fmax, -fmax},
+        cl_float8{fmin, -fmin, fmin, -fmin,
+                  fmin, -fmin, fmin, -fmin},
+        cl_float8{subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                  subnormal_max, subnormal_min, subnormal_max, subnormal_min},
+        cl_float8{finf, -finf, finf, -finf,
+                  finf, -finf, finf, -finf},
+        cl_float8{fnan, fnan, fnan, fnan,
+                  fnan, fnan, fnan, fnan}};
+    ztest::setDeviceBuffer(*device, v, buffer_in8.get());
+  }
+  {
+    const std::initializer_list<cl_float16> v = {
+        cl_float16{0.0f, -0.0f, 0.0f, -0.0f,
+                   0.0f, -0.0f, 0.0f, -0.0f,
+                   0.0f, -0.0f, 0.0f, -0.0f,
+                   0.0f, -0.0f, 0.0f, -0.0f},
+        cl_float16{1.0f, -1.0f, 1.0f, -1.0f,
+                   1.0f, -1.0f, 1.0f, -1.0f,
+                   1.0f, -1.0f, 1.0f, -1.0f,
+                   1.0f, -1.0f, 1.0f, -1.0f},
+        cl_float16{fmax, -fmax, fmax, -fmax,
+                   fmax, -fmax, fmax, -fmax,
+                   fmax, -fmax, fmax, -fmax,
+                   fmax, -fmax, fmax, -fmax},
+        cl_float16{fmin, -fmin, fmin, -fmin,
+                   fmin, -fmin, fmin, -fmin,
+                   fmin, -fmin, fmin, -fmin,
+                   fmin, -fmin, fmin, -fmin},
+        cl_float16{subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                   subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                   subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                   subnormal_max, subnormal_min, subnormal_max, subnormal_min},
+        cl_float16{finf, -finf, finf, -finf,
+                   finf, -finf, finf, -finf,
+                   finf, -finf, finf, -finf,
+                   finf, -finf, finf, -finf},
+        cl_float16{fnan, fnan, fnan, fnan,
+                   fnan, fnan, fnan, fnan,
+                   fnan, fnan, fnan, fnan,
+                   fnan, fnan, fnan, fnan}};
+    ztest::setDeviceBuffer(*device, v, buffer_in16.get());
+  }
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_relation, isNotEqualLongVecTestKernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(4, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("isNotEqualLongVecTestKernel");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(4, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_in8, *buffer_in16, *buffer_out8, *buffer_out16, launch_options);
+  device->waitForCompletion(result.fence());
+
+  using zivc::cl_int;
+
+  // output8
+  {
+    constexpr cl_int tl = zivc::cl::kVTrue;
+    constexpr cl_int fl = zivc::cl::kVFalse;
+    const zivc::MappedMemory mem = buffer_out8->mapMemory();
+    ZIVC_TEST_V8(fl, fl, fl, fl, mem[0], "isnotequal");
+    ZIVC_TEST_V8(fl, fl, fl, fl, mem[1], "isnotequal");
+    ZIVC_TEST_V8(tl, tl, tl, tl, mem[2], "isnotequal");
+    ZIVC_TEST_V8(fl, fl, fl, fl, mem[3], "isnotequal");
+    ZIVC_TEST_V8(fl, fl, fl, fl, mem[4], "isnotequal");
+    ZIVC_TEST_V8(tl, tl, tl, tl, mem[5], "isnotequal");
+    //! \todo subnormal won't work on GPU
+    //ZIVC_TEST_V8(fl, fl, fl, fl, mem[6], "isnotequal");
+    //ZIVC_TEST_V8(tl, tl, tl, tl, mem[7], "isnotequal");
+    ZIVC_TEST_V8(fl, fl, fl, fl, mem[8], "isnotequal");
+    ZIVC_TEST_V8(tl, tl, tl, tl, mem[9], "isnotequal");
+    ZIVC_TEST_V8(tl, tl, tl, tl, mem[10], "isnotequal");
+  }
+  // output16
+  {
+    constexpr cl_int tl = zivc::cl::kVTrue;
+    constexpr cl_int fl = zivc::cl::kVFalse;
+    const zivc::MappedMemory mem = buffer_out16->mapMemory();
+    ZIVC_TEST_V16(fl, fl, fl, fl, mem[0], "isnotequal");
+    ZIVC_TEST_V16(fl, fl, fl, fl, mem[1], "isnotequal");
+    ZIVC_TEST_V16(tl, tl, tl, tl, mem[2], "isnotequal");
+    ZIVC_TEST_V16(fl, fl, fl, fl, mem[3], "isnotequal");
+    ZIVC_TEST_V16(fl, fl, fl, fl, mem[4], "isnotequal");
+    ZIVC_TEST_V16(tl, tl, tl, tl, mem[5], "isnotequal");
+    //! \todo subnormal won't work on GPU
+    //ZIVC_TEST_V16(fl, fl, fl, fl, mem[6], "isnotequal");
+    //ZIVC_TEST_V16(tl, tl, tl, tl, mem[7], "isnotequal");
+    ZIVC_TEST_V16(fl, fl, fl, fl, mem[8], "isnotequal");
+    ZIVC_TEST_V16(tl, tl, tl, tl, mem[9], "isnotequal");
+    ZIVC_TEST_V16(tl, tl, tl, tl, mem[10], "isnotequal");
+  }
+}
+
 TEST(ClCppTest, RelationIsGreaterTest)
 {
   const zivc::SharedContext context = ztest::createContext();
@@ -540,6 +851,8 @@ TEST(ClCppTest, RelationIsGreaterTest)
   using zivc::cl_float2;
   using zivc::cl_float3;
   using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
 
   const zivc::SharedBuffer buffer_in1 = device->createBuffer<cl_float>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
   const zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_float2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
@@ -777,6 +1090,144 @@ TEST(ClCppTest, RelationIsGreaterTest)
   }
 }
 
+TEST(ClCppTest, RelationIsGreaterLongVecTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_float;
+  using zivc::cl_float2;
+  using zivc::cl_float3;
+  using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
+
+  const zivc::SharedBuffer buffer_in8 = device->createBuffer<cl_float8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_in16 = device->createBuffer<cl_float16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_out8 = device->createBuffer<zivc::cl_CompResult<cl_float8>>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out8->setSize(11);
+  const zivc::SharedBuffer buffer_out16 = device->createBuffer<zivc::cl_CompResult<cl_float16>>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out16->setSize(11);
+
+  constexpr cl_float fmax = (std::numeric_limits<cl_float>::max)();
+  constexpr cl_float fmin = (std::numeric_limits<cl_float>::min)();
+  constexpr cl_float subnormal_min = std::numeric_limits<cl_float>::denorm_min();
+  constexpr cl_float subnormal_max = fmin - subnormal_min;
+  constexpr cl_float finf = std::numeric_limits<cl_float>::infinity();
+  const cl_float fnan = std::numeric_limits<cl_float>::quiet_NaN();
+  {
+    const std::initializer_list<cl_float8> v = {
+        cl_float8{0.0f, -0.0f, 0.0f, -0.0f,
+                  0.0f, -0.0f, 0.0f, -0.0f},
+        cl_float8{1.0f, -1.0f, 1.0f, -1.0f,
+                  1.0f, -1.0f, 1.0f, -1.0f},
+        cl_float8{fmax, -fmax, fmax, -fmax,
+                  fmax, -fmax, fmax, -fmax},
+        cl_float8{fmin, -fmin, fmin, -fmin,
+                  fmin, -fmin, fmin, -fmin},
+        cl_float8{subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                  subnormal_max, subnormal_min, subnormal_max, subnormal_min},
+        cl_float8{finf, -finf, finf, -finf,
+                  finf, -finf, finf, -finf},
+        cl_float8{fnan, fnan, fnan, fnan,
+                  fnan, fnan, fnan, fnan}};
+    ztest::setDeviceBuffer(*device, v, buffer_in8.get());
+  }
+  {
+    const std::initializer_list<cl_float16> v = {
+        cl_float16{0.0f, -0.0f, 0.0f, -0.0f,
+                   0.0f, -0.0f, 0.0f, -0.0f,
+                   0.0f, -0.0f, 0.0f, -0.0f,
+                   0.0f, -0.0f, 0.0f, -0.0f},
+        cl_float16{1.0f, -1.0f, 1.0f, -1.0f,
+                   1.0f, -1.0f, 1.0f, -1.0f,
+                   1.0f, -1.0f, 1.0f, -1.0f,
+                   1.0f, -1.0f, 1.0f, -1.0f},
+        cl_float16{fmax, -fmax, fmax, -fmax,
+                   fmax, -fmax, fmax, -fmax,
+                   fmax, -fmax, fmax, -fmax,
+                   fmax, -fmax, fmax, -fmax},
+        cl_float16{fmin, -fmin, fmin, -fmin,
+                   fmin, -fmin, fmin, -fmin,
+                   fmin, -fmin, fmin, -fmin,
+                   fmin, -fmin, fmin, -fmin},
+        cl_float16{subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                   subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                   subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                   subnormal_max, subnormal_min, subnormal_max, subnormal_min},
+        cl_float16{finf, -finf, finf, -finf,
+                   finf, -finf, finf, -finf,
+                   finf, -finf, finf, -finf,
+                   finf, -finf, finf, -finf},
+        cl_float16{fnan, fnan, fnan, fnan,
+                   fnan, fnan, fnan, fnan,
+                   fnan, fnan, fnan, fnan,
+                   fnan, fnan, fnan, fnan}};
+    ztest::setDeviceBuffer(*device, v, buffer_in16.get());
+  }
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_relation, isGreaterLongVecTestKernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(4, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("isGreaterLongVecTestKernel");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(4, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_in8, *buffer_in16, *buffer_out8, *buffer_out16, launch_options);
+  device->waitForCompletion(result.fence());
+
+  using zivc::cl_int;
+
+  // output8
+  {
+    [[maybe_unused]] constexpr cl_int t = zivc::cl::kVTrue;
+    constexpr cl_int f = zivc::cl::kVFalse;
+    const zivc::MappedMemory mem = buffer_out8->mapMemory();
+    ZIVC_TEST_V8(f, f, f, f, mem[0], "isgreater");
+    ZIVC_TEST_V8(f, f, f, f, mem[1], "isgreater");
+    ZIVC_TEST_V8(f, t, f, t, mem[2], "isgreater");
+    ZIVC_TEST_V8(f, f, f, f, mem[3], "isgreater");
+    ZIVC_TEST_V8(f, f, f, f, mem[4], "isgreater");
+    ZIVC_TEST_V8(f, t, f, t, mem[5], "isgreater");
+    //! \todo subnormal won't work on GPU
+    //ZIVC_TEST_V8(f, f, f, f, mem[6], "isgreater");
+    //ZIVC_TEST_V8(t, t, t, t, mem[7], "isgreater");
+    ZIVC_TEST_V8(f, f, f, f, mem[8], "isgreater");
+    ZIVC_TEST_V8(t, f, t, f, mem[9], "isgreater");
+    ZIVC_TEST_V8(f, f, f, f, mem[10], "isgreater");
+  }
+  // output16
+  {
+    [[maybe_unused]] constexpr cl_int t = zivc::cl::kVTrue;
+    constexpr cl_int f = zivc::cl::kVFalse;
+    const zivc::MappedMemory mem = buffer_out16->mapMemory();
+    ZIVC_TEST_V16(f, f, f, f, mem[0], "isgreater");
+    ZIVC_TEST_V16(f, f, f, f, mem[1], "isgreater");
+    ZIVC_TEST_V16(f, t, f, t, mem[2], "isgreater");
+    ZIVC_TEST_V16(f, f, f, f, mem[3], "isgreater");
+    ZIVC_TEST_V16(f, f, f, f, mem[4], "isgreater");
+    ZIVC_TEST_V16(f, t, f, t, mem[5], "isgreater");
+    //! \todo subnormal won't work on GPU
+    //ZIVC_TEST_V16(f, f, f, f, mem[6], "isgreater");
+    //ZIVC_TEST_V16(t, t, t, t, mem[7], "isgreater");
+    ZIVC_TEST_V16(f, f, f, f, mem[8], "isgreater");
+    ZIVC_TEST_V16(t, f, t, f, mem[9], "isgreater");
+    ZIVC_TEST_V16(f, f, f, f, mem[10], "isgreater");
+  }
+}
+
 TEST(ClCppTest, RelationIsGreaterEqualTest)
 {
   const zivc::SharedContext context = ztest::createContext();
@@ -788,6 +1239,8 @@ TEST(ClCppTest, RelationIsGreaterEqualTest)
   using zivc::cl_float2;
   using zivc::cl_float3;
   using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
 
   const zivc::SharedBuffer buffer_in1 = device->createBuffer<cl_float>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
   const zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_float2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
@@ -1025,6 +1478,144 @@ TEST(ClCppTest, RelationIsGreaterEqualTest)
   }
 }
 
+TEST(ClCppTest, RelationIsGreaterLongVecEqualTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_float;
+  using zivc::cl_float2;
+  using zivc::cl_float3;
+  using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
+
+  const zivc::SharedBuffer buffer_in8 = device->createBuffer<cl_float8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_in16 = device->createBuffer<cl_float16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_out8 = device->createBuffer<zivc::cl_CompResult<cl_float8>>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out8->setSize(11);
+  const zivc::SharedBuffer buffer_out16 = device->createBuffer<zivc::cl_CompResult<cl_float16>>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out16->setSize(11);
+
+  constexpr cl_float fmax = (std::numeric_limits<cl_float>::max)();
+  constexpr cl_float fmin = (std::numeric_limits<cl_float>::min)();
+  constexpr cl_float subnormal_min = std::numeric_limits<cl_float>::denorm_min();
+  constexpr cl_float subnormal_max = fmin - subnormal_min;
+  constexpr cl_float finf = std::numeric_limits<cl_float>::infinity();
+  const cl_float fnan = std::numeric_limits<cl_float>::quiet_NaN();
+  {
+    const std::initializer_list<cl_float8> v = {
+        cl_float8{0.0f, -0.0f, 0.0f, -0.0f,
+                  0.0f, -0.0f, 0.0f, -0.0f},
+        cl_float8{1.0f, -1.0f, 1.0f, -1.0f,
+                  1.0f, -1.0f, 1.0f, -1.0f},
+        cl_float8{fmax, -fmax, fmax, -fmax,
+                  fmax, -fmax, fmax, -fmax},
+        cl_float8{fmin, -fmin, fmin, -fmin,
+                  fmin, -fmin, fmin, -fmin},
+        cl_float8{subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                  subnormal_max, subnormal_min, subnormal_max, subnormal_min},
+        cl_float8{finf, -finf, finf, -finf,
+                  finf, -finf, finf, -finf},
+        cl_float8{fnan, fnan, fnan, fnan,
+                  fnan, fnan, fnan, fnan}};
+    ztest::setDeviceBuffer(*device, v, buffer_in8.get());
+  }
+  {
+    const std::initializer_list<cl_float16> v = {
+        cl_float16{0.0f, -0.0f, 0.0f, -0.0f,
+                   0.0f, -0.0f, 0.0f, -0.0f,
+                   0.0f, -0.0f, 0.0f, -0.0f,
+                   0.0f, -0.0f, 0.0f, -0.0f},
+        cl_float16{1.0f, -1.0f, 1.0f, -1.0f,
+                   1.0f, -1.0f, 1.0f, -1.0f,
+                   1.0f, -1.0f, 1.0f, -1.0f,
+                   1.0f, -1.0f, 1.0f, -1.0f},
+        cl_float16{fmax, -fmax, fmax, -fmax,
+                   fmax, -fmax, fmax, -fmax,
+                   fmax, -fmax, fmax, -fmax,
+                   fmax, -fmax, fmax, -fmax},
+        cl_float16{fmin, -fmin, fmin, -fmin,
+                   fmin, -fmin, fmin, -fmin,
+                   fmin, -fmin, fmin, -fmin,
+                   fmin, -fmin, fmin, -fmin},
+        cl_float16{subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                   subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                   subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                   subnormal_max, subnormal_min, subnormal_max, subnormal_min},
+        cl_float16{finf, -finf, finf, -finf,
+                   finf, -finf, finf, -finf,
+                   finf, -finf, finf, -finf,
+                   finf, -finf, finf, -finf},
+        cl_float16{fnan, fnan, fnan, fnan,
+                   fnan, fnan, fnan, fnan,
+                   fnan, fnan, fnan, fnan,
+                   fnan, fnan, fnan, fnan}};
+    ztest::setDeviceBuffer(*device, v, buffer_in16.get());
+  }
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_relation, isGreaterEqualLongVecTestKernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(4, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("isGreaterEqualLongVecTestKernel");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(4, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_in8, *buffer_in16, *buffer_out8, *buffer_out16, launch_options);
+  device->waitForCompletion(result.fence());
+
+  using zivc::cl_int;
+
+  // output8
+  {
+    [[maybe_unused]] constexpr cl_int t = zivc::cl::kVTrue;
+    constexpr cl_int f = zivc::cl::kVFalse;
+    const zivc::MappedMemory mem = buffer_out8->mapMemory();
+    ZIVC_TEST_V8(t, t, t, t, mem[0], "isgreaterequal");
+    ZIVC_TEST_V8(t, t, t, t, mem[1], "isgreaterequal");
+    ZIVC_TEST_V8(f, t, f, t, mem[2], "isgreaterequal");
+    ZIVC_TEST_V8(t, t, t, t, mem[3], "isgreaterequal");
+    ZIVC_TEST_V8(t, t, t, t, mem[4], "isgreaterequal");
+    ZIVC_TEST_V8(f, t, f, t, mem[5], "isgreaterequal");
+    //! \todo subnormal won't work on GPU
+    //ZIVC_TEST_V8(t, t, t, t, mem[6], "isgreaterequal");
+    //ZIVC_TEST_V8(t, t, t, t, mem[7], "isgreaterequal");
+    ZIVC_TEST_V8(t, t, t, t, mem[8], "isgreaterequal");
+    ZIVC_TEST_V8(t, f, t, f, mem[9], "isgreaterequal");
+    ZIVC_TEST_V8(f, f, f, f, mem[10], "isgreaterequal");
+  }
+  // output16
+  {
+    [[maybe_unused]] constexpr cl_int t = zivc::cl::kVTrue;
+    constexpr cl_int f = zivc::cl::kVFalse;
+    const zivc::MappedMemory mem = buffer_out16->mapMemory();
+    ZIVC_TEST_V16(t, t, t, t, mem[0], "isgreaterequal");
+    ZIVC_TEST_V16(t, t, t, t, mem[1], "isgreaterequal");
+    ZIVC_TEST_V16(f, t, f, t, mem[2], "isgreaterequal");
+    ZIVC_TEST_V16(t, t, t, t, mem[3], "isgreaterequal");
+    ZIVC_TEST_V16(t, t, t, t, mem[4], "isgreaterequal");
+    ZIVC_TEST_V16(f, t, f, t, mem[5], "isgreaterequal");
+    //! \todo subnormal won't work on GPU
+    //ZIVC_TEST_V16(t, t, t, t, mem[6], "isgreaterequal");
+    //ZIVC_TEST_V16(t, t, t, t, mem[7], "isgreaterequal");
+    ZIVC_TEST_V16(t, t, t, t, mem[8], "isgreaterequal");
+    ZIVC_TEST_V16(t, f, t, f, mem[9], "isgreaterequal");
+    ZIVC_TEST_V16(f, f, f, f, mem[10], "isgreaterequal");
+  }
+}
+
 TEST(ClCppTest, RelationIsLessTest)
 {
   const zivc::SharedContext context = ztest::createContext();
@@ -1036,6 +1627,8 @@ TEST(ClCppTest, RelationIsLessTest)
   using zivc::cl_float2;
   using zivc::cl_float3;
   using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
 
   const zivc::SharedBuffer buffer_in1 = device->createBuffer<cl_float>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
   const zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_float2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
@@ -1273,6 +1866,144 @@ TEST(ClCppTest, RelationIsLessTest)
   }
 }
 
+TEST(ClCppTest, RelationIsLessLongVecTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_float;
+  using zivc::cl_float2;
+  using zivc::cl_float3;
+  using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
+
+  const zivc::SharedBuffer buffer_in8 = device->createBuffer<cl_float8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_in16 = device->createBuffer<cl_float16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_out8 = device->createBuffer<zivc::cl_CompResult<cl_float8>>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out8->setSize(11);
+  const zivc::SharedBuffer buffer_out16 = device->createBuffer<zivc::cl_CompResult<cl_float16>>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out16->setSize(11);
+
+  constexpr cl_float fmax = (std::numeric_limits<cl_float>::max)();
+  constexpr cl_float fmin = (std::numeric_limits<cl_float>::min)();
+  constexpr cl_float subnormal_min = std::numeric_limits<cl_float>::denorm_min();
+  constexpr cl_float subnormal_max = fmin - subnormal_min;
+  constexpr cl_float finf = std::numeric_limits<cl_float>::infinity();
+  const cl_float fnan = std::numeric_limits<cl_float>::quiet_NaN();
+  {
+    const std::initializer_list<cl_float8> v = {
+        cl_float8{0.0f, -0.0f, 0.0f, -0.0f,
+                  0.0f, -0.0f, 0.0f, -0.0f},
+        cl_float8{1.0f, -1.0f, 1.0f, -1.0f,
+                  1.0f, -1.0f, 1.0f, -1.0f},
+        cl_float8{fmax, -fmax, fmax, -fmax,
+                  fmax, -fmax, fmax, -fmax},
+        cl_float8{fmin, -fmin, fmin, -fmin,
+                  fmin, -fmin, fmin, -fmin},
+        cl_float8{subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                  subnormal_max, subnormal_min, subnormal_max, subnormal_min},
+        cl_float8{finf, -finf, finf, -finf,
+                  finf, -finf, finf, -finf},
+        cl_float8{fnan, fnan, fnan, fnan,
+                  fnan, fnan, fnan, fnan}};
+    ztest::setDeviceBuffer(*device, v, buffer_in8.get());
+  }
+  {
+    const std::initializer_list<cl_float16> v = {
+        cl_float16{0.0f, -0.0f, 0.0f, -0.0f,
+                   0.0f, -0.0f, 0.0f, -0.0f,
+                   0.0f, -0.0f, 0.0f, -0.0f,
+                   0.0f, -0.0f, 0.0f, -0.0f},
+        cl_float16{1.0f, -1.0f, 1.0f, -1.0f,
+                   1.0f, -1.0f, 1.0f, -1.0f,
+                   1.0f, -1.0f, 1.0f, -1.0f,
+                   1.0f, -1.0f, 1.0f, -1.0f},
+        cl_float16{fmax, -fmax, fmax, -fmax,
+                   fmax, -fmax, fmax, -fmax,
+                   fmax, -fmax, fmax, -fmax,
+                   fmax, -fmax, fmax, -fmax},
+        cl_float16{fmin, -fmin, fmin, -fmin,
+                   fmin, -fmin, fmin, -fmin,
+                   fmin, -fmin, fmin, -fmin,
+                   fmin, -fmin, fmin, -fmin},
+        cl_float16{subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                   subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                   subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                   subnormal_max, subnormal_min, subnormal_max, subnormal_min},
+        cl_float16{finf, -finf, finf, -finf,
+                   finf, -finf, finf, -finf,
+                   finf, -finf, finf, -finf,
+                   finf, -finf, finf, -finf},
+        cl_float16{fnan, fnan, fnan, fnan,
+                   fnan, fnan, fnan, fnan,
+                   fnan, fnan, fnan, fnan,
+                   fnan, fnan, fnan, fnan}};
+    ztest::setDeviceBuffer(*device, v, buffer_in16.get());
+  }
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_relation, isLessLongVecTestKernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(4, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("isLessLongVecTestKernel");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(4, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_in8, *buffer_in16, *buffer_out8, *buffer_out16, launch_options);
+  device->waitForCompletion(result.fence());
+
+  using zivc::cl_int;
+
+  // output8
+  {
+    [[maybe_unused]] constexpr cl_int t = zivc::cl::kVTrue;
+    constexpr cl_int f = zivc::cl::kVFalse;
+    const zivc::MappedMemory mem = buffer_out8->mapMemory();
+    ZIVC_TEST_V8(f, f, f, f, mem[0], "isless");
+    ZIVC_TEST_V8(f, f, f, f, mem[1], "isless");
+    ZIVC_TEST_V8(t, f, t, f, mem[2], "isless");
+    ZIVC_TEST_V8(f, f, f, f, mem[3], "isless");
+    ZIVC_TEST_V8(f, f, f, f, mem[4], "isless");
+    ZIVC_TEST_V8(t, f, t, f, mem[5], "isless");
+    //! \todo subnormal won't work on GPU
+    //ZIVC_TEST_V8(f, f, f, f, mem[6], "isless");
+    //ZIVC_TEST_V8(f, f, f, f, mem[7], "isless");
+    ZIVC_TEST_V8(f, f, f, f, mem[8], "isless");
+    ZIVC_TEST_V8(f, t, f, t, mem[9], "isless");
+    ZIVC_TEST_V8(f, f, f, f, mem[10], "isless");
+  }
+  // output16
+  {
+    [[maybe_unused]] constexpr cl_int t = zivc::cl::kVTrue;
+    constexpr cl_int f = zivc::cl::kVFalse;
+    const zivc::MappedMemory mem = buffer_out16->mapMemory();
+    ZIVC_TEST_V16(f, f, f, f, mem[0], "isless");
+    ZIVC_TEST_V16(f, f, f, f, mem[1], "isless");
+    ZIVC_TEST_V16(t, f, t, f, mem[2], "isless");
+    ZIVC_TEST_V16(f, f, f, f, mem[3], "isless");
+    ZIVC_TEST_V16(f, f, f, f, mem[4], "isless");
+    ZIVC_TEST_V16(t, f, t, f, mem[5], "isless");
+    //! \todo subnormal won't work on GPU
+    //ZIVC_TEST_V16(f, f, f, f, mem[6], "isless");
+    //ZIVC_TEST_V16(f, f, f, f, mem[7], "isless");
+    ZIVC_TEST_V16(f, f, f, f, mem[8], "isless");
+    ZIVC_TEST_V16(f, t, f, t, mem[9], "isless");
+    ZIVC_TEST_V16(f, f, f, f, mem[10], "isless");
+  }
+}
+
 TEST(ClCppTest, RelationIsLessEqualTest)
 {
   const zivc::SharedContext context = ztest::createContext();
@@ -1284,6 +2015,8 @@ TEST(ClCppTest, RelationIsLessEqualTest)
   using zivc::cl_float2;
   using zivc::cl_float3;
   using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
 
   const zivc::SharedBuffer buffer_in1 = device->createBuffer<cl_float>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
   const zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_float2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
@@ -1521,6 +2254,532 @@ TEST(ClCppTest, RelationIsLessEqualTest)
   }
 }
 
+TEST(ClCppTest, RelationIsLessEqualLongVecTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_float;
+  using zivc::cl_float2;
+  using zivc::cl_float3;
+  using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
+
+  const zivc::SharedBuffer buffer_in8 = device->createBuffer<cl_float8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_in16 = device->createBuffer<cl_float16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_out8 = device->createBuffer<zivc::cl_CompResult<cl_float8>>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out8->setSize(11);
+  const zivc::SharedBuffer buffer_out16 = device->createBuffer<zivc::cl_CompResult<cl_float16>>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out16->setSize(11);
+
+  constexpr cl_float fmax = (std::numeric_limits<cl_float>::max)();
+  constexpr cl_float fmin = (std::numeric_limits<cl_float>::min)();
+  constexpr cl_float subnormal_min = std::numeric_limits<cl_float>::denorm_min();
+  constexpr cl_float subnormal_max = fmin - subnormal_min;
+  constexpr cl_float finf = std::numeric_limits<cl_float>::infinity();
+  const cl_float fnan = std::numeric_limits<cl_float>::quiet_NaN();
+  {
+    const std::initializer_list<cl_float8> v = {
+        cl_float8{0.0f, -0.0f, 0.0f, -0.0f,
+                  0.0f, -0.0f, 0.0f, -0.0f},
+        cl_float8{1.0f, -1.0f, 1.0f, -1.0f,
+                  1.0f, -1.0f, 1.0f, -1.0f},
+        cl_float8{fmax, -fmax, fmax, -fmax,
+                  fmax, -fmax, fmax, -fmax},
+        cl_float8{fmin, -fmin, fmin, -fmin,
+                  fmin, -fmin, fmin, -fmin},
+        cl_float8{subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                  subnormal_max, subnormal_min, subnormal_max, subnormal_min},
+        cl_float8{finf, -finf, finf, -finf,
+                  finf, -finf, finf, -finf},
+        cl_float8{fnan, fnan, fnan, fnan,
+                  fnan, fnan, fnan, fnan}};
+    ztest::setDeviceBuffer(*device, v, buffer_in8.get());
+  }
+  {
+    const std::initializer_list<cl_float16> v = {
+        cl_float16{0.0f, -0.0f, 0.0f, -0.0f,
+                   0.0f, -0.0f, 0.0f, -0.0f,
+                   0.0f, -0.0f, 0.0f, -0.0f,
+                   0.0f, -0.0f, 0.0f, -0.0f},
+        cl_float16{1.0f, -1.0f, 1.0f, -1.0f,
+                   1.0f, -1.0f, 1.0f, -1.0f,
+                   1.0f, -1.0f, 1.0f, -1.0f,
+                   1.0f, -1.0f, 1.0f, -1.0f},
+        cl_float16{fmax, -fmax, fmax, -fmax,
+                   fmax, -fmax, fmax, -fmax,
+                   fmax, -fmax, fmax, -fmax,
+                   fmax, -fmax, fmax, -fmax},
+        cl_float16{fmin, -fmin, fmin, -fmin,
+                   fmin, -fmin, fmin, -fmin,
+                   fmin, -fmin, fmin, -fmin,
+                   fmin, -fmin, fmin, -fmin},
+        cl_float16{subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                   subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                   subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                   subnormal_max, subnormal_min, subnormal_max, subnormal_min},
+        cl_float16{finf, -finf, finf, -finf,
+                   finf, -finf, finf, -finf,
+                   finf, -finf, finf, -finf,
+                   finf, -finf, finf, -finf},
+        cl_float16{fnan, fnan, fnan, fnan,
+                   fnan, fnan, fnan, fnan,
+                   fnan, fnan, fnan, fnan,
+                   fnan, fnan, fnan, fnan}};
+    ztest::setDeviceBuffer(*device, v, buffer_in16.get());
+  }
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_relation, isLessEqualLongVecTestKernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(4, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("isLessEqualLongVecTestKernel");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(4, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_in8, *buffer_in16, *buffer_out8, *buffer_out16, launch_options);
+  device->waitForCompletion(result.fence());
+
+  using zivc::cl_int;
+
+  // output8
+  {
+    [[maybe_unused]] constexpr cl_int t = zivc::cl::kVTrue;
+    constexpr cl_int f = zivc::cl::kVFalse;
+    const zivc::MappedMemory mem = buffer_out8->mapMemory();
+    ZIVC_TEST_V8(t, t, t, t, mem[0], "islessequal");
+    ZIVC_TEST_V8(t, t, t, t, mem[1], "islessequal");
+    ZIVC_TEST_V8(t, f, t, f, mem[2], "islessequal");
+    ZIVC_TEST_V8(t, t, t, t, mem[3], "islessequal");
+    ZIVC_TEST_V8(t, t, t, t, mem[4], "islessequal");
+    ZIVC_TEST_V8(t, f, t, f, mem[5], "islessequal");
+    //! \todo subnormal won't work on GPU
+    //ZIVC_TEST_V8(t, t, t, t, mem[6], "islessequal");
+    //ZIVC_TEST_V8(f, f, f, f, mem[7], "islessequal");
+    ZIVC_TEST_V8(t, t, t, t, mem[8], "islessequal");
+    ZIVC_TEST_V8(f, t, f, t, mem[9], "islessequal");
+    ZIVC_TEST_V8(f, f, f, f, mem[10], "islessequal");
+  }
+  // output16
+  {
+    [[maybe_unused]] constexpr cl_int t = zivc::cl::kVTrue;
+    constexpr cl_int f = zivc::cl::kVFalse;
+    const zivc::MappedMemory mem = buffer_out16->mapMemory();
+    ZIVC_TEST_V16(t, t, t, t, mem[0], "islessequal");
+    ZIVC_TEST_V16(t, t, t, t, mem[1], "islessequal");
+    ZIVC_TEST_V16(t, f, t, f, mem[2], "islessequal");
+    ZIVC_TEST_V16(t, t, t, t, mem[3], "islessequal");
+    ZIVC_TEST_V16(t, t, t, t, mem[4], "islessequal");
+    ZIVC_TEST_V16(t, f, t, f, mem[5], "islessequal");
+    //! \todo subnormal won't work on GPU
+    //ZIVC_TEST_V16(t, t, t, t, mem[6], "islessequal");
+    //ZIVC_TEST_V16(f, f, f, f, mem[7], "islessequal");
+    ZIVC_TEST_V16(t, t, t, t, mem[8], "islessequal");
+    ZIVC_TEST_V16(f, t, f, t, mem[9], "islessequal");
+    ZIVC_TEST_V16(f, f, f, f, mem[10], "islessequal");
+  }
+}
+
+TEST(ClCppTest, RelationIsLessGreaterTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_float;
+  using zivc::cl_float2;
+  using zivc::cl_float3;
+  using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
+
+  const zivc::SharedBuffer buffer_in1 = device->createBuffer<cl_float>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_float2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_in3 = device->createBuffer<cl_float3>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_in4 = device->createBuffer<cl_float4>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_out1 = device->createBuffer<zivc::cl_CompResult<cl_float>>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out1->setSize(18);
+  const zivc::SharedBuffer buffer_out2 = device->createBuffer<zivc::cl_CompResult<cl_float2>>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out2->setSize(11);
+  const zivc::SharedBuffer buffer_out3 = device->createBuffer<zivc::cl_CompResult<cl_float3>>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out3->setSize(11);
+  const zivc::SharedBuffer buffer_out4 = device->createBuffer<zivc::cl_CompResult<cl_float4>>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out4->setSize(11);
+
+  constexpr cl_float fmax = (std::numeric_limits<cl_float>::max)();
+  constexpr cl_float fmin = (std::numeric_limits<cl_float>::min)();
+  constexpr cl_float subnormal_min = std::numeric_limits<cl_float>::denorm_min();
+  constexpr cl_float subnormal_max = fmin - subnormal_min;
+  constexpr cl_float finf = std::numeric_limits<cl_float>::infinity();
+  const cl_float fnan = std::numeric_limits<cl_float>::quiet_NaN();
+  {
+    const std::initializer_list<cl_float> v = {0.0f,
+                                               1.0f,
+                                               -1.0f,
+                                               fmax,
+                                               -fmax,
+                                               fmin,
+                                               subnormal_max,
+                                               subnormal_min,
+                                               finf,
+                                               -finf,
+                                               fnan};
+    ztest::setDeviceBuffer(*device, v, buffer_in1.get());
+  }
+  {
+    const std::initializer_list<cl_float2> v = {
+        cl_float2{0.0f, -0.0f},
+        cl_float2{1.0f, -1.0f},
+        cl_float2{fmax, -fmax},
+        cl_float2{fmin, -fmin},
+        cl_float2{subnormal_max, subnormal_min},
+        cl_float2{finf, -finf},
+        cl_float2{fnan, fnan}};
+    ztest::setDeviceBuffer(*device, v, buffer_in2.get());
+  }
+  {
+    const std::initializer_list<cl_float3> v = {
+        cl_float3{0.0f, -0.0f, 0.0f},
+        cl_float3{1.0f, -1.0f, 1.0f},
+        cl_float3{fmax, -fmax, fmax},
+        cl_float3{fmin, -fmin, fmin},
+        cl_float3{subnormal_max, subnormal_min, subnormal_max},
+        cl_float3{finf, -finf, finf},
+        cl_float3{fnan, fnan, fnan}};
+    ztest::setDeviceBuffer(*device, v, buffer_in3.get());
+  }
+  {
+    const std::initializer_list<cl_float4> v = {
+        cl_float4{0.0f, -0.0f, 0.0f, -0.0f},
+        cl_float4{1.0f, -1.0f, 1.0f, -1.0f},
+        cl_float4{fmax, -fmax, fmax, -fmax},
+        cl_float4{fmin, -fmin, fmin, -fmin},
+        cl_float4{subnormal_max, subnormal_min, subnormal_max, subnormal_min},
+        cl_float4{finf, -finf, finf, -finf},
+        cl_float4{fnan, fnan, fnan, fnan}};
+    ztest::setDeviceBuffer(*device, v, buffer_in4.get());
+  }
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_relation, isLessGreaterTestKernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(8, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("isLessGreaterTestKernel");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(8, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_in1, *buffer_in2, *buffer_in3, *buffer_in4, *buffer_out1, *buffer_out2, *buffer_out3, *buffer_out4, launch_options);
+  device->waitForCompletion(result.fence());
+
+  using zivc::cl_int;
+
+  // output1
+  {
+    constexpr cl_int t = zivc::cl::kSTrue;
+    constexpr cl_int f = zivc::cl::kSFalse;
+    const zivc::MappedMemory mem = buffer_out1->mapMemory();
+    ASSERT_EQ(f, mem[0]) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[1]) << "islessgreater failed.";
+    ASSERT_EQ(t, mem[2]) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[3]) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[4]) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[5]) << "islessgreater failed.";
+    ASSERT_EQ(t, mem[6]) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[7]) << "islessgreater failed.";
+    //! \todo subnormal won't work on GPU
+    //ASSERT_EQ(f, mem[8]) << "islessgreater failed.";
+    //ASSERT_EQ(f, mem[9]) << "islessgreater failed.";
+    //ASSERT_EQ(t, mem[10]) << "islessgreater failed.";
+    //ASSERT_EQ(t, mem[11]) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[12]) << "islessgreater failed.";
+    ASSERT_EQ(t, mem[13]) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[14]) << "islessgreater failed.";
+    ASSERT_EQ(t, mem[15]) << "islessgreater failed.";
+    ASSERT_EQ(t, mem[16]) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[17]) << "islessgreater failed.";
+  }
+  // output2
+  {
+    [[maybe_unused]] constexpr cl_int t = zivc::cl::kVTrue;
+    constexpr cl_int f = zivc::cl::kVFalse;
+    const zivc::MappedMemory mem = buffer_out2->mapMemory();
+    ASSERT_EQ(f, mem[0].x) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[0].y) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[1].x) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[1].y) << "islessgreater failed.";
+    ASSERT_EQ(t, mem[2].x) << "islessgreater failed.";
+    ASSERT_EQ(t, mem[2].y) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[3].x) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[3].y) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[4].x) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[4].y) << "islessgreater failed.";
+    ASSERT_EQ(t, mem[5].x) << "islessgreater failed.";
+    ASSERT_EQ(t, mem[5].y) << "islessgreater failed.";
+    //! \todo subnormal won't work on GPU
+    //ASSERT_EQ(f, mem[6].x) << "islessgreater failed.";
+    //ASSERT_EQ(f, mem[6].y) << "islessgreater failed.";
+    //ASSERT_EQ(t, mem[7].x) << "islessgreater failed.";
+    //ASSERT_EQ(t, mem[7].y) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[8].x) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[8].y) << "islessgreater failed.";
+    ASSERT_EQ(t, mem[9].x) << "islessgreater failed.";
+    ASSERT_EQ(t, mem[9].y) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[10].x) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[10].y) << "islessgreater failed.";
+  }
+  // output3
+  {
+    [[maybe_unused]] constexpr cl_int t = zivc::cl::kVTrue;
+    constexpr cl_int f = zivc::cl::kVFalse;
+    const zivc::MappedMemory mem = buffer_out3->mapMemory();
+    ASSERT_EQ(f, mem[0].x) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[0].y) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[0].z) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[1].x) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[1].y) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[1].z) << "islessgreater failed.";
+    ASSERT_EQ(t, mem[2].x) << "islessgreater failed.";
+    ASSERT_EQ(t, mem[2].y) << "islessgreater failed.";
+    ASSERT_EQ(t, mem[2].z) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[3].x) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[3].y) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[3].z) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[4].x) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[4].y) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[4].z) << "islessgreater failed.";
+    ASSERT_EQ(t, mem[5].x) << "islessgreater failed.";
+    ASSERT_EQ(t, mem[5].y) << "islessgreater failed.";
+    ASSERT_EQ(t, mem[5].z) << "islessgreater failed.";
+    //! \todo subnormal won't work on GPU
+    //ASSERT_EQ(f, mem[6].x) << "islessgreater failed.";
+    //ASSERT_EQ(f, mem[6].y) << "islessgreater failed.";
+    //ASSERT_EQ(f, mem[6].z) << "islessgreater failed.";
+    //ASSERT_EQ(t, mem[7].x) << "islessgreater failed.";
+    //ASSERT_EQ(t, mem[7].y) << "islessgreater failed.";
+    //ASSERT_EQ(t, mem[7].z) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[8].x) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[8].y) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[8].z) << "islessgreater failed.";
+    ASSERT_EQ(t, mem[9].x) << "islessgreater failed.";
+    ASSERT_EQ(t, mem[9].y) << "islessgreater failed.";
+    ASSERT_EQ(t, mem[9].z) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[10].x) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[10].y) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[10].z) << "islessgreater failed.";
+  }
+  // output4
+  {
+    [[maybe_unused]] constexpr cl_int t = zivc::cl::kVTrue;
+    constexpr cl_int f = zivc::cl::kVFalse;
+    const zivc::MappedMemory mem = buffer_out4->mapMemory();
+    ASSERT_EQ(f, mem[0].x) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[0].y) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[0].z) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[0].w) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[1].x) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[1].y) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[1].z) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[1].w) << "islessgreater failed.";
+    ASSERT_EQ(t, mem[2].x) << "islessgreater failed.";
+    ASSERT_EQ(t, mem[2].y) << "islessgreater failed.";
+    ASSERT_EQ(t, mem[2].z) << "islessgreater failed.";
+    ASSERT_EQ(t, mem[2].w) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[3].x) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[3].y) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[3].z) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[3].w) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[4].x) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[4].y) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[4].z) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[4].w) << "islessgreater failed.";
+    ASSERT_EQ(t, mem[5].x) << "islessgreater failed.";
+    ASSERT_EQ(t, mem[5].y) << "islessgreater failed.";
+    ASSERT_EQ(t, mem[5].z) << "islessgreater failed.";
+    ASSERT_EQ(t, mem[5].w) << "islessgreater failed.";
+    //! \todo subnormal won't work on GPU
+    //ASSERT_EQ(f, mem[6].x) << "islessgreater failed.";
+    //ASSERT_EQ(f, mem[6].y) << "islessgreater failed.";
+    //ASSERT_EQ(f, mem[6].z) << "islessgreater failed.";
+    //ASSERT_EQ(f, mem[6].w) << "islessgreater failed.";
+    //ASSERT_EQ(t, mem[7].x) << "islessgreater failed.";
+    //ASSERT_EQ(t, mem[7].y) << "islessgreater failed.";
+    //ASSERT_EQ(t, mem[7].z) << "islessgreater failed.";
+    //ASSERT_EQ(t, mem[7].w) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[8].x) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[8].y) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[8].z) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[8].w) << "islessgreater failed.";
+    ASSERT_EQ(t, mem[9].x) << "islessgreater failed.";
+    ASSERT_EQ(t, mem[9].y) << "islessgreater failed.";
+    ASSERT_EQ(t, mem[9].z) << "islessgreater failed.";
+    ASSERT_EQ(t, mem[9].w) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[10].x) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[10].y) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[10].z) << "islessgreater failed.";
+    ASSERT_EQ(f, mem[10].w) << "islessgreater failed.";
+  }
+}
+
+TEST(ClCppTest, RelationIsLessGreaterLongVecTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_float;
+  using zivc::cl_float2;
+  using zivc::cl_float3;
+  using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
+
+  const zivc::SharedBuffer buffer_in8 = device->createBuffer<cl_float8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_in16 = device->createBuffer<cl_float16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_out8 = device->createBuffer<zivc::cl_CompResult<cl_float8>>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out8->setSize(11);
+  const zivc::SharedBuffer buffer_out16 = device->createBuffer<zivc::cl_CompResult<cl_float16>>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out16->setSize(11);
+
+  constexpr cl_float fmax = (std::numeric_limits<cl_float>::max)();
+  constexpr cl_float fmin = (std::numeric_limits<cl_float>::min)();
+  constexpr cl_float subnormal_min = std::numeric_limits<cl_float>::denorm_min();
+  constexpr cl_float subnormal_max = fmin - subnormal_min;
+  constexpr cl_float finf = std::numeric_limits<cl_float>::infinity();
+  const cl_float fnan = std::numeric_limits<cl_float>::quiet_NaN();
+  {
+    const std::initializer_list<cl_float8> v = {
+        cl_float8{0.0f, -0.0f, 0.0f, -0.0f,
+                  0.0f, -0.0f, 0.0f, -0.0f},
+        cl_float8{1.0f, -1.0f, 1.0f, -1.0f,
+                  1.0f, -1.0f, 1.0f, -1.0f},
+        cl_float8{fmax, -fmax, fmax, -fmax,
+                  fmax, -fmax, fmax, -fmax},
+        cl_float8{fmin, -fmin, fmin, -fmin,
+                  fmin, -fmin, fmin, -fmin},
+        cl_float8{subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                  subnormal_max, subnormal_min, subnormal_max, subnormal_min},
+        cl_float8{finf, -finf, finf, -finf,
+                  finf, -finf, finf, -finf},
+        cl_float8{fnan, fnan, fnan, fnan,
+                  fnan, fnan, fnan, fnan}};
+    ztest::setDeviceBuffer(*device, v, buffer_in8.get());
+  }
+  {
+    const std::initializer_list<cl_float16> v = {
+        cl_float16{0.0f, -0.0f, 0.0f, -0.0f,
+                   0.0f, -0.0f, 0.0f, -0.0f,
+                   0.0f, -0.0f, 0.0f, -0.0f,
+                   0.0f, -0.0f, 0.0f, -0.0f},
+        cl_float16{1.0f, -1.0f, 1.0f, -1.0f,
+                   1.0f, -1.0f, 1.0f, -1.0f,
+                   1.0f, -1.0f, 1.0f, -1.0f,
+                   1.0f, -1.0f, 1.0f, -1.0f},
+        cl_float16{fmax, -fmax, fmax, -fmax,
+                   fmax, -fmax, fmax, -fmax,
+                   fmax, -fmax, fmax, -fmax,
+                   fmax, -fmax, fmax, -fmax},
+        cl_float16{fmin, -fmin, fmin, -fmin,
+                   fmin, -fmin, fmin, -fmin,
+                   fmin, -fmin, fmin, -fmin,
+                   fmin, -fmin, fmin, -fmin},
+        cl_float16{subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                   subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                   subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                   subnormal_max, subnormal_min, subnormal_max, subnormal_min},
+        cl_float16{finf, -finf, finf, -finf,
+                   finf, -finf, finf, -finf,
+                   finf, -finf, finf, -finf,
+                   finf, -finf, finf, -finf},
+        cl_float16{fnan, fnan, fnan, fnan,
+                   fnan, fnan, fnan, fnan,
+                   fnan, fnan, fnan, fnan,
+                   fnan, fnan, fnan, fnan}};
+    ztest::setDeviceBuffer(*device, v, buffer_in16.get());
+  }
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_relation, isLessGreaterLongVecTestKernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(4, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("isLessGreaterLongVecTestKernel");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(4, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_in8, *buffer_in16, *buffer_out8, *buffer_out16, launch_options);
+  device->waitForCompletion(result.fence());
+
+  using zivc::cl_int;
+
+  // output8
+  {
+    [[maybe_unused]] constexpr cl_int t = zivc::cl::kVTrue;
+    constexpr cl_int f = zivc::cl::kVFalse;
+    const zivc::MappedMemory mem = buffer_out8->mapMemory();
+    ZIVC_TEST_V8(f, f, f, f, mem[0], "islessgreater");
+    ZIVC_TEST_V8(f, f, f, f, mem[1], "islessgreater");
+    ZIVC_TEST_V8(t, t, t, t, mem[2], "islessgreater");
+    ZIVC_TEST_V8(f, f, f, f, mem[3], "islessgreater");
+    ZIVC_TEST_V8(f, f, f, f, mem[4], "islessgreater");
+    ZIVC_TEST_V8(t, t, t, t, mem[5], "islessgreater");
+    //! \todo subnormal won't work on GPU
+    //ZIVC_TEST_V8(f, f, f, f, mem[6], "islessgreater");
+    //ZIVC_TEST_V8(t, t, t, t, mem[7], "islessgreater");
+    ZIVC_TEST_V8(f, f, f, f, mem[8], "islessgreater");
+    ZIVC_TEST_V8(t, t, t, t, mem[9], "islessgreater");
+    ZIVC_TEST_V8(f, f, f, f, mem[10], "islessgreater");
+  }
+  // output16
+  {
+    [[maybe_unused]] constexpr cl_int t = zivc::cl::kVTrue;
+    constexpr cl_int f = zivc::cl::kVFalse;
+    const zivc::MappedMemory mem = buffer_out16->mapMemory();
+    ZIVC_TEST_V16(f, f, f, f, mem[0], "islessgreater");
+    ZIVC_TEST_V16(f, f, f, f, mem[1], "islessgreater");
+    ZIVC_TEST_V16(t, t, t, t, mem[2], "islessgreater");
+    ZIVC_TEST_V16(f, f, f, f, mem[3], "islessgreater");
+    ZIVC_TEST_V16(f, f, f, f, mem[4], "islessgreater");
+    ZIVC_TEST_V16(t, t, t, t, mem[5], "islessgreater");
+    //! \todo subnormal won't work on GPU
+    //ZIVC_TEST_V16(f, f, f, f, mem[6], "islessgreater");
+    //ZIVC_TEST_V16(t, t, t, t, mem[7], "islessgreater");
+    ZIVC_TEST_V16(f, f, f, f, mem[8], "islessgreater");
+    ZIVC_TEST_V16(t, t, t, t, mem[9], "islessgreater");
+    ZIVC_TEST_V16(f, f, f, f, mem[10], "islessgreater");
+  }
+}
+
 TEST(ClCppTest, RelationIsFiniteTest)
 {
   const zivc::SharedContext context = ztest::createContext();
@@ -1532,6 +2791,8 @@ TEST(ClCppTest, RelationIsFiniteTest)
   using zivc::cl_float2;
   using zivc::cl_float3;
   using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
 
   const zivc::SharedBuffer buffer_in1 = device->createBuffer<cl_float>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
   const zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_float2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
@@ -1726,6 +2987,136 @@ TEST(ClCppTest, RelationIsFiniteTest)
   }
 }
 
+TEST(ClCppTest, RelationIsFiniteLongVecTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_float;
+  using zivc::cl_float2;
+  using zivc::cl_float3;
+  using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
+
+  const zivc::SharedBuffer buffer_in8 = device->createBuffer<cl_float8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_in16 = device->createBuffer<cl_float16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_out8 = device->createBuffer<zivc::cl_CompResult<cl_float8>>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out8->setSize(7);
+  const zivc::SharedBuffer buffer_out16 = device->createBuffer<zivc::cl_CompResult<cl_float16>>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out16->setSize(7);
+
+  constexpr cl_float fmax = (std::numeric_limits<cl_float>::max)();
+  constexpr cl_float fmin = (std::numeric_limits<cl_float>::min)();
+  constexpr cl_float subnormal_min = std::numeric_limits<cl_float>::denorm_min();
+  constexpr cl_float subnormal_max = fmin - subnormal_min;
+  constexpr cl_float finf = std::numeric_limits<cl_float>::infinity();
+  const cl_float fnan = std::numeric_limits<cl_float>::quiet_NaN();
+  {
+    const std::initializer_list<cl_float8> v = {
+        cl_float8{0.0f, -0.0f, 0.0f, -0.0f,
+                  0.0f, -0.0f, 0.0f, -0.0f},
+        cl_float8{1.0f, -1.0f, 1.0f, -1.0f,
+                  1.0f, -1.0f, 1.0f, -1.0f},
+        cl_float8{fmax, -fmax, fmax, -fmax,
+                  fmax, -fmax, fmax, -fmax},
+        cl_float8{fmin, -fmin, fmin, -fmin,
+                  fmin, -fmin, fmin, -fmin},
+        cl_float8{subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                  subnormal_max, subnormal_min, subnormal_max, subnormal_min},
+        cl_float8{finf, -finf, finf, -finf,
+                  finf, -finf, finf, -finf},
+        cl_float8{fnan, fnan, fnan, fnan,
+                  fnan, fnan, fnan, fnan}};
+    ztest::setDeviceBuffer(*device, v, buffer_in8.get());
+  }
+  {
+    const std::initializer_list<cl_float16> v = {
+        cl_float16{0.0f, -0.0f, 0.0f, -0.0f,
+                   0.0f, -0.0f, 0.0f, -0.0f,
+                   0.0f, -0.0f, 0.0f, -0.0f,
+                   0.0f, -0.0f, 0.0f, -0.0f},
+        cl_float16{1.0f, -1.0f, 1.0f, -1.0f,
+                   1.0f, -1.0f, 1.0f, -1.0f,
+                   1.0f, -1.0f, 1.0f, -1.0f,
+                   1.0f, -1.0f, 1.0f, -1.0f},
+        cl_float16{fmax, -fmax, fmax, -fmax,
+                   fmax, -fmax, fmax, -fmax,
+                   fmax, -fmax, fmax, -fmax,
+                   fmax, -fmax, fmax, -fmax},
+        cl_float16{fmin, -fmin, fmin, -fmin,
+                   fmin, -fmin, fmin, -fmin,
+                   fmin, -fmin, fmin, -fmin,
+                   fmin, -fmin, fmin, -fmin},
+        cl_float16{subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                   subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                   subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                   subnormal_max, subnormal_min, subnormal_max, subnormal_min},
+        cl_float16{finf, -finf, finf, -finf,
+                   finf, -finf, finf, -finf,
+                   finf, -finf, finf, -finf,
+                   finf, -finf, finf, -finf},
+        cl_float16{fnan, fnan, fnan, fnan,
+                   fnan, fnan, fnan, fnan,
+                   fnan, fnan, fnan, fnan,
+                   fnan, fnan, fnan, fnan}};
+    ztest::setDeviceBuffer(*device, v, buffer_in16.get());
+  }
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_relation, isFiniteLongVecTestKernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(4, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("isFiniteLongVecTestKernel");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(4, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_in8, *buffer_in16, *buffer_out8, *buffer_out16, launch_options);
+  device->waitForCompletion(result.fence());
+
+  using zivc::cl_int;
+
+  // output8
+  {
+    [[maybe_unused]] constexpr cl_int t = zivc::cl::kVTrue;
+    constexpr cl_int f = zivc::cl::kVFalse;
+    const zivc::MappedMemory mem = buffer_out8->mapMemory();
+    ZIVC_TEST_V8(t, t, t, t, mem[0], "isfinite");
+    ZIVC_TEST_V8(t, t, t, t, mem[1], "isfinite");
+    ZIVC_TEST_V8(t, t, t, t, mem[2], "isfinite");
+    ZIVC_TEST_V8(t, t, t, t, mem[3], "isfinite");
+    //! \todo subnormal won't work on GPU
+    //ZIVC_TEST_V8(t, t, t, t, mem[4], "isfinite");
+    ZIVC_TEST_V8(f, f, f, f, mem[5], "isfinite");
+    ZIVC_TEST_V8(f, f, f, f, mem[6], "isfinite");
+  }
+  // output16
+  {
+    [[maybe_unused]] constexpr cl_int t = zivc::cl::kVTrue;
+    constexpr cl_int f = zivc::cl::kVFalse;
+    const zivc::MappedMemory mem = buffer_out16->mapMemory();
+    ZIVC_TEST_V16(t, t, t, t, mem[0], "isfinite");
+    ZIVC_TEST_V16(t, t, t, t, mem[1], "isfinite");
+    ZIVC_TEST_V16(t, t, t, t, mem[2], "isfinite");
+    ZIVC_TEST_V16(t, t, t, t, mem[3], "isfinite");
+    //! \todo subnormal won't work on GPU
+    //ZIVC_TEST_V16(t, t, t, t, mem[4], "isfinite");
+    ZIVC_TEST_V16(f, f, f, f, mem[5], "isfinite");
+    ZIVC_TEST_V16(f, f, f, f, mem[6], "isfinite");
+  }
+}
+
 TEST(ClCppTest, RelationIsInfTest)
 {
   const zivc::SharedContext context = ztest::createContext();
@@ -1737,6 +3128,8 @@ TEST(ClCppTest, RelationIsInfTest)
   using zivc::cl_float2;
   using zivc::cl_float3;
   using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
 
   const zivc::SharedBuffer buffer_in1 = device->createBuffer<cl_float>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
   const zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_float2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
@@ -1931,6 +3324,136 @@ TEST(ClCppTest, RelationIsInfTest)
   }
 }
 
+TEST(ClCppTest, RelationIsInfLongVecTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_float;
+  using zivc::cl_float2;
+  using zivc::cl_float3;
+  using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
+
+  const zivc::SharedBuffer buffer_in8 = device->createBuffer<cl_float8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_in16 = device->createBuffer<cl_float16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_out8 = device->createBuffer<zivc::cl_CompResult<cl_float8>>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out8->setSize(7);
+  const zivc::SharedBuffer buffer_out16 = device->createBuffer<zivc::cl_CompResult<cl_float16>>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out16->setSize(7);
+
+  constexpr cl_float fmax = (std::numeric_limits<cl_float>::max)();
+  constexpr cl_float fmin = (std::numeric_limits<cl_float>::min)();
+  constexpr cl_float subnormal_min = std::numeric_limits<cl_float>::denorm_min();
+  constexpr cl_float subnormal_max = fmin - subnormal_min;
+  constexpr cl_float finf = std::numeric_limits<cl_float>::infinity();
+  const cl_float fnan = std::numeric_limits<cl_float>::quiet_NaN();
+  {
+    const std::initializer_list<cl_float8> v = {
+        cl_float8{0.0f, -0.0f, 0.0f, -0.0f,
+                  0.0f, -0.0f, 0.0f, -0.0f},
+        cl_float8{1.0f, -1.0f, 1.0f, -1.0f,
+                  1.0f, -1.0f, 1.0f, -1.0f},
+        cl_float8{fmax, -fmax, fmax, -fmax,
+                  fmax, -fmax, fmax, -fmax},
+        cl_float8{fmin, -fmin, fmin, -fmin,
+                  fmin, -fmin, fmin, -fmin},
+        cl_float8{subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                  subnormal_max, subnormal_min, subnormal_max, subnormal_min},
+        cl_float8{finf, -finf, finf, -finf,
+                  finf, -finf, finf, -finf},
+        cl_float8{fnan, fnan, fnan, fnan,
+                  fnan, fnan, fnan, fnan}};
+    ztest::setDeviceBuffer(*device, v, buffer_in8.get());
+  }
+  {
+    const std::initializer_list<cl_float16> v = {
+        cl_float16{0.0f, -0.0f, 0.0f, -0.0f,
+                   0.0f, -0.0f, 0.0f, -0.0f,
+                   0.0f, -0.0f, 0.0f, -0.0f,
+                   0.0f, -0.0f, 0.0f, -0.0f},
+        cl_float16{1.0f, -1.0f, 1.0f, -1.0f,
+                   1.0f, -1.0f, 1.0f, -1.0f,
+                   1.0f, -1.0f, 1.0f, -1.0f,
+                   1.0f, -1.0f, 1.0f, -1.0f},
+        cl_float16{fmax, -fmax, fmax, -fmax,
+                   fmax, -fmax, fmax, -fmax,
+                   fmax, -fmax, fmax, -fmax,
+                   fmax, -fmax, fmax, -fmax},
+        cl_float16{fmin, -fmin, fmin, -fmin,
+                   fmin, -fmin, fmin, -fmin,
+                   fmin, -fmin, fmin, -fmin,
+                   fmin, -fmin, fmin, -fmin},
+        cl_float16{subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                   subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                   subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                   subnormal_max, subnormal_min, subnormal_max, subnormal_min},
+        cl_float16{finf, -finf, finf, -finf,
+                   finf, -finf, finf, -finf,
+                   finf, -finf, finf, -finf,
+                   finf, -finf, finf, -finf},
+        cl_float16{fnan, fnan, fnan, fnan,
+                   fnan, fnan, fnan, fnan,
+                   fnan, fnan, fnan, fnan,
+                   fnan, fnan, fnan, fnan}};
+    ztest::setDeviceBuffer(*device, v, buffer_in16.get());
+  }
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_relation, isInfLongVecTestKernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(4, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("isInfLongVecTestKernel");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(4, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_in8, *buffer_in16, *buffer_out8, *buffer_out16, launch_options);
+  device->waitForCompletion(result.fence());
+
+  using zivc::cl_int;
+
+  // output8
+  {
+    [[maybe_unused]] constexpr cl_int t = zivc::cl::kVTrue;
+    constexpr cl_int f = zivc::cl::kVFalse;
+    const zivc::MappedMemory mem = buffer_out8->mapMemory();
+    ZIVC_TEST_V8(f, f, f, f, mem[0], "isinf");
+    ZIVC_TEST_V8(f, f, f, f, mem[1], "isinf");
+    ZIVC_TEST_V8(f, f, f, f, mem[2], "isinf");
+    ZIVC_TEST_V8(f, f, f, f, mem[3], "isinf");
+    //! \todo subnormal won't work on GPU
+    //ZIVC_TEST_V8(f, f, f, f, mem[4], "isinf");
+    ZIVC_TEST_V8(t, t, t, t, mem[5], "isinf");
+    ZIVC_TEST_V8(f, f, f, f, mem[6], "isinf");
+  }
+  // output16
+  {
+    [[maybe_unused]] constexpr cl_int t = zivc::cl::kVTrue;
+    constexpr cl_int f = zivc::cl::kVFalse;
+    const zivc::MappedMemory mem = buffer_out16->mapMemory();
+    ZIVC_TEST_V16(f, f, f, f, mem[0], "isinf");
+    ZIVC_TEST_V16(f, f, f, f, mem[1], "isinf");
+    ZIVC_TEST_V16(f, f, f, f, mem[2], "isinf");
+    ZIVC_TEST_V16(f, f, f, f, mem[3], "isinf");
+    //! \todo subnormal won't work on GPU
+    //ZIVC_TEST_V16(f, f, f, f, mem[4], "isinf");
+    ZIVC_TEST_V16(t, t, t, t, mem[5], "isinf");
+    ZIVC_TEST_V16(f, f, f, f, mem[6], "isinf");
+  }
+}
+
 TEST(ClCppTest, RelationIsNanTest)
 {
   const zivc::SharedContext context = ztest::createContext();
@@ -1942,6 +3465,8 @@ TEST(ClCppTest, RelationIsNanTest)
   using zivc::cl_float2;
   using zivc::cl_float3;
   using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
 
   const zivc::SharedBuffer buffer_in1 = device->createBuffer<cl_float>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
   const zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_float2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
@@ -2136,6 +3661,136 @@ TEST(ClCppTest, RelationIsNanTest)
   }
 }
 
+TEST(ClCppTest, RelationIsNanLongVecTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_float;
+  using zivc::cl_float2;
+  using zivc::cl_float3;
+  using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
+
+  const zivc::SharedBuffer buffer_in8 = device->createBuffer<cl_float8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_in16 = device->createBuffer<cl_float16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_out8 = device->createBuffer<zivc::cl_CompResult<cl_float8>>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out8->setSize(7);
+  const zivc::SharedBuffer buffer_out16 = device->createBuffer<zivc::cl_CompResult<cl_float16>>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out16->setSize(7);
+
+  constexpr cl_float fmax = (std::numeric_limits<cl_float>::max)();
+  constexpr cl_float fmin = (std::numeric_limits<cl_float>::min)();
+  constexpr cl_float subnormal_min = std::numeric_limits<cl_float>::denorm_min();
+  constexpr cl_float subnormal_max = fmin - subnormal_min;
+  constexpr cl_float finf = std::numeric_limits<cl_float>::infinity();
+  const cl_float fnan = std::numeric_limits<cl_float>::quiet_NaN();
+  {
+    const std::initializer_list<cl_float8> v = {
+        cl_float8{0.0f, -0.0f, 0.0f, -0.0f,
+                  0.0f, -0.0f, 0.0f, -0.0f},
+        cl_float8{1.0f, -1.0f, 1.0f, -1.0f,
+                  1.0f, -1.0f, 1.0f, -1.0f},
+        cl_float8{fmax, -fmax, fmax, -fmax,
+                  fmax, -fmax, fmax, -fmax},
+        cl_float8{fmin, -fmin, fmin, -fmin,
+                  fmin, -fmin, fmin, -fmin},
+        cl_float8{subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                  subnormal_max, subnormal_min, subnormal_max, subnormal_min},
+        cl_float8{finf, -finf, finf, -finf,
+                  finf, -finf, finf, -finf},
+        cl_float8{fnan, fnan, fnan, fnan,
+                  fnan, fnan, fnan, fnan}};
+    ztest::setDeviceBuffer(*device, v, buffer_in8.get());
+  }
+  {
+    const std::initializer_list<cl_float16> v = {
+        cl_float16{0.0f, -0.0f, 0.0f, -0.0f,
+                   0.0f, -0.0f, 0.0f, -0.0f,
+                   0.0f, -0.0f, 0.0f, -0.0f,
+                   0.0f, -0.0f, 0.0f, -0.0f},
+        cl_float16{1.0f, -1.0f, 1.0f, -1.0f,
+                   1.0f, -1.0f, 1.0f, -1.0f,
+                   1.0f, -1.0f, 1.0f, -1.0f,
+                   1.0f, -1.0f, 1.0f, -1.0f},
+        cl_float16{fmax, -fmax, fmax, -fmax,
+                   fmax, -fmax, fmax, -fmax,
+                   fmax, -fmax, fmax, -fmax,
+                   fmax, -fmax, fmax, -fmax},
+        cl_float16{fmin, -fmin, fmin, -fmin,
+                   fmin, -fmin, fmin, -fmin,
+                   fmin, -fmin, fmin, -fmin,
+                   fmin, -fmin, fmin, -fmin},
+        cl_float16{subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                   subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                   subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                   subnormal_max, subnormal_min, subnormal_max, subnormal_min},
+        cl_float16{finf, -finf, finf, -finf,
+                   finf, -finf, finf, -finf,
+                   finf, -finf, finf, -finf,
+                   finf, -finf, finf, -finf},
+        cl_float16{fnan, fnan, fnan, fnan,
+                   fnan, fnan, fnan, fnan,
+                   fnan, fnan, fnan, fnan,
+                   fnan, fnan, fnan, fnan}};
+    ztest::setDeviceBuffer(*device, v, buffer_in16.get());
+  }
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_relation, isNanLongVecTestKernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(4, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("isNanLongVecTestKernel");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(4, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_in8, *buffer_in16, *buffer_out8, *buffer_out16, launch_options);
+  device->waitForCompletion(result.fence());
+
+  using zivc::cl_int;
+
+  // output8
+  {
+    [[maybe_unused]] constexpr cl_int t = zivc::cl::kVTrue;
+    constexpr cl_int f = zivc::cl::kVFalse;
+    const zivc::MappedMemory mem = buffer_out8->mapMemory();
+    ZIVC_TEST_V8(f, f, f, f, mem[0], "isnan");
+    ZIVC_TEST_V8(f, f, f, f, mem[1], "isnan");
+    ZIVC_TEST_V8(f, f, f, f, mem[2], "isnan");
+    ZIVC_TEST_V8(f, f, f, f, mem[3], "isnan");
+    //! \todo subnormal won't work on GPU
+    //ZIVC_TEST_V8(f, f, f, f, mem[4], "isnan");
+    ZIVC_TEST_V8(f, f, f, f, mem[5], "isnan");
+    ZIVC_TEST_V8(t, t, t, t, mem[6], "isnan");
+  }
+  // output16
+  {
+    [[maybe_unused]] constexpr cl_int t = zivc::cl::kVTrue;
+    constexpr cl_int f = zivc::cl::kVFalse;
+    const zivc::MappedMemory mem = buffer_out16->mapMemory();
+    ZIVC_TEST_V16(f, f, f, f, mem[0], "isnan");
+    ZIVC_TEST_V16(f, f, f, f, mem[1], "isnan");
+    ZIVC_TEST_V16(f, f, f, f, mem[2], "isnan");
+    ZIVC_TEST_V16(f, f, f, f, mem[3], "isnan");
+    //! \todo subnormal won't work on GPU
+    //ZIVC_TEST_V16(f, f, f, f, mem[4], "isnan");
+    ZIVC_TEST_V16(f, f, f, f, mem[5], "isnan");
+    ZIVC_TEST_V16(t, t, t, t, mem[6], "isnan");
+  }
+}
+
 TEST(ClCppTest, RelationSignbitTest)
 {
   const zivc::SharedContext context = ztest::createContext();
@@ -2147,6 +3802,8 @@ TEST(ClCppTest, RelationSignbitTest)
   using zivc::cl_float2;
   using zivc::cl_float3;
   using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
 
   const zivc::SharedBuffer buffer_in1 = device->createBuffer<cl_float>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
   const zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_float2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
@@ -2341,6 +3998,136 @@ TEST(ClCppTest, RelationSignbitTest)
   }
 }
 
+TEST(ClCppTest, RelationSignbitLongVecTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_float;
+  using zivc::cl_float2;
+  using zivc::cl_float3;
+  using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
+
+  const zivc::SharedBuffer buffer_in8 = device->createBuffer<cl_float8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_in16 = device->createBuffer<cl_float16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  const zivc::SharedBuffer buffer_out8 = device->createBuffer<zivc::cl_CompResult<cl_float8>>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out8->setSize(7);
+  const zivc::SharedBuffer buffer_out16 = device->createBuffer<zivc::cl_CompResult<cl_float16>>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out16->setSize(7);
+
+  constexpr cl_float fmax = (std::numeric_limits<cl_float>::max)();
+  constexpr cl_float fmin = (std::numeric_limits<cl_float>::min)();
+  constexpr cl_float subnormal_min = std::numeric_limits<cl_float>::denorm_min();
+  constexpr cl_float subnormal_max = fmin - subnormal_min;
+  constexpr cl_float finf = std::numeric_limits<cl_float>::infinity();
+  const cl_float fnan = std::numeric_limits<cl_float>::quiet_NaN();
+  {
+    const std::initializer_list<cl_float8> v = {
+        cl_float8{0.0f, -0.0f, 0.0f, -0.0f,
+                  0.0f, -0.0f, 0.0f, -0.0f},
+        cl_float8{1.0f, -1.0f, 1.0f, -1.0f,
+                  1.0f, -1.0f, 1.0f, -1.0f},
+        cl_float8{fmax, -fmax, fmax, -fmax,
+                  fmax, -fmax, fmax, -fmax},
+        cl_float8{fmin, -fmin, fmin, -fmin,
+                  fmin, -fmin, fmin, -fmin},
+        cl_float8{subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                  subnormal_max, subnormal_min, subnormal_max, subnormal_min},
+        cl_float8{finf, -finf, finf, -finf,
+                  finf, -finf, finf, -finf},
+        cl_float8{fnan, fnan, fnan, fnan,
+                  fnan, fnan, fnan, fnan}};
+    ztest::setDeviceBuffer(*device, v, buffer_in8.get());
+  }
+  {
+    const std::initializer_list<cl_float16> v = {
+        cl_float16{0.0f, -0.0f, 0.0f, -0.0f,
+                   0.0f, -0.0f, 0.0f, -0.0f,
+                   0.0f, -0.0f, 0.0f, -0.0f,
+                   0.0f, -0.0f, 0.0f, -0.0f},
+        cl_float16{1.0f, -1.0f, 1.0f, -1.0f,
+                   1.0f, -1.0f, 1.0f, -1.0f,
+                   1.0f, -1.0f, 1.0f, -1.0f,
+                   1.0f, -1.0f, 1.0f, -1.0f},
+        cl_float16{fmax, -fmax, fmax, -fmax,
+                   fmax, -fmax, fmax, -fmax,
+                   fmax, -fmax, fmax, -fmax,
+                   fmax, -fmax, fmax, -fmax},
+        cl_float16{fmin, -fmin, fmin, -fmin,
+                   fmin, -fmin, fmin, -fmin,
+                   fmin, -fmin, fmin, -fmin,
+                   fmin, -fmin, fmin, -fmin},
+        cl_float16{subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                   subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                   subnormal_max, subnormal_min, subnormal_max, subnormal_min,
+                   subnormal_max, subnormal_min, subnormal_max, subnormal_min},
+        cl_float16{finf, -finf, finf, -finf,
+                   finf, -finf, finf, -finf,
+                   finf, -finf, finf, -finf,
+                   finf, -finf, finf, -finf},
+        cl_float16{fnan, fnan, fnan, fnan,
+                   fnan, fnan, fnan, fnan,
+                   fnan, fnan, fnan, fnan,
+                   fnan, fnan, fnan, fnan}};
+    ztest::setDeviceBuffer(*device, v, buffer_in16.get());
+  }
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_relation, signbitLongVecTestKernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(4, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("signbitLongVecTestKernel");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(4, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_in8, *buffer_in16, *buffer_out8, *buffer_out16, launch_options);
+  device->waitForCompletion(result.fence());
+
+  using zivc::cl_int;
+
+  // output8
+  {
+    [[maybe_unused]] constexpr cl_int t = zivc::cl::kVTrue;
+    constexpr cl_int f = zivc::cl::kVFalse;
+    const zivc::MappedMemory mem = buffer_out8->mapMemory();
+    ZIVC_TEST_V8(f, t, f, t, mem[0], "signbit");
+    ZIVC_TEST_V8(f, t, f, t, mem[1], "signbit");
+    ZIVC_TEST_V8(f, t, f, t, mem[2], "signbit");
+    ZIVC_TEST_V8(f, t, f, t, mem[3], "signbit");
+    //! \todo subnormal won't work on GPU
+    //ZIVC_TEST_V8(f, f, f, f, mem[4], "signbit");
+    ZIVC_TEST_V8(f, t, f, t, mem[5], "signbit");
+    ZIVC_TEST_V8(f, f, f, f, mem[6], "signbit");
+  }
+  // output16
+  {
+    [[maybe_unused]] constexpr cl_int t = zivc::cl::kVTrue;
+    constexpr cl_int f = zivc::cl::kVFalse;
+    const zivc::MappedMemory mem = buffer_out16->mapMemory();
+    ZIVC_TEST_V16(f, t, f, t, mem[0], "signbit");
+    ZIVC_TEST_V16(f, t, f, t, mem[1], "signbit");
+    ZIVC_TEST_V16(f, t, f, t, mem[2], "signbit");
+    ZIVC_TEST_V16(f, t, f, t, mem[3], "signbit");
+    //! \todo subnormal won't work on GPU
+    //ZIVC_TEST_V16(f, f, f, f, mem[4], "signbit");
+    ZIVC_TEST_V16(f, t, f, t, mem[5], "signbit");
+    ZIVC_TEST_V16(f, f, f, f, mem[6], "signbit");
+  }
+}
+
 TEST(ClCppTest, RelationAnyTest)
 {
   const zivc::SharedContext context = ztest::createContext();
@@ -2358,6 +4145,8 @@ TEST(ClCppTest, RelationAnyTest)
   using zivc::cl_int;
   using zivc::cl_int3;
   using zivc::cl_int4;
+  using zivc::cl_int8;
+  using zivc::cl_int16;
 
   const zivc::SharedBuffer buffer_in1 = device->createBuffer<cl_char>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
   const zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_short2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
@@ -2459,6 +4248,110 @@ TEST(ClCppTest, RelationAnyTest)
   }
 }
 
+//TEST(ClCppTest, RelationAnyLongVecTest)
+//{
+//  const zivc::SharedContext context = ztest::createContext();
+//  const ztest::Config& config = ztest::Config::globalConfig();
+//  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+//
+//  // Allocate buffers
+//  using zivc::cl_float;
+//  using zivc::cl_float2;
+//  using zivc::cl_float3;
+//  using zivc::cl_float4;
+//  using zivc::cl_char;
+//  using zivc::cl_short;
+//  using zivc::cl_short2;
+//  using zivc::cl_int;
+//  using zivc::cl_int3;
+//  using zivc::cl_int4;
+//  using zivc::cl_int8;
+//  using zivc::cl_int16;
+//
+//  const zivc::SharedBuffer buffer_in8 = device->createBuffer<cl_int8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+//  const zivc::SharedBuffer buffer_in16 = device->createBuffer<cl_int16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+//  const zivc::SharedBuffer buffer_out1 = device->createBuffer<zivc::int32b>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+//  buffer_out1->setSize(8);
+//
+//  {
+//    constexpr cl_int imax = (std::numeric_limits<cl_int>::max)();
+//    constexpr cl_int imin = (std::numeric_limits<cl_int>::min)();
+//    const std::initializer_list<cl_int8> v = {
+//        cl_int8{0, 0, 0, 0,
+//                0, 0, 0, 0},
+//        cl_int8{imax, imax, imax, imax,
+//                imax, imax, imax, imax},
+//        cl_int8{0, 0, 0, -1,
+//                0, 0, 0, -1},
+//        cl_int8{imin, imin, imin, imin,
+//                imin, imin, imin, imin}
+//    };
+//    ztest::setDeviceBuffer(*device, v, buffer_in8.get());
+//  }
+//  {
+//    constexpr cl_int imax = (std::numeric_limits<cl_int>::max)();
+//    constexpr cl_int imin = (std::numeric_limits<cl_int>::min)();
+//    const std::initializer_list<cl_int16> v = {
+//        cl_int16{0, 0, 0, 0,
+//                 0, 0, 0, 0,
+//                 0, 0, 0, 0,
+//                 0, 0, 0, 0},
+//        cl_int16{imax, imax, imax, imax,
+//                 imax, imax, imax, imax,
+//                 imax, imax, imax, imax,
+//                 imax, imax, imax, imax},
+//        cl_int16{0, 0, 0, -1,
+//                 0, 0, 0, -1,
+//                 0, 0, 0, -1,
+//                 0, 0, 0, -1},
+//        cl_int16{imin, imin, imin, imin,
+//                 imin, imin, imin, imin,
+//                 imin, imin, imin, imin,
+//                 imin, imin, imin, imin}
+//    };
+//    ztest::setDeviceBuffer(*device, v, buffer_in16.get());
+//  }
+//
+//  // Make a kernel
+//  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_relation, anyLongVecTestKernel, 1);
+//  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+//  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+//  ASSERT_EQ(3, kernel->argSize()) << "Wrong kernel property.";
+//
+//  // Launch the kernel
+//  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+//  launch_options.setQueueIndex(0);
+//  launch_options.setWorkSize({{1}});
+//  launch_options.requestFence(true);
+//  launch_options.setLabel("anyLongVecTestKernel");
+//  ASSERT_EQ(1, launch_options.dimension());
+//  ASSERT_EQ(3, launch_options.numOfArgs());
+//  ASSERT_EQ(0, launch_options.queueIndex());
+//  ASSERT_EQ(1, launch_options.workSize()[0]);
+//  ASSERT_TRUE(launch_options.isFenceRequested());
+//  zivc::LaunchResult result = kernel->run(*buffer_in8, *buffer_in16, *buffer_out1, launch_options);
+//  device->waitForCompletion(result.fence());
+//
+//  using zivc::cl_int;
+//
+//  // output1
+//  {
+//    constexpr cl_int t = zivc::cl::kSTrue;
+//    constexpr cl_int f = zivc::cl::kSFalse;
+//    const zivc::MappedMemory mem = buffer_out1->mapMemory();
+//    // vector8
+//    ASSERT_EQ(f, mem[0]) << "any failed.";
+//    ASSERT_EQ(f, mem[1]) << "any failed.";
+//    ASSERT_EQ(t, mem[2]) << "any failed.";
+//    ASSERT_EQ(t, mem[3]) << "any failed.";
+//    // vector16
+//    ASSERT_EQ(f, mem[4]) << "any failed.";
+//    ASSERT_EQ(f, mem[5]) << "any failed.";
+//    ASSERT_EQ(t, mem[6]) << "any failed.";
+//    ASSERT_EQ(t, mem[7]) << "any failed.";
+//  }
+//}
+
 TEST(ClCppTest, RelationAllTest)
 {
   const zivc::SharedContext context = ztest::createContext();
@@ -2476,13 +4369,15 @@ TEST(ClCppTest, RelationAllTest)
   using zivc::cl_int;
   using zivc::cl_int3;
   using zivc::cl_int4;
+  using zivc::cl_int8;
+  using zivc::cl_int16;
 
   const zivc::SharedBuffer buffer_in1 = device->createBuffer<cl_char>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
   const zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_short2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
   const zivc::SharedBuffer buffer_in3 = device->createBuffer<cl_int3>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
   const zivc::SharedBuffer buffer_in4 = device->createBuffer<cl_int4>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
   const zivc::SharedBuffer buffer_out1 = device->createBuffer<zivc::int32b>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out1->setSize(15);
+  buffer_out1->setSize(23);
 
   {
     constexpr cl_char imax = (std::numeric_limits<cl_char>::max)();
@@ -2576,3 +4471,107 @@ TEST(ClCppTest, RelationAllTest)
     ASSERT_EQ(t, mem[14]) << "all failed.";
   }
 }
+
+//TEST(ClCppTest, RelationAllLongVecTest)
+//{
+//  const zivc::SharedContext context = ztest::createContext();
+//  const ztest::Config& config = ztest::Config::globalConfig();
+//  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+//
+//  // Allocate buffers
+//  using zivc::cl_float;
+//  using zivc::cl_float2;
+//  using zivc::cl_float3;
+//  using zivc::cl_float4;
+//  using zivc::cl_char;
+//  using zivc::cl_short;
+//  using zivc::cl_short2;
+//  using zivc::cl_int;
+//  using zivc::cl_int3;
+//  using zivc::cl_int4;
+//  using zivc::cl_int8;
+//  using zivc::cl_int16;
+//
+//  const zivc::SharedBuffer buffer_in8 = device->createBuffer<cl_int8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+//  const zivc::SharedBuffer buffer_in16 = device->createBuffer<cl_int16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+//  const zivc::SharedBuffer buffer_out1 = device->createBuffer<zivc::int32b>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+//  buffer_out1->setSize(8);
+//
+//  {
+//    constexpr cl_int imax = (std::numeric_limits<cl_int>::max)();
+//    constexpr cl_int imin = (std::numeric_limits<cl_int>::min)();
+//    const std::initializer_list<cl_int8> v = {
+//        cl_int8{0, 0, 0, 0,
+//                0, 0, 0, 0},
+//        cl_int8{imax, imax, imax, imax,
+//                imax, imax, imax, imax},
+//        cl_int8{0, 0, 0, -1,
+//                0, 0, 0, -1},
+//        cl_int8{imin, imin, imin, imin,
+//                imin, imin, imin, imin}
+//    };
+//    ztest::setDeviceBuffer(*device, v, buffer_in8.get());
+//  }
+//  {
+//    constexpr cl_int imax = (std::numeric_limits<cl_int>::max)();
+//    constexpr cl_int imin = (std::numeric_limits<cl_int>::min)();
+//    const std::initializer_list<cl_int16> v = {
+//        cl_int16{0, 0, 0, 0,
+//                 0, 0, 0, 0,
+//                 0, 0, 0, 0,
+//                 0, 0, 0, 0},
+//        cl_int16{imax, imax, imax, imax,
+//                 imax, imax, imax, imax,
+//                 imax, imax, imax, imax,
+//                 imax, imax, imax, imax},
+//        cl_int16{0, 0, 0, -1,
+//                 0, 0, 0, -1,
+//                 0, 0, 0, -1,
+//                 0, 0, 0, -1},
+//        cl_int16{imin, imin, imin, imin,
+//                 imin, imin, imin, imin,
+//                 imin, imin, imin, imin,
+//                 imin, imin, imin, imin}
+//    };
+//    ztest::setDeviceBuffer(*device, v, buffer_in16.get());
+//  }
+//
+//  // Make a kernel
+//  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_relation, allLongVecTestKernel, 1);
+//  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+//  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+//  ASSERT_EQ(3, kernel->argSize()) << "Wrong kernel property.";
+//
+//  // Launch the kernel
+//  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+//  launch_options.setQueueIndex(0);
+//  launch_options.setWorkSize({{1}});
+//  launch_options.requestFence(true);
+//  launch_options.setLabel("allLongVecTestKernel");
+//  ASSERT_EQ(1, launch_options.dimension());
+//  ASSERT_EQ(3, launch_options.numOfArgs());
+//  ASSERT_EQ(0, launch_options.queueIndex());
+//  ASSERT_EQ(1, launch_options.workSize()[0]);
+//  ASSERT_TRUE(launch_options.isFenceRequested());
+//  zivc::LaunchResult result = kernel->run(*buffer_in8, *buffer_in16, *buffer_out1, launch_options);
+//  device->waitForCompletion(result.fence());
+//
+//  using zivc::cl_int;
+//
+//  // output1
+//  {
+//    constexpr cl_int t = zivc::cl::kSTrue;
+//    constexpr cl_int f = zivc::cl::kSFalse;
+//    const zivc::MappedMemory mem = buffer_out1->mapMemory();
+//    // vector8
+//    ASSERT_EQ(f, mem[0]) << "all failed.";
+//    ASSERT_EQ(f, mem[1]) << "all failed.";
+//    ASSERT_EQ(f, mem[2]) << "all failed.";
+//    ASSERT_EQ(t, mem[3]) << "all failed.";
+//    // vector16
+//    ASSERT_EQ(f, mem[4]) << "all failed.";
+//    ASSERT_EQ(f, mem[5]) << "all failed.";
+//    ASSERT_EQ(f, mem[6]) << "all failed.";
+//    ASSERT_EQ(t, mem[7]) << "all failed.";
+//  }
+//}

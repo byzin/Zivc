@@ -1194,46 +1194,68 @@ constexpr CompResultVec<Type1, kN> operator>=(const Vector<Type1, kN>& lhs,
 using char2 = Vector<int8b, 2>;
 using char3 = Vector<int8b, 3>;
 using char4 = Vector<int8b, 4>;
+using char8 = Vector<int8b, 8>;
+using char16 = Vector<int8b, 16>;
 
 using uchar2 = Vector<uint8b, 2>;
 using uchar3 = Vector<uint8b, 3>;
 using uchar4 = Vector<uint8b, 4>;
+using uchar8 = Vector<uint8b, 8>;
+using uchar16 = Vector<uint8b, 16>;
 
 using short2 = Vector<int16b, 2>;
 using short3 = Vector<int16b, 3>;
 using short4 = Vector<int16b, 4>;
+using short8 = Vector<int16b, 8>;
+using short16 = Vector<int16b, 16>;
 
 using ushort2 = Vector<uint16b, 2>;
 using ushort3 = Vector<uint16b, 3>;
 using ushort4 = Vector<uint16b, 4>;
+using ushort8 = Vector<uint16b, 8>;
+using ushort16 = Vector<uint16b, 16>;
 
 using int2 = Vector<int32b, 2>;
 using int3 = Vector<int32b, 3>;
 using int4 = Vector<int32b, 4>;
+using int8 = Vector<int32b, 8>;
+using int16 = Vector<int32b, 16>;
 
 using uint2 = Vector<uint32b, 2>;
 using uint3 = Vector<uint32b, 3>;
 using uint4 = Vector<uint32b, 4>;
+using uint8 = Vector<uint32b, 8>;
+using uint16 = Vector<uint32b, 16>;
 
 using long2 = Vector<int64b, 2>;
 using long3 = Vector<int64b, 3>;
 using long4 = Vector<int64b, 4>;
+using long8 = Vector<int64b, 8>;
+using long16 = Vector<int64b, 16>;
 
 using ulong2 = Vector<uint64b, 2>;
 using ulong3 = Vector<uint64b, 3>;
 using ulong4 = Vector<uint64b, 4>;
+using ulong8 = Vector<uint64b, 8>;
+using ulong16 = Vector<uint64b, 16>;
 
 using half2 = Vector<half, 2>;
 using half3 = Vector<half, 3>;
 using half4 = Vector<half, 4>;
+using half8 = Vector<half, 8>;
+using half16 = Vector<half, 16>;
 
 using float2 = Vector<float, 2>;
 using float3 = Vector<float, 3>;
 using float4 = Vector<float, 4>;
+using float8 = Vector<float, 8>;
+using float16 = Vector<float, 16>;
 
 using double2 = Vector<double, 2>;
 using double3 = Vector<double, 3>;
 using double4 = Vector<double, 4>;
+using double8 = Vector<double, 8>;
+using double16 = Vector<double, 16>;
 
 
 // Load and store functions

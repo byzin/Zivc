@@ -173,6 +173,196 @@ TEST(ClCppTest, VectorComponentAccessTest)
   }
 }
 
+TEST(ClCppTest, VectorComponentAccessLongVecTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_float;
+  using zivc::cl_float2;
+  using zivc::cl_float3;
+  using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
+
+  const zivc::SharedBuffer buffer_invec8 = device->createBuffer<cl_float8>(zivc::BufferUsage::kPreferDevice);
+  {
+    const std::initializer_list<cl_float8> v = {
+        cl_float8{1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f},
+        cl_float8{9.0f, 10.0f, 11.0f, 12.0f, 13.0f, 14.0f, 15.0f, 16.0f}};
+    ztest::setDeviceBuffer(*device, v, buffer_invec8.get());
+  }
+  const zivc::SharedBuffer buffer_invec16 = device->createBuffer<cl_float16>(zivc::BufferUsage::kPreferDevice);
+  {
+    const std::initializer_list<cl_float16> v = {
+        cl_float16{1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f,
+                   9.0f, 10.0f, 11.0f, 12.0f, 13.0f, 14.0f, 15.0f, 16.0f},
+        cl_float16{17.0f, 18.0f, 19.0f, 20.0f, 21.0f, 22.0f, 23.0f, 24.0f,
+                   25.0f, 26.0f, 27.0f, 28.0f, 29.0f, 30.0f, 31.0f, 32.0f}};
+    ztest::setDeviceBuffer(*device, v, buffer_invec16.get());
+  }
+
+  const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
+  buffer_out1->setSize(48);
+  {
+    const cl_float v = 0.0f;
+    ztest::fillDeviceBuffer(v, buffer_out1.get());
+  }
+  const zivc::SharedBuffer buffer_out8 = device->createBuffer<cl_float8>(zivc::BufferUsage::kPreferDevice);
+  buffer_out8->setSize(48);
+  {
+    const cl_float8 v{0.0f};
+    ztest::fillDeviceBuffer(v, buffer_out8.get());
+  }
+  const zivc::SharedBuffer buffer_out16 = device->createBuffer<cl_float16>(zivc::BufferUsage::kPreferDevice);
+  buffer_out16->setSize(2);
+  {
+    const cl_float16 v{0.0f};
+    ztest::fillDeviceBuffer(v, buffer_out16.get());
+  }
+  device->waitForCompletion();
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vectorComponentAccessLongVecKernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(5, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("VectorComponentAccessLongVecTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(5, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_invec8, *buffer_invec16,
+                                          *buffer_out1, *buffer_out8, *buffer_out16,
+                                          launch_options);
+  device->waitForCompletion(result.fence());
+
+  // output1
+  {
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_float>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out1, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+    std::size_t index = 0;
+    ASSERT_EQ(1.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(2.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(3.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(4.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(5.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(6.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(7.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(8.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(9.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(10.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(11.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(12.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(13.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(14.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(15.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(16.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(1.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(2.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(3.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(4.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(5.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(6.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(7.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(8.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(9.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(10.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(11.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(12.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(13.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(14.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(15.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(16.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(17.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(18.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(19.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(20.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(21.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(22.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(23.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(24.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(25.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(26.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(27.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(28.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(29.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(30.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(31.0f, mem[index++]) << "Vector access failed.";
+    ASSERT_EQ(32.0f, mem[index++]) << "Vector access failed.";
+  }
+  // output8
+  {
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_float8>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out8, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+    ASSERT_EQ(1.0f, mem[0].s0) << "Vector float8 access failed.";
+    ASSERT_EQ(2.0f, mem[0].s1) << "Vector float8 access failed.";
+    ASSERT_EQ(3.0f, mem[0].s2) << "Vector float8 access failed.";
+    ASSERT_EQ(4.0f, mem[0].s3) << "Vector float8 access failed.";
+    ASSERT_EQ(5.0f, mem[0].s4) << "Vector float8 access failed.";
+    ASSERT_EQ(6.0f, mem[0].s5) << "Vector float8 access failed.";
+    ASSERT_EQ(7.0f, mem[0].s6) << "Vector float8 access failed.";
+    ASSERT_EQ(8.0f, mem[0].s7) << "Vector float8 access failed.";
+    ASSERT_EQ(9.0f, mem[1].s0) << "Vector float8 access failed.";
+    ASSERT_EQ(10.0f, mem[1].s1) << "Vector float8 access failed.";
+    ASSERT_EQ(11.0f, mem[1].s2) << "Vector float8 access failed.";
+    ASSERT_EQ(12.0f, mem[1].s3) << "Vector float8 access failed.";
+    ASSERT_EQ(13.0f, mem[1].s4) << "Vector float8 access failed.";
+    ASSERT_EQ(14.0f, mem[1].s5) << "Vector float8 access failed.";
+    ASSERT_EQ(15.0f, mem[1].s6) << "Vector float8 access failed.";
+    ASSERT_EQ(16.0f, mem[1].s7) << "Vector float8 access failed.";
+  }
+  // output16
+  {
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_float16>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out16, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+    ASSERT_EQ(1.0f, mem[0].s0) << "Vector float16 access failed.";
+    ASSERT_EQ(2.0f, mem[0].s1) << "Vector float16 access failed.";
+    ASSERT_EQ(3.0f, mem[0].s2) << "Vector float16 access failed.";
+    ASSERT_EQ(4.0f, mem[0].s3) << "Vector float16 access failed.";
+    ASSERT_EQ(5.0f, mem[0].s4) << "Vector float16 access failed.";
+    ASSERT_EQ(6.0f, mem[0].s5) << "Vector float16 access failed.";
+    ASSERT_EQ(7.0f, mem[0].s6) << "Vector float16 access failed.";
+    ASSERT_EQ(8.0f, mem[0].s7) << "Vector float16 access failed.";
+    ASSERT_EQ(9.0f, mem[0].s8) << "Vector float16 access failed.";
+    ASSERT_EQ(10.0f, mem[0].s9) << "Vector float16 access failed.";
+    ASSERT_EQ(11.0f, mem[0].sa) << "Vector float16 access failed.";
+    ASSERT_EQ(12.0f, mem[0].sb) << "Vector float16 access failed.";
+    ASSERT_EQ(13.0f, mem[0].sc) << "Vector float16 access failed.";
+    ASSERT_EQ(14.0f, mem[0].sd) << "Vector float16 access failed.";
+    ASSERT_EQ(15.0f, mem[0].se) << "Vector float16 access failed.";
+    ASSERT_EQ(16.0f, mem[0].sf) << "Vector float16 access failed.";
+    ASSERT_EQ(17.0f, mem[1].s0) << "Vector float16 access failed.";
+    ASSERT_EQ(18.0f, mem[1].s1) << "Vector float16 access failed.";
+    ASSERT_EQ(19.0f, mem[1].s2) << "Vector float16 access failed.";
+    ASSERT_EQ(20.0f, mem[1].s3) << "Vector float16 access failed.";
+    ASSERT_EQ(21.0f, mem[1].s4) << "Vector float16 access failed.";
+    ASSERT_EQ(22.0f, mem[1].s5) << "Vector float16 access failed.";
+    ASSERT_EQ(23.0f, mem[1].s6) << "Vector float16 access failed.";
+    ASSERT_EQ(24.0f, mem[1].s7) << "Vector float16 access failed.";
+    ASSERT_EQ(25.0f, mem[1].s8) << "Vector float16 access failed.";
+    ASSERT_EQ(26.0f, mem[1].s9) << "Vector float16 access failed.";
+    ASSERT_EQ(27.0f, mem[1].sa) << "Vector float16 access failed.";
+    ASSERT_EQ(28.0f, mem[1].sb) << "Vector float16 access failed.";
+    ASSERT_EQ(29.0f, mem[1].sc) << "Vector float16 access failed.";
+    ASSERT_EQ(30.0f, mem[1].sd) << "Vector float16 access failed.";
+    ASSERT_EQ(31.0f, mem[1].se) << "Vector float16 access failed.";
+    ASSERT_EQ(32.0f, mem[1].sf) << "Vector float16 access failed.";
+  }
+}
+
 TEST(ClCppTest, VectorConstructionTest)
 {
   const zivc::SharedContext context = ztest::createContext();
@@ -760,6 +950,310 @@ TEST(ClCppTest, VectorArithmeticOperatorTest)
   }
 }
 
+TEST(ClCppTest, VectorArithmeticOperatorLongVecTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_int2;
+  using zivc::cl_int3;
+  using zivc::cl_int4;
+  using zivc::cl_int8;
+  using zivc::cl_int16;
+  using zivc::cl_float2;
+  using zivc::cl_float3;
+  using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
+
+  const zivc::SharedBuffer buffer_in8 = device->createBuffer<cl_int8>(zivc::BufferUsage::kPreferDevice);
+  {
+    const std::initializer_list<cl_int8> v = {
+        cl_int8{1, -1, 1, -1, 1, -1, 1, -1},
+        cl_int8{10, -10, 10, -10, 10, -10, 10, -10},
+        cl_int8{1, 5, 1, 5, 1, 5, 1, 5},
+        cl_int8{10, 2, 10, 2, 10, 2, 10, 2}};
+    ztest::setDeviceBuffer(*device, v, buffer_in8.get());
+  }
+  const zivc::SharedBuffer buffer_in16 = device->createBuffer<cl_int16>(zivc::BufferUsage::kPreferDevice);
+  {
+    const std::initializer_list<cl_int16> v = {
+        cl_int16{1, -1, 4, 12, 1, -1, 4, 12,
+                 1, -1, 4, 12, 1, -1, 4, 12},
+        cl_int16{10, -10, -4, -8, 10, -10, -4, -8,
+                 10, -10, -4, -8, 10, -10, -4, -8},
+        cl_int16{1, 5, 4, 12, 1, 5, 4, 12,
+                 1, 5, 4, 12, 1, 5, 4, 12},
+        cl_int16{10, 2, 7, 8, 10, 2, 7, 8,
+                 10, 2, 7, 8, 10, 2, 7, 8}};
+    ztest::setDeviceBuffer(*device, v, buffer_in16.get());
+  }
+  const zivc::SharedBuffer buffer_inf8 = device->createBuffer<cl_float8>(zivc::BufferUsage::kPreferDevice);
+  {
+    const std::initializer_list<cl_float8> v = {
+        cl_float8{1.0f, -1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f, -1.0f},
+        cl_float8{10.0f, -10.0f, 10.0f, -10.0f, 10.0f, -10.0f, 10.0f, -10.0f}};
+    ztest::setDeviceBuffer(*device, v, buffer_inf8.get());
+  }
+  const zivc::SharedBuffer buffer_inf16 = device->createBuffer<cl_float16>(zivc::BufferUsage::kPreferDevice);
+  {
+    const std::initializer_list<cl_float16> v = {
+        cl_float16{1.0f, -1.0f, 4.0f, 12.0f, 1.0f, -1.0f, 4.0f, 12.0f,
+                   1.0f, -1.0f, 4.0f, 12.0f, 1.0f, -1.0f, 4.0f, 12.0f},
+        cl_float16{10.0f, -10.0f, -4.0f, -8.0f, 10.0f, -10.0f, -4.0f, -8.0f,
+                   10.0f, -10.0f, -4.0f, -8.0f, 10.0f, -10.0f, -4.0f, -8.0f}};
+    ztest::setDeviceBuffer(*device, v, buffer_inf16.get());
+  }
+  const std::size_t n = 14;
+  const zivc::SharedBuffer buffer_out8 = device->createBuffer<cl_int8>(zivc::BufferUsage::kPreferDevice);
+  buffer_out8->setSize(n + 3);
+  {
+    const cl_int8 v{0};
+    ztest::fillDeviceBuffer(v, buffer_out8.get());
+  }
+  const zivc::SharedBuffer buffer_out16 = device->createBuffer<cl_int16>(zivc::BufferUsage::kPreferDevice);
+  buffer_out16->setSize(n + 3);
+  {
+    const cl_int16 v{0};
+    ztest::fillDeviceBuffer(v, buffer_out16.get());
+  }
+  const zivc::SharedBuffer buffer_outf8 = device->createBuffer<cl_float8>(zivc::BufferUsage::kPreferDevice);
+  buffer_outf8->setSize(n + 6);
+  {
+    const cl_float8 v{0.0f};
+    ztest::fillDeviceBuffer(v, buffer_outf8.get());
+  }
+  const zivc::SharedBuffer buffer_outf16 = device->createBuffer<cl_float16>(zivc::BufferUsage::kPreferDevice);
+  buffer_outf16->setSize(n);
+  {
+    const cl_float16 v{0.0f};
+    ztest::fillDeviceBuffer(v, buffer_outf16.get());
+  }
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vectorArithmeticOperatorLongVecTest, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(8, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("VectorArithmeticOperatorLongVecTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(8, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_in8, *buffer_in16,
+                                          *buffer_inf8, *buffer_inf16,
+                                          *buffer_out8, *buffer_out16,
+                                          *buffer_outf8, *buffer_outf16,
+                                          launch_options);
+  device->waitForCompletion(result.fence());
+
+#define ZIVC_TEST_ARITHMETIC_I8(v0, v1, vec, message) \
+    EXPECT_EQ((v0), (vec).s0) << message; \
+    EXPECT_EQ((v1), (vec).s1) << message; \
+    EXPECT_EQ((v0), (vec).s2) << message; \
+    EXPECT_EQ((v1), (vec).s3) << message; \
+    EXPECT_EQ((v0), (vec).s4) << message; \
+    EXPECT_EQ((v1), (vec).s5) << message; \
+    EXPECT_EQ((v0), (vec).s6) << message; \
+    EXPECT_EQ((v1), (vec).s7) << message
+
+  // output8
+  {
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_int8>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out8, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+
+    ZIVC_TEST_ARITHMETIC_I8(1, -1, mem[0], "Vector int8 unary plus failed.");
+    ZIVC_TEST_ARITHMETIC_I8(-1, 1, mem[1], "Vector int8 unary minus failed.");
+    ZIVC_TEST_ARITHMETIC_I8(11, -11, mem[2], "Vector int8 addition failed.");
+    ZIVC_TEST_ARITHMETIC_I8(11, -9, mem[3], "Vector int8 addition failed.");
+    ZIVC_TEST_ARITHMETIC_I8(11, 9, mem[4], "Vector int8 addition failed.");
+    ZIVC_TEST_ARITHMETIC_I8(-9, 9, mem[5], "Vector int8 subtraction failed.");
+    ZIVC_TEST_ARITHMETIC_I8(-9, 11, mem[6], "Vector int8 subtraction failed.");
+    ZIVC_TEST_ARITHMETIC_I8(-9, -11, mem[7], "Vector int8 subtraction failed.");
+    ZIVC_TEST_ARITHMETIC_I8(10, 10, mem[8], "Vector int8 multiplication failed.");
+    ZIVC_TEST_ARITHMETIC_I8(10, -10, mem[9], "Vector int8 multiplication failed.");
+    ZIVC_TEST_ARITHMETIC_I8(10, -10, mem[10], "Vector int8 multiplication failed.");
+    ZIVC_TEST_ARITHMETIC_I8(0, 0, mem[11], "Vector int8 division failed.");
+    ZIVC_TEST_ARITHMETIC_I8(0, 0, mem[12], "Vector int8 division failed.");
+    ZIVC_TEST_ARITHMETIC_I8(0, 0, mem[13], "Vector int8 division failed.");
+    ZIVC_TEST_ARITHMETIC_I8(1, 1, mem[14], "Vector int8 modulo failed.");
+    ZIVC_TEST_ARITHMETIC_I8(1, 1, mem[15], "Vector int8 modulo failed.");
+    ZIVC_TEST_ARITHMETIC_I8(1, 5, mem[16], "Vector int8 modulo failed.");
+  }
+
+#define ZIVC_TEST_ARITHMETIC_I16(v0, v1, v2, v3, vec, message) \
+    EXPECT_EQ((v0), (vec).s0) << message; \
+    EXPECT_EQ((v1), (vec).s1) << message; \
+    EXPECT_EQ((v2), (vec).s2) << message; \
+    EXPECT_EQ((v3), (vec).s3) << message; \
+    EXPECT_EQ((v0), (vec).s4) << message; \
+    EXPECT_EQ((v1), (vec).s5) << message; \
+    EXPECT_EQ((v2), (vec).s6) << message; \
+    EXPECT_EQ((v3), (vec).s7) << message; \
+    EXPECT_EQ((v0), (vec).s8) << message; \
+    EXPECT_EQ((v1), (vec).s9) << message; \
+    EXPECT_EQ((v2), (vec).sa) << message; \
+    EXPECT_EQ((v3), (vec).sb) << message; \
+    EXPECT_EQ((v0), (vec).sc) << message; \
+    EXPECT_EQ((v1), (vec).sd) << message; \
+    EXPECT_EQ((v2), (vec).se) << message; \
+    EXPECT_EQ((v3), (vec).sf) << message
+
+  // output16
+  {
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_int16>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out16, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+    ZIVC_TEST_ARITHMETIC_I16(1, -1, 4, 12, mem[0], "Vector int16 unary plus failed.");
+    ZIVC_TEST_ARITHMETIC_I16(-1, 1, -4, -12, mem[1], "Vector int16 unary minus failed.");
+    ZIVC_TEST_ARITHMETIC_I16(11, -11, 0, 4, mem[2], "Vector int16 addition failed.");
+    ZIVC_TEST_ARITHMETIC_I16(11, -9, -3, -7, mem[3], "Vector int16 addition failed.");
+    ZIVC_TEST_ARITHMETIC_I16(11, 9, 14, 22, mem[4], "Vector int16 addition failed.");
+    ZIVC_TEST_ARITHMETIC_I16(-9, 9, 8, 20, mem[5], "Vector int16 subtraction failed.");
+    ZIVC_TEST_ARITHMETIC_I16(-9, 11, 5, 9, mem[6], "Vector int16 subtraction failed.");
+    ZIVC_TEST_ARITHMETIC_I16(-9, -11, -6, 2, mem[7], "Vector int16 subtraction failed.");
+    ZIVC_TEST_ARITHMETIC_I16(10, 10, -16, -96, mem[8], "Vector int16 multiplication failed.");
+    ZIVC_TEST_ARITHMETIC_I16(10, -10, -4, -8, mem[9], "Vector int16 multiplication failed.");
+    ZIVC_TEST_ARITHMETIC_I16(10, -10, 40, 120, mem[10], "Vector int16 multiplication failed.");
+    ZIVC_TEST_ARITHMETIC_I16(0, 0, -1, -1, mem[11], "Vector int16 division failed.");
+    ZIVC_TEST_ARITHMETIC_I16(0, 0, 0, 0, mem[12], "Vector int16 division failed.");
+    ZIVC_TEST_ARITHMETIC_I16(0, 0, 0, 1, mem[13], "Vector int16 division failed.");
+    ZIVC_TEST_ARITHMETIC_I16(1, 1, 4, 4, mem[14], "Vector int16 modulo failed.");
+    ZIVC_TEST_ARITHMETIC_I16(1, 1, 1, 1, mem[15], "Vector int16 modulo failed.");
+    ZIVC_TEST_ARITHMETIC_I16(1, 5, 4, 2, mem[16], "Vector int16 modulo failed.");
+  }
+
+#define ZIVC_TEST_ARITHMETIC_F8(v0, v1, vec, message) \
+    EXPECT_FLOAT_EQ((v0), (vec).s0) << message; \
+    EXPECT_FLOAT_EQ((v1), (vec).s1) << message; \
+    EXPECT_FLOAT_EQ((v0), (vec).s2) << message; \
+    EXPECT_FLOAT_EQ((v1), (vec).s3) << message; \
+    EXPECT_FLOAT_EQ((v0), (vec).s4) << message; \
+    EXPECT_FLOAT_EQ((v1), (vec).s5) << message; \
+    EXPECT_FLOAT_EQ((v0), (vec).s6) << message; \
+    EXPECT_FLOAT_EQ((v1), (vec).s7) << message
+
+  {
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_float8>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_outf8, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+    ZIVC_TEST_ARITHMETIC_F8(1.0f, -1.0f, mem[0], "Vector float8 unary plus failed.");
+    ZIVC_TEST_ARITHMETIC_F8(-1.0f, 1.0f, mem[1], "Vector float8 unary minus failed.");
+    ZIVC_TEST_ARITHMETIC_F8(11.0f, -11.0f, mem[2], "Vector float8 addition failed.");
+    ZIVC_TEST_ARITHMETIC_F8(11.0f, -9.0f, mem[3], "Vector float8 addition failed.");
+    ZIVC_TEST_ARITHMETIC_F8(11.0f, 9.0f, mem[4], "Vector float8 addition failed.");
+    ZIVC_TEST_ARITHMETIC_F8(-9.0f, 9.0f, mem[5], "Vector float8 subtraction failed.");
+    ZIVC_TEST_ARITHMETIC_F8(-9.0f, 11.0f, mem[6], "Vector float8 subtraction failed.");
+    ZIVC_TEST_ARITHMETIC_F8(-9.0f, -11.0f, mem[7], "Vector float8 subtraction failed.");
+    ZIVC_TEST_ARITHMETIC_F8(10.0f, 10.0f, mem[8], "Vector float8 multiplication failed.");
+    ZIVC_TEST_ARITHMETIC_F8(10.0f, -10.0f, mem[9], "Vector float8 multiplication failed.");
+    ZIVC_TEST_ARITHMETIC_F8(10.0f, -10.0f, mem[10], "Vector float8 multiplication failed.");
+    ZIVC_TEST_ARITHMETIC_F8(0.1f, 0.1f, mem[11], "Vector float8 division failed.");
+    ZIVC_TEST_ARITHMETIC_F8(0.1f, -0.1f, mem[12], "Vector float8 division failed.");
+    ZIVC_TEST_ARITHMETIC_F8(0.1f, -0.1f, mem[13], "Vector float8 division failed.");
+
+    // Constexpr test
+    EXPECT_FLOAT_EQ(0.0f, mem[14].s0) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(1.0f, mem[14].s1) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(2.0f, mem[14].s2) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(3.0f, mem[14].s3) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(4.0f, mem[14].s4) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(5.0f, mem[14].s5) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(6.0f, mem[14].s6) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(7.0f, mem[14].s7) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(-0.0f, mem[15].s0) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(-1.0f, mem[15].s1) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(-2.0f, mem[15].s2) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(-3.0f, mem[15].s3) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(-4.0f, mem[15].s4) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(-5.0f, mem[15].s5) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(-6.0f, mem[15].s6) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(-7.0f, mem[15].s7) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(8.0f, mem[16].s0) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(10.0f, mem[16].s1) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(12.0f, mem[16].s2) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(14.0f, mem[16].s3) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(16.0f, mem[16].s4) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(18.0f, mem[16].s5) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(20.0f, mem[16].s6) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(22.0f, mem[16].s7) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(-8.0f, mem[17].s0) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(-8.0f, mem[17].s1) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(-8.0f, mem[17].s2) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(-8.0f, mem[17].s3) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(-8.0f, mem[17].s4) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(-8.0f, mem[17].s5) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(-8.0f, mem[17].s6) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(-8.0f, mem[17].s7) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[18].s0) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(9.0f, mem[18].s1) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(20.0f, mem[18].s2) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(33.0f, mem[18].s3) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(48.0f, mem[18].s4) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(65.0f, mem[18].s5) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(84.0f, mem[18].s6) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(105.0f, mem[18].s7) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(0.0f / 8.0f, mem[19].s0) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(1.0f / 9.0f, mem[19].s1) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(2.0f / 10.0f, mem[19].s2) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(3.0f / 11.0f, mem[19].s3) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(4.0f / 12.0f, mem[19].s4) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(5.0f / 13.0f, mem[19].s5) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(6.0f / 14.0f, mem[19].s6) << "Vector constexpr test failed.";
+    EXPECT_FLOAT_EQ(7.0f / 15.0f, mem[19].s7) << "Vector constexpr test failed.";
+  }
+
+#define ZIVC_TEST_ARITHMETIC_F16(v0, v1, v2, v3, vec, message) \
+    EXPECT_FLOAT_EQ((v0), (vec).s0) << message; \
+    EXPECT_FLOAT_EQ((v1), (vec).s1) << message; \
+    EXPECT_FLOAT_EQ((v2), (vec).s2) << message; \
+    EXPECT_FLOAT_EQ((v3), (vec).s3) << message; \
+    EXPECT_FLOAT_EQ((v0), (vec).s4) << message; \
+    EXPECT_FLOAT_EQ((v1), (vec).s5) << message; \
+    EXPECT_FLOAT_EQ((v2), (vec).s6) << message; \
+    EXPECT_FLOAT_EQ((v3), (vec).s7) << message; \
+    EXPECT_FLOAT_EQ((v0), (vec).s8) << message; \
+    EXPECT_FLOAT_EQ((v1), (vec).s9) << message; \
+    EXPECT_FLOAT_EQ((v2), (vec).sa) << message; \
+    EXPECT_FLOAT_EQ((v3), (vec).sb) << message; \
+    EXPECT_FLOAT_EQ((v0), (vec).sc) << message; \
+    EXPECT_FLOAT_EQ((v1), (vec).sd) << message; \
+    EXPECT_FLOAT_EQ((v2), (vec).se) << message; \
+    EXPECT_FLOAT_EQ((v3), (vec).sf) << message
+
+  {
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_float16>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_outf16, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+    ZIVC_TEST_ARITHMETIC_F16(1.0f, -1.0f, 4.0f, 12.0f, mem[0], "Vector float16 unary plus failed.");
+    ZIVC_TEST_ARITHMETIC_F16(-1.0f, 1.0f, -4.0f, -12.0f, mem[1], "Vector float16 unary minus failed.");
+    ZIVC_TEST_ARITHMETIC_F16(11.0f, -11.0f, 0.0f, 4.0f, mem[2], "Vector float16 addition failed.");
+    ZIVC_TEST_ARITHMETIC_F16(11.0f, -9.0f, -3.0f, -7.0f, mem[3], "Vector float16 addition failed.");
+    ZIVC_TEST_ARITHMETIC_F16(11.0f, 9.0f, 14.0f, 22.0f, mem[4], "Vector float16 addition failed.");
+    ZIVC_TEST_ARITHMETIC_F16(-9.0f, 9.0f, 8.0f, 20.0f, mem[5], "Vector float16 subtraction failed.");
+    ZIVC_TEST_ARITHMETIC_F16(-9.0f, 11.0f, 5.0f, 9.0f, mem[6], "Vector float16 subtraction failed.");
+    ZIVC_TEST_ARITHMETIC_F16(-9.0f, -11.0f, -6.0f, 2.0f, mem[7], "Vector float16 subtraction failed.");
+    ZIVC_TEST_ARITHMETIC_F16(10.0f, 10.0f, -16.0f, -96.0f, mem[8], "Vector float16 multiplication failed.");
+    ZIVC_TEST_ARITHMETIC_F16(10.0f, -10.0f, -4.0f, -8.0f, mem[9], "Vector float16 multiplication failed.");
+    ZIVC_TEST_ARITHMETIC_F16(10.0f, -10.0f, 40.0f, 120.0f, mem[10], "Vector float16 multiplication failed.");
+    ZIVC_TEST_ARITHMETIC_F16(0.1f, 0.1f, -1.0f, -1.5f, mem[11], "Vector float16 division failed.");
+    ZIVC_TEST_ARITHMETIC_F16(0.1f, -0.1f, -0.25f, -0.125f, mem[12], "Vector float16 division failed.");
+    ZIVC_TEST_ARITHMETIC_F16(0.1f, -0.1f, -0.4f, 1.2f, mem[13], "Vector float16 division failed.");
+  }
+}
+
 TEST(ClCppTest, VectorArithmeticAssignmentOperatorTest)
 {
   const zivc::SharedContext context = ztest::createContext();
@@ -964,6 +1458,146 @@ TEST(ClCppTest, VectorArithmeticAssignmentOperatorTest)
     EXPECT_EQ(1, mem[13].y) << "Vector constexpr test failed.";
     EXPECT_EQ(2, mem[13].z) << "Vector constexpr test failed.";
     EXPECT_EQ(2, mem[13].w) << "Vector constexpr test failed.";
+  }
+}
+
+TEST(ClCppTest, VectorArithmeticAssignmentOperatorLongVecTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_int2;
+  using zivc::cl_int3;
+  using zivc::cl_int4;
+  using zivc::cl_int8;
+  using zivc::cl_int16;
+
+  const zivc::SharedBuffer buffer_in8 = device->createBuffer<cl_int8>(zivc::BufferUsage::kPreferDevice);
+  {
+    const std::initializer_list<cl_int8> v = {
+        cl_int8{1, -1, 1, -1, 1, -1, 1, -1},
+        cl_int8{10, -10, 10, -10, 10, -10, 10, -10},
+        cl_int8{1, 5, 1, 5, 1, 5, 1, 5},
+        cl_int8{10, 2, 10, 2, 10, 2, 10, 2}};
+    ztest::setDeviceBuffer(*device, v, buffer_in8.get());
+  }
+  const zivc::SharedBuffer buffer_in16 = device->createBuffer<cl_int16>(zivc::BufferUsage::kPreferDevice);
+  {
+    const std::initializer_list<cl_int16> v = {
+        cl_int16{1, -1, 4, 12, 1, -1, 4, 12,
+                 1, -1, 4, 12, 1, -1, 4, 12},
+        cl_int16{10, -10, -4, -8, 10, -10, -4, -8,
+                 10, -10, -4, -8, 10, -10, -4, -8},
+        cl_int16{1, 5, 4, 12, 1, 5, 4, 12,
+                 1, 5, 4, 12, 1, 5, 4, 12},
+        cl_int16{10, 2, 7, 8, 10, 2, 7, 8,
+                 10, 2, 7, 8, 10, 2, 7, 8}};
+    ztest::setDeviceBuffer(*device, v, buffer_in16.get());
+  }
+  const std::size_t n = 10;
+  const zivc::SharedBuffer buffer_out8 = device->createBuffer<cl_int8>(zivc::BufferUsage::kPreferDevice);
+  buffer_out8->setSize(n + 4);
+  {
+    const cl_int8 v{0};
+    ztest::fillDeviceBuffer(v, buffer_out8.get());
+  }
+  const zivc::SharedBuffer buffer_out16 = device->createBuffer<cl_int16>(zivc::BufferUsage::kPreferDevice);
+  buffer_out16->setSize(n);
+  {
+    const cl_int16 v{0};
+    ztest::fillDeviceBuffer(v, buffer_out16.get());
+  }
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vectorArithmeticAssignmentOperatorLongVecTest, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(4, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("VectorArithmeticAssignmentOperatorLongVecTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(4, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_in8, *buffer_in16,
+                                          *buffer_out8, *buffer_out16, launch_options);
+  device->waitForCompletion(result.fence());
+
+  // output8
+  {
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_int8>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out8, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+    ZIVC_TEST_ARITHMETIC_I8(11, -11, mem[0], "Vector int8 addition failed.");
+    ZIVC_TEST_ARITHMETIC_I8(11, 9, mem[1], "Vector int8 addition failed.");
+    ZIVC_TEST_ARITHMETIC_I8(-9, 9, mem[2], "Vector int8 subtraction failed.");
+    ZIVC_TEST_ARITHMETIC_I8(-9, -11, mem[3], "Vector int8 subtraction failed.");
+    ZIVC_TEST_ARITHMETIC_I8(10, 10, mem[4], "Vector int8 multiplication failed.");
+    ZIVC_TEST_ARITHMETIC_I8(10, -10, mem[5], "Vector int8 multiplication failed.");
+    ZIVC_TEST_ARITHMETIC_I8(0, 0, mem[6], "Vector int8 division failed.");
+    ZIVC_TEST_ARITHMETIC_I8(0, 0, mem[7], "Vector int8 division failed.");
+    ZIVC_TEST_ARITHMETIC_I8(1, 1, mem[8], "Vector int8 modulo failed.");
+    ZIVC_TEST_ARITHMETIC_I8(1, 5, mem[9], "Vector int8 modulo failed.");
+
+    // Constexpr test
+    EXPECT_EQ(2, mem[10].s0) << "Vector constexpr test failed.";
+    EXPECT_EQ(7, mem[10].s1) << "Vector constexpr test failed.";
+    EXPECT_EQ(12, mem[10].s2) << "Vector constexpr test failed.";
+    EXPECT_EQ(17, mem[10].s3) << "Vector constexpr test failed.";
+    EXPECT_EQ(22, mem[10].s4) << "Vector constexpr test failed.";
+    EXPECT_EQ(27, mem[10].s5) << "Vector constexpr test failed.";
+    EXPECT_EQ(32, mem[10].s6) << "Vector constexpr test failed.";
+    EXPECT_EQ(37, mem[10].s7) << "Vector constexpr test failed.";
+    EXPECT_EQ(-2, mem[11].s0) << "Vector constexpr test failed.";
+    EXPECT_EQ(1, mem[11].s1) << "Vector constexpr test failed.";
+    EXPECT_EQ(4, mem[11].s2) << "Vector constexpr test failed.";
+    EXPECT_EQ(7, mem[11].s3) << "Vector constexpr test failed.";
+    EXPECT_EQ(10, mem[11].s4) << "Vector constexpr test failed.";
+    EXPECT_EQ(13, mem[11].s5) << "Vector constexpr test failed.";
+    EXPECT_EQ(16, mem[11].s6) << "Vector constexpr test failed.";
+    EXPECT_EQ(19, mem[11].s7) << "Vector constexpr test failed.";
+    EXPECT_EQ(0, mem[12].s0) << "Vector constexpr test failed.";
+    EXPECT_EQ(12, mem[12].s1) << "Vector constexpr test failed.";
+    EXPECT_EQ(32, mem[12].s2) << "Vector constexpr test failed.";
+    EXPECT_EQ(60, mem[12].s3) << "Vector constexpr test failed.";
+    EXPECT_EQ(96, mem[12].s4) << "Vector constexpr test failed.";
+    EXPECT_EQ(140, mem[12].s5) << "Vector constexpr test failed.";
+    EXPECT_EQ(192, mem[12].s6) << "Vector constexpr test failed.";
+    EXPECT_EQ(252, mem[12].s7) << "Vector constexpr test failed.";
+    EXPECT_EQ(0, mem[13].s0) << "Vector constexpr test failed.";
+    EXPECT_EQ(1, mem[13].s1) << "Vector constexpr test failed.";
+    EXPECT_EQ(2, mem[13].s2) << "Vector constexpr test failed.";
+    EXPECT_EQ(2, mem[13].s3) << "Vector constexpr test failed.";
+    EXPECT_EQ(2, mem[13].s4) << "Vector constexpr test failed.";
+    EXPECT_EQ(2, mem[13].s5) << "Vector constexpr test failed.";
+    EXPECT_EQ(3, mem[13].s6) << "Vector constexpr test failed.";
+    EXPECT_EQ(3, mem[13].s7) << "Vector constexpr test failed.";
+  }
+  // output16
+  {
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_int16>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out16, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+    ZIVC_TEST_ARITHMETIC_I16(11, -11, 0, 4, mem[0], "Vector int4 addition failed.");
+    ZIVC_TEST_ARITHMETIC_I16(11, 9, 14, 22, mem[1], "Vector int4 addition failed.");
+    ZIVC_TEST_ARITHMETIC_I16(-9, 9, 8, 20, mem[2], "Vector int4 subtraction failed.");
+    ZIVC_TEST_ARITHMETIC_I16(-9, -11, -6, 2, mem[3], "Vector int4 subtraction failed.");
+    ZIVC_TEST_ARITHMETIC_I16(10, 10, -16, -06, mem[4], "Vector int4 multiplication failed.");
+    ZIVC_TEST_ARITHMETIC_I16(10, -10, 40, 120, mem[5], "Vector int4 multiplication failed.");
+    ZIVC_TEST_ARITHMETIC_I16(0, 0, -1, -1, mem[6], "Vector int4 division failed.");
+    ZIVC_TEST_ARITHMETIC_I16(0, 0, 0, 1, mem[7], "Vector int4 division failed.");
+    ZIVC_TEST_ARITHMETIC_I16(1, 1, 4, 4, mem[8], "Vector int4 division failed.");
+    ZIVC_TEST_ARITHMETIC_I16(1, 5, 4, 2, mem[9], "Vector int4 modulo failed.");
   }
 }
 
@@ -1216,6 +1850,222 @@ TEST(ClCppTest, VectorBitwiseOperatorTest)
   }
 }
 
+TEST(ClCppTest, VectorBitwiseOperatorLongVecTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::uint32b;
+  using zivc::cl_uint2;
+  using zivc::cl_uint3;
+  using zivc::cl_uint4;
+  using zivc::cl_uint8;
+  using zivc::cl_uint16;
+
+  constexpr uint32b mask01 = std::numeric_limits<uint32b>::max();
+  constexpr uint32b mask02 = 0b0101'0101'1010'1010'1100'0011'0000'1111u;
+  constexpr uint32b mask03 = 0b0101'0101'0101'0101'0101'0101'0101'0101u;
+  constexpr uint32b mask04 = 0b0000'0000'0000'0000'1111'1111'1111'1111u;
+  constexpr uint32b mask05 = 0b1111'1111'1111'1111'0000'0000'0000'0000u;
+
+  const zivc::SharedBuffer buffer_in8 = device->createBuffer<cl_uint8>(zivc::BufferUsage::kPreferDevice);
+  {
+    const std::initializer_list<cl_uint8> v = {
+        cl_uint8{mask01},
+        cl_uint8{mask02, mask03, mask02, mask03,
+                 mask02, mask03, mask02, mask03},
+        cl_uint8{mask04, mask05, mask04, mask05,
+                 mask04, mask05, mask04, mask05},
+        cl_uint8{32u, 64u, 32u, 64u,
+                 32u, 64u, 32u, 64u},
+        cl_uint8{2u, 4u, 2u, 4u,
+                 2u, 4u, 2u, 4u}};
+    ztest::setDeviceBuffer(*device, v, buffer_in8.get());
+  }
+  const zivc::SharedBuffer buffer_in16 = device->createBuffer<cl_uint16>(zivc::BufferUsage::kPreferDevice);
+  {
+    const std::initializer_list<cl_uint16> v = {
+        cl_uint16{mask01, mask01, mask01, mask01,
+                  mask01, mask01, mask01, mask01,
+                  mask01, mask01, mask01, mask01,
+                  mask01, mask01, mask01, mask01},
+        cl_uint16{mask02, mask03, mask02, mask03,
+                  mask02, mask03, mask02, mask03,
+                  mask02, mask03, mask02, mask03,
+                  mask02, mask03, mask02, mask03},
+        cl_uint16{mask04, mask05, mask04, mask05,
+                  mask04, mask05, mask04, mask05,
+                  mask04, mask05, mask04, mask05,
+                  mask04, mask05, mask04, mask05},
+        cl_uint16{32u, 64u, 128u, 256u,
+                  32u, 64u, 128u, 256u,
+                  32u, 64u, 128u, 256u,
+                  32u, 64u, 128u, 256u},
+        cl_uint16{2u, 4u, 6u, 8u,
+                  2u, 4u, 6u, 8u,
+                  2u, 4u, 6u, 8u,
+                  2u, 4u, 6u, 8u}};
+    ztest::setDeviceBuffer(*device, v, buffer_in16.get());
+  }
+  const std::size_t n = 14;
+  const zivc::SharedBuffer buffer_out8 = device->createBuffer<cl_uint8>(zivc::BufferUsage::kPreferDevice);
+  buffer_out8->setSize(n + 6);
+  {
+    const cl_uint8 v{0};
+    ztest::fillDeviceBuffer(v, buffer_out8.get());
+  }
+  const zivc::SharedBuffer buffer_out16 = device->createBuffer<cl_uint16>(zivc::BufferUsage::kPreferDevice);
+  buffer_out16->setSize(n);
+  {
+    const cl_uint16 v{0};
+    ztest::fillDeviceBuffer(v, buffer_out16.get());
+  }
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vectorBitwiseOperatorLongVecTest, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(4, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("VectorBitwiseOperatorLongVecTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(4, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_in8, *buffer_in16,
+                                          *buffer_out8, *buffer_out16, launch_options);
+  device->waitForCompletion(result.fence());
+
+  // output8
+  {
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_uint8>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out8, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+    ZIVC_TEST_ARITHMETIC_I8(compl mask02, compl mask03, mem[0],
+                            "Vector uint8 bitwise NOT failed.");
+    ZIVC_TEST_ARITHMETIC_I8(mask01 bitand mask02, mask01 bitand mask03, mem[1],
+                            "Vector uint8 bitwise AND failed.");
+    ZIVC_TEST_ARITHMETIC_I8(mask01 bitand mask02, mask01 bitand mask03, mem[2],
+                            "Vector uint8 bitwise AND failed.");
+    ZIVC_TEST_ARITHMETIC_I8(mask01 bitand mask02, mask01 bitand mask02, mem[3],
+                            "Vector uint8 bitwise AND failed.");
+    ZIVC_TEST_ARITHMETIC_I8(mask02 bitor mask04, mask03 bitor mask05, mem[4],
+                            "Vector uint8 bitwise OR failed.");
+    ZIVC_TEST_ARITHMETIC_I8(mask02 bitor mask04, mask02 bitor mask05, mem[5],
+                            "Vector uint8 bitwise OR failed.");
+    ZIVC_TEST_ARITHMETIC_I8(mask02 bitor mask04, mask03 bitor mask04, mem[6],
+                            "Vector uint8 bitwise OR failed.");
+    ZIVC_TEST_ARITHMETIC_I8(mask02 xor mask04, mask03 xor mask04, mem[7],
+                            "Vector uint8 bitwise XOR failed.");
+    ZIVC_TEST_ARITHMETIC_I8(mask02 xor mask04, mask02 xor mask05, mem[8],
+                            "Vector uint8 bitwise XOR failed.");
+    ZIVC_TEST_ARITHMETIC_I8(mask02 xor mask04, mask03 xor mask04, mem[9],
+                            "Vector uint8 bitwise XOR failed.");
+    ZIVC_TEST_ARITHMETIC_I8(32u << 2u, 64u << 4u, mem[10],
+                            "Vector uint8 left shift failed.");
+    ZIVC_TEST_ARITHMETIC_I8(32u << 2u, 64u << 2u, mem[11],
+                            "Vector uint8 left shift failed.");
+    ZIVC_TEST_ARITHMETIC_I8(32u >> 2u, 64u >> 4u, mem[12],
+                            "Vector uint8 right shift failed.");
+    ZIVC_TEST_ARITHMETIC_I8(32u >> 2u, 64u >> 2u, mem[13],
+                            "Vector uint8 right shift failed.");
+
+    // Constexpr test
+    EXPECT_EQ(~1u, mem[14].s0) << "Vector constexpr test failed.";
+    EXPECT_EQ(~2u, mem[14].s1) << "Vector constexpr test failed.";
+    EXPECT_EQ(~3u, mem[14].s2) << "Vector constexpr test failed.";
+    EXPECT_EQ(~4u, mem[14].s3) << "Vector constexpr test failed.";
+    EXPECT_EQ(~5u, mem[14].s4) << "Vector constexpr test failed.";
+    EXPECT_EQ(~6u, mem[14].s5) << "Vector constexpr test failed.";
+    EXPECT_EQ(~7u, mem[14].s6) << "Vector constexpr test failed.";
+    EXPECT_EQ(~8u, mem[14].s7) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u bitand 1u, mem[15].s0) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u bitand 2u, mem[15].s1) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u bitand 3u, mem[15].s2) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u bitand 4u, mem[15].s3) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u bitand 5u, mem[15].s4) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u bitand 6u, mem[15].s5) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u bitand 7u, mem[15].s6) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u bitand 8u, mem[15].s7) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u bitor 1u, mem[16].s0) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u bitor 2u, mem[16].s1) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u bitor 3u, mem[16].s2) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u bitor 4u, mem[16].s3) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u bitor 5u, mem[16].s4) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u bitor 6u, mem[16].s5) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u bitor 7u, mem[16].s6) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u bitor 8u, mem[16].s7) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u xor 1u, mem[17].s0) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u xor 2u, mem[17].s1) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u xor 3u, mem[17].s2) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u xor 4u, mem[17].s3) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u xor 5u, mem[17].s4) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u xor 6u, mem[17].s5) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u xor 7u, mem[17].s6) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u xor 8u, mem[17].s7) << "Vector constexpr test failed.";
+    EXPECT_EQ(1u << 3u, mem[18].s0) << "Vector constexpr test failed.";
+    EXPECT_EQ(2u << 3u, mem[18].s1) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u << 3u, mem[18].s2) << "Vector constexpr test failed.";
+    EXPECT_EQ(4u << 3u, mem[18].s3) << "Vector constexpr test failed.";
+    EXPECT_EQ(5u << 3u, mem[18].s4) << "Vector constexpr test failed.";
+    EXPECT_EQ(6u << 3u, mem[18].s5) << "Vector constexpr test failed.";
+    EXPECT_EQ(7u << 3u, mem[18].s6) << "Vector constexpr test failed.";
+    EXPECT_EQ(8u << 3u, mem[18].s7) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u >> 1u, mem[19].s0) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u >> 2u, mem[19].s1) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u >> 3u, mem[19].s2) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u >> 4u, mem[19].s3) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u >> 5u, mem[19].s4) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u >> 6u, mem[19].s5) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u >> 7u, mem[19].s6) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u >> 8u, mem[19].s7) << "Vector constexpr test failed.";
+  }
+  // output16
+  {
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_uint16>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out16, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+    ZIVC_TEST_ARITHMETIC_I16(compl mask02, compl mask03, compl mask02, compl mask03, mem[0],
+                             "Vector uint16 bitwise NOT failed.");
+    ZIVC_TEST_ARITHMETIC_I16(mask01 bitand mask02, mask01 bitand mask02, mask01 bitand mask03, mask01 bitand mask02, mem[1],
+                             "Vector uint16 bitwise AND failed.");
+    ZIVC_TEST_ARITHMETIC_I16(mask01 bitand mask02, mask01 bitand mask03, mask01 bitand mask02, mask01 bitand mask03, mem[2],
+                             "Vector uint16 bitwise AND failed.");
+    ZIVC_TEST_ARITHMETIC_I16(mask01 bitand mask02, mask01 bitand mask02, mask01 bitand mask02, mask01 bitand mask02, mem[3],
+                             "Vector uint16 bitwise AND failed.");
+    ZIVC_TEST_ARITHMETIC_I16(mask02 bitor mask04, mask03 bitor mask05, mask02 bitor mask04, mask03 bitor mask05, mem[4],
+                             "Vector uint16 bitwise OR failed.");
+    ZIVC_TEST_ARITHMETIC_I16(mask02 bitor mask04, mask02 bitor mask05, mask02 bitor mask04, mask02 bitor mask05, mem[5],
+                             "Vector uint16 bitwise OR failed.");
+    ZIVC_TEST_ARITHMETIC_I16(mask02 bitor mask04, mask03 bitor mask04, mask02 bitor mask04, mask03 bitor mask04, mem[6],
+                             "Vector uint16 bitwise OR failed.");
+    ZIVC_TEST_ARITHMETIC_I16(mask02 xor mask04, mask03 xor mask05, mask02 xor mask04, mask03 xor mask05, mem[7],
+                             "Vector uint16 bitwise XOR failed.");
+    ZIVC_TEST_ARITHMETIC_I16(mask02 xor mask04, mask02 xor mask05, mask02 xor mask04, mask02 xor mask05, mem[8],
+                             "Vector uint16 bitwise XOR failed.");
+    ZIVC_TEST_ARITHMETIC_I16(mask02 xor mask04, mask03 xor mask04, mask02 xor mask04, mask03 xor mask04, mem[9],
+                             "Vector uint16 bitwise XOR failed.");
+    ZIVC_TEST_ARITHMETIC_I16(32u << 2u, 64u << 4u, 128u << 6u, 256u << 8u, mem[10],
+                             "Vector uint16 left shift failed.");
+    ZIVC_TEST_ARITHMETIC_I16(32u << 2u, 64u << 2u, 128u << 2u, 256u << 2u, mem[11],
+                             "Vector uint16 left shift failed.");
+    ZIVC_TEST_ARITHMETIC_I16(32u >> 2u, 64u >> 4u, 128u >> 6u, 256u >> 8u, mem[12],
+                             "Vector uint16 right shift failed.");
+    ZIVC_TEST_ARITHMETIC_I16(32u >> 2u, 64u >> 2u, 128u >> 2u, 256u >> 2u, mem[13],
+                             "Vector uint16 right shift failed.");
+  }
+}
+
 TEST(ClCppTest, VectorBitwiseAssignmentOperatorTest)
 {
   const zivc::SharedContext context = ztest::createContext();
@@ -1427,6 +2277,204 @@ TEST(ClCppTest, VectorBitwiseAssignmentOperatorTest)
   }
 }
 
+TEST(ClCppTest, VectorBitwiseAssignmentOperatorLongVecTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::uint32b;
+  using zivc::cl_uint2;
+  using zivc::cl_uint3;
+  using zivc::cl_uint4;
+  using zivc::cl_uint8;
+  using zivc::cl_uint16;
+
+  constexpr uint32b mask01 = std::numeric_limits<uint32b>::max();
+  constexpr uint32b mask02 = 0b0101'0101'1010'1010'1100'0011'0000'1111u;
+  constexpr uint32b mask03 = 0b0101'0101'0101'0101'0101'0101'0101'0101u;
+  constexpr uint32b mask04 = 0b0000'0000'0000'0000'1111'1111'1111'1111u;
+  constexpr uint32b mask05 = 0b1111'1111'1111'1111'0000'0000'0000'0000u;
+
+  const zivc::SharedBuffer buffer_in8 = device->createBuffer<cl_uint8>(zivc::BufferUsage::kPreferDevice);
+  {
+    const std::initializer_list<cl_uint8> v = {
+        cl_uint8{mask01, mask01, mask01, mask01, mask01, mask01, mask01, mask01},
+        cl_uint8{mask02, mask03, mask02, mask03, mask02, mask03, mask02, mask03},
+        cl_uint8{mask04, mask05, mask04, mask05, mask04, mask05, mask04, mask05},
+        cl_uint8{32u, 64u, 32u, 64u, 32u, 64u, 32u, 64u},
+        cl_uint8{2u, 4u, 2u, 4u, 2u, 4u, 2u, 4u}};
+    ztest::setDeviceBuffer(*device, v, buffer_in8.get());
+  }
+  const zivc::SharedBuffer buffer_in16 = device->createBuffer<cl_uint16>(zivc::BufferUsage::kPreferDevice);
+  {
+    const std::initializer_list<cl_uint16> v = {
+        cl_uint16{mask01, mask01, mask01, mask01,
+                  mask01, mask01, mask01, mask01,
+                  mask01, mask01, mask01, mask01,
+                  mask01, mask01, mask01, mask01},
+        cl_uint16{mask02, mask03, mask02, mask03,
+                  mask02, mask03, mask02, mask03,
+                  mask02, mask03, mask02, mask03,
+                  mask02, mask03, mask02, mask03},
+        cl_uint16{mask04, mask05, mask04, mask05,
+                  mask04, mask05, mask04, mask05,
+                  mask04, mask05, mask04, mask05,
+                  mask04, mask05, mask04, mask05},
+        cl_uint16{32u, 64u, 128u, 256u,
+                  32u, 64u, 128u, 256u,
+                  32u, 64u, 128u, 256u,
+                  32u, 64u, 128u, 256u},
+        cl_uint16{2u, 4u, 6u, 8u,
+                  2u, 4u, 6u, 8u,
+                  2u, 4u, 6u, 8u,
+                  2u, 4u, 6u, 8u}};
+    ztest::setDeviceBuffer(*device, v, buffer_in16.get());
+  }
+  const std::size_t n = 10;
+  const zivc::SharedBuffer buffer_out8 = device->createBuffer<cl_uint8>(zivc::BufferUsage::kPreferDevice);
+  buffer_out8->setSize(n + 5);
+  {
+    const cl_uint8 v{0};
+    ztest::fillDeviceBuffer(v, buffer_out8.get());
+  }
+  const zivc::SharedBuffer buffer_out16 = device->createBuffer<cl_uint16>(zivc::BufferUsage::kPreferDevice);
+  buffer_out16->setSize(n);
+  {
+    const cl_uint16 v{0};
+    ztest::fillDeviceBuffer(v, buffer_out16.get());
+  }
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vectorBitwiseAssignmentOperatorLongVecTest, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(4, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("VectorBitwiseAssignmentOperatorLongVecTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(4, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_in8, *buffer_in16,
+                                          *buffer_out8, *buffer_out16, launch_options);
+  device->waitForCompletion(result.fence());
+
+  // output8
+  {
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_uint8>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out8, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+    ZIVC_TEST_ARITHMETIC_I8(mask01 bitand mask02, mask01 bitand mask03, mem[0],
+                            "Vector uint8 bitwise AND failed.");
+    ZIVC_TEST_ARITHMETIC_I8(mask01 bitand mask02, mask01 bitand mask02, mem[1],
+                            "Vector uint8 bitwise AND failed.");
+    ZIVC_TEST_ARITHMETIC_I8(mask02 bitor mask04, mask03 bitor mask05, mem[2],
+                            "Vector uint8 bitwise OR failed.");
+    ZIVC_TEST_ARITHMETIC_I8(mask02 bitor mask04, mask03 bitor mask04, mem[3],
+                            "Vector uint8 bitwise OR failed.");
+    ZIVC_TEST_ARITHMETIC_I8(mask02 xor mask04, mask03 xor mask05, mem[4],
+                            "Vector uint8 bitwise XOR failed.");
+    ZIVC_TEST_ARITHMETIC_I8(mask02 xor mask04, mask03 xor mask04, mem[5],
+                            "Vector uint8 bitwise XOR failed.");
+    ZIVC_TEST_ARITHMETIC_I8(32u << 2u, 64u << 4u, mem[6],
+                            "Vector uint8 left shift failed.");
+    ZIVC_TEST_ARITHMETIC_I8(32u << 2u, 64u << 2u, mem[7],
+                            "Vector uint8 left shift failed.");
+    ZIVC_TEST_ARITHMETIC_I8(32u >> 2u, 64u >> 4u, mem[8],
+                            "Vector uint8 right shift failed.");
+    ZIVC_TEST_ARITHMETIC_I8(32u >> 2u, 64u >> 2u, mem[9],
+                            "Vector uint8 right shift failed.");
+
+    // Constexpr test
+    EXPECT_EQ(3u bitand 1u, mem[10].s0) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u bitand 2u, mem[10].s1) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u bitand 3u, mem[10].s2) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u bitand 4u, mem[10].s3) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u bitand 5u, mem[10].s4) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u bitand 6u, mem[10].s5) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u bitand 7u, mem[10].s6) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u bitand 8u, mem[10].s7) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u bitor 1u, mem[11].s0) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u bitor 2u, mem[11].s1) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u bitor 3u, mem[11].s2) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u bitor 4u, mem[11].s4) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u bitor 5u, mem[11].s5) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u bitor 6u, mem[11].s5) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u bitor 7u, mem[11].s6) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u bitor 8u, mem[11].s7) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u xor 1u, mem[12].s0) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u xor 2u, mem[12].s1) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u xor 3u, mem[12].s2) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u xor 4u, mem[12].s3) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u xor 5u, mem[12].s4) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u xor 6u, mem[12].s5) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u xor 7u, mem[12].s6) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u xor 8u, mem[12].s7) << "Vector constexpr test failed.";
+    EXPECT_EQ(1u << 3u, mem[13].s0) << "Vector constexpr test failed.";
+    EXPECT_EQ(2u << 3u, mem[13].s1) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u << 3u, mem[13].s2) << "Vector constexpr test failed.";
+    EXPECT_EQ(4u << 3u, mem[13].s3) << "Vector constexpr test failed.";
+    EXPECT_EQ(5u << 3u, mem[13].s4) << "Vector constexpr test failed.";
+    EXPECT_EQ(6u << 3u, mem[13].s5) << "Vector constexpr test failed.";
+    EXPECT_EQ(7u << 3u, mem[13].s6) << "Vector constexpr test failed.";
+    EXPECT_EQ(8u << 3u, mem[13].s7) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u >> 1u, mem[14].s0) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u >> 2u, mem[14].s1) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u >> 3u, mem[14].s2) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u >> 4u, mem[14].s3) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u >> 5u, mem[14].s4) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u >> 6u, mem[14].s5) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u >> 7u, mem[14].s6) << "Vector constexpr test failed.";
+    EXPECT_EQ(3u >> 8u, mem[14].s7) << "Vector constexpr test failed.";
+  }
+  // output16
+  {
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_uint16>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out16, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+    ZIVC_TEST_ARITHMETIC_I16(mask01 bitand mask02, mask01 bitand mask03,
+                             mask01 bitand mask02, mask01 bitand mask03, mem[0],
+                             "Vector uint16 bitwise AND failed.");
+    ZIVC_TEST_ARITHMETIC_I16(mask01 bitand mask02, mask01 bitand mask02,
+                             mask01 bitand mask02, mask01 bitand mask02, mem[1],
+                             "Vector uint16 bitwise AND failed.");
+    ZIVC_TEST_ARITHMETIC_I16(mask02 bitor mask04, mask03 bitor mask05,
+                             mask02 bitor mask04, mask03 bitor mask05, mem[2],
+                             "Vector uint16 bitwise OR failed.");
+    ZIVC_TEST_ARITHMETIC_I16(mask02 bitor mask04, mask03 bitor mask04,
+                             mask02 bitor mask04, mask03 bitor mask04, mem[3],
+                             "Vector uint16 bitwise OR failed.");
+    ZIVC_TEST_ARITHMETIC_I16(mask02 xor mask04, mask03 xor mask05,
+                             mask02 xor mask04, mask03 xor mask05, mem[4],
+                             "Vector uint16 bitwise XOR failed.");
+    ZIVC_TEST_ARITHMETIC_I16(mask02 xor mask04, mask03 xor mask04,
+                             mask02 xor mask04, mask03 xor mask04, mem[5],
+                             "Vector uint16 bitwise XOR failed.");
+    ZIVC_TEST_ARITHMETIC_I16(32u << 2u, 64u << 4u,
+                             128u << 6u, 256u << 8u, mem[6],
+                             "Vector uint16 left shift failed.");
+    ZIVC_TEST_ARITHMETIC_I16(32u << 2u, 64u << 2u,
+                             128u << 2u, 256u << 2u, mem[7],
+                             "Vector uint16 left shift failed.");
+    ZIVC_TEST_ARITHMETIC_I16(32u >> 2u, 64u >> 4u,
+                             128u >> 6u, 256u >> 8u, mem[8],
+                             "Vector uint16 right shift failed.");
+    ZIVC_TEST_ARITHMETIC_I16(32u >> 2u, 64u >> 2u,
+                             128u >> 2u, 256u >> 2u, mem[9],
+                             "Vector uint16 right shift failed.");
+  }
+}
+
 TEST(ClCppTest, VectorIncrementDecrementTest)
 {
   const zivc::SharedContext context = ztest::createContext();
@@ -1511,6 +2559,92 @@ TEST(ClCppTest, VectorIncrementDecrementTest)
   }
 }
 
+TEST(ClCppTest, VectorIncrementDecrementLongVecTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_int4;
+  using zivc::cl_int16;
+
+  const zivc::SharedBuffer buffer_inout16 = device->createBuffer<cl_int16>(zivc::BufferUsage::kPreferDevice);
+  {
+    const std::initializer_list<cl_int16> v = {
+        cl_int16{0, 1, 2, 3,
+                 0, 1, 2, 3,
+                 0, 1, 2, 3,
+                 0, 1, 2, 3},
+        cl_int16{0, 0, 0, 0,
+                 0, 0, 0, 0,
+                 0, 0, 0, 0,
+                 0, 0, 0, 0},
+        cl_int16{0, 1, 2, 3,
+                 0, 1, 2, 3,
+                 0, 1, 2, 3,
+                 0, 1, 2, 3},
+        cl_int16{0, 0, 0, 0,
+                 0, 0, 0, 0,
+                 0, 0, 0, 0,
+                 0, 0, 0, 0},
+        cl_int16{0, 1, 2, 3,
+                 0, 1, 2, 3,
+                 0, 1, 2, 3,
+                 0, 1, 2, 3},
+        cl_int16{0, 0, 0, 0,
+                 0, 0, 0, 0,
+                 0, 0, 0, 0,
+                 0, 0, 0, 0},
+        cl_int16{0, 1, 2, 3,
+                 0, 1, 2, 3,
+                 0, 1, 2, 3,
+                 0, 1, 2, 3},
+        cl_int16{0, 0, 0, 0,
+                 0, 0, 0, 0,
+                 0, 0, 0, 0,
+                 0, 0, 0, 0}};
+    ztest::setDeviceBuffer(*device, v, buffer_inout16.get());
+  }
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vectorIncrementDecrementLongVecTest, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(1, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("VectorIncrementDecrementLongVecTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(1, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_inout16, launch_options);
+  device->waitForCompletion(result.fence());
+
+  // output4
+  {
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_int16>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_inout16, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+    ZIVC_TEST_ARITHMETIC_I16(1, 2, 3, 4, mem[0], "Vector int16 incremenet failed.");
+    ZIVC_TEST_ARITHMETIC_I16(0, 1, 2, 3, mem[1], "Vector int16 incremenet failed.");
+    ZIVC_TEST_ARITHMETIC_I16(1, 2, 3, 4, mem[2], "Vector int16 incremenet failed.");
+    ZIVC_TEST_ARITHMETIC_I16(1, 2, 3, 4, mem[3], "Vector int16 incremenet failed.");
+    ZIVC_TEST_ARITHMETIC_I16(-1, 0, 1, 2, mem[4], "Vector int16 decremenet failed.");
+    ZIVC_TEST_ARITHMETIC_I16(0, 1, 2, 3, mem[5], "Vector int16 decremenet failed.");
+    ZIVC_TEST_ARITHMETIC_I16(-1, 0, 1, 2, mem[6], "Vector int16 decremenet failed.");
+    ZIVC_TEST_ARITHMETIC_I16(-1, 0, 1, 2, mem[7], "Vector int16 decremenet failed.");
+  }
+}
+
 TEST(ClCppTest, VectorConditionalOperatorTest)
 {
   const zivc::SharedContext context = ztest::createContext();
@@ -1565,6 +2699,74 @@ TEST(ClCppTest, VectorConditionalOperatorTest)
     EXPECT_EQ(-2, mem[4].y) << "Vector int4 conditional operator failed.";
     EXPECT_EQ(-3, mem[4].z) << "Vector int4 conditional operator failed.";
     EXPECT_EQ(-4, mem[4].w) << "Vector int4 conditional operator failed.";
+  }
+}
+
+TEST(ClCppTest, VectorConditionalOperatorLongVecTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_int4;
+  using zivc::cl_int16;
+
+  const zivc::SharedBuffer buffer_inout16 = device->createBuffer<cl_int16>(zivc::BufferUsage::kPreferDevice);
+  {
+    const std::initializer_list<cl_int16> v = {
+        cl_int16{1, 0, 0, 0,
+                 1, 0, 0, 0,
+                 1, 0, 0, 0,
+                 1, 0, 0, 0},
+        cl_int16{1, 2, 3, 4,
+                 1, 2, 3, 4,
+                 1, 2, 3, 4,
+                 1, 2, 3, 4},
+        cl_int16{-1, -2, -3, -4,
+                 -1, -2, -3, -4,
+                 -1, -2, -3, -4,
+                 -1, -2, -3, -4},
+        cl_int16{0, 0, 0, 0,
+                 0, 0, 0, 0,
+                 0, 0, 0, 0,
+                 0, 0, 0, 0},
+        cl_int16{0, 0, 0, 0,
+                 0, 0, 0, 0,
+                 0, 0, 0, 0,
+                 0, 0, 0, 0}};
+    ztest::setDeviceBuffer(*device, v, buffer_inout16.get());
+  }
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vectorConditionalOperatorLongVecTest, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(1, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("VectorConditionalOperatorLongVecTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(1, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_inout16, launch_options);
+  device->waitForCompletion(result.fence());
+
+  // output4
+  {
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_int16>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_inout16, buffer.get());
+    const auto mem = buffer->mapMemory();
+    ZIVC_TEST_ARITHMETIC_I16(1, 2, 3, 4, mem[3], "Vector int16 conditional operator failed.");
+    ZIVC_TEST_ARITHMETIC_I16(-1, -2, -3, -4, mem[4], "Vector int16 conditional operator failed.");
   }
 }
 
@@ -1717,6 +2919,279 @@ TEST(ClCppTest, VectorComparisonOperatorTest)
     EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
     EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
     EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+  }
+}
+
+TEST(ClCppTest, VectorComparisonOperatorLongVecTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_int4;
+  using zivc::cl_int8;
+  using zivc::cl_Boolean;
+
+  const zivc::SharedBuffer buffer_in8 = device->createBuffer<cl_int8>(zivc::BufferUsage::kPreferDevice);
+  {
+    const std::initializer_list<cl_int8> v = {
+        cl_int8{1, 1, 1, 1, 1, 1, 1, 1},
+        cl_int8{-1, 0, 1, 2, -1, 0, 1, 2}};
+    ztest::setDeviceBuffer(*device, v, buffer_in8.get());
+  }
+  const zivc::SharedBuffer buffer_out = device->createBuffer<cl_Boolean>(zivc::BufferUsage::kPreferDevice);
+  buffer_out->setSize(2 * (72 + 24));
+  {
+    cl_Boolean v;
+    v.set(false);
+    ztest::fillDeviceBuffer(v, buffer_out.get());
+  }
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vectorComparisonOperatorLongVecTest, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(2, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("VectorConditionalOperatorLongVecTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(2, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_in8, *buffer_out, launch_options);
+  device->waitForCompletion(result.fence());
+
+  // output
+  {
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_Boolean>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+    std::size_t index = 0;
+    EXPECT_FALSE(mem[index++]) << "Vector int8 equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 equal to failed.";
+
+    EXPECT_FALSE(mem[index++]) << "Vector int8 equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 equal to failed.";
+
+    EXPECT_FALSE(mem[index++]) << "Vector int8 equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 equal to failed.";
+
+    EXPECT_TRUE(mem[index++]) << "Vector int8 not equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 not equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 not equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 not equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 not equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 not equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 not equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 not equal to failed.";
+
+    EXPECT_TRUE(mem[index++]) << "Vector int8 not equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 not equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 not equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 not equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 not equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 not equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 not equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 not equal to failed.";
+
+    EXPECT_TRUE(mem[index++]) << "Vector int8 not equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 not equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 not equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 not equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 not equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 not equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 not equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 not equal to failed.";
+
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 less than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 less than failed.";
+
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 less than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 less than failed.";
+
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than failed.";
+
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 greater than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 greater than failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 greater than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 greater than failed.";
+
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 greater than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 greater than failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 greater than failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 greater than failed.";
+
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than failed.";
+
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than or equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 less than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 less than or equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than or equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 less than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 less than or equal to failed.";
+
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than or equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 less than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 less than or equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than or equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 less than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 less than or equal to failed.";
+
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than or equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than or equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than or equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than or equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than or equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than or equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than or equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 less than or equal to failed.";
+
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than or equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 greater than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than or equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 greater than or equal to failed.";
+
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than or equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 greater than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than or equal to failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int8 greater than or equal to failed.";
+
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than or equal to failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int8 greater than or equal to failed.";
+
+    // Constexpr test
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
     EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
   }
 }
@@ -1881,6 +3356,139 @@ TEST(ClCppTest, VectorComparisonResultTest)
   }
 }
 
+TEST(ClCppTest, VectorComparisonResultLongVecTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_uchar;
+  using zivc::cl_char2;
+  using zivc::cl_ushort3;
+  using zivc::cl_ushort8;
+  using zivc::cl_uint4;
+  using zivc::cl_uint16;
+  using zivc::cl_Boolean;
+
+  const zivc::SharedBuffer buffer_in8 = device->createBuffer<cl_ushort8>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in16 = device->createBuffer<cl_uint16>(zivc::BufferUsage::kPreferDevice);
+  {
+    const std::initializer_list<cl_ushort8> v = {
+        cl_ushort8{1, 0, 1, 0, 1, 0, 1, 0},
+        cl_ushort8{0, 0, 1, 1, 0, 0, 1, 1}};
+    ztest::setDeviceBuffer(*device, v, buffer_in8.get());
+  }
+  {
+    const std::initializer_list<cl_uint16> v = {
+        cl_uint16{1, 0, 1, 0,
+                  1, 0, 1, 0,
+                  1, 0, 1, 0,
+                  1, 0, 1, 0},
+        cl_uint16{0, 0, 1, 1,
+                  0, 0, 1, 1,
+                  0, 0, 1, 1,
+                  0, 0, 1, 1}};
+    ztest::setDeviceBuffer(*device, v, buffer_in16.get());
+  }
+  const zivc::SharedBuffer buffer_out8 = device->createBuffer<zivc::cl_CompResult<cl_ushort8>>(zivc::BufferUsage::kPreferDevice);
+  buffer_out8->setSize(6);
+  const zivc::SharedBuffer buffer_out16 = device->createBuffer<zivc::cl_CompResult<cl_uint16>>(zivc::BufferUsage::kPreferDevice);
+  buffer_out16->setSize(6);
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vectorComparisonResultLongVecTest, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(4, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("VectorConditionalResultLongVecTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(4, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_in8, *buffer_in16, *buffer_out8, *buffer_out16, launch_options);
+  device->waitForCompletion(result.fence());
+
+  // output
+  {
+    using ResultT = zivc::cl_CompResult<cl_ushort8>;
+    const zivc::SharedBuffer buffer = device->createBuffer<ResultT>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out8, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+    constexpr auto t = static_cast<ResultT::Type>(zivc::cl::kVTrue);
+    constexpr auto f = static_cast<ResultT::Type>(zivc::cl::kVFalse);
+    ASSERT_EQ(f, mem[0].s0) << "vector3 equal operation failed.";
+    ASSERT_EQ(t, mem[0].s1) << "vector3 equal operation failed.";
+    ASSERT_EQ(t, mem[0].s2) << "vector3 equal operation failed.";
+    ASSERT_EQ(f, mem[0].s3) << "vector3 equal operation failed.";
+    ASSERT_EQ(f, mem[0].s4) << "vector3 equal operation failed.";
+    ASSERT_EQ(t, mem[0].s5) << "vector3 equal operation failed.";
+    ASSERT_EQ(t, mem[0].s6) << "vector3 equal operation failed.";
+    ASSERT_EQ(f, mem[0].s7) << "vector3 equal operation failed.";
+    ASSERT_EQ(t, mem[1].s0) << "vector3 not equal operation failed.";
+    ASSERT_EQ(f, mem[1].s1) << "vector3 not equal operation failed.";
+    ASSERT_EQ(f, mem[1].s2) << "vector3 not equal operation failed.";
+    ASSERT_EQ(t, mem[1].s3) << "vector3 not equal operation failed.";
+    ASSERT_EQ(t, mem[1].s4) << "vector3 not equal operation failed.";
+    ASSERT_EQ(f, mem[1].s5) << "vector3 not equal operation failed.";
+    ASSERT_EQ(f, mem[1].s6) << "vector3 not equal operation failed.";
+    ASSERT_EQ(t, mem[1].s7) << "vector3 not equal operation failed.";
+    ASSERT_EQ(t, mem[2].s0) << "vector3 greater operation failed.";
+    ASSERT_EQ(f, mem[2].s1) << "vector3 greater operation failed.";
+    ASSERT_EQ(f, mem[2].s2) << "vector3 greater operation failed.";
+    ASSERT_EQ(f, mem[2].s3) << "vector3 greater operation failed.";
+    ASSERT_EQ(t, mem[2].s4) << "vector3 greater operation failed.";
+    ASSERT_EQ(f, mem[2].s5) << "vector3 greater operation failed.";
+    ASSERT_EQ(f, mem[2].s6) << "vector3 greater operation failed.";
+    ASSERT_EQ(f, mem[2].s7) << "vector3 greater operation failed.";
+    ASSERT_EQ(t, mem[3].s0) << "vector3 greater or equal operation failed.";
+    ASSERT_EQ(t, mem[3].s1) << "vector3 greater or equal operation failed.";
+    ASSERT_EQ(t, mem[3].s2) << "vector3 greater or equal operation failed.";
+    ASSERT_EQ(f, mem[3].s3) << "vector3 greater or equal operation failed.";
+    ASSERT_EQ(t, mem[3].s4) << "vector3 greater or equal operation failed.";
+    ASSERT_EQ(t, mem[3].s5) << "vector3 greater or equal operation failed.";
+    ASSERT_EQ(t, mem[3].s6) << "vector3 greater or equal operation failed.";
+    ASSERT_EQ(f, mem[3].s7) << "vector3 greater or equal operation failed.";
+    ASSERT_EQ(f, mem[4].s0) << "vector3 less operation failed.";
+    ASSERT_EQ(f, mem[4].s1) << "vector3 less operation failed.";
+    ASSERT_EQ(f, mem[4].s2) << "vector3 less operation failed.";
+    ASSERT_EQ(t, mem[4].s3) << "vector3 less operation failed.";
+    ASSERT_EQ(f, mem[4].s4) << "vector3 less operation failed.";
+    ASSERT_EQ(f, mem[4].s5) << "vector3 less operation failed.";
+    ASSERT_EQ(f, mem[4].s6) << "vector3 less operation failed.";
+    ASSERT_EQ(t, mem[4].s7) << "vector3 less operation failed.";
+    ASSERT_EQ(f, mem[5].s0) << "vector3 less or equal operation failed.";
+    ASSERT_EQ(t, mem[5].s1) << "vector3 less or equal operation failed.";
+    ASSERT_EQ(t, mem[5].s2) << "vector3 less or equal operation failed.";
+    ASSERT_EQ(t, mem[5].s3) << "vector3 less or equal operation failed.";
+    ASSERT_EQ(f, mem[5].s4) << "vector3 less or equal operation failed.";
+    ASSERT_EQ(t, mem[5].s5) << "vector3 less or equal operation failed.";
+    ASSERT_EQ(t, mem[5].s6) << "vector3 less or equal operation failed.";
+    ASSERT_EQ(t, mem[5].s7) << "vector3 less or equal operation failed.";
+  }
+  {
+    using ResultT = zivc::cl_CompResult<cl_uint16>;
+    const zivc::SharedBuffer buffer = device->createBuffer<ResultT>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out16, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+    constexpr auto t = static_cast<ResultT::Type>(zivc::cl::kVTrue);
+    constexpr auto f = static_cast<ResultT::Type>(zivc::cl::kVFalse);
+    ZIVC_TEST_ARITHMETIC_I16(f, t, t, f, mem[0], "vector16 equal operation failed.");
+    ZIVC_TEST_ARITHMETIC_I16(t, f, f, t, mem[1], "vector16 not equal operation failed.");
+    ZIVC_TEST_ARITHMETIC_I16(t, f, f, f, mem[2], "vector16 greater operation failed.");
+    ZIVC_TEST_ARITHMETIC_I16(t, t, t, f, mem[3], "vector16 greater or equal operation failed.");
+    ZIVC_TEST_ARITHMETIC_I16(f, f, f, t, mem[4], "vector16 less operation failed.");
+    ZIVC_TEST_ARITHMETIC_I16(f, t, t, t, mem[5], "vector16 less or equal operation failed.");
+  }
+}
+
 TEST(ClCppTest, VectorLogicalOperatorTest)
 {
   const zivc::SharedContext context = ztest::createContext();
@@ -1973,6 +3581,154 @@ TEST(ClCppTest, VectorLogicalOperatorTest)
     EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
     EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
     EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+  }
+}
+
+TEST(ClCppTest, VectorLogicalOperatorLongVecTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_int4;
+  using zivc::cl_int8;
+  using zivc::cl_Boolean;
+
+  const zivc::SharedBuffer buffer_in8 = device->createBuffer<cl_int8>(zivc::BufferUsage::kPreferDevice);
+  {
+    const std::initializer_list<cl_int8> v = {
+        cl_int8{1, 1, 1, 1, 1, 1, 1, 1},
+        cl_int8{1, 0, 1, 0, 1, 0, 1, 0},
+        cl_int8{0, 0, 1, 0, 0, 0, 1, 0}};
+    ztest::setDeviceBuffer(*device, v, buffer_in8.get());
+  }
+  const zivc::SharedBuffer buffer_out = device->createBuffer<cl_Boolean>(zivc::BufferUsage::kPreferDevice);
+  buffer_out->setSize(2 * (28 + 12));
+  {
+    cl_Boolean v;
+    v.set(false);
+    ztest::fillDeviceBuffer(v, buffer_out.get());
+  }
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vectorLogicalOperatorLongVecTest, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(2, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("VectorLogicalOperatorLongVecTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(2, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_in8, *buffer_out, launch_options);
+  device->waitForCompletion(result.fence());
+
+  // output
+  {
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_Boolean>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+    std::size_t index = 0;
+    EXPECT_FALSE(mem[index++]) << "Vector int4 negation failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 negation failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 negation failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 negation failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 negation failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 negation failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 negation failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 negation failed.";
+
+    EXPECT_FALSE(mem[index++]) << "Vector int4 AND failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 AND failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 AND failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 AND failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 AND failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 AND failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 AND failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 AND failed.";
+
+    EXPECT_FALSE(mem[index++]) << "Vector int4 AND failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 AND failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 AND failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 AND failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 AND failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 AND failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 AND failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 AND failed.";
+
+    EXPECT_FALSE(mem[index++]) << "Vector int4 AND failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 AND failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 AND failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 AND failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 AND failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 AND failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 AND failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 AND failed.";
+
+    EXPECT_TRUE(mem[index++]) << "Vector int4 OR failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 OR failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 OR failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 OR failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 OR failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 OR failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 OR failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 OR failed.";
+
+    EXPECT_TRUE(mem[index++]) << "Vector int4 OR failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 OR failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 OR failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 OR failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 OR failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 OR failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 OR failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 OR failed.";
+
+    EXPECT_TRUE(mem[index++]) << "Vector int4 OR failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 OR failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 OR failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 OR failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 OR failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 OR failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector int4 OR failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector int4 OR failed.";
+
+    // Constexpr test
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
+    EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
     EXPECT_TRUE(mem[index++]) << "Vector constexpr test failed.";
     EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";
     EXPECT_FALSE(mem[index++]) << "Vector constexpr test failed.";

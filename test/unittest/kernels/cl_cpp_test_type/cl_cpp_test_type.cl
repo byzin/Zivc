@@ -53,60 +53,82 @@ ZIVC_CHECK_TYPE_SIZE(zivc::int8b, 1);
 ZIVC_CHECK_TYPE_SIZE(char2, 2);
 ZIVC_CHECK_TYPE_SIZE(char3, 4);
 ZIVC_CHECK_TYPE_SIZE(char4, 4);
+ZIVC_CHECK_TYPE_SIZE(char8, 8);
+ZIVC_CHECK_TYPE_SIZE(char16, 16);
 ZIVC_CHECK_TYPE_SIZE(unsigned char, 1);
 ZIVC_CHECK_TYPE_SIZE(uchar, 1);
 ZIVC_CHECK_TYPE_SIZE(zivc::uint8b, 1);
 ZIVC_CHECK_TYPE_SIZE(uchar2, 2);
 ZIVC_CHECK_TYPE_SIZE(uchar3, 4);
 ZIVC_CHECK_TYPE_SIZE(uchar4, 4);
+ZIVC_CHECK_TYPE_SIZE(uchar8, 8);
+ZIVC_CHECK_TYPE_SIZE(uchar16, 16);
 ZIVC_CHECK_TYPE_SIZE(signed short, 2);
 ZIVC_CHECK_TYPE_SIZE(short, 2);
 ZIVC_CHECK_TYPE_SIZE(zivc::int16b, 2);
 ZIVC_CHECK_TYPE_SIZE(short2, 4);
 ZIVC_CHECK_TYPE_SIZE(short3, 8);
 ZIVC_CHECK_TYPE_SIZE(short4, 8);
+ZIVC_CHECK_TYPE_SIZE(short8, 16);
+ZIVC_CHECK_TYPE_SIZE(short16, 32);
 ZIVC_CHECK_TYPE_SIZE(unsigned short, 2);
 ZIVC_CHECK_TYPE_SIZE(ushort, 2);
 ZIVC_CHECK_TYPE_SIZE(zivc::uint16b, 2);
 ZIVC_CHECK_TYPE_SIZE(ushort2, 4);
 ZIVC_CHECK_TYPE_SIZE(ushort3, 8);
 ZIVC_CHECK_TYPE_SIZE(ushort4, 8);
+ZIVC_CHECK_TYPE_SIZE(ushort8, 16);
+ZIVC_CHECK_TYPE_SIZE(ushort16, 32);
 ZIVC_CHECK_TYPE_SIZE(signed int, 4);
 ZIVC_CHECK_TYPE_SIZE(int, 4);
 ZIVC_CHECK_TYPE_SIZE(zivc::int32b, 4);
 ZIVC_CHECK_TYPE_SIZE(int2, 8);
 ZIVC_CHECK_TYPE_SIZE(int3, 16);
 ZIVC_CHECK_TYPE_SIZE(int4, 16);
+ZIVC_CHECK_TYPE_SIZE(int8, 32);
+ZIVC_CHECK_TYPE_SIZE(int16, 64);
 ZIVC_CHECK_TYPE_SIZE(unsigned int, 4);
 ZIVC_CHECK_TYPE_SIZE(uint, 4);
 ZIVC_CHECK_TYPE_SIZE(zivc::uint32b, 4);
 ZIVC_CHECK_TYPE_SIZE(uint2, 8);
 ZIVC_CHECK_TYPE_SIZE(uint3, 16);
 ZIVC_CHECK_TYPE_SIZE(uint4, 16);
+ZIVC_CHECK_TYPE_SIZE(uint8, 32);
+ZIVC_CHECK_TYPE_SIZE(uint16, 64);
 //ZIVC_CHECK_TYPE_SIZE(signed long, 8); //!< \note long is 4 bytes in msvc
 //ZIVC_CHECK_TYPE_SIZE(long, 8); //!< \note long is 4 bytes in msvc
 ZIVC_CHECK_TYPE_SIZE(zivc::int64b, 8);
 ZIVC_CHECK_TYPE_SIZE(long2, 16);
 ZIVC_CHECK_TYPE_SIZE(long3, 32);
 ZIVC_CHECK_TYPE_SIZE(long4, 32);
+ZIVC_CHECK_TYPE_SIZE(long8, 64);
+ZIVC_CHECK_TYPE_SIZE(long16, 128);
 //ZIVC_CHECK_TYPE_SIZE(unsigned long, 8); //!< \note long is 4 bytes in msvc
 ZIVC_CHECK_TYPE_SIZE(ulong, 8);
 ZIVC_CHECK_TYPE_SIZE(zivc::uint64b, 8);
 ZIVC_CHECK_TYPE_SIZE(ulong2, 16);
 ZIVC_CHECK_TYPE_SIZE(ulong3, 32);
 ZIVC_CHECK_TYPE_SIZE(ulong4, 32);
+ZIVC_CHECK_TYPE_SIZE(ulong8, 64);
+ZIVC_CHECK_TYPE_SIZE(ulong16, 128);
 ZIVC_CHECK_TYPE_SIZE(half, 2);
 ZIVC_CHECK_TYPE_SIZE(half2, 4);
 ZIVC_CHECK_TYPE_SIZE(half3, 8);
 ZIVC_CHECK_TYPE_SIZE(half4, 8);
+ZIVC_CHECK_TYPE_SIZE(half8, 16);
+ZIVC_CHECK_TYPE_SIZE(half16, 32);
 ZIVC_CHECK_TYPE_SIZE(float, 4);
 ZIVC_CHECK_TYPE_SIZE(float2, 8);
 ZIVC_CHECK_TYPE_SIZE(float3, 16);
 ZIVC_CHECK_TYPE_SIZE(float4, 16);
+ZIVC_CHECK_TYPE_SIZE(float8, 32);
+ZIVC_CHECK_TYPE_SIZE(float16, 64);
 ZIVC_CHECK_TYPE_SIZE(double, 8);
 ZIVC_CHECK_TYPE_SIZE(double2, 16);
 ZIVC_CHECK_TYPE_SIZE(double3, 32);
 ZIVC_CHECK_TYPE_SIZE(double4, 32);
+ZIVC_CHECK_TYPE_SIZE(double8, 64);
+ZIVC_CHECK_TYPE_SIZE(double16, 128);
 
 ZIVC_CHECK_TYPE_SIZE(zivc::GlobalPtr<int>, sizeof(void*));
 ZIVC_CHECK_TYPE_SIZE(zivc::ConstGlobalPtr<int>, sizeof(void*));
@@ -195,6 +217,136 @@ __kernel void vectorComponentAccessKernel(zivc::ConstGlobalPtr<float2> in_vec2,
     v1->y = 6.0f;
     v1->z = 7.0f;
     v1->w = 8.0f;
+  }
+}
+
+__kernel void vectorComponentAccessLongVecKernel(zivc::ConstGlobalPtr<float8> in_vec8,
+                                                 zivc::ConstGlobalPtr<float16> in_vec16,
+                                                 zivc::GlobalPtr<float> output1,
+                                                 zivc::GlobalPtr<float8> output8,
+                                                 zivc::GlobalPtr<float16> output16)
+{
+  const size_t global_index = zivc::getGlobalIdX();
+  if (global_index != 0)
+    return;
+
+  // Read value from vector
+  size_t index = 0;
+  {
+    const float8 v0 = in_vec8[0];
+    output1[index++] = v0.s0;
+    output1[index++] = v0.s1;
+    output1[index++] = v0.s2;
+    output1[index++] = v0.s3;
+    output1[index++] = v0.s4;
+    output1[index++] = v0.s5;
+    output1[index++] = v0.s6;
+    output1[index++] = v0.s7;
+    const zivc::ConstGlobalPtr<float8> v1 = &in_vec8[1];
+    output1[index++] = v1->s0;
+    output1[index++] = v1->s1;
+    output1[index++] = v1->s2;
+    output1[index++] = v1->s3;
+    output1[index++] = v1->s4;
+    output1[index++] = v1->s5;
+    output1[index++] = v1->s6;
+    output1[index++] = v1->s7;
+  }
+  {
+    const float16 v0 = in_vec16[0];
+    output1[index++] = v0.s0;
+    output1[index++] = v0.s1;
+    output1[index++] = v0.s2;
+    output1[index++] = v0.s3;
+    output1[index++] = v0.s4;
+    output1[index++] = v0.s5;
+    output1[index++] = v0.s6;
+    output1[index++] = v0.s7;
+    output1[index++] = v0.s8;
+    output1[index++] = v0.s9;
+    output1[index++] = v0.sa;
+    output1[index++] = v0.sb;
+    output1[index++] = v0.sc;
+    output1[index++] = v0.sd;
+    output1[index++] = v0.se;
+    output1[index++] = v0.sf;
+    const zivc::ConstGlobalPtr<float16> v1 = &in_vec16[1];
+    output1[index++] = v1->s0;
+    output1[index++] = v1->s1;
+    output1[index++] = v1->s2;
+    output1[index++] = v1->s3;
+    output1[index++] = v1->s4;
+    output1[index++] = v1->s5;
+    output1[index++] = v1->s6;
+    output1[index++] = v1->s7;
+    output1[index++] = v1->s8;
+    output1[index++] = v1->s9;
+    output1[index++] = v1->sa;
+    output1[index++] = v1->sb;
+    output1[index++] = v1->sc;
+    output1[index++] = v1->sd;
+    output1[index++] = v1->se;
+    output1[index++] = v1->sf;
+  }
+  // Write value into vector
+  {
+    float8 v0{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+    v0.s0 = 1.0f;
+    v0.s1 = 2.0f;
+    v0.s2 = 3.0f;
+    v0.s3 = 4.0f;
+    v0.s4 = 5.0f;
+    v0.s5 = 6.0f;
+    v0.s6 = 7.0f;
+    v0.s7 = 8.0f;
+    output8[0] = v0;
+    zivc::GlobalPtr<float8> v1 = &output8[1];
+    v1->s0 = 9.0f;
+    v1->s1 = 10.0f;
+    v1->s2 = 11.0f;
+    v1->s3 = 12.0f;
+    v1->s4 = 13.0f;
+    v1->s5 = 14.0f;
+    v1->s6 = 15.0f;
+    v1->s7 = 16.0f;
+  }
+  {
+    float16 v0{0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+               0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+    v0.s0 = 1.0f;
+    v0.s1 = 2.0f;
+    v0.s2 = 3.0f;
+    v0.s3 = 4.0f;
+    v0.s4 = 5.0f;
+    v0.s5 = 6.0f;
+    v0.s6 = 7.0f;
+    v0.s7 = 8.0f;
+    v0.s8 = 9.0f;
+    v0.s9 = 10.0f;
+    v0.sa = 11.0f;
+    v0.sb = 12.0f;
+    v0.sc = 13.0f;
+    v0.sd = 14.0f;
+    v0.se = 15.0f;
+    v0.sf = 16.0f;
+    output16[0] = v0;
+    zivc::GlobalPtr<float16> v1 = &output16[1];
+    v1->s0 = 17.0f;
+    v1->s1 = 18.0f;
+    v1->s2 = 19.0f;
+    v1->s3 = 20.0f;
+    v1->s4 = 21.0f;
+    v1->s5 = 22.0f;
+    v1->s6 = 23.0f;
+    v1->s7 = 24.0f;
+    v1->s8 = 25.0f;
+    v1->s9 = 26.0f;
+    v1->sa = 27.0f;
+    v1->sb = 28.0f;
+    v1->sc = 29.0f;
+    v1->sd = 30.0f;
+    v1->se = 31.0f;
+    v1->sf = 32.0f;
   }
 }
 
@@ -749,6 +901,213 @@ __kernel void vectorArithmeticOperatorTest(
   }
 }
 
+__kernel void vectorArithmeticOperatorLongVecTest(
+    zivc::ConstGlobalPtr<int8> in_int8,
+    zivc::ConstGlobalPtr<int16> in_int16,
+    zivc::ConstGlobalPtr<float8> in_float8,
+    zivc::ConstGlobalPtr<float16> in_float16,
+    zivc::GlobalPtr<int8> out_int8,
+    zivc::GlobalPtr<int16> out_int16,
+    zivc::GlobalPtr<float8> out_float8,
+    zivc::GlobalPtr<float16> out_float16)
+{
+  const size_t global_index = zivc::getGlobalIdX();
+  if (global_index != 0)
+    return;
+
+  size_t iindex = 0;
+  size_t oindex = 0;
+  // Unary plus
+  {
+    const int8 v = in_int8[iindex];
+    out_int8[oindex] = +v;
+  }
+  {
+    const int16 v = in_int16[iindex];
+    out_int16[oindex] = +v;
+  }
+  {
+    const float8 v = in_float8[iindex];
+    out_float8[oindex] = +v;
+  }
+  {
+    const float16 v = in_float16[iindex];
+    out_float16[oindex] = +v;
+  }
+  ++oindex;
+  // Unary minus
+  {
+    out_int8[oindex] = -in_int8[iindex];
+  }
+  {
+    out_int16[oindex] = -in_int16[iindex];
+  }
+  {
+    out_float8[oindex] = -in_float8[iindex];
+  }
+  {
+    out_float16[oindex] = -in_float16[iindex];
+  }
+  ++oindex;
+  // Addition
+  {
+    const int8 v0 = in_int8[iindex];
+    const int8 v1 = in_int8[iindex + 1];
+    out_int8[oindex] = v0 + v1;
+    out_int8[oindex + 1] = v0.s0 + v1;
+    out_int8[oindex + 2] = v0 + v1.s0;
+  }
+  {
+    const int16 v0 = in_int16[iindex];
+    const int16 v1 = in_int16[iindex + 1];
+    out_int16[oindex] = v0 + v1;
+    out_int16[oindex + 1] = v0.s0 + v1;
+    out_int16[oindex + 2] = v0 + v1.s0;
+  }
+  {
+    const float8 v0 = in_float8[iindex];
+    const float8 v1 = in_float8[iindex + 1];
+    out_float8[oindex] = v0 + v1;
+    out_float8[oindex + 1] = v0.s0 + v1;
+    out_float8[oindex + 2] = v0 + v1.s0;
+  }
+  {
+    const float16 v0 = in_float16[iindex];
+    const float16 v1 = in_float16[iindex + 1];
+    out_float16[oindex] = v0 + v1;
+    out_float16[oindex + 1] = v0.s0 + v1;
+    out_float16[oindex + 2] = v0 + v1.s0;
+  }
+  oindex += 3;
+  // Subtraction
+  {
+    const int8 v0 = in_int8[iindex];
+    const int8 v1 = in_int8[iindex + 1];
+    out_int8[oindex] = v0 - v1;
+    out_int8[oindex + 1] = v0.s0 - v1;
+    out_int8[oindex + 2] = v0 - v1.s0;
+  }
+  {
+    const int16 v0 = in_int16[iindex];
+    const int16 v1 = in_int16[iindex + 1];
+    out_int16[oindex] = v0 - v1;
+    out_int16[oindex + 1] = v0.s0 - v1;
+    out_int16[oindex + 2] = v0 - v1.s0;
+  }
+  {
+    const float8 v0 = in_float8[iindex];
+    const float8 v1 = in_float8[iindex + 1];
+    out_float8[oindex] = v0 - v1;
+    out_float8[oindex + 1] = v0.s0 - v1;
+    out_float8[oindex + 2] = v0 - v1.s0;
+  }
+  {
+    const float16 v0 = in_float16[iindex];
+    const float16 v1 = in_float16[iindex + 1];
+    out_float16[oindex] = v0 - v1;
+    out_float16[oindex + 1] = v0.s0 - v1;
+    out_float16[oindex + 2] = v0 - v1.s0;
+  }
+  oindex += 3;
+  // Multiplication
+  {
+    const int8 v0 = in_int8[iindex];
+    const int8 v1 = in_int8[iindex + 1];
+    out_int8[oindex] = v0 * v1;
+    out_int8[oindex + 1] = v0.s0 * v1;
+    out_int8[oindex + 2] = v0 * v1.s0;
+  }
+  {
+    const int16 v0 = in_int16[iindex];
+    const int16 v1 = in_int16[iindex + 1];
+    out_int16[oindex] = v0 * v1;
+    out_int16[oindex + 1] = v0.s0 * v1;
+    out_int16[oindex + 2] = v0 * v1.s0;
+  }
+  {
+    const float8 v0 = in_float8[iindex];
+    const float8 v1 = in_float8[iindex + 1];
+    out_float8[oindex] = v0 * v1;
+    out_float8[oindex + 1] = v0.s0 * v1;
+    out_float8[oindex + 2] = v0 * v1.s0;
+  }
+  {
+    const float16 v0 = in_float16[iindex];
+    const float16 v1 = in_float16[iindex + 1];
+    out_float16[oindex] = v0 * v1;
+    out_float16[oindex + 1] = v0.s0 * v1;
+    out_float16[oindex + 2] = v0 * v1.s0;
+  }
+  oindex += 3;
+  // Division
+  {
+    const int8 v0 = in_int8[iindex];
+    const int8 v1 = in_int8[iindex + 1];
+    out_int8[oindex] = v0 / v1;
+    out_int8[oindex + 1] = v0.s0 / v1;
+    out_int8[oindex + 2] = v0 / v1.s0;
+  }
+  {
+    const int16 v0 = in_int16[iindex];
+    const int16 v1 = in_int16[iindex + 1];
+    out_int16[oindex] = v0 / v1;
+    out_int16[oindex + 1] = v0.s0 / v1;
+    out_int16[oindex + 2] = v0 / v1.s0;
+  }
+  {
+    const float8 v0 = in_float8[iindex];
+    const float8 v1 = in_float8[iindex + 1];
+    out_float8[oindex] = v0 / v1;
+    out_float8[oindex + 1] = v0.s0 / v1;
+    out_float8[oindex + 2] = v0 / v1.s0;
+  }
+  {
+    const float16 v0 = in_float16[iindex];
+    const float16 v1 = in_float16[iindex + 1];
+    out_float16[oindex] = v0 / v1;
+    out_float16[oindex + 1] = v0.s0 / v1;
+    out_float16[oindex + 2] = v0 / v1.s0;
+  }
+  iindex += 2;
+  oindex += 3;
+  // Modulo
+  {
+    const int8 v0 = in_int8[iindex];
+    const int8 v1 = in_int8[iindex + 1];
+    out_int8[oindex] = v0 % v1;
+    out_int8[oindex + 1] = v0.s0 % v1;
+    out_int8[oindex + 2] = v0 % v1.s0;
+  }
+  {
+    const int16 v0 = in_int16[iindex];
+    const int16 v1 = in_int16[iindex + 1];
+    out_int16[oindex] = v0 % v1;
+    out_int16[oindex + 1] = v0.s0 % v1;
+    out_int16[oindex + 2] = v0 % v1.s0;
+  }
+
+  // Constexpr test
+  {
+    constexpr float8 v = zivc::makeFloat8(0.0f, 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f);
+    constexpr float8 r0 = +v;
+    out_float8[oindex++] = r0;
+    constexpr float8 r1 = -v;
+    out_float8[oindex++] = r1;
+  }
+  {
+    constexpr float8 v0 = zivc::makeFloat8(0.0f, 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f);
+    constexpr float8 v1 = zivc::makeFloat8(8.0f, 9.0f, 10.0f, 11.0f, 12.0f, 13.0f, 14.0f, 15.0f);
+    constexpr float8 r0 = v0 + v1;
+    out_float8[oindex++] = r0;
+    constexpr float8 r1 = v0 - v1;
+    out_float8[oindex++] = r1;
+    constexpr float8 r2 = v0 * v1;
+    out_float8[oindex++] = r2;
+    constexpr float8 r3 = v0 / v1;
+    out_float8[oindex++] = r3;
+  }
+}
+
 __kernel void vectorArithmeticAssignmentOperatorTest(
     zivc::ConstGlobalPtr<int2> in_int2,
     zivc::ConstGlobalPtr<int3> in_int3,
@@ -942,6 +1301,157 @@ __kernel void vectorArithmeticAssignmentOperatorTest(
   }
 }
 
+__kernel void vectorArithmeticAssignmentOperatorLongVecTest(
+    zivc::ConstGlobalPtr<int8> in_int8,
+    zivc::ConstGlobalPtr<int16> in_int16,
+    zivc::GlobalPtr<int8> out_int8,
+    zivc::GlobalPtr<int16> out_int16)
+{
+  const size_t global_index = zivc::getGlobalIdX();
+  if (global_index != 0)
+    return;
+
+  size_t iindex = 0;
+  size_t oindex = 0;
+  // Addition
+  {
+    const int8 v0 = in_int8[iindex];
+    const int8 v1 = in_int8[iindex + 1];
+    out_int8[oindex] = v0;
+    out_int8[oindex] += v1;
+    out_int8[oindex + 1] = v0;
+    out_int8[oindex + 1] += v1.s0;
+  }
+  {
+    const int16 v0 = in_int16[iindex];
+    const int16 v1 = in_int16[iindex + 1];
+    out_int16[oindex] = v0;
+    out_int16[oindex] += v1;
+    out_int16[oindex + 1] = v0;
+    out_int16[oindex + 1] += v1.s0;
+  }
+  oindex += 2;
+  // Subtraction
+  {
+    const int8 v0 = in_int8[iindex];
+    const int8 v1 = in_int8[iindex + 1];
+    out_int8[oindex] = v0;
+    out_int8[oindex] -= v1;
+    out_int8[oindex + 1] = v0;
+    out_int8[oindex + 1] -= v1.s0;
+  }
+  {
+    const int16 v0 = in_int16[iindex];
+    const int16 v1 = in_int16[iindex + 1];
+    out_int16[oindex] = v0;
+    out_int16[oindex] -= v1;
+    out_int16[oindex + 1] = v0;
+    out_int16[oindex + 1] -= v1.s0;
+  }
+  oindex += 2;
+  // Multiplication
+  {
+    const int8 v0 = in_int8[iindex];
+    const int8 v1 = in_int8[iindex + 1];
+    out_int8[oindex] = v0;
+    out_int8[oindex] *= v1;
+    out_int8[oindex + 1] = v0;
+    out_int8[oindex + 1] *= v1.s0;
+  }
+  {
+    const int16 v0 = in_int16[iindex];
+    const int16 v1 = in_int16[iindex + 1];
+    out_int16[oindex] = v0;
+    out_int16[oindex] *= v1;
+    out_int16[oindex + 1] = v0;
+    out_int16[oindex + 1] *= v1.s0;
+  }
+  oindex += 2;
+  // Division
+  {
+    const int8 v0 = in_int8[iindex];
+    const int8 v1 = in_int8[iindex + 1];
+    out_int8[oindex] = v0;
+    out_int8[oindex] /= v1;
+    out_int8[oindex + 1] = v0;
+    out_int8[oindex + 1] /= v1.s0;
+  }
+  {
+    const int16 v0 = in_int16[iindex];
+    const int16 v1 = in_int16[iindex + 1];
+    out_int16[oindex] = v0;
+    out_int16[oindex] /= v1;
+    out_int16[oindex + 1] = v0;
+    out_int16[oindex + 1] /= v1.s0;
+  }
+  iindex += 2;
+  oindex += 2;
+  // Modulo
+  {
+    const int8 v0 = in_int8[iindex];
+    const int8 v1 = in_int8[iindex + 1];
+    out_int8[oindex] = v0;
+    out_int8[oindex] %= v1;
+    out_int8[oindex + 1] = v0;
+    out_int8[oindex + 1] %= v1.s0;
+  }
+  {
+    const int16 v0 = in_int16[iindex];
+    const int16 v1 = in_int16[iindex + 1];
+    out_int16[oindex] = v0;
+    out_int16[oindex] %= v1;
+    out_int16[oindex + 1] = v0;
+    out_int16[oindex + 1] %= v1.s0;
+  }
+
+  oindex += 2;
+  // Constexpr test
+  {
+    constexpr auto get_add_i8 = []() noexcept
+    {
+      int8 v0 = zivc::makeInt8(0, 4, 8, 12, 16, 20, 24, 28);
+      int8 v1 = zivc::makeInt8(2, 3, 4, 5, 6, 7, 8, 9);
+      v0 += v1;
+      return v0;
+    };
+    constexpr int8 r = get_add_i8();
+    out_int8[oindex++] = r;
+  }
+  {
+    constexpr auto get_sub_i8 = []() noexcept
+    {
+      int8 v0 = zivc::makeInt8(0, 4, 8, 12, 16, 20, 24, 28);
+      int8 v1 = zivc::makeInt8(2, 3, 4, 5, 6, 7, 8, 9);
+      v0 -= v1;
+      return v0;
+    };
+    constexpr int8 r = get_sub_i8();
+    out_int8[oindex++] = r;
+  }
+  {
+    constexpr auto get_mul_i8 = []() noexcept
+    {
+      int8 v0 = zivc::makeInt8(0, 4, 8, 12, 16, 20, 24, 28);
+      int8 v1 = zivc::makeInt8(2, 3, 4, 5, 6, 7, 8, 9);
+      v0 *= v1;
+      return v0;
+    };
+    constexpr int8 r = get_mul_i8();
+    out_int8[oindex++] = r;
+  }
+  {
+    constexpr auto get_div_i8 = []() noexcept
+    {
+      int8 v0 = zivc::makeInt8(0, 4, 8, 12, 16, 20, 24, 28);
+      int8 v1 = zivc::makeInt8(2, 3, 4, 5, 6, 7, 8, 9);
+      v0 /= v1;
+      return v0;
+    };
+    constexpr int8 r = get_div_i8();
+    out_int8[oindex++] = r;
+  }
+}
+
 __kernel void vectorBitwiseOperatorTest(
     zivc::ConstGlobalPtr<uint2> in_uint2,
     zivc::ConstGlobalPtr<uint3> in_uint3,
@@ -1098,6 +1608,126 @@ __kernel void vectorBitwiseOperatorTest(
     out_uint2[oindex++] = r4;
     constexpr uint2 r5 = v1 >> v0;
     out_uint2[oindex++] = r5;
+  }
+}
+
+__kernel void vectorBitwiseOperatorLongVecTest(
+    zivc::ConstGlobalPtr<uint8> in_uint8,
+    zivc::ConstGlobalPtr<uint16> in_uint16,
+    zivc::GlobalPtr<uint8> out_uint8,
+    zivc::GlobalPtr<uint16> out_uint16)
+{
+  const size_t global_index = zivc::getGlobalIdX();
+  if (global_index != 0)
+    return;
+
+  size_t iindex = 0;
+  size_t oindex = 0;
+  // bitwise NOT
+  {
+    const uint8 v = in_uint8[iindex + 1];
+    out_uint8[oindex] = ~v;
+  }
+  {
+    const uint16 v = in_uint16[iindex + 1];
+    out_uint16[oindex] = ~v;
+  }
+  ++oindex;
+  // bitwise AND
+  {
+    const uint8 v0 = in_uint8[iindex];
+    const uint8 v1 = in_uint8[iindex + 1];
+    out_uint8[oindex] = v0 & v1;
+    out_uint8[oindex + 1] = v0.s0 & v1;
+    out_uint8[oindex + 2] = v0 & v1.s0;
+  }
+  {
+    const uint16 v0 = in_uint16[iindex];
+    const uint16 v1 = in_uint16[iindex + 1];
+    out_uint16[oindex] = v0 & v1;
+    out_uint16[oindex + 1] = v0.s0 & v1;
+    out_uint16[oindex + 2] = v0 & v1.s0;
+  }
+  ++iindex;
+  oindex += 3;
+  // bitwise OR
+  {
+    const uint8 v0 = in_uint8[iindex];
+    const uint8 v1 = in_uint8[iindex + 1];
+    out_uint8[oindex] = v0 | v1;
+    out_uint8[oindex + 1] = v0.s0 | v1;
+    out_uint8[oindex + 2] = v0 | v1.s0;
+  }
+  {
+    const uint16 v0 = in_uint16[iindex];
+    const uint16 v1 = in_uint16[iindex + 1];
+    out_uint16[oindex] = v0 | v1;
+    out_uint16[oindex + 1] = v0.s0 | v1;
+    out_uint16[oindex + 2] = v0 | v1.s0;
+  }
+  oindex += 3;
+  // bitwise XOR
+  {
+    const uint8 v0 = in_uint8[iindex];
+    const uint8 v1 = in_uint8[iindex + 1];
+    out_uint8[oindex] = v0 ^ v1;
+    out_uint8[oindex + 1] = v0.s0 ^ v1;
+    out_uint8[oindex + 2] = v0 ^ v1.s0;
+  }
+  {
+    const uint16 v0 = in_uint16[iindex];
+    const uint16 v1 = in_uint16[iindex + 1];
+    out_uint16[oindex] = v0 ^ v1;
+    out_uint16[oindex + 1] = v0.s0 ^ v1;
+    out_uint16[oindex + 2] = v0 ^ v1.s0;
+  }
+  iindex += 2;
+  oindex += 3;
+  // Left shift
+  {
+    const uint8 v0 = in_uint8[iindex];
+    const uint8 v1 = in_uint8[iindex + 1];
+    out_uint8[oindex] = v0 << v1;
+    out_uint8[oindex + 1] = v0 << v1.s0;
+  }
+  {
+    const uint16 v0 = in_uint16[iindex];
+    const uint16 v1 = in_uint16[iindex + 1];
+    out_uint16[oindex] = v0 << v1;
+    out_uint16[oindex + 1] = v0 << v1.s0;
+  }
+  oindex += 2;
+  // Right shift
+  {
+    const uint8 v0 = in_uint8[iindex];
+    const uint8 v1 = in_uint8[iindex + 1];
+    out_uint8[oindex] = v0 >> v1;
+    out_uint8[oindex + 1] = v0 >> v1.s0;
+  }
+  {
+    const uint16 v0 = in_uint16[iindex];
+    const uint16 v1 = in_uint16[iindex + 1];
+    out_uint16[oindex] = v0 >> v1;
+    out_uint16[oindex + 1] = v0 >> v1.s0;
+  }
+
+  oindex += 2;
+  // Constexpr test
+  {
+    constexpr uint8 v0 = zivc::makeUInt8(1, 2, 3, 4, 5, 6, 7, 8);
+    constexpr uint8 v1 = zivc::makeUInt8(3);
+    constexpr uint8 r0 = ~v0;
+    out_uint8[oindex++] = r0;
+    constexpr uint8 r1 = v0 & v1;
+    out_uint8[oindex++] = r1;
+    constexpr uint8 r2 = v0 | v1;
+    out_uint8[oindex++] = r2;
+    constexpr uint8 r3 = v0 ^ v1;
+    out_uint8[oindex++] = r3;
+    constexpr uint8 r4 = v0 << v1;
+    out_uint8[oindex++] = r4;
+    constexpr uint8 r5 = v1 >> v0;
+    out_uint8[oindex++] = r5;
   }
 }
 
@@ -1306,6 +1936,169 @@ __kernel void vectorBitwiseAssignmentOperatorTest(
   }
 }
 
+__kernel void vectorBitwiseAssignmentOperatorLongVecTest(
+    zivc::ConstGlobalPtr<uint8> in_uint8,
+    zivc::ConstGlobalPtr<uint16> in_uint16,
+    zivc::GlobalPtr<uint8> out_uint8,
+    zivc::GlobalPtr<uint16> out_uint16)
+{
+  const size_t global_index = zivc::getGlobalIdX();
+  if (global_index != 0)
+    return;
+
+  size_t iindex = 0;
+  size_t oindex = 0;
+  // bitwise AND
+  {
+    const uint8 v0 = in_uint8[iindex];
+    const uint8 v1 = in_uint8[iindex + 1];
+    out_uint8[oindex] = v0;
+    out_uint8[oindex] &= v1;
+    out_uint8[oindex + 1] = v0;
+    out_uint8[oindex + 1] &= v1.s0;
+  }
+  {
+    const uint16 v0 = in_uint16[iindex];
+    const uint16 v1 = in_uint16[iindex + 1];
+    out_uint16[oindex] = v0;
+    out_uint16[oindex] &= v1;
+    out_uint16[oindex + 1] = v0;
+    out_uint16[oindex + 1] &= v1.s0;
+  }
+  ++iindex;
+  oindex += 2;
+  // bitwise OR
+  {
+    const uint8 v0 = in_uint8[iindex];
+    const uint8 v1 = in_uint8[iindex + 1];
+    out_uint8[oindex] = v0;
+    out_uint8[oindex] |= v1;
+    out_uint8[oindex + 1] = v0;
+    out_uint8[oindex + 1] |= v1.s0;
+  }
+  {
+    const uint16 v0 = in_uint16[iindex];
+    const uint16 v1 = in_uint16[iindex + 1];
+    out_uint16[oindex] = v0;
+    out_uint16[oindex] |= v1;
+    out_uint16[oindex + 1] = v0;
+    out_uint16[oindex + 1] |= v1.s0;
+  }
+  oindex += 2;
+  // bitwise XOR
+  {
+    const uint8 v0 = in_uint8[iindex];
+    const uint8 v1 = in_uint8[iindex + 1];
+    out_uint8[oindex] = v0;
+    out_uint8[oindex] ^= v1;
+    out_uint8[oindex + 1] = v0;
+    out_uint8[oindex + 1] ^= v1.s0;
+  }
+  {
+    const uint16 v0 = in_uint16[iindex];
+    const uint16 v1 = in_uint16[iindex + 1];
+    out_uint16[oindex] = v0;
+    out_uint16[oindex] ^= v1;
+    out_uint16[oindex + 1] = v0;
+    out_uint16[oindex + 1] ^= v1.s0;
+  }
+  iindex += 2;
+  oindex += 2;
+  // Left shift
+  {
+    const uint8 v0 = in_uint8[iindex];
+    const uint8 v1 = in_uint8[iindex + 1];
+    out_uint8[oindex] = v0;
+    out_uint8[oindex] <<= v1;
+    out_uint8[oindex + 1] = v0;
+    out_uint8[oindex + 1] <<= v1.s0;
+  }
+  {
+    const uint16 v0 = in_uint16[iindex];
+    const uint16 v1 = in_uint16[iindex + 1];
+    out_uint16[oindex] = v0;
+    out_uint16[oindex] <<= v1;
+    out_uint16[oindex + 1] = v0;
+    out_uint16[oindex + 1] <<= v1.s0;
+  }
+  oindex += 2;
+  // Right shift
+  {
+    const uint8 v0 = in_uint8[iindex];
+    const uint8 v1 = in_uint8[iindex + 1];
+    out_uint8[oindex] = v0;
+    out_uint8[oindex] >>= v1;
+    out_uint8[oindex + 1] = v0;
+    out_uint8[oindex + 1] >>= v1.s0;
+  }
+  {
+    const uint16 v0 = in_uint16[iindex];
+    const uint16 v1 = in_uint16[iindex + 1];
+    out_uint16[oindex] = v0;
+    out_uint16[oindex] >>= v1;
+    out_uint16[oindex + 1] = v0;
+    out_uint16[oindex + 1] >>= v1.s0;
+  }
+
+  oindex += 2;
+  // Constexpr test
+  {
+    constexpr auto get_and_u8 = []() noexcept
+    {
+      uint8 v0 = zivc::makeUInt8(1, 2, 3, 4, 5, 6, 7, 8);
+      uint8 v1 = zivc::makeUInt8(3);
+      v0 &= v1;
+      return v0;
+    };
+    constexpr uint8 r = get_and_u8();
+    out_uint8[oindex++] = r;
+  }
+  {
+    constexpr auto get_or_u8 = []() noexcept
+    {
+      uint8 v0 = zivc::makeUInt8(1, 2, 3, 4, 5, 6, 7, 8);
+      uint8 v1 = zivc::makeUInt8(3);
+      v0 |= v1;
+      return v0;
+    };
+    constexpr uint8 r = get_or_u8();
+    out_uint8[oindex++] = r;
+  }
+  {
+    constexpr auto get_xor_u8 = []() noexcept
+    {
+      uint8 v0 = zivc::makeUInt8(1, 2, 3, 4, 5, 6, 7, 8);
+      uint8 v1 = zivc::makeUInt8(3);
+      v0 ^= v1;
+      return v0;
+    };
+    constexpr uint8 r = get_xor_u8();
+    out_uint8[oindex++] = r;
+  }
+  {
+    constexpr auto get_left_shift_u8 = []() noexcept
+    {
+      uint8 v0 = zivc::makeUInt8(1, 2, 3, 4, 5, 6, 7, 8);
+      uint8 v1 = zivc::makeUInt8(3);
+      v0 <<= v1;
+      return v0;
+    };
+    constexpr uint8 r = get_left_shift_u8();
+    out_uint8[oindex++] = r;
+  }
+  {
+    constexpr auto get_right_shift_u8 = []() noexcept
+    {
+      uint8 v0 = zivc::makeUInt8(1, 2, 3, 4, 5, 6, 7, 8);
+      uint8 v1 = zivc::makeUInt8(3);
+      v1 >>= v0;
+      return v1;
+    };
+    constexpr uint8 r = get_right_shift_u8();
+    out_uint8[oindex++] = r;
+  }
+}
+
 __kernel void vectorIncrementDecrementTest(zivc::GlobalPtr<int4> inout_int4)
 {
   const size_t global_index = zivc::getGlobalIdX();
@@ -1316,6 +2109,18 @@ __kernel void vectorIncrementDecrementTest(zivc::GlobalPtr<int4> inout_int4)
   inout_int4[3] = ++inout_int4[2];
   inout_int4[5] = inout_int4[4]--;
   inout_int4[7] = --inout_int4[6];
+}
+
+__kernel void vectorIncrementDecrementLongVecTest(zivc::GlobalPtr<int16> inout_int16)
+{
+  const size_t global_index = zivc::getGlobalIdX();
+  if (global_index != 0)
+    return;
+
+  inout_int16[1] = inout_int16[0]++;
+  inout_int16[3] = ++inout_int16[2];
+  inout_int16[5] = inout_int16[4]--;
+  inout_int16[7] = --inout_int16[6];
 }
 
 __kernel void vectorConditionalOperatorTest(zivc::GlobalPtr<int4> inout_int4)
@@ -1331,6 +2136,19 @@ __kernel void vectorConditionalOperatorTest(zivc::GlobalPtr<int4> inout_int4)
   inout_int4[4] = static_cast<bool>(flag.y) ? v0 : v1;
 }
 
+__kernel void vectorConditionalOperatorLongVecTest(zivc::GlobalPtr<int16> inout_int16)
+{
+  const size_t global_index = zivc::getGlobalIdX();
+  if (global_index != 0)
+    return;
+
+  const int16 flag = inout_int16[0];
+  const int16 v0 = inout_int16[1];
+  const int16 v1 = inout_int16[2];
+  inout_int16[3] = static_cast<bool>(flag.s0) ? v0 : v1;
+  inout_int16[4] = static_cast<bool>(flag.s1) ? v0 : v1;
+}
+
 namespace test {
 
 template <typename ResultType> inline
@@ -1340,6 +2158,19 @@ void setBoolResult(const ResultType result, zivc::GlobalPtr<zivc::Boolean> out)
   out[1] = result.y;
   out[2] = result.z;
   out[3] = result.w;
+}
+
+template <typename ResultType> inline
+void setBoolResultL(const ResultType result, zivc::GlobalPtr<zivc::Boolean> out)
+{
+  out[0] = result.s0;
+  out[1] = result.s1;
+  out[2] = result.s2;
+  out[3] = result.s3;
+  out[4] = result.s4;
+  out[5] = result.s5;
+  out[6] = result.s6;
+  out[7] = result.s7;
 }
 
 } /* namespace test */
@@ -1419,6 +2250,81 @@ __kernel void vectorComparisonOperatorTest(zivc::ConstGlobalPtr<int4> in_int4,
   }
 }
 
+__kernel void vectorComparisonOperatorLongVecTest(zivc::ConstGlobalPtr<int8> in_int8,
+                                                  zivc::GlobalPtr<zivc::Boolean> out)
+{
+  const size_t global_index = zivc::getGlobalIdX();
+  if (global_index != 0)
+    return;
+
+  size_t iindex = 0;
+  size_t oindex = 0;
+  {
+    const int8 v0 = in_int8[iindex];
+    const int8 v1 = in_int8[iindex + 1];
+    test::setBoolResultL(v0 == v1, out + oindex);
+    oindex += 8;
+    test::setBoolResultL(v0.s0 == v1, out + oindex);
+    oindex += 8;
+    test::setBoolResultL(v0 == v1.s0, out + oindex);
+    oindex += 8;
+    test::setBoolResultL(v0 != v1, out + oindex);
+    oindex += 8;
+    test::setBoolResultL(v0.s0 != v1, out + oindex);
+    oindex += 8;
+    test::setBoolResultL(v0 != v1.s0, out + oindex);
+    oindex += 8;
+    test::setBoolResultL(v0 < v1, out + oindex);
+    oindex += 8;
+    test::setBoolResultL(v0.s0 < v1, out + oindex);
+    oindex += 8;
+    test::setBoolResultL(v0 < v1.s0, out + oindex);
+    oindex += 8;
+    test::setBoolResultL(v0 > v1, out + oindex);
+    oindex += 8;
+    test::setBoolResultL(v0.s0 > v1, out + oindex);
+    oindex += 8;
+    test::setBoolResultL(v0 > v1.s0, out + oindex);
+    oindex += 8;
+    test::setBoolResultL(v0 <= v1, out + oindex);
+    oindex += 8;
+    test::setBoolResultL(v0.s0 <= v1, out + oindex);
+    oindex += 8;
+    test::setBoolResultL(v0 <= v1.s0, out + oindex);
+    oindex += 8;
+    test::setBoolResultL(v0 >= v1, out + oindex);
+    oindex += 8;
+    test::setBoolResultL(v0.s0 >= v1, out + oindex);
+    oindex += 8;
+    test::setBoolResultL(v0 >= v1.s0, out + oindex);
+    oindex += 8;
+  }
+
+  // Constexpr test
+  {
+    constexpr int8 v0 = zivc::makeInt8(0, 1, 2, 3, 4, 5, 6, 7);
+    constexpr int8 v1 = zivc::makeInt8(0, 1, 5, 1, 0, 5, 1, 1);
+    constexpr auto r0 = v0 == v1;
+    test::setBoolResultL(r0, out + oindex);
+    oindex += 8;
+    constexpr auto r1 = v0 != v1;
+    test::setBoolResultL(r1, out + oindex);
+    oindex += 8;
+    constexpr auto r2 = v0 < v1;
+    test::setBoolResultL(r2, out + oindex);
+    oindex += 8;
+    constexpr auto r3 = v0 > v1;
+    test::setBoolResultL(r3, out + oindex);
+    oindex += 8;
+    constexpr auto r4 = v0 <= v1;
+    test::setBoolResultL(r4, out + oindex);
+    oindex += 8;
+    constexpr auto r5 = v0 >= v1;
+    test::setBoolResultL(r5, out + oindex);
+    oindex += 8;
+  }
+}
+
 __kernel void vectorComparisonResultTest(
     zivc::ConstGlobalPtr<uchar> in1,
     zivc::ConstGlobalPtr<char2> in2,
@@ -1479,6 +2385,40 @@ __kernel void vectorComparisonResultTest(
   }
 }
 
+__kernel void vectorComparisonResultLongVecTest(
+    zivc::ConstGlobalPtr<ushort8> in8,
+    zivc::ConstGlobalPtr<uint16> in16,
+    zivc::GlobalPtr<zivc::CompResult<ushort8>> out8,
+    zivc::GlobalPtr<zivc::CompResult<uint16>> out16)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (0 < index)
+    return;
+
+  // vector8
+  {
+    const ushort8 v1 = in8[0];
+    const ushort8 v2 = in8[1];
+    out8[0] = v1 == v2;
+    out8[1] = v1 != v2;
+    out8[2] = v1 > v2;
+    out8[3] = v1 >= v2;
+    out8[4] = v1 < v2;
+    out8[5] = v1 <= v2;
+  }
+  // vector16
+  {
+    const uint16 v1 = in16[0];
+    const uint16 v2 = in16[1];
+    out16[0] = v1 == v2;
+    out16[1] = v1 != v2;
+    out16[2] = v1 > v2;
+    out16[3] = v1 >= v2;
+    out16[4] = v1 < v2;
+    out16[5] = v1 <= v2;
+  }
+}
+
 __kernel void vectorLogicalOperatorTest(zivc::ConstGlobalPtr<int4> in_int4,
                                         zivc::GlobalPtr<zivc::Boolean> out)
 {
@@ -1529,6 +2469,59 @@ __kernel void vectorLogicalOperatorTest(zivc::ConstGlobalPtr<int4> in_int4,
     constexpr auto r2 = result1 || result2;
     test::setBoolResult(r2, out + oindex);
     oindex += 4;
+  }
+}
+
+__kernel void vectorLogicalOperatorLongVecTest(zivc::ConstGlobalPtr<int8> in_int8,
+                                               zivc::GlobalPtr<zivc::Boolean> out)
+{
+  const size_t global_index = zivc::getGlobalIdX();
+  if (global_index != 0)
+    return;
+
+  size_t iindex = 0;
+  size_t oindex = 0;
+  {
+    const int8 v0 = in_int8[iindex];
+    const int8 v1 = in_int8[iindex + 1];
+    const int8 v2 = in_int8[iindex + 2];
+
+    const auto result1 = v0 == v1;
+    const auto result2 = v1 == v2;
+
+    test::setBoolResultL(!result1, out + oindex);
+    oindex += 8;
+    test::setBoolResultL(result1 && result2, out + oindex);
+    oindex += 8;
+    test::setBoolResultL(result1.s0 && result2, out + oindex);
+    oindex += 8;
+    test::setBoolResultL(result1 && result2.s0, out + oindex);
+    oindex += 8;
+    test::setBoolResultL(result1 || result2, out + oindex);
+    oindex += 8;
+    test::setBoolResultL(result1.s0 || result2, out + oindex);
+    oindex += 8;
+    test::setBoolResultL(result1 || result2.s0, out + oindex);
+    oindex += 8;
+  }
+
+  // Constexpr test
+  {
+    constexpr int8 v0 = zivc::makeInt8(0, 1, 2, 3, 4, 5, 6, 7);
+    constexpr int8 v1 = zivc::makeInt8(0, 1, 5, 1, 0, 5, 1, 1);
+    constexpr int8 v2 = zivc::makeInt8(2);
+    constexpr auto result1 = v0 == v1;
+    constexpr auto result2 = v1 == v2;
+
+    constexpr auto r0 = !result1;
+    test::setBoolResultL(r0, out + oindex);
+    oindex += 8;
+    constexpr auto r1 = result1 && result2;
+    test::setBoolResultL(r1, out + oindex);
+    oindex += 8;
+    constexpr auto r2 = result1 || result2;
+    test::setBoolResultL(r2, out + oindex);
+    oindex += 8;
   }
 }
 
@@ -1730,6 +2723,100 @@ __kernel void vector4CastTest(zivc::ConstGlobalPtr<int32b> in_int,
   test_vec4(in_int, in_float, in_int4, in_float4, out_float4);
 }
 
+//__kernel void vector8CastTest(zivc::ConstGlobalPtr<int32b> in_int,
+//                              zivc::ConstGlobalPtr<float> in_float,
+//                              zivc::ConstGlobalPtr<int8> in_int8,
+//                              zivc::ConstGlobalPtr<float8> in_float8,
+//                              zivc::GlobalPtr<char8> out_char8,
+//                              zivc::GlobalPtr<uchar8> out_uchar8,
+//                              zivc::GlobalPtr<short8> out_short8,
+//                              zivc::GlobalPtr<ushort8> out_ushort8,
+//                              zivc::GlobalPtr<int8> out_int8,
+//                              zivc::GlobalPtr<uint8> out_uint8,
+//                              zivc::GlobalPtr<float8> out_float8,
+//                              const uint32b int_n,
+//                              const uint32b float_n,
+//                              const uint32b int8_n,
+//                              const uint32b float8_n)
+//{
+//  const size_t global_index = zivc::getGlobalIdX();
+//  if (global_index != 0)
+//    return;
+//
+//  auto test_vec8 = [int_n, float_n, int8_n, float8_n](zivc::ConstGlobalPtr<int32b> in0,
+//                                                      zivc::ConstGlobalPtr<float> in1,
+//                                                      zivc::ConstGlobalPtr<int8> in2,
+//                                                      zivc::ConstGlobalPtr<float8> in3,
+//                                                      auto out) noexcept
+//  {
+//    size_t index = 0;
+//    using Type = zivc::RemoveCvrefAddressT<decltype(out[0])>;
+//    for (size_t i = 0; i < int_n; ++i)
+//      out[index++] = zivc::cast<Type>(in0[i]);
+//    for (size_t i = 0; i < float_n; ++i)
+//      out[index++] = zivc::cast<Type>(in1[i]);
+//    for (size_t i = 0; i < int8_n; ++i)
+//      out[index++] = zivc::cast<Type>(in2[i]);
+//    for (size_t i = 0; i < float8_n; ++i)
+//      out[index++] = zivc::cast<Type>(in3[i]);
+//  };
+//
+//  test_vec8(in_int, in_float, in_int8, in_float8, out_char8);
+//  test_vec8(in_int, in_float, in_int8, in_float8, out_uchar8);
+//  test_vec8(in_int, in_float, in_int8, in_float8, out_short8);
+//  test_vec8(in_int, in_float, in_int8, in_float8, out_ushort8);
+//  test_vec8(in_int, in_float, in_int8, in_float8, out_int8);
+//  test_vec8(in_int, in_float, in_int8, in_float8, out_uint8);
+//  test_vec8(in_int, in_float, in_int8, in_float8, out_float8);
+//}
+
+//__kernel void vector16CastTest(zivc::ConstGlobalPtr<int32b> in_int,
+//                               zivc::ConstGlobalPtr<float> in_float,
+//                               zivc::ConstGlobalPtr<int16> in_int16,
+//                               zivc::ConstGlobalPtr<float16> in_float16,
+//                               zivc::GlobalPtr<char16> out_char16,
+//                               zivc::GlobalPtr<uchar16> out_uchar16,
+//                               zivc::GlobalPtr<short16> out_short16,
+//                               zivc::GlobalPtr<ushort16> out_ushort16,
+//                               zivc::GlobalPtr<int16> out_int16,
+//                               zivc::GlobalPtr<uint16> out_uint16,
+//                               zivc::GlobalPtr<float16> out_float16,
+//                               const uint32b int_n,
+//                               const uint32b float_n,
+//                               const uint32b int16_n,
+//                               const uint32b float16_n)
+//{
+//  const size_t global_index = zivc::getGlobalIdX();
+//  if (global_index != 0)
+//    return;
+//
+//  auto test_vec16 = [int_n, float_n, int16_n, float16_n](zivc::ConstGlobalPtr<int32b> in0,
+//                                                         zivc::ConstGlobalPtr<float> in1,
+//                                                         zivc::ConstGlobalPtr<int16> in2,
+//                                                         zivc::ConstGlobalPtr<float16> in3,
+//                                                         auto out) noexcept
+//  {
+//    size_t index = 0;
+//    using Type = zivc::RemoveCvrefAddressT<decltype(out[0])>;
+//    for (size_t i = 0; i < int_n; ++i)
+//      out[index++] = zivc::cast<Type>(in0[i]);
+//    for (size_t i = 0; i < float_n; ++i)
+//      out[index++] = zivc::cast<Type>(in1[i]);
+//    for (size_t i = 0; i < int16_n; ++i)
+//      out[index++] = zivc::cast<Type>(in2[i]);
+//    for (size_t i = 0; i < float16_n; ++i)
+//      out[index++] = zivc::cast<Type>(in3[i]);
+//  };
+//
+//  test_vec16(in_int, in_float, in_int16, in_float16, out_char16);
+//  test_vec16(in_int, in_float, in_int16, in_float16, out_uchar16);
+//  test_vec16(in_int, in_float, in_int16, in_float16, out_short16);
+//  test_vec16(in_int, in_float, in_int16, in_float16, out_ushort16);
+//  test_vec16(in_int, in_float, in_int16, in_float16, out_int16);
+//  test_vec16(in_int, in_float, in_int16, in_float16, out_uint16);
+//  test_vec16(in_int, in_float, in_int16, in_float16, out_float16);
+//}
+
 __kernel void bitCastTest(zivc::GlobalPtr<int32b> inout_int,
                           zivc::GlobalPtr<float> inout_float,
                           zivc::GlobalPtr<uint2> inout_uint2,
@@ -1793,6 +2880,30 @@ __kernel void bitCastTest(zivc::GlobalPtr<int32b> inout_int,
   }
 }
 
+//__kernel void bitCastLongVecTest(zivc::GlobalPtr<uint8> inout_uint8,
+//                                 zivc::GlobalPtr<float8> inout_float8,
+//                                 zivc::GlobalPtr<uint16> inout_uint16,
+//                                 zivc::GlobalPtr<float16> inout_float16)
+//{
+//  const size_t index = zivc::getGlobalLinearId();
+//  if (index == 0) {
+//    // Vector8
+//    {
+//      const uint8 a = inout_uint8[0];
+//      const float8 b = inout_float8[0];
+//      inout_uint8[0] = zivc::castBit<uint8>(b);
+//      inout_float8[0] = zivc::castBit<float8>(a);
+//    }
+//    // Vector16
+//    {
+//      const uint16 a = inout_uint16[0];
+//      const float16 b = inout_float16[0];
+//      inout_uint16[0] = zivc::castBit<uint16>(b);
+//      inout_float16[0] = zivc::castBit<float16>(a);
+//    }
+//  }
+//}
+
 namespace inner {
 
 struct LoadStoreStorage
@@ -1820,36 +2931,34 @@ __kernel void vectorLoadStoreTest(zivc::GlobalPtr<int8b> inout_i8,
   if (index == 0) {
     // int8b
     {
-      //! \todo Resolve the compile error
-      inout_i8[0] = 0;
-//      constexpr char k = 2;
-//      // vector2
-//      {
-//        const char2 v1 = zivc::vload2(0, inout_i8);
-//        zivc::vstore2(k * v1, 0, inout_i8);
-//        zivc::LocalPtr<int8b> p = &storage[0].i8_[0];
-//        zivc::vstore2(k * v1, 0, p);
-//        const char2 v2 = zivc::vload2(0, p);
-//        zivc::vstore2(k * v2, 1, inout_i8);
-//      }
-//      size_t offset = 4;
-//      // vector3
-//      {
-//        const char3 v1 = zivc::vload3(0, inout_i8 + offset);
-//        zivc::vstore3(k * v1, 0, inout_i8 + offset);
-//        zivc::vstore3(k * v1, 0, &storage[0].i8_[0]);
-//        const char3 v2 = zivc::vload3(0, &storage[0].i8_[0]);
-//        zivc::vstore3(k * v2, 1, inout_i8 + offset);
-//      }
-//      offset += 6;
-//      // vector4
-//      {
-//        const char4 v1 = zivc::vload4(0, inout_i8 + offset);
-//        zivc::vstore4(k * v1, 0, inout_i8 + offset);
-//        zivc::vstore4(k * v1, 0, &storage[0].i8_[0]);
-//        const char4 v2 = zivc::vload4(0, &storage[0].i8_[0]);
-//        zivc::vstore4(k * v2, 1, inout_i8 + offset);
-//      }
+      constexpr char k = 2;
+      // vector2
+      {
+        const char2 v1 = zivc::vload2(0, inout_i8);
+        zivc::vstore2(k * v1, 0, inout_i8);
+        zivc::LocalPtr<int8b> p = &storage[0].i8_[0];
+        zivc::vstore2(k * v1, 0, p);
+        const char2 v2 = zivc::vload2(0, p);
+        zivc::vstore2(k * v2, 1, inout_i8);
+      }
+      size_t offset = 4;
+      // vector3
+      {
+        const char3 v1 = zivc::vload3(0, inout_i8 + offset);
+        zivc::vstore3(k * v1, 0, inout_i8 + offset);
+        zivc::vstore3(k * v1, 0, &storage[0].i8_[0]);
+        const char3 v2 = zivc::vload3(0, &storage[0].i8_[0]);
+        zivc::vstore3(k * v2, 1, inout_i8 + offset);
+      }
+      offset += 6;
+      // vector4
+      {
+        const char4 v1 = zivc::vload4(0, inout_i8 + offset);
+        zivc::vstore4(k * v1, 0, inout_i8 + offset);
+        zivc::vstore4(k * v1, 0, &storage[0].i8_[0]);
+        const char4 v2 = zivc::vload4(0, &storage[0].i8_[0]);
+        zivc::vstore4(k * v2, 1, inout_i8 + offset);
+      }
     }
     // uint16b
     {
@@ -1957,36 +3066,34 @@ __kernel void vectorLoadStoreClTest(zivc::GlobalPtr<int8b> inout_i8,
   if (index == 0) {
     // int8b
     {
-      //! \todo Resolve the compile error
-      inout_i8[0] = 0;
-//      constexpr char k = 2;
-//      // vector2
-//      {
-//        const char2 v1 = vload2(0, inout_i8);
-//        vstore2(k * v1, 0, inout_i8);
-//        zivc::LocalPtr<int8b> p = &storage[0].i8_[0];
-//        vstore2(k * v1, 0, p);
-//        const char2 v2 = vload2(0, p);
-//        vstore2(k * v2, 1, inout_i8);
-//      }
-//      size_t offset = 4;
-//      // vector3
-//      {
-//        const char3 v1 = vload3(0, inout_i8 + offset);
-//        vstore3(k * v1, 0, inout_i8 + offset);
-//        vstore3(k * v1, 0, &storage[0].i8_[0]);
-//        const char3 v2 = vload3(0, &storage[0].i8_[0]);
-//        vstore3(k * v2, 1, inout_i8 + offset);
-//      }
-//      offset += 6;
-//      // vector4
-//      {
-//        const char4 v1 = vload4(0, inout_i8 + offset);
-//        vstore4(k * v1, 0, inout_i8 + offset);
-//        vstore4(k * v1, 0, &storage[0].i8_[0]);
-//        const char4 v2 = vload4(0, &storage[0].i8_[0]);
-//        vstore4(k * v2, 1, inout_i8 + offset);
-//      }
+      constexpr char k = 2;
+      // vector2
+      {
+        const char2 v1 = vload2(0, inout_i8);
+        vstore2(k * v1, 0, inout_i8);
+        zivc::LocalPtr<int8b> p = &storage[0].i8_[0];
+        vstore2(k * v1, 0, p);
+        const char2 v2 = vload2(0, p);
+        vstore2(k * v2, 1, inout_i8);
+      }
+      size_t offset = 4;
+      // vector3
+      {
+        const char3 v1 = vload3(0, inout_i8 + offset);
+        vstore3(k * v1, 0, inout_i8 + offset);
+        vstore3(k * v1, 0, &storage[0].i8_[0]);
+        const char3 v2 = vload3(0, &storage[0].i8_[0]);
+        vstore3(k * v2, 1, inout_i8 + offset);
+      }
+      offset += 6;
+      // vector4
+      {
+        const char4 v1 = vload4(0, inout_i8 + offset);
+        vstore4(k * v1, 0, inout_i8 + offset);
+        vstore4(k * v1, 0, &storage[0].i8_[0]);
+        const char4 v2 = vload4(0, &storage[0].i8_[0]);
+        vstore4(k * v2, 1, inout_i8 + offset);
+      }
     }
     // uint16b
     {

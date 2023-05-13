@@ -35,33 +35,33 @@
 
 #define ZIVC_TEST_V8(v0, v1, v2, v3, mem, test_name) \
     static_assert(std::remove_cvref_t<decltype(mem)>::size() == 8); \
-    ASSERT_EQ(v0, mem.s0) << test_name << " failed."; \
-    ASSERT_EQ(v1, mem.s1) << test_name << " failed."; \
-    ASSERT_EQ(v2, mem.s2) << test_name << " failed."; \
-    ASSERT_EQ(v3, mem.s3) << test_name << " failed."; \
-    ASSERT_EQ(v0, mem.s4) << test_name << " failed."; \
-    ASSERT_EQ(v1, mem.s5) << test_name << " failed."; \
-    ASSERT_EQ(v2, mem.s6) << test_name << " failed."; \
-    ASSERT_EQ(v3, mem.s7) << test_name << " failed."
+    ASSERT_EQ((v0), (mem).s0) << (test_name) << " failed."; \
+    ASSERT_EQ((v1), (mem).s1) << (test_name) << " failed."; \
+    ASSERT_EQ((v2), (mem).s2) << (test_name) << " failed."; \
+    ASSERT_EQ((v3), (mem).s3) << (test_name) << " failed."; \
+    ASSERT_EQ((v0), (mem).s4) << (test_name) << " failed."; \
+    ASSERT_EQ((v1), (mem).s5) << (test_name) << " failed."; \
+    ASSERT_EQ((v2), (mem).s6) << (test_name) << " failed."; \
+    ASSERT_EQ((v3), (mem).s7) << (test_name) << " failed."
 
 #define ZIVC_TEST_V16(v0, v1, v2, v3, mem, test_name) \
     static_assert(std::remove_cvref_t<decltype(mem)>::size() == 16); \
-    ASSERT_EQ(v0, mem.s0) << test_name << " failed."; \
-    ASSERT_EQ(v1, mem.s1) << test_name << " failed."; \
-    ASSERT_EQ(v2, mem.s2) << test_name << " failed."; \
-    ASSERT_EQ(v3, mem.s3) << test_name << " failed."; \
-    ASSERT_EQ(v0, mem.s4) << test_name << " failed."; \
-    ASSERT_EQ(v1, mem.s5) << test_name << " failed."; \
-    ASSERT_EQ(v2, mem.s6) << test_name << " failed."; \
-    ASSERT_EQ(v3, mem.s7) << test_name << " failed."; \
-    ASSERT_EQ(v0, mem.s8) << test_name << " failed."; \
-    ASSERT_EQ(v1, mem.s9) << test_name << " failed."; \
-    ASSERT_EQ(v2, mem.sa) << test_name << " failed."; \
-    ASSERT_EQ(v3, mem.sb) << test_name << " failed."; \
-    ASSERT_EQ(v0, mem.sc) << test_name << " failed."; \
-    ASSERT_EQ(v1, mem.sd) << test_name << " failed."; \
-    ASSERT_EQ(v2, mem.se) << test_name << " failed."; \
-    ASSERT_EQ(v3, mem.sf) << test_name << " failed."
+    ASSERT_EQ((v0), (mem).s0) << (test_name) << " failed."; \
+    ASSERT_EQ((v1), (mem).s1) << (test_name) << " failed."; \
+    ASSERT_EQ((v2), (mem).s2) << (test_name) << " failed."; \
+    ASSERT_EQ((v3), (mem).s3) << (test_name) << " failed."; \
+    ASSERT_EQ((v0), (mem).s4) << (test_name) << " failed."; \
+    ASSERT_EQ((v1), (mem).s5) << (test_name) << " failed."; \
+    ASSERT_EQ((v2), (mem).s6) << (test_name) << " failed."; \
+    ASSERT_EQ((v3), (mem).s7) << (test_name) << " failed."; \
+    ASSERT_EQ((v0), (mem).s8) << (test_name) << " failed."; \
+    ASSERT_EQ((v1), (mem).s9) << (test_name) << " failed."; \
+    ASSERT_EQ((v2), (mem).sa) << (test_name) << " failed."; \
+    ASSERT_EQ((v3), (mem).sb) << (test_name) << " failed."; \
+    ASSERT_EQ((v0), (mem).sc) << (test_name) << " failed."; \
+    ASSERT_EQ((v1), (mem).sd) << (test_name) << " failed."; \
+    ASSERT_EQ((v2), (mem).se) << (test_name) << " failed."; \
+    ASSERT_EQ((v3), (mem).sf) << (test_name) << " failed."
 
 
 TEST(ClCppTest, RelationIsEqualTest)

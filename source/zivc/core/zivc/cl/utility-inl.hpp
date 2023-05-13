@@ -671,7 +671,91 @@ constexpr Type make(const ArgTypes&... args) noexcept
                                                       const vector_type ## 3 v1) noexcept \
   { \
     return vector_type ## 4{v0, v1}; \
+  } \
+  inline \
+  constexpr vector_type ## 8 make ## vector_func ## 8(const scalar_type v) noexcept \
+  { \
+    return vector_type ## 8{v, v, v, v, v, v, v, v}; \
+  } \
+  inline \
+  constexpr vector_type ## 8 make ## vector_func ## 8(const scalar_type v0, \
+                                                      const scalar_type v1, \
+                                                      const scalar_type v2, \
+                                                      const scalar_type v3, \
+                                                      const scalar_type v4, \
+                                                      const scalar_type v5, \
+                                                      const scalar_type v6, \
+                                                      const scalar_type v7) noexcept \
+  { \
+    return vector_type ## 8{v0, v1, v2, v3, v4, v5, v6, v7}; \
+  } \
+  inline \
+  constexpr vector_type ## 8 make ## vector_func ## 8(const vector_type ## 2 v0, \
+                                                      const vector_type ## 2 v1, \
+                                                      const vector_type ## 2 v2, \
+                                                      const vector_type ## 2 v3) noexcept \
+  { \
+    return vector_type ## 8{v0, v1, v2, v3}; \
+  } \
+  inline \
+  constexpr vector_type ## 8 make ## vector_func ## 8(const vector_type ## 4 v0, \
+                                                      const vector_type ## 4 v1) noexcept \
+  { \
+    return vector_type ## 8{v0, v1}; \
+  } \
+  inline \
+  constexpr vector_type ## 16 make ## vector_func ## 16(const scalar_type v) noexcept \
+  { \
+    return vector_type ## 16{v, v, v, v, v, v, v, v, v, v, v, v, v, v, v, v}; \
+  } \
+  inline \
+  constexpr vector_type ## 16 make ## vector_func ## 16(const scalar_type v0, \
+                                                        const scalar_type v1, \
+                                                        const scalar_type v2, \
+                                                        const scalar_type v3, \
+                                                        const scalar_type v4, \
+                                                        const scalar_type v5, \
+                                                        const scalar_type v6, \
+                                                        const scalar_type v7, \
+                                                        const scalar_type v8, \
+                                                        const scalar_type v9, \
+                                                        const scalar_type v10, \
+                                                        const scalar_type v11, \
+                                                        const scalar_type v12, \
+                                                        const scalar_type v13, \
+                                                        const scalar_type v14, \
+                                                        const scalar_type v15) noexcept \
+  { \
+    return vector_type ## 16{v0, v1, v2, v3, v4, v5, v6, v7, \
+                             v8, v9, v10, v11, v12, v13, v14, v15}; \
+  } \
+  inline \
+  constexpr vector_type ## 16 make ## vector_func ## 16(const vector_type ## 2 v0, \
+                                                        const vector_type ## 2 v1, \
+                                                        const vector_type ## 2 v2, \
+                                                        const vector_type ## 2 v3, \
+                                                        const vector_type ## 2 v4, \
+                                                        const vector_type ## 2 v5, \
+                                                        const vector_type ## 2 v6, \
+                                                        const vector_type ## 2 v7) noexcept \
+  { \
+    return vector_type ## 16{v0, v1, v2, v3, v4, v5, v6, v7}; \
+  } \
+  inline \
+  constexpr vector_type ## 16 make ## vector_func ## 16(const vector_type ## 4 v0, \
+                                                        const vector_type ## 4 v1, \
+                                                        const vector_type ## 4 v2, \
+                                                        const vector_type ## 4 v3) noexcept \
+  { \
+    return vector_type ## 16{v0, v1, v2, v3}; \
+  } \
+  inline \
+  constexpr vector_type ## 16 make ## vector_func ## 16(const vector_type ## 8 v0, \
+                                                        const vector_type ## 8 v1) noexcept \
+  { \
+    return vector_type ## 16{v0, v1}; \
   }
+
 
 ZIVC_MAKING_VECTOR_SPECIALIZATION_IMPL(int8b, char, Char)
 ZIVC_MAKING_VECTOR_SPECIALIZATION_IMPL(uint8b, uchar, UChar)
@@ -737,42 +821,62 @@ ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(char);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(char2);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(char3);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(char4);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(char8);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(char16);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(uchar);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(uchar2);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(uchar3);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(uchar4);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(uchar8);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(uchar16);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(short);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(short2);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(short3);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(short4);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(short8);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(short16);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(ushort);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(ushort2);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(ushort3);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(ushort4);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(ushort8);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(ushort16);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(int);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(int2);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(int3);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(int4);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(int8);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(int16);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(uint);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(uint2);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(uint3);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(uint4);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(uint8);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(uint16);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(long);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(long2);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(long3);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(long4);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(long8);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(long16);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(ulong);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(ulong2);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(ulong3);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(ulong4);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(ulong8);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(ulong16);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(float);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(float2);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(float3);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(float4);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(float8);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(float16);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(double);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(double2);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(double3);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(double4);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(double8);
+ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(double16);
 
 #if defined(Z_CLANG)
 #pragma GCC diagnostic pop

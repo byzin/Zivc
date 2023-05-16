@@ -15,6 +15,10 @@
 #ifndef ZIVC_KERNEL_SET_@kernel_set_name@_CL
 #define ZIVC_KERNEL_SET_@kernel_set_name@_CL 0x@kernel_set_number@u
 
+// OpenCL feature
+//#pragma OPENCL EXTENSION __cl_clang_non_portable_kernel_param_types : enable
+
+// Warning
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wc++98-compat"
 #pragma clang diagnostic push
@@ -92,8 +96,12 @@ static_assert(ZIVC_KERNEL_SET_@kernel_set_name@_CL == 0x@kernel_set_number@u,
 static_assert(__OPENCL_VERSION__ == CL_VERSION_1_2, "OpenCL version isn't 2.0.");
 static_assert(__OPENCL_CPP_VERSION__ == 100, "OpenCL C++ version isn't 1.0.");
 
+// Warning
 //#pragma clang diagnostic pop
 #pragma clang diagnostic pop
 #pragma clang diagnostic pop
+
+// OpenCL feature
+//#pragma OPENCL EXTENSION __cl_clang_non_portable_kernel_param_types : disable
 
 #endif /* ZIVC_KERNEL_SET_@kernel_set_name@_CL */

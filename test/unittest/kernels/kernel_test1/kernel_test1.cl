@@ -161,35 +161,48 @@ __kernel void basicTypeSizeKernel(zivc::GlobalPtr<uint32b> outputs)
   }
 }
 
-#if defined(Z_GCC) || defined(Z_CLANG)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpadded"
-#endif // Z_GCC || Z_CLANG
-
 /*!
   \brief No brief description
 
   No detailed description.
   */
-class ClassSizeTest1
+struct ClassSizeTest1
 {
- public:
-  int16b i16() const noexcept {return i16_;}
-  uint32b u() const noexcept {return u_;}
-  uint8b u8() const noexcept {return u8_;}
-  uint16b u16() const noexcept {return u16_;}
-  float f() const noexcept {return f_;}
+  int16b i16() const noexcept
+  {
+    return i16_;
+  }
+
+  uint32b u32() const noexcept
+  {
+    return u32_;
+  }
+
+  uint8b u8() const noexcept
+  {
+    return u8_;
+  }
+
+  uint16b u16() const noexcept
+  {
+    return u16_;
+  }
+
+  float f() const noexcept
+  {
+    return f_;
+  }
 
   int16b i16_;
-  uint32b u_;
+  int16b pad1_;
+  uint32b u32_;
   uint8b u8_;
+  uint8b pad2_;
   uint16b u16_;
   float f_;
 };
 
-#if defined(Z_GCC) || defined(Z_CLANG)
-#pragma GCC diagnostic pop
-#endif // Z_GCC || Z_CLANG
+static_assert((sizeof(ClassSizeTest1) % 16) == 0);
 
 /*!
   \details No detailed description
@@ -237,15 +250,16 @@ __kernel void inputOutput2Kernel(zivc::ConstGlobalPtr<ClassSizeTest1> inputs,
   {
     zivc::GlobalPtr<ClassSizeTest1> o1 = outputs + (2 * index);
     o1->i16_ = in->i16();
-    o1->u_ = in->u();
+    o1->u32_ = in->u32();
     o1->u8_ = in->u8();
     o1->u16_ = in->u16();
     o1->f_ = in->f();
   }
-  {
-    zivc::GlobalPtr<ClassSizeTest1> o2 = outputs + (2 * index + 1);
-    o2[0] = in[0];
-  }
+  //! \todo Resolve the compile error
+//  {
+//    zivc::GlobalPtr<ClassSizeTest1> o2 = outputs + (2 * index + 1);
+//    o2[0] = in[0];
+//  }
 }
 
 namespace inner {

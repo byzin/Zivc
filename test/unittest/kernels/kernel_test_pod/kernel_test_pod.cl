@@ -17,6 +17,7 @@
 
 // Zivc
 #include "zivc/cl/atomic.hpp"
+#include "zivc/cl/functional.hpp"
 #include "zivc/cl/types.hpp"
 #include "zivc/cl/utility.hpp"
 
@@ -164,9 +165,12 @@ bool operator!=(const PodAlignmentTest& lhs, const PodAlignmentTest& rhs) noexce
 inline
 bool operator==(const PodAlignmentTest& lhs, const PodAlignmentTest& rhs) noexcept
 {
-  const bool result = zivc::equal(lhs.u8_, rhs.u8_) && zivc::equal(lhs.f_, rhs.f_) &&
-                      zivc::equal(lhs.i8_, rhs.i8_) && zivc::equal(lhs.i16_, rhs.i16_) &&
-                      zivc::equal(lhs.u16_, rhs.u16_) && zivc::equal(lhs.i32_, rhs.i32_);
+  const bool result = zivc::EqualTo<uint8b>{}(lhs.u8_, rhs.u8_) &&
+                      zivc::EqualTo<float>{}(lhs.f_, rhs.f_) &&
+                      zivc::EqualTo<int8b>{}(lhs.i8_, rhs.i8_) &&
+                      zivc::EqualTo<int16b>{}(lhs.i16_, rhs.i16_) &&
+                      zivc::EqualTo<uint16b>{}(lhs.u16_, rhs.u16_) &&
+                      zivc::EqualTo<int32b>{}(lhs.i32_, rhs.i32_);
   return result;
 }
 

@@ -1250,7 +1250,7 @@ TEST(ClCppTest, VectorArithmeticOperatorLongVecTest)
     ZIVC_TEST_ARITHMETIC_F16(10.0f, -10.0f, 40.0f, 120.0f, mem[10], "Vector float16 multiplication failed.");
     ZIVC_TEST_ARITHMETIC_F16(0.1f, 0.1f, -1.0f, -1.5f, mem[11], "Vector float16 division failed.");
     ZIVC_TEST_ARITHMETIC_F16(0.1f, -0.1f, -0.25f, -0.125f, mem[12], "Vector float16 division failed.");
-    ZIVC_TEST_ARITHMETIC_F16(0.1f, -0.1f, -0.4f, 1.2f, mem[13], "Vector float16 division failed.");
+    ZIVC_TEST_ARITHMETIC_F16(0.1f, -0.1f, 0.4f, 1.2f, mem[13], "Vector float16 division failed.");
   }
 }
 
@@ -1592,7 +1592,7 @@ TEST(ClCppTest, VectorArithmeticAssignmentOperatorLongVecTest)
     ZIVC_TEST_ARITHMETIC_I16(11, 9, 14, 22, mem[1], "Vector int4 addition failed.");
     ZIVC_TEST_ARITHMETIC_I16(-9, 9, 8, 20, mem[2], "Vector int4 subtraction failed.");
     ZIVC_TEST_ARITHMETIC_I16(-9, -11, -6, 2, mem[3], "Vector int4 subtraction failed.");
-    ZIVC_TEST_ARITHMETIC_I16(10, 10, -16, -06, mem[4], "Vector int4 multiplication failed.");
+    ZIVC_TEST_ARITHMETIC_I16(10, 10, -16, -96, mem[4], "Vector int4 multiplication failed.");
     ZIVC_TEST_ARITHMETIC_I16(10, -10, 40, 120, mem[5], "Vector int4 multiplication failed.");
     ZIVC_TEST_ARITHMETIC_I16(0, 0, -1, -1, mem[6], "Vector int4 division failed.");
     ZIVC_TEST_ARITHMETIC_I16(0, 0, 0, 1, mem[7], "Vector int4 division failed.");
@@ -1965,7 +1965,7 @@ TEST(ClCppTest, VectorBitwiseOperatorLongVecTest)
                             "Vector uint8 bitwise OR failed.");
     ZIVC_TEST_ARITHMETIC_I8(mask02 bitor mask04, mask03 bitor mask04, mem[6],
                             "Vector uint8 bitwise OR failed.");
-    ZIVC_TEST_ARITHMETIC_I8(mask02 xor mask04, mask03 xor mask04, mem[7],
+    ZIVC_TEST_ARITHMETIC_I8(mask02 xor mask04, mask03 xor mask05, mem[7],
                             "Vector uint8 bitwise XOR failed.");
     ZIVC_TEST_ARITHMETIC_I8(mask02 xor mask04, mask02 xor mask05, mem[8],
                             "Vector uint8 bitwise XOR failed.");
@@ -2037,7 +2037,7 @@ TEST(ClCppTest, VectorBitwiseOperatorLongVecTest)
     const zivc::MappedMemory mem = buffer->mapMemory();
     ZIVC_TEST_ARITHMETIC_I16(compl mask02, compl mask03, compl mask02, compl mask03, mem[0],
                              "Vector uint16 bitwise NOT failed.");
-    ZIVC_TEST_ARITHMETIC_I16(mask01 bitand mask02, mask01 bitand mask02, mask01 bitand mask03, mask01 bitand mask02, mem[1],
+    ZIVC_TEST_ARITHMETIC_I16(mask01 bitand mask02, mask01 bitand mask03, mask01 bitand mask02, mask01 bitand mask03, mem[1],
                              "Vector uint16 bitwise AND failed.");
     ZIVC_TEST_ARITHMETIC_I16(mask01 bitand mask02, mask01 bitand mask03, mask01 bitand mask02, mask01 bitand mask03, mem[2],
                              "Vector uint16 bitwise AND failed.");

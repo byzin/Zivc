@@ -135,10 +135,6 @@ size_t getLocalLinearId() noexcept;
 
 // Type utilities
 
-//! Make a value
-template <typename Type, typename ...ArgTypes>
-constexpr Type make(const ArgTypes&... args) noexcept;
-
 //! Make a char2 value
 constexpr char2 makeChar2(const int8b v) noexcept;
 
@@ -992,7 +988,7 @@ constexpr double16 makeDouble16(const double8 v0, const double8 v1) noexcept;
 
 //! Convert type from T to Type
 template <typename Type, typename T>
-Type cast(T&& value) noexcept;
+Type cast(T value) noexcept;
 
 //! Treat T* as Type*
 template <typename Type, typename T>
@@ -1000,19 +996,6 @@ Type reinterp(T object) noexcept;
 
 //! Convert an pointer type to another pointer type
 #define ZIVC_CAST_POINTER(type, ptr)
-
-//
-
-//! Check if the given two values are same
-template <typename Type1, typename Type2>
-constexpr bool equal(const Type1& lhs, const Type2& rhs) noexcept;
-
-//!
-template <typename Type>
-Type&& forward(RemoveReferenceT<Type>& t) noexcept;
-
-template <typename Type>
-Type&& forward(RemoveReferenceT<Type>&& t) noexcept;
 
 } // namespace zivc
 

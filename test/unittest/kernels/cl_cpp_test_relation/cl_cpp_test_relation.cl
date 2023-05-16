@@ -66,7 +66,7 @@ __kernel void isEqualTestKernel(zivc::ConstGlobalPtr<float> in1,
     out1[6] = zivc::isequal(v4, v3);
     out1[7] = zivc::isequal(v5, v5);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out1[8] = zivc::isequal(v6, v6);
     out1[9] = zivc::isequal(v7, v7);
     out1[10] = zivc::isequal(v5, v6);
@@ -96,7 +96,7 @@ __kernel void isEqualTestKernel(zivc::ConstGlobalPtr<float> in1,
     out2[4] = zivc::isequal(v3, v3);
     out2[5] = zivc::isequal(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out2[6] = zivc::isequal(v4, v4);
     out2[7] = zivc::isequal(v3, v4);
 
@@ -121,7 +121,7 @@ __kernel void isEqualTestKernel(zivc::ConstGlobalPtr<float> in1,
     out3[4] = zivc::isequal(v3, v3);
     out3[5] = zivc::isequal(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out3[6] = zivc::isequal(v4, v4);
     out3[7] = zivc::isequal(v3, v4);
 
@@ -146,7 +146,7 @@ __kernel void isEqualTestKernel(zivc::ConstGlobalPtr<float> in1,
     out4[4] = zivc::isequal(v3, v3);
     out4[5] = zivc::isequal(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out4[6] = zivc::isequal(v4, v4);
     out4[7] = zivc::isequal(v3, v4);
 
@@ -182,7 +182,7 @@ __kernel void isEqualLongVecTestKernel(zivc::ConstGlobalPtr<float8> in8,
     out8[4] = zivc::isequal(v3, v3);
     out8[5] = zivc::isequal(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out8[6] = zivc::isequal(v4, v4);
     out8[7] = zivc::isequal(v3, v4);
 
@@ -207,7 +207,7 @@ __kernel void isEqualLongVecTestKernel(zivc::ConstGlobalPtr<float8> in8,
     out16[4] = zivc::isequal(v3, v3);
     out16[5] = zivc::isequal(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out16[6] = zivc::isequal(v4, v4);
     out16[7] = zivc::isequal(v3, v4);
 
@@ -253,7 +253,7 @@ __kernel void isNotEqualTestKernel(zivc::ConstGlobalPtr<float> in1,
     out1[6] = zivc::isnotequal(v4, v3);
     out1[7] = zivc::isnotequal(v5, v5);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out1[8] = zivc::isnotequal(v6, v6);
     out1[9] = zivc::isnotequal(v7, v7);
     out1[10] = zivc::isnotequal(v5, v6);
@@ -283,7 +283,7 @@ __kernel void isNotEqualTestKernel(zivc::ConstGlobalPtr<float> in1,
     out2[4] = zivc::isnotequal(v3, v3);
     out2[5] = zivc::isnotequal(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out2[6] = zivc::isnotequal(v4, v4);
     out2[7] = zivc::isnotequal(v3, v4);
 
@@ -308,7 +308,7 @@ __kernel void isNotEqualTestKernel(zivc::ConstGlobalPtr<float> in1,
     out3[4] = zivc::isnotequal(v3, v3);
     out3[5] = zivc::isnotequal(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out3[6] = zivc::isnotequal(v4, v4);
     out3[7] = zivc::isnotequal(v3, v4);
 
@@ -333,7 +333,7 @@ __kernel void isNotEqualTestKernel(zivc::ConstGlobalPtr<float> in1,
     out4[4] = zivc::isnotequal(v3, v3);
     out4[5] = zivc::isnotequal(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out4[6] = zivc::isnotequal(v4, v4);
     out4[7] = zivc::isnotequal(v3, v4);
 
@@ -369,7 +369,7 @@ __kernel void isNotEqualLongVecTestKernel(zivc::ConstGlobalPtr<float8> in8,
     out8[4] = zivc::isnotequal(v3, v3);
     out8[5] = zivc::isnotequal(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out8[6] = zivc::isnotequal(v4, v4);
     out8[7] = zivc::isnotequal(v3, v4);
 
@@ -394,7 +394,7 @@ __kernel void isNotEqualLongVecTestKernel(zivc::ConstGlobalPtr<float8> in8,
     out16[4] = zivc::isnotequal(v3, v3);
     out16[5] = zivc::isnotequal(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out16[6] = zivc::isnotequal(v4, v4);
     out16[7] = zivc::isnotequal(v3, v4);
 
@@ -440,7 +440,7 @@ __kernel void isGreaterTestKernel(zivc::ConstGlobalPtr<float> in1,
     out1[6] = zivc::isgreater(v4, v3);
     out1[7] = zivc::isgreater(v5, v5);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out1[8] = zivc::isgreater(v6, v6);
     out1[9] = zivc::isgreater(v7, v7);
     out1[10] = zivc::isgreater(v5, v6);
@@ -470,7 +470,7 @@ __kernel void isGreaterTestKernel(zivc::ConstGlobalPtr<float> in1,
     out2[4] = zivc::isgreater(v3, v3);
     out2[5] = zivc::isgreater(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out2[6] = zivc::isgreater(v4, v4);
     out2[7] = zivc::isgreater(v3, v4);
 
@@ -495,7 +495,7 @@ __kernel void isGreaterTestKernel(zivc::ConstGlobalPtr<float> in1,
     out3[4] = zivc::isgreater(v3, v3);
     out3[5] = zivc::isgreater(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out3[6] = zivc::isgreater(v4, v4);
     out3[7] = zivc::isgreater(v3, v4);
 
@@ -520,7 +520,7 @@ __kernel void isGreaterTestKernel(zivc::ConstGlobalPtr<float> in1,
     out4[4] = zivc::isgreater(v3, v3);
     out4[5] = zivc::isgreater(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out4[6] = zivc::isgreater(v4, v4);
     out4[7] = zivc::isgreater(v3, v4);
 
@@ -556,7 +556,7 @@ __kernel void isGreaterLongVecTestKernel(zivc::ConstGlobalPtr<float8> in8,
     out8[4] = zivc::isgreater(v3, v3);
     out8[5] = zivc::isgreater(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out8[6] = zivc::isgreater(v4, v4);
     out8[7] = zivc::isgreater(v3, v4);
 
@@ -581,7 +581,7 @@ __kernel void isGreaterLongVecTestKernel(zivc::ConstGlobalPtr<float8> in8,
     out16[4] = zivc::isgreater(v3, v3);
     out16[5] = zivc::isgreater(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out16[6] = zivc::isgreater(v4, v4);
     out16[7] = zivc::isgreater(v3, v4);
 
@@ -627,7 +627,7 @@ __kernel void isGreaterEqualTestKernel(zivc::ConstGlobalPtr<float> in1,
     out1[6] = zivc::isgreaterequal(v4, v3);
     out1[7] = zivc::isgreaterequal(v5, v5);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out1[8] = zivc::isgreaterequal(v6, v6);
     out1[9] = zivc::isgreaterequal(v7, v7);
     out1[10] = zivc::isgreaterequal(v5, v6);
@@ -657,7 +657,7 @@ __kernel void isGreaterEqualTestKernel(zivc::ConstGlobalPtr<float> in1,
     out2[4] = zivc::isgreaterequal(v3, v3);
     out2[5] = zivc::isgreaterequal(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out2[6] = zivc::isgreaterequal(v4, v4);
     out2[7] = zivc::isgreaterequal(v3, v4);
 
@@ -682,7 +682,7 @@ __kernel void isGreaterEqualTestKernel(zivc::ConstGlobalPtr<float> in1,
     out3[4] = zivc::isgreaterequal(v3, v3);
     out3[5] = zivc::isgreaterequal(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out3[6] = zivc::isgreaterequal(v4, v4);
     out3[7] = zivc::isgreaterequal(v3, v4);
 
@@ -707,7 +707,7 @@ __kernel void isGreaterEqualTestKernel(zivc::ConstGlobalPtr<float> in1,
     out4[4] = zivc::isgreaterequal(v3, v3);
     out4[5] = zivc::isgreaterequal(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out4[6] = zivc::isgreaterequal(v4, v4);
     out4[7] = zivc::isgreaterequal(v3, v4);
 
@@ -743,7 +743,7 @@ __kernel void isGreaterEqualLongVecTestKernel(zivc::ConstGlobalPtr<float8> in8,
     out8[4] = zivc::isgreaterequal(v3, v3);
     out8[5] = zivc::isgreaterequal(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out8[6] = zivc::isgreaterequal(v4, v4);
     out8[7] = zivc::isgreaterequal(v3, v4);
 
@@ -768,7 +768,7 @@ __kernel void isGreaterEqualLongVecTestKernel(zivc::ConstGlobalPtr<float8> in8,
     out16[4] = zivc::isgreaterequal(v3, v3);
     out16[5] = zivc::isgreaterequal(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out16[6] = zivc::isgreaterequal(v4, v4);
     out16[7] = zivc::isgreaterequal(v3, v4);
 
@@ -814,7 +814,7 @@ __kernel void isLessTestKernel(zivc::ConstGlobalPtr<float> in1,
     out1[6] = zivc::isless(v4, v3);
     out1[7] = zivc::isless(v5, v5);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out1[8] = zivc::isless(v6, v6);
     out1[9] = zivc::isless(v7, v7);
     out1[10] = zivc::isless(v5, v6);
@@ -844,7 +844,7 @@ __kernel void isLessTestKernel(zivc::ConstGlobalPtr<float> in1,
     out2[4] = zivc::isless(v3, v3);
     out2[5] = zivc::isless(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out2[6] = zivc::isless(v4, v4);
     out2[7] = zivc::isless(v3, v4);
 
@@ -869,7 +869,7 @@ __kernel void isLessTestKernel(zivc::ConstGlobalPtr<float> in1,
     out3[4] = zivc::isless(v3, v3);
     out3[5] = zivc::isless(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out3[6] = zivc::isless(v4, v4);
     out3[7] = zivc::isless(v3, v4);
 
@@ -894,7 +894,7 @@ __kernel void isLessTestKernel(zivc::ConstGlobalPtr<float> in1,
     out4[4] = zivc::isless(v3, v3);
     out4[5] = zivc::isless(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out4[6] = zivc::isless(v4, v4);
     out4[7] = zivc::isless(v3, v4);
 
@@ -930,7 +930,7 @@ __kernel void isLessLongVecTestKernel(zivc::ConstGlobalPtr<float8> in8,
     out8[4] = zivc::isless(v3, v3);
     out8[5] = zivc::isless(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out8[6] = zivc::isless(v4, v4);
     out8[7] = zivc::isless(v3, v4);
 
@@ -955,7 +955,7 @@ __kernel void isLessLongVecTestKernel(zivc::ConstGlobalPtr<float8> in8,
     out16[4] = zivc::isless(v3, v3);
     out16[5] = zivc::isless(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out16[6] = zivc::isless(v4, v4);
     out16[7] = zivc::isless(v3, v4);
 
@@ -1001,7 +1001,7 @@ __kernel void isLessEqualTestKernel(zivc::ConstGlobalPtr<float> in1,
     out1[6] = zivc::islessequal(v4, v3);
     out1[7] = zivc::islessequal(v5, v5);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out1[8] = zivc::islessequal(v6, v6);
     out1[9] = zivc::islessequal(v7, v7);
     out1[10] = zivc::islessequal(v5, v6);
@@ -1031,7 +1031,7 @@ __kernel void isLessEqualTestKernel(zivc::ConstGlobalPtr<float> in1,
     out2[4] = zivc::islessequal(v3, v3);
     out2[5] = zivc::islessequal(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out2[6] = zivc::islessequal(v4, v4);
     out2[7] = zivc::islessequal(v3, v4);
 
@@ -1056,7 +1056,7 @@ __kernel void isLessEqualTestKernel(zivc::ConstGlobalPtr<float> in1,
     out3[4] = zivc::islessequal(v3, v3);
     out3[5] = zivc::islessequal(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out3[6] = zivc::islessequal(v4, v4);
     out3[7] = zivc::islessequal(v3, v4);
 
@@ -1081,7 +1081,7 @@ __kernel void isLessEqualTestKernel(zivc::ConstGlobalPtr<float> in1,
     out4[4] = zivc::islessequal(v3, v3);
     out4[5] = zivc::islessequal(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out4[6] = zivc::islessequal(v4, v4);
     out4[7] = zivc::islessequal(v3, v4);
 
@@ -1117,7 +1117,7 @@ __kernel void isLessEqualLongVecTestKernel(zivc::ConstGlobalPtr<float8> in8,
     out8[4] = zivc::islessequal(v3, v3);
     out8[5] = zivc::islessequal(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out8[6] = zivc::islessequal(v4, v4);
     out8[7] = zivc::islessequal(v3, v4);
 
@@ -1142,7 +1142,7 @@ __kernel void isLessEqualLongVecTestKernel(zivc::ConstGlobalPtr<float8> in8,
     out16[4] = zivc::islessequal(v3, v3);
     out16[5] = zivc::islessequal(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out16[6] = zivc::islessequal(v4, v4);
     out16[7] = zivc::islessequal(v3, v4);
 
@@ -1188,7 +1188,7 @@ __kernel void isLessGreaterTestKernel(zivc::ConstGlobalPtr<float> in1,
     out1[6] = zivc::islessgreater(v4, v3);
     out1[7] = zivc::islessgreater(v5, v5);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out1[8] = zivc::islessgreater(v6, v6);
     out1[9] = zivc::islessgreater(v7, v7);
     out1[10] = zivc::islessgreater(v5, v6);
@@ -1218,7 +1218,7 @@ __kernel void isLessGreaterTestKernel(zivc::ConstGlobalPtr<float> in1,
     out2[4] = zivc::islessgreater(v3, v3);
     out2[5] = zivc::islessgreater(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out2[6] = zivc::islessgreater(v4, v4);
     out2[7] = zivc::islessgreater(v3, v4);
 
@@ -1243,7 +1243,7 @@ __kernel void isLessGreaterTestKernel(zivc::ConstGlobalPtr<float> in1,
     out3[4] = zivc::islessgreater(v3, v3);
     out3[5] = zivc::islessgreater(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out3[6] = zivc::islessgreater(v4, v4);
     out3[7] = zivc::islessgreater(v3, v4);
 
@@ -1268,7 +1268,7 @@ __kernel void isLessGreaterTestKernel(zivc::ConstGlobalPtr<float> in1,
     out4[4] = zivc::islessgreater(v3, v3);
     out4[5] = zivc::islessgreater(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out4[6] = zivc::islessgreater(v4, v4);
     out4[7] = zivc::islessgreater(v3, v4);
 
@@ -1304,7 +1304,7 @@ __kernel void isLessGreaterLongVecTestKernel(zivc::ConstGlobalPtr<float8> in8,
     out8[4] = zivc::islessgreater(v3, v3);
     out8[5] = zivc::islessgreater(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out8[6] = zivc::islessgreater(v4, v4);
     out8[7] = zivc::islessgreater(v3, v4);
 
@@ -1329,7 +1329,7 @@ __kernel void isLessGreaterLongVecTestKernel(zivc::ConstGlobalPtr<float8> in8,
     out16[4] = zivc::islessgreater(v3, v3);
     out16[5] = zivc::islessgreater(v3, v2);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out16[6] = zivc::islessgreater(v4, v4);
     out16[7] = zivc::islessgreater(v3, v4);
 
@@ -1373,7 +1373,7 @@ __kernel void isFiniteTestKernel(zivc::ConstGlobalPtr<float> in1,
     out1[4] = zivc::isfinite(v4);
     out1[5] = zivc::isfinite(v5);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out1[6] = zivc::isfinite(v6);
     out1[7] = zivc::isfinite(v7);
 
@@ -1396,7 +1396,7 @@ __kernel void isFiniteTestKernel(zivc::ConstGlobalPtr<float> in1,
     out2[2] = zivc::isfinite(v2);
     out2[3] = zivc::isfinite(v3);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out2[4] = zivc::isfinite(v4);
 
     out2[5] = zivc::isfinite(v5);
@@ -1417,7 +1417,7 @@ __kernel void isFiniteTestKernel(zivc::ConstGlobalPtr<float> in1,
     out3[2] = zivc::isfinite(v2);
     out3[3] = zivc::isfinite(v3);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out3[4] = zivc::isfinite(v4);
 
     out3[5] = zivc::isfinite(v5);
@@ -1438,7 +1438,7 @@ __kernel void isFiniteTestKernel(zivc::ConstGlobalPtr<float> in1,
     out4[2] = zivc::isfinite(v2);
     out4[3] = zivc::isfinite(v3);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out4[4] = zivc::isfinite(v4);
 
     out4[5] = zivc::isfinite(v5);
@@ -1470,7 +1470,7 @@ __kernel void isFiniteLongVecTestKernel(zivc::ConstGlobalPtr<float8> in8,
     out8[2] = zivc::isfinite(v2);
     out8[3] = zivc::isfinite(v3);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out8[4] = zivc::isfinite(v4);
 
     out8[5] = zivc::isfinite(v5);
@@ -1491,7 +1491,7 @@ __kernel void isFiniteLongVecTestKernel(zivc::ConstGlobalPtr<float8> in8,
     out16[2] = zivc::isfinite(v2);
     out16[3] = zivc::isfinite(v3);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out16[4] = zivc::isfinite(v4);
 
     out16[5] = zivc::isfinite(v5);
@@ -1533,7 +1533,7 @@ __kernel void isInfTestKernel(zivc::ConstGlobalPtr<float> in1,
     out1[4] = zivc::isinf(v4);
     out1[5] = zivc::isinf(v5);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out1[6] = zivc::isinf(v6);
     out1[7] = zivc::isinf(v7);
 
@@ -1556,7 +1556,7 @@ __kernel void isInfTestKernel(zivc::ConstGlobalPtr<float> in1,
     out2[2] = zivc::isinf(v2);
     out2[3] = zivc::isinf(v3);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out2[4] = zivc::isinf(v4);
 
     out2[5] = zivc::isinf(v5);
@@ -1577,7 +1577,7 @@ __kernel void isInfTestKernel(zivc::ConstGlobalPtr<float> in1,
     out3[2] = zivc::isinf(v2);
     out3[3] = zivc::isinf(v3);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out3[4] = zivc::isinf(v4);
 
     out3[5] = zivc::isinf(v5);
@@ -1598,7 +1598,7 @@ __kernel void isInfTestKernel(zivc::ConstGlobalPtr<float> in1,
     out4[2] = zivc::isinf(v2);
     out4[3] = zivc::isinf(v3);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out4[4] = zivc::isinf(v4);
 
     out4[5] = zivc::isinf(v5);
@@ -1630,7 +1630,7 @@ __kernel void isInfLongVecTestKernel(zivc::ConstGlobalPtr<float8> in8,
     out8[2] = zivc::isinf(v2);
     out8[3] = zivc::isinf(v3);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out8[4] = zivc::isinf(v4);
 
     out8[5] = zivc::isinf(v5);
@@ -1651,7 +1651,7 @@ __kernel void isInfLongVecTestKernel(zivc::ConstGlobalPtr<float8> in8,
     out16[2] = zivc::isinf(v2);
     out16[3] = zivc::isinf(v3);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out16[4] = zivc::isinf(v4);
 
     out16[5] = zivc::isinf(v5);
@@ -1693,7 +1693,7 @@ __kernel void isNanTestKernel(zivc::ConstGlobalPtr<float> in1,
     out1[4] = zivc::isnan(v4);
     out1[5] = zivc::isnan(v5);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out1[6] = zivc::isnan(v6);
     out1[7] = zivc::isnan(v7);
 
@@ -1716,7 +1716,7 @@ __kernel void isNanTestKernel(zivc::ConstGlobalPtr<float> in1,
     out2[2] = zivc::isnan(v2);
     out2[3] = zivc::isnan(v3);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out2[4] = zivc::isnan(v4);
 
     out2[5] = zivc::isnan(v5);
@@ -1737,7 +1737,7 @@ __kernel void isNanTestKernel(zivc::ConstGlobalPtr<float> in1,
     out3[2] = zivc::isnan(v2);
     out3[3] = zivc::isnan(v3);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out3[4] = zivc::isnan(v4);
 
     out3[5] = zivc::isnan(v5);
@@ -1758,7 +1758,7 @@ __kernel void isNanTestKernel(zivc::ConstGlobalPtr<float> in1,
     out4[2] = zivc::isnan(v2);
     out4[3] = zivc::isnan(v3);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out4[4] = zivc::isnan(v4);
 
     out4[5] = zivc::isnan(v5);
@@ -1790,7 +1790,7 @@ __kernel void isNanLongVecTestKernel(zivc::ConstGlobalPtr<float8> in8,
     out8[2] = zivc::isnan(v2);
     out8[3] = zivc::isnan(v3);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out8[4] = zivc::isnan(v4);
 
     out8[5] = zivc::isnan(v5);
@@ -1811,7 +1811,7 @@ __kernel void isNanLongVecTestKernel(zivc::ConstGlobalPtr<float8> in8,
     out16[2] = zivc::isnan(v2);
     out16[3] = zivc::isnan(v3);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out16[4] = zivc::isnan(v4);
 
     out16[5] = zivc::isnan(v5);
@@ -1853,7 +1853,7 @@ __kernel void signbitTestKernel(zivc::ConstGlobalPtr<float> in1,
     out1[4] = zivc::signbit(v4);
     out1[5] = zivc::signbit(v5);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out1[6] = zivc::signbit(v6);
     out1[7] = zivc::signbit(v7);
 
@@ -1876,7 +1876,7 @@ __kernel void signbitTestKernel(zivc::ConstGlobalPtr<float> in1,
     out2[2] = zivc::signbit(v2);
     out2[3] = zivc::signbit(v3);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out2[4] = zivc::signbit(v4);
 
     out2[5] = zivc::signbit(v5);
@@ -1897,7 +1897,7 @@ __kernel void signbitTestKernel(zivc::ConstGlobalPtr<float> in1,
     out3[2] = zivc::signbit(v2);
     out3[3] = zivc::signbit(v3);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out3[4] = zivc::signbit(v4);
 
     out3[5] = zivc::signbit(v5);
@@ -1918,7 +1918,7 @@ __kernel void signbitTestKernel(zivc::ConstGlobalPtr<float> in1,
     out4[2] = zivc::signbit(v2);
     out4[3] = zivc::signbit(v3);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out4[4] = zivc::signbit(v4);
 
     out4[5] = zivc::signbit(v5);
@@ -1950,7 +1950,7 @@ __kernel void signbitLongVecTestKernel(zivc::ConstGlobalPtr<float8> in8,
     out8[2] = zivc::signbit(v2);
     out8[3] = zivc::signbit(v3);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out8[4] = zivc::signbit(v4);
 
     out8[5] = zivc::signbit(v5);
@@ -1971,7 +1971,7 @@ __kernel void signbitLongVecTestKernel(zivc::ConstGlobalPtr<float8> in8,
     out16[2] = zivc::signbit(v2);
     out16[3] = zivc::signbit(v3);
 
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     out16[4] = zivc::signbit(v4);
 
     out16[5] = zivc::signbit(v5);

@@ -107,12 +107,11 @@ ZIVC_CL_DEFINE_CAST_BIT_IMPL(double16);
   \return No description
   */
 template <typename To, typename From> inline
-constexpr To Bit::castBit(const From& from) noexcept
+constexpr To Bit::castBit(const From from) noexcept
 {
   static_assert(sizeof(From) == sizeof(To),
                 "The 'From' and 'To' have different number of bytes.");
-  const To to = CastImpl<To>::cast(from);
-  return to;
+  return CastImpl<To>::cast(from);
 }
 
 /*!
@@ -124,10 +123,9 @@ constexpr To Bit::castBit(const From& from) noexcept
   \return No description
   */
 template <typename To, typename From> inline
-constexpr To castBit(const From& from) noexcept
+constexpr To castBit(const From from) noexcept
 {
-  const To to = Bit::castBit<To>(from);
-  return to;
+  return Bit::castBit<To>(from);
 }
 
 } // namespace zivc

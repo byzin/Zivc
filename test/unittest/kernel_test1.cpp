@@ -541,7 +541,7 @@ TEST(KernelTest, InputOutput2Test)
       zivc::MappedMemory<TestType> mem = buff_h->mapMemory();
       for (std::size_t i = 0; i < mem.size(); ++i) {
         mem[i].i16_ = zisc::cast<zivc::int16b>(i);
-        mem[i].u_ = zisc::cast<zivc::uint32b>(i);
+        mem[i].u32_ = zisc::cast<zivc::uint32b>(i);
         mem[i].u8_ = zisc::cast<zivc::uint8b>(i);
         mem[i].u16_ = zisc::cast<zivc::uint16b>(i);
         mem[i].f_ = zisc::cast<float>(i);
@@ -588,7 +588,7 @@ TEST(KernelTest, InputOutput2Test)
       }
       {
         const auto expected = zisc::cast<zivc::uint32b>(v);
-        ASSERT_EQ(expected, mem[i].u())
+        ASSERT_EQ(expected, mem[i].u32())
             << "Copying inputs[" << i << "] to outputs[" << i << "] failed.";
       }
       {

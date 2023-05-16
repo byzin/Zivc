@@ -519,32 +519,6 @@ size_t getLocalLinearId() noexcept
   return id;
 }
 
-namespace inner {
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-
-  \tparam Type No description.
-  */
-template <typename Type>
-struct MakingVectorImpl 
-{
-  //! Create a vector
-  template <typename ...ArgTypes>
-  static constexpr Type make(const ArgTypes&... args) noexcept;
-};
-
-} /* namespace inner */
-
-template <typename Type, typename ...ArgTypes> inline
-constexpr Type make(const ArgTypes&... args) noexcept
-{
-  const Type v = inner::MakingVectorImpl<Type>::make(args...);
-  return v;
-}
-
 /*!
   \def ZIVC_MAKING_VECTOR_SPECIALIZATION_IMPL
   \brief No brief description
@@ -556,35 +530,6 @@ constexpr Type make(const ArgTypes&... args) noexcept
   \param [in] vector_func No description.
   */
 #define ZIVC_MAKING_VECTOR_SPECIALIZATION_IMPL(scalar_type, vector_type, vector_func) \
-  namespace inner { \
-    template <> \
-    struct MakingVectorImpl< vector_type ## 2 > \
-    { \
-      template <typename ...ArgTypes> inline \
-      static constexpr vector_type ## 2 make(const ArgTypes&... args) noexcept \
-      { \
-        return make ## vector_func ## 2(args...); \
-      } \
-    }; \
-    template <> \
-    struct MakingVectorImpl< vector_type ## 3 > \
-    { \
-      template <typename ...ArgTypes> inline \
-      static constexpr vector_type ## 3 make(const ArgTypes&... args) noexcept \
-      { \
-        return make ## vector_func ## 3(args...); \
-      } \
-    }; \
-    template <> \
-    struct MakingVectorImpl< vector_type ## 4 > \
-    { \
-      template <typename ...ArgTypes> inline \
-      static constexpr vector_type ## 4 make(const ArgTypes&... args) noexcept \
-      { \
-        return make ## vector_func ## 4(args...); \
-      } \
-    }; \
-  } \
   inline \
   constexpr vector_type ## 2 make ## vector_func ## 2(const scalar_type v) noexcept \
   { \
@@ -778,19 +723,45 @@ namespace inner {
   \tparam Type No description.
   */
 template <typename Type>
-struct TypeConverter
+struct TypeCast
 {
+  /*!
+    \details No detailed description
+
+    \tparam T No description.
+    \param [in] value No description.
+    \return No description
+    */
   template <typename T>
-  static Type cast(T&& value) noexcept
+  static Type cast(T value) noexcept
   {
-    return static_cast<Type>(forward<T>(value));
+    return static_cast<Type>(value);
   }
 };
 
-#if defined(Z_CLANG)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wimplicit-int-float-conversion"
-#endif /* Z_CLANG */
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam Type No description.
+  */
+template <typename Type>
+struct TypeReinterp
+{
+  /*!
+    \details No detailed description
+
+    \tparam T No description.
+    \param [in] object No description.
+    \return No description
+    */
+  template <typename T>
+  static Type reinterp(T object) noexcept
+  {
+    return reinterpret_cast<Type>(object);
+  }
+};
 
 /*!
   \def ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL
@@ -802,103 +773,122 @@ struct TypeConverter
   */
 #define ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(type) \
   template <> \
-  struct TypeConverter< type > \
+  struct TypeCast< type > \
   { \
-    static constexpr size_t kDestVectorN = kVectorSize< type >; \
     template <typename T> \
-    static type cast(T&& value) noexcept \
+    static type cast(T value) noexcept \
     { \
-      using SourceT = RemoveCvrefAddressT<T>; \
-      constexpr size_t kSourceVectorN = kVectorSize<SourceT>; \
-      if constexpr (kSourceVectorN == kDestVectorN) \
-        return convert_ ## type (value); \
+      if constexpr (kIsScalar<T>) \
+        return static_cast< type >(static_cast<ScalarT< type >>(value)); \
       else \
-        return static_cast< type >(static_cast<ScalarT< type >>(forward<T>(value))); \
+        return convert_ ## type (value); \
     } \
   }
 
-ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(char);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(char2);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(char3);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(char4);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(char8);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(char16);
-ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(uchar);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(uchar2);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(uchar3);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(uchar4);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(uchar8);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(uchar16);
-ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(short);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(short2);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(short3);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(short4);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(short8);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(short16);
-ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(ushort);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(ushort2);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(ushort3);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(ushort4);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(ushort8);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(ushort16);
-ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(int);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(int2);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(int3);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(int4);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(int8);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(int16);
-ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(uint);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(uint2);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(uint3);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(uint4);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(uint8);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(uint16);
-ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(long);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(long2);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(long3);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(long4);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(long8);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(long16);
-ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(ulong);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(ulong2);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(ulong3);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(ulong4);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(ulong8);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(ulong16);
-ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(float);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(float2);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(float3);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(float4);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(float8);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(float16);
-ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(double);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(double2);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(double3);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(double4);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(double8);
 ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(double16);
 
-#if defined(Z_CLANG)
-#pragma GCC diagnostic pop
-#endif /* Z_CLANG */
-
 #if defined(ZIVC_CL_CPU)
 
+/*!
+  \brief Specialization of TypeCast
+
+  No detailed description.
+
+  \tparam kASpaceType No description.
+  \tparam Type No description.
+  */
 template <AddressSpaceType kASpaceType, typename Type>
-struct TypeConverter<AddressSpacePointer<kASpaceType, Type>>
+struct TypeCast<AddressSpacePointer<kASpaceType, Type>>
 {
   using ASpacePointer = AddressSpacePointer<kASpaceType, Type>;
 
+  /*!
+    \details No detailed description
+
+    \tparam T No description.
+    \param [in] value No description.
+    \return No description
+    */
   template <typename T>
   static ASpacePointer cast(AddressSpacePointer<kASpaceType, T> value) noexcept
   {
     return reinterp(value);
   }
+};
 
+/*!
+  \brief Specialization of TypeReinterp
+
+  No detailed description.
+
+  \tparam kASpaceType No description.
+  \tparam Type No description.
+  */
+template <AddressSpaceType kASpaceType, typename Type>
+struct TypeReinterp<AddressSpacePointer<kASpaceType, Type>>
+{
+  using ASpacePointer = AddressSpacePointer<kASpaceType, Type>;
+
+  /*!
+    \details No detailed description
+
+    \tparam T No description.
+    \param [in] object No description.
+    \return No description
+    */
   template <typename T>
   static ASpacePointer reinterp(AddressSpacePointer<kASpaceType, T> object) noexcept
   {
-    auto data = reinterpret_cast<typename ASpacePointer::Pointer>(object.get());
+    auto* data = reinterpret_cast<typename ASpacePointer::Pointer>(object.get());
     return ASpacePointer{data};
   }
 };
@@ -916,39 +906,14 @@ struct TypeConverter<AddressSpacePointer<kASpaceType, Type>>
   \return No description
   */
 template <typename Type, typename T> inline
-Type cast(T&& value) noexcept
+Type cast(T value) noexcept
 {
-  if constexpr (kIsSame<Type, T>) {
-    return forward<T>(value);
-  }
-  else {
-    using DstType = RemoveAddressSpaceT<RemoveCvT<Type>>;
-    auto result = inner::TypeConverter<DstType>::cast(forward<T>(value));
-    return result;
-  }
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type1 No description.
-  \tparam Type2 No description.
-  \param [in] lhs No description.
-  \param [in] rhs No description.
-  \return No description
-  */
-template <typename Type1, typename Type2> inline
-constexpr bool equal(const Type1& lhs, const Type2& rhs) noexcept
-{
-#if defined(Z_GCC) || defined(Z_CLANG)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wfloat-equal"
-#endif // Z_GCC || Z_CLANG
-  const bool result = lhs == rhs;
-#if defined(Z_GCC) || defined(Z_CLANG)
-#pragma GCC diagnostic pop
-#endif // Z_GCC || Z_CLANG
-  return result;
+  using SrcT = RemoveCvT<T>;
+  using DstT = RemoveCvT<Type>;
+  if constexpr (kIsSame<DstT, SrcT>)
+    return value;
+  else
+    return inner::TypeCast<DstT>::cast(value);
 }
 
 /*!
@@ -962,8 +927,7 @@ constexpr bool equal(const Type1& lhs, const Type2& rhs) noexcept
 template <typename Type, typename T> inline
 Type reinterp(T object) noexcept
 {
-  auto result = inner::TypeConverter<RemoveVolatileT<Type>>::reinterp(object);
-  return result;
+  return inner::TypeCast<RemoveVolatileT<Type>>::reinterp(object);
 }
 
 #undef ZIVC_CAST_POINTER
@@ -997,33 +961,6 @@ Type reinterp(T object) noexcept
 #define ZIVC_CAST_POINTER(type, ptr) reinterpret_cast< type >( ptr )
 
 #endif
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \param [in] t No description.
-  \return No description
-  */
-template <typename Type> inline
-Type&& forward(RemoveReferenceT<Type>& t) noexcept
-{
-  return static_cast<Type&&>(t);
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \param [in] t No description.
-  \return No description
-  */
-template <typename Type> inline
-Type&& forward(RemoveReferenceT<Type>&& t) noexcept
-{
-  static_assert(!kIsLValueReference<Type>, "The Type is lvalue reference.");
-  return static_cast<Type&&>(t);
-}
 
 } // namespace zivc
 

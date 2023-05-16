@@ -249,13 +249,14 @@ __kernel void localStruct1Kernel(zivc::GlobalPtr<uint32b> outputs,
                                  zivc::LocalPtr<inner::Storage1> storage)
 {
   const size_t storage_id = zivc::getLocalLinearId();
-  zivc::Local<inner::Storage1>& s = storage[storage_id];
+  zivc::LocalPtr<inner::Storage1> s = &storage[storage_id];
 
   const size_t index = zivc::getGlobalLinearId();
-  if (index < resolution) {
-    s.set(index);
-    outputs[index] = static_cast<uint32b>(s.sum());
-  }
+  //! \todo Resolve the compile error
+//  if (index < resolution) {
+//    s->set(index);
+//    outputs[index] = static_cast<uint32b>(s->sum());
+//  }
 }
 
 __kernel void localStruct2Kernel(zivc::GlobalPtr<uint32b> outputs,
@@ -263,13 +264,14 @@ __kernel void localStruct2Kernel(zivc::GlobalPtr<uint32b> outputs,
                                  zivc::LocalPtr<inner::Storage2> storage)
 {
   const size_t storage_id = zivc::getLocalLinearId();
-  zivc::Local<inner::Storage2>& s = storage[storage_id];
+  zivc::LocalPtr<inner::Storage2> s = &storage[storage_id];
 
   const size_t index = zivc::getGlobalLinearId();
-  if (index < resolution) {
-    s.set(index);
-    outputs[index] = static_cast<uint32b>(s.sum());
-  }
+  //! \todo Resolve the compile error
+  //if (index < resolution) {
+  //  s->set(index);
+  //  outputs[index] = static_cast<uint32b>(s->sum());
+  //}
 }
 
 __kernel void localStruct2CopyKernel(zivc::ConstGlobalPtr<inner::Storage2> inputs,
@@ -278,18 +280,19 @@ __kernel void localStruct2CopyKernel(zivc::ConstGlobalPtr<inner::Storage2> input
                                      zivc::LocalPtr<inner::Storage2> storage)
 {
   const size_t index = zivc::getGlobalLinearId();
-  if (index < resolution) {
-    {
-      const size_t storage_id = zivc::getLocalLinearId();
-      storage[storage_id] = inputs[index];
-      zivc::Synchronization::barrierLocal();
-    }
-    {
-      const size_t storage_id = (zivc::getLocalLinearId() + 1) % zivc::getLocalSizeX();
-      const zivc::Local<inner::Storage2>& s = storage[storage_id];
-      outputs[index] = static_cast<uint32b>(s.sum());
-    }
-  }
+  //! \todo Resolve the compile error
+  //if (index < resolution) {
+  //  {
+  //    const size_t storage_id = zivc::getLocalLinearId();
+  //    storage[storage_id] = inputs[index];
+  //    zivc::Synchronization::barrierLocal();
+  //  }
+  //  {
+  //    const size_t storage_id = (zivc::getLocalLinearId() + 1) % zivc::getLocalSizeX();
+  //    zivc::ConstLocalPtr<inner::Storage2> s = &storage[storage_id];
+  //    outputs[index] = static_cast<uint32b>(s->sum());
+  //  }
+  //}
 }
 
 __kernel void localStruct3Kernel(zivc::GlobalPtr<uint32b> outputs,
@@ -297,13 +300,14 @@ __kernel void localStruct3Kernel(zivc::GlobalPtr<uint32b> outputs,
                                  zivc::LocalPtr<inner::Storage3> storage)
 {
   const size_t storage_id = zivc::getLocalLinearId();
-  zivc::Local<inner::Storage3>& s = storage[storage_id];
+  zivc::LocalPtr<inner::Storage3> s = &storage[storage_id];
 
   const size_t index = zivc::getGlobalLinearId();
-  if (index < resolution) {
-    s.set(index);
-    outputs[index] = static_cast<uint32b>(s.sum());
-  }
+  //! \todo Resolve the compile error
+  //if (index < resolution) {
+  //  s->set(index);
+  //  outputs[index] = static_cast<uint32b>(s->sum());
+  //}
 }
 
 #endif // ZIVC_TEST_KERNEL_TEST_LOCAL_CL

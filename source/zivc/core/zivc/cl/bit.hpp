@@ -27,7 +27,7 @@ class Bit
  public:
   //! Reinterpret the object representation of one type as that of another
   template <typename To, typename From>
-  static constexpr To castBit(const From& from) noexcept;
+  static constexpr To castBit(const From from) noexcept;
 
  private:
   //! The implementation of castBit
@@ -36,7 +36,7 @@ class Bit
 
 //! Reinterpret the object representation of one type as that of another
 template <typename To, typename From>
-constexpr To castBit(const From& from) noexcept;
+constexpr To castBit(const From from) noexcept;
 
 } // namespace zivc
 

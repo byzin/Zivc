@@ -369,7 +369,7 @@ __kernel void vectorConstructionKernel(zivc::GlobalPtr<int2> output_vec2,
     output_vec2[index++] = v;
   }
   {
-    const int2 s = zivc::make<int2>(3, 4);
+    const int2 s = zivc::makeInt2(3, 4);
     const int2 v{s};
     output_vec2[index++] = v;
   }
@@ -392,7 +392,7 @@ __kernel void vectorConstructionKernel(zivc::GlobalPtr<int2> output_vec2,
     output_vec3[index++] = v;
   }
   {
-    const int3 s = zivc::make<int3>(7, 8, 9);
+    const int3 s = zivc::makeInt3(7, 8, 9);
     const int3 v{s};
     output_vec3[index++] = v;
   }
@@ -426,7 +426,7 @@ __kernel void vectorConstructionKernel(zivc::GlobalPtr<int2> output_vec2,
     output_vec4[index++] = v;
   }
   {
-    const int4 s = zivc::make<int4>(13, 14, 15, 16);
+    const int4 s = zivc::makeInt4(13, 14, 15, 16);
     const int4 v{s};
     output_vec4[index++] = v;
   }
@@ -445,19 +445,9 @@ __kernel void vectorConstructionKernel(zivc::GlobalPtr<int2> output_vec2,
       using ResultType = decltype(v); \
       static_assert(zivc::kIsSame<VectorType, ResultType>); \
     } \
-    { \
-      auto v = zivc::make< vector_type ## 2 >( v0 ); \
-      using ResultType = decltype(v); \
-      static_assert(zivc::kIsSame<VectorType, ResultType>); \
-    } \
-    { \
-      auto v = zivc::make< vector_type ## 2 >( v0, v1 ); \
-      using ResultType = decltype(v); \
-      static_assert(zivc::kIsSame<VectorType, ResultType>); \
-    } \
   } \
   { \
-    using Vec2 = zivc::Private<vector_type ## 2>; \
+    using Vec2 = vector_type ## 2; \
     using VectorType = zivc::Private< vector_type ## 3 >; \
     { \
       auto v = zivc::make ## vector_func ## 3( v0 ); \
@@ -479,30 +469,10 @@ __kernel void vectorConstructionKernel(zivc::GlobalPtr<int2> output_vec2,
       using ResultType = decltype(v); \
       static_assert(zivc::kIsSame<VectorType, ResultType>); \
     } \
-    { \
-      auto v = zivc::make< vector_type ## 3 >( v0 ); \
-      using ResultType = decltype(v); \
-      static_assert(zivc::kIsSame<VectorType, ResultType>); \
-    } \
-    { \
-      auto v = zivc::make< vector_type ## 3 >( v0, v1, v2 ); \
-      using ResultType = decltype(v); \
-      static_assert(zivc::kIsSame<VectorType, ResultType>); \
-    } \
-    { \
-      auto v = zivc::make< vector_type ## 3 >( Vec2{v0, v1}, v2 ); \
-      using ResultType = decltype(v); \
-      static_assert(zivc::kIsSame<VectorType, ResultType>); \
-    } \
-    { \
-      auto v = zivc::make< vector_type ## 3 >( v0, Vec2{v1, v2} ); \
-      using ResultType = decltype(v); \
-      static_assert(zivc::kIsSame<VectorType, ResultType>); \
-    } \
   } \
   { \
-    using Vec2 = zivc::Private<vector_type ## 2>; \
-    using Vec3 = zivc::Private<vector_type ## 3>; \
+    using Vec2 = vector_type ## 2; \
+    using Vec3 = vector_type ## 3; \
     using VectorType = zivc::Private< vector_type ## 4 >; \
     { \
       auto v = zivc::make ## vector_func ## 4( v0 ); \
@@ -544,47 +514,8 @@ __kernel void vectorConstructionKernel(zivc::GlobalPtr<int2> output_vec2,
       using ResultType = decltype(v); \
       static_assert(zivc::kIsSame<VectorType, ResultType>); \
     } \
-    { \
-      auto v = zivc::make< vector_type ## 4 >( v0 ); \
-      using ResultType = decltype(v); \
-      static_assert(zivc::kIsSame<VectorType, ResultType>); \
-    } \
-    { \
-      auto v = zivc::make< vector_type ## 4 >( v0, v1, v2, v3 ); \
-      using ResultType = decltype(v); \
-      static_assert(zivc::kIsSame<VectorType, ResultType>); \
-    } \
-    { \
-      auto v = zivc::make< vector_type ## 4 >( Vec2{v0, v1}, v2, v3 ); \
-      using ResultType = decltype(v); \
-      static_assert(zivc::kIsSame<VectorType, ResultType>); \
-    } \
-    { \
-      auto v = zivc::make< vector_type ## 4 >( v0, Vec2{v1, v2}, v3 ); \
-      using ResultType = decltype(v); \
-      static_assert(zivc::kIsSame<VectorType, ResultType>); \
-    } \
-    { \
-      auto v = zivc::make< vector_type ## 4 >( v0, v1, Vec2{v2, v3} ); \
-      using ResultType = decltype(v); \
-      static_assert(zivc::kIsSame<VectorType, ResultType>); \
-    } \
-    { \
-      auto v = zivc::make< vector_type ## 4 >( Vec2{v0, v1}, Vec2{v2, v3} ); \
-      using ResultType = decltype(v); \
-      static_assert(zivc::kIsSame<VectorType, ResultType>); \
-    } \
-    { \
-      auto v = zivc::make< vector_type ## 4 >( Vec3{v0, v1, v2}, v3 ); \
-      using ResultType = decltype(v); \
-      static_assert(zivc::kIsSame<VectorType, ResultType>); \
-    } \
-    { \
-      auto v = zivc::make< vector_type ## 4 >( v0, Vec3{v1, v2, v3} ); \
-      using ResultType = decltype(v); \
-      static_assert(zivc::kIsSame<VectorType, ResultType>); \
-    } \
   }
+
   const auto c = [](const zivc::int32b i) noexcept
   {
     return static_cast<zivc::int8b>(i);
@@ -2525,6 +2456,25 @@ __kernel void vectorLogicalOperatorLongVecTest(zivc::ConstGlobalPtr<int8> in_int
   }
 }
 
+namespace inner {
+
+template <typename T> inline
+void testScalar(zivc::ConstGlobalPtr<int32b> in0,
+                zivc::ConstGlobalPtr<float> in1,
+                zivc::GlobalPtr<T> out,
+                const size_t int_n,
+                const size_t float_n) noexcept
+{
+  size_t index = 0;
+  using Type = zivc::RemoveCvrefAddressT<decltype(out[0])>;
+  for (size_t i = 0; i < int_n; ++i)
+    out[index++] = zivc::cast<Type>(in0[i]);
+  for (size_t i = 0; i < float_n; ++i)
+    out[index++] = zivc::cast<Type>(in1[i]);
+}
+
+} /* namespace inner */
+
 __kernel void scalarCastTest(zivc::ConstGlobalPtr<int32b> in_int,
                              zivc::ConstGlobalPtr<float> in_float,
                              zivc::GlobalPtr<int8b> out_int8b,
@@ -2541,25 +2491,13 @@ __kernel void scalarCastTest(zivc::ConstGlobalPtr<int32b> in_int,
   if (global_index != 0)
     return;
 
-  auto test_scalar = [int_n, float_n](zivc::ConstGlobalPtr<int32b> in0,
-                                      zivc::ConstGlobalPtr<float> in1,
-                                      auto out) noexcept
-  {
-    size_t index = 0;
-    using Type = zivc::RemoveCvrefAddressT<decltype(out[0])>;
-    for (size_t i = 0; i < int_n; ++i)
-      out[index++] = zivc::cast<Type>(in0[i]);
-    for (size_t i = 0; i < float_n; ++i)
-      out[index++] = zivc::cast<Type>(in1[i]);
-  };
-
-  test_scalar(in_int, in_float, out_int8b);
-  test_scalar(in_int, in_float, out_uint8b);
-  test_scalar(in_int, in_float, out_int16b);
-  test_scalar(in_int, in_float, out_uint16b);
-  test_scalar(in_int, in_float, out_int32b);
-  test_scalar(in_int, in_float, out_uint32b);
-  test_scalar(in_int, in_float, out_float);
+  inner::testScalar<int8b>(in_int, in_float, out_int8b, int_n, float_n);
+  inner::testScalar<uint8b>(in_int, in_float, out_uint8b, int_n, float_n);
+  inner::testScalar<int16b>(in_int, in_float, out_int16b, int_n, float_n);
+  inner::testScalar<uint16b>(in_int, in_float, out_uint16b, int_n, float_n);
+  inner::testScalar<int32b>(in_int, in_float, out_int32b, int_n, float_n);
+  inner::testScalar<uint32b>(in_int, in_float, out_uint32b, int_n, float_n);
+  inner::testScalar<float>(in_int, in_float, out_float, int_n, float_n);
 }
 
 __kernel void scalarBoolCastTest(zivc::ConstGlobalPtr<int32b> in_int,
@@ -2582,6 +2520,33 @@ __kernel void scalarBoolCastTest(zivc::ConstGlobalPtr<int32b> in_int,
   }
 }
 
+namespace inner {
+
+template <typename T> inline
+void testVec2(zivc::ConstGlobalPtr<int32b> in0,
+              zivc::ConstGlobalPtr<float> in1,
+              zivc::ConstGlobalPtr<int2> in2,
+              zivc::ConstGlobalPtr<float2> in3,
+              zivc::GlobalPtr<T> out,
+              const size_t int_n,
+              const size_t float_n,
+              const size_t int2_n,
+              const size_t float2_n) noexcept
+{
+  size_t index = 0;
+  using Type = zivc::RemoveCvrefAddressT<decltype(out[0])>;
+  for (size_t i = 0; i < int_n; ++i)
+    out[index++] = zivc::cast<Type>(in0[i]);
+  for (size_t i = 0; i < float_n; ++i)
+    out[index++] = zivc::cast<Type>(in1[i]);
+  for (size_t i = 0; i < int2_n; ++i)
+    out[index++] = zivc::cast<Type>(in2[i]);
+  for (size_t i = 0; i < float2_n; ++i)
+    out[index++] = zivc::cast<Type>(in3[i]);
+}
+
+} /* namespace inner */
+
 __kernel void vector2CastTest(zivc::ConstGlobalPtr<int32b> in_int,
                               zivc::ConstGlobalPtr<float> in_float,
                               zivc::ConstGlobalPtr<int2> in_int2,
@@ -2602,32 +2567,41 @@ __kernel void vector2CastTest(zivc::ConstGlobalPtr<int32b> in_int,
   if (global_index != 0)
     return;
 
-  auto test_vec2 = [int_n, float_n, int2_n, float2_n](zivc::ConstGlobalPtr<int32b> in0,
-                                                      zivc::ConstGlobalPtr<float> in1,
-                                                      zivc::ConstGlobalPtr<int2> in2,
-                                                      zivc::ConstGlobalPtr<float2> in3,
-                                                      auto out) noexcept
-  {
-    size_t index = 0;
-    using Type = zivc::RemoveCvrefAddressT<decltype(out[0])>;
-    for (size_t i = 0; i < int_n; ++i)
-      out[index++] = zivc::cast<Type>(in0[i]);
-    for (size_t i = 0; i < float_n; ++i)
-      out[index++] = zivc::cast<Type>(in1[i]);
-    for (size_t i = 0; i < int2_n; ++i)
-      out[index++] = zivc::cast<Type>(in2[i]);
-    for (size_t i = 0; i < float2_n; ++i)
-      out[index++] = zivc::cast<Type>(in3[i]);
-  };
-
-  test_vec2(in_int, in_float, in_int2, in_float2, out_char2);
-  test_vec2(in_int, in_float, in_int2, in_float2, out_uchar2);
-  test_vec2(in_int, in_float, in_int2, in_float2, out_short2);
-  test_vec2(in_int, in_float, in_int2, in_float2, out_ushort2);
-  test_vec2(in_int, in_float, in_int2, in_float2, out_int2);
-  test_vec2(in_int, in_float, in_int2, in_float2, out_uint2);
-  test_vec2(in_int, in_float, in_int2, in_float2, out_float2);
+  inner::testVec2<char2>(in_int, in_float, in_int2, in_float2, out_char2, int_n, float_n, int2_n, float2_n);
+  inner::testVec2<uchar2>(in_int, in_float, in_int2, in_float2, out_uchar2, int_n, float_n, int2_n, float2_n);
+  inner::testVec2<short2>(in_int, in_float, in_int2, in_float2, out_short2, int_n, float_n, int2_n, float2_n);
+  inner::testVec2<ushort2>(in_int, in_float, in_int2, in_float2, out_ushort2, int_n, float_n, int2_n, float2_n);
+  inner::testVec2<int2>(in_int, in_float, in_int2, in_float2, out_int2, int_n, float_n, int2_n, float2_n);
+  inner::testVec2<uint2>(in_int, in_float, in_int2, in_float2, out_uint2, int_n, float_n, int2_n, float2_n);
+  inner::testVec2<float2>(in_int, in_float, in_int2, in_float2, out_float2, int_n, float_n, int2_n, float2_n);
 }
+
+namespace inner {
+
+template <typename T> inline
+void testVec3 (zivc::ConstGlobalPtr<int32b> in0,
+               zivc::ConstGlobalPtr<float> in1,
+               zivc::ConstGlobalPtr<int3> in2,
+               zivc::ConstGlobalPtr<float3> in3,
+               zivc::GlobalPtr<T> out,
+               const size_t int_n,
+               const size_t float_n,
+               const size_t int3_n,
+               const size_t float3_n) noexcept
+{
+  size_t index = 0;
+  using Type = zivc::RemoveCvrefAddressT<decltype(out[0])>;
+  for (size_t i = 0; i < int_n; ++i)
+    out[index++] = zivc::cast<Type>(in0[i]);
+  for (size_t i = 0; i < float_n; ++i)
+    out[index++] = zivc::cast<Type>(in1[i]);
+  for (size_t i = 0; i < int3_n; ++i)
+    out[index++] = zivc::cast<Type>(in2[i]);
+  for (size_t i = 0; i < float3_n; ++i)
+    out[index++] = zivc::cast<Type>(in3[i]);
+}
+
+} /* namespace inner */
 
 __kernel void vector3CastTest(zivc::ConstGlobalPtr<int32b> in_int,
                               zivc::ConstGlobalPtr<float> in_float,
@@ -2649,32 +2623,41 @@ __kernel void vector3CastTest(zivc::ConstGlobalPtr<int32b> in_int,
   if (global_index != 0)
     return;
 
-  auto test_vec3 = [int_n, float_n, int3_n, float3_n](zivc::ConstGlobalPtr<int32b> in0,
-                                                      zivc::ConstGlobalPtr<float> in1,
-                                                      zivc::ConstGlobalPtr<int3> in2,
-                                                      zivc::ConstGlobalPtr<float3> in3,
-                                                      auto out) noexcept
-  {
-    size_t index = 0;
-    using Type = zivc::RemoveCvrefAddressT<decltype(out[0])>;
-    for (size_t i = 0; i < int_n; ++i)
-      out[index++] = zivc::cast<Type>(in0[i]);
-    for (size_t i = 0; i < float_n; ++i)
-      out[index++] = zivc::cast<Type>(in1[i]);
-    for (size_t i = 0; i < int3_n; ++i)
-      out[index++] = zivc::cast<Type>(in2[i]);
-    for (size_t i = 0; i < float3_n; ++i)
-      out[index++] = zivc::cast<Type>(in3[i]);
-  };
-
-  test_vec3(in_int, in_float, in_int3, in_float3, out_char3);
-  test_vec3(in_int, in_float, in_int3, in_float3, out_uchar3);
-  test_vec3(in_int, in_float, in_int3, in_float3, out_short3);
-  test_vec3(in_int, in_float, in_int3, in_float3, out_ushort3);
-  test_vec3(in_int, in_float, in_int3, in_float3, out_int3);
-  test_vec3(in_int, in_float, in_int3, in_float3, out_uint3);
-  test_vec3(in_int, in_float, in_int3, in_float3, out_float3);
+  inner::testVec3<char3>(in_int, in_float, in_int3, in_float3, out_char3, int_n, float_n, int3_n, float3_n);
+  inner::testVec3<uchar3>(in_int, in_float, in_int3, in_float3, out_uchar3, int_n, float_n, int3_n, float3_n);
+  inner::testVec3<short3>(in_int, in_float, in_int3, in_float3, out_short3, int_n, float_n, int3_n, float3_n);
+  inner::testVec3<ushort3>(in_int, in_float, in_int3, in_float3, out_ushort3, int_n, float_n, int3_n, float3_n);
+  inner::testVec3<int3>(in_int, in_float, in_int3, in_float3, out_int3, int_n, float_n, int3_n, float3_n);
+  inner::testVec3<uint3>(in_int, in_float, in_int3, in_float3, out_uint3, int_n, float_n, int3_n, float3_n);
+  inner::testVec3<float3>(in_int, in_float, in_int3, in_float3, out_float3, int_n, float_n, int3_n, float3_n);
 }
+
+namespace inner {
+
+template <typename T> inline
+void testVec4(zivc::ConstGlobalPtr<int32b> in0,
+              zivc::ConstGlobalPtr<float> in1,
+              zivc::ConstGlobalPtr<int4> in2,
+              zivc::ConstGlobalPtr<float4> in3,
+              zivc::GlobalPtr<T> out,
+              const size_t int_n,
+              const size_t float_n,
+              const size_t int4_n,
+              const size_t float4_n) noexcept
+{
+  size_t index = 0;
+  using Type = zivc::RemoveCvrefAddressT<decltype(out[0])>;
+  for (size_t i = 0; i < int_n; ++i)
+    out[index++] = zivc::cast<Type>(in0[i]);
+  for (size_t i = 0; i < float_n; ++i)
+    out[index++] = zivc::cast<Type>(in1[i]);
+  for (size_t i = 0; i < int4_n; ++i)
+    out[index++] = zivc::cast<Type>(in2[i]);
+  for (size_t i = 0; i < float4_n; ++i)
+    out[index++] = zivc::cast<Type>(in3[i]);
+}
+
+} /* namespace inner */
 
 __kernel void vector4CastTest(zivc::ConstGlobalPtr<int32b> in_int,
                               zivc::ConstGlobalPtr<float> in_float,
@@ -2696,31 +2679,13 @@ __kernel void vector4CastTest(zivc::ConstGlobalPtr<int32b> in_int,
   if (global_index != 0)
     return;
 
-  auto test_vec4 = [int_n, float_n, int4_n, float4_n](zivc::ConstGlobalPtr<int32b> in0,
-                                                      zivc::ConstGlobalPtr<float> in1,
-                                                      zivc::ConstGlobalPtr<int4> in2,
-                                                      zivc::ConstGlobalPtr<float4> in3,
-                                                      auto out) noexcept
-  {
-    size_t index = 0;
-    using Type = zivc::RemoveCvrefAddressT<decltype(out[0])>;
-    for (size_t i = 0; i < int_n; ++i)
-      out[index++] = zivc::cast<Type>(in0[i]);
-    for (size_t i = 0; i < float_n; ++i)
-      out[index++] = zivc::cast<Type>(in1[i]);
-    for (size_t i = 0; i < int4_n; ++i)
-      out[index++] = zivc::cast<Type>(in2[i]);
-    for (size_t i = 0; i < float4_n; ++i)
-      out[index++] = zivc::cast<Type>(in3[i]);
-  };
-
-  test_vec4(in_int, in_float, in_int4, in_float4, out_char4);
-  test_vec4(in_int, in_float, in_int4, in_float4, out_uchar4);
-  test_vec4(in_int, in_float, in_int4, in_float4, out_short4);
-  test_vec4(in_int, in_float, in_int4, in_float4, out_ushort4);
-  test_vec4(in_int, in_float, in_int4, in_float4, out_int4);
-  test_vec4(in_int, in_float, in_int4, in_float4, out_uint4);
-  test_vec4(in_int, in_float, in_int4, in_float4, out_float4);
+  inner::testVec4<char4>(in_int, in_float, in_int4, in_float4, out_char4, int_n, float_n, int4_n, float4_n);
+  inner::testVec4<uchar4>(in_int, in_float, in_int4, in_float4, out_uchar4, int_n, float_n, int4_n, float4_n);
+  inner::testVec4<short4>(in_int, in_float, in_int4, in_float4, out_short4, int_n, float_n, int4_n, float4_n);
+  inner::testVec4<ushort4>(in_int, in_float, in_int4, in_float4, out_ushort4, int_n, float_n, int4_n, float4_n);
+  inner::testVec4<int4>(in_int, in_float, in_int4, in_float4, out_int4, int_n, float_n, int4_n, float4_n);
+  inner::testVec4<uint4>(in_int, in_float, in_int4, in_float4, out_uint4, int_n, float_n, int4_n, float4_n);
+  inner::testVec4<float4>(in_int, in_float, in_int4, in_float4, out_float4, int_n, float_n, int4_n, float4_n);
 }
 
 //__kernel void vector8CastTest(zivc::ConstGlobalPtr<int32b> in_int,
@@ -3194,101 +3159,99 @@ __kernel void vectorLoadStoreClTest(zivc::GlobalPtr<int8b> inout_i8,
 __kernel void vectorLoadStoreHalfTest(zivc::GlobalPtr<half> inout_h,
                                       zivc::LocalPtr<inner::LoadStoreStorage> storage)
 {
-  //! \todo Resolve the compile error
-//  const size_t index = zivc::getGlobalLinearId();
-//  if (index == 0) {
-//    // half 
-//    {
-//      constexpr float k = 2.0f;
-//      // Scalar
-//      {
-//        const float v1 = zivc::vload_half(0, inout_h);
-//        zivc::vstore_half(k * v1, 0, inout_h);
-//        zivc::LocalPtr<half> p = &storage[0].h_[0];
-//        zivc::vstore_half(k * v1, 0, p);
-//        const float v2 = zivc::vload_half(0, p);
-//        zivc::vstore_half(k * v2, 1, inout_h);
-//      }
-//      size_t offset = 2;
-//      // vector2
-//      {
-//        const float2 v1 = zivc::vload_half2(0, inout_h + offset);
-//        zivc::vstore_half2(k * v1, 0, inout_h + offset);
-//        zivc::LocalPtr<half> p = &storage[0].h_[0];
-//        zivc::vstore_half2(k * v1, 0, p);
-//        const float2 v2 = zivc::vload_half2(0, p);
-//        zivc::vstore_half2(k * v2, 1, inout_h + offset);
-//      }
-//      offset += 4;
-//      // vector3
-//      {
-//        const float3 v1 = zivc::vload_half3(0, inout_h + offset);
-//        zivc::vstore_half3(k * v1, 0, inout_h + offset);
-//        zivc::vstore_half3(k * v1, 0, &storage[0].h_[0]);
-//        const float3 v2 = zivc::vload_half3(0, &storage[0].h_[0]);
-//        zivc::vstore_half3(k * v2, 1, inout_h + offset);
-//      }
-//      offset += 6;
-//      // vector4
-//      {
-//        const float4 v1 = zivc::vload_half4(0, inout_h + offset);
-//        zivc::vstore_half4(k * v1, 0, inout_h + offset);
-//        zivc::vstore_half4(k * v1, 0, &storage[0].h_[0]);
-//        const float4 v2 = zivc::vload_half4(0, &storage[0].h_[0]);
-//        zivc::vstore_half4(k * v2, 1, inout_h + offset);
-//      }
-//    }
-//  }
+  const size_t index = zivc::getGlobalLinearId();
+  if (index == 0) {
+    // half 
+    {
+      constexpr float k = 2.0f;
+      // Scalar
+      {
+        const float v1 = zivc::vload_half(0, inout_h);
+        zivc::vstore_half(k * v1, 0, inout_h);
+        zivc::LocalPtr<half> p = &storage[0].h_[0];
+        zivc::vstore_half(k * v1, 0, p);
+        const float v2 = zivc::vload_half(0, p);
+        zivc::vstore_half(k * v2, 1, inout_h);
+      }
+      size_t offset = 2;
+      // vector2
+      {
+        const float2 v1 = zivc::vload_half2(0, inout_h + offset);
+        zivc::vstore_half2(k * v1, 0, inout_h + offset);
+        zivc::LocalPtr<half> p = &storage[0].h_[0];
+        zivc::vstore_half2(k * v1, 0, p);
+        const float2 v2 = zivc::vload_half2(0, p);
+        zivc::vstore_half2(k * v2, 1, inout_h + offset);
+      }
+      offset += 4;
+      // vector3
+      {
+        const float3 v1 = zivc::vload_half3(0, inout_h + offset);
+        zivc::vstore_half3(k * v1, 0, inout_h + offset);
+        zivc::vstore_half3(k * v1, 0, &storage[0].h_[0]);
+        const float3 v2 = zivc::vload_half3(0, &storage[0].h_[0]);
+        zivc::vstore_half3(k * v2, 1, inout_h + offset);
+      }
+      offset += 6;
+      // vector4
+      {
+        const float4 v1 = zivc::vload_half4(0, inout_h + offset);
+        zivc::vstore_half4(k * v1, 0, inout_h + offset);
+        zivc::vstore_half4(k * v1, 0, &storage[0].h_[0]);
+        const float4 v2 = zivc::vload_half4(0, &storage[0].h_[0]);
+        zivc::vstore_half4(k * v2, 1, inout_h + offset);
+      }
+    }
+  }
 }
  
 __kernel void vectorLoadStoreHalfClTest(zivc::GlobalPtr<half> inout_h,
                                         zivc::LocalPtr<inner::LoadStoreStorage> storage)
 {
-  //! \todo Resolve the compile error
-//  const size_t index = zivc::getGlobalLinearId();
-//  if (index == 0) {
-//    // half 
-//    {
-//      constexpr float k = 2.0f;
-//      // Scalar
-//      {
-//        const float v1 = vload_half(0, inout_h);
-//        vstore_half(k * v1, 0, inout_h);
-//        zivc::LocalPtr<half> p = &storage[0].h_[0];
-//        vstore_half(k * v1, 0, p);
-//        const float v2 = vload_half(0, p);
-//        vstore_half(k * v2, 1, inout_h);
-//      }
-//      size_t offset = 2;
-//      // vector2
-//      {
-//        const float2 v1 = vload_half2(0, inout_h + offset);
-//        vstore_half2(k * v1, 0, inout_h + offset);
-//        zivc::LocalPtr<half> p = &storage[0].h_[0];
-//        vstore_half2(k * v1, 0, p);
-//        const float2 v2 = vload_half2(0, p);
-//        vstore_half2(k * v2, 1, inout_h + offset);
-//      }
-//      offset += 4;
-//      // vector3
-//      {
-//        const float3 v1 = vload_half3(0, inout_h + offset);
-//        vstore_half3(k * v1, 0, inout_h + offset);
-//        vstore_half3(k * v1, 0, &storage[0].h_[0]);
-//        const float3 v2 = vload_half3(0, &storage[0].h_[0]);
-//        vstore_half3(k * v2, 1, inout_h + offset);
-//      }
-//      offset += 6;
-//      // vector4
-//      {
-//        const float4 v1 = vload_half4(0, inout_h + offset);
-//        vstore_half4(k * v1, 0, inout_h + offset);
-//        vstore_half4(k * v1, 0, &storage[0].h_[0]);
-//        const float4 v2 = vload_half4(0, &storage[0].h_[0]);
-//        vstore_half4(k * v2, 1, inout_h + offset);
-//      }
-//    }
-//  }
+  const size_t index = zivc::getGlobalLinearId();
+  if (index == 0) {
+    // half 
+    {
+      constexpr float k = 2.0f;
+      // Scalar
+      {
+        const float v1 = vload_half(0, inout_h);
+        vstore_half(k * v1, 0, inout_h);
+        zivc::LocalPtr<half> p = &storage[0].h_[0];
+        vstore_half(k * v1, 0, p);
+        const float v2 = vload_half(0, p);
+        vstore_half(k * v2, 1, inout_h);
+      }
+      size_t offset = 2;
+      // vector2
+      {
+        const float2 v1 = vload_half2(0, inout_h + offset);
+        vstore_half2(k * v1, 0, inout_h + offset);
+        zivc::LocalPtr<half> p = &storage[0].h_[0];
+        vstore_half2(k * v1, 0, p);
+        const float2 v2 = vload_half2(0, p);
+        vstore_half2(k * v2, 1, inout_h + offset);
+      }
+      offset += 4;
+      // vector3
+      {
+        const float3 v1 = vload_half3(0, inout_h + offset);
+        vstore_half3(k * v1, 0, inout_h + offset);
+        vstore_half3(k * v1, 0, &storage[0].h_[0]);
+        const float3 v2 = vload_half3(0, &storage[0].h_[0]);
+        vstore_half3(k * v2, 1, inout_h + offset);
+      }
+      offset += 6;
+      // vector4
+      {
+        const float4 v1 = vload_half4(0, inout_h + offset);
+        vstore_half4(k * v1, 0, inout_h + offset);
+        vstore_half4(k * v1, 0, &storage[0].h_[0]);
+        const float4 v2 = vload_half4(0, &storage[0].h_[0]);
+        vstore_half4(k * v2, 1, inout_h + offset);
+      }
+    }
+  }
 }
 
 #endif /* ZIVC_TEST_OPENCL_CPP_TEST_TYPE_CL */

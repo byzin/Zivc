@@ -4248,6 +4248,7 @@ TEST(ClCppTest, RelationAnyTest)
   }
 }
 
+//! \todo Resolve the cl assertion
 //TEST(ClCppTest, RelationAnyLongVecTest)
 //{
 //  const zivc::SharedContext context = ztest::createContext();
@@ -4472,6 +4473,7 @@ TEST(ClCppTest, RelationAllTest)
   }
 }
 
+//! \todo Resolve the cl assertion
 //TEST(ClCppTest, RelationAllLongVecTest)
 //{
 //  const zivc::SharedContext context = ztest::createContext();

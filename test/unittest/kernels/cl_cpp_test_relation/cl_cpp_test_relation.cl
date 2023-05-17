@@ -2018,6 +2018,7 @@ __kernel void anyTestKernel(zivc::ConstGlobalPtr<int8b> in1,
   }
 }
 
+//! \todo Resolve the llvm assertion 
 //__kernel void anyLongVecTestKernel(zivc::ConstGlobalPtr<int8> in8,
 //                                   zivc::ConstGlobalPtr<int16> in16,
 //                                   zivc::GlobalPtr<int32b> out1)
@@ -2081,6 +2082,7 @@ __kernel void allTestKernel(zivc::ConstGlobalPtr<int8b> in1,
   }
 }
 
+//! \todo Resolve the llvm assertion 
 //__kernel void allLongVecTestKernel(zivc::ConstGlobalPtr<int8> in8,
 //                                   zivc::ConstGlobalPtr<int16> in16,
 //                                   zivc::GlobalPtr<int32b> out1)

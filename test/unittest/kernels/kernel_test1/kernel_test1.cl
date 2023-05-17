@@ -549,4 +549,31 @@ __kernel void workItemOffset3dKernel(zivc::GlobalPtr<uint32b> outputs,
   }
 }
 
+/*!
+  \details No detailed description
+
+  \param [out] outputs No description.
+  */
+__kernel void printKernel(zivc::GlobalPtr<uint32b> outputs)
+{
+  const size_t index = zivc::getGlobalIdX();
+  if (index == 0) {
+    outputs[0] = 0;
+    zivc::print("## 'print' without any arg.\n");
+    zivc::print("## 'print' with single arg. i=%i\n", 1);
+    zivc::print("## 'print' with multi args. i=%i, u=%u, f=%g, c=%c\n", 1, 2u, 3.0f, '4');
+  }
+}
+
+/*!
+  \details No detailed description
+
+  \param [out] outputs No description.
+  */
+__kernel void assertionKernel(zivc::GlobalPtr<uint32b> outputs)
+{
+  outputs[0] = 0;
+  zivc::assertIfFalse(false, "## 'assertion' with multi args. i=%i, u=%u, f=%g, c=%c\n", 1, 2u, 3.0f, '4');
+}
+
 #endif // ZIVC_TEST_KERNEL_TEST1_CL

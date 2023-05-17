@@ -2688,99 +2688,117 @@ __kernel void vector4CastTest(zivc::ConstGlobalPtr<int32b> in_int,
   inner::testVec4<float4>(in_int, in_float, in_int4, in_float4, out_float4, int_n, float_n, int4_n, float4_n);
 }
 
-//__kernel void vector8CastTest(zivc::ConstGlobalPtr<int32b> in_int,
-//                              zivc::ConstGlobalPtr<float> in_float,
-//                              zivc::ConstGlobalPtr<int8> in_int8,
-//                              zivc::ConstGlobalPtr<float8> in_float8,
-//                              zivc::GlobalPtr<char8> out_char8,
-//                              zivc::GlobalPtr<uchar8> out_uchar8,
-//                              zivc::GlobalPtr<short8> out_short8,
-//                              zivc::GlobalPtr<ushort8> out_ushort8,
-//                              zivc::GlobalPtr<int8> out_int8,
-//                              zivc::GlobalPtr<uint8> out_uint8,
-//                              zivc::GlobalPtr<float8> out_float8,
-//                              const uint32b int_n,
-//                              const uint32b float_n,
-//                              const uint32b int8_n,
-//                              const uint32b float8_n)
-//{
-//  const size_t global_index = zivc::getGlobalIdX();
-//  if (global_index != 0)
-//    return;
-//
-//  auto test_vec8 = [int_n, float_n, int8_n, float8_n](zivc::ConstGlobalPtr<int32b> in0,
-//                                                      zivc::ConstGlobalPtr<float> in1,
-//                                                      zivc::ConstGlobalPtr<int8> in2,
-//                                                      zivc::ConstGlobalPtr<float8> in3,
-//                                                      auto out) noexcept
-//  {
-//    size_t index = 0;
-//    using Type = zivc::RemoveCvrefAddressT<decltype(out[0])>;
-//    for (size_t i = 0; i < int_n; ++i)
-//      out[index++] = zivc::cast<Type>(in0[i]);
-//    for (size_t i = 0; i < float_n; ++i)
-//      out[index++] = zivc::cast<Type>(in1[i]);
-//    for (size_t i = 0; i < int8_n; ++i)
-//      out[index++] = zivc::cast<Type>(in2[i]);
-//    for (size_t i = 0; i < float8_n; ++i)
-//      out[index++] = zivc::cast<Type>(in3[i]);
-//  };
-//
-//  test_vec8(in_int, in_float, in_int8, in_float8, out_char8);
-//  test_vec8(in_int, in_float, in_int8, in_float8, out_uchar8);
-//  test_vec8(in_int, in_float, in_int8, in_float8, out_short8);
-//  test_vec8(in_int, in_float, in_int8, in_float8, out_ushort8);
-//  test_vec8(in_int, in_float, in_int8, in_float8, out_int8);
-//  test_vec8(in_int, in_float, in_int8, in_float8, out_uint8);
-//  test_vec8(in_int, in_float, in_int8, in_float8, out_float8);
-//}
+namespace inner {
 
-//__kernel void vector16CastTest(zivc::ConstGlobalPtr<int32b> in_int,
-//                               zivc::ConstGlobalPtr<float> in_float,
-//                               zivc::ConstGlobalPtr<int16> in_int16,
-//                               zivc::ConstGlobalPtr<float16> in_float16,
-//                               zivc::GlobalPtr<char16> out_char16,
-//                               zivc::GlobalPtr<uchar16> out_uchar16,
-//                               zivc::GlobalPtr<short16> out_short16,
-//                               zivc::GlobalPtr<ushort16> out_ushort16,
-//                               zivc::GlobalPtr<int16> out_int16,
-//                               zivc::GlobalPtr<uint16> out_uint16,
-//                               zivc::GlobalPtr<float16> out_float16,
-//                               const uint32b int_n,
-//                               const uint32b float_n,
-//                               const uint32b int16_n,
-//                               const uint32b float16_n)
-//{
-//  const size_t global_index = zivc::getGlobalIdX();
-//  if (global_index != 0)
-//    return;
-//
-//  auto test_vec16 = [int_n, float_n, int16_n, float16_n](zivc::ConstGlobalPtr<int32b> in0,
-//                                                         zivc::ConstGlobalPtr<float> in1,
-//                                                         zivc::ConstGlobalPtr<int16> in2,
-//                                                         zivc::ConstGlobalPtr<float16> in3,
-//                                                         auto out) noexcept
-//  {
-//    size_t index = 0;
-//    using Type = zivc::RemoveCvrefAddressT<decltype(out[0])>;
-//    for (size_t i = 0; i < int_n; ++i)
-//      out[index++] = zivc::cast<Type>(in0[i]);
-//    for (size_t i = 0; i < float_n; ++i)
-//      out[index++] = zivc::cast<Type>(in1[i]);
-//    for (size_t i = 0; i < int16_n; ++i)
-//      out[index++] = zivc::cast<Type>(in2[i]);
-//    for (size_t i = 0; i < float16_n; ++i)
-//      out[index++] = zivc::cast<Type>(in3[i]);
-//  };
-//
-//  test_vec16(in_int, in_float, in_int16, in_float16, out_char16);
-//  test_vec16(in_int, in_float, in_int16, in_float16, out_uchar16);
-//  test_vec16(in_int, in_float, in_int16, in_float16, out_short16);
-//  test_vec16(in_int, in_float, in_int16, in_float16, out_ushort16);
-//  test_vec16(in_int, in_float, in_int16, in_float16, out_int16);
-//  test_vec16(in_int, in_float, in_int16, in_float16, out_uint16);
-//  test_vec16(in_int, in_float, in_int16, in_float16, out_float16);
-//}
+template <typename T> inline
+void testVec8(zivc::ConstGlobalPtr<int32b> in0,
+              zivc::ConstGlobalPtr<float> in1,
+              zivc::ConstGlobalPtr<int8> in2,
+              zivc::ConstGlobalPtr<float8> in3,
+              zivc::GlobalPtr<T> out,
+              const size_t int_n,
+              const size_t float_n,
+              const size_t int8_n,
+              const size_t float8_n) noexcept
+{
+  size_t index = 0;
+  using Type = zivc::RemoveCvrefAddressT<decltype(out[0])>;
+  for (size_t i = 0; i < int_n; ++i)
+    out[index++] = zivc::cast<Type>(in0[i]);
+  for (size_t i = 0; i < float_n; ++i)
+    out[index++] = zivc::cast<Type>(in1[i]);
+  for (size_t i = 0; i < int8_n; ++i)
+    out[index++] = zivc::cast<Type>(in2[i]);
+  for (size_t i = 0; i < float8_n; ++i)
+    out[index++] = zivc::cast<Type>(in3[i]);
+}
+
+} /* namespace inner */
+
+__kernel void vector8CastTest(zivc::ConstGlobalPtr<int32b> in_int,
+                              zivc::ConstGlobalPtr<float> in_float,
+                              zivc::ConstGlobalPtr<int8> in_int8,
+                              zivc::ConstGlobalPtr<float8> in_float8,
+                              zivc::GlobalPtr<char8> out_char8,
+                              zivc::GlobalPtr<uchar8> out_uchar8,
+                              zivc::GlobalPtr<short8> out_short8,
+                              zivc::GlobalPtr<ushort8> out_ushort8,
+                              zivc::GlobalPtr<int8> out_int8,
+                              zivc::GlobalPtr<uint8> out_uint8,
+                              zivc::GlobalPtr<float8> out_float8,
+                              const uint32b int_n,
+                              const uint32b float_n,
+                              const uint32b int8_n,
+                              const uint32b float8_n)
+{
+  const size_t global_index = zivc::getGlobalIdX();
+  if (global_index != 0)
+    return;
+
+  inner::testVec8<char8>(in_int, in_float, in_int8, in_float8, out_char8, int_n, float_n, int8_n, float8_n);
+  inner::testVec8<uchar8>(in_int, in_float, in_int8, in_float8, out_uchar8, int_n, float_n, int8_n, float8_n);
+  inner::testVec8<short8>(in_int, in_float, in_int8, in_float8, out_short8, int_n, float_n, int8_n, float8_n);
+  inner::testVec8<ushort8>(in_int, in_float, in_int8, in_float8, out_ushort8, int_n, float_n, int8_n, float8_n);
+  inner::testVec8<int8>(in_int, in_float, in_int8, in_float8, out_int8, int_n, float_n, int8_n, float8_n);
+  inner::testVec8<uint8>(in_int, in_float, in_int8, in_float8, out_uint8, int_n, float_n, int8_n, float8_n);
+  inner::testVec8<float8>(in_int, in_float, in_int8, in_float8, out_float8, int_n, float_n, int8_n, float8_n);
+}
+
+namespace inner {
+
+template <typename T> inline
+void testVec16(zivc::ConstGlobalPtr<int32b> in0,
+               zivc::ConstGlobalPtr<float> in1,
+               zivc::ConstGlobalPtr<int16> in2,
+               zivc::ConstGlobalPtr<float16> in3,
+               zivc::GlobalPtr<T> out,
+               const size_t int_n,
+               const size_t float_n,
+               const size_t int16_n,
+               const size_t float16_n) noexcept
+{
+  size_t index = 0;
+  using Type = zivc::RemoveCvrefAddressT<decltype(out[0])>;
+  for (size_t i = 0; i < int_n; ++i)
+    out[index++] = zivc::cast<Type>(in0[i]);
+  for (size_t i = 0; i < float_n; ++i)
+    out[index++] = zivc::cast<Type>(in1[i]);
+  for (size_t i = 0; i < int16_n; ++i)
+    out[index++] = zivc::cast<Type>(in2[i]);
+  for (size_t i = 0; i < float16_n; ++i)
+    out[index++] = zivc::cast<Type>(in3[i]);
+}
+
+} /* namespace inner */
+
+__kernel void vector16CastTest(zivc::ConstGlobalPtr<int32b> in_int,
+                               zivc::ConstGlobalPtr<float> in_float,
+                               zivc::ConstGlobalPtr<int16> in_int16,
+                               zivc::ConstGlobalPtr<float16> in_float16,
+                               zivc::GlobalPtr<char16> out_char16,
+                               zivc::GlobalPtr<uchar16> out_uchar16,
+                               zivc::GlobalPtr<short16> out_short16,
+                               zivc::GlobalPtr<ushort16> out_ushort16,
+                               zivc::GlobalPtr<int16> out_int16,
+                               zivc::GlobalPtr<uint16> out_uint16,
+                               zivc::GlobalPtr<float16> out_float16,
+                               const uint32b int_n,
+                               const uint32b float_n,
+                               const uint32b int16_n,
+                               const uint32b float16_n)
+{
+  const size_t global_index = zivc::getGlobalIdX();
+  if (global_index != 0)
+    return;
+
+  inner::testVec16<char16>(in_int, in_float, in_int16, in_float16, out_char16, int_n, float_n, int16_n, float16_n);
+  inner::testVec16<uchar16>(in_int, in_float, in_int16, in_float16, out_uchar16, int_n, float_n, int16_n, float16_n);
+  inner::testVec16<short16>(in_int, in_float, in_int16, in_float16, out_short16, int_n, float_n, int16_n, float16_n);
+  inner::testVec16<ushort16>(in_int, in_float, in_int16, in_float16, out_ushort16, int_n, float_n, int16_n, float16_n);
+  inner::testVec16<int16>(in_int, in_float, in_int16, in_float16, out_int16, int_n, float_n, int16_n, float16_n);
+  inner::testVec16<uint16>(in_int, in_float, in_int16, in_float16, out_uint16, int_n, float_n, int16_n, float16_n);
+  inner::testVec16<float16>(in_int, in_float, in_int16, in_float16, out_float16, int_n, float_n, int16_n, float16_n);
+}
 
 __kernel void bitCastTest(zivc::GlobalPtr<int32b> inout_int,
                           zivc::GlobalPtr<float> inout_float,
@@ -2845,29 +2863,29 @@ __kernel void bitCastTest(zivc::GlobalPtr<int32b> inout_int,
   }
 }
 
-//__kernel void bitCastLongVecTest(zivc::GlobalPtr<uint8> inout_uint8,
-//                                 zivc::GlobalPtr<float8> inout_float8,
-//                                 zivc::GlobalPtr<uint16> inout_uint16,
-//                                 zivc::GlobalPtr<float16> inout_float16)
-//{
-//  const size_t index = zivc::getGlobalLinearId();
-//  if (index == 0) {
-//    // Vector8
-//    {
-//      const uint8 a = inout_uint8[0];
-//      const float8 b = inout_float8[0];
-//      inout_uint8[0] = zivc::castBit<uint8>(b);
-//      inout_float8[0] = zivc::castBit<float8>(a);
-//    }
-//    // Vector16
-//    {
-//      const uint16 a = inout_uint16[0];
-//      const float16 b = inout_float16[0];
-//      inout_uint16[0] = zivc::castBit<uint16>(b);
-//      inout_float16[0] = zivc::castBit<float16>(a);
-//    }
-//  }
-//}
+__kernel void bitCastLongVecTest(zivc::GlobalPtr<uint8> inout_uint8,
+                                 zivc::GlobalPtr<float8> inout_float8,
+                                 zivc::GlobalPtr<uint16> inout_uint16,
+                                 zivc::GlobalPtr<float16> inout_float16)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (index == 0) {
+    // Vector8
+    {
+      const uint8 a = inout_uint8[0];
+      const float8 b = inout_float8[0];
+      inout_uint8[0] = zivc::castBit<uint8>(b);
+      inout_float8[0] = zivc::castBit<float8>(a);
+    }
+    // Vector16
+    {
+      const uint16 a = inout_uint16[0];
+      const float16 b = inout_float16[0];
+      inout_uint16[0] = zivc::castBit<uint16>(b);
+      inout_float16[0] = zivc::castBit<float16>(a);
+    }
+  }
+}
 
 namespace inner {
 

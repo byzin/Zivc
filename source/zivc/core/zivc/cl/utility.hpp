@@ -16,15 +16,60 @@
 
 namespace zivc {
 
-//! Write the message on standard output
-template <typename ...Types>
-int32b print(ConstConstantPtr<char> format, const Types&... args) noexcept;
+/*!
+  \brief No brief description
 
-//! Assert the message on standard error output and raise an error
+  No detailed description.
+  */
+class Utility
+{
+ public:
+  //
+
+  //! Assert the message on standard error output and raise an error (only cpu)
+  template <typename ...Types>
+  static void assertIfFalse(const bool condition, ConstConstantPtr<char> format, const Types... args);
+
+  //! Write the message on standard output (only cpu)
+  template <typename ...Types>
+  static int32b print(ConstConstantPtr<char> format, const Types... args);
+
+  // Conversion functions
+
+  //! Convert type from T to Type
+  template <typename Type, typename T>
+  static Type cast(T value) noexcept;
+
+  //! Treat T* as Type*
+  template <typename Type, typename T>
+  static Type reinterp(T object) noexcept;
+
+ private:
+  template <typename Type>
+  struct Cast;
+  template <typename Type>
+  struct Reinterp;
+};
+
+//
+
+//! Assert the message on standard error output and raise an error (only cpu)
 template <typename ...Types>
-void assertIfFalse(const int32b condition,
-                   ConstConstantPtr<char> format,
-                   const Types&... args) noexcept;
+void assertIfFalse(const bool condition, ConstConstantPtr<char> format, const Types... args);
+
+//! Write the message on standard output (only cpu)
+template <typename ...Types>
+int32b print(ConstConstantPtr<char> format, const Types... args);
+
+// Conversion functions
+
+//! Convert type from T to Type
+template <typename Type, typename T>
+Type cast(T value) noexcept;
+
+//! Treat T* as Type*
+template <typename Type, typename T>
+Type reinterp(T object) noexcept;
 
 // Work-Item functions
 
@@ -983,16 +1028,6 @@ constexpr double16 makeDouble16(const double4 v0, const double4 v1,
 
 //! Make a double16 value
 constexpr double16 makeDouble16(const double8 v0, const double8 v1) noexcept;
-
-// Conversion functions
-
-//! Convert type from T to Type
-template <typename Type, typename T>
-Type cast(T value) noexcept;
-
-//! Treat T* as Type*
-template <typename Type, typename T>
-Type reinterp(T object) noexcept;
 
 } // namespace zivc
 

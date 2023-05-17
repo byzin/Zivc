@@ -16,6 +16,8 @@
 #include <cstddef>
 #include <cstdio>
 #include <cstdlib>
+#include <iostream>
+#include <stdexcept>
 #include <type_traits>
 #include <utility>
 // Zisc
@@ -26,61 +28,6 @@
 
 namespace zivc::cl {
 
-namespace inner {
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-  */
-class WorkItem
-{
- public:
-  //! Return the number of dimensions in use
-  static uint32b getDimension() noexcept;
-
-  //! Return the 3d global offset used in global id calculation
-  static size_t getGlobalIdOffset(const uint32b dimension) noexcept;
-
-  //! Return the number of work-groups for dimension
-  static size_t getNumOfGroups(const uint32b dimension) noexcept;
-
-  //! Return the work-group ID for dimension
-  static size_t getWorkGroupId(const uint32b dimension) noexcept;
-
-  //! Set the number of dimensions in use
-  static void setDimension(const uint32b dimension) noexcept;
-
-  //! Set the 3d global offset used in global id calculation
-  static void setGlobalIdOffset(const std::array<uint32b, 3>& offset) noexcept;
-
-  //! Set the number of work-grous
-  static void setNumOfGroups(const std::array<uint32b, 3>& size) noexcept;
-
-  //! Set the work-group ID
-  static void setWorkGroupId(const uint32b id) noexcept;
-
- private:
-  static thread_local uint32b dimension_;
-  static thread_local std::array<uint32b, 3> global_id_offset_;
-  static thread_local std::array<uint32b, 3> num_of_work_groups_;
-  static thread_local std::array<uint32b, 3> work_group_id_;
-};
-
-} // namespace inner
-
-/*!
-  \details No detailed description
-
-  \param [in] format No description.
-  \param [in] value No description.
-  */
-template <typename Type> inline
-void printf(const char* format, const Type& value) noexcept
-{
-  std::printf(format, value);
-}
-
 /*!
   \details No detailed description
 
@@ -88,7 +35,7 @@ void printf(const char* format, const Type& value) noexcept
   \return No description
   */
 inline
-constexpr size_t get_enqueued_local_size([[maybe_unused]] const uint32b dimension) noexcept
+constexpr size_t WorkItem::getEnqueuedLocalSize([[maybe_unused]] const uint32b dimension) noexcept
 {
   return 1;
 }
@@ -100,9 +47,9 @@ constexpr size_t get_enqueued_local_size([[maybe_unused]] const uint32b dimensio
   \return No description
   */
 inline
-size_t get_global_id(const uint32b dimension) noexcept
+size_t WorkItem::getGlobalId(const uint32b dimension) noexcept
 {
-  const auto id = get_group_id(dimension) + get_global_offset(dimension);
+  const size_t id = getWorkGroupId(dimension) + getGlobalIdOffset(dimension);
   return id;
 }
 
@@ -112,22 +59,22 @@ size_t get_global_id(const uint32b dimension) noexcept
   \return No description
   */
 inline
-size_t get_global_linear_id() noexcept
+size_t WorkItem::getGlobalLinearId() noexcept
 {
-  const uint32b dim = get_work_dim();
+  const uint32b dim = getDimension();
   // 1d
-  const size_t gx = get_global_id(0) - get_global_offset(0);
+  const size_t gx = getGlobalId(0) - getGlobalIdOffset(0);
   size_t id = gx;
   // 2d
   if (2 <= dim) {
-    const size_t n = get_global_size(0);
-    const size_t gy = get_global_id(1) - get_global_offset(1);
+    const size_t n = getGlobalSize(0);
+    const size_t gy = getGlobalId(1) - getGlobalIdOffset(1);
     id = id + n * gy;
   }
   // 3d
   if (3 <= dim) {
-    const size_t n = get_global_size(0) * get_global_size(1);
-    const size_t gz = get_global_id(2) - get_global_offset(2);
+    const size_t n = getGlobalSize(0) * getGlobalSize(1);
+    const size_t gz = getGlobalId(2) - getGlobalIdOffset(2);
     id = id + n * gz;
   }
   return id;
@@ -140,9 +87,9 @@ size_t get_global_linear_id() noexcept
   \return No description
   */
 inline
-size_t get_global_offset(const uint32b dimension) noexcept
+size_t WorkItem::getGlobalSize(const uint32b dimension) noexcept
 {
-  return inner::WorkItem::getGlobalIdOffset(dimension);
+  return getNumOfGroups(dimension);
 }
 
 /*!
@@ -152,31 +99,7 @@ size_t get_global_offset(const uint32b dimension) noexcept
   \return No description
   */
 inline
-size_t get_global_size(const uint32b dimension) noexcept
-{
-  return get_num_groups(dimension);
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] dimension No description.
-  \return No description
-  */
-inline
-size_t get_group_id(const uint32b dimension) noexcept
-{
-  return inner::WorkItem::getWorkGroupId(dimension);
-}
-
-/*!
-  \details No detailed description
-
-  \param [in] dimension No description.
-  \return No description
-  */
-inline
-constexpr size_t get_local_id([[maybe_unused]] const uint32b dimension) noexcept
+constexpr size_t WorkItem::getLocalId([[maybe_unused]] const uint32b dimension) noexcept
 {
   return 0;
 }
@@ -187,22 +110,22 @@ constexpr size_t get_local_id([[maybe_unused]] const uint32b dimension) noexcept
   \return No description
   */
 inline
-size_t get_local_linear_id() noexcept
+size_t WorkItem::getLocalLinearId() noexcept
 {
-  const uint32b dim = get_work_dim();
+  const uint32b dim = getDimension();
   // 1d
-  const size_t lx = get_local_id(0);
+  const size_t lx = getLocalId(0);
   size_t id = lx;
   // 2d
   if (2 <= dim) {
-    const size_t n = get_local_size(0);
-    const size_t ly = get_local_id(1);
+    const size_t n = getLocalSize(0);
+    const size_t ly = getLocalId(1);
     id = id + n * ly;
   }
   // 3d
   if (3 <= dim) {
-    const size_t n = get_local_size(0) * get_local_size(1);
-    const size_t lz = get_local_id(2);
+    const size_t n = getLocalSize(0) * getLocalSize(1);
+    const size_t lz = getLocalId(2);
     id = id + n * lz;
   }
   return id;
@@ -215,9 +138,60 @@ size_t get_local_linear_id() noexcept
   \return No description
   */
 inline
-constexpr size_t get_local_linear_id([[maybe_unused]] const uint32b dimension) noexcept
+constexpr size_t WorkItem::getLocalSize([[maybe_unused]] const uint32b dimension) noexcept
 {
-  return 0;
+  return 1;
+}
+
+#if defined(Z_GCC) || defined(Z_CLANG)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wformat-security"
+#endif // Z_GCC || Z_CLANG
+
+/*!
+  \details No detailed description
+
+  \tparam Types No description.
+  \param [in] condition No description.
+  \param [in] format No description.
+  \param [in] args No description.
+  */
+template <typename... Types> inline
+void assertIfFalse(const bool condition, const char* format, const Types&... args)
+{
+  if (!condition) {
+    std::fprintf(stderr, format, args...);
+    std::exit(EXIT_FAILURE);
+  }
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Types No description.
+  \param [in] args No description.
+  */
+template <typename... Types> inline
+int printf(const char* format, const Types&... args)
+{
+  //! \todo Implement type-safe printf
+  return std::printf(format, args...);
+}
+
+#if defined(Z_GCC) || defined(Z_CLANG)
+#pragma GCC diagnostic pop
+#endif // Z_GCC || Z_CLANG
+
+/*!
+  \details No detailed description
+
+  \param [in] dimension No description.
+  \return No description
+  */
+inline
+constexpr size_t get_enqueued_local_size(const uint32b dimension) noexcept
+{
+  return WorkItem::getEnqueuedLocalSize(dimension);
 }
 
 /*!
@@ -227,9 +201,91 @@ constexpr size_t get_local_linear_id([[maybe_unused]] const uint32b dimension) n
   \return No description
   */
 inline
-constexpr size_t get_local_size([[maybe_unused]] const uint32b dimension) noexcept
+size_t get_global_id(const uint32b dimension) noexcept
 {
-  return 1;
+  return WorkItem::getGlobalId(dimension);
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+size_t get_global_linear_id() noexcept
+{
+  return WorkItem::getGlobalLinearId();
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] dimension No description.
+  \return No description
+  */
+inline
+size_t get_global_offset(const uint32b dimension) noexcept
+{
+  return WorkItem::getGlobalIdOffset(dimension);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] dimension No description.
+  \return No description
+  */
+inline
+size_t get_global_size(const uint32b dimension) noexcept
+{
+  return WorkItem::getGlobalSize(dimension);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] dimension No description.
+  \return No description
+  */
+inline
+size_t get_group_id(const uint32b dimension) noexcept
+{
+  return WorkItem::getWorkGroupId(dimension);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] dimension No description.
+  \return No description
+  */
+inline
+constexpr size_t get_local_id(const uint32b dimension) noexcept
+{
+  return WorkItem::getLocalId(dimension);
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+inline
+size_t get_local_linear_id() noexcept
+{
+  return WorkItem::getLocalLinearId();
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] dimension No description.
+  \return No description
+  */
+inline
+constexpr size_t get_local_size(const uint32b dimension) noexcept
+{
+  return WorkItem::getLocalSize(dimension);
 }
 
 /*!
@@ -241,7 +297,7 @@ constexpr size_t get_local_size([[maybe_unused]] const uint32b dimension) noexce
 inline
 size_t get_num_groups(const uint32b dimension) noexcept
 {
-  return inner::WorkItem::getNumOfGroups(dimension);
+  return WorkItem::getNumOfGroups(dimension);
 }
 
 /*!
@@ -252,7 +308,7 @@ size_t get_num_groups(const uint32b dimension) noexcept
 inline
 uint32b get_work_dim() noexcept
 {
-  return inner::WorkItem::getDimension();
+  return WorkItem::getDimension();
 }
 
 } // namespace zivc::cl

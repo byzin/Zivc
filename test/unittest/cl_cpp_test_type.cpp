@@ -3754,12 +3754,12 @@ TEST(ClCppTest, ScalarCastTest)
   {
     constexpr cl_int vmax = (std::numeric_limits<cl_int>::max)();
     constexpr cl_int vmin = (std::numeric_limits<cl_int>::min)();
-    const std::initializer_list<cl_int> v = {0, 100, -100, vmax, vmin};
+    const std::initializer_list<cl_int> v = {0, 100, 100, vmax, vmin};
     ztest::setDeviceBuffer(*device, v, buffer_in0.get());
   }
   const zivc::SharedBuffer buffer_in1 = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
   {
-    const std::initializer_list<cl_float> v = {0.0f, 100.0f, -100.0f, 3.14f};
+    const std::initializer_list<cl_float> v = {0.0f, 100.0f, 100.0f, 3.14f};
     ztest::setDeviceBuffer(*device, v, buffer_in1.get());
   }
 
@@ -3844,12 +3844,12 @@ TEST(ClCppTest, ScalarCastTest)
     std::size_t index = 0;
     EXPECT_EQ(0, mem[index++]) << "int8b cast failed";
     EXPECT_EQ(100, mem[index++]) << "int8b cast failed";
-    EXPECT_EQ(-100, mem[index++]) << "int8b cast failed";
+    EXPECT_EQ(100, mem[index++]) << "int8b cast failed";
     EXPECT_EQ(-1, mem[index++]) << "int8b cast failed";
     EXPECT_EQ(0, mem[index++]) << "int8b cast failed";
     EXPECT_EQ(0, mem[index++]) << "int8b cast failed";
     EXPECT_EQ(100, mem[index++]) << "int8b cast failed";
-    EXPECT_EQ(-100, mem[index++]) << "int8b cast failed";
+    EXPECT_EQ(100, mem[index++]) << "int8b cast failed";
     EXPECT_EQ(3, mem[index++]) << "int8b cast failed";
   }
   {
@@ -3861,14 +3861,12 @@ TEST(ClCppTest, ScalarCastTest)
     const cl_uchar vmin = (std::numeric_limits<cl_uchar>::min)();
     EXPECT_EQ(0, mem[index++]) << "uint8b cast failed";
     EXPECT_EQ(100, mem[index++]) << "uint8b cast failed";
-    //EXPECT_EQ(0, mem[index++]) << "uint8b cast failed";
-    index++;
+    EXPECT_EQ(100, mem[index++]) << "uint8b cast failed";
     EXPECT_EQ(vmax, mem[index++]) << "uint8b cast failed";
     EXPECT_EQ(vmin, mem[index++]) << "uint8b cast failed";
     EXPECT_EQ(0, mem[index++]) << "uint8b cast failed";
     EXPECT_EQ(100, mem[index++]) << "uint8b cast failed";
-    //EXPECT_EQ(0, mem[index++]) << "uint8b cast failed";
-    index++;
+    EXPECT_EQ(100, mem[index++]) << "uint8b cast failed";
     EXPECT_EQ(3, mem[index++]) << "uint8b cast failed";
   }
   {
@@ -3878,12 +3876,12 @@ TEST(ClCppTest, ScalarCastTest)
     std::size_t index = 0;
     EXPECT_EQ(0, mem[index++]) << "int16b cast failed";
     EXPECT_EQ(100, mem[index++]) << "int16b cast failed";
-    EXPECT_EQ(-100, mem[index++]) << "int16b cast failed";
+    EXPECT_EQ(100, mem[index++]) << "int16b cast failed";
     EXPECT_EQ(-1, mem[index++]) << "int16b cast failed";
     EXPECT_EQ(0, mem[index++]) << "int16b cast failed";
     EXPECT_EQ(0, mem[index++]) << "int16b cast failed";
     EXPECT_EQ(100, mem[index++]) << "int16b cast failed";
-    EXPECT_EQ(-100, mem[index++]) << "int16b cast failed";
+    EXPECT_EQ(100, mem[index++]) << "int16b cast failed";
     EXPECT_EQ(3, mem[index++]) << "int16b cast failed";
   }
   {
@@ -3895,14 +3893,12 @@ TEST(ClCppTest, ScalarCastTest)
     const cl_ushort vmin = (std::numeric_limits<cl_ushort>::min)();
     EXPECT_EQ(0, mem[index++]) << "uint16b cast failed";
     EXPECT_EQ(100, mem[index++]) << "uint16b cast failed";
-    //EXPECT_EQ(0, mem[index++]) << "uint16b cast failed";
-    index++;
+    EXPECT_EQ(100, mem[index++]) << "uint16b cast failed";
     EXPECT_EQ(vmax, mem[index++]) << "uint16b cast failed";
     EXPECT_EQ(vmin, mem[index++]) << "uint16b cast failed";
     EXPECT_EQ(0, mem[index++]) << "uint16b cast failed";
     EXPECT_EQ(100, mem[index++]) << "uint16b cast failed";
-    //EXPECT_EQ(0, mem[index++]) << "uint16b cast failed";
-    index++;
+    EXPECT_EQ(100, mem[index++]) << "uint16b cast failed";
     EXPECT_EQ(3, mem[index++]) << "uint16b cast failed";
   }
   {
@@ -3915,12 +3911,12 @@ TEST(ClCppTest, ScalarCastTest)
     const cl_int vmin = (std::numeric_limits<cl_int>::min)();
     EXPECT_EQ(0, mem[index++]) << "int32b cast failed";
     EXPECT_EQ(100, mem[index++]) << "int32b cast failed";
-    EXPECT_EQ(-100, mem[index++]) << "int32b cast failed";
+    EXPECT_EQ(100, mem[index++]) << "int32b cast failed";
     EXPECT_EQ(vmax, mem[index++]) << "int32b cast failed";
     EXPECT_EQ(vmin, mem[index++]) << "int32b cast failed";
     EXPECT_EQ(0, mem[index++]) << "int32b cast failed";
     EXPECT_EQ(100, mem[index++]) << "int32b cast failed";
-    EXPECT_EQ(-100, mem[index++]) << "int32b cast failed";
+    EXPECT_EQ(100, mem[index++]) << "int32b cast failed";
     EXPECT_EQ(3, mem[index++]) << "int32b cast failed";
   }
   {
@@ -3932,14 +3928,12 @@ TEST(ClCppTest, ScalarCastTest)
     //const cl_uint vmin = (std::numeric_limits<cl_uint>::min)();
     EXPECT_EQ(0, mem[index++]) << "uint32b cast failed";
     EXPECT_EQ(100, mem[index++]) << "uint32b cast failed";
-    //EXPECT_EQ(0, mem[index++]) << "uint32b cast failed";
-    index++;
+    EXPECT_EQ(100, mem[index++]) << "uint32b cast failed";
     EXPECT_EQ(vmax / 2, mem[index++]) << "uint32b cast failed";
     EXPECT_EQ(vmax / 2 + 1, mem[index++]) << "uint32b cast failed";
     EXPECT_EQ(0, mem[index++]) << "uint32b cast failed";
     EXPECT_EQ(100, mem[index++]) << "uint32b cast failed";
-    //EXPECT_EQ(0, mem[index++]) << "uint32b cast failed";
-    index++;
+    EXPECT_EQ(100, mem[index++]) << "uint32b cast failed";
     EXPECT_EQ(3, mem[index++]) << "uint32b cast failed";
   }
   {
@@ -3951,12 +3945,12 @@ TEST(ClCppTest, ScalarCastTest)
     const auto vmin = static_cast<cl_float>((std::numeric_limits<cl_int>::min)());
     EXPECT_FLOAT_EQ(0.0f, mem[index++]) << "float cast failed";
     EXPECT_FLOAT_EQ(100.0f, mem[index++]) << "float cast failed";
-    EXPECT_FLOAT_EQ(-100.0f, mem[index++]) << "float cast failed";
+    EXPECT_FLOAT_EQ(100.0f, mem[index++]) << "float cast failed";
     EXPECT_FLOAT_EQ(vmax, mem[index++]) << "float cast failed";
     EXPECT_FLOAT_EQ(vmin, mem[index++]) << "float cast failed";
     EXPECT_FLOAT_EQ(0.0f, mem[index++]) << "float cast failed";
     EXPECT_FLOAT_EQ(100.0f, mem[index++]) << "float cast failed";
-    EXPECT_FLOAT_EQ(-100.0f, mem[index++]) << "float cast failed";
+    EXPECT_FLOAT_EQ(100.0f, mem[index++]) << "float cast failed";
     EXPECT_FLOAT_EQ(3.14f, mem[index++]) << "float cast failed";
   }
 }
@@ -3980,12 +3974,12 @@ TEST(ClCppTest, ScalarBoolCastTest)
   {
     constexpr cl_int vmax = (std::numeric_limits<cl_int>::max)();
     constexpr cl_int vmin = (std::numeric_limits<cl_int>::min)();
-    const std::initializer_list<cl_int> v = {0, 1, -1, 100, -100, vmax, vmin};
+    const std::initializer_list<cl_int> v = {0, 1, -1, 100, 100, vmax, vmin};
     ztest::setDeviceBuffer(*device, v, buffer_in0.get());
   }
   const zivc::SharedBuffer buffer_in1 = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
   {
-    const std::initializer_list<cl_float> v = {0.0f, 100.0f, -100.0f, 3.14f};
+    const std::initializer_list<cl_float> v = {0.0f, 100.0f, 100.0f, 3.14f};
     ztest::setDeviceBuffer(*device, v, buffer_in1.get());
   }
 
@@ -4070,12 +4064,12 @@ TEST(ClCppTest, Vector2CastTest)
   {
     constexpr cl_int vmax = (std::numeric_limits<cl_int>::max)();
     constexpr cl_int vmin = (std::numeric_limits<cl_int>::min)();
-    const std::initializer_list<cl_int> v = {0, 100, -100, vmax, vmin};
+    const std::initializer_list<cl_int> v = {0, 100, 100, vmax, vmin};
     ztest::setDeviceBuffer(*device, v, buffer_in0.get());
   }
   const zivc::SharedBuffer buffer_in1 = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
   {
-    const std::initializer_list<cl_float> v = {0.0f, 100.0f, -100.0f, 3.14f};
+    const std::initializer_list<cl_float> v = {0.0f, 100.0f, 100.0f, 3.14f};
     ztest::setDeviceBuffer(*device, v, buffer_in1.get());
   }
   const zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_int2>(zivc::BufferUsage::kPreferDevice);
@@ -4089,7 +4083,7 @@ TEST(ClCppTest, Vector2CastTest)
   const zivc::SharedBuffer buffer_in3 = device->createBuffer<cl_float2>(zivc::BufferUsage::kPreferDevice);
   {
     const std::initializer_list<cl_float2> v = {cl_float2{0.0f, 100.0f},
-                                                cl_float2{-100.0f, 3.14f}};
+                                                cl_float2{100.0f, 3.14f}};
     ztest::setDeviceBuffer(*device, v, buffer_in3.get());
   }
 
@@ -4181,8 +4175,8 @@ TEST(ClCppTest, Vector2CastTest)
     EXPECT_EQ(100, mem[index].x) << "char2 cast failed";
     EXPECT_EQ(100, mem[index].y) << "char2 cast failed";
     ++index;
-    EXPECT_EQ(-100, mem[index].x) << "char2 cast failed";
-    EXPECT_EQ(-100, mem[index].y) << "char2 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "char2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "char2 cast failed";
     ++index;
     EXPECT_EQ(-1, mem[index].x) << "char2 cast failed";
     EXPECT_EQ(-1, mem[index].y) << "char2 cast failed";
@@ -4196,8 +4190,8 @@ TEST(ClCppTest, Vector2CastTest)
     EXPECT_EQ(100, mem[index].x) << "char2 cast failed";
     EXPECT_EQ(100, mem[index].y) << "char2 cast failed";
     ++index;
-    EXPECT_EQ(-100, mem[index].x) << "char2 cast failed";
-    EXPECT_EQ(-100, mem[index].y) << "char2 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "char2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "char2 cast failed";
     ++index;
     EXPECT_EQ(3, mem[index].x) << "char2 cast failed";
     EXPECT_EQ(3, mem[index].y) << "char2 cast failed";
@@ -4211,7 +4205,7 @@ TEST(ClCppTest, Vector2CastTest)
     EXPECT_EQ(0, mem[index].x) << "char2 cast failed";
     EXPECT_EQ(100, mem[index].y) << "char2 cast failed";
     ++index;
-    EXPECT_EQ(-100, mem[index].x) << "char2 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "char2 cast failed";
     EXPECT_EQ(3, mem[index].y) << "char2 cast failed";
   }
   {
@@ -4227,8 +4221,8 @@ TEST(ClCppTest, Vector2CastTest)
     EXPECT_EQ(100, mem[index].x) << "uchar2 cast failed";
     EXPECT_EQ(100, mem[index].y) << "uchar2 cast failed";
     index++;
-    //EXPECT_EQ(0, mem[index].x) << "uchar2 cast failed";
-    //EXPECT_EQ(0, mem[index].y) << "uchar2 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "uchar2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "uchar2 cast failed";
     index++;
     EXPECT_EQ(vmax, mem[index].x) << "uchar2 cast failed";
     EXPECT_EQ(vmax, mem[index].y) << "uchar2 cast failed";
@@ -4242,8 +4236,8 @@ TEST(ClCppTest, Vector2CastTest)
     EXPECT_EQ(100, mem[index].x) << "uchar2 cast failed";
     EXPECT_EQ(100, mem[index].y) << "uchar2 cast failed";
     index++;
-    //EXPECT_EQ(0, mem[index].x) << "uchar2 cast failed";
-    //EXPECT_EQ(0, mem[index].y) << "uchar2 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "uchar2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "uchar2 cast failed";
     index++;
     EXPECT_EQ(3, mem[index].x) << "uchar2 cast failed";
     EXPECT_EQ(3, mem[index].y) << "uchar2 cast failed";
@@ -4257,7 +4251,7 @@ TEST(ClCppTest, Vector2CastTest)
     EXPECT_EQ(0, mem[index].x) << "uchar2 cast failed";
     EXPECT_EQ(100, mem[index].y) << "uchar2 cast failed";
     index++;
-    //EXPECT_EQ(0, mem[index].x) << "uchar2 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "uchar2 cast failed";
     EXPECT_EQ(3, mem[index].y) << "uchar2 cast failed";
   }
   {
@@ -4271,8 +4265,8 @@ TEST(ClCppTest, Vector2CastTest)
     EXPECT_EQ(100, mem[index].x) << "short2 cast failed";
     EXPECT_EQ(100, mem[index].y) << "short2 cast failed";
     ++index;
-    EXPECT_EQ(-100, mem[index].x) << "short2 cast failed";
-    EXPECT_EQ(-100, mem[index].y) << "short2 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "short2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "short2 cast failed";
     ++index;
     EXPECT_EQ(-1, mem[index].x) << "short2 cast failed";
     EXPECT_EQ(-1, mem[index].y) << "short2 cast failed";
@@ -4286,8 +4280,8 @@ TEST(ClCppTest, Vector2CastTest)
     EXPECT_EQ(100, mem[index].x) << "short2 cast failed";
     EXPECT_EQ(100, mem[index].y) << "short2 cast failed";
     ++index;
-    EXPECT_EQ(-100, mem[index].x) << "short2 cast failed";
-    EXPECT_EQ(-100, mem[index].y) << "short2 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "short2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "short2 cast failed";
     ++index;
     EXPECT_EQ(3, mem[index].x) << "short2 cast failed";
     EXPECT_EQ(3, mem[index].y) << "short2 cast failed";
@@ -4301,7 +4295,7 @@ TEST(ClCppTest, Vector2CastTest)
     EXPECT_EQ(0, mem[index].x) << "short2 cast failed";
     EXPECT_EQ(100, mem[index].y) << "short2 cast failed";
     ++index;
-    EXPECT_EQ(-100, mem[index].x) << "short2 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "short2 cast failed";
     EXPECT_EQ(3, mem[index].y) << "short2 cast failed";
   }
   {
@@ -4317,8 +4311,8 @@ TEST(ClCppTest, Vector2CastTest)
     EXPECT_EQ(100, mem[index].x) << "ushort2 cast failed";
     EXPECT_EQ(100, mem[index].y) << "ushort2 cast failed";
     index++;
-    //EXPECT_EQ(0, mem[index].x) << "ushort2 cast failed";
-    //EXPECT_EQ(0, mem[index].y) << "ushort2 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "ushort2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "ushort2 cast failed";
     index++;
     EXPECT_EQ(vmax, mem[index].x) << "ushort2 cast failed";
     EXPECT_EQ(vmax, mem[index].y) << "ushort2 cast failed";
@@ -4332,8 +4326,8 @@ TEST(ClCppTest, Vector2CastTest)
     EXPECT_EQ(100, mem[index].x) << "ushort2 cast failed";
     EXPECT_EQ(100, mem[index].y) << "ushort2 cast failed";
     index++;
-    //EXPECT_EQ(0, mem[index].x) << "ushort2 cast failed";
-    //EXPECT_EQ(0, mem[index].y) << "ushort2 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "ushort2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "ushort2 cast failed";
     index++;
     EXPECT_EQ(3, mem[index].x) << "ushort2 cast failed";
     EXPECT_EQ(3, mem[index].y) << "ushort2 cast failed";
@@ -4347,7 +4341,7 @@ TEST(ClCppTest, Vector2CastTest)
     EXPECT_EQ(0, mem[index].x) << "ushort2 cast failed";
     EXPECT_EQ(100, mem[index].y) << "ushort2 cast failed";
     index++;
-    //EXPECT_EQ(0, mem[index].x) << "ushort2 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "ushort2 cast failed";
     EXPECT_EQ(3, mem[index].y) << "ushort2 cast failed";
   }
   {
@@ -4363,8 +4357,8 @@ TEST(ClCppTest, Vector2CastTest)
     EXPECT_EQ(100, mem[index].x) << "int2 cast failed";
     EXPECT_EQ(100, mem[index].y) << "int2 cast failed";
     ++index;
-    EXPECT_EQ(-100, mem[index].x) << "int2 cast failed";
-    EXPECT_EQ(-100, mem[index].y) << "int2 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "int2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "int2 cast failed";
     ++index;
     EXPECT_EQ(vmax, mem[index].x) << "int2 cast failed";
     EXPECT_EQ(vmax, mem[index].y) << "int2 cast failed";
@@ -4378,8 +4372,8 @@ TEST(ClCppTest, Vector2CastTest)
     EXPECT_EQ(100, mem[index].x) << "int2 cast failed";
     EXPECT_EQ(100, mem[index].y) << "int2 cast failed";
     ++index;
-    EXPECT_EQ(-100, mem[index].x) << "int2 cast failed";
-    EXPECT_EQ(-100, mem[index].y) << "int2 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "int2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "int2 cast failed";
     ++index;
     EXPECT_EQ(3, mem[index].x) << "int2 cast failed";
     EXPECT_EQ(3, mem[index].y) << "int2 cast failed";
@@ -4393,7 +4387,7 @@ TEST(ClCppTest, Vector2CastTest)
     EXPECT_EQ(0, mem[index].x) << "int2 cast failed";
     EXPECT_EQ(100, mem[index].y) << "int2 cast failed";
     ++index;
-    EXPECT_EQ(-100, mem[index].x) << "int2 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "int2 cast failed";
     EXPECT_EQ(3, mem[index].y) << "int2 cast failed";
   }
   {
@@ -4409,8 +4403,8 @@ TEST(ClCppTest, Vector2CastTest)
     EXPECT_EQ(100, mem[index].x) << "uint2 cast failed";
     EXPECT_EQ(100, mem[index].y) << "uint2 cast failed";
     ++index;
-    //EXPECT_EQ(0, mem[index].x) << "uint2 cast failed";
-    //EXPECT_EQ(0, mem[index].y) << "uint2 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "uint2 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "uint2 cast failed";
     index++;
     EXPECT_EQ(vmax / 2, mem[index].x) << "uint2 cast failed";
     EXPECT_EQ(vmax / 2, mem[index].y) << "uint2 cast failed";
@@ -4424,8 +4418,8 @@ TEST(ClCppTest, Vector2CastTest)
     EXPECT_EQ(100, mem[index].x) << "uint2 cast failed";
     EXPECT_EQ(100, mem[index].y) << "uint2 cast failed";
     index++;
-    //EXPECT_EQ(0, mem[index].x) << "uint2 cast failed";
-    //EXPECT_EQ(0, mem[index]) << "uint2 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "uint2 cast failed";
+    EXPECT_EQ(100, mem[index]) << "uint2 cast failed";
     index++;
     EXPECT_EQ(3, mem[index].x) << "uint2 cast failed";
     EXPECT_EQ(3, mem[index].y) << "uint2 cast failed";
@@ -4439,7 +4433,7 @@ TEST(ClCppTest, Vector2CastTest)
     EXPECT_EQ(0, mem[index].x) << "uint2 cast failed";
     EXPECT_EQ(100, mem[index].y) << "uint2 cast failed";
     index++;
-    //EXPECT_EQ(0, mem[index].x) << "uint2 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "uint2 cast failed";
     EXPECT_EQ(3, mem[index].y) << "uint2 cast failed";
   }
   {
@@ -4455,8 +4449,8 @@ TEST(ClCppTest, Vector2CastTest)
     EXPECT_FLOAT_EQ(100.0f, mem[index].x) << "float2 cast failed";
     EXPECT_FLOAT_EQ(100.0f, mem[index].y) << "float2 cast failed";
     ++index;
-    EXPECT_FLOAT_EQ(-100.0f, mem[index].x) << "float2 cast failed";
-    EXPECT_FLOAT_EQ(-100.0f, mem[index].y) << "float2 cast failed";
+    EXPECT_FLOAT_EQ(100.0f, mem[index].x) << "float2 cast failed";
+    EXPECT_FLOAT_EQ(100.0f, mem[index].y) << "float2 cast failed";
     ++index;
     EXPECT_FLOAT_EQ(vmax, mem[index].x) << "float2 cast failed";
     EXPECT_FLOAT_EQ(vmax, mem[index].y) << "float2 cast failed";
@@ -4470,8 +4464,8 @@ TEST(ClCppTest, Vector2CastTest)
     EXPECT_FLOAT_EQ(100.0f, mem[index].x) << "float2 cast failed";
     EXPECT_FLOAT_EQ(100.0f, mem[index].y) << "float2 cast failed";
     ++index;
-    EXPECT_FLOAT_EQ(-100.0f, mem[index].x) << "float2 cast failed";
-    EXPECT_FLOAT_EQ(-100.0f, mem[index].y) << "float2 cast failed";
+    EXPECT_FLOAT_EQ(100.0f, mem[index].x) << "float2 cast failed";
+    EXPECT_FLOAT_EQ(100.0f, mem[index].y) << "float2 cast failed";
     ++index;
     EXPECT_FLOAT_EQ(3.14f, mem[index].x) << "float2 cast failed";
     EXPECT_FLOAT_EQ(3.14f, mem[index].y) << "float2 cast failed";
@@ -4485,7 +4479,7 @@ TEST(ClCppTest, Vector2CastTest)
     EXPECT_FLOAT_EQ(0.0f, mem[index].x) << "float2 cast failed";
     EXPECT_FLOAT_EQ(100.0f, mem[index].y) << "float2 cast failed";
     ++index;
-    EXPECT_FLOAT_EQ(-100.0f, mem[index].x) << "float2 cast failed";
+    EXPECT_FLOAT_EQ(100.0f, mem[index].x) << "float2 cast failed";
     EXPECT_FLOAT_EQ(3.14f, mem[index].y) << "float2 cast failed";
   }
 }
@@ -4516,12 +4510,12 @@ TEST(ClCppTest, Vector3CastTest)
   {
     constexpr cl_int vmax = (std::numeric_limits<cl_int>::max)();
     constexpr cl_int vmin = (std::numeric_limits<cl_int>::min)();
-    const std::initializer_list<cl_int> v = {0, 100, -100, vmax, vmin};
+    const std::initializer_list<cl_int> v = {0, 100, 100, vmax, vmin};
     ztest::setDeviceBuffer(*device, v, buffer_in0.get());
   }
   const zivc::SharedBuffer buffer_in1 = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
   {
-    const std::initializer_list<cl_float> v = {0.0f, 100.0f, -100.0f, 3.14f};
+    const std::initializer_list<cl_float> v = {0.0f, 100.0f, 100.0f, 3.14f};
     ztest::setDeviceBuffer(*device, v, buffer_in1.get());
   }
   const zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_int3>(zivc::BufferUsage::kPreferDevice);
@@ -4532,7 +4526,7 @@ TEST(ClCppTest, Vector3CastTest)
   }
   const zivc::SharedBuffer buffer_in3 = device->createBuffer<cl_float3>(zivc::BufferUsage::kPreferDevice);
   {
-    const std::initializer_list<cl_float3> v = {cl_float3{0.0f, 100.0f, -100.0f}};
+    const std::initializer_list<cl_float3> v = {cl_float3{0.0f, 100.0f, 100.0f}};
     ztest::setDeviceBuffer(*device, v, buffer_in3.get());
   }
 
@@ -4626,9 +4620,9 @@ TEST(ClCppTest, Vector3CastTest)
     EXPECT_EQ(100, mem[index].y) << "char3 cast failed";
     EXPECT_EQ(100, mem[index].z) << "char3 cast failed";
     ++index;
-    EXPECT_EQ(-100, mem[index].x) << "char3 cast failed";
-    EXPECT_EQ(-100, mem[index].y) << "char3 cast failed";
-    EXPECT_EQ(-100, mem[index].z) << "char3 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "char3 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "char3 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "char3 cast failed";
     ++index;
     EXPECT_EQ(-1, mem[index].x) << "char3 cast failed";
     EXPECT_EQ(-1, mem[index].y) << "char3 cast failed";
@@ -4646,9 +4640,9 @@ TEST(ClCppTest, Vector3CastTest)
     EXPECT_EQ(100, mem[index].y) << "char3 cast failed";
     EXPECT_EQ(100, mem[index].z) << "char3 cast failed";
     ++index;
-    EXPECT_EQ(-100, mem[index].x) << "char3 cast failed";
-    EXPECT_EQ(-100, mem[index].y) << "char3 cast failed";
-    EXPECT_EQ(-100, mem[index].z) << "char3 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "char3 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "char3 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "char3 cast failed";
     ++index;
     EXPECT_EQ(3, mem[index].x) << "char3 cast failed";
     EXPECT_EQ(3, mem[index].y) << "char3 cast failed";
@@ -4660,7 +4654,7 @@ TEST(ClCppTest, Vector3CastTest)
     ++index;
     EXPECT_EQ(0, mem[index].x) << "char3 cast failed";
     EXPECT_EQ(100, mem[index].y) << "char3 cast failed";
-    EXPECT_EQ(-100, mem[index].z) << "char3 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "char3 cast failed";
   }
   {
     const zivc::SharedBuffer buffer = device->createBuffer<cl_uchar3>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
@@ -4677,9 +4671,9 @@ TEST(ClCppTest, Vector3CastTest)
     EXPECT_EQ(100, mem[index].y) << "uchar3 cast failed";
     EXPECT_EQ(100, mem[index].z) << "uchar3 cast failed";
     index++;
-    //EXPECT_EQ(0, mem[index].x) << "uchar3 cast failed";
-    //EXPECT_EQ(0, mem[index].y) << "uchar3 cast failed";
-    //EXPECT_EQ(0, mem[index].z) << "uchar3 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "uchar3 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "uchar3 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "uchar3 cast failed";
     index++;
     EXPECT_EQ(vmax, mem[index].x) << "uchar3 cast failed";
     EXPECT_EQ(vmax, mem[index].y) << "uchar3 cast failed";
@@ -4697,9 +4691,9 @@ TEST(ClCppTest, Vector3CastTest)
     EXPECT_EQ(100, mem[index].y) << "uchar3 cast failed";
     EXPECT_EQ(100, mem[index].z) << "uchar3 cast failed";
     index++;
-    //EXPECT_EQ(0, mem[index].x) << "uchar3 cast failed";
-    //EXPECT_EQ(0, mem[index].y) << "uchar3 cast failed";
-    //EXPECT_EQ(0, mem[index].z) << "uchar3 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "uchar3 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "uchar3 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "uchar3 cast failed";
     index++;
     EXPECT_EQ(3, mem[index].x) << "uchar3 cast failed";
     EXPECT_EQ(3, mem[index].y) << "uchar3 cast failed";
@@ -4711,7 +4705,7 @@ TEST(ClCppTest, Vector3CastTest)
     index++;
     EXPECT_EQ(0, mem[index].x) << "uchar3 cast failed";
     EXPECT_EQ(100, mem[index].y) << "uchar3 cast failed";
-    //EXPECT_EQ(0, mem[index].z) << "uchar3 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "uchar3 cast failed";
   }
   {
     const zivc::SharedBuffer buffer = device->createBuffer<cl_short3>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
@@ -4726,9 +4720,9 @@ TEST(ClCppTest, Vector3CastTest)
     EXPECT_EQ(100, mem[index].y) << "short3 cast failed";
     EXPECT_EQ(100, mem[index].z) << "short3 cast failed";
     ++index;
-    EXPECT_EQ(-100, mem[index].x) << "short3 cast failed";
-    EXPECT_EQ(-100, mem[index].y) << "short3 cast failed";
-    EXPECT_EQ(-100, mem[index].z) << "short3 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "short3 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "short3 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "short3 cast failed";
     ++index;
     EXPECT_EQ(-1, mem[index].x) << "short3 cast failed";
     EXPECT_EQ(-1, mem[index].y) << "short3 cast failed";
@@ -4746,9 +4740,9 @@ TEST(ClCppTest, Vector3CastTest)
     EXPECT_EQ(100, mem[index].y) << "short3 cast failed";
     EXPECT_EQ(100, mem[index].z) << "short3 cast failed";
     ++index;
-    EXPECT_EQ(-100, mem[index].x) << "short3 cast failed";
-    EXPECT_EQ(-100, mem[index].y) << "short3 cast failed";
-    EXPECT_EQ(-100, mem[index].z) << "short3 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "short3 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "short3 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "short3 cast failed";
     ++index;
     EXPECT_EQ(3, mem[index].x) << "short3 cast failed";
     EXPECT_EQ(3, mem[index].y) << "short3 cast failed";
@@ -4760,7 +4754,7 @@ TEST(ClCppTest, Vector3CastTest)
     ++index;
     EXPECT_EQ(0, mem[index].x) << "short3 cast failed";
     EXPECT_EQ(100, mem[index].y) << "short3 cast failed";
-    EXPECT_EQ(-100, mem[index].z) << "short3 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "short3 cast failed";
   }
   {
     const zivc::SharedBuffer buffer = device->createBuffer<cl_ushort3>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
@@ -4777,9 +4771,9 @@ TEST(ClCppTest, Vector3CastTest)
     EXPECT_EQ(100, mem[index].y) << "ushort3 cast failed";
     EXPECT_EQ(100, mem[index].z) << "ushort3 cast failed";
     index++;
-    //EXPECT_EQ(0, mem[index].x) << "ushort3 cast failed";
-    //EXPECT_EQ(0, mem[index].y) << "ushort3 cast failed";
-    //EXPECT_EQ(0, mem[index].z) << "ushort3 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "ushort3 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "ushort3 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "ushort3 cast failed";
     index++;
     EXPECT_EQ(vmax, mem[index].x) << "ushort3 cast failed";
     EXPECT_EQ(vmax, mem[index].y) << "ushort3 cast failed";
@@ -4797,9 +4791,9 @@ TEST(ClCppTest, Vector3CastTest)
     EXPECT_EQ(100, mem[index].y) << "ushort3 cast failed";
     EXPECT_EQ(100, mem[index].z) << "ushort3 cast failed";
     index++;
-    //EXPECT_EQ(0, mem[index].x) << "ushort3 cast failed";
-    //EXPECT_EQ(0, mem[index].y) << "ushort3 cast failed";
-    //EXPECT_EQ(0, mem[index].z) << "ushort3 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "ushort3 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "ushort3 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "ushort3 cast failed";
     index++;
     EXPECT_EQ(3, mem[index].x) << "ushort3 cast failed";
     EXPECT_EQ(3, mem[index].y) << "ushort3 cast failed";
@@ -4811,7 +4805,7 @@ TEST(ClCppTest, Vector3CastTest)
     index++;
     EXPECT_EQ(0, mem[index].x) << "ushort3 cast failed";
     EXPECT_EQ(100, mem[index].y) << "ushort3 cast failed";
-    //EXPECT_EQ(0, mem[index].z) << "ushort3 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "ushort3 cast failed";
   }
   {
     const zivc::SharedBuffer buffer = device->createBuffer<cl_int3>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
@@ -4828,9 +4822,9 @@ TEST(ClCppTest, Vector3CastTest)
     EXPECT_EQ(100, mem[index].y) << "int3 cast failed";
     EXPECT_EQ(100, mem[index].z) << "int3 cast failed";
     ++index;
-    EXPECT_EQ(-100, mem[index].x) << "int3 cast failed";
-    EXPECT_EQ(-100, mem[index].y) << "int3 cast failed";
-    EXPECT_EQ(-100, mem[index].z) << "int3 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "int3 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "int3 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "int3 cast failed";
     ++index;
     EXPECT_EQ(vmax, mem[index].x) << "int3 cast failed";
     EXPECT_EQ(vmax, mem[index].y) << "int3 cast failed";
@@ -4848,9 +4842,9 @@ TEST(ClCppTest, Vector3CastTest)
     EXPECT_EQ(100, mem[index].y) << "int3 cast failed";
     EXPECT_EQ(100, mem[index].z) << "int3 cast failed";
     ++index;
-    EXPECT_EQ(-100, mem[index].x) << "int3 cast failed";
-    EXPECT_EQ(-100, mem[index].y) << "int3 cast failed";
-    EXPECT_EQ(-100, mem[index].z) << "int3 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "int3 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "int3 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "int3 cast failed";
     ++index;
     EXPECT_EQ(3, mem[index].x) << "int3 cast failed";
     EXPECT_EQ(3, mem[index].y) << "int3 cast failed";
@@ -4862,7 +4856,7 @@ TEST(ClCppTest, Vector3CastTest)
     ++index;
     EXPECT_EQ(0, mem[index].x) << "int3 cast failed";
     EXPECT_EQ(100, mem[index].y) << "int3 cast failed";
-    EXPECT_EQ(-100, mem[index].z) << "int3 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "int3 cast failed";
   }
   {
     const zivc::SharedBuffer buffer = device->createBuffer<cl_uint3>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
@@ -4879,9 +4873,9 @@ TEST(ClCppTest, Vector3CastTest)
     EXPECT_EQ(100, mem[index].y) << "uint3 cast failed";
     EXPECT_EQ(100, mem[index].z) << "uint3 cast failed";
     ++index;
-    //EXPECT_EQ(0, mem[index].x) << "uint3 cast failed";
-    //EXPECT_EQ(0, mem[index].y) << "uint3 cast failed";
-    //EXPECT_EQ(0, mem[index].z) << "uint3 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "uint3 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "uint3 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "uint3 cast failed";
     index++;
     EXPECT_EQ(vmax / 2, mem[index].x) << "uint3 cast failed";
     EXPECT_EQ(vmax / 2, mem[index].y) << "uint3 cast failed";
@@ -4899,9 +4893,9 @@ TEST(ClCppTest, Vector3CastTest)
     EXPECT_EQ(100, mem[index].y) << "uint3 cast failed";
     EXPECT_EQ(100, mem[index].z) << "uint3 cast failed";
     index++;
-    //EXPECT_EQ(0, mem[index].x) << "uint3 cast failed";
-    //EXPECT_EQ(0, mem[index].y) << "uint3 cast failed";
-    //EXPECT_EQ(0, mem[index].z) << "uint3 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "uint3 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "uint3 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "uint3 cast failed";
     index++;
     EXPECT_EQ(3, mem[index].x) << "uint3 cast failed";
     EXPECT_EQ(3, mem[index].y) << "uint3 cast failed";
@@ -4913,7 +4907,7 @@ TEST(ClCppTest, Vector3CastTest)
     index++;
     EXPECT_EQ(0, mem[index].x) << "uint3 cast failed";
     EXPECT_EQ(100, mem[index].y) << "uint3 cast failed";
-    //EXPECT_EQ(0, mem[index].z) << "uint3 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "uint3 cast failed";
   }
   {
     const zivc::SharedBuffer buffer = device->createBuffer<cl_float3>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
@@ -4930,9 +4924,9 @@ TEST(ClCppTest, Vector3CastTest)
     EXPECT_FLOAT_EQ(100.0f, mem[index].y) << "float3 cast failed";
     EXPECT_FLOAT_EQ(100.0f, mem[index].z) << "float3 cast failed";
     ++index;
-    EXPECT_FLOAT_EQ(-100.0f, mem[index].x) << "float3 cast failed";
-    EXPECT_FLOAT_EQ(-100.0f, mem[index].y) << "float3 cast failed";
-    EXPECT_FLOAT_EQ(-100.0f, mem[index].z) << "float3 cast failed";
+    EXPECT_FLOAT_EQ(100.0f, mem[index].x) << "float3 cast failed";
+    EXPECT_FLOAT_EQ(100.0f, mem[index].y) << "float3 cast failed";
+    EXPECT_FLOAT_EQ(100.0f, mem[index].z) << "float3 cast failed";
     ++index;
     EXPECT_FLOAT_EQ(vmax, mem[index].x) << "float3 cast failed";
     EXPECT_FLOAT_EQ(vmax, mem[index].y) << "float3 cast failed";
@@ -4950,9 +4944,9 @@ TEST(ClCppTest, Vector3CastTest)
     EXPECT_FLOAT_EQ(100.0f, mem[index].y) << "float3 cast failed";
     EXPECT_FLOAT_EQ(100.0f, mem[index].z) << "float3 cast failed";
     ++index;
-    EXPECT_FLOAT_EQ(-100.0f, mem[index].x) << "float3 cast failed";
-    EXPECT_FLOAT_EQ(-100.0f, mem[index].y) << "float3 cast failed";
-    EXPECT_FLOAT_EQ(-100.0f, mem[index].z) << "float3 cast failed";
+    EXPECT_FLOAT_EQ(100.0f, mem[index].x) << "float3 cast failed";
+    EXPECT_FLOAT_EQ(100.0f, mem[index].y) << "float3 cast failed";
+    EXPECT_FLOAT_EQ(100.0f, mem[index].z) << "float3 cast failed";
     ++index;
     EXPECT_FLOAT_EQ(3.14f, mem[index].x) << "float3 cast failed";
     EXPECT_FLOAT_EQ(3.14f, mem[index].y) << "float3 cast failed";
@@ -4964,7 +4958,7 @@ TEST(ClCppTest, Vector3CastTest)
     ++index;
     EXPECT_FLOAT_EQ(0.0f, mem[index].x) << "float3 cast failed";
     EXPECT_FLOAT_EQ(100.0f, mem[index].y) << "float3 cast failed";
-    EXPECT_FLOAT_EQ(-100.0f, mem[index].z) << "float3 cast failed";
+    EXPECT_FLOAT_EQ(100.0f, mem[index].z) << "float3 cast failed";
   }
 }
 
@@ -4994,12 +4988,12 @@ TEST(ClCppTest, Vector4CastTest)
   {
     constexpr cl_int vmax = (std::numeric_limits<cl_int>::max)();
     constexpr cl_int vmin = (std::numeric_limits<cl_int>::min)();
-    const std::initializer_list<cl_int> v = {0, 100, -100, vmax, vmin};
+    const std::initializer_list<cl_int> v = {0, 100, 100, vmax, vmin};
     ztest::setDeviceBuffer(*device, v, buffer_in0.get());
   }
   const zivc::SharedBuffer buffer_in1 = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
   {
-    const std::initializer_list<cl_float> v = {0.0f, 100.0f, -100.0f, 3.14f};
+    const std::initializer_list<cl_float> v = {0.0f, 100.0f, 100.0f, 3.14f};
     ztest::setDeviceBuffer(*device, v, buffer_in1.get());
   }
   const zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_int4>(zivc::BufferUsage::kPreferDevice);
@@ -5011,7 +5005,7 @@ TEST(ClCppTest, Vector4CastTest)
   }
   const zivc::SharedBuffer buffer_in3 = device->createBuffer<cl_float4>(zivc::BufferUsage::kPreferDevice);
   {
-    const std::initializer_list<cl_float4> v = {cl_float4{0.0f, 100.0f, -100.0f, 3.14f}};
+    const std::initializer_list<cl_float4> v = {cl_float4{0.0f, 100.0f, 100.0f, 3.14f}};
     ztest::setDeviceBuffer(*device, v, buffer_in3.get());
   }
 
@@ -5107,10 +5101,10 @@ TEST(ClCppTest, Vector4CastTest)
     EXPECT_EQ(100, mem[index].z) << "char4 cast failed";
     EXPECT_EQ(100, mem[index].w) << "char4 cast failed";
     ++index;
-    EXPECT_EQ(-100, mem[index].x) << "char4 cast failed";
-    EXPECT_EQ(-100, mem[index].y) << "char4 cast failed";
-    EXPECT_EQ(-100, mem[index].z) << "char4 cast failed";
-    EXPECT_EQ(-100, mem[index].w) << "char4 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "char4 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "char4 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "char4 cast failed";
+    EXPECT_EQ(100, mem[index].w) << "char4 cast failed";
     ++index;
     EXPECT_EQ(-1, mem[index].x) << "char4 cast failed";
     EXPECT_EQ(-1, mem[index].y) << "char4 cast failed";
@@ -5132,10 +5126,10 @@ TEST(ClCppTest, Vector4CastTest)
     EXPECT_EQ(100, mem[index].z) << "char4 cast failed";
     EXPECT_EQ(100, mem[index].w) << "char4 cast failed";
     ++index;
-    EXPECT_EQ(-100, mem[index].x) << "char4 cast failed";
-    EXPECT_EQ(-100, mem[index].y) << "char4 cast failed";
-    EXPECT_EQ(-100, mem[index].z) << "char4 cast failed";
-    EXPECT_EQ(-100, mem[index].w) << "char4 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "char4 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "char4 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "char4 cast failed";
+    EXPECT_EQ(100, mem[index].w) << "char4 cast failed";
     ++index;
     EXPECT_EQ(3, mem[index].x) << "char4 cast failed";
     EXPECT_EQ(3, mem[index].y) << "char4 cast failed";
@@ -5149,7 +5143,7 @@ TEST(ClCppTest, Vector4CastTest)
     ++index;
     EXPECT_EQ(0, mem[index].x) << "char4 cast failed";
     EXPECT_EQ(100, mem[index].y) << "char4 cast failed";
-    EXPECT_EQ(-100, mem[index].z) << "char4 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "char4 cast failed";
     EXPECT_EQ(3, mem[index].w) << "char4 cast failed";
   }
   {
@@ -5169,10 +5163,10 @@ TEST(ClCppTest, Vector4CastTest)
     EXPECT_EQ(100, mem[index].z) << "uchar4 cast failed";
     EXPECT_EQ(100, mem[index].w) << "uchar4 cast failed";
     index++;
-    //EXPECT_EQ(0, mem[index].x) << "uchar4 cast failed";
-    //EXPECT_EQ(0, mem[index].y) << "uchar4 cast failed";
-    //EXPECT_EQ(0, mem[index].z) << "uchar4 cast failed";
-    //EXPECT_EQ(0, mem[index].w) << "uchar4 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "uchar4 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "uchar4 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "uchar4 cast failed";
+    EXPECT_EQ(100, mem[index].w) << "uchar4 cast failed";
     index++;
     EXPECT_EQ(vmax, mem[index].x) << "uchar4 cast failed";
     EXPECT_EQ(vmax, mem[index].y) << "uchar4 cast failed";
@@ -5194,10 +5188,10 @@ TEST(ClCppTest, Vector4CastTest)
     EXPECT_EQ(100, mem[index].z) << "uchar4 cast failed";
     EXPECT_EQ(100, mem[index].w) << "uchar4 cast failed";
     index++;
-    //EXPECT_EQ(0, mem[index].x) << "uchar4 cast failed";
-    //EXPECT_EQ(0, mem[index].y) << "uchar4 cast failed";
-    //EXPECT_EQ(0, mem[index].z) << "uchar4 cast failed";
-    //EXPECT_EQ(0, mem[index].w) << "uchar4 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "uchar4 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "uchar4 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "uchar4 cast failed";
+    EXPECT_EQ(100, mem[index].w) << "uchar4 cast failed";
     index++;
     EXPECT_EQ(3, mem[index].x) << "uchar4 cast failed";
     EXPECT_EQ(3, mem[index].y) << "uchar4 cast failed";
@@ -5211,7 +5205,7 @@ TEST(ClCppTest, Vector4CastTest)
     index++;
     EXPECT_EQ(0, mem[index].x) << "uchar4 cast failed";
     EXPECT_EQ(100, mem[index].y) << "uchar4 cast failed";
-    //EXPECT_EQ(0, mem[index].z) << "uchar4 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "uchar4 cast failed";
     EXPECT_EQ(3, mem[index].w) << "uchar4 cast failed";
   }
   {
@@ -5229,10 +5223,10 @@ TEST(ClCppTest, Vector4CastTest)
     EXPECT_EQ(100, mem[index].z) << "short4 cast failed";
     EXPECT_EQ(100, mem[index].w) << "short4 cast failed";
     ++index;
-    EXPECT_EQ(-100, mem[index].x) << "short4 cast failed";
-    EXPECT_EQ(-100, mem[index].y) << "short4 cast failed";
-    EXPECT_EQ(-100, mem[index].z) << "short4 cast failed";
-    EXPECT_EQ(-100, mem[index].w) << "short4 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "short4 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "short4 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "short4 cast failed";
+    EXPECT_EQ(100, mem[index].w) << "short4 cast failed";
     ++index;
     EXPECT_EQ(-1, mem[index].x) << "short4 cast failed";
     EXPECT_EQ(-1, mem[index].y) << "short4 cast failed";
@@ -5254,10 +5248,10 @@ TEST(ClCppTest, Vector4CastTest)
     EXPECT_EQ(100, mem[index].z) << "short4 cast failed";
     EXPECT_EQ(100, mem[index].w) << "short4 cast failed";
     ++index;
-    EXPECT_EQ(-100, mem[index].x) << "short4 cast failed";
-    EXPECT_EQ(-100, mem[index].y) << "short4 cast failed";
-    EXPECT_EQ(-100, mem[index].z) << "short4 cast failed";
-    EXPECT_EQ(-100, mem[index].w) << "short4 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "short4 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "short4 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "short4 cast failed";
+    EXPECT_EQ(100, mem[index].w) << "short4 cast failed";
     ++index;
     EXPECT_EQ(3, mem[index].x) << "short4 cast failed";
     EXPECT_EQ(3, mem[index].y) << "short4 cast failed";
@@ -5271,7 +5265,7 @@ TEST(ClCppTest, Vector4CastTest)
     ++index;
     EXPECT_EQ(0, mem[index].x) << "short4 cast failed";
     EXPECT_EQ(100, mem[index].y) << "short4 cast failed";
-    EXPECT_EQ(-100, mem[index].z) << "short4 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "short4 cast failed";
     EXPECT_EQ(3, mem[index].w) << "short4 cast failed";
   }
   {
@@ -5291,10 +5285,10 @@ TEST(ClCppTest, Vector4CastTest)
     EXPECT_EQ(100, mem[index].z) << "ushort4 cast failed";
     EXPECT_EQ(100, mem[index].w) << "ushort4 cast failed";
     index++;
-    //EXPECT_EQ(0, mem[index].x) << "ushort4 cast failed";
-    //EXPECT_EQ(0, mem[index].y) << "ushort4 cast failed";
-    //EXPECT_EQ(0, mem[index].z) << "ushort4 cast failed";
-    //EXPECT_EQ(0, mem[index].w) << "ushort4 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "ushort4 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "ushort4 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "ushort4 cast failed";
+    EXPECT_EQ(100, mem[index].w) << "ushort4 cast failed";
     index++;
     EXPECT_EQ(vmax, mem[index].x) << "ushort4 cast failed";
     EXPECT_EQ(vmax, mem[index].y) << "ushort4 cast failed";
@@ -5316,10 +5310,10 @@ TEST(ClCppTest, Vector4CastTest)
     EXPECT_EQ(100, mem[index].z) << "ushort4 cast failed";
     EXPECT_EQ(100, mem[index].w) << "ushort4 cast failed";
     index++;
-    //EXPECT_EQ(0, mem[index].x) << "ushort4 cast failed";
-    //EXPECT_EQ(0, mem[index].y) << "ushort4 cast failed";
-    //EXPECT_EQ(0, mem[index].z) << "ushort4 cast failed";
-    //EXPECT_EQ(0, mem[index].w) << "ushort4 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "ushort4 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "ushort4 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "ushort4 cast failed";
+    EXPECT_EQ(100, mem[index].w) << "ushort4 cast failed";
     index++;
     EXPECT_EQ(3, mem[index].x) << "ushort4 cast failed";
     EXPECT_EQ(3, mem[index].y) << "ushort4 cast failed";
@@ -5333,7 +5327,7 @@ TEST(ClCppTest, Vector4CastTest)
     index++;
     EXPECT_EQ(0, mem[index].x) << "ushort4 cast failed";
     EXPECT_EQ(100, mem[index].y) << "ushort4 cast failed";
-    //EXPECT_EQ(0, mem[index].z) << "ushort4 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "ushort4 cast failed";
     EXPECT_EQ(3, mem[index].w) << "ushort4 cast failed";
   }
   {
@@ -5354,10 +5348,10 @@ TEST(ClCppTest, Vector4CastTest)
     EXPECT_EQ(100, mem[index].z) << "int4 cast failed";
     EXPECT_EQ(100, mem[index].w) << "int4 cast failed";
     ++index;
-    EXPECT_EQ(-100, mem[index].x) << "int4 cast failed";
-    EXPECT_EQ(-100, mem[index].y) << "int4 cast failed";
-    EXPECT_EQ(-100, mem[index].z) << "int4 cast failed";
-    EXPECT_EQ(-100, mem[index].w) << "int4 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "int4 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "int4 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "int4 cast failed";
+    EXPECT_EQ(100, mem[index].w) << "int4 cast failed";
     ++index;
     EXPECT_EQ(vmax, mem[index].x) << "int4 cast failed";
     EXPECT_EQ(vmax, mem[index].y) << "int4 cast failed";
@@ -5379,10 +5373,10 @@ TEST(ClCppTest, Vector4CastTest)
     EXPECT_EQ(100, mem[index].z) << "int4 cast failed";
     EXPECT_EQ(100, mem[index].w) << "int4 cast failed";
     ++index;
-    EXPECT_EQ(-100, mem[index].x) << "int4 cast failed";
-    EXPECT_EQ(-100, mem[index].y) << "int4 cast failed";
-    EXPECT_EQ(-100, mem[index].z) << "int4 cast failed";
-    EXPECT_EQ(-100, mem[index].w) << "int4 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "int4 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "int4 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "int4 cast failed";
+    EXPECT_EQ(100, mem[index].w) << "int4 cast failed";
     ++index;
     EXPECT_EQ(3, mem[index].x) << "int4 cast failed";
     EXPECT_EQ(3, mem[index].y) << "int4 cast failed";
@@ -5396,7 +5390,7 @@ TEST(ClCppTest, Vector4CastTest)
     ++index;
     EXPECT_EQ(0, mem[index].x) << "int4 cast failed";
     EXPECT_EQ(100, mem[index].y) << "int4 cast failed";
-    EXPECT_EQ(-100, mem[index].z) << "int4 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "int4 cast failed";
     EXPECT_EQ(3, mem[index].w) << "int4 cast failed";
   }
   {
@@ -5416,10 +5410,10 @@ TEST(ClCppTest, Vector4CastTest)
     EXPECT_EQ(100, mem[index].z) << "uint4 cast failed";
     EXPECT_EQ(100, mem[index].w) << "uint4 cast failed";
     ++index;
-    //EXPECT_EQ(0, mem[index].x) << "uint4 cast failed";
-    //EXPECT_EQ(0, mem[index].y) << "uint4 cast failed";
-    //EXPECT_EQ(0, mem[index].z) << "uint4 cast failed";
-    //EXPECT_EQ(0, mem[index].w) << "uint4 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "uint4 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "uint4 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "uint4 cast failed";
+    EXPECT_EQ(100, mem[index].w) << "uint4 cast failed";
     index++;
     EXPECT_EQ(vmax / 2, mem[index].x) << "uint4 cast failed";
     EXPECT_EQ(vmax / 2, mem[index].y) << "uint4 cast failed";
@@ -5441,10 +5435,10 @@ TEST(ClCppTest, Vector4CastTest)
     EXPECT_EQ(100, mem[index].z) << "uint4 cast failed";
     EXPECT_EQ(100, mem[index].w) << "uint4 cast failed";
     index++;
-    //EXPECT_EQ(0, mem[index].x) << "uint4 cast failed";
-    //EXPECT_EQ(0, mem[index].y) << "uint4 cast failed";
-    //EXPECT_EQ(0, mem[index].z) << "uint4 cast failed";
-    //EXPECT_EQ(0, mem[index].w) << "uint4 cast failed";
+    EXPECT_EQ(100, mem[index].x) << "uint4 cast failed";
+    EXPECT_EQ(100, mem[index].y) << "uint4 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "uint4 cast failed";
+    EXPECT_EQ(100, mem[index].w) << "uint4 cast failed";
     index++;
     EXPECT_EQ(3, mem[index].x) << "uint4 cast failed";
     EXPECT_EQ(3, mem[index].y) << "uint4 cast failed";
@@ -5458,7 +5452,7 @@ TEST(ClCppTest, Vector4CastTest)
     index++;
     EXPECT_EQ(0, mem[index].x) << "uint4 cast failed";
     EXPECT_EQ(100, mem[index].y) << "uint4 cast failed";
-    //EXPECT_EQ(0, mem[index].z) << "uint4 cast failed";
+    EXPECT_EQ(100, mem[index].z) << "uint4 cast failed";
     EXPECT_EQ(3, mem[index].w) << "uint4 cast failed";
   }
   {
@@ -5478,10 +5472,10 @@ TEST(ClCppTest, Vector4CastTest)
     EXPECT_FLOAT_EQ(100.0f, mem[index].z) << "float4 cast failed";
     EXPECT_FLOAT_EQ(100.0f, mem[index].w) << "float4 cast failed";
     ++index;
-    EXPECT_FLOAT_EQ(-100.0f, mem[index].x) << "float4 cast failed";
-    EXPECT_FLOAT_EQ(-100.0f, mem[index].y) << "float4 cast failed";
-    EXPECT_FLOAT_EQ(-100.0f, mem[index].z) << "float4 cast failed";
-    EXPECT_FLOAT_EQ(-100.0f, mem[index].w) << "float4 cast failed";
+    EXPECT_FLOAT_EQ(100.0f, mem[index].x) << "float4 cast failed";
+    EXPECT_FLOAT_EQ(100.0f, mem[index].y) << "float4 cast failed";
+    EXPECT_FLOAT_EQ(100.0f, mem[index].z) << "float4 cast failed";
+    EXPECT_FLOAT_EQ(100.0f, mem[index].w) << "float4 cast failed";
     ++index;
     EXPECT_FLOAT_EQ(vmax, mem[index].x) << "float4 cast failed";
     EXPECT_FLOAT_EQ(vmax, mem[index].y) << "float4 cast failed";
@@ -5503,10 +5497,10 @@ TEST(ClCppTest, Vector4CastTest)
     EXPECT_FLOAT_EQ(100.0f, mem[index].z) << "float4 cast failed";
     EXPECT_FLOAT_EQ(100.0f, mem[index].w) << "float4 cast failed";
     ++index;
-    EXPECT_FLOAT_EQ(-100.0f, mem[index].x) << "float4 cast failed";
-    EXPECT_FLOAT_EQ(-100.0f, mem[index].y) << "float4 cast failed";
-    EXPECT_FLOAT_EQ(-100.0f, mem[index].z) << "float4 cast failed";
-    EXPECT_FLOAT_EQ(-100.0f, mem[index].w) << "float4 cast failed";
+    EXPECT_FLOAT_EQ(100.0f, mem[index].x) << "float4 cast failed";
+    EXPECT_FLOAT_EQ(100.0f, mem[index].y) << "float4 cast failed";
+    EXPECT_FLOAT_EQ(100.0f, mem[index].z) << "float4 cast failed";
+    EXPECT_FLOAT_EQ(100.0f, mem[index].w) << "float4 cast failed";
     ++index;
     EXPECT_FLOAT_EQ(3.14f, mem[index].x) << "float4 cast failed";
     EXPECT_FLOAT_EQ(3.14f, mem[index].y) << "float4 cast failed";
@@ -5520,8 +5514,720 @@ TEST(ClCppTest, Vector4CastTest)
     ++index;
     EXPECT_FLOAT_EQ(0.0f, mem[index].x) << "float4 cast failed";
     EXPECT_FLOAT_EQ(100.0f, mem[index].y) << "float4 cast failed";
-    EXPECT_FLOAT_EQ(-100.0f, mem[index].z) << "float4 cast failed";
+    EXPECT_FLOAT_EQ(100.0f, mem[index].z) << "float4 cast failed";
     EXPECT_FLOAT_EQ(3.14f, mem[index].w) << "float4 cast failed";
+  }
+}
+
+TEST(ClCppTest, Vector8CastTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_char;
+  using zivc::cl_uchar;
+  using zivc::cl_short;
+  using zivc::cl_ushort;
+  using zivc::cl_int;
+  using zivc::cl_uint;
+  using zivc::cl_float;
+  using zivc::cl_char8;
+  using zivc::cl_uchar8;
+  using zivc::cl_short8;
+  using zivc::cl_ushort8;
+  using zivc::cl_int8;
+  using zivc::cl_uint8;
+  using zivc::cl_float8;
+
+  const zivc::SharedBuffer buffer_in0 = device->createBuffer<cl_int>(zivc::BufferUsage::kPreferDevice);
+  {
+    constexpr cl_int vmax = (std::numeric_limits<cl_int>::max)();
+    constexpr cl_int vmin = (std::numeric_limits<cl_int>::min)();
+    const std::initializer_list<cl_int> v = {0, 100, 100, vmax, vmin};
+    ztest::setDeviceBuffer(*device, v, buffer_in0.get());
+  }
+  const zivc::SharedBuffer buffer_in1 = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
+  {
+    const std::initializer_list<cl_float> v = {0.0f, 100.0f, 100.0f, 3.14f};
+    ztest::setDeviceBuffer(*device, v, buffer_in1.get());
+  }
+  const zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_int8>(zivc::BufferUsage::kPreferDevice);
+  {
+    constexpr cl_int vmax = (std::numeric_limits<cl_int>::max)();
+    constexpr cl_int vmin = (std::numeric_limits<cl_int>::min)();
+    const std::initializer_list<cl_int8> v = {cl_int8{0, 100, vmax, vmin,
+                                                      0, 100, vmax, vmin}};
+    ztest::setDeviceBuffer(*device, v, buffer_in2.get());
+  }
+  const zivc::SharedBuffer buffer_in3 = device->createBuffer<cl_float8>(zivc::BufferUsage::kPreferDevice);
+  {
+    const std::initializer_list<cl_float8> v = {cl_float8{0.0f, 100.0f, 100.0f, 3.14f,
+                                                          0.0f, 100.0f, 100.0f, 3.14f}};
+    ztest::setDeviceBuffer(*device, v, buffer_in3.get());
+  }
+
+  const auto int_n = static_cast<zivc::uint32b>(buffer_in0->size());
+  const auto float_n = static_cast<zivc::uint32b>(buffer_in1->size());
+  const auto int8_n = static_cast<zivc::uint32b>(buffer_in2->size());
+  const auto float8_n = static_cast<zivc::uint32b>(buffer_in3->size());
+  const std::size_t n = int_n + float_n + int8_n + float8_n;
+
+  const zivc::SharedBuffer buffer_out0 = device->createBuffer<cl_char8>(zivc::BufferUsage::kPreferDevice);
+  buffer_out0->setSize(n);
+  {
+    const cl_char8 v = 0;
+    ztest::fillDeviceBuffer(v, buffer_out0.get());
+  }
+  const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_uchar8>(zivc::BufferUsage::kPreferDevice);
+  buffer_out1->setSize(n);
+  {
+    const cl_uchar8 v = 0;
+    ztest::fillDeviceBuffer(v, buffer_out1.get());
+  }
+  const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_short8>(zivc::BufferUsage::kPreferDevice);
+  buffer_out2->setSize(n);
+  {
+    const cl_short8 v = 0;
+    ztest::fillDeviceBuffer(v, buffer_out2.get());
+  }
+  const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_ushort8>(zivc::BufferUsage::kPreferDevice);
+  buffer_out3->setSize(n);
+  {
+    const cl_ushort8 v = 0;
+    ztest::fillDeviceBuffer(v, buffer_out3.get());
+  }
+  const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_int8>(zivc::BufferUsage::kPreferDevice);
+  buffer_out4->setSize(n);
+  {
+    const cl_int8 v = 0;
+    ztest::fillDeviceBuffer(v, buffer_out4.get());
+  }
+  const zivc::SharedBuffer buffer_out5 = device->createBuffer<cl_uint8>(zivc::BufferUsage::kPreferDevice);
+  buffer_out5->setSize(n);
+  {
+    const cl_uint8 v = 0;
+    ztest::fillDeviceBuffer(v, buffer_out5.get());
+  }
+  const zivc::SharedBuffer buffer_out6 = device->createBuffer<cl_float8>(zivc::BufferUsage::kPreferDevice);
+  buffer_out6->setSize(n);
+  {
+    const cl_float8 v = 0.0f;
+    ztest::fillDeviceBuffer(v, buffer_out6.get());
+  }
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vector8CastTest, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(15, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("Vector8CastTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(15, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(
+      *buffer_in0, *buffer_in1, *buffer_in2, *buffer_in3,
+      *buffer_out0, *buffer_out1, *buffer_out2,
+      *buffer_out3, *buffer_out4, *buffer_out5,
+      *buffer_out6, 
+      int_n, float_n, int8_n, float8_n, launch_options);
+  device->waitForCompletion(result.fence());
+
+#define ZIVC_TEST_CAST_I8(v0, v1, v2, v3, vec, message) \
+    EXPECT_EQ((v0), (vec).s0) << message; \
+    EXPECT_EQ((v1), (vec).s1) << message; \
+    EXPECT_EQ((v2), (vec).s2) << message; \
+    EXPECT_EQ((v3), (vec).s3) << message; \
+    EXPECT_EQ((v0), (vec).s4) << message; \
+    EXPECT_EQ((v1), (vec).s5) << message; \
+    EXPECT_EQ((v2), (vec).s6) << message; \
+    EXPECT_EQ((v3), (vec).s7) << message
+
+  // output
+  {
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_char8>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out0, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+    std::size_t index = 0;
+    ZIVC_TEST_CAST_I8(0, 0, 0, 0, mem[index], "char8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I8(100, 100, 100, 100, mem[index], "char8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I8(100, 100, 100, 100, mem[index], "char8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I8(-1, -1, -1, -1, mem[index], "char8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I8(0, 0, 0, 0, mem[index], "char8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I8(0, 0, 0, 0, mem[index], "char8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I8(100, 100, 100, 100, mem[index], "char8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I8(100, 100, 100, 100, mem[index], "char8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I8(3, 3, 3, 3, mem[index], "char8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I8(0, 100, -1, 0, mem[index], "char8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I8(0, 100, 100, 3, mem[index], "char8 cast failed");
+  }
+  {
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_uchar8>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out1, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+    std::size_t index = 0;
+    const cl_uchar vmax = (std::numeric_limits<cl_uchar>::max)();
+    const cl_uchar vmin = (std::numeric_limits<cl_uchar>::min)();
+    ZIVC_TEST_CAST_I8(0, 0, 0, 0, mem[index], "uchar8 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I8(100, 100, 100, 100, mem[index], "uchar8 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I8(100, 100, 100, 100, mem[index], "uchar8 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I8(vmax, vmax, vmax, vmax, mem[index], "uchar8 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I8(vmin, vmin, vmin, vmin, mem[index], "uchar8 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I8(0, 0, 0, 0, mem[index], "uchar8 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I8(100, 100, 100, 100, mem[index], "uchar8 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I8(100, 100, 100, 100, mem[index], "uchar8 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I8(3, 3, 3, 3, mem[index], "uchar8 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I8(0, 100, vmax, vmin, mem[index], "uchar8 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I8(0, 100, 100, 3, mem[index], "uchar8 cast failed");
+  }
+  {
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_short8>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out2, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+    std::size_t index = 0;
+    ZIVC_TEST_CAST_I8(0, 0, 0, 0, mem[index], "short8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I8(100, 100, 100, 100, mem[index], "short8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I8(100, 100, 100, 100, mem[index], "short8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I8(-1, -1, -1, -1, mem[index], "short8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I8(0, 0, 0, 0, mem[index], "short8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I8(0, 0, 0, 0, mem[index], "short8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I8(100, 100, 100, 100, mem[index], "short8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I8(100, 100, 100, 100, mem[index], "short8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I8(3, 3, 3, 3, mem[index], "short8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I8(0, 100, -1, 0, mem[index], "short8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I8(0, 100, 100, 3, mem[index], "short8 cast failed");
+  }
+  {
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_ushort8>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out3, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+    std::size_t index = 0;
+    const cl_ushort vmax = (std::numeric_limits<cl_ushort>::max)();
+    const cl_ushort vmin = (std::numeric_limits<cl_ushort>::min)();
+    ZIVC_TEST_CAST_I8(0, 0, 0, 0, mem[index], "ushort8 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I8(100, 100, 100, 100, mem[index], "ushort8 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I8(100, 100, 100, 100, mem[index], "ushort8 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I8(vmax, vmax, vmax, vmax, mem[index], "ushort8 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I8(vmin, vmin, vmin, vmin, mem[index], "ushort8 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I8(0, 0, 0, 0, mem[index], "ushort8 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I8(100, 100, 100, 100, mem[index], "ushort8 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I8(100, 100, 100, 100, mem[index], "ushort8 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I8(3, 3, 3, 3, mem[index], "ushort8 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I8(0, 100, vmax, vmin, mem[index], "ushort8 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I8(0, 100, 100, 3, mem[index], "ushort8 cast failed");
+  }
+  {
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_int8>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out4, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+    std::size_t index = 0;
+    const cl_int vmax = (std::numeric_limits<cl_int>::max)();
+    const cl_int vmin = (std::numeric_limits<cl_int>::min)();
+    ZIVC_TEST_CAST_I8(0, 0, 0, 0, mem[index], "int8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I8(100, 100, 100, 100, mem[index], "int8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I8(100, 100, 100, 100, mem[index], "int8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I8(vmax, vmax, vmax, vmax, mem[index], "int8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I8(vmin, vmin, vmin, vmin, mem[index], "int8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I8(0, 0, 0, 0, mem[index], "int8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I8(100, 100, 100, 100, mem[index], "int8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I8(100, 100, 100, 100, mem[index], "int8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I8(3, 3, 3, 3, mem[index], "int8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I8(0, 100, vmax, vmin, mem[index], "int8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I8(0, 100, 100, 3, mem[index], "int8 cast failed");
+  }
+  {
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_uint8>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out5, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+    std::size_t index = 0;
+    const cl_uint vmax = (std::numeric_limits<cl_uint>::max)();
+    [[maybe_unused]] const cl_uint vmin = (std::numeric_limits<cl_uint>::min)();
+    ZIVC_TEST_CAST_I8(0, 0, 0, 0, mem[index], "uint8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I8(100, 100, 100, 100, mem[index], "uint8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I8(100, 100, 100, 100, mem[index], "uint8 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I8(vmax / 2, vmax / 2, vmax / 2, vmax / 2, mem[index], "uint8 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I8(vmax / 2 + 1, vmax / 2 + 1, vmax / 2 + 1, vmax / 2 + 1, mem[index], "uint8 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I8(0, 0, 0, 0, mem[index], "uint8 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I8(100, 100, 100, 100, mem[index], "uint8 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I8(100, 100, 100, 100, mem[index], "uint8 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I8(3, 3, 3, 3, mem[index], "uint8 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I8(0, 100, vmax / 2, vmax / 2 + 1, mem[index], "uint8 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I8(0, 100, 100, 3, mem[index], "uint8 cast failed");
+  }
+#define ZIVC_TEST_CAST_F8(v0, v1, v2, v3, vec, message) \
+    EXPECT_FLOAT_EQ((v0), (vec).s0) << message; \
+    EXPECT_FLOAT_EQ((v1), (vec).s1) << message; \
+    EXPECT_FLOAT_EQ((v2), (vec).s2) << message; \
+    EXPECT_FLOAT_EQ((v3), (vec).s3) << message; \
+    EXPECT_FLOAT_EQ((v0), (vec).s4) << message; \
+    EXPECT_FLOAT_EQ((v1), (vec).s5) << message; \
+    EXPECT_FLOAT_EQ((v2), (vec).s6) << message; \
+    EXPECT_FLOAT_EQ((v3), (vec).s7) << message
+  {
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_float8>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out6, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+    std::size_t index = 0;
+    const auto vmax = static_cast<cl_float>((std::numeric_limits<cl_int>::max)());
+    const auto vmin = static_cast<cl_float>((std::numeric_limits<cl_int>::min)());
+    ZIVC_TEST_CAST_F8(0.0f, 0.0f, 0.0f, 0.0f, mem[index], "float8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_F8(100.0f, 100.0f, 100.0f, 100.0f, mem[index], "float8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_F8(100.0f, 100.0f, 100.0f, 100.0f, mem[index], "float8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_F8(vmax, vmax, vmax, vmax, mem[index], "float8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_F8(vmin, vmin, vmin, vmin, mem[index], "float8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_F8(0.0f, 0.0f, 0.0f, 0.0f, mem[index], "float8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_F8(100.0f, 100.0f, 100.0f, 100.0f, mem[index], "float8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_F8(100.0f, 100.0f, 100.0f, 100.0f, mem[index], "float8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_F8(3.14f, 3.14f, 3.14f, 3.14f, mem[index], "float8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_F8(0.0f, 100.0f, vmax, vmin, mem[index], "float8 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_F8(0.0f, 100.0f, 100.0f, 3.14f, mem[index], "float8 cast failed");
+  }
+}
+
+TEST(ClCppTest, Vector16CastTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_char;
+  using zivc::cl_uchar;
+  using zivc::cl_short;
+  using zivc::cl_ushort;
+  using zivc::cl_int;
+  using zivc::cl_uint;
+  using zivc::cl_float;
+  using zivc::cl_char16;
+  using zivc::cl_uchar16;
+  using zivc::cl_short16;
+  using zivc::cl_ushort16;
+  using zivc::cl_int16;
+  using zivc::cl_uint16;
+  using zivc::cl_float16;
+
+  const zivc::SharedBuffer buffer_in0 = device->createBuffer<cl_int>(zivc::BufferUsage::kPreferDevice);
+  {
+    constexpr cl_int vmax = (std::numeric_limits<cl_int>::max)();
+    constexpr cl_int vmin = (std::numeric_limits<cl_int>::min)();
+    const std::initializer_list<cl_int> v = {0, 100, 100, vmax, vmin};
+    ztest::setDeviceBuffer(*device, v, buffer_in0.get());
+  }
+  const zivc::SharedBuffer buffer_in1 = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
+  {
+    const std::initializer_list<cl_float> v = {0.0f, 100.0f, 100.0f, 3.14f};
+    ztest::setDeviceBuffer(*device, v, buffer_in1.get());
+  }
+  const zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_int16>(zivc::BufferUsage::kPreferDevice);
+  {
+    constexpr cl_int vmax = (std::numeric_limits<cl_int>::max)();
+    constexpr cl_int vmin = (std::numeric_limits<cl_int>::min)();
+    const std::initializer_list<cl_int16> v = {cl_int16{0, 100, vmax, vmin,
+                                                        0, 100, vmax, vmin,
+                                                        0, 100, vmax, vmin,
+                                                        0, 100, vmax, vmin}};
+    ztest::setDeviceBuffer(*device, v, buffer_in2.get());
+  }
+  const zivc::SharedBuffer buffer_in3 = device->createBuffer<cl_float16>(zivc::BufferUsage::kPreferDevice);
+  {
+    const std::initializer_list<cl_float16> v = {cl_float16{0.0f, 100.0f, 100.0f, 3.14f,
+                                                            0.0f, 100.0f, 100.0f, 3.14f,
+                                                            0.0f, 100.0f, 100.0f, 3.14f,
+                                                            0.0f, 100.0f, 100.0f, 3.14f}};
+    ztest::setDeviceBuffer(*device, v, buffer_in3.get());
+  }
+
+  const auto int_n = static_cast<zivc::uint32b>(buffer_in0->size());
+  const auto float_n = static_cast<zivc::uint32b>(buffer_in1->size());
+  const auto int16_n = static_cast<zivc::uint32b>(buffer_in2->size());
+  const auto float16_n = static_cast<zivc::uint32b>(buffer_in3->size());
+  const std::size_t n = int_n + float_n + int16_n + float16_n;
+
+  const zivc::SharedBuffer buffer_out0 = device->createBuffer<cl_char16>(zivc::BufferUsage::kPreferDevice);
+  buffer_out0->setSize(n);
+  {
+    const cl_char16 v = 0;
+    ztest::fillDeviceBuffer(v, buffer_out0.get());
+  }
+  const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_uchar16>(zivc::BufferUsage::kPreferDevice);
+  buffer_out1->setSize(n);
+  {
+    const cl_uchar16 v = 0;
+    ztest::fillDeviceBuffer(v, buffer_out1.get());
+  }
+  const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_short16>(zivc::BufferUsage::kPreferDevice);
+  buffer_out2->setSize(n);
+  {
+    const cl_short16 v = 0;
+    ztest::fillDeviceBuffer(v, buffer_out2.get());
+  }
+  const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_ushort16>(zivc::BufferUsage::kPreferDevice);
+  buffer_out3->setSize(n);
+  {
+    const cl_ushort16 v = 0;
+    ztest::fillDeviceBuffer(v, buffer_out3.get());
+  }
+  const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_int16>(zivc::BufferUsage::kPreferDevice);
+  buffer_out4->setSize(n);
+  {
+    const cl_int16 v = 0;
+    ztest::fillDeviceBuffer(v, buffer_out4.get());
+  }
+  const zivc::SharedBuffer buffer_out5 = device->createBuffer<cl_uint16>(zivc::BufferUsage::kPreferDevice);
+  buffer_out5->setSize(n);
+  {
+    const cl_uint16 v = 0;
+    ztest::fillDeviceBuffer(v, buffer_out5.get());
+  }
+  const zivc::SharedBuffer buffer_out6 = device->createBuffer<cl_float16>(zivc::BufferUsage::kPreferDevice);
+  buffer_out6->setSize(n);
+  {
+    const cl_float16 v = 0.0f;
+    ztest::fillDeviceBuffer(v, buffer_out6.get());
+  }
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vector16CastTest, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(15, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("Vector16CastTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(15, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(
+      *buffer_in0, *buffer_in1, *buffer_in2, *buffer_in3,
+      *buffer_out0, *buffer_out1, *buffer_out2,
+      *buffer_out3, *buffer_out4, *buffer_out5,
+      *buffer_out6, 
+      int_n, float_n, int16_n, float16_n, launch_options);
+  device->waitForCompletion(result.fence());
+
+#define ZIVC_TEST_CAST_I16(v0, v1, v2, v3, vec, message) \
+    EXPECT_EQ((v0), (vec).s0) << message; \
+    EXPECT_EQ((v1), (vec).s1) << message; \
+    EXPECT_EQ((v2), (vec).s2) << message; \
+    EXPECT_EQ((v3), (vec).s3) << message; \
+    EXPECT_EQ((v0), (vec).s4) << message; \
+    EXPECT_EQ((v1), (vec).s5) << message; \
+    EXPECT_EQ((v2), (vec).s6) << message; \
+    EXPECT_EQ((v3), (vec).s7) << message; \
+    EXPECT_EQ((v0), (vec).s8) << message; \
+    EXPECT_EQ((v1), (vec).s9) << message; \
+    EXPECT_EQ((v2), (vec).sa) << message; \
+    EXPECT_EQ((v3), (vec).sb) << message; \
+    EXPECT_EQ((v0), (vec).sc) << message; \
+    EXPECT_EQ((v1), (vec).sd) << message; \
+    EXPECT_EQ((v2), (vec).se) << message; \
+    EXPECT_EQ((v3), (vec).sf) << message
+
+  // output
+  {
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_char16>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out0, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+    std::size_t index = 0;
+    ZIVC_TEST_CAST_I16(0, 0, 0, 0, mem[index], "char16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I16(100, 100, 100, 100, mem[index], "char16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I16(100, 100, 100, 100, mem[index], "char16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I16(-1, -1, -1, -1, mem[index], "char16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I16(0, 0, 0, 0, mem[index], "char16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I16(0, 0, 0, 0, mem[index], "char16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I16(100, 100, 100, 100, mem[index], "char16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I16(100, 100, 100, 100, mem[index], "char16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I16(3, 3, 3, 3, mem[index], "char16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I16(0, 100, -1, 0, mem[index], "char16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I16(0, 100, 100, 3, mem[index], "char16 cast failed");
+  }
+  {
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_uchar16>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out1, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+    std::size_t index = 0;
+    const cl_uchar vmax = (std::numeric_limits<cl_uchar>::max)();
+    const cl_uchar vmin = (std::numeric_limits<cl_uchar>::min)();
+    ZIVC_TEST_CAST_I16(0, 0, 0, 0, mem[index], "uchar16 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I16(100, 100, 100, 100, mem[index], "uchar16 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I16(100, 100, 100, 100, mem[index], "uchar16 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I16(vmax, vmax, vmax, vmax, mem[index], "uchar16 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I16(vmin, vmin, vmin, vmin, mem[index], "uchar16 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I16(0, 0, 0, 0, mem[index], "uchar16 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I16(100, 100, 100, 100, mem[index], "uchar16 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I16(100, 100, 100, 100, mem[index], "uchar16 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I16(3, 3, 3, 3, mem[index], "uchar16 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I16(0, 100, vmax, vmin, mem[index], "uchar16 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I16(0, 100, 100, 3, mem[index], "uchar16 cast failed");
+  }
+  {
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_short16>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out2, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+    std::size_t index = 0;
+    ZIVC_TEST_CAST_I16(0, 0, 0, 0, mem[index], "short16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I16(100, 100, 100, 100, mem[index], "short16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I16(100, 100, 100, 100, mem[index], "short16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I16(-1, -1, -1, -1, mem[index], "short16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I16(0, 0, 0, 0, mem[index], "short16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I16(0, 0, 0, 0, mem[index], "short16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I16(100, 100, 100, 100, mem[index], "short16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I16(100, 100, 100, 100, mem[index], "short16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I16(3, 3, 3, 3, mem[index], "short16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I16(0, 100, -1, 0, mem[index], "short16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I16(0, 100, 100, 3, mem[index], "short16 cast failed");
+  }
+  {
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_ushort16>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out3, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+    std::size_t index = 0;
+    const cl_ushort vmax = (std::numeric_limits<cl_ushort>::max)();
+    const cl_ushort vmin = (std::numeric_limits<cl_ushort>::min)();
+    ZIVC_TEST_CAST_I16(0, 0, 0, 0, mem[index], "ushort16 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I16(100, 100, 100, 100, mem[index], "ushort16 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I16(100, 100, 100, 100, mem[index], "ushort16 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I16(vmax, vmax, vmax, vmax, mem[index], "ushort16 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I16(vmin, vmin, vmin, vmin, mem[index], "ushort16 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I16(0, 0, 0, 0, mem[index], "ushort16 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I16(100, 100, 100, 100, mem[index], "ushort16 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I16(100, 100, 100, 100, mem[index], "ushort16 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I16(3, 3, 3, 3, mem[index], "ushort16 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I16(0, 100, vmax, vmin, mem[index], "ushort16 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I16(0, 100, 100, 3, mem[index], "ushort16 cast failed");
+  }
+  {
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_int16>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out4, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+    std::size_t index = 0;
+    const cl_int vmax = (std::numeric_limits<cl_int>::max)();
+    const cl_int vmin = (std::numeric_limits<cl_int>::min)();
+    ZIVC_TEST_CAST_I16(0, 0, 0, 0, mem[index], "int16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I16(100, 100, 100, 100, mem[index], "int16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I16(100, 100, 100, 100, mem[index], "int16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I16(vmax, vmax, vmax, vmax, mem[index], "int16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I16(vmin, vmin, vmin, vmin, mem[index], "int16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I16(0, 0, 0, 0, mem[index], "int16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I16(100, 100, 100, 100, mem[index], "int16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I16(100, 100, 100, 100, mem[index], "int16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I16(3, 3, 3, 3, mem[index], "int16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I16(0, 100, vmax, vmin, mem[index], "int16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I16(0, 100, 100, 3, mem[index], "int16 cast failed");
+  }
+  {
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_uint16>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out5, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+    std::size_t index = 0;
+    const cl_uint vmax = (std::numeric_limits<cl_uint>::max)();
+    [[maybe_unused]] const cl_uint vmin = (std::numeric_limits<cl_uint>::min)();
+    ZIVC_TEST_CAST_I16(0, 0, 0, 0, mem[index], "uint16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I16(100, 100, 100, 100, mem[index], "uint16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_I16(100, 100, 100, 100, mem[index], "uint16 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I16(vmax / 2, vmax / 2, vmax / 2, vmax / 2, mem[index], "uint16 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I16(vmax / 2 + 1, vmax / 2 + 1, vmax / 2 + 1, vmax / 2 + 1, mem[index], "uint16 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I16(0, 0, 0, 0, mem[index], "uint16 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I16(100, 100, 100, 100, mem[index], "uint16 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I16(100, 100, 100, 100, mem[index], "uint16 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I16(3, 3, 3, 3, mem[index], "uint16 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I16(0, 100, vmax / 2, vmax / 2 + 1, mem[index], "uint16 cast failed");
+    index++;
+    ZIVC_TEST_CAST_I16(0, 100, 100, 3, mem[index], "uint16 cast failed");
+  }
+#define ZIVC_TEST_CAST_F16(v0, v1, v2, v3, vec, message) \
+    EXPECT_FLOAT_EQ((v0), (vec).s0) << message; \
+    EXPECT_FLOAT_EQ((v1), (vec).s1) << message; \
+    EXPECT_FLOAT_EQ((v2), (vec).s2) << message; \
+    EXPECT_FLOAT_EQ((v3), (vec).s3) << message; \
+    EXPECT_FLOAT_EQ((v0), (vec).s4) << message; \
+    EXPECT_FLOAT_EQ((v1), (vec).s5) << message; \
+    EXPECT_FLOAT_EQ((v2), (vec).s6) << message; \
+    EXPECT_FLOAT_EQ((v3), (vec).s7) << message; \
+    EXPECT_FLOAT_EQ((v0), (vec).s8) << message; \
+    EXPECT_FLOAT_EQ((v1), (vec).s9) << message; \
+    EXPECT_FLOAT_EQ((v2), (vec).sa) << message; \
+    EXPECT_FLOAT_EQ((v3), (vec).sb) << message; \
+    EXPECT_FLOAT_EQ((v0), (vec).sc) << message; \
+    EXPECT_FLOAT_EQ((v1), (vec).sd) << message; \
+    EXPECT_FLOAT_EQ((v2), (vec).se) << message; \
+    EXPECT_FLOAT_EQ((v3), (vec).sf) << message
+  {
+    const zivc::SharedBuffer buffer = device->createBuffer<cl_float16>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out6, buffer.get());
+    const zivc::MappedMemory mem = buffer->mapMemory();
+    std::size_t index = 0;
+    const auto vmax = static_cast<cl_float>((std::numeric_limits<cl_int>::max)());
+    const auto vmin = static_cast<cl_float>((std::numeric_limits<cl_int>::min)());
+    ZIVC_TEST_CAST_F16(0.0f, 0.0f, 0.0f, 0.0f, mem[index], "float16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_F16(100.0f, 100.0f, 100.0f, 100.0f, mem[index], "float16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_F16(100.0f, 100.0f, 100.0f, 100.0f, mem[index], "float16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_F16(vmax, vmax, vmax, vmax, mem[index], "float16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_F16(vmin, vmin, vmin, vmin, mem[index], "float16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_F16(0.0f, 0.0f, 0.0f, 0.0f, mem[index], "float16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_F16(100.0f, 100.0f, 100.0f, 100.0f, mem[index], "float16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_F16(100.0f, 100.0f, 100.0f, 100.0f, mem[index], "float16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_F16(3.14f, 3.14f, 3.14f, 3.14f, mem[index], "float16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_F16(0.0f, 100.0f, vmax, vmin, mem[index], "float16 cast failed");
+    ++index;
+    ZIVC_TEST_CAST_F16(0.0f, 100.0f, 100.0f, 3.14f, mem[index], "float16 cast failed");
   }
 }
 
@@ -5817,6 +6523,205 @@ TEST(ClCppTest, BitCastTest)
       ASSERT_FLOAT_EQ(expected.x, mem[2].x) << "Bit cast test failed.";
       ASSERT_FLOAT_EQ(expected.y, mem[2].y) << "Bit cast test failed.";
       ASSERT_FLOAT_EQ(expected.z, mem[2].z) << "Bit cast test failed.";
+    }
+  }
+}
+
+TEST(ClCppTest, BitCastLongVecTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_char;
+  using zivc::cl_uchar;
+  using zivc::cl_short;
+  using zivc::cl_ushort;
+  using zivc::cl_int;
+  using zivc::cl_uint;
+  using zivc::cl_char8;
+  using zivc::cl_char16;
+  using zivc::cl_uchar8;
+  using zivc::cl_uchar16;
+  using zivc::cl_short8;
+  using zivc::cl_short16;
+  using zivc::cl_ushort8;
+  using zivc::cl_ushort16;
+  using zivc::cl_int8;
+  using zivc::cl_int16;
+  using zivc::cl_uint8;
+  using zivc::cl_uint16;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
+
+  constexpr cl_uint8 ei8 = cl_uint8{zisc::bit_cast<cl_int>(std::numbers::pi_v<float>),
+                                    zisc::bit_cast<cl_int>(std::numbers::e_v<float>),
+                                    zisc::bit_cast<cl_int>(std::numbers::ln2_v<float>),
+                                    zisc::bit_cast<cl_int>(std::numbers::sqrt2_v<float>),
+                                    zisc::bit_cast<cl_int>(std::numbers::pi_v<float>),
+                                    zisc::bit_cast<cl_int>(std::numbers::e_v<float>),
+                                    zisc::bit_cast<cl_int>(std::numbers::ln2_v<float>),
+                                    zisc::bit_cast<cl_int>(std::numbers::sqrt2_v<float>)};
+  const zivc::SharedBuffer inout_uint8 = device->createBuffer<cl_uint8>(
+      {zivc::BufferUsage::kPreferDevice,
+       zivc::BufferFlag::kRandomAccessible});
+  inout_uint8->setSize(1);
+  ztest::setDeviceBuffer(*device, {ei8}, inout_uint8.get());
+
+  constexpr cl_uint16 ei16 = cl_uint16{zisc::bit_cast<cl_int>(std::numbers::pi_v<float>),
+                                       zisc::bit_cast<cl_int>(std::numbers::e_v<float>),
+                                       zisc::bit_cast<cl_int>(std::numbers::ln2_v<float>),
+                                       zisc::bit_cast<cl_int>(std::numbers::sqrt2_v<float>),
+                                       zisc::bit_cast<cl_int>(std::numbers::pi_v<float>),
+                                       zisc::bit_cast<cl_int>(std::numbers::e_v<float>),
+                                       zisc::bit_cast<cl_int>(std::numbers::ln2_v<float>),
+                                       zisc::bit_cast<cl_int>(std::numbers::sqrt2_v<float>),
+                                       zisc::bit_cast<cl_int>(std::numbers::pi_v<float>),
+                                       zisc::bit_cast<cl_int>(std::numbers::e_v<float>),
+                                       zisc::bit_cast<cl_int>(std::numbers::ln2_v<float>),
+                                       zisc::bit_cast<cl_int>(std::numbers::sqrt2_v<float>),
+                                       zisc::bit_cast<cl_int>(std::numbers::pi_v<float>),
+                                       zisc::bit_cast<cl_int>(std::numbers::e_v<float>),
+                                       zisc::bit_cast<cl_int>(std::numbers::ln2_v<float>),
+                                       zisc::bit_cast<cl_int>(std::numbers::sqrt2_v<float>)};
+  const zivc::SharedBuffer inout_uint16 = device->createBuffer<cl_uint16>(
+      {zivc::BufferUsage::kPreferDevice,
+       zivc::BufferFlag::kRandomAccessible});
+  inout_uint16->setSize(1);
+  ztest::setDeviceBuffer(*device, {ei16}, inout_uint16.get());
+
+  constexpr cl_float8 ef8 = cl_float8{std::numbers::ln2_v<float>,
+                                      std::numbers::pi_v<float>,
+                                      std::numbers::e_v<float>,
+                                      std::numbers::pi_v<float>,
+                                      std::numbers::ln2_v<float>,
+                                      std::numbers::pi_v<float>,
+                                      std::numbers::e_v<float>,
+                                      std::numbers::pi_v<float>};
+  const zivc::SharedBuffer inout_float8 = device->createBuffer<cl_float8>(
+      {zivc::BufferUsage::kPreferDevice,
+       zivc::BufferFlag::kRandomAccessible});
+  inout_float8->setSize(1);
+  ztest::setDeviceBuffer(*device, {ef8}, inout_float8.get());
+
+  constexpr cl_float16 ef16 = cl_float16{std::numbers::sqrt2_v<float>,
+                                         std::numbers::ln2_v<float>,
+                                         std::numbers::e_v<float>,
+                                         std::numbers::pi_v<float>,
+                                         std::numbers::sqrt2_v<float>,
+                                         std::numbers::ln2_v<float>,
+                                         std::numbers::e_v<float>,
+                                         std::numbers::pi_v<float>,
+                                         std::numbers::sqrt2_v<float>,
+                                         std::numbers::ln2_v<float>,
+                                         std::numbers::e_v<float>,
+                                         std::numbers::pi_v<float>,
+                                         std::numbers::sqrt2_v<float>,
+                                         std::numbers::ln2_v<float>,
+                                         std::numbers::e_v<float>,
+                                         std::numbers::pi_v<float>};
+  const zivc::SharedBuffer inout_float16 = device->createBuffer<cl_float16>(
+      {zivc::BufferUsage::kPreferDevice,
+       zivc::BufferFlag::kRandomAccessible});
+  inout_float16->setSize(1);
+  ztest::setDeviceBuffer(*device, {ef16}, inout_float16.get());
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, bitCastLongVecTest, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(4, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("BitCastTestLongVecKernel");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(4, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(
+      *inout_uint8, *inout_float8, *inout_uint16, *inout_float16,
+      launch_options);
+  device->waitForCompletion(result.fence());
+
+  // output
+  {
+    const zivc::MappedMemory mem = inout_uint8->mapMemory();
+    {
+      const auto expected = zisc::bit_cast<cl_uint8>(ef8);
+      ASSERT_EQ(expected.s0, mem[0].s0) << "Bit cast test failed.";
+      ASSERT_EQ(expected.s1, mem[0].s1) << "Bit cast test failed.";
+      ASSERT_EQ(expected.s2, mem[0].s2) << "Bit cast test failed.";
+      ASSERT_EQ(expected.s3, mem[0].s3) << "Bit cast test failed.";
+      ASSERT_EQ(expected.s4, mem[0].s4) << "Bit cast test failed.";
+      ASSERT_EQ(expected.s5, mem[0].s5) << "Bit cast test failed.";
+      ASSERT_EQ(expected.s6, mem[0].s6) << "Bit cast test failed.";
+      ASSERT_EQ(expected.s7, mem[0].s7) << "Bit cast test failed.";
+    }
+  }
+  {
+    const zivc::MappedMemory mem = inout_uint16->mapMemory();
+    {
+      const auto expected = zisc::bit_cast<cl_uint16>(ef16);
+      ASSERT_EQ(expected.s0, mem[0].s0) << "Bit cast test failed.";
+      ASSERT_EQ(expected.s1, mem[0].s1) << "Bit cast test failed.";
+      ASSERT_EQ(expected.s2, mem[0].s2) << "Bit cast test failed.";
+      ASSERT_EQ(expected.s3, mem[0].s3) << "Bit cast test failed.";
+      ASSERT_EQ(expected.s4, mem[0].s4) << "Bit cast test failed.";
+      ASSERT_EQ(expected.s5, mem[0].s5) << "Bit cast test failed.";
+      ASSERT_EQ(expected.s6, mem[0].s6) << "Bit cast test failed.";
+      ASSERT_EQ(expected.s7, mem[0].s7) << "Bit cast test failed.";
+      ASSERT_EQ(expected.s8, mem[0].s8) << "Bit cast test failed.";
+      ASSERT_EQ(expected.s9, mem[0].s9) << "Bit cast test failed.";
+      ASSERT_EQ(expected.sa, mem[0].sa) << "Bit cast test failed.";
+      ASSERT_EQ(expected.sb, mem[0].sb) << "Bit cast test failed.";
+      ASSERT_EQ(expected.sc, mem[0].sc) << "Bit cast test failed.";
+      ASSERT_EQ(expected.sd, mem[0].sd) << "Bit cast test failed.";
+      ASSERT_EQ(expected.se, mem[0].se) << "Bit cast test failed.";
+      ASSERT_EQ(expected.sf, mem[0].sf) << "Bit cast test failed.";
+    }
+  }
+  {
+    const zivc::MappedMemory mem = inout_float8->mapMemory();
+    {
+      const auto expected = zisc::bit_cast<cl_float8>(ei8);
+      ASSERT_FLOAT_EQ(expected.s0, mem[0].s0) << "Bit cast test failed.";
+      ASSERT_FLOAT_EQ(expected.s1, mem[0].s1) << "Bit cast test failed.";
+      ASSERT_FLOAT_EQ(expected.s2, mem[0].s2) << "Bit cast test failed.";
+      ASSERT_FLOAT_EQ(expected.s3, mem[0].s3) << "Bit cast test failed.";
+      ASSERT_FLOAT_EQ(expected.s4, mem[0].s4) << "Bit cast test failed.";
+      ASSERT_FLOAT_EQ(expected.s5, mem[0].s5) << "Bit cast test failed.";
+      ASSERT_FLOAT_EQ(expected.s6, mem[0].s6) << "Bit cast test failed.";
+      ASSERT_FLOAT_EQ(expected.s7, mem[0].s7) << "Bit cast test failed.";
+    }
+  }
+  {
+    const zivc::MappedMemory mem = inout_float16->mapMemory();
+    {
+      const auto expected = zisc::bit_cast<cl_float16>(ei16);
+      ASSERT_FLOAT_EQ(expected.s0, mem[0].s0) << "Bit cast test failed.";
+      ASSERT_FLOAT_EQ(expected.s1, mem[0].s1) << "Bit cast test failed.";
+      ASSERT_FLOAT_EQ(expected.s2, mem[0].s2) << "Bit cast test failed.";
+      ASSERT_FLOAT_EQ(expected.s3, mem[0].s3) << "Bit cast test failed.";
+      ASSERT_FLOAT_EQ(expected.s4, mem[0].s4) << "Bit cast test failed.";
+      ASSERT_FLOAT_EQ(expected.s5, mem[0].s5) << "Bit cast test failed.";
+      ASSERT_FLOAT_EQ(expected.s6, mem[0].s6) << "Bit cast test failed.";
+      ASSERT_FLOAT_EQ(expected.s7, mem[0].s7) << "Bit cast test failed.";
+      ASSERT_FLOAT_EQ(expected.s8, mem[0].s8) << "Bit cast test failed.";
+      ASSERT_FLOAT_EQ(expected.s9, mem[0].s9) << "Bit cast test failed.";
+      ASSERT_FLOAT_EQ(expected.sa, mem[0].sa) << "Bit cast test failed.";
+      ASSERT_FLOAT_EQ(expected.sb, mem[0].sb) << "Bit cast test failed.";
+      ASSERT_FLOAT_EQ(expected.sc, mem[0].sc) << "Bit cast test failed.";
+      ASSERT_FLOAT_EQ(expected.sd, mem[0].sd) << "Bit cast test failed.";
+      ASSERT_FLOAT_EQ(expected.se, mem[0].se) << "Bit cast test failed.";
+      ASSERT_FLOAT_EQ(expected.sf, mem[0].sf) << "Bit cast test failed.";
     }
   }
 }

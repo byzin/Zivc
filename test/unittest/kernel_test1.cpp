@@ -1188,3 +1188,63 @@ TEST(KernelTest, WorkItemOffset3dTest)
     }
   }
 }
+
+TEST(KernelTest, PrintTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  [[maybe_unused]] const zivc::DeviceInfo& info = device->deviceInfo();
+
+  using zivc::uint32b;
+
+  // Allocate buffers
+  const zivc::SharedBuffer buff_d = device->createBuffer<uint32b>({zivc::BufferUsage::kPreferDevice});
+  buff_d->setSize(1);
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test1, printKernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(1, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  {
+    zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+    launch_options.setWorkSize({{1}});
+    launch_options.requestFence(false);
+    launch_options.setLabel("PrintKernel");
+    const zivc::LaunchResult result = kernel->run(*buff_d, launch_options);
+    device->waitForCompletion();
+  }
+
+  SUCCEED();
+}
+
+TEST(KernelTest, AssertionTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+  [[maybe_unused]] const zivc::DeviceInfo& info = device->deviceInfo();
+
+  using zivc::uint32b;
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(kernel_test1, assertionKernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(1, kernel->argSize()) << "Wrong kernel property.";
+
+  if (device->type() == zivc::BackendType::kCpu) {
+    // Launch the kernel
+    ASSERT_DEATH(
+    {
+      uint32b data = 0;
+      kernel_params.func()(&data);
+    },
+    "## 'assertion' with multi args. i=1, u=2, f=3, c=4");
+  }
+  else {
+    SUCCEED();
+  }
+}

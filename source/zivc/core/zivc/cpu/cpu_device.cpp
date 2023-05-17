@@ -147,9 +147,9 @@ void CpuDevice::submit(const CommandT& command,
   const auto task = [command, id, dimension, work_size, global_id_offset, batch_size]
   (const int64b, const int64b) noexcept
   {
-    cl::inner::WorkItem::setDimension(dimension);
-    cl::inner::WorkItem::setGlobalIdOffset(global_id_offset);
-    cl::inner::WorkItem::setNumOfGroups(work_size);
+    cl::WorkItem::setDimension(dimension);
+    cl::WorkItem::setGlobalIdOffset(global_id_offset);
+    cl::WorkItem::setNumOfGroups(work_size);
     const uint32b num_of_works = work_size[0] * work_size[1] * work_size[2];
     const uint32b n = (num_of_works + (batch_size - 1)) / batch_size;
     for (uint32b block_id = issue(id); block_id < n; block_id = issue(id))
@@ -255,7 +255,7 @@ void CpuDevice::execBatchCommands(const CommandT& command,
   for (uint32b i = 0; i < batch_size; ++i) {
     const uint32b group_id = block_id * batch_size + i;
     if (group_id < group_id_max) {
-      cl::inner::WorkItem::setWorkGroupId(group_id);
+      cl::WorkItem::setWorkGroupId(group_id);
       command();
     }
   }

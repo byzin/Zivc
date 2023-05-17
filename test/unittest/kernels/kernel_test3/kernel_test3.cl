@@ -36,7 +36,7 @@ struct TestData
   int4 value1_;
   float4 value2_;
   ushort4 value3_;
-  half2 value4_;
+  half value4_[2];
   uchar4 value5_;
   int4 pad_[2];
 };
@@ -130,7 +130,7 @@ struct TestHeader
   {
     const size_t address = header.data1Address();
     zivc::GlobalPtr<int4> h = &ptr[address];
-    auto p = ZIVC_CAST_POINTER(zivc::GlobalPtr<uchar4>, h);
+    auto p = zivc::reinterp<zivc::GlobalPtr<uchar4>>(h);
     return p;
   }
 
@@ -139,7 +139,7 @@ struct TestHeader
   {
     const size_t address = header.data2Address();
     zivc::GlobalPtr<int4> h = &ptr[address];
-    auto p = ZIVC_CAST_POINTER(zivc::GlobalPtr<ushort2>, h);
+    auto p = zivc::reinterp<zivc::GlobalPtr<ushort2>>(h);
     return p;
   }
 
@@ -148,16 +148,16 @@ struct TestHeader
   {
     const size_t address = header.data3Address();
     zivc::GlobalPtr<int4> h = &ptr[address];
-    auto p = ZIVC_CAST_POINTER(zivc::GlobalPtr<short4>, h);
+    auto p = zivc::reinterp<zivc::GlobalPtr<short4>>(h);
     return p;
   }
 
-  static zivc::GlobalPtr<half2> getData4(const TestHeader& header,
-                                         zivc::GlobalPtr<int4> ptr) noexcept
+  static zivc::GlobalPtr<half> getData4(const TestHeader& header,
+                                        zivc::GlobalPtr<int4> ptr) noexcept
   {
     const size_t address = header.data4Address();
     zivc::GlobalPtr<int4> h = &ptr[address];
-    auto p = ZIVC_CAST_POINTER(zivc::GlobalPtr<half2>, h);
+    auto p = zivc::reinterp<zivc::GlobalPtr<half>>(h);
     return p;
   }
 
@@ -166,7 +166,7 @@ struct TestHeader
   {
     const size_t address = header.data5Address();
     zivc::GlobalPtr<int4> h = &ptr[address];
-    auto p = ZIVC_CAST_POINTER(zivc::GlobalPtr<float>, h);
+    auto p = zivc::reinterp<zivc::GlobalPtr<float>>(h);
     return p;
   }
 
@@ -175,7 +175,7 @@ struct TestHeader
   {
     const size_t address = header.data6Address();
     zivc::GlobalPtr<int4> h = &ptr[address];
-    auto p = ZIVC_CAST_POINTER(zivc::GlobalPtr<float2>, h);
+    auto p = zivc::reinterp<zivc::GlobalPtr<float2>>(h);
     return p;
   }
 
@@ -184,7 +184,7 @@ struct TestHeader
   {
     const size_t address = header.data7Address();
     zivc::GlobalPtr<int4> h = &ptr[address];
-    auto p = ZIVC_CAST_POINTER(zivc::GlobalPtr<float4>, h);
+    auto p = zivc::reinterp<zivc::GlobalPtr<float4>>(h);
     return p;
   }
 
@@ -193,13 +193,13 @@ struct TestHeader
   {
     const size_t address = header.data8Address();
     zivc::GlobalPtr<int4> h = &ptr[address];
-    auto p = ZIVC_CAST_POINTER(zivc::GlobalPtr<TestData>, h);
+    auto p = zivc::reinterp<zivc::GlobalPtr<TestData>>(h);
     return p;
   }
 
   static TestHeader getHeader(zivc::ConstGlobalPtr<int4> ptr) noexcept
   {
-    auto p = ZIVC_CAST_POINTER(zivc::ConstGlobalPtr<TestHeader>, ptr);
+    auto p = zivc::reinterp<zivc::ConstGlobalPtr<TestHeader>>(ptr);
     return p[0];
   }
 
@@ -313,13 +313,13 @@ __kernel void reinterpArrayTestKernel(zivc::GlobalPtr<int4> inout)
         p3[i] *= static_cast<int16b>(2);
     }
     {
-      //! \todo Resolve the compile error
-//      zivc::GlobalPtr<half2> p4 = inner::TestHeader::getData4(header, inout);
-//      for (size_t i = 0; i < header.data4Size(); ++i) {
-//        float2 v = zivc::vload_half2(i, p4);
-//        v *= 2.0f;
-//        zivc::vstore_half2(v, i, p4);
-//      }
+      zivc::GlobalPtr<half> p4 = inner::TestHeader::getData4(header, inout);
+      const size_t n = header.data4Size() / 2;
+      for (size_t i = 0; i < n; ++i) {
+        float2 v = zivc::vload_half2(i, p4);
+        v *= 2.0f;
+        zivc::vstore_half2(v, i, p4);
+      }
     }
     {
       zivc::GlobalPtr<float> p5 = inner::TestHeader::getData5(header, inout);
@@ -337,19 +337,18 @@ __kernel void reinterpArrayTestKernel(zivc::GlobalPtr<int4> inout)
         p7[i] *= 2.0f;
     }
     {
-      //! \todo Resolve the compile error
-//      zivc::GlobalPtr<inner::TestData> p8 = inner::TestHeader::getData8(header, inout);
-//      for (size_t i = 0; i < header.data8Size(); ++i) {
-//        p8[i].value1_ *= 2;
-//        p8[i].value2_ *= 2.0f;
-//        p8[i].value3_ *= static_cast<uint16b>(2);
-//        {
-//          float2 v = zivc::vload_half2(0, &p8[i].value4_);
-//          v *= 2.0f;
-//          zivc::vstore_half2(v, 0, &p8[i].value4_);
-//        }
-//        p8[i].value5_ *= static_cast<uint8b>(2);
-//      }
+      zivc::GlobalPtr<inner::TestData> p8 = inner::TestHeader::getData8(header, inout);
+      for (size_t i = 0; i < header.data8Size(); ++i) {
+        p8[i].value1_ *= 2;
+        p8[i].value2_ *= 2.0f;
+        p8[i].value3_ *= static_cast<uint16b>(2);
+        {
+          float2 v = zivc::vload_half2(0, &p8[i].value4_[0]);
+          v *= 2.0f;
+          zivc::vstore_half2(v, 0, &p8[i].value4_[0]);
+        }
+        p8[i].value5_ *= static_cast<uint8b>(2);
+      }
     }
   }
 }

@@ -44,10 +44,11 @@ class Atomic::AtomicObject
                   void>>>;
   static_assert(!kIsSame<void, AtomicT>, "The pointer is unsupported type.");
   static_assert(sizeof(T) == sizeof(AtomicT), "The pointer is unsupported type.");
+  using ASpaceInfo = AddressSpaceInfo<AddressSpacePointer>;
 
  public:
-  using Type = GenericPtr<AtomicT>;
-  using ConstT = ConstGenericPtr<AtomicT>;
+  using Type = typename ASpaceInfo::template AddressSpacePointerT<AtomicT>;
+  using ConstT = typename ASpaceInfo::template ConstAddressSpacePointerT<AtomicT>;
   using MemoryOrderT = ZIVC_CL_GLOBAL_NAMESPACE::memory_order;
 
 
@@ -72,11 +73,11 @@ void Atomic::store(AddressSpacePointer object,
                    const Type desired,
                    const MemoryOrder order) noexcept
 {
-  using Object = AtomicObject<AddressSpacePointer>;
+  using ObjectT = AtomicObject<AddressSpacePointer>;
   ZIVC_CL_GLOBAL_NAMESPACE::atomic_store_explicit(
-      ZIVC_CAST_POINTER(typename Object::Type, object),
+      reinterp<typename ObjectT::Type>(object),
       desired,
-      Object::convert(order));
+      ObjectT::convert(order));
 }
 
 /*!
@@ -90,10 +91,10 @@ template <typename AddressSpacePointer> inline
 auto Atomic::load(AddressSpacePointer object,
                   const MemoryOrder order) noexcept
 {
-  using Object = AtomicObject<AddressSpacePointer>;
+  using ObjectT = AtomicObject<AddressSpacePointer>;
   return ZIVC_CL_GLOBAL_NAMESPACE::atomic_load_explicit(
-      ZIVC_CAST_POINTER(typename Object::Type, object),
-      Object::convert(order));
+      reinterp<typename ObjectT::Type>(object),
+      ObjectT::convert(order));
 }
 
 /*!
@@ -110,11 +111,11 @@ Type Atomic::exchange(AddressSpacePointer object,
                       const Type desired,
                       const MemoryOrder order) noexcept
 {
-  using Object = AtomicObject<AddressSpacePointer>;
+  using ObjectT = AtomicObject<AddressSpacePointer>;
   return ZIVC_CL_GLOBAL_NAMESPACE::atomic_exchange_explicit(
-      ZIVC_CAST_POINTER(typename Object::Type, object),
+      reinterp<typename ObjectT::Type>(object),
       desired,
-      Object::convert(order));
+      ObjectT::convert(order));
 }
 
 /*!
@@ -136,13 +137,13 @@ bool Atomic::compareExchange(AddressSpacePointer object,
                              const MemoryOrder success,
                              const MemoryOrder failure) noexcept
 {
-  using Object = AtomicObject<AddressSpacePointer>;
+  using ObjectT = AtomicObject<AddressSpacePointer>;
   return ZIVC_CL_GLOBAL_NAMESPACE::atomic_compare_exchange_strong_explicit(
-      ZIVC_CAST_POINTER(typename Object::Type, object),
+      reinterp<typename ObjectT::Type>(object),
       expected,
       desired,
-      Object::convert(success),
-      Object::convert(failure));
+      ObjectT::convert(success),
+      ObjectT::convert(failure));
 }
 
 /*!
@@ -192,11 +193,11 @@ Type Atomic::fetchAdd(AddressSpacePointer object,
                       const Type operand,
                       const MemoryOrder order) noexcept
 {
-  using Object = AtomicObject<AddressSpacePointer>;
+  using ObjectT = AtomicObject<AddressSpacePointer>;
   return ZIVC_CL_GLOBAL_NAMESPACE::atomic_fetch_add_explicit(
-      ZIVC_CAST_POINTER(typename Object::Type, object),
+      reinterp<typename ObjectT::Type>(object),
       operand,
-      Object::convert(order));
+      ObjectT::convert(order));
 }
 
 /*!
@@ -214,11 +215,11 @@ Type Atomic::fetchSub(AddressSpacePointer object,
                       const Type operand,
                       const MemoryOrder order) noexcept
 {
-  using Object = AtomicObject<AddressSpacePointer>;
+  using ObjectT = AtomicObject<AddressSpacePointer>;
   return ZIVC_CL_GLOBAL_NAMESPACE::atomic_fetch_sub_explicit(
-      ZIVC_CAST_POINTER(typename Object::Type, object),
+      reinterp<typename ObjectT::Type>(object),
       operand,
-      Object::convert(order));
+      ObjectT::convert(order));
 }
 
 /*!
@@ -236,11 +237,11 @@ Type Atomic::fetchAnd(AddressSpacePointer object,
                       const Type operand,
                       const MemoryOrder order) noexcept
 {
-  using Object = AtomicObject<AddressSpacePointer>;
+  using ObjectT = AtomicObject<AddressSpacePointer>;
   return ZIVC_CL_GLOBAL_NAMESPACE::atomic_fetch_and_explicit(
-      ZIVC_CAST_POINTER(typename Object::Type, object),
+      reinterp<typename ObjectT::Type>(object),
       operand,
-      Object::convert(order));
+      ObjectT::convert(order));
 }
 
 /*!
@@ -258,11 +259,11 @@ Type Atomic::fetchOr(AddressSpacePointer object,
                      const Type operand,
                      const MemoryOrder order) noexcept
 {
-  using Object = AtomicObject<AddressSpacePointer>;
+  using ObjectT = AtomicObject<AddressSpacePointer>;
   return ZIVC_CL_GLOBAL_NAMESPACE::atomic_fetch_or_explicit(
-      ZIVC_CAST_POINTER(typename Object::Type, object),
+      reinterp<typename ObjectT::Type>(object),
       operand,
-      Object::convert(order));
+      ObjectT::convert(order));
 }
 
 /*!
@@ -280,11 +281,11 @@ Type Atomic::fetchXor(AddressSpacePointer object,
                       const Type operand,
                       const MemoryOrder order) noexcept
 {
-  using Object = AtomicObject<AddressSpacePointer>;
+  using ObjectT = AtomicObject<AddressSpacePointer>;
   return ZIVC_CL_GLOBAL_NAMESPACE::atomic_fetch_xor_explicit(
-      ZIVC_CAST_POINTER(typename Object::Type, object),
+      reinterp<typename ObjectT::Type>(object),
       operand,
-      Object::convert(order));
+      ObjectT::convert(order));
 }
 
 /*!
@@ -302,11 +303,11 @@ Type Atomic::fetchMin(AddressSpacePointer object,
                       const Type operand,
                       const MemoryOrder order) noexcept
 {
-  using Object = AtomicObject<AddressSpacePointer>;
+  using ObjectT = AtomicObject<AddressSpacePointer>;
   return ZIVC_CL_GLOBAL_NAMESPACE::atomic_fetch_min_explicit(
-      ZIVC_CAST_POINTER(typename Object::Type, object),
+      reinterp<typename ObjectT::Type>(object),
       operand,
-      Object::convert(order));
+      ObjectT::convert(order));
 }
 
 /*!
@@ -324,11 +325,11 @@ Type Atomic::fetchMax(AddressSpacePointer object,
                       const Type operand,
                       const MemoryOrder order) noexcept
 {
-  using Object = AtomicObject<AddressSpacePointer>;
+  using ObjectT = AtomicObject<AddressSpacePointer>;
   return ZIVC_CL_GLOBAL_NAMESPACE::atomic_fetch_max_explicit(
-      ZIVC_CAST_POINTER(typename Object::Type, object),
+      reinterp<typename ObjectT::Type>(object),
       operand,
-      Object::convert(order));
+      ObjectT::convert(order));
 }
 
 /*!

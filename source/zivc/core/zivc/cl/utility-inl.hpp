@@ -18,6 +18,7 @@
 // Zisc
 #if defined(ZIVC_CL_CPU)
 #include "zisc/bit.hpp"
+#include "zisc/concepts.hpp"
 #endif // ZIVC_CL_CPU
 // Zivc
 #include "types.hpp"
@@ -839,33 +840,6 @@ ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(double16);
 #if defined(ZIVC_CL_CPU)
 
 /*!
-  \brief Specialization of TypeCast
-
-  No detailed description.
-
-  \tparam kASpaceType No description.
-  \tparam Type No description.
-  */
-template <AddressSpaceType kASpaceType, typename Type>
-struct TypeCast<AddressSpacePointer<kASpaceType, Type>>
-{
-  using ASpacePointer = AddressSpacePointer<kASpaceType, Type>;
-
-  /*!
-    \details No detailed description
-
-    \tparam T No description.
-    \param [in] value No description.
-    \return No description
-    */
-  template <typename T>
-  static ASpacePointer cast(AddressSpacePointer<kASpaceType, T> value) noexcept
-  {
-    return reinterp(value);
-  }
-};
-
-/*!
   \brief Specialization of TypeReinterp
 
   No detailed description.
@@ -877,6 +851,20 @@ template <AddressSpaceType kASpaceType, typename Type>
 struct TypeReinterp<AddressSpacePointer<kASpaceType, Type>>
 {
   using ASpacePointer = AddressSpacePointer<kASpaceType, Type>;
+
+  /*!
+    \details No detailed description
+
+    \tparam T No description.
+    \param [in] object No description.
+    \return No description
+    */
+  template <zisc::Pointer T>
+  static ASpacePointer reinterp(T object) noexcept
+  {
+    auto* data = reinterpret_cast<typename ASpacePointer::Pointer>(object);
+    return ASpacePointer{data};
+  }
 
   /*!
     \details No detailed description
@@ -927,40 +915,8 @@ Type cast(T value) noexcept
 template <typename Type, typename T> inline
 Type reinterp(T object) noexcept
 {
-  return inner::TypeCast<RemoveVolatileT<Type>>::reinterp(object);
+  return inner::TypeReinterp<RemoveVolatileT<Type>>::reinterp(object);
 }
-
-#undef ZIVC_CAST_POINTER
-
-#if defined(ZIVC_CL_CPU)
-
-/*!
-  \def ZIVC_CAST_POINTER
-  \brief No brief description
-
-  No detailed description.
-
-  \param [in] type No description.
-  \param [in] ptr No description.
-  \return No description
-  */
-#define ZIVC_CAST_POINTER(type, ptr) zisc::bit_cast< type >( ptr )
-
-#else // vulkan case
-
-/*!
-  \def ZIVC_CAST_POINTER
-  \brief No brief description
-
-  No detailed description.
-
-  \param [in] type No description.
-  \param [in] ptr No description.
-  \return No description
-  */
-#define ZIVC_CAST_POINTER(type, ptr) reinterpret_cast< type >( ptr )
-
-#endif
 
 } // namespace zivc
 

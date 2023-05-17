@@ -64,7 +64,7 @@ TEST(KernelTest, KernelReinterpArrayTest)
   constexpr std::size_t data1_size = (sizeof(cl_int4) * 10) / sizeof(cl_uchar4);
   constexpr std::size_t data2_size = (sizeof(cl_int4) * 10) / sizeof(cl_ushort2);
   constexpr std::size_t data3_size = (sizeof(cl_int4) * 10) / sizeof(cl_short4);
-  constexpr std::size_t data4_size = (sizeof(cl_int4) * 10) / sizeof(cl_half2);
+  constexpr std::size_t data4_size = (sizeof(cl_int4) * 10) / sizeof(cl_half);
   constexpr std::size_t data5_size = (sizeof(cl_int4) * 10) / sizeof(float);
   constexpr std::size_t data6_size = (sizeof(cl_int4) * 10) / sizeof(cl_float2);
   constexpr std::size_t data7_size = (sizeof(cl_int4) * 10) / sizeof(cl_float4);
@@ -94,7 +94,7 @@ TEST(KernelTest, KernelReinterpArrayTest)
       address += (data3_size * sizeof(cl_short4)) / sizeof(cl_int4);
       header->setData4Size(data4_size);
       header->setData4Address(address);
-      address += (data4_size * sizeof(cl_half2)) / sizeof(cl_int4);
+      address += (data4_size * sizeof(cl_half)) / sizeof(cl_int4);
       header->setData5Size(data5_size);
       header->setData5Address(address);
       address += (data5_size * sizeof(float)) / sizeof(cl_int4);
@@ -131,12 +131,12 @@ TEST(KernelTest, KernelReinterpArrayTest)
         ptr[i] = value;
       }
     }
-    // half2
+    // half
     {
       auto ptr = Header::getData4(*header, mem.data());
       for (std::size_t i = 0; i < data4_size; ++i) {
         const auto v = static_cast<cl_half>(static_cast<float>(i));
-        const cl_half2 value{v};
+        const cl_half value{v};
         ptr[i] = value;
       }
     }
@@ -172,7 +172,8 @@ TEST(KernelTest, KernelReinterpArrayTest)
         value.value1_ = cl_int4{static_cast<int32b>(i)};
         value.value2_ = cl_float4{static_cast<float>(i)};
         value.value3_ = cl_ushort4{static_cast<uint16b>(i)};
-        value.value4_ = cl_half2{static_cast<cl_half>(static_cast<float>(i))};
+        value.value4_[0] = cl_half{static_cast<cl_half>(static_cast<float>(2 * i + 0))};
+        value.value4_[1] = cl_half{static_cast<cl_half>(static_cast<float>(2 * i + 1))};
         value.value5_ = cl_uchar4{static_cast<uint8b>(i)};
         ptr[i] = value;
       }
@@ -226,7 +227,7 @@ TEST(KernelTest, KernelReinterpArrayTest)
       address += (data3_size * sizeof(cl_short4)) / sizeof(cl_int4);
       ASSERT_EQ(data4_size, header->data4Size()) << "Header was corrupted.";
       ASSERT_EQ(address, header->data4Address()) << "Header was corrupted.";
-      address += (data4_size * sizeof(cl_half2)) / sizeof(cl_int4);
+      address += (data4_size * sizeof(cl_half)) / sizeof(cl_int4);
       ASSERT_EQ(data5_size, header->data5Size()) << "Header was corrupted.";
       ASSERT_EQ(address, header->data5Address()) << "Header was corrupted.";
       address += (data5_size * sizeof(float)) / sizeof(cl_int4);
@@ -274,10 +275,8 @@ TEST(KernelTest, KernelReinterpArrayTest)
     {
       const auto ptr = Header::getData4(*header, mem.data());
       for (std::size_t i = 0; i < data4_size; ++i) {
-        const cl_half2 value{static_cast<cl_half>(static_cast<float>(2 * i))};
-        ASSERT_FLOAT_EQ(static_cast<float>(value.x), static_cast<float>(ptr[i].x))
-            << "Data4 was corrupted.";
-        ASSERT_FLOAT_EQ(static_cast<float>(value.y), static_cast<float>(ptr[i].y))
+        const cl_half value{static_cast<cl_half>(static_cast<float>(2 * i))};
+        ASSERT_FLOAT_EQ(static_cast<float>(value), static_cast<float>(ptr[i]))
             << "Data4 was corrupted.";
       }
     }
@@ -317,8 +316,9 @@ TEST(KernelTest, KernelReinterpArrayTest)
         value.value1_ = cl_int4{static_cast<int32b>(2 * i)};
         value.value2_ = cl_float4{static_cast<float>(2 * i)};
         value.value3_ = cl_ushort4{static_cast<uint16b>(2 * i)};
-        value.value4_ = cl_half2{static_cast<cl_half>(static_cast<float>(2 * i))};
-        value.value5_ = cl_uchar4{static_cast<uint8b>(i)};
+        value.value4_[0] = cl_half{static_cast<cl_half>(static_cast<float>(2 * (2 * i + 0)))};
+        value.value4_[1] = cl_half{static_cast<cl_half>(static_cast<float>(2 * (2 * i + 1)))};
+        value.value5_ = cl_uchar4{static_cast<uint8b>(2 * i)};
 
         ASSERT_EQ(value.value1_.x, ptr[i].value1_.x) << "Data8 was corrupted.";
         ASSERT_EQ(value.value1_.y, ptr[i].value1_.y) << "Data8 was corrupted.";
@@ -335,10 +335,10 @@ TEST(KernelTest, KernelReinterpArrayTest)
         ASSERT_EQ(value.value3_.z, ptr[i].value3_.z) << "Data8 was corrupted.";
         ASSERT_EQ(value.value3_.w, ptr[i].value3_.w) << "Data8 was corrupted.";
 
-        ASSERT_FLOAT_EQ(static_cast<float>(value.value4_.x),
-                        static_cast<float>(ptr[i].value4_.x)) << "Data8 was corrupted.";
-        ASSERT_FLOAT_EQ(static_cast<float>(value.value4_.y),
-                        static_cast<float>(ptr[i].value4_.y)) << "Data8 was corrupted.";
+        ASSERT_FLOAT_EQ(static_cast<float>(value.value4_[0]),
+                        static_cast<float>(ptr[i].value4_[0])) << "Data8 was corrupted.";
+        ASSERT_FLOAT_EQ(static_cast<float>(value.value4_[1]),
+                        static_cast<float>(ptr[i].value4_[1])) << "Data8 was corrupted.";
 
         ASSERT_EQ(value.value5_.x, ptr[i].value5_.x) << "Data8 was corrupted.";
         ASSERT_EQ(value.value5_.y, ptr[i].value5_.y) << "Data8 was corrupted.";

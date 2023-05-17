@@ -994,9 +994,6 @@ Type cast(T value) noexcept;
 template <typename Type, typename T>
 Type reinterp(T object) noexcept;
 
-//! Convert an pointer type to another pointer type
-#define ZIVC_CAST_POINTER(type, ptr)
-
 } // namespace zivc
 
 #include "utility-inl.hpp"

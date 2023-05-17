@@ -253,7 +253,7 @@ struct AddressSpaceInfoHelper<AddressSpacePointer<kASpaceType, T>>
 template <typename T>
 struct AddressSpaceInfoHelper<Global<T>>
 {
-  using DataT = RemoveCvT<T>;
+  using DataT = RemoveAddressSpaceT<RemoveCvT<T>>;
   using Pointer = GlobalPtr<DataT>;
   using ConstPointer = ConstGlobalPtr<DataT>;
   template <typename Type>
@@ -266,31 +266,6 @@ struct AddressSpaceInfoHelper<Global<T>>
   static constexpr int32b kIsPrivate = kSFalse;
   static constexpr int32b kIsGeneric = kSFalse;
   static constexpr int32b kIsPointer = kSFalse;
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-
-  \tparam T No description.
-  */
-template <typename T>
-struct AddressSpaceInfoHelper<GlobalPtr<T>>
-{
-  using DataT = RemoveCvT<T>;
-  using Pointer = GlobalPtr<DataT>;
-  using ConstPointer = ConstGlobalPtr<DataT>;
-  template <typename Type>
-  using AddressSpacePointerT = GlobalPtr<Type>;
-  template <typename Type>
-  using ConstAddressSpacePointerT = ConstGlobalPtr<Type>;
-  static constexpr int32b kIsGlobal = kSTrue;
-  static constexpr int32b kIsLocal = kSFalse;
-  static constexpr int32b kIsConstant = kSFalse;
-  static constexpr int32b kIsPrivate = kSFalse;
-  static constexpr int32b kIsGeneric = kSFalse;
-  static constexpr int32b kIsPointer = kSTrue;
 };
 
 /*!
@@ -303,7 +278,7 @@ struct AddressSpaceInfoHelper<GlobalPtr<T>>
 template <typename T>
 struct AddressSpaceInfoHelper<Local<T>>
 {
-  using DataT = RemoveCvT<T>;
+  using DataT = RemoveAddressSpaceT<RemoveCvT<T>>;
   using Pointer = LocalPtr<DataT>;
   using ConstPointer = ConstLocalPtr<DataT>;
   template <typename Type>
@@ -316,31 +291,6 @@ struct AddressSpaceInfoHelper<Local<T>>
   static constexpr int32b kIsPrivate = kSFalse;
   static constexpr int32b kIsGeneric = kSFalse;
   static constexpr int32b kIsPointer = kSFalse;
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-
-  \tparam T No description.
-  */
-template <typename T>
-struct AddressSpaceInfoHelper<LocalPtr<T>>
-{
-  using DataT = RemoveCvT<T>;
-  using Pointer = LocalPtr<DataT>;
-  using ConstPointer = ConstLocalPtr<DataT>;
-  template <typename Type>
-  using AddressSpacePointerT = LocalPtr<Type>;
-  template <typename Type>
-  using ConstAddressSpacePointerT = ConstLocalPtr<Type>;
-  static constexpr int32b kIsGlobal = kSFalse;
-  static constexpr int32b kIsLocal = kSTrue;
-  static constexpr int32b kIsConstant = kSFalse;
-  static constexpr int32b kIsPrivate = kSFalse;
-  static constexpr int32b kIsGeneric = kSFalse;
-  static constexpr int32b kIsPointer = kSTrue;
 };
 
 /*!
@@ -353,7 +303,7 @@ struct AddressSpaceInfoHelper<LocalPtr<T>>
 template <typename T>
 struct AddressSpaceInfoHelper<Constant<T>>
 {
-  using DataT = RemoveCvT<T>;
+  using DataT = RemoveAddressSpaceT<RemoveCvT<T>>;
   using Pointer = ConstantPtr<DataT>;
   using ConstPointer = ConstConstantPtr<DataT>;
   template <typename Type>
@@ -366,31 +316,6 @@ struct AddressSpaceInfoHelper<Constant<T>>
   static constexpr int32b kIsPrivate = kSFalse;
   static constexpr int32b kIsGeneric = kSFalse;
   static constexpr int32b kIsPointer = kSFalse;
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-
-  \tparam T No description.
-  */
-template <typename T>
-struct AddressSpaceInfoHelper<ConstantPtr<T>>
-{
-  using DataT = RemoveCvT<T>;
-  using Pointer = ConstantPtr<DataT>;
-  using ConstPointer = ConstConstantPtr<DataT>;
-  template <typename Type>
-  using AddressSpacePointerT = ConstantPtr<Type>;
-  template <typename Type>
-  using ConstAddressSpacePointerT = ConstConstantPtr<Type>;
-  static constexpr int32b kIsGlobal = kSFalse;
-  static constexpr int32b kIsLocal = kSFalse;
-  static constexpr int32b kIsConstant = kSTrue;
-  static constexpr int32b kIsPrivate = kSFalse;
-  static constexpr int32b kIsGeneric = kSFalse;
-  static constexpr int32b kIsPointer = kSTrue;
 };
 
 /*!
@@ -403,7 +328,7 @@ struct AddressSpaceInfoHelper<ConstantPtr<T>>
 template <typename T>
 struct AddressSpaceInfoHelper<Private<T>>
 {
-  using DataT = RemoveCvT<T>;
+  using DataT = RemoveAddressSpaceT<RemoveCvT<T>>;
   using Pointer = PrivatePtr<DataT>;
   using ConstPointer = ConstPrivatePtr<DataT>;
   template <typename Type>
@@ -416,31 +341,6 @@ struct AddressSpaceInfoHelper<Private<T>>
   static constexpr int32b kIsPrivate = kSTrue;
   static constexpr int32b kIsGeneric = kSFalse;
   static constexpr int32b kIsPointer = kSFalse;
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-
-  \tparam T No description.
-  */
-template <typename T>
-struct AddressSpaceInfoHelper<PrivatePtr<T>>
-{
-  using DataT = RemoveCvT<T>;
-  using Pointer = PrivatePtr<DataT>;
-  using ConstPointer = ConstPrivatePtr<DataT>;
-  template <typename Type>
-  using AddressSpacePointerT = PrivatePtr<Type>;
-  template <typename Type>
-  using ConstAddressSpacePointerT = ConstPrivatePtr<Type>;
-  static constexpr int32b kIsGlobal = kSFalse;
-  static constexpr int32b kIsLocal = kSFalse;
-  static constexpr int32b kIsConstant = kSFalse;
-  static constexpr int32b kIsPrivate = kSTrue;
-  static constexpr int32b kIsGeneric = kSFalse;
-  static constexpr int32b kIsPointer = kSTrue;
 };
 
 /*!
@@ -453,7 +353,7 @@ struct AddressSpaceInfoHelper<PrivatePtr<T>>
 template <typename T>
 struct AddressSpaceInfoHelper<Generic<T>>
 {
-  using DataT = RemoveCvT<T>;
+  using DataT = RemoveAddressSpaceT<RemoveCvT<T>>;
   using Pointer = GenericPtr<DataT>;
   using ConstPointer = ConstGenericPtr<DataT>;
   template <typename Type>
@@ -466,31 +366,6 @@ struct AddressSpaceInfoHelper<Generic<T>>
   static constexpr int32b kIsPrivate = kSFalse;
   static constexpr int32b kIsGeneric = kSTrue;;
   static constexpr int32b kIsPointer = kSFalse;
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-
-  \tparam T No description.
-  */
-template <typename T>
-struct AddressSpaceInfoHelper<GenericPtr<T>>
-{
-  using DataT = RemoveCvT<T>;
-  using Pointer = GenericPtr<DataT>;
-  using ConstPointer = ConstGenericPtr<DataT>;
-  template <typename Type>
-  using AddressSpacePointerT = GenericPtr<Type>;
-  template <typename Type>
-  using ConstAddressSpacePointerT = ConstGenericPtr<Type>;
-  static constexpr int32b kIsGlobal = kSFalse;
-  static constexpr int32b kIsLocal = kSFalse;
-  static constexpr int32b kIsConstant = kSFalse;
-  static constexpr int32b kIsPrivate = kSFalse;
-  static constexpr int32b kIsGeneric = kSTrue;;
-  static constexpr int32b kIsPointer = kSTrue;
 };
 
 #endif // ZIVC_CL_CPU
@@ -1384,6 +1259,8 @@ struct TypeIdentity
   using Type = T;
 };
 
+#if defined(ZIVC_CL_CPU)
+
 /*!
   \brief Provide the Type which is the same as T, except that its address space qualifier is removed
 
@@ -1396,8 +1273,6 @@ struct RemoveAddressSpace
 {
   using Type = T;
 };
-
-#if defined(ZIVC_CL_CPU)
 
 /*!
   \brief No brief description
@@ -1416,367 +1291,16 @@ struct RemoveAddressSpace<AddressSpacePointer<kASpaceType, T>>
 #else // vulkan
 
 /*!
-  \brief No brief description
+  \brief Provide the Type which is the same as T, except that its address space qualifier is removed
 
   No detailed description.
 
   \tparam T No description.
   */
 template <typename T>
-struct RemoveAddressSpace<Global<T>>
+struct RemoveAddressSpace
 {
-  using Type = T;
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-
-  \tparam T No description.
-  */
-template <typename T>
-struct RemoveAddressSpace<Global<T>&>
-{
-  using Type = AddLValueReferenceT<T>;
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-
-  \tparam T No description.
-  */
-template <typename T>
-struct RemoveAddressSpace<ConstGlobal<T>>
-{
-  using Type = AddConstT<T>;
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-
-  \tparam T No description.
-  */
-template <typename T>
-struct RemoveAddressSpace<ConstGlobal<T>&>
-{
-  using Type = AddLValueReferenceT<AddConstT<T>>;
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-
-  \tparam T No description.
-  */
-template <typename T>
-struct RemoveAddressSpace<GlobalPtr<T>>
-{
-  using Type = AddPointerT<T>;
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-
-  \tparam T No description.
-  */
-template <typename T>
-struct RemoveAddressSpace<ConstGlobalPtr<T>>
-{
-  using Type = AddPointerT<AddConstT<T>>;
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-
-  \tparam T No description.
-  */
-template <typename T>
-struct RemoveAddressSpace<Local<T>>
-{
-  using Type = T;
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-
-  \tparam T No description.
-  */
-template <typename T>
-struct RemoveAddressSpace<Local<T>&>
-{
-  using Type = AddLValueReferenceT<T>;
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-
-  \tparam T No description.
-  */
-template <typename T>
-struct RemoveAddressSpace<ConstLocal<T>>
-{
-  using Type = AddConstT<T>;
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-
-  \tparam T No description.
-  */
-template <typename T>
-struct RemoveAddressSpace<ConstLocal<T>&>
-{
-  using Type = AddLValueReferenceT<AddConstT<T>>;
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-
-  \tparam T No description.
-  */
-template <typename T>
-struct RemoveAddressSpace<LocalPtr<T>>
-{
-  using Type = AddPointerT<T>;
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-
-  \tparam T No description.
-  */
-template <typename T>
-struct RemoveAddressSpace<ConstLocalPtr<T>>
-{
-  using Type = AddPointerT<AddConstT<T>>;
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-
-  \tparam T No description.
-  */
-template <typename T>
-struct RemoveAddressSpace<Constant<T>>
-{
-  using Type = T;
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-
-  \tparam T No description.
-  */
-template <typename T>
-struct RemoveAddressSpace<Constant<T>&>
-{
-  using Type = AddLValueReferenceT<T>;
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-
-  \tparam T No description.
-  */
-template <typename T>
-struct RemoveAddressSpace<ConstantPtr<T>>
-{
-  using Type = AddPointerT<T>;
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-
-  \tparam T No description.
-  */
-template <typename T>
-struct RemoveAddressSpace<ConstConstantPtr<T>>
-{
-  using Type = AddPointerT<AddConstT<T>>;
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-
-  \tparam T No description.
-  */
-template <typename T>
-struct RemoveAddressSpace<Private<T>>
-{
-  using Type = T;
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-
-  \tparam T No description.
-  */
-template <typename T>
-struct RemoveAddressSpace<Private<T>&>
-{
-  using Type = AddLValueReferenceT<T>;
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-
-  \tparam T No description.
-  */
-template <typename T>
-struct RemoveAddressSpace<ConstPrivate<T>>
-{
-  using Type = AddConstT<T>;
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-
-  \tparam T No description.
-  */
-template <typename T>
-struct RemoveAddressSpace<ConstPrivate<T>&>
-{
-  using Type = AddLValueReference<AddConstT<T>>;
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-
-  \tparam T No description.
-  */
-template <typename T>
-struct RemoveAddressSpace<PrivatePtr<T>>
-{
-  using Type = AddPointerT<T>;
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-
-  \tparam T No description.
-  */
-template <typename T>
-struct RemoveAddressSpace<ConstPrivatePtr<T>>
-{
-  using Type = AddPointerT<AddConstT<T>>;
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-
-  \tparam T No description.
-  */
-template <typename T>
-struct RemoveAddressSpace<Generic<T>>
-{
-  using Type = T;
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-
-  \tparam T No description.
-  */
-template <typename T>
-struct RemoveAddressSpace<Generic<T>&>
-{
-  using Type = AddLValueReference<T>;
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-
-  \tparam T No description.
-  */
-template <typename T>
-struct RemoveAddressSpace<ConstGeneric<T>>
-{
-  using Type = AddConstT<T>;
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-
-  \tparam T No description.
-  */
-template <typename T>
-struct RemoveAddressSpace<ConstGeneric<T>&>
-{
-  using Type = AddLValueReferenceT<AddConstT<T>>;
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-
-  \tparam T No description.
-  */
-template <typename T>
-struct RemoveAddressSpace<GenericPtr<T>>
-{
-  using Type = AddPointerT<T>;
-};
-
-/*!
-  \brief No brief description
-
-  No detailed description.
-
-  \tparam T No description.
-  */
-template <typename T>
-struct RemoveAddressSpace<ConstGenericPtr<T>>
-{
-  using Type = AddPointerT<AddConstT<T>>;
+  using Type = __remove_address_space<T>::type;
 };
 
 #endif // ZIVC_CL_CPU

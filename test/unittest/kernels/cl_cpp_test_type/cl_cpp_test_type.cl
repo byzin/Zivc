@@ -18,6 +18,7 @@
 // Zivc
 #include "zivc/cl/bit.hpp"
 #include "zivc/cl/boolean.hpp"
+#include "zivc/cl/functional.hpp"
 #include "zivc/cl/types.hpp"
 #include "zivc/cl/type_traits.hpp"
 #include "zivc/cl/utility.hpp"
@@ -592,13 +593,13 @@ __kernel void vectorArithmeticOperatorTest(
   ++oindex;
   // Unary minus
   {
-    out_int2[oindex] = -in_int2[iindex];
+    out_int2[oindex] = zivc::Negate<int2>{}(in_int2[iindex]);
   }
   {
-    out_int3[oindex] = -in_int3[iindex];
+    out_int3[oindex] = zivc::Negate<int3>{}(in_int3[iindex]);
   }
   {
-    out_int4[oindex] = -in_int4[iindex];
+    out_int4[oindex] = zivc::Negate<int4>{}(in_int4[iindex]);
   }
   {
     out_float2[oindex] = -in_float2[iindex];
@@ -614,21 +615,21 @@ __kernel void vectorArithmeticOperatorTest(
   {
     const int2 v0 = in_int2[iindex];
     const int2 v1 = in_int2[iindex + 1];
-    out_int2[oindex] = v0 + v1;
+    out_int2[oindex] = zivc::Plus<int2>{}(v0, v1);
     out_int2[oindex + 1] = v0.x + v1;
     out_int2[oindex + 2] = v0 + v1.x;
   }
   {
     const int3 v0 = in_int3[iindex];
     const int3 v1 = in_int3[iindex + 1];
-    out_int3[oindex] = v0 + v1;
+    out_int3[oindex] = zivc::Plus<int3>{}(v0, v1);
     out_int3[oindex + 1] = v0.x + v1;
     out_int3[oindex + 2] = v0 + v1.x;
   }
   {
     const int4 v0 = in_int4[iindex];
     const int4 v1 = in_int4[iindex + 1];
-    out_int4[oindex] = v0 + v1;
+    out_int4[oindex] = zivc::Plus<int4>{}(v0, v1);
     out_int4[oindex + 1] = v0.x + v1;
     out_int4[oindex + 2] = v0 + v1.x;
   }
@@ -658,21 +659,21 @@ __kernel void vectorArithmeticOperatorTest(
   {
     const int2 v0 = in_int2[iindex];
     const int2 v1 = in_int2[iindex + 1];
-    out_int2[oindex] = v0 - v1;
+    out_int2[oindex] = zivc::Minus<int2>{}(v0, v1);
     out_int2[oindex + 1] = v0.x - v1;
     out_int2[oindex + 2] = v0 - v1.x;
   }
   {
     const int3 v0 = in_int3[iindex];
     const int3 v1 = in_int3[iindex + 1];
-    out_int3[oindex] = v0 - v1;
+    out_int3[oindex] = zivc::Minus<int3>{}(v0, v1);
     out_int3[oindex + 1] = v0.x - v1;
     out_int3[oindex + 2] = v0 - v1.x;
   }
   {
     const int4 v0 = in_int4[iindex];
     const int4 v1 = in_int4[iindex + 1];
-    out_int4[oindex] = v0 - v1;
+    out_int4[oindex] = zivc::Minus<int4>{}(v0, v1);
     out_int4[oindex + 1] = v0.x - v1;
     out_int4[oindex + 2] = v0 - v1.x;
   }
@@ -702,21 +703,21 @@ __kernel void vectorArithmeticOperatorTest(
   {
     const int2 v0 = in_int2[iindex];
     const int2 v1 = in_int2[iindex + 1];
-    out_int2[oindex] = v0 * v1;
+    out_int2[oindex] = zivc::Multiply<int2>{}(v0, v1);
     out_int2[oindex + 1] = v0.x * v1;
     out_int2[oindex + 2] = v0 * v1.x;
   }
   {
     const int3 v0 = in_int3[iindex];
     const int3 v1 = in_int3[iindex + 1];
-    out_int3[oindex] = v0 * v1;
+    out_int3[oindex] = zivc::Multiply<int3>{}(v0, v1);
     out_int3[oindex + 1] = v0.x * v1;
     out_int3[oindex + 2] = v0 * v1.x;
   }
   {
     const int4 v0 = in_int4[iindex];
     const int4 v1 = in_int4[iindex + 1];
-    out_int4[oindex] = v0 * v1;
+    out_int4[oindex] = zivc::Multiply<int4>{}(v0, v1);
     out_int4[oindex + 1] = v0.x * v1;
     out_int4[oindex + 2] = v0 * v1.x;
   }
@@ -746,21 +747,21 @@ __kernel void vectorArithmeticOperatorTest(
   {
     const int2 v0 = in_int2[iindex];
     const int2 v1 = in_int2[iindex + 1];
-    out_int2[oindex] = v0 / v1;
+    out_int2[oindex] = zivc::Divide<int2>{}(v0, v1);
     out_int2[oindex + 1] = v0.x / v1;
     out_int2[oindex + 2] = v0 / v1.x;
   }
   {
     const int3 v0 = in_int3[iindex];
     const int3 v1 = in_int3[iindex + 1];
-    out_int3[oindex] = v0 / v1;
+    out_int3[oindex] = zivc::Divide<int3>{}(v0, v1);
     out_int3[oindex + 1] = v0.x / v1;
     out_int3[oindex + 2] = v0 / v1.x;
   }
   {
     const int4 v0 = in_int4[iindex];
     const int4 v1 = in_int4[iindex + 1];
-    out_int4[oindex] = v0 / v1;
+    out_int4[oindex] = zivc::Divide<int4>{}(v0, v1);
     out_int4[oindex + 1] = v0.x / v1;
     out_int4[oindex + 2] = v0 / v1.x;
   }
@@ -791,21 +792,21 @@ __kernel void vectorArithmeticOperatorTest(
   {
     const int2 v0 = in_int2[iindex];
     const int2 v1 = in_int2[iindex + 1];
-    out_int2[oindex] = v0 % v1;
+    out_int2[oindex] = zivc::Modulu<int2>{}(v0, v1);
     out_int2[oindex + 1] = v0.x % v1;
     out_int2[oindex + 2] = v0 % v1.x;
   }
   {
     const int3 v0 = in_int3[iindex];
     const int3 v1 = in_int3[iindex + 1];
-    out_int3[oindex] = v0 % v1;
+    out_int3[oindex] = zivc::Modulu<int3>{}(v0, v1);
     out_int3[oindex + 1] = v0.x % v1;
     out_int3[oindex + 2] = v0 % v1.x;
   }
   {
     const int4 v0 = in_int4[iindex];
     const int4 v1 = in_int4[iindex + 1];
-    out_int4[oindex] = v0 % v1;
+    out_int4[oindex] = zivc::Modulu<int4>{}(v0, v1);
     out_int4[oindex + 1] = v0.x % v1;
     out_int4[oindex + 2] = v0 % v1.x;
   }
@@ -821,13 +822,13 @@ __kernel void vectorArithmeticOperatorTest(
   {
     constexpr float4 v0 = zivc::makeFloat4(0.0f, 1.0f, 2.0f, 3.0f);
     constexpr float4 v1 = zivc::makeFloat4(4.0f, 5.0f, 6.0f, 7.0f);
-    constexpr float4 r0 = v0 + v1;
+    constexpr float4 r0 = zivc::Plus<float4>{}(v0, v1);
     out_float4[oindex++] = r0;
-    constexpr float4 r1 = v0 - v1;
+    constexpr float4 r1 = zivc::Minus<float4>{}(v0, v1);
     out_float4[oindex++] = r1;
-    constexpr float4 r2 = v0 * v1;
+    constexpr float4 r2 = zivc::Multiply<float4>{}(v0, v1);
     out_float4[oindex++] = r2;
-    constexpr float4 r3 = v0 / v1;
+    constexpr float4 r3 = zivc::Divide<float4>{}(v0, v1);
     out_float4[oindex++] = r3;
   }
 }
@@ -868,10 +869,10 @@ __kernel void vectorArithmeticOperatorLongVecTest(
   ++oindex;
   // Unary minus
   {
-    out_int8[oindex] = -in_int8[iindex];
+    out_int8[oindex] = zivc::Negate<int8>{}(in_int8[iindex]);
   }
   {
-    out_int16[oindex] = -in_int16[iindex];
+    out_int16[oindex] = zivc::Negate<int16>{}(in_int16[iindex]);
   }
   {
     out_float8[oindex] = -in_float8[iindex];
@@ -884,14 +885,14 @@ __kernel void vectorArithmeticOperatorLongVecTest(
   {
     const int8 v0 = in_int8[iindex];
     const int8 v1 = in_int8[iindex + 1];
-    out_int8[oindex] = v0 + v1;
+    out_int8[oindex] = zivc::Plus<int8>{}(v0, v1);
     out_int8[oindex + 1] = v0.s0 + v1;
     out_int8[oindex + 2] = v0 + v1.s0;
   }
   {
     const int16 v0 = in_int16[iindex];
     const int16 v1 = in_int16[iindex + 1];
-    out_int16[oindex] = v0 + v1;
+    out_int16[oindex] = zivc::Plus<int16>{}(v0, v1);
     out_int16[oindex + 1] = v0.s0 + v1;
     out_int16[oindex + 2] = v0 + v1.s0;
   }
@@ -914,14 +915,14 @@ __kernel void vectorArithmeticOperatorLongVecTest(
   {
     const int8 v0 = in_int8[iindex];
     const int8 v1 = in_int8[iindex + 1];
-    out_int8[oindex] = v0 - v1;
+    out_int8[oindex] = zivc::Minus<int8>{}(v0, v1);
     out_int8[oindex + 1] = v0.s0 - v1;
     out_int8[oindex + 2] = v0 - v1.s0;
   }
   {
     const int16 v0 = in_int16[iindex];
     const int16 v1 = in_int16[iindex + 1];
-    out_int16[oindex] = v0 - v1;
+    out_int16[oindex] = zivc::Minus<int16>{}(v0, v1);
     out_int16[oindex + 1] = v0.s0 - v1;
     out_int16[oindex + 2] = v0 - v1.s0;
   }
@@ -944,14 +945,14 @@ __kernel void vectorArithmeticOperatorLongVecTest(
   {
     const int8 v0 = in_int8[iindex];
     const int8 v1 = in_int8[iindex + 1];
-    out_int8[oindex] = v0 * v1;
+    out_int8[oindex] = zivc::Multiply<int8>{}(v0, v1);
     out_int8[oindex + 1] = v0.s0 * v1;
     out_int8[oindex + 2] = v0 * v1.s0;
   }
   {
     const int16 v0 = in_int16[iindex];
     const int16 v1 = in_int16[iindex + 1];
-    out_int16[oindex] = v0 * v1;
+    out_int16[oindex] = zivc::Multiply<int16>{}(v0, v1);
     out_int16[oindex + 1] = v0.s0 * v1;
     out_int16[oindex + 2] = v0 * v1.s0;
   }
@@ -974,14 +975,14 @@ __kernel void vectorArithmeticOperatorLongVecTest(
   {
     const int8 v0 = in_int8[iindex];
     const int8 v1 = in_int8[iindex + 1];
-    out_int8[oindex] = v0 / v1;
+    out_int8[oindex] = zivc::Divide<int8>{}(v0, v1);
     out_int8[oindex + 1] = v0.s0 / v1;
     out_int8[oindex + 2] = v0 / v1.s0;
   }
   {
     const int16 v0 = in_int16[iindex];
     const int16 v1 = in_int16[iindex + 1];
-    out_int16[oindex] = v0 / v1;
+    out_int16[oindex] = zivc::Divide<int16>{}(v0, v1);
     out_int16[oindex + 1] = v0.s0 / v1;
     out_int16[oindex + 2] = v0 / v1.s0;
   }
@@ -1005,14 +1006,14 @@ __kernel void vectorArithmeticOperatorLongVecTest(
   {
     const int8 v0 = in_int8[iindex];
     const int8 v1 = in_int8[iindex + 1];
-    out_int8[oindex] = v0 % v1;
+    out_int8[oindex] = zivc::Modulu<int8>{}(v0, v1);
     out_int8[oindex + 1] = v0.s0 % v1;
     out_int8[oindex + 2] = v0 % v1.s0;
   }
   {
     const int16 v0 = in_int16[iindex];
     const int16 v1 = in_int16[iindex + 1];
-    out_int16[oindex] = v0 % v1;
+    out_int16[oindex] = zivc::Modulu<int16>{}(v0, v1);
     out_int16[oindex + 1] = v0.s0 % v1;
     out_int16[oindex + 2] = v0 % v1.s0;
   }
@@ -1028,13 +1029,13 @@ __kernel void vectorArithmeticOperatorLongVecTest(
   {
     constexpr float8 v0 = zivc::makeFloat8(0.0f, 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f);
     constexpr float8 v1 = zivc::makeFloat8(8.0f, 9.0f, 10.0f, 11.0f, 12.0f, 13.0f, 14.0f, 15.0f);
-    constexpr float8 r0 = v0 + v1;
+    constexpr float8 r0 = zivc::Plus<float8>{}(v0, v1);
     out_float8[oindex++] = r0;
-    constexpr float8 r1 = v0 - v1;
+    constexpr float8 r1 = zivc::Minus<float8>{}(v0, v1);
     out_float8[oindex++] = r1;
-    constexpr float8 r2 = v0 * v1;
+    constexpr float8 r2 = zivc::Multiply<float8>{}(v0, v1);
     out_float8[oindex++] = r2;
-    constexpr float8 r3 = v0 / v1;
+    constexpr float8 r3 = zivc::Divide<float8>{}(v0, v1);
     out_float8[oindex++] = r3;
   }
 }
@@ -1400,36 +1401,36 @@ __kernel void vectorBitwiseOperatorTest(
   // bitwise NOT
   {
     const uint2 v = in_uint2[iindex + 1];
-    out_uint2[oindex] = ~v;
+    out_uint2[oindex] = zivc::BitNot<uint2>{}(v);
   }
   {
     const uint3 v = in_uint3[iindex + 1];
-    out_uint3[oindex] = ~v;
+    out_uint3[oindex] = zivc::BitNot<uint3>{}(v);
   }
   {
     const uint4 v = in_uint4[iindex + 1];
-    out_uint4[oindex] = ~v;
+    out_uint4[oindex] = zivc::BitNot<uint4>{}(v);
   }
   ++oindex;
   // bitwise AND
   {
     const uint2 v0 = in_uint2[iindex];
     const uint2 v1 = in_uint2[iindex + 1];
-    out_uint2[oindex] = v0 & v1;
+    out_uint2[oindex] = zivc::BitAnd<uint2>{}(v0, v1);
     out_uint2[oindex + 1] = v0.x & v1;
     out_uint2[oindex + 2] = v0 & v1.x;
   }
   {
     const uint3 v0 = in_uint3[iindex];
     const uint3 v1 = in_uint3[iindex + 1];
-    out_uint3[oindex] = v0 & v1;
+    out_uint3[oindex] = zivc::BitAnd<uint3>{}(v0, v1);
     out_uint3[oindex + 1] = v0.x & v1;
     out_uint3[oindex + 2] = v0 & v1.x;
   }
   {
     const uint4 v0 = in_uint4[iindex];
     const uint4 v1 = in_uint4[iindex + 1];
-    out_uint4[oindex] = v0 & v1;
+    out_uint4[oindex] = zivc::BitAnd<uint4>{}(v0, v1);
     out_uint4[oindex + 1] = v0.x & v1;
     out_uint4[oindex + 2] = v0 & v1.x;
   }
@@ -1439,21 +1440,21 @@ __kernel void vectorBitwiseOperatorTest(
   {
     const uint2 v0 = in_uint2[iindex];
     const uint2 v1 = in_uint2[iindex + 1];
-    out_uint2[oindex] = v0 | v1;
+    out_uint2[oindex] = zivc::BitOr<uint2>{}(v0, v1);
     out_uint2[oindex + 1] = v0.x | v1;
     out_uint2[oindex + 2] = v0 | v1.x;
   }
   {
     const uint3 v0 = in_uint3[iindex];
     const uint3 v1 = in_uint3[iindex + 1];
-    out_uint3[oindex] = v0 | v1;
+    out_uint3[oindex] = zivc::BitOr<uint3>{}(v0, v1);
     out_uint3[oindex + 1] = v0.x | v1;
     out_uint3[oindex + 2] = v0 | v1.x;
   }
   {
     const uint4 v0 = in_uint4[iindex];
     const uint4 v1 = in_uint4[iindex + 1];
-    out_uint4[oindex] = v0 | v1;
+    out_uint4[oindex] = zivc::BitOr<uint4>{}(v0, v1);
     out_uint4[oindex + 1] = v0.x | v1;
     out_uint4[oindex + 2] = v0 | v1.x;
   }
@@ -1462,21 +1463,21 @@ __kernel void vectorBitwiseOperatorTest(
   {
     const uint2 v0 = in_uint2[iindex];
     const uint2 v1 = in_uint2[iindex + 1];
-    out_uint2[oindex] = v0 ^ v1;
+    out_uint2[oindex] = zivc::BitXor<uint2>{}(v0, v1);
     out_uint2[oindex + 1] = v0.x ^ v1;
     out_uint2[oindex + 2] = v0 ^ v1.x;
   }
   {
     const uint3 v0 = in_uint3[iindex];
     const uint3 v1 = in_uint3[iindex + 1];
-    out_uint3[oindex] = v0 ^ v1;
+    out_uint3[oindex] = zivc::BitXor<uint3>{}(v0, v1);
     out_uint3[oindex + 1] = v0.x ^ v1;
     out_uint3[oindex + 2] = v0 ^ v1.x;
   }
   {
     const uint4 v0 = in_uint4[iindex];
     const uint4 v1 = in_uint4[iindex + 1];
-    out_uint4[oindex] = v0 ^ v1;
+    out_uint4[oindex] = zivc::BitXor<uint4>{}(v0, v1);
     out_uint4[oindex + 1] = v0.x ^ v1;
     out_uint4[oindex + 2] = v0 ^ v1.x;
   }
@@ -1527,13 +1528,13 @@ __kernel void vectorBitwiseOperatorTest(
   {
     constexpr uint2 v0 = zivc::makeUInt2(1, 2);
     constexpr uint2 v1 = zivc::makeUInt2(3, 3);
-    constexpr uint2 r0 = ~v0;
+    constexpr uint2 r0 = zivc::BitNot<uint2>{}(v0);
     out_uint2[oindex++] = r0;
-    constexpr uint2 r1 = v0 & v1;
+    constexpr uint2 r1 = zivc::BitAnd<uint2>{}(v0, v1);
     out_uint2[oindex++] = r1;
-    constexpr uint2 r2 = v0 | v1;
+    constexpr uint2 r2 = zivc::BitOr<uint2>{}(v0, v1);
     out_uint2[oindex++] = r2;
-    constexpr uint2 r3 = v0 ^ v1;
+    constexpr uint2 r3 = zivc::BitXor<uint2>{}(v0, v1);
     out_uint2[oindex++] = r3;
     constexpr uint2 r4 = v0 << v1;
     out_uint2[oindex++] = r4;
@@ -1557,25 +1558,25 @@ __kernel void vectorBitwiseOperatorLongVecTest(
   // bitwise NOT
   {
     const uint8 v = in_uint8[iindex + 1];
-    out_uint8[oindex] = ~v;
+    out_uint8[oindex] = zivc::BitNot<uint8>{}(v);
   }
   {
     const uint16 v = in_uint16[iindex + 1];
-    out_uint16[oindex] = ~v;
+    out_uint16[oindex] = zivc::BitNot<uint16>{}(v);
   }
   ++oindex;
   // bitwise AND
   {
     const uint8 v0 = in_uint8[iindex];
     const uint8 v1 = in_uint8[iindex + 1];
-    out_uint8[oindex] = v0 & v1;
+    out_uint8[oindex] = zivc::BitAnd<uint8>{}(v0, v1);
     out_uint8[oindex + 1] = v0.s0 & v1;
     out_uint8[oindex + 2] = v0 & v1.s0;
   }
   {
     const uint16 v0 = in_uint16[iindex];
     const uint16 v1 = in_uint16[iindex + 1];
-    out_uint16[oindex] = v0 & v1;
+    out_uint16[oindex] = zivc::BitAnd<uint16>{}(v0, v1);
     out_uint16[oindex + 1] = v0.s0 & v1;
     out_uint16[oindex + 2] = v0 & v1.s0;
   }
@@ -1585,14 +1586,14 @@ __kernel void vectorBitwiseOperatorLongVecTest(
   {
     const uint8 v0 = in_uint8[iindex];
     const uint8 v1 = in_uint8[iindex + 1];
-    out_uint8[oindex] = v0 | v1;
+    out_uint8[oindex] = zivc::BitOr<uint8>{}(v0, v1);
     out_uint8[oindex + 1] = v0.s0 | v1;
     out_uint8[oindex + 2] = v0 | v1.s0;
   }
   {
     const uint16 v0 = in_uint16[iindex];
     const uint16 v1 = in_uint16[iindex + 1];
-    out_uint16[oindex] = v0 | v1;
+    out_uint16[oindex] = zivc::BitOr<uint16>{}(v0, v1);
     out_uint16[oindex + 1] = v0.s0 | v1;
     out_uint16[oindex + 2] = v0 | v1.s0;
   }
@@ -1601,14 +1602,14 @@ __kernel void vectorBitwiseOperatorLongVecTest(
   {
     const uint8 v0 = in_uint8[iindex];
     const uint8 v1 = in_uint8[iindex + 1];
-    out_uint8[oindex] = v0 ^ v1;
+    out_uint8[oindex] = zivc::BitXor<uint8>{}(v0, v1);
     out_uint8[oindex + 1] = v0.s0 ^ v1;
     out_uint8[oindex + 2] = v0 ^ v1.s0;
   }
   {
     const uint16 v0 = in_uint16[iindex];
     const uint16 v1 = in_uint16[iindex + 1];
-    out_uint16[oindex] = v0 ^ v1;
+    out_uint16[oindex] = zivc::BitXor<uint16>{}(v0, v1);
     out_uint16[oindex + 1] = v0.s0 ^ v1;
     out_uint16[oindex + 2] = v0 ^ v1.s0;
   }
@@ -1647,13 +1648,13 @@ __kernel void vectorBitwiseOperatorLongVecTest(
   {
     constexpr uint8 v0 = zivc::makeUInt8(1, 2, 3, 4, 5, 6, 7, 8);
     constexpr uint8 v1 = zivc::makeUInt8(3);
-    constexpr uint8 r0 = ~v0;
+    constexpr uint8 r0 = zivc::BitNot<uint8>{}(v0);
     out_uint8[oindex++] = r0;
-    constexpr uint8 r1 = v0 & v1;
+    constexpr uint8 r1 = zivc::BitAnd<uint8>{}(v0, v1);
     out_uint8[oindex++] = r1;
-    constexpr uint8 r2 = v0 | v1;
+    constexpr uint8 r2 = zivc::BitOr<uint8>{}(v0, v1);
     out_uint8[oindex++] = r2;
-    constexpr uint8 r3 = v0 ^ v1;
+    constexpr uint8 r3 = zivc::BitXor<uint8>{}(v0, v1);
     out_uint8[oindex++] = r3;
     constexpr uint8 r4 = v0 << v1;
     out_uint8[oindex++] = r4;
@@ -2160,22 +2161,22 @@ __kernel void vectorComparisonOperatorTest(zivc::ConstGlobalPtr<int4> in_int4,
   {
     constexpr int4 v0 = zivc::makeInt4(0, 1, 2, 3);
     constexpr int4 v1 = zivc::makeInt4(0, 1, 5, 1);
-    constexpr auto r0 = v0 == v1;
+    constexpr auto r0 = zivc::EqualTo<void>{}(v0, v1);
     test::setBoolResult(r0, out + oindex);
     oindex += 4;
-    constexpr auto r1 = v0 != v1;
+    constexpr auto r1 = zivc::NotEqualTo<void>{}(v0, v1);
     test::setBoolResult(r1, out + oindex);
     oindex += 4;
-    constexpr auto r2 = v0 < v1;
+    constexpr auto r2 = zivc::Less<void>{}(v0, v1);
     test::setBoolResult(r2, out + oindex);
     oindex += 4;
-    constexpr auto r3 = v0 > v1;
+    constexpr auto r3 = zivc::Greater<void>{}(v0, v1);
     test::setBoolResult(r3, out + oindex);
     oindex += 4;
-    constexpr auto r4 = v0 <= v1;
+    constexpr auto r4 = zivc::LessEqual<void>{}(v0, v1);
     test::setBoolResult(r4, out + oindex);
     oindex += 4;
-    constexpr auto r5 = v0 >= v1;
+    constexpr auto r5 = zivc::GreaterEqual<void>{}(v0, v1);
     test::setBoolResult(r5, out + oindex);
     oindex += 4;
   }
@@ -2235,22 +2236,22 @@ __kernel void vectorComparisonOperatorLongVecTest(zivc::ConstGlobalPtr<int8> in_
   {
     constexpr int8 v0 = zivc::makeInt8(0, 1, 2, 3, 4, 5, 6, 7);
     constexpr int8 v1 = zivc::makeInt8(0, 1, 5, 1, 0, 5, 1, 1);
-    constexpr auto r0 = v0 == v1;
+    constexpr auto r0 = zivc::EqualTo<void>{}(v0, v1);
     test::setBoolResultL(r0, out + oindex);
     oindex += 8;
-    constexpr auto r1 = v0 != v1;
+    constexpr auto r1 = zivc::NotEqualTo<void>{}(v0, v1);
     test::setBoolResultL(r1, out + oindex);
     oindex += 8;
-    constexpr auto r2 = v0 < v1;
+    constexpr auto r2 = zivc::Less<void>{}(v0, v1);
     test::setBoolResultL(r2, out + oindex);
     oindex += 8;
-    constexpr auto r3 = v0 > v1;
+    constexpr auto r3 = zivc::Greater<void>{}(v0, v1);
     test::setBoolResultL(r3, out + oindex);
     oindex += 8;
-    constexpr auto r4 = v0 <= v1;
+    constexpr auto r4 = zivc::LessEqual<void>{}(v0, v1);
     test::setBoolResultL(r4, out + oindex);
     oindex += 8;
-    constexpr auto r5 = v0 >= v1;
+    constexpr auto r5 = zivc::GreaterEqual<void>{}(v0, v1);
     test::setBoolResultL(r5, out + oindex);
     oindex += 8;
   }
@@ -2274,23 +2275,23 @@ __kernel void vectorComparisonResultTest(
   {
     const uchar v1 = in1[0];
     const uchar v2 = in1[1];
-    out1[0] = v1 == v2;
-    out1[1] = v1 != v2;
-    out1[2] = v1 > v2;
-    out1[3] = v1 >= v2;
-    out1[4] = v1 < v2;
-    out1[5] = v1 <= v2;
+    out1[0] = zivc::EqualTo<uchar>{}(v1, v2);
+    out1[1] = zivc::NotEqualTo<uchar>{}(v1, v2);
+    out1[2] = zivc::Greater<uchar>{}(v1, v2);
+    out1[3] = zivc::GreaterEqual<uchar>{}(v1, v2);
+    out1[4] = zivc::Less<uchar>{}(v1, v2);
+    out1[5] = zivc::LessEqual<uchar>{}(v1, v2);
   }
   // vector2
   {
     const char2 v1 = in2[0];
     const char2 v2 = in2[1];
-    out2[0] = v1 == v2;
-    out2[1] = v1 != v2;
-    out2[2] = v1 > v2;
-    out2[3] = v1 >= v2;
-    out2[4] = v1 < v2;
-    out2[5] = v1 <= v2;
+    out2[0] = zivc::EqualTo<void>{}(v1, v2);
+    out2[1] = zivc::NotEqualTo<void>{}(v1, v2);
+    out2[2] = zivc::Greater<void>{}(v1, v2);
+    out2[3] = zivc::GreaterEqual<void>{}(v1, v2);
+    out2[4] = zivc::Less<void>{}(v1, v2);
+    out2[5] = zivc::LessEqual<void>{}(v1, v2);
   }
   // vector3
   {
@@ -2391,13 +2392,13 @@ __kernel void vectorLogicalOperatorTest(zivc::ConstGlobalPtr<int4> in_int4,
     constexpr auto result1 = v0 == v1;
     constexpr auto result2 = v1 == v2;
 
-    constexpr auto r0 = !result1;
+    constexpr auto r0 = zivc::LogicalNot<void>{}(result1);
     test::setBoolResult(r0, out + oindex);
     oindex += 4;
-    constexpr auto r1 = result1 && result2;
+    constexpr auto r1 = zivc::LogicalAnd<void>{}(result1, result2);
     test::setBoolResult(r1, out + oindex);
     oindex += 4;
-    constexpr auto r2 = result1 || result2;
+    constexpr auto r2 = zivc::LogicalOr<void>{}(result1, result2);
     test::setBoolResult(r2, out + oindex);
     oindex += 4;
   }

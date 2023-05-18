@@ -3174,6 +3174,76 @@ __kernel void vectorLoadStoreClTest(zivc::GlobalPtr<int8b> inout_i8,
   }
 }
 
+namespace inner {
+
+struct LoadStoreLongVecStorage
+{
+  half h_[16];
+  int32b i_[16];
+  float f_[16];
+};
+
+static_assert(sizeof(LoadStoreLongVecStorage) % 16 == 0);
+
+} // namespace inner
+
+__kernel void vectorLoadStoreLongVecTest(zivc::GlobalPtr<int32b> inout_i32,
+                                         zivc::GlobalPtr<float> inout_f,
+                                         zivc::LocalPtr<inner::LoadStoreLongVecStorage> storage)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (index == 0) {
+    // int32b
+    {
+      constexpr int32b k = 2;
+      size_t offset = 0;
+      // vector8
+      {
+        const int8 v1 = zivc::vload8(0, inout_i32 + offset);
+        zivc::vstore8(k * v1, 0, inout_i32 + offset);
+        zivc::LocalPtr<int32b> p = &storage[0].i_[0];
+        zivc::vstore8(k * v1, 0, p);
+        const int8 v2 = zivc::vload8(0, p);
+        zivc::vstore8(k * v2, 1, inout_i32 + offset);
+      }
+      offset += 16;
+      // vector16
+      {
+        const int16 v1 = zivc::vload16(0, inout_i32 + offset);
+        zivc::vstore16(k * v1, 0, inout_i32 + offset);
+        zivc::LocalPtr<int32b> p = &storage[0].i_[0];
+        zivc::vstore16(k * v1, 0, p);
+        const int16 v2 = zivc::vload16(0, p);
+        zivc::vstore16(k * v2, 1, inout_i32 + offset);
+      }
+    }
+    // float 
+    {
+      constexpr float k = 2.0f;
+      size_t offset = 0;
+      // vector8
+      {
+        const float8 v1 = zivc::vload8(0, inout_f + offset);
+        zivc::vstore8(k * v1, 0, inout_f + offset);
+        zivc::LocalPtr<float> p = &storage[0].f_[0];
+        zivc::vstore8(k * v1, 0, p);
+        const float8 v2 = zivc::vload8(0, p);
+        zivc::vstore8(k * v2, 1, inout_f + offset);
+      }
+      offset += 16;
+      // vector16
+      {
+        const float16 v1 = zivc::vload16(0, inout_f + offset);
+        zivc::vstore16(k * v1, 0, inout_f + offset);
+        zivc::LocalPtr<float> p = &storage[0].f_[0];
+        zivc::vstore16(k * v1, 0, p);
+        const float16 v2 = zivc::vload16(0, p);
+        zivc::vstore16(k * v2, 1, inout_f + offset);
+      }
+    }
+  }
+}
+
 __kernel void vectorLoadStoreHalfTest(zivc::GlobalPtr<half> inout_h,
                                       zivc::LocalPtr<inner::LoadStoreStorage> storage)
 {
@@ -3222,7 +3292,7 @@ __kernel void vectorLoadStoreHalfTest(zivc::GlobalPtr<half> inout_h,
     }
   }
 }
- 
+
 __kernel void vectorLoadStoreHalfClTest(zivc::GlobalPtr<half> inout_h,
                                         zivc::LocalPtr<inner::LoadStoreStorage> storage)
 {
@@ -3267,6 +3337,38 @@ __kernel void vectorLoadStoreHalfClTest(zivc::GlobalPtr<half> inout_h,
         vstore_half4(k * v1, 0, &storage[0].h_[0]);
         const float4 v2 = vload_half4(0, &storage[0].h_[0]);
         vstore_half4(k * v2, 1, inout_h + offset);
+      }
+    }
+  }
+}
+
+__kernel void vectorLoadStoreHalfLongVecTest(zivc::GlobalPtr<half> inout_h,
+                                             zivc::LocalPtr<inner::LoadStoreLongVecStorage> storage)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (index == 0) {
+    // half 
+    {
+      constexpr float k = 2.0f;
+      size_t offset = 0;
+      // vector8
+      {
+        const float8 v1 = zivc::vload_half8(0, inout_h + offset);
+        zivc::vstore_half8(k * v1, 0, inout_h + offset);
+        zivc::LocalPtr<half> p = &storage[0].h_[0];
+        zivc::vstore_half8(k * v1, 0, p);
+        const float8 v2 = zivc::vload_half8(0, p);
+        zivc::vstore_half8(k * v2, 1, inout_h + offset);
+      }
+      offset += 16;
+      // vector16
+      {
+        const float16 v1 = zivc::vload_half16(0, inout_h + offset);
+        zivc::vstore_half16(k * v1, 0, inout_h + offset);
+        zivc::LocalPtr<half> p = &storage[0].h_[0];
+        zivc::vstore_half16(k * v1, 0, p);
+        const float16 v2 = zivc::vload_half16(0, p);
+        zivc::vstore_half16(k * v2, 1, inout_h + offset);
       }
     }
   }

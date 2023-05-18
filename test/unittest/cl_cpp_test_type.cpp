@@ -7058,6 +7058,108 @@ TEST(ClCppTest, VectorLoadStoreClTest)
   }
 }
 
+TEST(ClCppTest, VectorLoadStoreLongVecTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_char;
+  using zivc::cl_uchar;
+  using zivc::cl_short;
+  using zivc::cl_ushort;
+  using zivc::cl_int;
+  using zivc::cl_uint;
+  using zivc::cl_char8;
+  using zivc::cl_char16;
+  using zivc::cl_uchar8;
+  using zivc::cl_uchar16;
+  using zivc::cl_short8;
+  using zivc::cl_short16;
+  using zivc::cl_ushort8;
+  using zivc::cl_ushort16;
+  using zivc::cl_int8;
+  using zivc::cl_int16;
+  using zivc::cl_uint8;
+  using zivc::cl_uint16;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
+  using zivc::cl_half;
+  using zivc::cl_half8;
+  using zivc::cl_half16;
+
+  const std::initializer_list<cl_int> ei32 = {
+      1, 2, 3, 4, 5, 6, 7, 8,
+      1, 2, 3, 4, 5, 6, 7, 8,
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+      1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+  const zivc::SharedBuffer inout_i32 = device->createBuffer<cl_int>(
+      {zivc::BufferUsage::kPreferDevice,
+       zivc::BufferFlag::kRandomAccessible});
+  ztest::setDeviceBuffer(*device, ei32, inout_i32.get());
+
+  const std::initializer_list<float> ef = {
+      1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f ,7.0f, 8.0f,
+      1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f ,7.0f, 8.0f,
+      1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f ,7.0f, 8.0f, 9.0f, 10.0f, 11.0f, 12.0f, 13.0f, 14.0f, 15.0f, 16.0f,
+      1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f ,7.0f, 8.0f, 9.0f, 10.0f, 11.0f, 12.0f, 13.0f, 14.0f, 15.0f, 16.0f};
+  const zivc::SharedBuffer inout_f = device->createBuffer<float>(
+      {zivc::BufferUsage::kPreferDevice,
+       zivc::BufferFlag::kRandomAccessible});
+  ztest::setDeviceBuffer(*device, ef, inout_f.get());
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vectorLoadStoreLongVecTest, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(2, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("VectorLoadStoreLongVecTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(2, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*inout_i32, *inout_f, launch_options);
+  device->waitForCompletion(result.fence());
+
+  // output
+  {
+    const std::span<const cl_int> e{ei32.begin(), ei32.end()};
+    const zivc::MappedMemory mem = inout_i32->mapMemory();
+    std::size_t index = 0;
+    for (std::size_t i = 0; i < 8; ++i, ++index)
+      ASSERT_EQ(2 * e[index], mem[index]) << "Vector load store failed.";
+    for (std::size_t i = 0; i < 8; ++i, ++index)
+      ASSERT_EQ(4 * e[index], mem[index]) << "Vector load store failed.";
+    for (std::size_t i = 0; i < 16; ++i, ++index)
+      ASSERT_EQ(2 * e[index], mem[index]) << "Vector load store failed.";
+    for (std::size_t i = 0; i < 16; ++i, ++index)
+      ASSERT_EQ(4 * e[index], mem[index]) << "Vector load store failed.";
+  }
+  {
+    const std::span<const float> e{ef.begin(), ef.end()};
+    const zivc::MappedMemory mem = inout_f->mapMemory();
+    std::size_t index = 0;
+    for (std::size_t i = 0; i < 8; ++i, ++index)
+      ASSERT_FLOAT_EQ(2.0f * e[index], mem[index]) << "Vector load store failed.";
+    for (std::size_t i = 0; i < 8; ++i, ++index)
+      ASSERT_FLOAT_EQ(4.0f * e[index], mem[index]) << "Vector load store failed.";
+    for (std::size_t i = 0; i < 16; ++i, ++index)
+      ASSERT_FLOAT_EQ(2.0f * e[index], mem[index]) << "Vector load store failed.";
+    for (std::size_t i = 0; i < 16; ++i, ++index)
+      ASSERT_FLOAT_EQ(4.0f * e[index], mem[index]) << "Vector load store failed.";
+  }
+}
+
 TEST(ClCppTest, VectorLoadStoreHalfTest)
 {
   const zivc::SharedContext context = ztest::createContext();
@@ -7301,3 +7403,86 @@ TEST(ClCppTest, VectorLoadStoreHalfClTest)
     }
   }
 }
+
+TEST(ClCppTest, VectorLoadStoreHalfLongVecTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_char;
+  using zivc::cl_uchar;
+  using zivc::cl_short;
+  using zivc::cl_ushort;
+  using zivc::cl_int;
+  using zivc::cl_uint;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
+  using zivc::cl_half;
+  using zivc::cl_half8;
+  using zivc::cl_half16;
+
+  std::array<cl_half, 16> h{};
+  for (std::size_t i = 0; i < h.size(); ++i)
+    h[i] = static_cast<cl_half>(static_cast<float>(i + 1));
+  const std::initializer_list<cl_half> eh = {
+      h[0], h[1], h[2], h[3], h[4], h[5], h[6], h[7],
+      h[0], h[1], h[2], h[3], h[4], h[5], h[6], h[7],
+      h[0], h[1], h[2], h[3], h[4], h[5], h[6], h[7], h[8], h[9], h[10], h[11], h[12], h[13], h[14], h[15],
+      h[0], h[1], h[2], h[3], h[4], h[5], h[6], h[7], h[8], h[9], h[10], h[11], h[12], h[13], h[14], h[15]};
+  const zivc::SharedBuffer inout_h = device->createBuffer<cl_half>(
+      {zivc::BufferUsage::kPreferDevice,
+       zivc::BufferFlag::kRandomAccessible});
+  ztest::setDeviceBuffer(*device, eh, inout_h.get());
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_type, vectorLoadStoreHalfLongVecTest, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(1, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("VectorLoadStoreHalfLongVecTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(1, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*inout_h, launch_options);
+  device->waitForCompletion(result.fence());
+
+  // output
+  {
+    const std::span<const cl_half> e{eh.begin(), eh.end()};
+    const zivc::MappedMemory mem = inout_h->mapMemory();
+    std::size_t index = 0;
+    for (std::size_t i = 0; i < 8; ++i, ++index) {
+      const float expected = 2.0f * static_cast<float>(e[index]);
+      const float value = static_cast<float>(mem[index]);
+      EXPECT_FLOAT_EQ(expected, value) << "Vector load store failed.";
+    }
+    for (std::size_t i = 0; i < 8; ++i, ++index) {
+      const float expected = 4.0f * static_cast<float>(e[index]);
+      const float value = static_cast<float>(mem[index]);
+      EXPECT_FLOAT_EQ(expected, value) << "Vector load store failed.";
+    }
+    for (std::size_t i = 0; i < 16; ++i, ++index) {
+      const float expected = 2.0f * static_cast<float>(e[index]);
+      const float value = static_cast<float>(mem[index]);
+      EXPECT_FLOAT_EQ(expected, value) << "Vector load store failed.";
+    }
+    for (std::size_t i = 0; i < 16; ++i, ++index) {
+      const float expected = 4.0f * static_cast<float>(e[index]);
+      const float value = static_cast<float>(mem[index]);
+      EXPECT_FLOAT_EQ(expected, value) << "Vector load store failed.";
+    }
+  }
+}
+

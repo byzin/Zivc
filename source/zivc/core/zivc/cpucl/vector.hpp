@@ -1270,184 +1270,288 @@ class VectorData
  public:
   //! Read a data from address (p + offset * 2)
   template <zisc::Pointer Pointer>
-  static auto vload2(const size_t offset,
-                     const Pointer p) noexcept;
+  static auto load2(const size_t offset,
+                    const Pointer p) noexcept;
 
   //! Read a data from address (p + offset * 2)
   template <AddressSpaceType kASpaceType, typename Type>
-  static auto vload2(const size_t offset,
-                     const AddressSpacePointer<kASpaceType, Type>& p) noexcept;
+  static auto load2(const size_t offset,
+                    const AddressSpacePointer<kASpaceType, Type>& p) noexcept;
 
   //! Read a data from address (p + offset * 2)
   template <AddressSpaceType kASpaceType, typename Type>
-  static auto vload2(const size_t offset,
-                     const AddressSpacePointer<kASpaceType, const Type>& p) noexcept;
+  static auto load2(const size_t offset,
+                    const AddressSpacePointer<kASpaceType, const Type>& p) noexcept;
 
   //! Read a data from address (p + offset * 3)
   template <zisc::Pointer Pointer>
-  static auto vload3(const size_t offset,
-                     const Pointer p) noexcept;
+  static auto load3(const size_t offset,
+                    const Pointer p) noexcept;
 
   //! Read a data from address (p + offset * 3)
   template <AddressSpaceType kASpaceType, typename Type>
-  static auto vload3(const size_t offset,
-                     const AddressSpacePointer<kASpaceType, Type>& p) noexcept;
+  static auto load3(const size_t offset,
+                    const AddressSpacePointer<kASpaceType, Type>& p) noexcept;
 
   //! Read a data from address (p + offset * 3)
   template <AddressSpaceType kASpaceType, typename Type>
-  static auto vload3(const size_t offset,
-                     const AddressSpacePointer<kASpaceType, const Type>& p) noexcept;
+  static auto load3(const size_t offset,
+                    const AddressSpacePointer<kASpaceType, const Type>& p) noexcept;
 
   //! Read a data from address (p + offset * 4)
   template <zisc::Pointer Pointer>
-  static auto vload4(const size_t offset,
+  static auto load4(const size_t offset,
+                    const Pointer p) noexcept;
+
+  //! Read a data from address (p + offset * 4)
+  template <AddressSpaceType kASpaceType, typename Type>
+  static auto load4(const size_t offset,
+                    const AddressSpacePointer<kASpaceType, Type>& p) noexcept;
+
+  //! Read a data from address (p + offset * 4)
+  template <AddressSpaceType kASpaceType, typename Type>
+  static auto load4(const size_t offset,
+                    const AddressSpacePointer<kASpaceType, const Type>& p) noexcept;
+
+  //! Read a data from address (p + offset * 8)
+  template <zisc::Pointer Pointer>
+  static auto load8(const size_t offset,
+                    const Pointer p) noexcept;
+
+  //! Read a data from address (p + offset * 8)
+  template <AddressSpaceType kASpaceType, typename Type>
+  static auto load8(const size_t offset,
+                    const AddressSpacePointer<kASpaceType, Type>& p) noexcept;
+
+  //! Read a data from address (p + offset * 8)
+  template <AddressSpaceType kASpaceType, typename Type>
+  static auto load8(const size_t offset,
+                    const AddressSpacePointer<kASpaceType, const Type>& p) noexcept;
+
+  //! Read a data from address (p + offset * 16)
+  template <zisc::Pointer Pointer>
+  static auto load16(const size_t offset,
                      const Pointer p) noexcept;
 
-  //! Read a data from address (p + offset * 4)
+  //! Read a data from address (p + offset * 16)
   template <AddressSpaceType kASpaceType, typename Type>
-  static auto vload4(const size_t offset,
+  static auto load16(const size_t offset,
                      const AddressSpacePointer<kASpaceType, Type>& p) noexcept;
 
-  //! Read a data from address (p + offset * 4)
+  //! Read a data from address (p + offset * 16)
   template <AddressSpaceType kASpaceType, typename Type>
-  static auto vload4(const size_t offset,
+  static auto load16(const size_t offset,
                      const AddressSpacePointer<kASpaceType, const Type>& p) noexcept;
 
   //! Read half data from address (p + offset). The address must be 16bit aligned
-  static float vload_half(const size_t offset,
+  static float loadHalf(const size_t offset,
+                        const half* p) noexcept;
+
+  //! Read half data from address (p + offset). The address must be 16bit aligned
+  template <AddressSpaceType kASpaceType>
+  static float loadHalf(const size_t offset,
+                        const AddressSpacePointer<kASpaceType, half>& p) noexcept;
+
+  //! Read half data from address (p + offset). The address must be 16bit aligned
+  template <AddressSpaceType kASpaceType>
+  static float loadHalf(const size_t offset,
+                        const AddressSpacePointer<kASpaceType, const half>& p) noexcept;
+
+  //! Read half data from address (p + offset * 2). The address must be 16bit aligned
+  static float2 loadHalf2(const size_t offset,
                           const half* p) noexcept;
 
-  //! Read half data from address (p + offset). The address must be 16bit aligned
+  //! Read half data from address (p + offset * 2). The address must be 16bit aligned
   template <AddressSpaceType kASpaceType>
-  static float vload_half(const size_t offset,
+  static float2 loadHalf2(const size_t offset,
                           const AddressSpacePointer<kASpaceType, half>& p) noexcept;
 
-  //! Read half data from address (p + offset). The address must be 16bit aligned
+  //! Read half data from address (p + offset * 2). The address must be 16bit aligned
   template <AddressSpaceType kASpaceType>
-  static float vload_half(const size_t offset,
+  static float2 loadHalf2(const size_t offset,
                           const AddressSpacePointer<kASpaceType, const half>& p) noexcept;
 
-  //! Read half data from address (p + offset * 2). The address must be 16bit aligned
-  static float2 vload_half2(const size_t offset,
-                            const half* p) noexcept;
-
-  //! Read half data from address (p + offset * 2). The address must be 16bit aligned
-  template <AddressSpaceType kASpaceType>
-  static float2 vload_half2(const size_t offset,
-                            const AddressSpacePointer<kASpaceType, half>& p) noexcept;
-
-  //! Read half data from address (p + offset * 2). The address must be 16bit aligned
-  template <AddressSpaceType kASpaceType>
-  static float2 vload_half2(const size_t offset,
-                            const AddressSpacePointer<kASpaceType, const half>& p) noexcept;
-
   //! Read half data from address (p + offset * 3). The address must be 16bit aligned
-  static float3 vload_half3(const size_t offset,
-                            const half* p) noexcept;
+  static float3 loadHalf3(const size_t offset,
+                          const half* p) noexcept;
 
   //! Read half data from address (p + offset * 3). The address must be 16bit aligned
   template <AddressSpaceType kASpaceType>
-  static float3 vload_half3(const size_t offset,
-                            const AddressSpacePointer<kASpaceType, half>& p) noexcept;
+  static float3 loadHalf3(const size_t offset,
+                          const AddressSpacePointer<kASpaceType, half>& p) noexcept;
 
   //! Read half data from address (p + offset * 3). The address must be 16bit aligned
   template <AddressSpaceType kASpaceType>
-  static float3 vload_half3(const size_t offset,
-                            const AddressSpacePointer<kASpaceType, const half>& p) noexcept;
+  static float3 loadHalf3(const size_t offset,
+                          const AddressSpacePointer<kASpaceType, const half>& p) noexcept;
 
   //! Read half data from address (p + offset * 4). The address must be 16bit aligned
-  static float4 vload_half4(const size_t offset,
+  static float4 loadHalf4(const size_t offset,
+                          const half* p) noexcept;
+
+  //! Read half data from address (p + offset * 4). The address must be 16bit aligned
+  template <AddressSpaceType kASpaceType>
+  static float4 loadHalf4(const size_t offset,
+                          const AddressSpacePointer<kASpaceType, half>& p) noexcept;
+
+  //! Read half data from address (p + offset * 4). The address must be 16bit aligned
+  template <AddressSpaceType kASpaceType>
+  static float4 loadHalf4(const size_t offset,
+                          const AddressSpacePointer<kASpaceType, const half>& p) noexcept;
+
+  //! Read half data from address (p + offset * 8). The address must be 16bit aligned
+  static float8 loadHalf8(const size_t offset,
+                          const half* p) noexcept;
+
+  //! Read half data from address (p + offset * 8). The address must be 16bit aligned
+  template <AddressSpaceType kASpaceType>
+  static float8 loadHalf8(const size_t offset,
+                          const AddressSpacePointer<kASpaceType, half>& p) noexcept;
+
+  //! Read half data from address (p + offset * 8). The address must be 16bit aligned
+  template <AddressSpaceType kASpaceType>
+  static float8 loadHalf8(const size_t offset,
+                          const AddressSpacePointer<kASpaceType, const half>& p) noexcept;
+
+  //! Read half data from address (p + offset * 16). The address must be 16bit aligned
+  static float16 loadHalf16(const size_t offset,
                             const half* p) noexcept;
 
-  //! Read half data from address (p + offset * 4). The address must be 16bit aligned
+  //! Read half data from address (p + offset * 16). The address must be 16bit aligned
   template <AddressSpaceType kASpaceType>
-  static float4 vload_half4(const size_t offset,
+  static float16 loadHalf16(const size_t offset,
                             const AddressSpacePointer<kASpaceType, half>& p) noexcept;
 
-  //! Read half data from address (p + offset * 4). The address must be 16bit aligned
+  //! Read half data from address (p + offset * 16). The address must be 16bit aligned
   template <AddressSpaceType kASpaceType>
-  static float4 vload_half4(const size_t offset,
+  static float16 loadHalf16(const size_t offset,
                             const AddressSpacePointer<kASpaceType, const half>& p) noexcept;
 
   //! Write to the address (p + offset * 2)
   template <typename Type>
-  static void vstore2(const Vector<Type, 2>& data,
-                      const size_t offset,
-                      std::add_pointer_t<Type> p) noexcept;
+  static void store2(const Vector<Type, 2>& data,
+                     const size_t offset,
+                     std::add_pointer_t<Type> p) noexcept;
 
   //! Write to the address (p + offset * 2)
   template <AddressSpaceType kASpaceType, typename Type>
-  static void vstore2(const Vector<Type, 2>& data,
-                      const size_t offset,
-                      AddressSpacePointer<kASpaceType, Type> p) noexcept;
+  static void store2(const Vector<Type, 2>& data,
+                     const size_t offset,
+                     AddressSpacePointer<kASpaceType, Type> p) noexcept;
 
   //! Write to the address (p + offset * 3)
   template <typename Type>
-  static void vstore3(const Vector<Type, 3>& data,
-                      const size_t offset,
-                      std::add_pointer_t<Type> p) noexcept;
+  static void store3(const Vector<Type, 3>& data,
+                     const size_t offset,
+                     std::add_pointer_t<Type> p) noexcept;
 
   //! Write to the address (p + offset * 3)
   template <AddressSpaceType kASpaceType, typename Type>
-  static void vstore3(const Vector<Type, 3>& data,
-                      const size_t offset,
-                      AddressSpacePointer<kASpaceType, Type> p) noexcept;
+  static void store3(const Vector<Type, 3>& data,
+                     const size_t offset,
+                     AddressSpacePointer<kASpaceType, Type> p) noexcept;
 
   //! Write to the address (p + offset * 4)
   template <typename Type>
-  static void vstore4(const Vector<Type, 4>& data,
+  static void store4(const Vector<Type, 4>& data,
+                     const size_t offset,
+                     const std::add_pointer_t<Type> p) noexcept;
+
+  //! Write to the address (p + offset * 4)
+  template <AddressSpaceType kASpaceType, typename Type>
+  static void store4(const Vector<Type, 4>& data,
+                     const size_t offset,
+                     AddressSpacePointer<kASpaceType, Type> p) noexcept;
+
+  //! Write to the address (p + offset * 8)
+  template <typename Type>
+  static void store8(const Vector<Type, 8>& data,
+                     const size_t offset,
+                     const std::add_pointer_t<Type> p) noexcept;
+
+  //! Write to the address (p + offset * 8)
+  template <AddressSpaceType kASpaceType, typename Type>
+  static void store8(const Vector<Type, 8>& data,
+                     const size_t offset,
+                     AddressSpacePointer<kASpaceType, Type> p) noexcept;
+
+  //! Write to the address (p + offset * 16)
+  template <typename Type>
+  static void store16(const Vector<Type, 16>& data,
                       const size_t offset,
                       const std::add_pointer_t<Type> p) noexcept;
 
-  //! Write to the address (p + offset * 4)
+  //! Write to the address (p + offset * 16)
   template <AddressSpaceType kASpaceType, typename Type>
-  static void vstore4(const Vector<Type, 4>& data,
+  static void store16(const Vector<Type, 16>& data,
                       const size_t offset,
                       AddressSpacePointer<kASpaceType, Type> p) noexcept;
 
   //! The value is converted to a half and writen to the address (p + offset)
-  static void vstore_half(const float data,
-                          const size_t offset,
-                          half* p) noexcept;
+  static void storeHalf(const float data,
+                        const size_t offset,
+                        half* p) noexcept;
 
   //! The value is converted to a half and writen to the address (p + offset)
   template <AddressSpaceType kASpaceType>
-  static void vstore_half(const float data,
+  static void storeHalf(const float data,
+                        const size_t offset,
+                        AddressSpacePointer<kASpaceType, half> p) noexcept;
+
+  //! The value is converted to a half and writen to the address (p + offset * 2)
+  static void storeHalf2(const float2& data,
+                         const size_t offset,
+                         half* p) noexcept;
+
+  //! The value is converted to a half and writen to the address (p + offset * 2)
+  template <AddressSpaceType kASpaceType>
+  static void storeHalf2(const float2& data,
+                         const size_t offset,
+                         AddressSpacePointer<kASpaceType, half> p) noexcept;
+
+  //! The value is converted to a half and writen to the address (p + offset * 3)
+  static void storeHalf3(const float3& data,
+                         const size_t offset,
+                         half* p) noexcept;
+
+  //! The value is converted to a half and writen to the address (p + offset * 3)
+  template <AddressSpaceType kASpaceType>
+  static void storeHalf3(const float3& data,
+                         const size_t offset,
+                         AddressSpacePointer<kASpaceType, half> p) noexcept;
+
+  //! The value is converted to a half and writen to the address (p + offset * 4)
+  static void storeHalf4(const float4& data,
+                         const size_t offset,
+                         half* p) noexcept;
+
+  //! The value is converted to a half and writen to the address (p + offset * 4)
+  template <AddressSpaceType kASpaceType>
+  static void storeHalf4(const float4& data,
+                         const size_t offset,
+                         AddressSpacePointer<kASpaceType, half> p) noexcept;
+
+  //! The value is converted to a half and writen to the address (p + offset * 8)
+  static void storeHalf8(const float8& data,
+                         const size_t offset,
+                         half* p) noexcept;
+
+  //! The value is converted to a half and writen to the address (p + offset * 8)
+  template <AddressSpaceType kASpaceType>
+  static void storeHalf8(const float8& data,
+                         const size_t offset,
+                         AddressSpacePointer<kASpaceType, half> p) noexcept;
+
+  //! The value is converted to a half and writen to the address (p + offset * 16)
+  static void storeHalf16(const float16& data,
+                          const size_t offset,
+                          half* p) noexcept;
+
+  //! The value is converted to a half and writen to the address (p + offset * 16)
+  template <AddressSpaceType kASpaceType>
+  static void storeHalf16(const float16& data,
                           const size_t offset,
                           AddressSpacePointer<kASpaceType, half> p) noexcept;
-
-  //! The value is converted to a half and writen to the address (p + offset * 2)
-  static void vstore_half2(const float2& data,
-                           const size_t offset,
-                           half* p) noexcept;
-
-  //! The value is converted to a half and writen to the address (p + offset * 2)
-  template <AddressSpaceType kASpaceType>
-  static void vstore_half2(const float2& data,
-                           const size_t offset,
-                           AddressSpacePointer<kASpaceType, half> p) noexcept;
-
-  //! The value is converted to a half and writen to the address (p + offset * 3)
-  static void vstore_half3(const float3& data,
-                           const size_t offset,
-                           half* p) noexcept;
-
-  //! The value is converted to a half and writen to the address (p + offset * 3)
-  template <AddressSpaceType kASpaceType>
-  static void vstore_half3(const float3& data,
-                           const size_t offset,
-                           AddressSpacePointer<kASpaceType, half> p) noexcept;
-
-  //! The value is converted to a half and writen to the address (p + offset * 4)
-  static void vstore_half4(const float4& data,
-                           const size_t offset,
-                           half* p) noexcept;
-
-  //! The value is converted to a half and writen to the address (p + offset * 4)
-  template <AddressSpaceType kASpaceType>
-  static void vstore_half4(const float4& data,
-                           const size_t offset,
-                           AddressSpacePointer<kASpaceType, half> p) noexcept;
 
  private:
   /*!
@@ -1460,25 +1564,25 @@ class VectorData
    public:
     //!
     template <typename Type, size_t kN>
-    static Vector<Type, kN> vloadn(const size_t offset,
-                                   const Type* p) noexcept;
+    static Vector<Type, kN> loadN(const size_t offset,
+                                  const Type* p) noexcept;
 
     //!
     template <size_t kN>
-    static Vector<float, kN> vload_halfn(const size_t offset,
-                                         const half* p) noexcept;
+    static Vector<float, kN> loadHalfN(const size_t offset,
+                                       const half* p) noexcept;
 
     //!
     template <typename Type, size_t kN>
-    static void vstoren(const Vector<Type, kN>& data,
-                        const size_t offset,
-                        Type* p) noexcept;
+    static void storeN(const Vector<Type, kN>& data,
+                       const size_t offset,
+                       Type* p) noexcept;
 
     //!
     template <size_t kN>
-    static void vstore_halfn(const Vector<float, kN>& data,
-                             const size_t offset,
-                             half* p) noexcept;
+    static void storeHalfN(const Vector<float, kN>& data,
+                           const size_t offset,
+                           half* p) noexcept;
   };
 };
 
@@ -1527,6 +1631,36 @@ auto vload4(const size_t offset,
 template <AddressSpaceType kASpaceType, typename Type>
 auto vload4(const size_t offset,
             const AddressSpacePointer<kASpaceType, const Type>& p) noexcept;
+
+//! Read a data from address (p + offset * 8)
+template <zisc::Pointer Pointer>
+auto vload8(const size_t offset,
+            const Pointer p) noexcept;
+
+//! Read a data from address (p + offset * 8)
+template <AddressSpaceType kASpaceType, typename Type>
+auto vload8(const size_t offset,
+            const AddressSpacePointer<kASpaceType, Type>& p) noexcept;
+
+//! Read a data from address (p + offset * 8)
+template <AddressSpaceType kASpaceType, typename Type>
+auto vload8(const size_t offset,
+            const AddressSpacePointer<kASpaceType, const Type>& p) noexcept;
+
+//! Read a data from address (p + offset * 16)
+template <zisc::Pointer Pointer>
+auto vload16(const size_t offset,
+             const Pointer p) noexcept;
+
+//! Read a data from address (p + offset * 16)
+template <AddressSpaceType kASpaceType, typename Type>
+auto vload16(const size_t offset,
+             const AddressSpacePointer<kASpaceType, Type>& p) noexcept;
+
+//! Read a data from address (p + offset * 16)
+template <AddressSpaceType kASpaceType, typename Type>
+auto vload16(const size_t offset,
+             const AddressSpacePointer<kASpaceType, const Type>& p) noexcept;
 
 //! Read half data from address (p + offset). The address must be 16bit aligned
 float vload_half(const size_t offset,
@@ -1584,6 +1718,34 @@ template <AddressSpaceType kASpaceType>
 float4 vload_half4(const size_t offset,
                    const AddressSpacePointer<kASpaceType, const half>& p) noexcept;
 
+//! Read half data from address (p + offset * 8). The address must be 16bit aligned
+float8 vload_half8(const size_t offset,
+                   const half* p) noexcept;
+
+//! Read half data from address (p + offset * 8). The address must be 16bit aligned
+template <AddressSpaceType kASpaceType>
+float8 vload_half8(const size_t offset,
+                   const AddressSpacePointer<kASpaceType, half>& p) noexcept;
+
+//! Read half data from address (p + offset * 8). The address must be 16bit aligned
+template <AddressSpaceType kASpaceType>
+float8 vload_half8(const size_t offset,
+                   const AddressSpacePointer<kASpaceType, const half>& p) noexcept;
+
+//! Read half data from address (p + offset * 16). The address must be 16bit aligned
+float16 vload_half16(const size_t offset,
+                     const half* p) noexcept;
+
+//! Read half data from address (p + offset * 16). The address must be 16bit aligned
+template <AddressSpaceType kASpaceType>
+float16 vload_half16(const size_t offset,
+                     const AddressSpacePointer<kASpaceType, half>& p) noexcept;
+
+//! Read half data from address (p + offset * 16). The address must be 16bit aligned
+template <AddressSpaceType kASpaceType>
+float16 vload_half16(const size_t offset,
+                     const AddressSpacePointer<kASpaceType, const half>& p) noexcept;
+
 //! Write to the address (p + offset * 2)
 template <typename Type>
 void vstore2(const Vector<Type, 2>& data,
@@ -1619,6 +1781,30 @@ template <AddressSpaceType kASpaceType, typename Type>
 void vstore4(const Vector<Type, 4>& data,
              const size_t offset,
              AddressSpacePointer<kASpaceType, Type> p) noexcept;
+
+//! Write to the address (p + offset * 8)
+template <typename Type>
+void vstore8(const Vector<Type, 8>& data,
+             const size_t offset,
+             std::add_pointer_t<Type> p) noexcept;
+
+//! Write to the address (p + offset * 8)
+template <AddressSpaceType kASpaceType, typename Type>
+void vstore8(const Vector<Type, 8>& data,
+             const size_t offset,
+             AddressSpacePointer<kASpaceType, Type> p) noexcept;
+
+//! Write to the address (p + offset * 16)
+template <typename Type>
+void vstore16(const Vector<Type, 16>& data,
+              const size_t offset,
+              std::add_pointer_t<Type> p) noexcept;
+
+//! Write to the address (p + offset * 16)
+template <AddressSpaceType kASpaceType, typename Type>
+void vstore16(const Vector<Type, 16>& data,
+              const size_t offset,
+              AddressSpacePointer<kASpaceType, Type> p) noexcept;
 
 //! The value is converted to a half and writen to the address (p + offset)
 void vstore_half(const float data,
@@ -1663,6 +1849,28 @@ template <AddressSpaceType kASpaceType>
 void vstore_half4(const float4& data,
                   const size_t offset,
                   AddressSpacePointer<kASpaceType, half> p) noexcept;
+
+//! The value is converted to a half and writen to the address (p + offset * 8)
+void vstore_half8(const float8& data,
+                  const size_t offset,
+                  half* p) noexcept;
+
+//! The value is converted to a half and writen to the address (p + offset * 8)
+template <AddressSpaceType kASpaceType>
+void vstore_half8(const float8& data,
+                  const size_t offset,
+                  AddressSpacePointer<kASpaceType, half> p) noexcept;
+
+//! The value is converted to a half and writen to the address (p + offset * 16)
+void vstore_half16(const float16& data,
+                   const size_t offset,
+                   half* p) noexcept;
+
+//! The value is converted to a half and writen to the address (p + offset * 16)
+template <AddressSpaceType kASpaceType>
+void vstore_half16(const float16& data,
+                   const size_t offset,
+                   AddressSpacePointer<kASpaceType, half> p) noexcept;
 
 } // namespace zivc::cl
 

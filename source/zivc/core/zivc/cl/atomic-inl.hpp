@@ -25,26 +25,94 @@ namespace zivc {
 
   \tparam Type No description.
   */
+template <typename T>
+struct Atomic::AtomicType
+{
+  static_assert(0 <= sizeof(T), "The input type isn't supported for atomic operation.");
+  using Type = void;
+};
+
+/*!
+  \brief No brief description
+
+  No detailed description.
+  */
+template <>
+struct Atomic::AtomicType<int32b>
+{
+  using Type = atomic_int;
+};
+
+/*!
+  \brief No brief description
+
+  No detailed description.
+  */
+template <>
+struct Atomic::AtomicType<int64b>
+{
+  using Type = atomic_long;
+};
+
+/*!
+  \brief No brief description
+
+  No detailed description.
+  */
+template <>
+struct Atomic::AtomicType<uint32b>
+{
+  using Type = atomic_uint;
+};
+
+/*!
+  \brief No brief description
+
+  No detailed description.
+  */
+template <>
+struct Atomic::AtomicType<uint64b>
+{
+  using Type = atomic_ulong;
+};
+
+/*!
+  \brief No brief description
+
+  No detailed description.
+  */
+template <>
+struct Atomic::AtomicType<float>
+{
+  using Type = atomic_float;
+};
+
+/*!
+  \brief No brief description
+
+  No detailed description.
+  */
+template <>
+struct Atomic::AtomicType<double>
+{
+  using Type = atomic_double;
+};
+
+/*!
+  \brief No brief description
+
+  No detailed description.
+
+  \tparam Type No description.
+  */
 template <typename AddressSpacePointer>
 class Atomic::AtomicObject
 {
-  using T = RemoveCvrefAddressT<RemovePointerT<AddressSpacePointer>>;
-  using AtomicT = ConditionalT<kIsSignedInteger<T>,
-                      ConditionalT<sizeof(T) == 4, atomic_int,
-                      ConditionalT<sizeof(T) == 8, atomic_long,
-                                                   void>>,
-                  ConditionalT<kIsUnsignedInteger<T>,
-                      ConditionalT<sizeof(T) == 4, atomic_uint,
-                      ConditionalT<sizeof(T) == 8, atomic_ulong,
-                                                   void>>,
-                  ConditionalT<kIsFloat<T>,
-                      ConditionalT<sizeof(T) == 4, atomic_float,
-                      ConditionalT<sizeof(T) == 8, atomic_double,
-                                                   void>>,
-                  void>>>;
-  static_assert(!kIsSame<void, AtomicT>, "The pointer is unsupported type.");
-  static_assert(sizeof(T) == sizeof(AtomicT), "The pointer is unsupported type.");
   using ASpaceInfo = AddressSpaceInfo<AddressSpacePointer>;
+  static_assert(ASpaceInfo::isPointer(), "The input object isn't pointer.");
+  using T = RemoveCvT<typename ASpaceInfo::DataT>;
+  using AtomicT = typename AtomicType<T>::Type;
+  static_assert(sizeof(T) == sizeof(AtomicT), "The atomic type is invalid.");
 
  public:
   using Type = typename ASpaceInfo::template AddressSpacePointerT<AtomicT>;

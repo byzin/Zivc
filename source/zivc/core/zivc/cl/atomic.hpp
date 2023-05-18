@@ -128,8 +128,12 @@ class Atomic
                       const MemoryOrder failure = kMemoryOrderAcquire) noexcept;
 
  private:
+  //! Atomic object type that corresponds to the given type
+  template <typename T>
+  struct AtomicType;
+
   //! Get atomic type by the given type
-  template <typename Type>
+  template <typename AddressSpacePointer>
   class AtomicObject;
 
 

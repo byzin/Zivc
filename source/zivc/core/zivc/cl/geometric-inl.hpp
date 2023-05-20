@@ -21,13 +21,51 @@ namespace zivc {
 /*!
   \details No detailed description
 
-  \tparam FloatN No description.
   \param [in] p0 No description.
   \param [in] p1 No description.
   \return No description
   */
-template <typename FloatN> inline
-FloatN Geometry::cross(const FloatN p0, const FloatN p1) noexcept
+inline
+float3 Geometry::cross(const float3 p0, const float3 p1) noexcept
+{
+  return Impl::cross(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+inline
+float4 Geometry::cross(const float4 p0, const float4 p1) noexcept
+{
+  return Impl::cross(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+inline
+double3 Geometry::cross(const double3 p0, const double3 p1) noexcept
+{
+  return Impl::cross(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+inline
+double4 Geometry::cross(const double4 p0, const double4 p1) noexcept
 {
   return Impl::cross(p0, p1);
 }
@@ -43,6 +81,7 @@ FloatN Geometry::cross(const FloatN p0, const FloatN p1) noexcept
 template <typename FloatN> inline
 auto Geometry::dot(const FloatN p0, const FloatN p1) noexcept
 {
+  static_assert(kIsFloat<RemoveVolatileT<FloatN>>, "The FloatN isn't floating point.");
   return Impl::dot(p0, p1);
 }
 
@@ -83,6 +122,7 @@ double Geometry::dot3(const double4 p0, const double4 p1) noexcept
 template <typename FloatN> inline
 auto Geometry::distance(const FloatN p0, const FloatN p1) noexcept
 {
+  static_assert(kIsFloat<RemoveVolatileT<FloatN>>, "The FloatN isn't floating point.");
   return Impl::distance(p0, p1);
 }
 
@@ -122,6 +162,7 @@ double Geometry::distance3(const double4 p0, const double4 p1) noexcept
 template <typename FloatN> inline
 auto Geometry::length(const FloatN p) noexcept
 {
+  static_assert(kIsFloat<RemoveVolatileT<FloatN>>, "The FloatN isn't floating point.");
   return Impl::length(p);
 }
 
@@ -161,6 +202,7 @@ double Geometry::length3(const double4 p) noexcept
 template <typename FloatN> inline
 FloatN Geometry::normalize(const FloatN p) noexcept
 {
+  static_assert(kIsFloat<RemoveVolatileT<FloatN>>, "The FloatN isn't floating point.");
   return Impl::normalize(p);
 }
 
@@ -191,19 +233,56 @@ double4 Geometry::normalize3(const double4 p) noexcept
 /*!
   \details No detailed description
 
-  \tparam FloatN No description.
   \param [in] p0 No description.
   \param [in] p1 No description.
   \return No description
   */
-template <typename FloatN> inline
-FloatN Geometry::Native::cross(const FloatN p0, const FloatN p1) noexcept
+inline
+float3 Geometry::Native::cross(const float3 p0, const float3 p1) noexcept
 {
-  static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
-  using VecInfo = VectorTypeInfo<FloatN>;
-  static_assert((VecInfo::size() == 3) || (VecInfo::size() == 4),
-                "The size of vector isn't 3 or 4.");
-  const FloatN result = ZIVC_CL_GLOBAL_NAMESPACE::cross(p0, p1);
+  const float3 result = ZIVC_CL_GLOBAL_NAMESPACE::cross(p0, p1);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+inline
+float4 Geometry::Native::cross(const float4 p0, const float4 p1) noexcept
+{
+  const float4 result = ZIVC_CL_GLOBAL_NAMESPACE::cross(p0, p1);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+inline
+double3 Geometry::Native::cross(const double3 p0, const double3 p1) noexcept
+{
+  const double3 result = ZIVC_CL_GLOBAL_NAMESPACE::cross(p0, p1);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+inline
+double4 Geometry::Native::cross(const double4 p0, const double4 p1) noexcept
+{
+  const double4 result = ZIVC_CL_GLOBAL_NAMESPACE::cross(p0, p1);
   return result;
 }
 
@@ -218,8 +297,10 @@ FloatN Geometry::Native::cross(const FloatN p0, const FloatN p1) noexcept
 template <typename FloatN> inline
 auto Geometry::Native::dot(const FloatN p0, const FloatN p1) noexcept
 {
-  static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
-  const auto result = ZIVC_CL_GLOBAL_NAMESPACE::dot(p0, p1);
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  const ElementT result = ZIVC_CL_GLOBAL_NAMESPACE::dot(p0, p1);
   return result;
 }
 
@@ -235,8 +316,7 @@ float Geometry::Native::dot3(const float4 p0, const float4 p1) noexcept
 {
   const auto q0 = castBit<float3>(p0);
   const auto q1 = castBit<float3>(p1);
-  const float result = dot(q0, q1);
-  return result;
+  return dot(q0, q1);
 }
 
 /*!
@@ -251,8 +331,7 @@ double Geometry::Native::dot3(const double4 p0, const double4 p1) noexcept
 {
   const auto q0 = castBit<double3>(p0);
   const auto q1 = castBit<double3>(p1);
-  const double result = dot(q0, q1);
-  return result;
+  return dot(q0, q1);
 }
 
 /*!
@@ -266,8 +345,10 @@ double Geometry::Native::dot3(const double4 p0, const double4 p1) noexcept
 template <typename FloatN> inline
 auto Geometry::Native::distance(const FloatN p0, const FloatN p1) noexcept
 {
-  static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
-  const auto result = ZIVC_CL_GLOBAL_NAMESPACE::distance(p0, p1);
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  const ElementT result = ZIVC_CL_GLOBAL_NAMESPACE::distance(p0, p1);
   return result;
 }
 
@@ -283,8 +364,7 @@ float Geometry::Native::distance3(const float4 p0, const float4 p1) noexcept
 {
   const auto q0 = castBit<float3>(p0);
   const auto q1 = castBit<float3>(p1);
-  const float result = distance(q0, q1);
-  return result;
+  return distance(q0, q1);
 }
 
 /*!
@@ -299,8 +379,7 @@ double Geometry::Native::distance3(const double4 p0, const double4 p1) noexcept
 {
   const auto q0 = castBit<double3>(p0);
   const auto q1 = castBit<double3>(p1);
-  const double result = distance(q0, q1);
-  return result;
+  return distance(q0, q1);
 }
 
 /*!
@@ -313,8 +392,10 @@ double Geometry::Native::distance3(const double4 p0, const double4 p1) noexcept
 template <typename FloatN> inline
 auto Geometry::Native::length(const FloatN p) noexcept
 {
-  static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
-  const auto result = ZIVC_CL_GLOBAL_NAMESPACE::length(p);
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  const ElementT result = ZIVC_CL_GLOBAL_NAMESPACE::length(p);
   return result;
 }
 
@@ -329,8 +410,7 @@ inline
 float Geometry::Native::length3(const float4 p) noexcept
 {
   const auto q = castBit<float3>(p);
-  const float result = length(q);
-  return result;
+  return length(q);
 }
 
 /*!
@@ -344,8 +424,7 @@ inline
 double Geometry::Native::length3(const double4 p) noexcept
 {
   const auto q = castBit<double3>(p);
-  const double result = length(q);
-  return result;
+  return length(q);
 }
 
 /*!
@@ -358,7 +437,7 @@ double Geometry::Native::length3(const double4 p) noexcept
 template <typename FloatN> inline
 FloatN Geometry::Native::normalize(const FloatN p) noexcept
 {
-  static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
+  static_assert(kIsFloat<RemoveVolatileT<FloatN>>, "The FloatN isn't floating point.");
   const FloatN result = ZIVC_CL_GLOBAL_NAMESPACE::normalize(p);
   return result;
 }
@@ -394,44 +473,14 @@ double4 Geometry::Native::normalize3(const double4 p) noexcept
 /*!
   \details No detailed description
 
-  \tparam FloatN No description.
   \param [in] p0 No description.
   \param [in] p1 No description.
   \return No description
   */
-template <typename FloatN> inline
-FloatN Geometry::Fallback::cross(const FloatN p0, const FloatN p1) noexcept
+inline
+constexpr float3 Geometry::Fallback::cross(const float3 p0, const float3 p1) noexcept
 {
-  static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
-  using VecInfo = VectorTypeInfo<FloatN>;
-  static_assert((VecInfo::size() == 3) || (VecInfo::size() == 4),
-                "The size of vector isn't 3 or 4.");
-  FloatN result{};
-  result.x = p0[1] * p1[2] - p0[2] * p1[1];
-  result.y = p0[2] * p1[0] - p0[0] * p1[2];
-  result.z = p0[0] * p1[1] - p0[1] * p1[0];
-  return result;
-}
-
-/*!
-  \details No detailed description
-
-  \tparam FloatN No description.
-  \param [in] p0 No description.
-  \param [in] p1 No description.
-  \return No description
-  */
-template <typename FloatN> inline
-auto Geometry::Fallback::dot(const FloatN p0, const FloatN p1) noexcept
-{
-  static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
-  using VecInfo = VectorTypeInfo<FloatN>;
-  typename VecInfo::ElementT result = p0.x * p1.x + p0.y * p1.y;
-  if constexpr (3 <= VecInfo::size())
-    result += p0.z * p1.z;
-  if constexpr (4 <= VecInfo::size())
-    result += p0.w * p1.w;
-  return result;
+  return crossImpl(p0, p1);
 }
 
 /*!
@@ -442,12 +491,206 @@ auto Geometry::Fallback::dot(const FloatN p0, const FloatN p1) noexcept
   \return No description
   */
 inline
-float Geometry::Fallback::dot3(const float4 p0, const float4 p1) noexcept
+constexpr float4 Geometry::Fallback::cross(const float4 p0, const float4 p1) noexcept
+{
+  return crossImpl(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+inline
+constexpr double3 Geometry::Fallback::cross(const double3 p0, const double3 p1) noexcept
+{
+  return crossImpl(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+inline
+constexpr double4 Geometry::Fallback::cross(const double4 p0, const double4 p1) noexcept
+{
+  return crossImpl(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+inline
+constexpr float Geometry::Fallback::dot(const float p0, const float p1) noexcept
+{
+  return dotN1Impl<float>(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+inline
+constexpr float Geometry::Fallback::dot(const float2 p0, const float2 p1) noexcept
+{
+  return dotN2Impl<float, float2>(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+inline
+constexpr float Geometry::Fallback::dot(const float3 p0, const float3 p1) noexcept
+{
+  return dotN3Impl<float, float3>(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+inline
+constexpr float Geometry::Fallback::dot(const float4 p0, const float4 p1) noexcept
+{
+  return dotN4Impl<float, float4>(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+inline
+constexpr float Geometry::Fallback::dot(const float8 p0, const float8 p1) noexcept
+{
+  return dotN8Impl<float, float8>(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+inline
+constexpr float Geometry::Fallback::dot(const float16 p0, const float16 p1) noexcept
+{
+  return dotN16Impl<float, float16>(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+inline
+constexpr double Geometry::Fallback::dot(const double p0, const double p1) noexcept
+{
+  return dotN1Impl<double>(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+inline
+constexpr double Geometry::Fallback::dot(const double2 p0, const double2 p1) noexcept
+{
+  return dotN2Impl<double, double2>(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+inline
+constexpr double Geometry::Fallback::dot(const double3 p0, const double3 p1) noexcept
+{
+  return dotN3Impl<double, double3>(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+inline
+constexpr double Geometry::Fallback::dot(const double4 p0, const double4 p1) noexcept
+{
+  return dotN4Impl<double, double4>(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+inline
+constexpr double Geometry::Fallback::dot(const double8 p0, const double8 p1) noexcept
+{
+  return dotN8Impl<double, double8>(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+inline
+constexpr double Geometry::Fallback::dot(const double16 p0, const double16 p1) noexcept
+{
+  return dotN16Impl<double, double16>(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+inline
+constexpr float Geometry::Fallback::dot3(const float4 p0, const float4 p1) noexcept
 {
   const auto q0 = castBit<float3>(p0);
   const auto q1 = castBit<float3>(p1);
-  const float result = dot(q0, q1);
-  return result;
+  return dot(q0, q1);
 }
 
 /*!
@@ -458,12 +701,11 @@ float Geometry::Fallback::dot3(const float4 p0, const float4 p1) noexcept
   \return No description
   */
 inline
-double Geometry::Fallback::dot3(const double4 p0, const double4 p1) noexcept
+constexpr double Geometry::Fallback::dot3(const double4 p0, const double4 p1) noexcept
 {
   const auto q0 = castBit<double3>(p0);
   const auto q1 = castBit<double3>(p1);
-  const double result = dot(q0, q1);
-  return result;
+  return dot(q0, q1);
 }
 
 /*!
@@ -476,9 +718,11 @@ double Geometry::Fallback::dot3(const double4 p0, const double4 p1) noexcept
 template <typename FloatN> inline
 auto Geometry::Fallback::length(const FloatN p) noexcept
 {
-  static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
-  const auto d2 = dot(p, p);
-  const auto result = sqrt(d2);
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  const ElementT d2 = dot(p, p);
+  const ElementT result = sqrt(d2);
   return result;
 }
 
@@ -493,8 +737,7 @@ inline
 float Geometry::Fallback::length3(const float4 p) noexcept
 {
   const auto q = castBit<float3>(p);
-  const float result = length(q);
-  return result;
+  return length(q);
 }
 
 /*!
@@ -508,8 +751,7 @@ inline
 double Geometry::Fallback::length3(const double4 p) noexcept
 {
   const auto q = castBit<double3>(p);
-  const double result = length(q);
-  return result;
+  return length(q);
 }
 
 /*!
@@ -523,9 +765,8 @@ double Geometry::Fallback::length3(const double4 p) noexcept
 template <typename FloatN> inline
 auto Geometry::Fallback::distance(const FloatN p0, const FloatN p1) noexcept
 {
-  static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
-  const auto result = length(p0 - p1);
-  return result;
+  static_assert(kIsFloat<RemoveVolatileT<FloatN>>, "The FloatN isn't floating point.");
+  return length(p0 - p1);
 }
 
 /*!
@@ -540,8 +781,7 @@ float Geometry::Fallback::distance3(const float4 p0, const float4 p1) noexcept
 {
   const auto q0 = castBit<float3>(p0);
   const auto q1 = castBit<float3>(p1);
-  const float result = distance(q0, q1);
-  return result;
+  return distance(q0, q1);
 }
 
 /*!
@@ -556,8 +796,7 @@ double Geometry::Fallback::distance3(const double4 p0, const double4 p1) noexcep
 {
   const auto q0 = castBit<double3>(p0);
   const auto q1 = castBit<double3>(p1);
-  const double result = distance(q0, q1);
-  return result;
+  return distance(q0, q1);
 }
 
 /*!
@@ -570,8 +809,10 @@ double Geometry::Fallback::distance3(const double4 p0, const double4 p1) noexcep
 template <typename FloatN> inline
 FloatN Geometry::Fallback::normalize(const FloatN p) noexcept
 {
-  static_assert(kIsFloat<FloatN>, "The FloatN isn't floating point.");
-  const auto d2 = dot(p, p);
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  const ElementT d2 = dot(p, p);
   const FloatN result = p * rsqrt(d2);
   return result;
 }
@@ -613,10 +854,190 @@ double4 Geometry::Fallback::normalize3(const double4 p) noexcept
   \return No description
   */
 template <typename FloatN> inline
-FloatN cross(const FloatN p0, const FloatN p1) noexcept
+constexpr FloatN Geometry::Fallback::crossImpl(const FloatN p0, const FloatN p1) noexcept
 {
-  const FloatN result = Geometry::cross(p0, p1);
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  FloatN result = static_cast<ElementT>(0);
+  result.x = p0.y * p1.z - p0.z * p1.y;
+  result.y = p0.z * p1.x - p0.x * p1.z;
+  result.z = p0.x * p1.y - p0.y * p1.x;
   return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+template <typename Float> inline
+constexpr Float Geometry::Fallback::dotN1Impl(const Float p0, const Float p1) noexcept
+{
+  const Float result = p0 * p1;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam Float2 No description.
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+template <typename Float, typename Float2> inline
+constexpr Float Geometry::Fallback::dotN2Impl(const Float2 p0, const Float2 p1) noexcept
+{
+  const Float result = p0.x * p1.x +
+                       p0.y * p1.y;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam Float3 No description.
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+template <typename Float, typename Float3> inline
+constexpr Float Geometry::Fallback::dotN3Impl(const Float3 p0, const Float3 p1) noexcept
+{
+  const Float result = p0.x * p1.x +
+                       p0.y * p1.y +
+                       p0.z * p1.z;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam Float4 No description.
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+template <typename Float, typename Float4> inline
+constexpr Float Geometry::Fallback::dotN4Impl(const Float4 p0, const Float4 p1) noexcept
+{
+  const Float result = p0.x * p1.x +
+                       p0.y * p1.y +
+                       p0.z * p1.z +
+                       p0.w * p1.w;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam Float8 No description.
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+template <typename Float, typename Float8> inline
+constexpr Float Geometry::Fallback::dotN8Impl(const Float8 p0, const Float8 p1) noexcept
+{
+  const Float result = p0.s0 * p1.s0 +
+                       p0.s1 * p1.s1 +
+                       p0.s2 * p1.s2 +
+                       p0.s3 * p1.s3 +
+                       p0.s4 * p1.s4 +
+                       p0.s5 * p1.s5 +
+                       p0.s6 * p1.s6 +
+                       p0.s7 * p1.s7;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam Float16 No description.
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+template <typename Float, typename Float16> inline
+constexpr Float Geometry::Fallback::dotN16Impl(const Float16 p0, const Float16 p1) noexcept
+{
+  const Float result = p0.s0 * p1.s0 +
+                       p0.s1 * p1.s1 +
+                       p0.s2 * p1.s2 +
+                       p0.s3 * p1.s3 +
+                       p0.s4 * p1.s4 +
+                       p0.s5 * p1.s5 +
+                       p0.s6 * p1.s6 +
+                       p0.s7 * p1.s7 +
+                       p0.s8 * p1.s8 +
+                       p0.s9 * p1.s9 +
+                       p0.sa * p1.sa +
+                       p0.sb * p1.sb +
+                       p0.sc * p1.sc +
+                       p0.sd * p1.sd +
+                       p0.se * p1.se +
+                       p0.sf * p1.sf;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+inline
+float3 cross(const float3 p0, const float3 p1) noexcept
+{
+  return Geometry::cross(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+inline
+float4 cross(const float4 p0, const float4 p1) noexcept
+{
+  return Geometry::cross(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+inline
+double3 cross(const double3 p0, const double3 p1) noexcept
+{
+  return Geometry::cross(p0, p1);
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+inline
+double4 cross(const double4 p0, const double4 p1) noexcept
+{
+  return Geometry::cross(p0, p1);
 }
 
 /*!
@@ -630,8 +1051,8 @@ FloatN cross(const FloatN p0, const FloatN p1) noexcept
 template <typename FloatN> inline
 auto dot(const FloatN p0, const FloatN p1) noexcept
 {
-  const auto result = Geometry::dot(p0, p1);
-  return result;
+  static_assert(kIsFloat<RemoveVolatileT<FloatN>>, "The FloatN isn't floating point.");
+  return Geometry::dot(p0, p1);
 }
 
 /*!
@@ -644,8 +1065,7 @@ auto dot(const FloatN p0, const FloatN p1) noexcept
 inline
 float dot3(const float4 p0, const float4 p1) noexcept
 {
-  const float result = Geometry::dot3(p0, p1);
-  return result;
+  return Geometry::dot3(p0, p1);
 }
 
 /*!
@@ -658,8 +1078,7 @@ float dot3(const float4 p0, const float4 p1) noexcept
 inline
 double dot3(const double4 p0, const double4 p1) noexcept
 {
-  const double result = Geometry::dot3(p0, p1);
-  return result;
+  return Geometry::dot3(p0, p1);
 }
 
 /*!
@@ -673,8 +1092,8 @@ double dot3(const double4 p0, const double4 p1) noexcept
 template <typename FloatN> inline
 auto distance(const FloatN p0, const FloatN p1) noexcept
 {
-  const auto result = Geometry::distance(p0, p1);
-  return result;
+  static_assert(kIsFloat<RemoveVolatileT<FloatN>>, "The FloatN isn't floating point.");
+  return Geometry::distance(p0, p1);
 }
 
 /*!
@@ -688,8 +1107,7 @@ auto distance(const FloatN p0, const FloatN p1) noexcept
 inline
 float distance3(const float4 p0, const float4 p1) noexcept
 {
-  const float result = Geometry::distance3(p0, p1);
-  return result;
+  return Geometry::distance3(p0, p1);
 }
 
 /*!
@@ -703,8 +1121,7 @@ float distance3(const float4 p0, const float4 p1) noexcept
 inline
 double distance3(const double4 p0, const double4 p1) noexcept
 {
-  const double result = Geometry::distance3(p0, p1);
-  return result;
+  return Geometry::distance3(p0, p1);
 }
 
 /*!
@@ -717,8 +1134,8 @@ double distance3(const double4 p0, const double4 p1) noexcept
 template <typename FloatN> inline
 auto length(const FloatN p) noexcept
 {
-  const auto result = Geometry::length(p);
-  return result;
+  static_assert(kIsFloat<RemoveVolatileT<FloatN>>, "The FloatN isn't floating point.");
+  return Geometry::length(p);
 }
 
 /*!
@@ -731,8 +1148,7 @@ auto length(const FloatN p) noexcept
 inline
 float length3(const float4 p) noexcept
 {
-  const float result = Geometry::length3(p);
-  return result;
+  return Geometry::length3(p);
 }
 
 /*!
@@ -745,8 +1161,7 @@ float length3(const float4 p) noexcept
 inline
 double length3(const double4 p) noexcept
 {
-  const double result = Geometry::length3(p);
-  return result;
+  return Geometry::length3(p);
 }
 
 /*!
@@ -759,8 +1174,8 @@ double length3(const double4 p) noexcept
 template <typename FloatN> inline
 FloatN normalize(const FloatN p) noexcept
 {
-  const FloatN result = Geometry::normalize(p);
-  return result;
+  static_assert(kIsFloat<RemoveVolatileT<FloatN>>, "The FloatN isn't floating point.");
+  return Geometry::normalize(p);
 }
 
 /*!
@@ -772,8 +1187,7 @@ FloatN normalize(const FloatN p) noexcept
 inline
 float4 normalize3(const float4 p) noexcept
 {
-  const float4 result = Geometry::normalize3(p);
-  return result;
+  return Geometry::normalize3(p);
 }
 
 /*!
@@ -785,8 +1199,7 @@ float4 normalize3(const float4 p) noexcept
 inline
 double4 normalize3(const double4 p) noexcept
 {
-  const double4 result = Geometry::normalize3(p);
-  return result;
+  return Geometry::normalize3(p);
 }
 
 } // namespace zivc

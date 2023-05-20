@@ -25,8 +25,16 @@ class Geometry
 {
  public:
   //! Return the cross product of p0.xyz and p1.xyz
-  template <typename FloatN>
-  static FloatN cross(const FloatN p0, const FloatN p1) noexcept;
+  static float3 cross(const float3 p0, const float3 p1) noexcept;
+
+  //! Return the cross product of p0.xyz and p1.xyz
+  static float4 cross(const float4 p0, const float4 p1) noexcept;
+
+  //! Return the cross product of p0.xyz and p1.xyz
+  static double3 cross(const double3 p0, const double3 p1) noexcept;
+
+  //! Return the cross product of p0.xyz and p1.xyz
+  static double4 cross(const double4 p0, const double4 p1) noexcept;
 
   //! Compute dot product
   template <typename FloatN>
@@ -77,8 +85,16 @@ class Geometry
   struct Native
   {
     //! Return the cross product of p0.xyz and p1.xyz
-    template <typename FloatN>
-    static FloatN cross(const FloatN p0, const FloatN p1) noexcept;
+    static float3 cross(const float3 p0, const float3 p1) noexcept;
+
+    //! Return the cross product of p0.xyz and p1.xyz
+    static float4 cross(const float4 p0, const float4 p1) noexcept;
+
+    //! Return the cross product of p0.xyz and p1.xyz
+    static double3 cross(const double3 p0, const double3 p1) noexcept;
+
+    //! Return the cross product of p0.xyz and p1.xyz
+    static double4 cross(const double4 p0, const double4 p1) noexcept;
 
     //! Compute dot product
     template <typename FloatN>
@@ -129,18 +145,58 @@ class Geometry
   struct Fallback
   {
     //! Return the cross product of p0.xyz and p1.xyz
-    template <typename FloatN>
-    static FloatN cross(const FloatN p0, const FloatN p1) noexcept;
+    static constexpr float3 cross(const float3 p0, const float3 p1) noexcept;
+
+    //! Return the cross product of p0.xyz and p1.xyz
+    static constexpr float4 cross(const float4 p0, const float4 p1) noexcept;
+
+    //! Return the cross product of p0.xyz and p1.xyz
+    static constexpr double3 cross(const double3 p0, const double3 p1) noexcept;
+
+    //! Return the cross product of p0.xyz and p1.xyz
+    static constexpr double4 cross(const double4 p0, const double4 p1) noexcept;
 
     //! Compute dot product
-    template <typename FloatN>
-    static auto dot(const FloatN p0, const FloatN p1) noexcept;
+    static constexpr float dot(const float p0, const float p1) noexcept;
+
+    //! Compute dot product
+    static constexpr float dot(const float2 p0, const float2 p1) noexcept;
+
+    //! Compute dot product
+    static constexpr float dot(const float3 p0, const float3 p1) noexcept;
+
+    //! Compute dot product
+    static constexpr float dot(const float4 p0, const float4 p1) noexcept;
+
+    //! Compute dot product
+    static constexpr float dot(const float8 p0, const float8 p1) noexcept;
+
+    //! Compute dot product
+    static constexpr float dot(const float16 p0, const float16 p1) noexcept;
+
+    //! Compute dot product
+    static constexpr double dot(const double p0, const double p1) noexcept;
+
+    //! Compute dot product
+    static constexpr double dot(const double2 p0, const double2 p1) noexcept;
+
+    //! Compute dot product
+    static constexpr double dot(const double3 p0, const double3 p1) noexcept;
+
+    //! Compute dot product
+    static constexpr double dot(const double4 p0, const double4 p1) noexcept;
+
+    //! Compute dot product
+    static constexpr double dot(const double8 p0, const double8 p1) noexcept;
+
+    //! Compute dot product
+    static constexpr double dot(const double16 p0, const double16 p1) noexcept;
 
     //! Compute dot product of p0.xyz and p1.xyz
-    static float dot3(const float4 p0, const float4 p1) noexcept;
+    static constexpr float dot3(const float4 p0, const float4 p1) noexcept;
 
     //! Compute dot product of p0.xyz and p1.xyz
-    static double dot3(const double4 p0, const double4 p1) noexcept;
+    static constexpr double dot3(const double4 p0, const double4 p1) noexcept;
 
     //! Return the distance between p0 and p1
     template <typename FloatN>
@@ -171,6 +227,35 @@ class Geometry
 
     //! Return a vector in the same direction as p.xyz but with a length of 1
     static double4 normalize3(const double4 p) noexcept;
+
+   private:
+    //! The implementation of cross
+    template <typename FloatN>
+    static constexpr FloatN crossImpl(const FloatN p0, const FloatN p1) noexcept;
+
+    //! The implementation of dot
+    template <typename Float>
+    static constexpr Float dotN1Impl(const Float p0, const Float p1) noexcept;
+
+    //! The implementation of dot
+    template <typename Float, typename Float2>
+    static constexpr Float dotN2Impl(const Float2 p0, const Float2 p1) noexcept;
+
+    //! The implementation of dot
+    template <typename Float, typename Float3>
+    static constexpr Float dotN3Impl(const Float3 p0, const Float3 p1) noexcept;
+
+    //! The implementation of dot
+    template <typename Float, typename Float4>
+    static constexpr Float dotN4Impl(const Float4 p0, const Float4 p1) noexcept;
+
+    //! The implementation of dot
+    template <typename Float, typename Float8>
+    static constexpr Float dotN8Impl(const Float8 p0, const Float8 p1) noexcept;
+
+    //! The implementation of dot
+    template <typename Float, typename Float16>
+    static constexpr Float dotN16Impl(const Float16 p0, const Float16 p1) noexcept;
   };
 
   // Type aliases
@@ -180,8 +265,16 @@ class Geometry
 // OpenCL style function aliases
 
 //! Return the cross product of p0.xyz and p1.xyz
-template <typename FloatN>
-FloatN cross(const FloatN p0, const FloatN p1) noexcept;
+float3 cross(const float3 p0, const float3 p1) noexcept;
+
+//! Return the cross product of p0.xyz and p1.xyz
+float4 cross(const float4 p0, const float4 p1) noexcept;
+
+//! Return the cross product of p0.xyz and p1.xyz
+double3 cross(const double3 p0, const double3 p1) noexcept;
+
+//! Return the cross product of p0.xyz and p1.xyz
+double4 cross(const double4 p0, const double4 p1) noexcept;
 
 //! Compute dot product
 template <typename FloatN>

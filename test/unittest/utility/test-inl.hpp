@@ -43,7 +43,9 @@ template <std::floating_point Float> inline
 Float calcRoughUlpDistance(const Float lhs, const Float rhs) noexcept
 {
   constexpr Float eps = std::numeric_limits<Float>::epsilon();
-  const Float ulps = std::abs(lhs - rhs) / (eps * std::abs(lhs + rhs));
+  constexpr Float zero = static_cast<Float>(0);
+  const Float b = eps * std::abs(lhs + rhs);
+  const Float ulps = std::abs(lhs - rhs) / ((b == zero) ? eps : b);
   return ulps;
 }
 

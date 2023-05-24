@@ -410,7 +410,7 @@ int16 as_int16(const Type& from) noexcept requires SameSizeAs<int16, Type>;
 
 //! A data is reinterpreted as a uint data
 template <zisc::TriviallyCopyable Type>
-uint32b as_uint(const Type& from) noexcept requires SameSizeAs<int32b, Type>;
+uint32b as_uint(const Type& from) noexcept requires SameSizeAs<uint32b, Type>;
 
 //! A data is reinterpreted as a uint2 data
 template <zisc::TriviallyCopyable Type>

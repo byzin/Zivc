@@ -44,6 +44,12 @@ class Utility
   template <typename Type, typename T>
   static Type reinterp(T object) noexcept;
 
+  // Conditional function
+
+  //! Update the value in the lhs with the rhs if the flag is true
+  template <typename AddressSpacePointer, typename Type>
+  static bool updateIfTrue(const bool flag, AddressSpacePointer lhs, Type rhs) noexcept;
+
  private:
   template <typename Type>
   struct Cast;
@@ -70,6 +76,10 @@ Type cast(T value) noexcept;
 //! Treat T* as Type*
 template <typename Type, typename T>
 Type reinterp(T object) noexcept;
+
+//! Update the value in the lhs with the rhs if the flag is true
+template <typename AddressSpacePointer, typename Type>
+bool updateIfTrue(const bool flag, AddressSpacePointer lhs, Type rhs) noexcept;
 
 // Work-Item functions
 

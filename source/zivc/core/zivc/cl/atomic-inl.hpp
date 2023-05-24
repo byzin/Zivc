@@ -189,7 +189,8 @@ Type Atomic::exchange(AddressSpacePointer object,
 /*!
   \details No detailed description
 
-  \tparam AddressSpacePointer No description.
+  \tparam AddressSpacePointer1 No description.
+  \tparam AddressSpacePointer2 No description.
   \tparam Type No description.
   \param [in,out] object No description.
   \param [in,out] expected No description.
@@ -198,14 +199,14 @@ Type Atomic::exchange(AddressSpacePointer object,
   \param [in] failure No description.
   \return No description
   */
-template <typename AddressSpacePointer, typename Type> inline
-bool Atomic::compareExchange(AddressSpacePointer object,
-                             Type* expected,
-                             const Type desired,
-                             const MemoryOrder success,
-                             const MemoryOrder failure) noexcept
+template <typename AddressSpacePointer1, typename AddressSpacePointer2, typename Type> inline
+bool Atomic::compareAndExchange(AddressSpacePointer1 object,
+                                AddressSpacePointer2 expected,
+                                const Type desired,
+                                const MemoryOrder success,
+                                const MemoryOrder failure) noexcept
 {
-  using ObjectT = AtomicObject<AddressSpacePointer>;
+  using ObjectT = AtomicObject<AddressSpacePointer1>;
   return ZIVC_CL_GLOBAL_NAMESPACE::atomic_compare_exchange_strong_explicit(
       reinterp<typename ObjectT::Type>(object),
       expected,
@@ -407,31 +408,46 @@ Type Atomic::fetchMax(AddressSpacePointer object,
   \tparam Function No description.
   \tparam Types No description.
   \param [in,out] p No description.
+  \param [in] order No description.
   \param [in] expression No description.
   \param [in] arguments No description.
   \return No description
   */
 template <typename AddressSpacePointer, typename Function, typename ...Types> inline
 auto Atomic::perform(AddressSpacePointer p,
+                     const MemoryOrder order,
                      Function expression,
-                     Types&&... arguments,
-                     const MemoryOrder success,
-                     const MemoryOrder failure) noexcept
+                     Types... arguments) noexcept
 {
-  using ReturnT = RemoveCvrefT<decltype(expression(*p, arguments...))>;
-  static_assert(isInteger32<ReturnT>(),
-                "The return type of the expression isn't 32bit integer type.");
+  using ASpaceInfo = AddressSpaceInfo<AddressSpacePointer>;
+  static_assert(ASpaceInfo::isPointer(), "The p isn't pointer.");
+  using Type = typename ASpaceInfo::DataT;
+  using ReturnT = RemoveCvrefAddressT<decltype(expression(*p, arguments...))>;
+  static_assert(kIsSame<Type, ReturnT>,
+                "The return type of the expression doesn't match with the object type.");
   // Perform an expression atomically
-  auto old = *p;
-  auto cmp = old;
-  do {
-    cmp = old;
-    const ReturnT value = expression(cmp, forward<Types>(arguments)...);
-    old = compareExchange(p, cmp, value, success, failure);
-  } while (old != cmp);
+  Type old = load(p, getLoadOrder(order));
+  for (bool result = false; !result;) {
+    const Type value = expression(old, arguments...);
+    result = atomic_compare_exchange(p, &old, value, order, getLoadOrder(order));
+  }
   return old;
 }
 
+/*!
+  \details No detailed description
+
+  \param [in] order No description.
+  \return No description
+  */
+constexpr MemoryOrder Atomic::getLoadOrder(const MemoryOrder order) noexcept
+{
+  const bool release_flag = (order == MemoryOrder::kRelease) ||
+                            (order == MemoryOrder::kAcqRel);
+  const MemoryOrder result = release_flag ? MemoryOrder::kAcquire
+                                          : order;
+  return result;
+}
 
 /*!
   \details No detailed description
@@ -484,8 +500,8 @@ Type atomic_exchange(AddressSpacePointer object,
 /*!
   \details No detailed description
 
-  \tparam AddressSpacePointer No description.
-  \tparam Type No description.
+  \tparam AddressSpacePointer1 No description.
+  \tparam AddressSpacePointer2 No description.
   \param [in,out] object No description.
   \param [in,out] expected No description.
   \param [in] desired No description.
@@ -493,14 +509,14 @@ Type atomic_exchange(AddressSpacePointer object,
   \param [in] failure No description.
   \return No description
   */
-template <typename AddressSpacePointer, typename Type> inline
-bool atomic_compare_exchange(AddressSpacePointer object,
-                             Type* expected,
+template <typename AddressSpacePointer1, typename AddressSpacePointer2, typename Type> inline
+bool atomic_compare_exchange(AddressSpacePointer1 object,
+                             AddressSpacePointer2 expected,
                              const Type desired,
                              const MemoryOrder success,
                              const MemoryOrder failure) noexcept
 {
-  return Atomic::compareExchange(object, expected, desired, success, failure);
+  return Atomic::compareAndExchange(object, expected, desired, success, failure);
 }
 
 /*!

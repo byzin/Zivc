@@ -23,6 +23,7 @@
 #include <concepts>
 #include <limits>
 #include <initializer_list>
+#include <span>
 // Zisc
 #include "zisc/bit.hpp"
 // Zivc
@@ -97,6 +98,23 @@ void fillDeviceBuffer(const Type& value, zivc::Buffer<Type>* buffer)
 template <typename Type> inline
 void setDeviceBuffer(zivc::Device& device,
                      const std::initializer_list<Type>& init_list,
+                     zivc::Buffer<Type>* buffer)
+{
+  const std::span<const Type> l{init_list.begin(), init_list.end()};
+  setDeviceBuffer(device, l, buffer);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \param [in] device No description.
+  \param [in] init_list No description.
+  \param [out] buffer No description.
+  */
+template <typename Type> inline
+void setDeviceBuffer(zivc::Device& device,
+                     const std::span<const Type>& init_list,
                      zivc::Buffer<Type>* buffer)
 {
   buffer->setSize(init_list.size());

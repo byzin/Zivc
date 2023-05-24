@@ -179,7 +179,7 @@ TEST(ClCppTest, RelationIsEqualTest)
     ASSERT_EQ(t, mem[5]) << "isequal failed.";
     ASSERT_EQ(f, mem[6]) << "isequal failed.";
     ASSERT_EQ(t, mem[7]) << "isequal failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(t, mem[8]) << "isequal failed.";
     //ASSERT_EQ(t, mem[9]) << "isequal failed.";
     //ASSERT_EQ(f, mem[10]) << "isequal failed.";
@@ -208,7 +208,7 @@ TEST(ClCppTest, RelationIsEqualTest)
     ASSERT_EQ(t, mem[4].y) << "isequal failed.";
     ASSERT_EQ(f, mem[5].x) << "isequal failed.";
     ASSERT_EQ(f, mem[5].y) << "isequal failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(t, mem[6].x) << "isequal failed.";
     //ASSERT_EQ(t, mem[6].y) << "isequal failed.";
     //ASSERT_EQ(f, mem[7].x) << "isequal failed.";
@@ -243,7 +243,7 @@ TEST(ClCppTest, RelationIsEqualTest)
     ASSERT_EQ(f, mem[5].x) << "isequal failed.";
     ASSERT_EQ(f, mem[5].y) << "isequal failed.";
     ASSERT_EQ(f, mem[5].z) << "isequal failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(t, mem[6].x) << "isequal failed.";
     //ASSERT_EQ(t, mem[6].y) << "isequal failed.";
     //ASSERT_EQ(t, mem[6].z) << "isequal failed.";
@@ -289,7 +289,7 @@ TEST(ClCppTest, RelationIsEqualTest)
     ASSERT_EQ(f, mem[5].y) << "isequal failed.";
     ASSERT_EQ(f, mem[5].z) << "isequal failed.";
     ASSERT_EQ(f, mem[5].w) << "isequal failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(t, mem[6].x) << "isequal failed.";
     //ASSERT_EQ(t, mem[6].y) << "isequal failed.";
     //ASSERT_EQ(t, mem[6].z) << "isequal failed.";
@@ -425,7 +425,7 @@ TEST(ClCppTest, RelationIsEqualLongVecTest)
     ZIVC_TEST_V8(t, t, t, t, mem[3], "isequal");
     ZIVC_TEST_V8(t, t, t, t, mem[4], "isequal");
     ZIVC_TEST_V8(f, f, f, f, mem[5], "isequal");
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ZIVC_TEST_V8(t, t, t, t, mem[6], "isequal");
     //ZIVC_TEST_V8(f, f, f, f, mem[7], "isequal");
     ZIVC_TEST_V8(t, t, t, t, mem[8], "isequal");
@@ -443,7 +443,7 @@ TEST(ClCppTest, RelationIsEqualLongVecTest)
     ZIVC_TEST_V16(t, t, t, t, mem[3], "isequal");
     ZIVC_TEST_V16(t, t, t, t, mem[4], "isequal");
     ZIVC_TEST_V16(f, f, f, f, mem[5], "isequal");
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ZIVC_TEST_V16(t, t, t, t, mem[6], "isequal");
     //ZIVC_TEST_V16(f, f, f, f, mem[7], "isequal");
     ZIVC_TEST_V16(t, t, t, t, mem[8], "isequal");
@@ -568,7 +568,7 @@ TEST(ClCppTest, RelationIsNotEqualTest)
     ASSERT_EQ(fl, mem[5]) << "isnotequl failed.";
     ASSERT_EQ(tl, mem[6]) << "isnotequl failed.";
     ASSERT_EQ(fl, mem[7]) << "isnotequl failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(fl, mem[8]) << "isnotequl failed.";
     //ASSERT_EQ(fl, mem[9]) << "isnotequl failed.";
     //ASSERT_EQ(tl, mem[10]) << "isnotequl failed.";
@@ -597,7 +597,7 @@ TEST(ClCppTest, RelationIsNotEqualTest)
     ASSERT_EQ(fl, mem[4].y) << "isnotequl failed.";
     ASSERT_EQ(tl, mem[5].x) << "isnotequl failed.";
     ASSERT_EQ(tl, mem[5].y) << "isnotequl failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(fl, mem[6].x) << "isnotequl failed.";
     //ASSERT_EQ(fl, mem[6].y) << "isnotequl failed.";
     //ASSERT_EQ(tl, mem[7].x) << "isnotequl failed.";
@@ -632,7 +632,7 @@ TEST(ClCppTest, RelationIsNotEqualTest)
     ASSERT_EQ(tl, mem[5].x) << "isnotequl failed.";
     ASSERT_EQ(tl, mem[5].y) << "isnotequl failed.";
     ASSERT_EQ(tl, mem[5].z) << "isnotequl failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(fl, mem[6].x) << "isnotequl failed.";
     //ASSERT_EQ(fl, mem[6].y) << "isnotequl failed.";
     //ASSERT_EQ(fl, mem[6].z) << "isnotequl failed.";
@@ -678,7 +678,7 @@ TEST(ClCppTest, RelationIsNotEqualTest)
     ASSERT_EQ(tl, mem[5].y) << "isnotequl failed.";
     ASSERT_EQ(tl, mem[5].z) << "isnotequl failed.";
     ASSERT_EQ(tl, mem[5].w) << "isnotequl failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(fl, mem[6].x) << "isnotequl failed.";
     //ASSERT_EQ(fl, mem[6].y) << "isnotequl failed.";
     //ASSERT_EQ(fl, mem[6].z) << "isnotequl failed.";
@@ -813,7 +813,7 @@ TEST(ClCppTest, RelationIsNotEqualLongVecTest)
     ZIVC_TEST_V8(fl, fl, fl, fl, mem[3], "isnotequal");
     ZIVC_TEST_V8(fl, fl, fl, fl, mem[4], "isnotequal");
     ZIVC_TEST_V8(tl, tl, tl, tl, mem[5], "isnotequal");
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ZIVC_TEST_V8(fl, fl, fl, fl, mem[6], "isnotequal");
     //ZIVC_TEST_V8(tl, tl, tl, tl, mem[7], "isnotequal");
     ZIVC_TEST_V8(fl, fl, fl, fl, mem[8], "isnotequal");
@@ -831,7 +831,7 @@ TEST(ClCppTest, RelationIsNotEqualLongVecTest)
     ZIVC_TEST_V16(fl, fl, fl, fl, mem[3], "isnotequal");
     ZIVC_TEST_V16(fl, fl, fl, fl, mem[4], "isnotequal");
     ZIVC_TEST_V16(tl, tl, tl, tl, mem[5], "isnotequal");
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ZIVC_TEST_V16(fl, fl, fl, fl, mem[6], "isnotequal");
     //ZIVC_TEST_V16(tl, tl, tl, tl, mem[7], "isnotequal");
     ZIVC_TEST_V16(fl, fl, fl, fl, mem[8], "isnotequal");
@@ -956,7 +956,7 @@ TEST(ClCppTest, RelationIsGreaterTest)
     ASSERT_EQ(f, mem[5]) << "isgreater failed.";
     ASSERT_EQ(f, mem[6]) << "isgreater failed.";
     ASSERT_EQ(f, mem[7]) << "isgreater failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(f, mem[8]) << "isgreater failed.";
     //ASSERT_EQ(f, mem[9]) << "isgreater failed.";
     //ASSERT_EQ(t, mem[10]) << "isgreater failed.";
@@ -985,7 +985,7 @@ TEST(ClCppTest, RelationIsGreaterTest)
     ASSERT_EQ(f, mem[4].y) << "isgreater failed.";
     ASSERT_EQ(f, mem[5].x) << "isgreater failed.";
     ASSERT_EQ(t, mem[5].y) << "isgreater failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(f, mem[6].x) << "isgreater failed.";
     //ASSERT_EQ(f, mem[6].y) << "isgreater failed.";
     //ASSERT_EQ(t, mem[7].x) << "isgreater failed.";
@@ -1020,7 +1020,7 @@ TEST(ClCppTest, RelationIsGreaterTest)
     ASSERT_EQ(f, mem[5].x) << "isgreater failed.";
     ASSERT_EQ(t, mem[5].y) << "isgreater failed.";
     ASSERT_EQ(f, mem[5].z) << "isgreater failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(f, mem[6].x) << "isgreater failed.";
     //ASSERT_EQ(f, mem[6].y) << "isgreater failed.";
     //ASSERT_EQ(f, mem[6].z) << "isgreater failed.";
@@ -1066,7 +1066,7 @@ TEST(ClCppTest, RelationIsGreaterTest)
     ASSERT_EQ(t, mem[5].y) << "isgreater failed.";
     ASSERT_EQ(f, mem[5].z) << "isgreater failed.";
     ASSERT_EQ(t, mem[5].w) << "isgreater failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(f, mem[6].x) << "isgreater failed.";
     //ASSERT_EQ(f, mem[6].y) << "isgreater failed.";
     //ASSERT_EQ(f, mem[6].z) << "isgreater failed.";
@@ -1201,7 +1201,7 @@ TEST(ClCppTest, RelationIsGreaterLongVecTest)
     ZIVC_TEST_V8(f, f, f, f, mem[3], "isgreater");
     ZIVC_TEST_V8(f, f, f, f, mem[4], "isgreater");
     ZIVC_TEST_V8(f, t, f, t, mem[5], "isgreater");
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ZIVC_TEST_V8(f, f, f, f, mem[6], "isgreater");
     //ZIVC_TEST_V8(t, t, t, t, mem[7], "isgreater");
     ZIVC_TEST_V8(f, f, f, f, mem[8], "isgreater");
@@ -1219,7 +1219,7 @@ TEST(ClCppTest, RelationIsGreaterLongVecTest)
     ZIVC_TEST_V16(f, f, f, f, mem[3], "isgreater");
     ZIVC_TEST_V16(f, f, f, f, mem[4], "isgreater");
     ZIVC_TEST_V16(f, t, f, t, mem[5], "isgreater");
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ZIVC_TEST_V16(f, f, f, f, mem[6], "isgreater");
     //ZIVC_TEST_V16(t, t, t, t, mem[7], "isgreater");
     ZIVC_TEST_V16(f, f, f, f, mem[8], "isgreater");
@@ -1344,7 +1344,7 @@ TEST(ClCppTest, RelationIsGreaterEqualTest)
     ASSERT_EQ(t, mem[5]) << "isgreaterequal failed.";
     ASSERT_EQ(f, mem[6]) << "isgreaterequal failed.";
     ASSERT_EQ(t, mem[7]) << "isgreaterequal failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(t, mem[8]) << "isgreaterequal failed.";
     //ASSERT_EQ(t, mem[9]) << "isgreaterequal failed.";
     //ASSERT_EQ(t, mem[10]) << "isgreaterequal failed.";
@@ -1373,7 +1373,7 @@ TEST(ClCppTest, RelationIsGreaterEqualTest)
     ASSERT_EQ(t, mem[4].y) << "isgreaterequal failed.";
     ASSERT_EQ(f, mem[5].x) << "isgreaterequal failed.";
     ASSERT_EQ(t, mem[5].y) << "isgreaterequal failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(t, mem[6].x) << "isgreaterequal failed.";
     //ASSERT_EQ(t, mem[6].y) << "isgreaterequal failed.";
     //ASSERT_EQ(t, mem[7].x) << "isgreaterequal failed.";
@@ -1408,7 +1408,7 @@ TEST(ClCppTest, RelationIsGreaterEqualTest)
     ASSERT_EQ(f, mem[5].x) << "isgreaterequal failed.";
     ASSERT_EQ(t, mem[5].y) << "isgreaterequal failed.";
     ASSERT_EQ(f, mem[5].z) << "isgreaterequal failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(t, mem[6].x) << "isgreaterequal failed.";
     //ASSERT_EQ(t, mem[6].y) << "isgreaterequal failed.";
     //ASSERT_EQ(t, mem[6].z) << "isgreaterequal failed.";
@@ -1454,7 +1454,7 @@ TEST(ClCppTest, RelationIsGreaterEqualTest)
     ASSERT_EQ(t, mem[5].y) << "isgreaterequal failed.";
     ASSERT_EQ(f, mem[5].z) << "isgreaterequal failed.";
     ASSERT_EQ(t, mem[5].w) << "isgreaterequal failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(t, mem[6].x) << "isgreaterequal failed.";
     //ASSERT_EQ(t, mem[6].y) << "isgreaterequal failed.";
     //ASSERT_EQ(t, mem[6].z) << "isgreaterequal failed.";
@@ -1589,7 +1589,7 @@ TEST(ClCppTest, RelationIsGreaterLongVecEqualTest)
     ZIVC_TEST_V8(t, t, t, t, mem[3], "isgreaterequal");
     ZIVC_TEST_V8(t, t, t, t, mem[4], "isgreaterequal");
     ZIVC_TEST_V8(f, t, f, t, mem[5], "isgreaterequal");
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ZIVC_TEST_V8(t, t, t, t, mem[6], "isgreaterequal");
     //ZIVC_TEST_V8(t, t, t, t, mem[7], "isgreaterequal");
     ZIVC_TEST_V8(t, t, t, t, mem[8], "isgreaterequal");
@@ -1607,7 +1607,7 @@ TEST(ClCppTest, RelationIsGreaterLongVecEqualTest)
     ZIVC_TEST_V16(t, t, t, t, mem[3], "isgreaterequal");
     ZIVC_TEST_V16(t, t, t, t, mem[4], "isgreaterequal");
     ZIVC_TEST_V16(f, t, f, t, mem[5], "isgreaterequal");
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ZIVC_TEST_V16(t, t, t, t, mem[6], "isgreaterequal");
     //ZIVC_TEST_V16(t, t, t, t, mem[7], "isgreaterequal");
     ZIVC_TEST_V16(t, t, t, t, mem[8], "isgreaterequal");
@@ -1732,7 +1732,7 @@ TEST(ClCppTest, RelationIsLessTest)
     ASSERT_EQ(f, mem[5]) << "isgreater failed.";
     ASSERT_EQ(t, mem[6]) << "isless failed.";
     ASSERT_EQ(f, mem[7]) << "isless failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(f, mem[8]) << "isless failed.";
     //ASSERT_EQ(f, mem[9]) << "isless failed.";
     //ASSERT_EQ(f, mem[10]) << "isless failed.";
@@ -1761,7 +1761,7 @@ TEST(ClCppTest, RelationIsLessTest)
     ASSERT_EQ(f, mem[4].y) << "isless failed.";
     ASSERT_EQ(t, mem[5].x) << "isless failed.";
     ASSERT_EQ(f, mem[5].y) << "isless failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(f, mem[6].x) << "isless failed.";
     //ASSERT_EQ(f, mem[6].y) << "isless failed.";
     //ASSERT_EQ(f, mem[7].x) << "isless failed.";
@@ -1796,7 +1796,7 @@ TEST(ClCppTest, RelationIsLessTest)
     ASSERT_EQ(t, mem[5].x) << "isless failed.";
     ASSERT_EQ(f, mem[5].y) << "isless failed.";
     ASSERT_EQ(t, mem[5].z) << "isless failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(f, mem[6].x) << "isless failed.";
     //ASSERT_EQ(f, mem[6].y) << "isless failed.";
     //ASSERT_EQ(f, mem[6].z) << "isless failed.";
@@ -1842,7 +1842,7 @@ TEST(ClCppTest, RelationIsLessTest)
     ASSERT_EQ(f, mem[5].y) << "isless failed.";
     ASSERT_EQ(t, mem[5].z) << "isless failed.";
     ASSERT_EQ(f, mem[5].w) << "isless failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(f, mem[6].x) << "isless failed.";
     //ASSERT_EQ(f, mem[6].y) << "isless failed.";
     //ASSERT_EQ(f, mem[6].z) << "isless failed.";
@@ -1977,7 +1977,7 @@ TEST(ClCppTest, RelationIsLessLongVecTest)
     ZIVC_TEST_V8(f, f, f, f, mem[3], "isless");
     ZIVC_TEST_V8(f, f, f, f, mem[4], "isless");
     ZIVC_TEST_V8(t, f, t, f, mem[5], "isless");
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ZIVC_TEST_V8(f, f, f, f, mem[6], "isless");
     //ZIVC_TEST_V8(f, f, f, f, mem[7], "isless");
     ZIVC_TEST_V8(f, f, f, f, mem[8], "isless");
@@ -1995,7 +1995,7 @@ TEST(ClCppTest, RelationIsLessLongVecTest)
     ZIVC_TEST_V16(f, f, f, f, mem[3], "isless");
     ZIVC_TEST_V16(f, f, f, f, mem[4], "isless");
     ZIVC_TEST_V16(t, f, t, f, mem[5], "isless");
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ZIVC_TEST_V16(f, f, f, f, mem[6], "isless");
     //ZIVC_TEST_V16(f, f, f, f, mem[7], "isless");
     ZIVC_TEST_V16(f, f, f, f, mem[8], "isless");
@@ -2120,7 +2120,7 @@ TEST(ClCppTest, RelationIsLessEqualTest)
     ASSERT_EQ(t, mem[5]) << "islessequal failed.";
     ASSERT_EQ(t, mem[6]) << "islessequal failed.";
     ASSERT_EQ(t, mem[7]) << "islessequal failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(t, mem[8]) << "islessequal failed.";
     //ASSERT_EQ(t, mem[9]) << "islessequal failed.";
     //ASSERT_EQ(f, mem[10]) << "islessequal failed.";
@@ -2149,7 +2149,7 @@ TEST(ClCppTest, RelationIsLessEqualTest)
     ASSERT_EQ(t, mem[4].y) << "islessequal failed.";
     ASSERT_EQ(t, mem[5].x) << "islessequal failed.";
     ASSERT_EQ(f, mem[5].y) << "islessequal failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(t, mem[6].x) << "islessequal failed.";
     //ASSERT_EQ(t, mem[6].y) << "islessequal failed.";
     //ASSERT_EQ(f, mem[7].x) << "islessequal failed.";
@@ -2184,7 +2184,7 @@ TEST(ClCppTest, RelationIsLessEqualTest)
     ASSERT_EQ(t, mem[5].x) << "islessequal failed.";
     ASSERT_EQ(f, mem[5].y) << "islessequal failed.";
     ASSERT_EQ(t, mem[5].z) << "islessequal failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(t, mem[6].x) << "islessequal failed.";
     //ASSERT_EQ(t, mem[6].y) << "islessequal failed.";
     //ASSERT_EQ(t, mem[6].z) << "islessequal failed.";
@@ -2230,7 +2230,7 @@ TEST(ClCppTest, RelationIsLessEqualTest)
     ASSERT_EQ(f, mem[5].y) << "islessequal failed.";
     ASSERT_EQ(t, mem[5].z) << "islessequal failed.";
     ASSERT_EQ(f, mem[5].w) << "islessequal failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(t, mem[6].x) << "islessequal failed.";
     //ASSERT_EQ(t, mem[6].y) << "islessequal failed.";
     //ASSERT_EQ(t, mem[6].z) << "islessequal failed.";
@@ -2365,7 +2365,7 @@ TEST(ClCppTest, RelationIsLessEqualLongVecTest)
     ZIVC_TEST_V8(t, t, t, t, mem[3], "islessequal");
     ZIVC_TEST_V8(t, t, t, t, mem[4], "islessequal");
     ZIVC_TEST_V8(t, f, t, f, mem[5], "islessequal");
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ZIVC_TEST_V8(t, t, t, t, mem[6], "islessequal");
     //ZIVC_TEST_V8(f, f, f, f, mem[7], "islessequal");
     ZIVC_TEST_V8(t, t, t, t, mem[8], "islessequal");
@@ -2383,7 +2383,7 @@ TEST(ClCppTest, RelationIsLessEqualLongVecTest)
     ZIVC_TEST_V16(t, t, t, t, mem[3], "islessequal");
     ZIVC_TEST_V16(t, t, t, t, mem[4], "islessequal");
     ZIVC_TEST_V16(t, f, t, f, mem[5], "islessequal");
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ZIVC_TEST_V16(t, t, t, t, mem[6], "islessequal");
     //ZIVC_TEST_V16(f, f, f, f, mem[7], "islessequal");
     ZIVC_TEST_V16(t, t, t, t, mem[8], "islessequal");
@@ -2508,7 +2508,7 @@ TEST(ClCppTest, RelationIsLessGreaterTest)
     ASSERT_EQ(f, mem[5]) << "islessgreater failed.";
     ASSERT_EQ(t, mem[6]) << "islessgreater failed.";
     ASSERT_EQ(f, mem[7]) << "islessgreater failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(f, mem[8]) << "islessgreater failed.";
     //ASSERT_EQ(f, mem[9]) << "islessgreater failed.";
     //ASSERT_EQ(t, mem[10]) << "islessgreater failed.";
@@ -2537,7 +2537,7 @@ TEST(ClCppTest, RelationIsLessGreaterTest)
     ASSERT_EQ(f, mem[4].y) << "islessgreater failed.";
     ASSERT_EQ(t, mem[5].x) << "islessgreater failed.";
     ASSERT_EQ(t, mem[5].y) << "islessgreater failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(f, mem[6].x) << "islessgreater failed.";
     //ASSERT_EQ(f, mem[6].y) << "islessgreater failed.";
     //ASSERT_EQ(t, mem[7].x) << "islessgreater failed.";
@@ -2572,7 +2572,7 @@ TEST(ClCppTest, RelationIsLessGreaterTest)
     ASSERT_EQ(t, mem[5].x) << "islessgreater failed.";
     ASSERT_EQ(t, mem[5].y) << "islessgreater failed.";
     ASSERT_EQ(t, mem[5].z) << "islessgreater failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(f, mem[6].x) << "islessgreater failed.";
     //ASSERT_EQ(f, mem[6].y) << "islessgreater failed.";
     //ASSERT_EQ(f, mem[6].z) << "islessgreater failed.";
@@ -2618,7 +2618,7 @@ TEST(ClCppTest, RelationIsLessGreaterTest)
     ASSERT_EQ(t, mem[5].y) << "islessgreater failed.";
     ASSERT_EQ(t, mem[5].z) << "islessgreater failed.";
     ASSERT_EQ(t, mem[5].w) << "islessgreater failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(f, mem[6].x) << "islessgreater failed.";
     //ASSERT_EQ(f, mem[6].y) << "islessgreater failed.";
     //ASSERT_EQ(f, mem[6].z) << "islessgreater failed.";
@@ -2753,7 +2753,7 @@ TEST(ClCppTest, RelationIsLessGreaterLongVecTest)
     ZIVC_TEST_V8(f, f, f, f, mem[3], "islessgreater");
     ZIVC_TEST_V8(f, f, f, f, mem[4], "islessgreater");
     ZIVC_TEST_V8(t, t, t, t, mem[5], "islessgreater");
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ZIVC_TEST_V8(f, f, f, f, mem[6], "islessgreater");
     //ZIVC_TEST_V8(t, t, t, t, mem[7], "islessgreater");
     ZIVC_TEST_V8(f, f, f, f, mem[8], "islessgreater");
@@ -2771,7 +2771,7 @@ TEST(ClCppTest, RelationIsLessGreaterLongVecTest)
     ZIVC_TEST_V16(f, f, f, f, mem[3], "islessgreater");
     ZIVC_TEST_V16(f, f, f, f, mem[4], "islessgreater");
     ZIVC_TEST_V16(t, t, t, t, mem[5], "islessgreater");
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ZIVC_TEST_V16(f, f, f, f, mem[6], "islessgreater");
     //ZIVC_TEST_V16(t, t, t, t, mem[7], "islessgreater");
     ZIVC_TEST_V16(f, f, f, f, mem[8], "islessgreater");
@@ -2894,7 +2894,7 @@ TEST(ClCppTest, RelationIsFiniteTest)
     ASSERT_EQ(t, mem[3]) << "isfinite failed.";
     ASSERT_EQ(t, mem[4]) << "isfinite failed.";
     ASSERT_EQ(t, mem[5]) << "isfinite failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(t, mem[6]) << "isfinite failed.";
     //ASSERT_EQ(t, mem[7]) << "isfinite failed.";
     ASSERT_EQ(f, mem[8]) << "isfinite failed.";
@@ -2914,7 +2914,7 @@ TEST(ClCppTest, RelationIsFiniteTest)
     ASSERT_EQ(t, mem[2].y) << "isfinite failed.";
     ASSERT_EQ(t, mem[3].x) << "isfinite failed.";
     ASSERT_EQ(t, mem[3].y) << "isfinite failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(t, mem[4].x) << "isfinite failed.";
     //ASSERT_EQ(t, mem[4].y) << "isfinite failed.";
     ASSERT_EQ(f, mem[5].x) << "isfinite failed.";
@@ -2939,7 +2939,7 @@ TEST(ClCppTest, RelationIsFiniteTest)
     ASSERT_EQ(t, mem[3].x) << "isfinite failed.";
     ASSERT_EQ(t, mem[3].y) << "isfinite failed.";
     ASSERT_EQ(t, mem[3].z) << "isfinite failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(t, mem[4].x) << "isfinite failed.";
     //ASSERT_EQ(t, mem[4].y) << "isfinite failed.";
     //ASSERT_EQ(t, mem[4].z) << "isfinite failed.";
@@ -2971,7 +2971,7 @@ TEST(ClCppTest, RelationIsFiniteTest)
     ASSERT_EQ(t, mem[3].y) << "isfinite failed.";
     ASSERT_EQ(t, mem[3].z) << "isfinite failed.";
     ASSERT_EQ(t, mem[3].w) << "isfinite failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(t, mem[4].x) << "isfinite failed.";
     //ASSERT_EQ(t, mem[4].y) << "isfinite failed.";
     //ASSERT_EQ(t, mem[4].z) << "isfinite failed.";
@@ -3096,7 +3096,7 @@ TEST(ClCppTest, RelationIsFiniteLongVecTest)
     ZIVC_TEST_V8(t, t, t, t, mem[1], "isfinite");
     ZIVC_TEST_V8(t, t, t, t, mem[2], "isfinite");
     ZIVC_TEST_V8(t, t, t, t, mem[3], "isfinite");
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ZIVC_TEST_V8(t, t, t, t, mem[4], "isfinite");
     ZIVC_TEST_V8(f, f, f, f, mem[5], "isfinite");
     ZIVC_TEST_V8(f, f, f, f, mem[6], "isfinite");
@@ -3110,7 +3110,7 @@ TEST(ClCppTest, RelationIsFiniteLongVecTest)
     ZIVC_TEST_V16(t, t, t, t, mem[1], "isfinite");
     ZIVC_TEST_V16(t, t, t, t, mem[2], "isfinite");
     ZIVC_TEST_V16(t, t, t, t, mem[3], "isfinite");
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ZIVC_TEST_V16(t, t, t, t, mem[4], "isfinite");
     ZIVC_TEST_V16(f, f, f, f, mem[5], "isfinite");
     ZIVC_TEST_V16(f, f, f, f, mem[6], "isfinite");
@@ -3231,7 +3231,7 @@ TEST(ClCppTest, RelationIsInfTest)
     ASSERT_EQ(f, mem[3]) << "isinf failed.";
     ASSERT_EQ(f, mem[4]) << "isinf failed.";
     ASSERT_EQ(f, mem[5]) << "isinf failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(f, mem[6]) << "isinf failed.";
     //ASSERT_EQ(f, mem[7]) << "isinf failed.";
     ASSERT_EQ(t, mem[8]) << "isinf failed.";
@@ -3251,7 +3251,7 @@ TEST(ClCppTest, RelationIsInfTest)
     ASSERT_EQ(f, mem[2].y) << "isinf failed.";
     ASSERT_EQ(f, mem[3].x) << "isinf failed.";
     ASSERT_EQ(f, mem[3].y) << "isinf failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(f, mem[4].x) << "isinf failed.";
     //ASSERT_EQ(f, mem[4].y) << "isinf failed.";
     ASSERT_EQ(t, mem[5].x) << "isinf failed.";
@@ -3276,7 +3276,7 @@ TEST(ClCppTest, RelationIsInfTest)
     ASSERT_EQ(f, mem[3].x) << "isinf failed.";
     ASSERT_EQ(f, mem[3].y) << "isinf failed.";
     ASSERT_EQ(f, mem[3].z) << "isinf failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(f, mem[4].x) << "isinf failed.";
     //ASSERT_EQ(f, mem[4].y) << "isinf failed.";
     //ASSERT_EQ(f, mem[4].z) << "isinf failed.";
@@ -3308,7 +3308,7 @@ TEST(ClCppTest, RelationIsInfTest)
     ASSERT_EQ(f, mem[3].y) << "isinf failed.";
     ASSERT_EQ(f, mem[3].z) << "isinf failed.";
     ASSERT_EQ(f, mem[3].w) << "isinf failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(f, mem[4].x) << "isinf failed.";
     //ASSERT_EQ(f, mem[4].y) << "isinf failed.";
     //ASSERT_EQ(f, mem[4].z) << "isinf failed.";
@@ -3433,7 +3433,7 @@ TEST(ClCppTest, RelationIsInfLongVecTest)
     ZIVC_TEST_V8(f, f, f, f, mem[1], "isinf");
     ZIVC_TEST_V8(f, f, f, f, mem[2], "isinf");
     ZIVC_TEST_V8(f, f, f, f, mem[3], "isinf");
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ZIVC_TEST_V8(f, f, f, f, mem[4], "isinf");
     ZIVC_TEST_V8(t, t, t, t, mem[5], "isinf");
     ZIVC_TEST_V8(f, f, f, f, mem[6], "isinf");
@@ -3447,7 +3447,7 @@ TEST(ClCppTest, RelationIsInfLongVecTest)
     ZIVC_TEST_V16(f, f, f, f, mem[1], "isinf");
     ZIVC_TEST_V16(f, f, f, f, mem[2], "isinf");
     ZIVC_TEST_V16(f, f, f, f, mem[3], "isinf");
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ZIVC_TEST_V16(f, f, f, f, mem[4], "isinf");
     ZIVC_TEST_V16(t, t, t, t, mem[5], "isinf");
     ZIVC_TEST_V16(f, f, f, f, mem[6], "isinf");
@@ -3568,7 +3568,7 @@ TEST(ClCppTest, RelationIsNanTest)
     ASSERT_EQ(f, mem[3]) << "isnan failed.";
     ASSERT_EQ(f, mem[4]) << "isnan failed.";
     ASSERT_EQ(f, mem[5]) << "isnan failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(f, mem[6]) << "isnan failed.";
     //ASSERT_EQ(f, mem[7]) << "isnan failed.";
     ASSERT_EQ(f, mem[8]) << "isnan failed.";
@@ -3588,7 +3588,7 @@ TEST(ClCppTest, RelationIsNanTest)
     ASSERT_EQ(f, mem[2].y) << "isnan failed.";
     ASSERT_EQ(f, mem[3].x) << "isnan failed.";
     ASSERT_EQ(f, mem[3].y) << "isnan failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(f, mem[4].x) << "isnan failed.";
     //ASSERT_EQ(f, mem[4].y) << "isnan failed.";
     ASSERT_EQ(f, mem[5].x) << "isnan failed.";
@@ -3613,7 +3613,7 @@ TEST(ClCppTest, RelationIsNanTest)
     ASSERT_EQ(f, mem[3].x) << "isnan failed.";
     ASSERT_EQ(f, mem[3].y) << "isnan failed.";
     ASSERT_EQ(f, mem[3].z) << "isnan failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(f, mem[4].x) << "isnan failed.";
     //ASSERT_EQ(f, mem[4].y) << "isnan failed.";
     //ASSERT_EQ(f, mem[4].z) << "isnan failed.";
@@ -3645,7 +3645,7 @@ TEST(ClCppTest, RelationIsNanTest)
     ASSERT_EQ(f, mem[3].y) << "isnan failed.";
     ASSERT_EQ(f, mem[3].z) << "isnan failed.";
     ASSERT_EQ(f, mem[3].w) << "isnan failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(f, mem[4].x) << "isnan failed.";
     //ASSERT_EQ(f, mem[4].y) << "isnan failed.";
     //ASSERT_EQ(f, mem[4].z) << "isnan failed.";
@@ -3770,7 +3770,7 @@ TEST(ClCppTest, RelationIsNanLongVecTest)
     ZIVC_TEST_V8(f, f, f, f, mem[1], "isnan");
     ZIVC_TEST_V8(f, f, f, f, mem[2], "isnan");
     ZIVC_TEST_V8(f, f, f, f, mem[3], "isnan");
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ZIVC_TEST_V8(f, f, f, f, mem[4], "isnan");
     ZIVC_TEST_V8(f, f, f, f, mem[5], "isnan");
     ZIVC_TEST_V8(t, t, t, t, mem[6], "isnan");
@@ -3784,7 +3784,7 @@ TEST(ClCppTest, RelationIsNanLongVecTest)
     ZIVC_TEST_V16(f, f, f, f, mem[1], "isnan");
     ZIVC_TEST_V16(f, f, f, f, mem[2], "isnan");
     ZIVC_TEST_V16(f, f, f, f, mem[3], "isnan");
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ZIVC_TEST_V16(f, f, f, f, mem[4], "isnan");
     ZIVC_TEST_V16(f, f, f, f, mem[5], "isnan");
     ZIVC_TEST_V16(t, t, t, t, mem[6], "isnan");
@@ -3905,7 +3905,7 @@ TEST(ClCppTest, RelationSignbitTest)
     ASSERT_EQ(f, mem[3]) << "signbit failed.";
     ASSERT_EQ(t, mem[4]) << "signbit failed.";
     ASSERT_EQ(f, mem[5]) << "signbit failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(f, mem[6]) << "signbit failed.";
     //ASSERT_EQ(f, mem[7]) << "signbit failed.";
     ASSERT_EQ(f, mem[8]) << "signbit failed.";
@@ -3925,7 +3925,7 @@ TEST(ClCppTest, RelationSignbitTest)
     ASSERT_EQ(t, mem[2].y) << "signbit failed.";
     ASSERT_EQ(f, mem[3].x) << "signbit failed.";
     ASSERT_EQ(t, mem[3].y) << "signbit failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(f, mem[4].x) << "signbit failed.";
     //ASSERT_EQ(f, mem[4].y) << "signbit failed.";
     ASSERT_EQ(f, mem[5].x) << "signbit failed.";
@@ -3950,7 +3950,7 @@ TEST(ClCppTest, RelationSignbitTest)
     ASSERT_EQ(f, mem[3].x) << "signbit failed.";
     ASSERT_EQ(t, mem[3].y) << "signbit failed.";
     ASSERT_EQ(f, mem[3].z) << "signbit failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(f, mem[4].x) << "signbit failed.";
     //ASSERT_EQ(f, mem[4].y) << "signbit failed.";
     //ASSERT_EQ(f, mem[4].z) << "signbit failed.";
@@ -3982,7 +3982,7 @@ TEST(ClCppTest, RelationSignbitTest)
     ASSERT_EQ(t, mem[3].y) << "signbit failed.";
     ASSERT_EQ(f, mem[3].z) << "signbit failed.";
     ASSERT_EQ(t, mem[3].w) << "signbit failed.";
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ASSERT_EQ(f, mem[4].x) << "signbit failed.";
     //ASSERT_EQ(f, mem[4].y) << "signbit failed.";
     //ASSERT_EQ(f, mem[4].z) << "signbit failed.";
@@ -4107,7 +4107,7 @@ TEST(ClCppTest, RelationSignbitLongVecTest)
     ZIVC_TEST_V8(f, t, f, t, mem[1], "signbit");
     ZIVC_TEST_V8(f, t, f, t, mem[2], "signbit");
     ZIVC_TEST_V8(f, t, f, t, mem[3], "signbit");
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ZIVC_TEST_V8(f, f, f, f, mem[4], "signbit");
     ZIVC_TEST_V8(f, t, f, t, mem[5], "signbit");
     ZIVC_TEST_V8(f, f, f, f, mem[6], "signbit");
@@ -4121,7 +4121,7 @@ TEST(ClCppTest, RelationSignbitLongVecTest)
     ZIVC_TEST_V16(f, t, f, t, mem[1], "signbit");
     ZIVC_TEST_V16(f, t, f, t, mem[2], "signbit");
     ZIVC_TEST_V16(f, t, f, t, mem[3], "signbit");
-    //! \todo subnormal won't work on GPU
+    //! \attention subnormal won't work on GPU
     //ZIVC_TEST_V16(f, f, f, f, mem[4], "signbit");
     ZIVC_TEST_V16(f, t, f, t, mem[5], "signbit");
     ZIVC_TEST_V16(f, f, f, f, mem[6], "signbit");

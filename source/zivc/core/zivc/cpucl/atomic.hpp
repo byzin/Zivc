@@ -122,9 +122,21 @@ class Atomic
       const std::remove_pointer_t<Pointer> desired) noexcept;
 
   //! Atomically, compares the value pointed to by object for equality with that in expected, and if true, replaces the value pointed to by object with desired
-  template <AddressSpaceType kASpaceType, zisc::Arithmetic Type>
+  template <zisc::Pointer Pointer, AddressSpaceType kASpaceType, zisc::Arithmetic Type>
+  static bool compare_exchange_strong(Pointer object,
+                                      AddressSpacePointer<kASpaceType, Type> expected,
+                                      const Type desired) noexcept;
+
+  //! Atomically, compares the value pointed to by object for equality with that in expected, and if true, replaces the value pointed to by object with desired
+  template <AddressSpaceType kASpaceType, zisc::Pointer Pointer, zisc::Arithmetic Type>
   static bool compare_exchange_strong(AddressSpacePointer<kASpaceType, Type> object,
-                                      Type* expected,
+                                      Pointer expected,
+                                      const Type desired) noexcept;
+
+  //! Atomically, compares the value pointed to by object for equality with that in expected, and if true, replaces the value pointed to by object with desired
+  template <AddressSpaceType kASpaceType1, AddressSpaceType kASpaceType2, zisc::Arithmetic Type>
+  static bool compare_exchange_strong(AddressSpacePointer<kASpaceType1, Type> object,
+                                      AddressSpacePointer<kASpaceType2, Type> expected,
                                       const Type desired) noexcept;
 
   //! Atomically, compares the value pointed to by object for equality with that in expected, and if true, replaces the value pointed to by object with desired
@@ -137,10 +149,28 @@ class Atomic
       const memory_order failure) noexcept;
 
   //! Atomically, compares the value pointed to by object for equality with that in expected, and if true, replaces the value pointed to by object with desired
-  template <AddressSpaceType kASpaceType, zisc::Arithmetic Type>
+  template <zisc::Pointer Pointer, AddressSpaceType kASpaceType, zisc::Arithmetic Type>
+  static bool compare_exchange_strong_explicit(
+      Pointer object,
+      AddressSpacePointer<kASpaceType, Type> expected,
+      const Type desired,
+      const memory_order success,
+      const memory_order failure) noexcept;
+
+  //! Atomically, compares the value pointed to by object for equality with that in expected, and if true, replaces the value pointed to by object with desired
+  template <AddressSpaceType kASpaceType, zisc::Pointer Pointer, zisc::Arithmetic Type>
   static bool compare_exchange_strong_explicit(
       AddressSpacePointer<kASpaceType, Type> object,
-      Type* expected,
+      Pointer expected,
+      const Type desired,
+      const memory_order success,
+      const memory_order failure) noexcept;
+
+  //! Atomically, compares the value pointed to by object for equality with that in expected, and if true, replaces the value pointed to by object with desired
+  template <AddressSpaceType kASpaceType1, AddressSpaceType kASpaceType2, zisc::Arithmetic Type>
+  static bool compare_exchange_strong_explicit(
+      AddressSpacePointer<kASpaceType1, Type> object,
+      AddressSpacePointer<kASpaceType2, Type> expected,
       const Type desired,
       const memory_order success,
       const memory_order failure) noexcept;
@@ -386,9 +416,21 @@ bool atomic_compare_exchange_strong(
     const std::remove_pointer_t<Pointer> desired) noexcept;
 
 //! Atomically, compares the value pointed to by object for equality with that in expected, and if true, replaces the value pointed to by object with desired
-template <AddressSpaceType kASpaceType, zisc::Arithmetic Type>
+template <zisc::Pointer Pointer, AddressSpaceType kASpaceType, zisc::Arithmetic Type>
+bool atomic_compare_exchange_strong(Pointer object,
+                                    AddressSpacePointer<kASpaceType, Type> expected,
+                                    const Type desired) noexcept;
+
+//! Atomically, compares the value pointed to by object for equality with that in expected, and if true, replaces the value pointed to by object with desired
+template <AddressSpaceType kASpaceType, zisc::Pointer Pointer, zisc::Arithmetic Type>
 bool atomic_compare_exchange_strong(AddressSpacePointer<kASpaceType, Type> object,
-                                    Type* expected,
+                                    Pointer expected,
+                                    const Type desired) noexcept;
+
+//! Atomically, compares the value pointed to by object for equality with that in expected, and if true, replaces the value pointed to by object with desired
+template <AddressSpaceType kASpaceType1, AddressSpaceType kASpaceType2, zisc::Arithmetic Type>
+bool atomic_compare_exchange_strong(AddressSpacePointer<kASpaceType1, Type> object,
+                                    AddressSpacePointer<kASpaceType2, Type> expected,
                                     const Type desired) noexcept;
 
 //! Atomically, compares the value pointed to by object for equality with that in expected, and if true, replaces the value pointed to by object with desired
@@ -401,10 +443,28 @@ bool atomic_compare_exchange_strong_explicit(
     const memory_order failure) noexcept;
 
 //! Atomically, compares the value pointed to by object for equality with that in expected, and if true, replaces the value pointed to by object with desired
-template <AddressSpaceType kASpaceType, zisc::Arithmetic Type>
+template <zisc::Pointer Pointer, AddressSpaceType kASpaceType, zisc::Arithmetic Type>
+bool atomic_compare_exchange_strong_explicit(
+    Pointer object,
+    AddressSpacePointer<kASpaceType, Type> expected,
+    const Type desired,
+    const memory_order success,
+    const memory_order failure) noexcept;
+
+//! Atomically, compares the value pointed to by object for equality with that in expected, and if true, replaces the value pointed to by object with desired
+template <AddressSpaceType kASpaceType, zisc::Pointer Pointer, zisc::Arithmetic Type>
 bool atomic_compare_exchange_strong_explicit(
     AddressSpacePointer<kASpaceType, Type> object,
-    Type* expected,
+    Pointer expected,
+    const Type desired,
+    const memory_order success,
+    const memory_order failure) noexcept;
+
+//! Atomically, compares the value pointed to by object for equality with that in expected, and if true, replaces the value pointed to by object with desired
+template <AddressSpaceType kASpaceType1, AddressSpaceType kASpaceType2, zisc::Arithmetic Type>
+bool atomic_compare_exchange_strong_explicit(
+    AddressSpacePointer<kASpaceType1, Type> object,
+    AddressSpacePointer<kASpaceType2, Type> expected,
     const Type desired,
     const memory_order success,
     const memory_order failure) noexcept;

@@ -190,7 +190,7 @@ namespace inner {
 template <typename T>
 struct AddressSpaceInfoHelper
 {
-  using DataT = T;
+  using DataT = RemoveCvT<RemovePointerT<T>>;
   using Pointer = PrivatePtr<DataT>;
   using ConstPointer = ConstPrivatePtr<DataT>;
   template <typename Type>

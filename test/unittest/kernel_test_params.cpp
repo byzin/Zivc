@@ -16,6 +16,7 @@
 #include <array>
 #include <algorithm>
 #include <cstddef>
+#include <functional>
 #include <limits>
 #include <memory>
 #include <numbers>
@@ -62,7 +63,7 @@ testing::AssertionResult testScalarBuffer(zivc::Device& device,
   }
   {
     zivc::MappedMemory<Scalar> mem = buff_host->mapMemory();
-    const testing::AssertionResult result = zisc::equal(mem[0], zisc::cast<Scalar>(1))
+    const testing::AssertionResult result = std::equal_to<Scalar>{}(mem[0], zisc::cast<Scalar>(1))
         ? testing::AssertionSuccess()
         : testing::AssertionFailure();
     return result;

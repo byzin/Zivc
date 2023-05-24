@@ -1,5 +1,5 @@
 /*!
-  \file limits-inl.cl
+  \file limits-inl.hpp
   \author Sho Ikeda
 
   Copyright (c) 2015-2023 Sho Ikeda
@@ -7,13 +7,13 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_LIMITS_INL_CL
-#define ZIVC_LIMITS_INL_CL
+#ifndef ZIVC_LIMITS_INL_HPP
+#define ZIVC_LIMITS_INL_HPP
 
-#include "limits.cl"
+#include "limits.hpp"
 // Zivc
-#include "types.cl"
-#include "utility.cl"
+#include "bit.hpp"
+#include "types.hpp"
 
 namespace zivc {
 
@@ -26,6 +26,31 @@ class NumericLimits<int8b>
     return true;
   }
 
+  static constexpr bool isSigned() noexcept
+  {
+    return true;
+  }
+
+  static constexpr bool isInteger() noexcept
+  {
+    return true;
+  }
+
+  static constexpr bool isExact() noexcept
+  {
+    return true;
+  }
+
+  static constexpr bool hasInfinity() noexcept
+  {
+    return false;
+  }
+
+  static constexpr bool hasQuietNan() noexcept
+  {
+    return false;
+  }
+
   static constexpr int32b digits() noexcept
   {
     const int32b d = CHAR_BIT - 1;
@@ -34,14 +59,17 @@ class NumericLimits<int8b>
 
   static constexpr int32b digits10() noexcept
   {
-    //! \todo Implement
-    const int32b d = 0;
-    return d;
+    return 2; // digits * log10(2)
   }
 
   static constexpr int32b maxDigits10() noexcept
   {
     return 0;
+  }
+
+  static constexpr int32b radix() noexcept
+  {
+    return 2;
   }
 
   static constexpr int8b min() noexcept
@@ -52,8 +80,7 @@ class NumericLimits<int8b>
 
   static constexpr int8b lowest() noexcept
   {
-    const int8b l = min();
-    return l;
+    return min();
   }
 
   static constexpr int8b max() noexcept
@@ -64,13 +91,12 @@ class NumericLimits<int8b>
 
   static constexpr int8b epsilon() noexcept
   {
-    return 2;
+    return 0;
   }
 
   static int8b infinity() noexcept
   {
-    const int8b i = max();
-    return i;
+    return 0;
   }
 
   static int8b quietNan() noexcept
@@ -88,6 +114,31 @@ class NumericLimits<uint8b>
     return true;
   }
 
+  static constexpr bool isSigned() noexcept
+  {
+    return false;
+  }
+
+  static constexpr bool isInteger() noexcept
+  {
+    return true;
+  }
+
+  static constexpr bool isExact() noexcept
+  {
+    return true;
+  }
+
+  static constexpr bool hasInfinity() noexcept
+  {
+    return false;
+  }
+
+  static constexpr bool hasQuietNan() noexcept
+  {
+    return false;
+  }
+
   static constexpr int32b digits() noexcept
   {
     const int32b d = CHAR_BIT;
@@ -96,14 +147,17 @@ class NumericLimits<uint8b>
 
   static constexpr int32b digits10() noexcept
   {
-    //! \todo Implement
-    const int32b d = 0;
-    return d;
+    return 2;
   }
 
   static constexpr int32b maxDigits10() noexcept
   {
     return 0;
+  }
+
+  static constexpr int32b radix() noexcept
+  {
+    return 2;
   }
 
   static constexpr uint8b min() noexcept
@@ -113,8 +167,7 @@ class NumericLimits<uint8b>
 
   static constexpr uint8b lowest() noexcept
   {
-    const uint8b l = min();
-    return l;
+    return min();
   }
 
   static constexpr uint8b max() noexcept
@@ -125,13 +178,12 @@ class NumericLimits<uint8b>
 
   static constexpr uint8b epsilon() noexcept
   {
-    return 2;
+    return 0;
   }
 
   static uint8b infinity() noexcept
   {
-    const uint8b i = max();
-    return i;
+    return 0;
   }
 
   static uint8b quietNan() noexcept
@@ -149,6 +201,31 @@ class NumericLimits<int16b>
     return true;
   }
 
+  static constexpr bool isSigned() noexcept
+  {
+    return true;
+  }
+
+  static constexpr bool isInteger() noexcept
+  {
+    return true;
+  }
+
+  static constexpr bool isExact() noexcept
+  {
+    return true;
+  }
+
+  static constexpr bool hasInfinity() noexcept
+  {
+    return false;
+  }
+
+  static constexpr bool hasQuietNan() noexcept
+  {
+    return false;
+  }
+
   static constexpr int32b digits() noexcept
   {
     const int32b d = CHAR_BIT * sizeof(int16b) - 1;
@@ -157,14 +234,17 @@ class NumericLimits<int16b>
 
   static constexpr int32b digits10() noexcept
   {
-    //! \todo Implement
-    const int32b d = 0;
-    return d;
+    return 4;
   }
 
   static constexpr int32b maxDigits10() noexcept
   {
     return 0;
+  }
+
+  static constexpr int32b radix() noexcept
+  {
+    return 2;
   }
 
   static constexpr int16b min() noexcept
@@ -175,8 +255,7 @@ class NumericLimits<int16b>
 
   static constexpr int16b lowest() noexcept
   {
-    const int16b l = min();
-    return l;
+    return min();
   }
 
   static constexpr int16b max() noexcept
@@ -187,13 +266,12 @@ class NumericLimits<int16b>
 
   static constexpr int16b epsilon() noexcept
   {
-    return 2;
+    return 0;
   }
 
   static int16b infinity() noexcept
   {
-    const int16b m = max();
-    return m;
+    return 0;
   }
 
   static int16b quietNan() noexcept
@@ -211,6 +289,31 @@ class NumericLimits<uint16b>
     return true;
   }
 
+  static constexpr bool isSigned() noexcept
+  {
+    return false;
+  }
+
+  static constexpr bool isInteger() noexcept
+  {
+    return true;
+  }
+
+  static constexpr bool isExact() noexcept
+  {
+    return true;
+  }
+
+  static constexpr bool hasInfinity() noexcept
+  {
+    return false;
+  }
+
+  static constexpr bool hasQuietNan() noexcept
+  {
+    return false;
+  }
+
   static constexpr int32b digits() noexcept
   {
     const int32b d = CHAR_BIT * sizeof(int16b);
@@ -219,14 +322,17 @@ class NumericLimits<uint16b>
 
   static constexpr int32b digits10() noexcept
   {
-    //! \todo Implement
-    const int32b d = 0;
-    return d;
+    return 4;
   }
 
   static constexpr int32b maxDigits10() noexcept
   {
     return 0;
+  }
+
+  static constexpr int32b radix() noexcept
+  {
+    return 2;
   }
 
   static constexpr uint16b min() noexcept
@@ -236,7 +342,7 @@ class NumericLimits<uint16b>
 
   static constexpr uint16b lowest() noexcept
   {
-    return 0;
+    return min();
   }
 
   static constexpr uint16b max() noexcept
@@ -247,13 +353,12 @@ class NumericLimits<uint16b>
 
   static constexpr uint16b epsilon() noexcept
   {
-    return 2;
+    return 0;
   }
 
   static uint16b infinity() noexcept
   {
-    const uint16b i = max();
-    return i;
+    return 0;
   }
 
   static uint16b quietNan() noexcept
@@ -271,6 +376,31 @@ class NumericLimits<int32b>
     return true;
   }
 
+  static constexpr bool isSigned() noexcept
+  {
+    return true;
+  }
+
+  static constexpr bool isInteger() noexcept
+  {
+    return true;
+  }
+
+  static constexpr bool isExact() noexcept
+  {
+    return true;
+  }
+
+  static constexpr bool hasInfinity() noexcept
+  {
+    return false;
+  }
+
+  static constexpr bool hasQuietNan() noexcept
+  {
+    return false;
+  }
+
   static constexpr int32b digits() noexcept
   {
     const int32b d = CHAR_BIT * sizeof(int32b) - 1;
@@ -279,14 +409,17 @@ class NumericLimits<int32b>
 
   static constexpr int32b digits10() noexcept
   {
-    //! \todo Implement
-    const int32b d = 0;
-    return d;
+    return 9;
   }
 
   static constexpr int32b maxDigits10() noexcept
   {
     return 0;
+  }
+
+  static constexpr int32b radix() noexcept
+  {
+    return 2;
   }
 
   static constexpr int32b min() noexcept
@@ -297,8 +430,7 @@ class NumericLimits<int32b>
 
   static constexpr int32b lowest() noexcept
   {
-    const int32b l = min();
-    return l;
+    return min();
   }
 
   static constexpr int32b max() noexcept
@@ -309,13 +441,12 @@ class NumericLimits<int32b>
 
   static constexpr int32b epsilon() noexcept
   {
-    return 2;
+    return 0;
   }
 
   static int32b infinity() noexcept
   {
-    const int32b i = max();
-    return i;
+    return 0;
   }
 
   static int32b quietNan() noexcept
@@ -333,6 +464,31 @@ class NumericLimits<uint32b>
     return true;
   }
 
+  static constexpr bool isSigned() noexcept
+  {
+    return false;
+  }
+
+  static constexpr bool isInteger() noexcept
+  {
+    return true;
+  }
+
+  static constexpr bool isExact() noexcept
+  {
+    return true;
+  }
+
+  static constexpr bool hasInfinity() noexcept
+  {
+    return false;
+  }
+
+  static constexpr bool hasQuietNan() noexcept
+  {
+    return false;
+  }
+
   static constexpr int32b digits() noexcept
   {
     const int32b d = CHAR_BIT * sizeof(int32b);
@@ -341,14 +497,17 @@ class NumericLimits<uint32b>
 
   static constexpr int32b digits10() noexcept
   {
-    //! \todo Implement
-    const int32b d = 0;
-    return d;
+    return 9;
   }
 
   static constexpr int32b maxDigits10() noexcept
   {
     return 0;
+  }
+
+  static constexpr int32b radix() noexcept
+  {
+    return 2;
   }
 
   static constexpr uint32b min() noexcept
@@ -358,8 +517,7 @@ class NumericLimits<uint32b>
 
   static constexpr uint32b lowest() noexcept
   {
-    const uint32b l = min();
-    return l;
+    return min();
   }
 
   static constexpr uint32b max() noexcept
@@ -370,13 +528,12 @@ class NumericLimits<uint32b>
 
   static constexpr uint32b epsilon() noexcept
   {
-    return 2;
+    return 0;
   }
 
   static uint32b infinity() noexcept
   {
-    const uint32b i = max();
-    return i;
+    return 0;
   }
 
   static uint32b quietNan() noexcept
@@ -394,6 +551,31 @@ class NumericLimits<int64b>
     return true;
   }
 
+  static constexpr bool isSigned() noexcept
+  {
+    return true;
+  }
+
+  static constexpr bool isInteger() noexcept
+  {
+    return true;
+  }
+
+  static constexpr bool isExact() noexcept
+  {
+    return true;
+  }
+
+  static constexpr bool hasInfinity() noexcept
+  {
+    return false;
+  }
+
+  static constexpr bool hasQuietNan() noexcept
+  {
+    return false;
+  }
+
   static constexpr int32b digits() noexcept
   {
     const int32b d = CHAR_BIT * sizeof(int64b) - 1;
@@ -402,14 +584,17 @@ class NumericLimits<int64b>
 
   static constexpr int32b digits10() noexcept
   {
-    //! \todo Implement
-    const int32b d = 0;
-    return d;
+    return 18;
   }
 
   static constexpr int32b maxDigits10() noexcept
   {
     return 0;
+  }
+
+  static constexpr int32b radix() noexcept
+  {
+    return 2;
   }
 
   static constexpr int64b max() noexcept
@@ -426,19 +611,17 @@ class NumericLimits<int64b>
 
   static constexpr int64b lowest() noexcept
   {
-    const int64b l = min();
-    return l;
+    return min();
   }
 
   static constexpr int64b epsilon() noexcept
   {
-    return 2;
+    return 0;
   }
 
   static int64b infinity() noexcept
   {
-    const int64b i = max();
-    return i;
+    return 0;
   }
 
   static int64b quietNan() noexcept
@@ -456,6 +639,31 @@ class NumericLimits<uint64b>
     return true;
   }
 
+  static constexpr bool isSigned() noexcept
+  {
+    return false;
+  }
+
+  static constexpr bool isInteger() noexcept
+  {
+    return true;
+  }
+
+  static constexpr bool isExact() noexcept
+  {
+    return true;
+  }
+
+  static constexpr bool hasInfinity() noexcept
+  {
+    return false;
+  }
+
+  static constexpr bool hasQuietNan() noexcept
+  {
+    return false;
+  }
+
   static constexpr int32b digits() noexcept
   {
     const int32b d = CHAR_BIT * sizeof(int64b);
@@ -464,14 +672,17 @@ class NumericLimits<uint64b>
 
   static constexpr int32b digits10() noexcept
   {
-    //! \todo Implement
-    const int32b d = 0;
-    return d;
+    return 19;
   }
 
   static constexpr int32b maxDigits10() noexcept
   {
     return 0;
+  }
+
+  static constexpr int32b radix() noexcept
+  {
+    return 2;
   }
 
   static constexpr uint64b min() noexcept
@@ -481,7 +692,7 @@ class NumericLimits<uint64b>
 
   static constexpr uint64b lowest() noexcept
   {
-    return 0;
+    return min();
   }
 
   static constexpr uint64b max() noexcept
@@ -492,13 +703,12 @@ class NumericLimits<uint64b>
 
   static constexpr uint64b epsilon() noexcept
   {
-    return 2;
+    return 0;
   }
 
   static uint64b infinity() noexcept
   {
-    const uint64b i = max();
-    return i;
+    return 0;
   }
 
   static uint64b quietNan() noexcept
@@ -512,6 +722,31 @@ class NumericLimits<float>
 {
  public:
   static constexpr bool isSpecialized() noexcept
+  {
+    return true;
+  }
+
+  static constexpr bool isSigned() noexcept
+  {
+    return true;
+  }
+
+  static constexpr bool isInteger() noexcept
+  {
+    return false;
+  }
+
+  static constexpr bool isExact() noexcept
+  {
+    return false;
+  }
+
+  static constexpr bool hasInfinity() noexcept
+  {
+    return true;
+  }
+
+  static constexpr bool hasQuietNan() noexcept
   {
     return true;
   }
@@ -530,8 +765,13 @@ class NumericLimits<float>
 
   static constexpr int32b maxDigits10() noexcept
   {
-    //! \todo Implement
-    const int32b d = 0;
+    const int32b d = 9;
+    return d;
+  }
+
+  static constexpr int32b radix() noexcept
+  {
+    const int32b d = FLT_RADIX;
     return d;
   }
 
@@ -541,16 +781,16 @@ class NumericLimits<float>
     return m;
   }
 
-  static constexpr float lowest() noexcept
-  {
-    const float l = -max();
-    return l;
-  }
-
   static constexpr float max() noexcept
   {
     const float m = FLT_MAX;
     return m;
+  }
+
+  static constexpr float lowest() noexcept
+  {
+    const float l = -max();
+    return l;
   }
 
   static constexpr float epsilon() noexcept
@@ -581,6 +821,31 @@ class NumericLimits<double>
     return true;
   }
 
+  static constexpr bool isSigned() noexcept
+  {
+    return true;
+  }
+
+  static constexpr bool isInteger() noexcept
+  {
+    return false;
+  }
+
+  static constexpr bool isExact() noexcept
+  {
+    return false;
+  }
+
+  static constexpr bool hasInfinity() noexcept
+  {
+    return true;
+  }
+
+  static constexpr bool hasQuietNan() noexcept
+  {
+    return true;
+  }
+
   static constexpr int32b digits() noexcept
   {
     const int32b d = DBL_MANT_DIG;
@@ -595,9 +860,12 @@ class NumericLimits<double>
 
   static constexpr int32b maxDigits10() noexcept
   {
-    //! \todo Implement
-    const int32b d = 0;
-    return d;
+    return 17;
+  }
+
+  static constexpr int32b radix() noexcept
+  {
+    return FLT_RADIX;
   }
 
   static constexpr double min() noexcept
@@ -606,16 +874,16 @@ class NumericLimits<double>
     return m;
   }
 
-  static constexpr double lowest() noexcept
-  {
-    const double l = -max();
-    return l;
-  }
-
   static constexpr double max() noexcept
   {
     const double m = DBL_MAX;
     return m;
+  }
+
+  static constexpr double lowest() noexcept
+  {
+    const double l = -max();
+    return l;
   }
 
   static constexpr double epsilon() noexcept
@@ -633,11 +901,10 @@ class NumericLimits<double>
   static double quietNan() noexcept
   {
     const int64b m = NumericLimits<int64b>::max();
-    const double v = treatAs<double>(m);
-    return v;
+    return castBit<double>(m);
   }
 };
 
 } // namespace zivc
 
-#endif /* ZIVC_LIMITS_INL_CL */
+#endif /* ZIVC_LIMITS_INL_HPP */

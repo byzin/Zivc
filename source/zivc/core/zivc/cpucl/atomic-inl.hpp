@@ -16,6 +16,7 @@
 #include <type_traits>
 // Zisc
 #include "zisc/concepts.hpp"
+#include "zisc/utility.hpp"
 #include "zisc/concurrency/atomic.hpp"
 // Zivc
 #include "address_space_pointer.hpp"
@@ -242,6 +243,7 @@ bool Atomic::compare_exchange_strong(
 /*!
   \details No detailed description
 
+  \tparam Pointer No description.
   \tparam kASpaceType No description.
   \tparam Type No description.
   \param [in,out] object No description.
@@ -249,12 +251,50 @@ bool Atomic::compare_exchange_strong(
   \param [in] desired No description.
   \return No description
   */
-template <AddressSpaceType kASpaceType, zisc::Arithmetic Type> inline
+template <zisc::Pointer Pointer, AddressSpaceType kASpaceType, zisc::Arithmetic Type> inline
+bool Atomic::compare_exchange_strong(Pointer object,
+                                     AddressSpacePointer<kASpaceType, Type> expected,
+                                     const Type desired) noexcept
+{
+  return compare_exchange_strong(object, expected.get(), desired);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \tparam Pointer No description.
+  \tparam Type No description.
+  \param [in,out] object No description.
+  \param [in,out] expected No description.
+  \param [in] desired No description.
+  \return No description
+  */
+template <AddressSpaceType kASpaceType, zisc::Pointer Pointer, zisc::Arithmetic Type> inline
 bool Atomic::compare_exchange_strong(AddressSpacePointer<kASpaceType, Type> object,
-                                     Type* expected,
+                                     Pointer expected,
                                      const Type desired) noexcept
 {
   return compare_exchange_strong(object.get(), expected, desired);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kASpaceType1 No description.
+  \tparam kASpaceType2 No description.
+  \tparam Type No description.
+  \param [in,out] object No description.
+  \param [in,out] expected No description.
+  \param [in] desired No description.
+  \return No description
+  */
+template <AddressSpaceType kASpaceType1, AddressSpaceType kASpaceType2, zisc::Arithmetic Type> inline
+bool Atomic::compare_exchange_strong(AddressSpacePointer<kASpaceType1, Type> object,
+                                     AddressSpacePointer<kASpaceType2, Type> expected,
+                                     const Type desired) noexcept
+{
+  return compare_exchange_strong(object.get(), expected.get(), desired);
 }
 
 /*!
@@ -278,15 +318,13 @@ bool Atomic::compare_exchange_strong_explicit(
 {
   using T = std::add_const_t<std::remove_pointer_t<Pointer>>;
   T old = zisc::atomic_compare_exchange(object, *expected, desired, success, failure);
-  const bool result = (*expected == old);
-  if (!result)
-    *expected = old;
-  return result;
+  return !zisc::updateIfTrue(*expected != old, *expected, old);
 }
 
 /*!
   \details No detailed description
 
+  \tparam Pointer No description.
   \tparam kASpaceType No description.
   \tparam Type No description.
   \param [in,out] object No description.
@@ -296,15 +334,63 @@ bool Atomic::compare_exchange_strong_explicit(
   \param [in] failure No description.
   \return No description
   */
-template <AddressSpaceType kASpaceType, zisc::Arithmetic Type> inline
+template <zisc::Pointer Pointer, AddressSpaceType kASpaceType, zisc::Arithmetic Type> inline
+bool Atomic::compare_exchange_strong_explicit(
+    Pointer object,
+    AddressSpacePointer<kASpaceType, Type> expected,
+    const Type desired,
+    const memory_order success,
+    const memory_order failure) noexcept
+{
+  return compare_exchange_strong_explicit(object, expected.get(), desired, success, failure);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \tparam Pointer No description.
+  \tparam Type No description.
+  \param [in,out] object No description.
+  \param [in,out] expected No description.
+  \param [in] desired No description.
+  \param [in] success No description.
+  \param [in] failure No description.
+  \return No description
+  */
+template <AddressSpaceType kASpaceType, zisc::Pointer Pointer, zisc::Arithmetic Type> inline
 bool Atomic::compare_exchange_strong_explicit(
     AddressSpacePointer<kASpaceType, Type> object,
-    Type* expected,
+    Pointer expected,
     const Type desired,
     const memory_order success,
     const memory_order failure) noexcept
 {
   return compare_exchange_strong_explicit(object.get(), expected, desired, success, failure);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kASpaceType1 No description.
+  \tparam kASpaceType2 No description.
+  \tparam Type No description.
+  \param [in,out] object No description.
+  \param [in,out] expected No description.
+  \param [in] desired No description.
+  \param [in] success No description.
+  \param [in] failure No description.
+  \return No description
+  */
+template <AddressSpaceType kASpaceType1, AddressSpaceType kASpaceType2, zisc::Arithmetic Type> inline
+bool Atomic::compare_exchange_strong_explicit(
+    AddressSpacePointer<kASpaceType1, Type> object,
+    AddressSpacePointer<kASpaceType2, Type> expected,
+    const Type desired,
+    const memory_order success,
+    const memory_order failure) noexcept
+{
+  return compare_exchange_strong_explicit(object.get(), expected.get(), desired, success, failure);
 }
 
 /*!
@@ -744,7 +830,7 @@ template <AddressSpaceType kASpaceType, zisc::Arithmetic Type> inline
 Type Atomic::fetch_max(AddressSpacePointer<kASpaceType, Type> object,
                        const Type operand) noexcept
 {
-  return fetch_max_explicit(object, operand, memory_order_seq_cst);
+  return fetch_max_explicit(object.get(), operand, memory_order_seq_cst);
 }
 
 /*!
@@ -780,7 +866,7 @@ Type Atomic::fetch_max_explicit(AddressSpacePointer<kASpaceType, Type> object,
                                const Type operand,
                                const memory_order order) noexcept
 {
-  return fetch_max_explicit(object, operand, order);
+  return fetch_max_explicit(object.get(), operand, order);
 }
 
 /*!
@@ -992,6 +1078,7 @@ bool atomic_compare_exchange_strong(
 /*!
   \details No detailed description
 
+  \tparam Pointer No description.
   \tparam kASpaceType No description.
   \tparam Type No description.
   \param [in,out] object No description.
@@ -999,9 +1086,47 @@ bool atomic_compare_exchange_strong(
   \param [in] desired No description.
   \return No description
   */
-template <AddressSpaceType kASpaceType, zisc::Arithmetic Type> inline
+template <zisc::Pointer Pointer, AddressSpaceType kASpaceType, zisc::Arithmetic Type> inline
+bool atomic_compare_exchange_strong(Pointer object,
+                                    AddressSpacePointer<kASpaceType, Type> expected,
+                                    const Type desired) noexcept
+{
+  return Atomic::compare_exchange_strong(object, expected, desired);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \tparam Pointer No description.
+  \tparam Type No description.
+  \param [in,out] object No description.
+  \param [in,out] expected No description.
+  \param [in] desired No description.
+  \return No description
+  */
+template <AddressSpaceType kASpaceType, zisc::Pointer Pointer, zisc::Arithmetic Type> inline
 bool atomic_compare_exchange_strong(AddressSpacePointer<kASpaceType, Type> object,
-                                    Type* expected,
+                                    Pointer expected,
+                                    const Type desired) noexcept
+{
+  return Atomic::compare_exchange_strong(object, expected, desired);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kASpaceType1 No description.
+  \tparam kASpaceType2 No description.
+  \tparam Type No description.
+  \param [in,out] object No description.
+  \param [in,out] expected No description.
+  \param [in] desired No description.
+  \return No description
+  */
+template <AddressSpaceType kASpaceType1, AddressSpaceType kASpaceType2, zisc::Arithmetic Type> inline
+bool atomic_compare_exchange_strong(AddressSpacePointer<kASpaceType1, Type> object,
+                                    AddressSpacePointer<kASpaceType2, Type> expected,
                                     const Type desired) noexcept
 {
   return Atomic::compare_exchange_strong(object, expected, desired);
@@ -1032,6 +1157,7 @@ bool atomic_compare_exchange_strong_explicit(
 /*!
   \details No detailed description
 
+  \tparam Pointer No description.
   \tparam kASpaceType No description.
   \tparam Type No description.
   \param [in,out] object No description.
@@ -1041,10 +1167,58 @@ bool atomic_compare_exchange_strong_explicit(
   \param [in] failure No description.
   \return No description
   */
-template <AddressSpaceType kASpaceType, zisc::Arithmetic Type> inline
+template <zisc::Pointer Pointer, AddressSpaceType kASpaceType, zisc::Arithmetic Type> inline
+bool atomic_compare_exchange_strong_explicit(
+    Pointer object,
+    AddressSpacePointer<kASpaceType, Type> expected,
+    const Type desired,
+    const memory_order success,
+    const memory_order failure) noexcept
+{
+  return Atomic::compare_exchange_strong_explicit(object, expected, desired, success, failure);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kASpaceType No description.
+  \tparam Pointer No description.
+  \tparam Type No description.
+  \param [in,out] object No description.
+  \param [in,out] expected No description.
+  \param [in] desired No description.
+  \param [in] success No description.
+  \param [in] failure No description.
+  \return No description
+  */
+template <AddressSpaceType kASpaceType, zisc::Pointer Pointer, zisc::Arithmetic Type> inline
 bool atomic_compare_exchange_strong_explicit(
     AddressSpacePointer<kASpaceType, Type> object,
-    Type* expected,
+    Pointer expected,
+    const Type desired,
+    const memory_order success,
+    const memory_order failure) noexcept
+{
+  return Atomic::compare_exchange_strong_explicit(object, expected, desired, success, failure);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kASpaceType1 No description.
+  \tparam kASpaceType2 No description.
+  \tparam Type No description.
+  \param [in,out] object No description.
+  \param [in,out] expected No description.
+  \param [in] desired No description.
+  \param [in] success No description.
+  \param [in] failure No description.
+  \return No description
+  */
+template <AddressSpaceType kASpaceType1, AddressSpaceType kASpaceType2, zisc::Arithmetic Type> inline
+bool atomic_compare_exchange_strong_explicit(
+    AddressSpacePointer<kASpaceType1, Type> object,
+    AddressSpacePointer<kASpaceType2, Type> expected,
     const Type desired,
     const memory_order success,
     const memory_order failure) noexcept

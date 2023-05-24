@@ -18,12 +18,10 @@
 #include "kernel_arg_cache.hpp"
 // Standard C++ library
 #include <cstddef>
+#include <functional>
 #include <ostream>
 #include <string_view>
 #include <type_traits>
-// Zisc
-#include "zisc/concepts.hpp"
-#include "zisc/utility.hpp"
 // Zivc
 #include "zivc/zivc_config.hpp"
 
@@ -381,7 +379,7 @@ auto KernelArgCache<Type, Types...>::get() const noexcept -> const CacheT<kIndex
 template <KernelArg Type, typename ...Types> inline
 bool KernelArgCache<Type, Types...>::isEqual(const KernelArgCache& other) const noexcept
 {
-  const bool result1 = zisc::equal(value_, other.value_);
+  const bool result1 = std::equal_to<Type>{}(value_, other.value_);
   const bool result2 = precedence_ == other.precedence_;
   return result1 && result2;
 }

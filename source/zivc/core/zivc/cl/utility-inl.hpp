@@ -265,6 +265,26 @@ Type Utility::reinterp(T object) noexcept
 /*!
   \details No detailed description
 
+  \tparam AddressSpacePointer No description.
+  \tparam Type No description.
+  \param [in] flag No description.
+  \param [out] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <typename AddressSpacePointer, typename Type> inline
+bool Utility::updateIfTrue(const bool flag, AddressSpacePointer lhs, Type rhs) noexcept
+{
+  using ASpaceInfo = AddressSpaceInfo<AddressSpacePointer>;
+  static_assert(ASpaceInfo::isPointer(), "The lhs isn't pointer.");
+  if (flag)
+    *lhs = rhs;
+  return flag;
+}
+
+/*!
+  \details No detailed description
+
   \tparam Types No description.
   \param [in] condition No description.
   \param [in] format No description.
@@ -316,6 +336,22 @@ template <typename Type, typename T> inline
 Type reinterp(T object) noexcept
 {
   return Utility::reinterp<Type, T>(object);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam AddressSpacePointer No description.
+  \tparam Type No description.
+  \param [in] flag No description.
+  \param [out] lhs No description.
+  \param [in] rhs No description.
+  \return No description
+  */
+template <typename AddressSpacePointer, typename Type> inline
+bool updateIfTrue(const bool flag, AddressSpacePointer lhs, Type rhs) noexcept
+{
+  return Utility::updateIfTrue(flag, lhs, rhs);
 }
 
 /*!

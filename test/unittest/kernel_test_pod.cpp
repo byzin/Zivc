@@ -16,6 +16,7 @@
 #include <array>
 #include <algorithm>
 #include <cstddef>
+#include <functional>
 #include <limits>
 #include <memory>
 #include <numbers>
@@ -58,7 +59,7 @@ testing::AssertionResult testVectorBuffer(zivc::Device& device,
     for (std::size_t i = 0; i < n; ++i, ++expected) {
       if (i == n / 2)
         expected = static_cast<ScalarT>(1);
-      if (!zisc::equal(expected, ptr[i]))
+      if (std::not_equal_to<ScalarT>{}(expected, ptr[i]))
         return testing::AssertionFailure() << "mem[" << i << "] = " << ptr[i];
     }
     return testing::AssertionSuccess();
@@ -1091,7 +1092,7 @@ TEST(KernelTest, PodVectorTypeTest)
         using ScalarT = std::remove_cvref_t<decltype(ptr[0])>;
         ScalarT expected = static_cast<ScalarT>(1);
         for (std::size_t i = 0; i < n; ++i, ++expected) {
-          if (!zisc::equal(expected, ptr[i]))
+          if (std::not_equal_to<ScalarT>{}(expected, ptr[i]))
             return testing::AssertionFailure() << "mem[" << i << "] = " << ptr[i];
         }
         return testing::AssertionSuccess();

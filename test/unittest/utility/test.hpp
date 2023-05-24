@@ -18,6 +18,7 @@
 // Standard C++ library
 #include <concepts>
 #include <initializer_list>
+#include <span>
 #include <string_view>
 // Zisc
 #include "zisc/memory/std_memory_resource.hpp"
@@ -77,6 +78,12 @@ void fillDeviceBuffer(const Type& value, zivc::Buffer<Type>* buffer);
 template <typename Type>
 void setDeviceBuffer(zivc::Device& device,
                      const std::initializer_list<Type>& init_list,
+                     zivc::Buffer<Type>* buffer);
+
+//! Initialize a device buffer with the given list
+template <typename Type>
+void setDeviceBuffer(zivc::Device& device,
+                     const std::span<const Type>& init_list,
                      zivc::Buffer<Type>* buffer);
 
 //! Copy buffer data

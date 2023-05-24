@@ -60,12 +60,12 @@ class Atomic
                        const MemoryOrder order = kMemoryOrderAcqRel) noexcept;
 
   //! Atomically, compares the value pointed to by object for equality with that in expected, and if true, replaces the value pointed to by object with desired
-  template <typename AddressSpacePointer, typename Type>
-  static bool compareExchange(AddressSpacePointer object,
-                              Type* expected,
-                              const Type desired,
-                              const MemoryOrder success = kMemoryOrderAcqRel,
-                              const MemoryOrder failure = kMemoryOrderAcquire) noexcept;
+  template <typename AddressSpacePointer1, typename AddressSpacePointer2, typename Type>
+  static bool compareAndExchange(AddressSpacePointer1 object,
+                                 AddressSpacePointer2 expected,
+                                 const Type desired,
+                                 const MemoryOrder success = kMemoryOrderAcqRel,
+                                 const MemoryOrder failure = kMemoryOrderAcquire) noexcept;
 
   //! Compute (old + 1) and store result at location pointed by object, return old
   template <typename AddressSpacePointer>
@@ -122,10 +122,9 @@ class Atomic
   //! Perform an expression atomically
   template <typename AddressSpacePointer, typename Function, typename ...Types>
   static auto perform(AddressSpacePointer p,
+                      const MemoryOrder order,
                       Function expression,
-                      Types&&... arguments,
-                      const MemoryOrder success = kMemoryOrderAcqRel,
-                      const MemoryOrder failure = kMemoryOrderAcquire) noexcept;
+                      Types... arguments) noexcept;
 
  private:
   //! Atomic object type that corresponds to the given type
@@ -137,11 +136,8 @@ class Atomic
   class AtomicObject;
 
 
-  //! Perform an expression atomically
-  template <typename AddressSpaceInteger, typename Function, typename ...Types>
-  static auto performImpl(AddressSpaceInteger p,
-                          Function expression,
-                          Types&&... arguments) noexcept;
+  //!
+  static constexpr MemoryOrder getLoadOrder(const MemoryOrder order) noexcept;
 };
 
 // CL style function aliases
@@ -164,9 +160,9 @@ Type atomic_exchange(AddressSpacePointer object,
                      const MemoryOrder order = kMemoryOrderAcqRel) noexcept;
 
 //! Atomically, compares the value pointed to by object for equality with that in expected, and if true, replaces the value pointed to by object with desired
-template <typename AddressSpacePointer, typename Type>
-bool atomic_compare_exchange(AddressSpacePointer object,
-                             Type* expected,
+template <typename AddressSpacePointer1, typename AddressSpacePointer2, typename Type>
+bool atomic_compare_exchange(AddressSpacePointer1 object,
+                             AddressSpacePointer2 expected,
                              const Type desired,
                              const MemoryOrder success = kMemoryOrderAcqRel,
                              const MemoryOrder failure = kMemoryOrderAcquire) noexcept;

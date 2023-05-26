@@ -378,4 +378,34 @@ __kernel void atomicCompareAndExchangeTestKernel(zivc::GlobalPtr<int32b> out1,
   }
 }
 
+__kernel void atomicCompareAndExchangeLocalTestKernel(zivc::GlobalPtr<int32b> out1,
+                                                      const uint32b resolution,
+                                                      const uint32b loop,
+                                                      zivc::LocalPtr<int32b> storage)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (resolution <= index)
+    return;
+
+  const size_t id = zivc::getLocalLinearId();
+  if (id == 0)
+    zivc::atomic_store(storage, 0);
+  zivc::barrier(CLK_LOCAL_MEM_FENCE);
+
+  // Increment the input integer
+  const auto func1 = [](const int32b v, const int32b c) noexcept
+  {
+    return v + c;
+  };
+
+  for (size_t i = 0; i < loop; ++i)
+    zivc::Atomic::perform(storage, zivc::MemoryOrder::kAcqRel, func1, 1);
+  zivc::barrier(CLK_LOCAL_MEM_FENCE);
+
+  if (id == 0) {
+    const int32b v = zivc::atomic_load(&storage[0]);
+    zivc::Atomic::perform(out1, zivc::MemoryOrder::kAcqRel, func1, v);
+  }
+}
+
 #endif /* ZIVC_TEST_OPENCL_CPP_TEST_ATOMIC */

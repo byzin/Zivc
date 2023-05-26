@@ -981,3 +981,48 @@ TEST(ClCppTest, AtomicCompareExchangeTest)
     ASSERT_FLOAT_EQ(expected, mem[0]) << "atomic_cmpxchg of float failed.";
   }
 }
+
+TEST(ClCppTest, AtomicCompareExchangeLocalTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_int;
+  using zivc::cl_uint;
+
+  constexpr std::size_t n = 2560 * 1440;
+
+  const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_int>(zivc::BufferUsage::kPreferDevice);
+  ztest::setDeviceBuffer(*device, {0}, buffer_out1.get());
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_atomic, atomicCompareAndExchangeLocalTestKernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(3, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{n}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("atomicCompareAndExchangeLocalTestKernel");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(3, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(n, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_out1, n, ::nLoop(), launch_options);
+  device->waitForCompletion(result.fence());
+
+  // output1
+  {
+    const zivc::SharedBuffer tmp = device->createBuffer<cl_int>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out1, tmp.get());
+    const zivc::MappedMemory mem = tmp->mapMemory();
+    constexpr zivc::int32b expected = ::nLoop() * n;
+    ASSERT_EQ(expected, mem[0]) << "atomic_cmpxchg of int failed.";
+  }
+}

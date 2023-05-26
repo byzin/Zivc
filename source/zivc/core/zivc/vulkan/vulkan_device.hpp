@@ -35,13 +35,13 @@
 #include "internal/cmd_record_region.hpp"
 #include "internal/queue_debug_label_region.hpp"
 #include "internal/vulkan_memory_allocator.hpp"
-#include "utility/vulkan.hpp"
-#include "utility/vulkan_dispatch_loader.hpp"
-#include "zivc/device.hpp"
-#include "zivc/kernel_set.hpp"
-#include "zivc/zivc_config.hpp"
-#include "zivc/auxiliary/id_data.hpp"
-#include "zivc/internal/shader_desc_map.hpp"
+#include "../device.hpp"
+#include "../kernel_set.hpp"
+#include "../zivc_config.hpp"
+#include "../auxiliary/id_data.hpp"
+#include "../internal/shader_desc_map.hpp"
+#include "zivc/vulkan/vulkan.hpp"
+#include "zivc/vulkan/vulkan_dispatch_loader.hpp"
 
 namespace zivc {
 

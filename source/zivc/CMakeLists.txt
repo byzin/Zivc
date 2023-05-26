@@ -101,8 +101,7 @@ function(Zivc_addZivcKernels)
   file(GLOB_RECURSE kernel_sources ${kernel_set_dir}/kernel/*.cl)
   set(kernel_set_name "zivc_internal_kernel")
   Zivc_addKernelSet(${kernel_set_name} ${PROJECT_VERSION} target_base_name
-      SOURCE_FILES ${kernel_sources}
-      INCLUDE_DIRS "${kernel_set_dir}")
+      SOURCE_FILES ${kernel_sources})
   add_library(Zivc::InternalKernel ALIAS ${target_base_name})
 endfunction(Zivc_addZivcKernels)
 
@@ -123,6 +122,7 @@ macro(Zivc_setZivcProject)
   Zivc_checkTarget(CpuFeature::cpu_features)
 
   cmake_path(SET zivc_core_dir "${PROJECT_SOURCE_DIR}/core")
+  cmake_path(SET zivc_include_dir "${zivc_core_dir}/include")
   # Make zivc configuration header file
   cmake_path(SET zivc_config_dir "${PROJECT_BINARY_DIR}/include/zivc")
   file(MAKE_DIRECTORY "${zivc_config_dir}")
@@ -131,10 +131,11 @@ macro(Zivc_setZivcProject)
                  @ONLY)
 
   # Create Zivc library
-  file(GLOB_RECURSE zivc_source_files ${zivc_core_dir}/zivc/*[.hpp|.cpp])
+  file(GLOB_RECURSE zivc_source_files ${zivc_core_dir}/zivc/*[.hpp|.cpp] ${zivc_include_dir}/zivc/*[.hpp|.cpp])
   if(NOT ZIVC_ENABLE_VULKAN_BACKEND)
     foreach(source_file IN LISTS zivc_source_files)
-      if(source_file MATCHES "${zivc_core_dir}/zivc/vulkan/.*")
+      if((source_file MATCHES "${zivc_core_dir}/zivc/vulkan/.*") OR
+         (source_file MATCHES "${zivc_include_dir}/zivc/vulkan/.*"))
         list(REMOVE_ITEM zivc_source_files "${source_file}")
       endif()
     endforeach(source_file)
@@ -187,7 +188,7 @@ macro(Zivc_setZivcProject)
     target_link_options(${library_name} PUBLIC ${zivc_linker_flags}
                                         PRIVATE ${linker_sanitizer_flags})
     target_compile_definitions(${library_name} PUBLIC ${zivc_definitions})
-    target_include_directories(${library_name} PUBLIC "${zivc_core_dir}"
+    target_include_directories(${library_name} PUBLIC "${zivc_include_dir}"
                                                       "${PROJECT_BINARY_DIR}/include")
     # For vulkan backend
     if(ZIVC_ENABLE_VULKAN_BACKEND)

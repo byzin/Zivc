@@ -45,7 +45,7 @@
 #endif // Z_GCC || Z_CLANG
 
 // Zivc
-#include "zivc/zivc_config.hpp"
+#include "zivc/zivc.hpp"
 
 
 namespace example {

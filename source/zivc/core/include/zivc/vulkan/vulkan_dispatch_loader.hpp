@@ -139,6 +139,6 @@ bool operator!=(const VulkanDispatchLoader& lhs,
 
 } // namespace zivc
 
-#include "vulkan_dispatch_loader-inl.hpp"
+#include "../../../zivc/vulkan/utility/vulkan_dispatch_loader-inl.hpp"
 
 #endif // ZIVC_VULKAN_DISPATCH_LOADER_HPP

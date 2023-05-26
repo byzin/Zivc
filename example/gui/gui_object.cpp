@@ -19,7 +19,7 @@
 // Zisc
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
-#include "zivc/auxiliary/error.hpp"
+#include "zivc/zivc.hpp"
 
 namespace example {
 

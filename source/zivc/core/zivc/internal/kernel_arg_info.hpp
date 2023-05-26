@@ -21,7 +21,7 @@
 // Zisc
 #include "zisc/boolean.hpp"
 // Zivc
-#include "zivc/zivc_config.hpp"
+#include "../zivc_config.hpp"
 
 namespace zivc::internal {
 

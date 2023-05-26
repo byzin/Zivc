@@ -19,7 +19,7 @@
 #include "zivc/cl/types.hpp"
 #include "zivc/cl/utility.hpp"
 // Internal kernel
-#include "utility/fill_info.hpp"
+#include "../utility/fill_info.hpp"
 
 using uint32b = zivc::uint32b;
 

@@ -23,14 +23,14 @@
 #include <type_traits>
 #include <utility>
 // Zivc
-#include "utility/vulkan.hpp"
-#include "zivc/buffer.hpp"
-#include "zivc/kernel.hpp"
-#include "zivc/kernel_set.hpp"
-#include "zivc/zivc_config.hpp"
-#include "zivc/auxiliary/id_data.hpp"
-#include "zivc/auxiliary/launch_result.hpp"
-#include "zivc/internal/kernel_arg_cache.hpp"
+#include "../buffer.hpp"
+#include "../kernel.hpp"
+#include "../kernel_set.hpp"
+#include "../zivc_config.hpp"
+#include "../auxiliary/id_data.hpp"
+#include "../auxiliary/launch_result.hpp"
+#include "../internal/kernel_arg_cache.hpp"
+#include "zivc/vulkan/vulkan.hpp"
 
 namespace zivc {
 

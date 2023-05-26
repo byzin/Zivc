@@ -52,6 +52,7 @@ function(Zivc_initCpuBackend target)
 
   Zivc_makeKernelInclusionString(kernel_inclusion_lines ${kernel_set_source_files})
 
+  cmake_path(SET zivc_core_dir NORMALIZE "@zivc_path@/core")
   # Hpp file
   file(MAKE_DIRECTORY "${cpp_include_dir}/zivc/kernel_set")
   cmake_path(SET hpp_file_path "${cpp_include_dir}/zivc/kernel_set/${set_name}.hpp")

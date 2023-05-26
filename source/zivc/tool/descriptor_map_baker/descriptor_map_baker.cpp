@@ -35,7 +35,7 @@
 #include "zisc/memory/alloc_free_resource.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
-#include "zivc/internal/shader_desc_map.hpp"
+#include "../../core/zivc/internal/shader_desc_map.hpp"
 
 namespace {
 

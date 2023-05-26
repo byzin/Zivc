@@ -15,7 +15,6 @@
 #ifndef ZIVC_CONFIG_INL_HPP
 #define ZIVC_CONFIG_INL_HPP
 
-#include "zivc/zivc_config.hpp"
 // Standard C++ library
 #include <string_view>
 #include <type_traits>

@@ -28,12 +28,12 @@
 // Zivc
 #include "cpu_device.hpp"
 #include "cpu_device_info.hpp"
-#include "zivc/backend.hpp"
-#include "zivc/context.hpp"
-#include "zivc/context_options.hpp"
-#include "zivc/device.hpp"
-#include "zivc/zivc_config.hpp"
-#include "zivc/auxiliary/error.hpp"
+#include "../backend.hpp"
+#include "../context.hpp"
+#include "../context_options.hpp"
+#include "../device.hpp"
+#include "../zivc_config.hpp"
+#include "../auxiliary/error.hpp"
 
 namespace zivc {
 

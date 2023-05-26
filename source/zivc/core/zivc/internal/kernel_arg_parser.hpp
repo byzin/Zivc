@@ -22,8 +22,8 @@
 #include <type_traits>
 // Zivc
 #include "kernel_arg_info.hpp"
-#include "zivc/kernel_set.hpp"
-#include "zivc/zivc_config.hpp"
+#include "../kernel_set.hpp"
+#include "../zivc_config.hpp"
 
 namespace zivc {
 

@@ -16,8 +16,8 @@
 // Standard C++ library
 #include <type_traits>
 // Zivc
-#include "zivc/device.hpp"
-#include "zivc/zivc_config.hpp"
+#include "../device.hpp"
+#include "../zivc_config.hpp"
 
 namespace zivc {
 

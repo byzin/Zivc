@@ -24,8 +24,8 @@
 // Zisc
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
+#include "zivc_config.hpp"
 #include "internal/shader_desc_map.hpp"
-#include "zivc/zivc_config.hpp"
 
 namespace zivc {
 

@@ -25,7 +25,6 @@
 // Zivc
 #include "zivc_config.hpp"
 #include "auxiliary/id_data.hpp"
-#include "zivc/zivc_config.hpp"
 
 namespace zivc {
 

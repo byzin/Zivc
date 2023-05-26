@@ -24,7 +24,7 @@
 #include "zisc/utility.hpp"
 // Zivc
 #include "types.hpp"
-#include "zivc/zivc_config.hpp"
+#include "../zivc_config.hpp"
 
 namespace zivc::cl {
 
@@ -161,7 +161,7 @@ template <AddressSpaceType kASpaceType, KernelArg T>
 template <zisc::Integer Integer> inline
 auto AddressSpacePointer<kASpaceType, T>::operator[](const Integer index) noexcept -> Reference
 {
-  auto p = get() + static_cast<ptrdiff_t>(index);
+  auto* p = get() + static_cast<ptrdiff_t>(index);
   return *p;
 }
 
@@ -175,7 +175,7 @@ template <AddressSpaceType kASpaceType, KernelArg T>
 template <zisc::Integer Integer> inline
 auto AddressSpacePointer<kASpaceType, T>::operator[](const Integer index) const noexcept -> ConstReference
 {
-  auto p = get() + static_cast<ptrdiff_t>(index);
+  auto* p = get() + static_cast<ptrdiff_t>(index);
   return *p;
 }
 
@@ -187,7 +187,7 @@ auto AddressSpacePointer<kASpaceType, T>::operator[](const Integer index) const 
 template <AddressSpaceType kASpaceType, KernelArg T> inline
 auto AddressSpacePointer<kASpaceType, T>::operator*() noexcept -> Reference
 {
-  auto p = get();
+  auto* p = get();
   return *p;
 }
 
@@ -199,7 +199,7 @@ auto AddressSpacePointer<kASpaceType, T>::operator*() noexcept -> Reference
 template <AddressSpaceType kASpaceType, KernelArg T> inline
 auto AddressSpacePointer<kASpaceType, T>::operator*() const noexcept -> ConstReference 
 {
-  auto p = get();
+  auto* p = get();
   return *p;
 }
 
@@ -211,7 +211,7 @@ auto AddressSpacePointer<kASpaceType, T>::operator*() const noexcept -> ConstRef
 template <AddressSpaceType kASpaceType, KernelArg T> inline
 auto AddressSpacePointer<kASpaceType, T>::operator->() noexcept -> Pointer
 {
-  auto data = get();
+  auto* data = get();
   return data;
 }
 
@@ -223,7 +223,7 @@ auto AddressSpacePointer<kASpaceType, T>::operator->() noexcept -> Pointer
 template <AddressSpaceType kASpaceType, KernelArg T> inline
 auto AddressSpacePointer<kASpaceType, T>::operator->() const noexcept -> ConstPointer
 {
-  auto data = get();
+  auto* data = get();
   return data;
 }
 
@@ -238,7 +238,7 @@ template <zisc::Integer Integer> inline
 auto AddressSpacePointer<kASpaceType, T>::operator+=(const Integer n) noexcept
     -> ASpacePointerRef
 {
-  auto data = get() + static_cast<ptrdiff_t>(n);
+  auto* data = get() + static_cast<ptrdiff_t>(n);
   data_ = data;
   return *this;
 }
@@ -254,7 +254,7 @@ template <zisc::Integer Integer> inline
 auto AddressSpacePointer<kASpaceType, T>::operator-=(const Integer n) noexcept
     -> ASpacePointerRef
 {
-  auto data = get() - static_cast<ptrdiff_t>(n);
+  auto* data = get() - static_cast<ptrdiff_t>(n);
   data_ = data;
   return *this;
 }
@@ -279,7 +279,7 @@ template <AddressSpaceType kASpaceType, KernelArg T> inline
 auto AddressSpacePointer<kASpaceType, T>::operator++() noexcept
     -> ASpacePointerRef
 {
-  auto data = get() + 1;
+  auto* data = get() + 1;
   data_ = data;
   return *this;
 }
@@ -293,7 +293,7 @@ template <AddressSpaceType kASpaceType, KernelArg T> inline
 auto AddressSpacePointer<kASpaceType, T>::operator--() noexcept
     -> ASpacePointerRef
 {
-  auto data = get() - 1;
+  auto* data = get() - 1;
   data_ = data;
   return *this;
 }
@@ -307,7 +307,7 @@ template <AddressSpaceType kASpaceType, KernelArg T> inline
 auto AddressSpacePointer<kASpaceType, T>::operator++(int) noexcept
     -> AddressSpacePointer
 {
-  auto data = get();
+  auto* data = get();
   data_ = data + 1;
   return AddressSpacePointer{data};
 }
@@ -321,7 +321,7 @@ template <AddressSpaceType kASpaceType, KernelArg T> inline
 auto AddressSpacePointer<kASpaceType, T>::operator--(int) noexcept
     -> AddressSpacePointer
 {
-  auto data = get();
+  auto* data = get();
   data_ = data - 1;
   return AddressSpacePointer{data};
 }
@@ -383,7 +383,7 @@ AddressSpacePointer<kASpaceType, Type> operator+(
     const Integer n,
     AddressSpacePointer<kASpaceType, Type> p) noexcept
 {
-  auto result = p + n;
+  auto* result = p + n;
   return result;
 }
 

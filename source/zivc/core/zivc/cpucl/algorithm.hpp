@@ -14,7 +14,7 @@
 #include <type_traits>
 // Zivc
 #include "vector.hpp"
-#include "zivc/zivc_config.hpp"
+#include "../zivc_config.hpp"
 
 namespace zivc {
 

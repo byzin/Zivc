@@ -24,13 +24,13 @@
 #include <type_traits>
 #include <utility>
 // Zivc
-#include "zivc/kernel.hpp"
-#include "zivc/kernel_set.hpp"
-#include "zivc/zivc_config.hpp"
-#include "zivc/auxiliary/kernel_launch_options.hpp"
-#include "zivc/auxiliary/id_data.hpp"
-#include "zivc/auxiliary/launch_result.hpp"
-#include "zivc/internal/kernel_arg_cache.hpp"
+#include "../kernel.hpp"
+#include "../kernel_set.hpp"
+#include "../zivc_config.hpp"
+#include "../auxiliary/kernel_launch_options.hpp"
+#include "../auxiliary/id_data.hpp"
+#include "../auxiliary/launch_result.hpp"
+#include "../internal/kernel_arg_cache.hpp"
 
 namespace zivc {
 

@@ -233,8 +233,7 @@ macro(setExampleProject)
   addExample(KernelExample OFF
              SOURCE_FILES "${PROJECT_SOURCE_DIR}/kernel_example.cpp")
   Zivc_addKernelSet(example ${PROJECT_VERSION} kernel_example_kernel
-      SOURCE_FILES "kernels/example.cl"
-      INCLUDE_DIRS kernels)
+      SOURCE_FILES "kernels/example.cl")
   target_link_libraries(KernelExample PRIVATE ${kernel_example_kernel})
 
   # Demos using vulkan

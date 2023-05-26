@@ -19,8 +19,8 @@
 #include "zisc/algorithm.hpp"
 // Zivc
 #include "types.hpp"
-#include "zivc/zivc_config.hpp"
-#include "zivc/auxiliary/error.hpp"
+#include "../zivc_config.hpp"
+#include "../auxiliary/error.hpp"
 
 namespace zivc::cl {
 

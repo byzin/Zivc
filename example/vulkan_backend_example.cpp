@@ -30,10 +30,8 @@
 // Zivc
 #include "zivc/zivc.hpp"
 #if defined(ZIVC_ENABLE_VULKAN_BACKEND)
-#include "zivc/vulkan/vulkan_device_info.hpp"
-#include "zivc/vulkan/vulkan_backend.hpp"
-#include "zivc/vulkan/utility/vulkan_hpp.hpp"
-#include "zivc/vulkan/utility/vulkan_dispatch_loader.hpp"
+#include "zivc/vulkan/vulkan_hpp.hpp"
+#include "zivc/vulkan/vulkan_dispatch_loader.hpp"
 #endif // ZIVC_ENABLE_VULKAN_BACKEND
 
 namespace {

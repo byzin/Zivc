@@ -31,11 +31,11 @@
 #include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
-#include "zivc/kernel_set.hpp"
-#include "zivc/zivc_config.hpp"
-#include "zivc/auxiliary/error.hpp"
-#include "zivc/internal/shader_desc_map.hpp"
-#include "zivc/internal/zstd.hpp"
+#include "@zivc_core_dir@/zivc/kernel_set.hpp"
+#include "@zivc_core_dir@/zivc/zivc_config.hpp"
+#include "@zivc_core_dir@/zivc/auxiliary/error.hpp"
+#include "@zivc_core_dir@/zivc/internal/shader_desc_map.hpp"
+#include "@zivc_core_dir@/zivc/internal/zstd.hpp"
 
 namespace {
 

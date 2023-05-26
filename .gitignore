@@ -48,13 +48,18 @@
 !/source/zivc/template/*.cl.in
 !/source/zivc/template/*.cmake.in
 !/source/zivc/core/
+!/source/zivc/core/include/
+!/source/zivc/core/include/zivc/
+!/source/zivc/core/include/zivc/*.hpp
+!/source/zivc/core/include/zivc/cl/
+!/source/zivc/core/include/zivc/cl/*.hpp
+!/source/zivc/core/include/zivc/vulkan/
+!/source/zivc/core/include/zivc/vulkan/*.hpp
+!/source/zivc/core/include/zivc/vulkan/*.cpp
 !/source/zivc/core/zivc/
 !/source/zivc/core/zivc/*.hpp
 !/source/zivc/core/zivc/*.hpp.in
 !/source/zivc/core/zivc/*.cpp
-!/source/zivc/core/zivc/cl/
-!/source/zivc/core/zivc/cl/*.cl
-!/source/zivc/core/zivc/cl/*.hpp
 !/source/zivc/core/zivc/cpu/
 !/source/zivc/core/zivc/cpu/*.hpp
 !/source/zivc/core/zivc/cpu/*.cpp
@@ -76,9 +81,6 @@
 !/source/zivc/core/zivc/vulkan/internal/
 !/source/zivc/core/zivc/vulkan/internal/*.hpp
 !/source/zivc/core/zivc/vulkan/internal/*.cpp
-!/source/zivc/core/zivc/vulkan/utility/
-!/source/zivc/core/zivc/vulkan/utility/*.hpp
-!/source/zivc/core/zivc/vulkan/utility/*.cpp
 # Zivc cmake file
 !/source/zivc/cmake/
 !/source/zivc/cmake/*.cmake

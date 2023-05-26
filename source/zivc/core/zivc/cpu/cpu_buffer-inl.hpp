@@ -30,15 +30,15 @@
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "cpu_device.hpp"
-#include "zivc/backend.hpp"
-#include "zivc/buffer.hpp"
-#include "zivc/zivc_config.hpp"
-#include "zivc/auxiliary/buffer_init_params.hpp"
-#include "zivc/auxiliary/buffer_launch_options.hpp"
-#include "zivc/auxiliary/error.hpp"
-#include "zivc/auxiliary/id_data.hpp"
-#include "zivc/auxiliary/launch_result.hpp"
-#include "zivc/auxiliary/zivc_object.hpp"
+#include "../backend.hpp"
+#include "../buffer.hpp"
+#include "../zivc_config.hpp"
+#include "../auxiliary/buffer_init_params.hpp"
+#include "../auxiliary/buffer_launch_options.hpp"
+#include "../auxiliary/error.hpp"
+#include "../auxiliary/id_data.hpp"
+#include "../auxiliary/launch_result.hpp"
+#include "../auxiliary/zivc_object.hpp"
 
 namespace zivc {
 

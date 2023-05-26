@@ -21,7 +21,7 @@
 #include <cstdlib>
 #include <string_view>
 // Zivc
-#include "zivc/zivc_config.hpp"
+#include "../zivc_config.hpp"
 
 namespace zivc::internal {
 

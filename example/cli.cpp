@@ -21,7 +21,7 @@
 // Zisc
 #include "zisc/utility.hpp"
 // Zivc
-#include "zivc/zivc_config.hpp"
+#include "zivc/zivc.hpp"
 // Example
 #include "gui/gui_application_options.hpp"
 

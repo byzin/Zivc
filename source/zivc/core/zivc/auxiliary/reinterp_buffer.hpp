@@ -24,8 +24,8 @@
 #include "buffer_init_params.hpp"
 #include "id_data.hpp"
 #include "zivc_object.hpp"
-#include "zivc/buffer.hpp"
-#include "zivc/zivc_config.hpp"
+#include "../buffer.hpp"
+#include "../zivc_config.hpp"
 
 namespace zivc {
 

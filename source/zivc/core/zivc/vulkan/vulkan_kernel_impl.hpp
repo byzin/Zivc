@@ -23,9 +23,9 @@
 // Zisc
 #include "zisc/non_copyable.hpp"
 // Zivc
-#include "utility/vulkan.hpp"
-#include "zivc/zivc_config.hpp"
-#include "zivc/internal/shader_desc_map.hpp"
+#include "../zivc_config.hpp"
+#include "../internal/shader_desc_map.hpp"
+#include "zivc/vulkan/vulkan.hpp"
 
 namespace zivc {
 

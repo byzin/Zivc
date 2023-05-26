@@ -12,7 +12,7 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#include "vulkan_dispatch_loader.hpp"
+#include "zivc/vulkan/vulkan_dispatch_loader.hpp"
 // Standard C++ library
 #include <cstddef>
 #include <exception>
@@ -23,8 +23,8 @@
 // Zisc
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
-#include "vulkan_hpp.hpp"
-#include "zivc/auxiliary/error.hpp"
+#include "../../auxiliary/error.hpp"
+#include "zivc/vulkan/vulkan_hpp.hpp"
 
 namespace zivc {
 

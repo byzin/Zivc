@@ -19,7 +19,7 @@
 // Standard C++ library
 #include <type_traits>
 // Zivc
-#include "zivc/zivc_config.hpp"
+#include "../zivc_config.hpp"
 
 namespace zivc::cl {
 

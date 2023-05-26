@@ -19,8 +19,8 @@
 #include <string>
 #include <string_view>
 // Zivc
-#include "zivc/vulkan/utility/vulkan.hpp"
-#include "zivc/vulkan/utility/vulkan_hpp.hpp"
+#include "zivc/vulkan/vulkan.hpp"
+#include "zivc/vulkan/vulkan_hpp.hpp"
 
 /*!
   \def ERROR_CODE_STRING_CASE 

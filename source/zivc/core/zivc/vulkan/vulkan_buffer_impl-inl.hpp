@@ -20,16 +20,16 @@
 #include <cstddef>
 #include <memory>
 // Zivc
-#include "utility/vulkan.hpp"
-#include "zivc/buffer.hpp"
-#include "zivc/zivc_cl.hpp"
-#include "zivc/zivc_config.hpp"
-#include "zivc/auxiliary/buffer_launch_options.hpp"
-#include "zivc/auxiliary/kernel_common.hpp"
-#include "zivc/auxiliary/error.hpp"
-#include "zivc/auxiliary/launch_result.hpp"
-#include "zivc/auxiliary/launch_options.hpp"
-#include "zivc/auxiliary/reinterp_buffer.hpp"
+#include "../buffer.hpp"
+#include "../zivc_cl.hpp"
+#include "../zivc_config.hpp"
+#include "../auxiliary/buffer_launch_options.hpp"
+#include "../auxiliary/kernel_common.hpp"
+#include "../auxiliary/error.hpp"
+#include "../auxiliary/launch_result.hpp"
+#include "../auxiliary/launch_options.hpp"
+#include "../auxiliary/reinterp_buffer.hpp"
+#include "zivc/vulkan/vulkan.hpp"
 
 namespace zivc {
 

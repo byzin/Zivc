@@ -20,9 +20,9 @@
 #include "zisc/non_copyable.hpp"
 #include "zisc/utility.hpp"
 // Zivc
-#include "zivc/zivc_config.hpp"
-#include "zivc/vulkan/utility/vulkan_dispatch_loader.hpp"
-#include "zivc/vulkan/utility/vulkan_hpp.hpp"
+#include "../../zivc_config.hpp"
+#include "zivc/vulkan/vulkan_dispatch_loader.hpp"
+#include "zivc/vulkan/vulkan_hpp.hpp"
 
 namespace zivc::internal {
 

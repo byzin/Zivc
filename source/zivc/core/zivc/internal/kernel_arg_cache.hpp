@@ -22,8 +22,8 @@
 #include <string_view>
 #include <type_traits>
 // Zivc
-#include "zivc/zivc_config.hpp"
-#include "zivc/cpucl/vector.hpp"
+#include "../zivc_config.hpp"
+#include "../cpucl/vector.hpp"
 
 // #define ZIVC_PRINT_CACHE_TREE
 

@@ -19,7 +19,6 @@
 #include "zisc/utility.hpp"
 // Zivc
 #include "zivc/zivc.hpp"
-#include "zivc/zivc_config.hpp"
 // Test
 #include "utility/config.hpp"
 #include "utility/googletest.hpp"

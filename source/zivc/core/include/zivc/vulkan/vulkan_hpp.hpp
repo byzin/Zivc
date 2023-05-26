@@ -17,7 +17,7 @@
 
 // Zivc
 #include "vulkan.hpp"
-#include "zivc/zivc_config.hpp"
+#include "../../../zivc/zivc_config.hpp"
 
 // Namespace
 #define VULKAN_HPP_NAMESPACE zivc::vk

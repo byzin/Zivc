@@ -22,8 +22,8 @@
 #include <memory>
 #include <type_traits>
 // Zivc
-#include "zivc/zivc_config.hpp"
-#include "zivc/cpucl/address_space_pointer.hpp"
+#include "../zivc_config.hpp"
+#include "../cpucl/address_space_pointer.hpp"
 
 namespace zivc::internal {
 

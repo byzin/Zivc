@@ -22,7 +22,6 @@
 #include "zisc/memory/alloc_free_resource.hpp"
 // Zivc
 #include "zivc/zivc.hpp"
-#include "zivc/zivc_config.hpp"
 // GUI
 #include "cli.hpp"
 #include "gui_application.hpp"

@@ -15,7 +15,7 @@
 #ifndef ZIVC_VULKAN_DISPATCH_LOADER_INL_HPP
 #define ZIVC_VULKAN_DISPATCH_LOADER_INL_HPP
 
-#include "vulkan_dispatch_loader.hpp"
+#include "zivc/vulkan/vulkan_dispatch_loader.hpp"
 // Standard C++ library
 #include <memory>
 // Zisc

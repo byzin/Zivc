@@ -25,7 +25,7 @@
 // Zivc
 #include "cpu_backend.hpp"
 #include "cpu_device_info.hpp"
-#include "zivc/zivc_config.hpp"
+#include "../zivc_config.hpp"
 
 namespace zivc {
 

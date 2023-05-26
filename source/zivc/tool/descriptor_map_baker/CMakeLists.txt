@@ -42,7 +42,6 @@ macro(Zivc_setDescriptorMapBakerProject)
                                                  ${compile_sanitizer_flags}
                                                  ${zivc_compile_flags}
                                                  ${zivc_warning_flags})
-  target_include_directories(${PROJECT_NAME} PRIVATE ${zivc_core_dir})
   target_link_libraries(${PROJECT_NAME} PRIVATE Zisc::Zisc)
   target_link_options(${PROJECT_NAME} PRIVATE ${linker_sanitizer_flags}
                                               ${zivc_linker_flags})

@@ -28,10 +28,10 @@
 #include "zisc/structure/map.hpp"
 // Zivc
 #include "vulkan_device_info.hpp"
-#include "utility/vulkan_dispatch_loader.hpp"
-#include "utility/vulkan.hpp"
-#include "zivc/zivc_config.hpp"
-#include "zivc/auxiliary/memory_heap_info.hpp"
+#include "../zivc_config.hpp"
+#include "../auxiliary/memory_heap_info.hpp"
+#include "zivc/vulkan/vulkan_dispatch_loader.hpp"
+#include "zivc/vulkan/vulkan.hpp"
 
 namespace zivc {
 

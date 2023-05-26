@@ -15,9 +15,9 @@
 #ifndef ZIVC_VULKAN_INL_HPP
 #define ZIVC_VULKAN_INL_HPP
 
-#include "vulkan.hpp"
+#include "zivc/vulkan/vulkan.hpp"
 // Zivc
-#include "zivc/zivc_config.hpp"
+#include "../../zivc_config.hpp"
 
 static_assert(VK_NULL_HANDLE == nullptr, "'ZIVC_VK_NULL_HANDLE' isn't null.");
 

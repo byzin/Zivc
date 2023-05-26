@@ -22,7 +22,7 @@
 #include "zisc/boolean.hpp"
 #include "zisc/memory/memory.hpp"
 // Zivc
-#include "zivc/zivc_config.hpp"
+#include "../zivc_config.hpp"
 
 namespace zivc {
 

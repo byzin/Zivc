@@ -18,7 +18,7 @@
 #include "zisc/concepts.hpp"
 #include "zisc/ieee_754_binary.hpp"
 // Zivc
-#include "zivc/zivc_config.hpp"
+#include "../zivc_config.hpp"
 
 namespace zivc::cl {
 

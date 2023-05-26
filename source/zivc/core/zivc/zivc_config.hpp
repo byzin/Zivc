@@ -135,7 +135,7 @@ class Config
 } // namespace zivc
 
 #if __has_include("zivc/zivc_config-inl.hpp")
-#include "zivc/zivc_config-inl.hpp"
+#include "zivc/zivc_config-inl.hpp" // It will be generted by cmake
 #endif
 
 #endif // ZIVC_CONFIG_HPP

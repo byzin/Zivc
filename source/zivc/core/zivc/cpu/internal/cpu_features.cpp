@@ -42,8 +42,8 @@
 #endif // Z_GCC || Z_CLANG
 
 // Zivc
-#include "zivc/device_info.hpp"
-#include "zivc/auxiliary/id_data.hpp"
+#include "../../device_info.hpp"
+#include "../../auxiliary/id_data.hpp"
 
 namespace zivc::internal {
 

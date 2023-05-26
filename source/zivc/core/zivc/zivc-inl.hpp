@@ -15,7 +15,7 @@
 #ifndef ZIVC_ZIVC_INL_HPP
 #define ZIVC_ZIVC_INL_HPP
 
-#include "zivc.hpp"
+#include "zivc/zivc.hpp"
 // Standard C++ library
 #include <concepts>
 #include <cstddef>
@@ -26,6 +26,7 @@
 #include "device.hpp"
 #include "kernel.hpp"
 #include "kernel_set.hpp"
+#include "zivc_config.hpp"
 #include "cpu/cpu_buffer.hpp"
 #include "cpu/cpu_device.hpp"
 #include "cpu/cpu_kernel.hpp"
@@ -39,7 +40,6 @@
 #include "vulkan/vulkan_device.hpp"
 #include "vulkan/vulkan_kernel.hpp"
 #endif // ZIVC_ENABLE_VULKAN_BACKEND
-#include "zivc/zivc_config.hpp"
 
 namespace zivc {
 

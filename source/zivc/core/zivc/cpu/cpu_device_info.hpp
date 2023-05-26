@@ -24,9 +24,9 @@
 #include "zisc/memory/memory.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
-#include "zivc/device_info.hpp"
-#include "zivc/zivc_config.hpp"
-#include "zivc/auxiliary/id_data.hpp"
+#include "../device_info.hpp"
+#include "../zivc_config.hpp"
+#include "../auxiliary/id_data.hpp"
 
 namespace zivc {
 

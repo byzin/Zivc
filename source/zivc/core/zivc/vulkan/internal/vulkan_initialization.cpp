@@ -33,4 +33,4 @@ static_assert(false, "Set optimization configurations.");
 #include <memory>
 // Zivc
 #include "vulkan_memory_allocator.hpp"
-#include "zivc/zivc_config.hpp"
+#include "../../zivc_config.hpp"

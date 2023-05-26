@@ -28,8 +28,8 @@
 #include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
-#include "utility/vulkan.hpp"
-#include "zivc/zivc_config.hpp"
+#include "zivc/vulkan/vulkan.hpp"
+#include "../zivc_config.hpp"
 
 namespace zivc {
 

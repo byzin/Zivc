@@ -47,7 +47,7 @@
 #undef min
 #undef max
 // Zivc
-#include "zivc/zivc_config.hpp"
+#include "../../../zivc/zivc_config.hpp"
 
 //! Represent a non-valid object handle
 #define ZIVC_VK_NULL_HANDLE nullptr
@@ -73,6 +73,6 @@ constexpr uint32b vkMakeVersion(const uint32b major,
 
 } // namespace zivc
 
-#include "vulkan-inl.hpp"
+#include "../../../zivc/vulkan//utility/vulkan-inl.hpp"
 
 #endif // ZIVC_VULKAN_HPP

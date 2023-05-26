@@ -29,13 +29,13 @@
 #include "zisc/algorithm.hpp"
 // Zivc
 #include "kernel_set.hpp"
+#include "zivc_config.hpp"
 #include "auxiliary/kernel_common.hpp"
 #include "auxiliary/kernel_launch_options.hpp"
 #include "auxiliary/id_data.hpp"
 #include "auxiliary/launch_result.hpp"
 #include "auxiliary/shared_kernel.hpp"
 #include "auxiliary/zivc_object.hpp"
-#include "zivc/zivc_config.hpp"
 
 namespace zivc {
 

@@ -25,7 +25,7 @@
 #include "kernel_arg_info.hpp"
 #include "kernel_arg_pack.hpp"
 #include "kernel_arg_type_info.hpp"
-#include "zivc/zivc_config.hpp"
+#include "../zivc_config.hpp"
 
 namespace zivc::internal {
 

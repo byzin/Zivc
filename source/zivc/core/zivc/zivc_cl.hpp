@@ -16,8 +16,8 @@
 #define ZIVC_ZIVC_CL_HPP
 
 // Zivc
-#include "zivc/zivc_config.hpp"
-#include "zivc/cpucl/cpucl.hpp"
+#include "zivc_config.hpp"
+#include "cpucl/cpucl.hpp"
 
 namespace zivc::cl {
 #include "zivc/cl/boolean.hpp"

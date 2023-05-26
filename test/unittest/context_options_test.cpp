@@ -15,8 +15,7 @@
 // Standard C++ library
 #include <string_view>
 // Zivc
-#include "zivc/context_options.hpp"
-#include "zivc/zivc_config.hpp"
+#include "zivc/zivc.hpp"
 // Test
 #include "utility/googletest.hpp"
 

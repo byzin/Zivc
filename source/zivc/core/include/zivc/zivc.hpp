@@ -19,24 +19,25 @@
 #include <cstddef>
 #include <string_view>
 // Zivc
-#include "buffer.hpp"
-#include "context.hpp"
-#include "context_options.hpp"
-#include "device.hpp"
-#include "kernel.hpp"
-#include "kernel_set.hpp"
-#include "cpu/cpu_buffer.hpp"
-#include "cpu/cpu_device.hpp"
-#include "cpu/cpu_kernel.hpp"
-#include "auxiliary/buffer_init_params.hpp"
-#include "auxiliary/error.hpp"
-#include "auxiliary/kernel_init_params.hpp"
+#include "../../core/zivc/buffer.hpp"
+#include "../../core/zivc/context.hpp"
+#include "../../core/zivc/context_options.hpp"
+#include "../../core/zivc/device.hpp"
+#include "../../core/zivc/kernel.hpp"
+#include "../../core/zivc/kernel_set.hpp"
+#include "../../core/zivc/cpu/cpu_buffer.hpp"
+#include "../../core/zivc/cpu/cpu_device.hpp"
+#include "../../core/zivc/cpu/cpu_kernel.hpp"
+#include "../../core/zivc/auxiliary/buffer_init_params.hpp"
+#include "../../core/zivc/auxiliary/error.hpp"
+#include "../../core/zivc/auxiliary/kernel_init_params.hpp"
 #if defined(ZIVC_ENABLE_VULKAN_BACKEND)
-#include "vulkan/vulkan_buffer.hpp"
-#include "vulkan/vulkan_device.hpp"
-#include "vulkan/vulkan_kernel.hpp"
+#include "../../core/zivc/vulkan/vulkan_buffer.hpp"
+#include "../../core/zivc/vulkan/vulkan_device.hpp"
+#include "../../core/zivc/vulkan/vulkan_kernel.hpp"
 #endif // ZIVC_ENABLE_VULKAN_BACKEND
-#include "zivc/zivc_config.hpp"
+#include "../../core/zivc/zivc_cl.hpp"
+#include "../../core/zivc/zivc_config.hpp"
 
 namespace zivc {
 
@@ -65,6 +66,6 @@ KernelInitParams<kDim, KSet, Args...> createKernelInitParams(
 
 } // namespace zivc
 
-#include "zivc-inl.hpp"
+#include "../../core/zivc/zivc-inl.hpp"
 
 #endif // ZIVC_ZIVC_HPP

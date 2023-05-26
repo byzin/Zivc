@@ -26,10 +26,9 @@
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "zivc/zivc.hpp"
-#include "zivc/zivc_config.hpp"
-#include "zivc/vulkan/utility/vulkan.hpp"
-#include "zivc/vulkan/utility/vulkan_hpp.hpp"
-#include "zivc/vulkan/utility/vulkan_dispatch_loader.hpp"
+#include "zivc/vulkan/vulkan.hpp"
+#include "zivc/vulkan/vulkan_hpp.hpp"
+#include "zivc/vulkan/vulkan_dispatch_loader.hpp"
 // GLFW
 #include "utility/glfw.hpp"
 

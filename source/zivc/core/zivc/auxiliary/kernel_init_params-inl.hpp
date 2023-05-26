@@ -24,7 +24,7 @@
 // Zivc
 #include "error.hpp"
 #include "id_data.hpp"
-#include "zivc/kernel_set.hpp"
+#include "../kernel_set.hpp"
 
 namespace zivc {
 

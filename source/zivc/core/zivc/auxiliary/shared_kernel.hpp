@@ -22,9 +22,9 @@
 #include <type_traits>
 // Zivc
 #include "kernel_common.hpp"
-#include "zivc/kernel_set.hpp"
-#include "zivc/zivc_config.hpp"
-#include "zivc/internal/kernel_arg_parser.hpp"
+#include "../kernel_set.hpp"
+#include "../zivc_config.hpp"
+#include "../internal/kernel_arg_parser.hpp"
 
 namespace zivc {
 

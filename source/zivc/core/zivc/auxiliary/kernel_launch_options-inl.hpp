@@ -27,8 +27,8 @@
 // Zivc
 #include "id_data.hpp"
 #include "launch_options.hpp"
-#include "zivc/kernel_set.hpp"
-#include "zivc/zivc_config.hpp"
+#include "../kernel_set.hpp"
+#include "../zivc_config.hpp"
 
 namespace zivc {
 

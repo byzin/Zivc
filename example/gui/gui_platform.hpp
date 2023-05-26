@@ -22,8 +22,7 @@
 #include "zisc/boolean.hpp"
 // Zivc
 #include "zivc/zivc.hpp"
-#include "zivc/zivc_config.hpp"
-#include "zivc/vulkan/utility/vulkan.hpp"
+#include "zivc/vulkan/vulkan.hpp"
 // Gui
 #include "gui_object.hpp"
 

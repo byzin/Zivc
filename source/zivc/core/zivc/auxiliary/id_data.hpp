@@ -23,7 +23,7 @@
 // Zisc
 #include "zisc/non_copyable.hpp"
 // Zivc
-#include "zivc/zivc_config.hpp"
+#include "../zivc_config.hpp"
 
 namespace zivc {
 

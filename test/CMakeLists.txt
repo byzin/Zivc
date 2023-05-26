@@ -150,78 +150,67 @@ macro(setTestProject)
   cmake_path(SET kernel_set_kernel_test1_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/kernel_test1")
   file(GLOB_RECURSE kernel_test1_sources ${kernel_set_kernel_test1_dir}/*.cl)
   Zivc_addKernelSet(kernel_test1 ${PROJECT_VERSION} kernel_name
-      SOURCE_FILES ${kernel_test1_sources}
-      INCLUDE_DIRS "${kernel_set_kernel_test_dir}")
+      SOURCE_FILES ${kernel_test1_sources})
   target_link_libraries(${PROJECT_NAME} PRIVATE ${kernel_name})
   ## kernelTest2
   cmake_path(SET kernel_set_kernel_test2_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/kernel_test2")
   file(GLOB_RECURSE kernel_test2_sources ${kernel_set_kernel_test2_dir}/*.cl)
   Zivc_addKernelSet(kernel_test2 ${PROJECT_VERSION} kernel_name
-      SOURCE_FILES ${kernel_test2_sources}
-      INCLUDE_DIRS "${kernel_set_kernel_test2_dir}")
+      SOURCE_FILES ${kernel_test2_sources})
   target_link_libraries(${PROJECT_NAME} PRIVATE ${kernel_name})
   ## kernelTest3
   cmake_path(SET kernel_set_kernel_test3_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/kernel_test3")
   file(GLOB_RECURSE kernel_test3_sources ${kernel_set_kernel_test3_dir}/*.cl)
   Zivc_addKernelSet(kernel_test3 ${PROJECT_VERSION} kernel_name
-      SOURCE_FILES ${kernel_test3_sources}
-      INCLUDE_DIRS "${kernel_set_kernel_test3_dir}")
+      SOURCE_FILES ${kernel_test3_sources})
   target_link_libraries(${PROJECT_NAME} PRIVATE ${kernel_name})
   ## kernelTestParams
   cmake_path(SET kernel_set_kernel_test_params_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/kernel_test_params")
   file(GLOB_RECURSE kernel_test_params_sources ${kernel_set_kernel_test_params_dir}/*.cl)
   Zivc_addKernelSet(kernel_test_params ${PROJECT_VERSION} kernel_name
-      SOURCE_FILES ${kernel_test_params_sources}
-      INCLUDE_DIRS "${kernel_set_kernel_test_params_dir}")
+      SOURCE_FILES ${kernel_test_params_sources})
   target_link_libraries(${PROJECT_NAME} PRIVATE ${kernel_name})
   ## kernelTestPod
   cmake_path(SET kernel_set_kernel_test_pod_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/kernel_test_pod")
   file(GLOB_RECURSE kernel_test_pod_sources ${kernel_set_kernel_test_pod_dir}/*.cl)
   Zivc_addKernelSet(kernel_test_pod ${PROJECT_VERSION} kernel_name
-      SOURCE_FILES ${kernel_test_pod_sources}
-      INCLUDE_DIRS "${kernel_set_kernel_test_pod_dir}")
+      SOURCE_FILES ${kernel_test_pod_sources})
   target_link_libraries(${PROJECT_NAME} PRIVATE ${kernel_name})
   ## kernelTestLocal
   cmake_path(SET kernel_set_kernel_test_local_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/kernel_test_local")
   file(GLOB_RECURSE kernel_test_local_sources ${kernel_set_kernel_test_local_dir}/*.cl)
   Zivc_addKernelSet(kernel_test_local ${PROJECT_VERSION} kernel_name
-      SOURCE_FILES ${kernel_test_local_sources}
-      INCLUDE_DIRS "${kernel_set_kernel_test_local_dir}")
+      SOURCE_FILES ${kernel_test_local_sources})
   target_link_libraries(${PROJECT_NAME} PRIVATE ${kernel_name})
   ## opencl C++ test1
   cmake_path(SET kernel_set_cl_cpp_test1_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/cl_cpp_test1")
   file(GLOB_RECURSE cl_cpp_test1_sources ${kernel_set_cl_cpp_test1_dir}/*.cl)
   Zivc_addKernelSet(cl_cpp_test1 ${PROJECT_VERSION} kernel_name
-      SOURCE_FILES ${cl_cpp_test1_sources}
-      INCLUDE_DIRS "${kernel_set_cl_cpp_test1_dir}")
+      SOURCE_FILES ${cl_cpp_test1_sources})
   target_link_libraries(${PROJECT_NAME} PRIVATE ${kernel_name})
   ## opencl C++ type test
   cmake_path(SET kernel_set_cl_cpp_test_type_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/cl_cpp_test_type")
   file(GLOB_RECURSE cl_cpp_test_type_sources ${kernel_set_cl_cpp_test_type_dir}/*.cl)
   Zivc_addKernelSet(cl_cpp_test_type ${PROJECT_VERSION} kernel_name
-      SOURCE_FILES ${cl_cpp_test_type_sources}
-      INCLUDE_DIRS "${kernel_set_cl_cpp_test_type_dir}")
+      SOURCE_FILES ${cl_cpp_test_type_sources})
   target_link_libraries(${PROJECT_NAME} PRIVATE ${kernel_name})
   ## opencl C++ geometry
   cmake_path(SET kernel_set_cl_cpp_test_geometry_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/cl_cpp_test_geometry")
   file(GLOB_RECURSE cl_cpp_test_geometry_sources ${kernel_set_cl_cpp_test_geometry_dir}/*.cl)
   Zivc_addKernelSet(cl_cpp_test_geometry ${PROJECT_VERSION} kernel_name
-      SOURCE_FILES ${cl_cpp_test_geometry_sources}
-      INCLUDE_DIRS "${kernel_set_cl_cpp_test_geometry_dir}")
+      SOURCE_FILES ${cl_cpp_test_geometry_sources})
   target_link_libraries(${PROJECT_NAME} PRIVATE ${kernel_name})
   ## opencl C++ relation
   cmake_path(SET kernel_set_cl_cpp_test_relation_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/cl_cpp_test_relation")
   file(GLOB_RECURSE cl_cpp_test_relation_sources ${kernel_set_cl_cpp_test_relation_dir}/*.cl)
   Zivc_addKernelSet(cl_cpp_test_relation ${PROJECT_VERSION} kernel_name
-      SOURCE_FILES ${cl_cpp_test_relation_sources}
-      INCLUDE_DIRS "${kernel_set_cl_cpp_test_relation_dir}")
+      SOURCE_FILES ${cl_cpp_test_relation_sources})
   target_link_libraries(${PROJECT_NAME} PRIVATE ${kernel_name})
   ## opencl C++ atomic
   cmake_path(SET kernel_set_cl_cpp_test_atomic_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/cl_cpp_test_atomic")
   file(GLOB_RECURSE cl_cpp_test_atomic_sources ${kernel_set_cl_cpp_test_atomic_dir}/*.cl)
   Zivc_addKernelSet(cl_cpp_test_atomic ${PROJECT_VERSION} kernel_name
-      SOURCE_FILES ${cl_cpp_test_atomic_sources}
-      INCLUDE_DIRS "${kernel_set_cl_cpp_test_atomic_dir}")
+      SOURCE_FILES ${cl_cpp_test_atomic_sources})
   target_link_libraries(${PROJECT_NAME} PRIVATE ${kernel_name})
 
   # Add tests for CMake

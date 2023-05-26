@@ -25,8 +25,8 @@
 #include "zisc/utility.hpp"
 // Zivc
 #include "cpu_device_info.hpp"
-#include "zivc/zivc_config.hpp"
-#include "zivc/auxiliary/memory_heap_info.hpp"
+#include "../zivc_config.hpp"
+#include "../auxiliary/memory_heap_info.hpp"
 
 namespace zivc {
 

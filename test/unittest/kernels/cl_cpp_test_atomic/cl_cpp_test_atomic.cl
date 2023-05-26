@@ -390,7 +390,7 @@ __kernel void atomicCompareAndExchangeLocalTestKernel(zivc::GlobalPtr<int32b> ou
   const size_t id = zivc::getLocalLinearId();
   if (id == 0)
     zivc::atomic_store(storage, 0);
-  zivc::barrier(CLK_LOCAL_MEM_FENCE);
+  zivc::Synchronization::barrierLocal();
 
   // Increment the input integer
   const auto func1 = [](const int32b v, const int32b c) noexcept
@@ -400,7 +400,7 @@ __kernel void atomicCompareAndExchangeLocalTestKernel(zivc::GlobalPtr<int32b> ou
 
   for (size_t i = 0; i < loop; ++i)
     zivc::Atomic::perform(storage, zivc::MemoryOrder::kAcqRel, func1, 1);
-  zivc::barrier(CLK_LOCAL_MEM_FENCE);
+  zivc::Synchronization::barrierLocal();
 
   if (id == 0) {
     const int32b v = zivc::atomic_load(&storage[0]);

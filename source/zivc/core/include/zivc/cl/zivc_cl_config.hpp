@@ -1,5 +1,5 @@
 /*!
-  \file zivc_config.hpp
+  \file zivc_cl_config.hpp
   \author Sho Ikeda
 
   Copyright (c) 2015-2023 Sho Ikeda
@@ -7,8 +7,8 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_CL_ZIVC_CONFIG_HPP
-#define ZIVC_CL_ZIVC_CONFIG_HPP
+#ifndef ZIVC_CL_ZIVC_CL_CONFIG_HPP
+#define ZIVC_CL_ZIVC_CL_CONFIG_HPP
 
 namespace zivc {
 
@@ -65,6 +65,6 @@ class Config
 
 } // namespace zivc
 
-#include "zivc_config-inl.hpp"
+#include "zivc_cl_config-inl.hpp"
 
-#endif /* ZIVC_CL_ZIVC_CONFIG_HPP */
+#endif /* ZIVC_CL_ZIVC_CL_CONFIG_HPP */

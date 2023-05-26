@@ -1,5 +1,5 @@
 /*!
-  \file zivc_config.hpp
+  \file zivc_cl_config.hpp
   \author Sho Ikeda
 
   Copyright (c) 2015-2023 Sho Ikeda
@@ -7,11 +7,11 @@
   http://opensource.org/licenses/mit-license.php
   */
 
-#ifndef ZIVC_CL_ZIVC_CONFIG_INL_HPP
-#define ZIVC_CL_ZIVC_CONFIG_INL_HPP
+#ifndef ZIVC_CL_ZIVC_CL_CONFIG_INL_HPP
+#define ZIVC_CL_ZIVC_CL_CONFIG_INL_HPP
 
 // Zivc
-#include "zivc_config.hpp"
+#include "zivc_cl_config.hpp"
 
 namespace zivc {
 
@@ -186,4 +186,4 @@ constexpr bool Config::isBuiltinMathInvTrigonometricUsed() noexcept
 
 } // namespace zivc
 
-#endif /* ZIVC_CL_ZIVC_CONFIG_INL_HPP */
+#endif /* ZIVC_CL_ZIVC_CL_CONFIG_INL_HPP */

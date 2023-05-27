@@ -280,19 +280,18 @@ __kernel void localStruct2CopyKernel(zivc::ConstGlobalPtr<inner::Storage2> input
                                      zivc::LocalPtr<inner::Storage2> storage)
 {
   const size_t index = zivc::getGlobalLinearId();
-  //! \todo Resolve the compile error
-  //if (index < resolution) {
-  //  {
-  //    const size_t storage_id = zivc::getLocalLinearId();
-  //    storage[storage_id] = inputs[index];
-  //    zivc::Synchronization::barrierLocal();
-  //  }
-  //  {
-  //    const size_t storage_id = (zivc::getLocalLinearId() + 1) % zivc::getLocalSizeX();
-  //    zivc::ConstLocalPtr<inner::Storage2> s = &storage[storage_id];
-  //    outputs[index] = static_cast<uint32b>(s->sum());
-  //  }
-  //}
+  if (index < resolution) {
+    {
+      const size_t storage_id = zivc::getLocalLinearId();
+      storage[storage_id] = inputs[index];
+      zivc::Synchronization::barrierLocal();
+    }
+    {
+      const size_t storage_id = (zivc::getLocalLinearId() + 1) % zivc::getLocalSizeX();
+      zivc::ConstLocalPtr<inner::Storage2> s = &storage[storage_id];
+      outputs[index] = static_cast<uint32b>(s->sum());
+    }
+  }
 }
 
 __kernel void localStruct3Kernel(zivc::GlobalPtr<uint32b> outputs,

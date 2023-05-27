@@ -255,11 +255,10 @@ __kernel void inputOutput2Kernel(zivc::ConstGlobalPtr<ClassSizeTest1> inputs,
     o1->u16_ = in->u16();
     o1->f_ = in->f();
   }
-  //! \todo Resolve the compile error
-//  {
-//    zivc::GlobalPtr<ClassSizeTest1> o2 = outputs + (2 * index + 1);
-//    o2[0] = in[0];
-//  }
+  {
+    zivc::GlobalPtr<ClassSizeTest1> o2 = outputs + (2 * index + 1);
+    o2[0] = in[0];
+  }
 }
 
 namespace inner {

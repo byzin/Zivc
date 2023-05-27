@@ -212,6 +212,13 @@ macro(setTestProject)
   Zivc_addKernelSet(cl_cpp_test_atomic ${PROJECT_VERSION} kernel_name
       SOURCE_FILES ${cl_cpp_test_atomic_sources})
   target_link_libraries(${PROJECT_NAME} PRIVATE ${kernel_name})
+  ## opencl C++ math
+  cmake_path(SET kernel_set_cl_cpp_test_math_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/cl_cpp_test_math")
+  file(GLOB_RECURSE cl_cpp_test_math_sources ${kernel_set_cl_cpp_test_math_dir}/*.cl)
+  Zivc_addKernelSet(cl_cpp_test_math ${PROJECT_VERSION} kernel_name
+      SOURCE_FILES ${cl_cpp_test_math_sources})
+  target_link_libraries(${PROJECT_NAME} PRIVATE ${kernel_name})
+
 
   # Add tests for CMake
   add_test(NAME ${PROJECT_NAME}-cpu COMMAND ${PROJECT_NAME} --device cpu

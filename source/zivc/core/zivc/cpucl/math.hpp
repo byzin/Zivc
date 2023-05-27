@@ -18,9 +18,7 @@
 #include "vector.hpp"
 #include "../zivc_config.hpp"
 
-namespace zivc {
-
-namespace cl {
+namespace zivc::cl {
 
 // Float constants
 #if !defined(MAXFLOAT)
@@ -538,9 +536,7 @@ FloatN modf(const FloatN& x, FloatN* iptr) noexcept;
 template <typename FloatN>
 FloatN copysign(const FloatN& x, const FloatN& y) noexcept;
 
-} // namespace cl
-
-} // namespace zivc
+} // namespace zivc::cl
 
 #include "math-inl.hpp"
 

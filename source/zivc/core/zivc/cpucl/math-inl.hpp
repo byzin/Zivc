@@ -24,9 +24,7 @@
 #include "vector.hpp"
 #include "../zivc_config.hpp"
 
-namespace zivc {
-
-namespace cl {
+namespace zivc::cl {
 
 /*!
   */
@@ -963,8 +961,6 @@ FloatN copysign(const FloatN& x, const FloatN& y) noexcept
   return z;
 }
 
-} // namespace cl
-
-} // namespace zivc
+} // namespace zivc::cl
 
 #endif // ZIVC_CPUCL_MATH_INL_HPP

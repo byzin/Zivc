@@ -115,8 +115,8 @@ class Atomic::AtomicObject
   static_assert(sizeof(T) == sizeof(AtomicT), "The atomic type is invalid.");
 
  public:
-  using Type = typename ASpaceInfo::template AddressSpacePointerT<AtomicT>;
-  using ConstT = typename ASpaceInfo::template ConstAddressSpacePointerT<AtomicT>;
+  using Type = typename ASpaceInfo::template AddressSpacePointer<AtomicT>;
+  using ConstT = typename ASpaceInfo::template ConstAddressSpacePointer<AtomicT>;
   using MemoryOrderT = ZIVC_CL_GLOBAL_NAMESPACE::memory_order;
 
 

@@ -194,9 +194,9 @@ struct AddressSpaceInfoHelper
   using Pointer = PrivatePtr<DataT>;
   using ConstPointer = ConstPrivatePtr<DataT>;
   template <typename Type>
-  using AddressSpacePointerT = PrivatePtr<Type>;
+  using ASpacePointer = PrivatePtr<Type>;
   template <typename Type>
-  using ConstAddressSpacePointerT = ConstPrivatePtr<Type>;
+  using CASpacePointer = ConstPrivatePtr<Type>;
   static constexpr int32b kIsGlobal = kSFalse;
   static constexpr int32b kIsLocal = kSFalse;
   static constexpr int32b kIsConstant = kSFalse;
@@ -222,9 +222,9 @@ struct AddressSpaceInfoHelper<AddressSpacePointer<kASpaceType, T>>
   using Pointer = AddressSpacePointer<kASpaceType, DataT>;
   using ConstPointer = AddressSpacePointer<kASpaceType, const DataT>;
   template <typename Type>
-  using AddressSpacePointerT = AddressSpacePointer<kASpaceType, Type>;
+  using ASpacePointer = AddressSpacePointer<kASpaceType, Type>;
   template <typename Type>
-  using ConstAddressSpacePointerT = AddressSpacePointer<kASpaceType, const Type>;
+  using CASpacePointer = AddressSpacePointer<kASpaceType, const Type>;
   static constexpr int32b kIsGlobal = (kASpaceType == AddressSpaceType::kGlobal)
       ? kSTrue
       : kSFalse;
@@ -257,9 +257,9 @@ struct AddressSpaceInfoHelper<Global<T>>
   using Pointer = GlobalPtr<DataT>;
   using ConstPointer = ConstGlobalPtr<DataT>;
   template <typename Type>
-  using AddressSpacePointerT = GlobalPtr<Type>;
+  using ASpacePointer = GlobalPtr<Type>;
   template <typename Type>
-  using ConstAddressSpacePointerT = ConstGlobalPtr<Type>;
+  using CASpacePointer = ConstGlobalPtr<Type>;
   static constexpr int32b kIsGlobal = kSTrue;
   static constexpr int32b kIsLocal = kSFalse;
   static constexpr int32b kIsConstant = kSFalse;
@@ -282,9 +282,9 @@ struct AddressSpaceInfoHelper<Local<T>>
   using Pointer = LocalPtr<DataT>;
   using ConstPointer = ConstLocalPtr<DataT>;
   template <typename Type>
-  using AddressSpacePointerT = LocalPtr<Type>;
+  using ASpacePointer = LocalPtr<Type>;
   template <typename Type>
-  using ConstAddressSpacePointerT = ConstLocalPtr<Type>;
+  using CASpacePointer = ConstLocalPtr<Type>;
   static constexpr int32b kIsGlobal = kSFalse;
   static constexpr int32b kIsLocal = kSTrue;
   static constexpr int32b kIsConstant = kSFalse;
@@ -307,9 +307,9 @@ struct AddressSpaceInfoHelper<Constant<T>>
   using Pointer = ConstantPtr<DataT>;
   using ConstPointer = ConstConstantPtr<DataT>;
   template <typename Type>
-  using AddressSpacePointerT = ConstantPtr<Type>;
+  using ASpacePointer = ConstantPtr<Type>;
   template <typename Type>
-  using ConstAddressSpacePointerT = ConstConstantPtr<Type>;
+  using CASpacePointer = ConstConstantPtr<Type>;
   static constexpr int32b kIsGlobal = kSFalse;
   static constexpr int32b kIsLocal = kSFalse;
   static constexpr int32b kIsConstant = kSTrue;
@@ -332,9 +332,9 @@ struct AddressSpaceInfoHelper<Private<T>>
   using Pointer = PrivatePtr<DataT>;
   using ConstPointer = ConstPrivatePtr<DataT>;
   template <typename Type>
-  using AddressSpacePointerT = PrivatePtr<Type>;
+  using ASpacePointer = PrivatePtr<Type>;
   template <typename Type>
-  using ConstAddressSpacePointerT = ConstPrivatePtr<Type>;
+  using CASpacePointer = ConstPrivatePtr<Type>;
   static constexpr int32b kIsGlobal = kSFalse;
   static constexpr int32b kIsLocal = kSFalse;
   static constexpr int32b kIsConstant = kSFalse;
@@ -357,9 +357,9 @@ struct AddressSpaceInfoHelper<Generic<T>>
   using Pointer = GenericPtr<DataT>;
   using ConstPointer = ConstGenericPtr<DataT>;
   template <typename Type>
-  using AddressSpacePointerT = GenericPtr<Type>;
+  using ASpacePointer = GenericPtr<Type>;
   template <typename Type>
-  using ConstAddressSpacePointerT = ConstGenericPtr<Type>;
+  using CASpacePointer = ConstGenericPtr<Type>;
   static constexpr int32b kIsGlobal = kSFalse;
   static constexpr int32b kIsLocal = kSFalse;
   static constexpr int32b kIsConstant = kSFalse;
@@ -390,11 +390,9 @@ class AddressSpaceInfo
   using Pointer = typename ASpaceInfo::Pointer;
   using ConstPointer = typename ASpaceInfo::ConstPointer;
   template <typename Type>
-  using AddressSpacePointerT =
-      typename ASpaceInfo::template AddressSpacePointerT<Type>;
+  using AddressSpacePointer = typename ASpaceInfo::template ASpacePointer<Type>;
   template <typename Type>
-  using ConstAddressSpacePointerT =
-      typename ASpaceInfo::template ConstAddressSpacePointerT<Type>;
+  using ConstAddressSpacePointer = typename ASpaceInfo::template CASpacePointer<Type>;
 
   //! Check if the Type is global address space type
   static constexpr int32b isGlobal() noexcept

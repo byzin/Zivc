@@ -32,41 +32,6 @@ using TrueT = BoolConstant<true>;
 using FalseT = BoolConstant<false>;
 
 
-// Primary type categories
-
-////! Check if a type is void
-//template <typename T>
-//struct IsVoid;
-//
-////! Helper variable template of IsVoid
-//template <typename T>
-//inline constexpr bool kIsVoid = IsVoid<T>::kValue;
-//
-////! Check if a type is an integral type
-//template <typename T>
-//struct IsIntegral;
-//
-////! Helper variable template of IsIntegral
-//template <typename T>
-//inline constexpr bool kIsIntegral = IsIntegral<T>::kValue;
-//
-////! Check if a type is a floating point type
-//template <typename T>
-//struct IsFloat;
-//
-////! Helper variable template of IsFloat
-//template <typename T>
-//inline constexpr bool kIsFloat = IsFloat<T>::kValue;
-//
-////! Check if a type is an array type
-//template <typename T>
-//struct IsArray;
-//
-////! Helper variable template of IsArray
-//template <typename T>
-//inline constexpr bool kIsArray = IsArray<T>::kValue;
-
-
 // Type relationship
 
 //! brief Check if two types are same
@@ -223,63 +188,63 @@ template <typename T> struct IsInteger;
 
 //!
 template <typename T>
-constexpr Constant<int32b> kIsInteger = IsInteger<T>::kValue;
+inline constexpr int32b kIsInteger = IsInteger<T>::kValue;
 
 //! Check if a type is signed integer scalar or vector type
 template <typename T> struct IsSignedInteger;
 
 //!
 template <typename T>
-constexpr Constant<int32b> kIsSignedInteger = IsSignedInteger<T>::kValue;
+inline constexpr int32b kIsSignedInteger = IsSignedInteger<T>::kValue;
 
 //! Check if a type is unsigned integer scalar or vector type
 template <typename T> struct IsUnsignedInteger;
 
 //!
 template <typename T>
-constexpr Constant<int32b> kIsUnsignedInteger = IsUnsignedInteger<T>::kValue;
+inline constexpr int32b kIsUnsignedInteger = IsUnsignedInteger<T>::kValue;
 
 //! Check if a type is floating point scalar or vector type
 template <typename T> struct IsFloat;
 
 //!
 template <typename T>
-constexpr Constant<int32b> kIsFloat = IsFloat<T>::kValue;
+inline constexpr int32b kIsFloat = IsFloat<T>::kValue;
 
 //! Check if a type is half scalar or vector type
 template <typename T> struct IsHalf;
 
 //!
 template <typename T>
-constexpr Constant<int32b> kIsHalf = IsHalf<T>::kValue;
+inline constexpr int32b kIsHalf = IsHalf<T>::kValue;
 
 //! Check if a type is float scalar or vector type
 template <typename T> struct IsSingle;
 
 //!
 template <typename T>
-constexpr Constant<int32b> kIsSingle = IsSingle<T>::kValue;
+inline constexpr int32b kIsSingle = IsSingle<T>::kValue;
 
 //! Check if a type is double scalar or vector type
 template <typename T> struct IsDouble;
 
 //!
 template <typename T>
-constexpr Constant<int32b> kIsDouble = IsDouble<T>::kValue;
+inline constexpr int32b kIsDouble = IsDouble<T>::kValue;
 
 //! Check if a type is an arithmetic type
 template <typename T> struct IsArithmetic;
 
 //!
 template <typename T>
-constexpr Constant<int32b> kIsArithmetic = IsArithmetic<T>::kValue;
+inline constexpr int32b kIsArithmetic = IsArithmetic<T>::kValue;
 
 //! Check if a type is a signed arithmetic type
 template <typename T> struct IsSigned;
 
 //!
 template <typename T>
-constexpr Constant<int32b> kIsSigned = IsSigned<T>::kValue;
+inline constexpr int32b kIsSigned = IsSigned<T>::kValue;
 
 // Type properties
 
@@ -288,35 +253,35 @@ template <typename T> struct IsPointer;
 
 //!
 template <typename T>
-constexpr Constant<int32b> kIsPointer = IsPointer<T>::kValue;
+inline constexpr int32b kIsPointer = IsPointer<T>::kValue;
 
 //! Check if a type is scalar type
 template <typename T> struct IsScalar;
 
 //!
 template <typename T>
-constexpr Constant<int32b> kIsScalar = IsScalar<T>::kValue;
+inline constexpr int32b kIsScalar = IsScalar<T>::kValue;
 
 //! Check if a type is vector type
 template <typename T> struct IsVector;
 
 //!
 template <typename T>
-constexpr Constant<int32b> kIsVector = IsVector<T>::kValue;
+inline constexpr int32b kIsVector = IsVector<T>::kValue;
 
 //! Check if a type is lvalue reference
 template <typename T> struct IsLValueReference;
 
 //!
 template <typename T>
-constexpr Constant<int32b> kIsLValueReference = IsLValueReference<T>::kValue;
+inline constexpr int32b kIsLValueReference = IsLValueReference<T>::kValue;
 
 //! Check if a type is rvalue reference
 template <typename T> struct IsRValueReference;
 
 //!
 template <typename T>
-constexpr Constant<int32b> kIsRValueReference = IsRValueReference<T>::kValue;
+inline constexpr int32b kIsRValueReference = IsRValueReference<T>::kValue;
 
 // Miscellaneous transformations
 
@@ -420,18 +385,18 @@ using TypeIdentityT = typename TypeIdentity<T>::Type;
 
 // Comparison type
 
-constexpr int32b kSFalse = 0b0; //!< Represent 'false' for scalar operation
+inline constexpr int32b kSFalse = 0b0; //!< Represent 'false' for scalar operation
 
-constexpr int32b kSTrue = 0b1; //!< Represent 'true' for scalar operation
+inline constexpr int32b kSTrue = 0b1; //!< Represent 'true' for scalar operation
 
-constexpr int32b kVFalse = 0b0; //!< Represent 'false' for vector operation
+inline constexpr int32b kVFalse = 0b0; //!< Represent 'false' for vector operation
 
-constexpr int32b kVTrue = ~0b0; //!< Represent 'true' for vector operation
+inline constexpr int32b kVTrue = ~0b0; //!< Represent 'true' for vector operation
 
-constexpr int32b kFalse = kSFalse; //!< Represent 'false'
+inline constexpr int32b kFalse = kSFalse; //!< Represent 'false'
 
 template <typename Type = int32b>
-constexpr int32b kTrue = kIsScalar<Type> ? kSTrue : kVTrue; //!< Represent 'true'
+inline constexpr int32b kTrue = kIsScalar<Type> ? kSTrue : kVTrue; //!< Represent 'true'
 
 //! Integer type that is used as a comparison result of the given type
 template <typename T>

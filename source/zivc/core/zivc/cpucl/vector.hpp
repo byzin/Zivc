@@ -1559,9 +1559,8 @@ class VectorData
 
     No detailed description.
     */
-  class Impl
+  struct Impl
   {
-   public:
     //!
     template <typename Type, size_t kN>
     static Vector<Type, kN> loadN(const size_t offset,

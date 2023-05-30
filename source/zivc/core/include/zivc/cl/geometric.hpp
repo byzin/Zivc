@@ -229,33 +229,41 @@ class Geometry
     static double4 normalize3(const double4 p) noexcept;
 
    private:
-    //! The implementation of cross
-    template <typename FloatN>
-    static constexpr FloatN crossImpl(const FloatN p0, const FloatN p1) noexcept;
+    /*!
+      \brief No brief description
 
-    //! The implementation of dot
-    template <typename Float>
-    static constexpr Float dotN1Impl(const Float p0, const Float p1) noexcept;
+      No detailed description.
+      */
+    struct Impl
+    {
+      //! The implementation of cross
+      template <typename FloatN>
+      static constexpr FloatN cross(const FloatN p0, const FloatN p1) noexcept;
 
-    //! The implementation of dot
-    template <typename Float, typename Float2>
-    static constexpr Float dotN2Impl(const Float2 p0, const Float2 p1) noexcept;
+      //! The implementation of dot
+      template <typename Float>
+      static constexpr Float dotN1(const Float p0, const Float p1) noexcept;
 
-    //! The implementation of dot
-    template <typename Float, typename Float3>
-    static constexpr Float dotN3Impl(const Float3 p0, const Float3 p1) noexcept;
+      //! The implementation of dot
+      template <typename Float, typename Float2>
+      static constexpr Float dotN2(const Float2 p0, const Float2 p1) noexcept;
 
-    //! The implementation of dot
-    template <typename Float, typename Float4>
-    static constexpr Float dotN4Impl(const Float4 p0, const Float4 p1) noexcept;
+      //! The implementation of dot
+      template <typename Float, typename Float3>
+      static constexpr Float dotN3(const Float3 p0, const Float3 p1) noexcept;
 
-    //! The implementation of dot
-    template <typename Float, typename Float8>
-    static constexpr Float dotN8Impl(const Float8 p0, const Float8 p1) noexcept;
+      //! The implementation of dot
+      template <typename Float, typename Float4>
+      static constexpr Float dotN4(const Float4 p0, const Float4 p1) noexcept;
 
-    //! The implementation of dot
-    template <typename Float, typename Float16>
-    static constexpr Float dotN16Impl(const Float16 p0, const Float16 p1) noexcept;
+      //! The implementation of dot
+      template <typename Float, typename Float8>
+      static constexpr Float dotN8(const Float8 p0, const Float8 p1) noexcept;
+
+      //! The implementation of dot
+      template <typename Float, typename Float16>
+      static constexpr Float dotN16(const Float16 p0, const Float16 p1) noexcept;
+    };
   };
 
   // Type aliases

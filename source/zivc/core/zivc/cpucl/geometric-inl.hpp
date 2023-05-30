@@ -34,7 +34,7 @@ namespace zivc::cl {
 inline
 float3 Geometry::cross(const float3& p0, const float3& p1) noexcept
 {
-  return crossImpl(p0, p1);
+  return Impl::cross(p0, p1);
 }
 
 /*!
@@ -47,7 +47,7 @@ float3 Geometry::cross(const float3& p0, const float3& p1) noexcept
 inline
 float4 Geometry::cross(const float4& p0, const float4& p1) noexcept
 {
-  return crossImpl(p0, p1);
+  return Impl::cross(p0, p1);
 }
 
 /*!
@@ -60,7 +60,7 @@ float4 Geometry::cross(const float4& p0, const float4& p1) noexcept
 inline
 double3 Geometry::cross(const double3& p0, const double3& p1) noexcept
 {
-  return crossImpl(p0, p1);
+  return Impl::cross(p0, p1);
 }
 
 /*!
@@ -73,7 +73,7 @@ double3 Geometry::cross(const double3& p0, const double3& p1) noexcept
 inline
 double4 Geometry::cross(const double4& p0, const double4& p1) noexcept
 {
-  return crossImpl(p0, p1);
+  return Impl::cross(p0, p1);
 }
 
 /*!
@@ -89,7 +89,7 @@ template <std::floating_point Float, std::size_t kN> inline
 Float Geometry::dot(const Vector<Float, kN>& p0,
                     const Vector<Float, kN>& p1) noexcept
 {
-  return dotImpl(p0, p1);
+  return Impl::dot(p0, p1);
 }
 
 /*!
@@ -105,7 +105,7 @@ template <std::floating_point Float, std::size_t kN> inline
 Float Geometry::distance(const Vector<Float, kN>& p0,
                          const Vector<Float, kN>& p1) noexcept
 {
-  return distanceImpl(p0, p1);
+  return Impl::distance(p0, p1);
 }
 
 /*!
@@ -119,7 +119,7 @@ Float Geometry::distance(const Vector<Float, kN>& p0,
 template <std::floating_point Float, std::size_t kN> inline
 Float Geometry::length(const Vector<Float, kN>& p) noexcept
 {
-  return lengthImpl(p);
+  return Impl::length(p);
 }
 
 /*!
@@ -133,7 +133,7 @@ Float Geometry::length(const Vector<Float, kN>& p) noexcept
 template <std::floating_point Float, std::size_t kN> inline
 Vector<Float, kN> Geometry::normalize(const Vector<Float, kN>& p) noexcept
 {
-  return normalizeImpl(p);
+  return Impl::normalize(p);
 }
 
 /*!
@@ -146,8 +146,8 @@ Vector<Float, kN> Geometry::normalize(const Vector<Float, kN>& p) noexcept
   \return No description
   */
 template <std::floating_point Float, size_t kN> inline
-Vector<Float, kN> Geometry::crossImpl(const Vector<Float, kN>& p0,
-                                      const Vector<Float, kN>& p1) noexcept
+Vector<Float, kN> Geometry::Impl::cross(const Vector<Float, kN>& p0,
+                                        const Vector<Float, kN>& p1) noexcept
 {
   Vector<Float, kN> result{};
   {
@@ -171,8 +171,8 @@ Vector<Float, kN> Geometry::crossImpl(const Vector<Float, kN>& p0,
   \return No description
   */
 template <std::floating_point Float, size_t kN> inline
-Float Geometry::dotImpl(const Vector<Float, kN>& p0,
-                        const Vector<Float, kN>& p1) noexcept
+Float Geometry::Impl::dot(const Vector<Float, kN>& p0,
+                          const Vector<Float, kN>& p1) noexcept
 {
   const Vector d = p0 * p1;
   const Float result = d.sum();
@@ -189,8 +189,8 @@ Float Geometry::dotImpl(const Vector<Float, kN>& p0,
   \return No description
   */
 template <std::floating_point Float, size_t kN> inline
-Float Geometry::distanceImpl(const Vector<Float, kN>& p0,
-                             const Vector<Float, kN>& p1) noexcept
+Float Geometry::Impl::distance(const Vector<Float, kN>& p0,
+                               const Vector<Float, kN>& p1) noexcept
 {
   const Float result = length(p0 - p1);
   return result;
@@ -205,7 +205,7 @@ Float Geometry::distanceImpl(const Vector<Float, kN>& p0,
   \return No description
   */
 template <std::floating_point Float, size_t kN> inline
-Float Geometry::lengthImpl(const Vector<Float, kN>& p) noexcept
+Float Geometry::Impl::length(const Vector<Float, kN>& p) noexcept
 {
   const Float d2 = dot(p, p);
   const Float result = Math::sqrt(d2);
@@ -221,7 +221,7 @@ Float Geometry::lengthImpl(const Vector<Float, kN>& p) noexcept
   \return No description
   */
 template <std::floating_point Float, size_t kN> inline
-Vector<Float, kN> Geometry::normalizeImpl(const Vector<Float, kN>& p) noexcept
+Vector<Float, kN> Geometry::Impl::normalize(const Vector<Float, kN>& p) noexcept
 {
   const Float d2 = dot(p, p);
   const Vector<Float, kN> result = p * Math::rsqrt(d2);

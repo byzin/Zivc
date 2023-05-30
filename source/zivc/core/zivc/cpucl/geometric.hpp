@@ -58,28 +58,36 @@ class Geometry
   static Vector<Float, kN> normalize(const Vector<Float, kN>& p) noexcept;
 
  private:
-  //! Return the cross product of p0.xyz and p1.xyz
-  template <std::floating_point Float, size_t kN>
-  static Vector<Float, kN> crossImpl(const Vector<Float, kN>& p0,
-                                     const Vector<Float, kN>& p1) noexcept;
+  /*!
+    \brief No brief description
 
-  //! Compute dot product
-  template <std::floating_point Float, size_t kN>
-  static Float dotImpl(const Vector<Float, kN>& p0,
-                       const Vector<Float, kN>& p1) noexcept;
+    No detailed description.
+    */
+  struct Impl
+  {
+    //! Return the cross product of p0.xyz and p1.xyz
+    template <std::floating_point Float, size_t kN>
+    static Vector<Float, kN> cross(const Vector<Float, kN>& p0,
+                                   const Vector<Float, kN>& p1) noexcept;
 
-  //! Compute dot product
-  template <std::floating_point Float, size_t kN>
-  static Float distanceImpl(const Vector<Float, kN>& p0,
-                            const Vector<Float, kN>& p1) noexcept;
+    //! Compute dot product
+    template <std::floating_point Float, size_t kN>
+    static Float dot(const Vector<Float, kN>& p0,
+                     const Vector<Float, kN>& p1) noexcept;
 
-  //! Compute dot product
-  template <std::floating_point Float, size_t kN>
-  static Float lengthImpl(const Vector<Float, kN>& p) noexcept;
+    //! Compute dot product
+    template <std::floating_point Float, size_t kN>
+    static Float distance(const Vector<Float, kN>& p0,
+                          const Vector<Float, kN>& p1) noexcept;
 
-  //! Return a vector in the same direction as p but with a length of 1
-  template <std::floating_point Float, size_t kN>
-  static Vector<Float, kN> normalizeImpl(const Vector<Float, kN>& p) noexcept;
+    //! Compute dot product
+    template <std::floating_point Float, size_t kN>
+    static Float length(const Vector<Float, kN>& p) noexcept;
+
+    //! Return a vector in the same direction as p but with a length of 1
+    template <std::floating_point Float, size_t kN>
+    static Vector<Float, kN> normalize(const Vector<Float, kN>& p) noexcept;
+  };
 };
 
 //! Return the cross product of p0.xyz and p1.xyz

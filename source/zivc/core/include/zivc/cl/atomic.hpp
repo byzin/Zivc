@@ -10,6 +10,7 @@
 #ifndef ZIVC_CL_ATOMIC_HPP
 #define ZIVC_CL_ATOMIC_HPP
 
+// Zivc
 #include "types.hpp"
 
 namespace zivc {

@@ -480,7 +480,7 @@ double4 Geometry::Native::normalize3(const double4 p) noexcept
 inline
 constexpr float3 Geometry::Fallback::cross(const float3 p0, const float3 p1) noexcept
 {
-  return crossImpl(p0, p1);
+  return Impl::cross(p0, p1);
 }
 
 /*!
@@ -493,7 +493,7 @@ constexpr float3 Geometry::Fallback::cross(const float3 p0, const float3 p1) noe
 inline
 constexpr float4 Geometry::Fallback::cross(const float4 p0, const float4 p1) noexcept
 {
-  return crossImpl(p0, p1);
+  return Impl::cross(p0, p1);
 }
 
 /*!
@@ -506,7 +506,7 @@ constexpr float4 Geometry::Fallback::cross(const float4 p0, const float4 p1) noe
 inline
 constexpr double3 Geometry::Fallback::cross(const double3 p0, const double3 p1) noexcept
 {
-  return crossImpl(p0, p1);
+  return Impl::cross(p0, p1);
 }
 
 /*!
@@ -519,7 +519,7 @@ constexpr double3 Geometry::Fallback::cross(const double3 p0, const double3 p1) 
 inline
 constexpr double4 Geometry::Fallback::cross(const double4 p0, const double4 p1) noexcept
 {
-  return crossImpl(p0, p1);
+  return Impl::cross(p0, p1);
 }
 
 /*!
@@ -532,7 +532,7 @@ constexpr double4 Geometry::Fallback::cross(const double4 p0, const double4 p1) 
 inline
 constexpr float Geometry::Fallback::dot(const float p0, const float p1) noexcept
 {
-  return dotN1Impl<float>(p0, p1);
+  return Impl::dotN1<float>(p0, p1);
 }
 
 /*!
@@ -545,7 +545,7 @@ constexpr float Geometry::Fallback::dot(const float p0, const float p1) noexcept
 inline
 constexpr float Geometry::Fallback::dot(const float2 p0, const float2 p1) noexcept
 {
-  return dotN2Impl<float, float2>(p0, p1);
+  return Impl::dotN2<float, float2>(p0, p1);
 }
 
 /*!
@@ -558,7 +558,7 @@ constexpr float Geometry::Fallback::dot(const float2 p0, const float2 p1) noexce
 inline
 constexpr float Geometry::Fallback::dot(const float3 p0, const float3 p1) noexcept
 {
-  return dotN3Impl<float, float3>(p0, p1);
+  return Impl::dotN3<float, float3>(p0, p1);
 }
 
 /*!
@@ -571,7 +571,7 @@ constexpr float Geometry::Fallback::dot(const float3 p0, const float3 p1) noexce
 inline
 constexpr float Geometry::Fallback::dot(const float4 p0, const float4 p1) noexcept
 {
-  return dotN4Impl<float, float4>(p0, p1);
+  return Impl::dotN4<float, float4>(p0, p1);
 }
 
 /*!
@@ -584,7 +584,7 @@ constexpr float Geometry::Fallback::dot(const float4 p0, const float4 p1) noexce
 inline
 constexpr float Geometry::Fallback::dot(const float8 p0, const float8 p1) noexcept
 {
-  return dotN8Impl<float, float8>(p0, p1);
+  return Impl::dotN8<float, float8>(p0, p1);
 }
 
 /*!
@@ -597,7 +597,7 @@ constexpr float Geometry::Fallback::dot(const float8 p0, const float8 p1) noexce
 inline
 constexpr float Geometry::Fallback::dot(const float16 p0, const float16 p1) noexcept
 {
-  return dotN16Impl<float, float16>(p0, p1);
+  return Impl::dotN16<float, float16>(p0, p1);
 }
 
 /*!
@@ -610,7 +610,7 @@ constexpr float Geometry::Fallback::dot(const float16 p0, const float16 p1) noex
 inline
 constexpr double Geometry::Fallback::dot(const double p0, const double p1) noexcept
 {
-  return dotN1Impl<double>(p0, p1);
+  return Impl::dotN1<double>(p0, p1);
 }
 
 /*!
@@ -623,7 +623,7 @@ constexpr double Geometry::Fallback::dot(const double p0, const double p1) noexc
 inline
 constexpr double Geometry::Fallback::dot(const double2 p0, const double2 p1) noexcept
 {
-  return dotN2Impl<double, double2>(p0, p1);
+  return Impl::dotN2<double, double2>(p0, p1);
 }
 
 /*!
@@ -636,7 +636,7 @@ constexpr double Geometry::Fallback::dot(const double2 p0, const double2 p1) noe
 inline
 constexpr double Geometry::Fallback::dot(const double3 p0, const double3 p1) noexcept
 {
-  return dotN3Impl<double, double3>(p0, p1);
+  return Impl::dotN3<double, double3>(p0, p1);
 }
 
 /*!
@@ -649,7 +649,7 @@ constexpr double Geometry::Fallback::dot(const double3 p0, const double3 p1) noe
 inline
 constexpr double Geometry::Fallback::dot(const double4 p0, const double4 p1) noexcept
 {
-  return dotN4Impl<double, double4>(p0, p1);
+  return Impl::dotN4<double, double4>(p0, p1);
 }
 
 /*!
@@ -662,7 +662,7 @@ constexpr double Geometry::Fallback::dot(const double4 p0, const double4 p1) noe
 inline
 constexpr double Geometry::Fallback::dot(const double8 p0, const double8 p1) noexcept
 {
-  return dotN8Impl<double, double8>(p0, p1);
+  return Impl::dotN8<double, double8>(p0, p1);
 }
 
 /*!
@@ -675,7 +675,7 @@ constexpr double Geometry::Fallback::dot(const double8 p0, const double8 p1) noe
 inline
 constexpr double Geometry::Fallback::dot(const double16 p0, const double16 p1) noexcept
 {
-  return dotN16Impl<double, double16>(p0, p1);
+  return Impl::dotN16<double, double16>(p0, p1);
 }
 
 /*!
@@ -854,7 +854,7 @@ double4 Geometry::Fallback::normalize3(const double4 p) noexcept
   \return No description
   */
 template <typename FloatN> inline
-constexpr FloatN Geometry::Fallback::crossImpl(const FloatN p0, const FloatN p1) noexcept
+constexpr FloatN Geometry::Fallback::Impl::cross(const FloatN p0, const FloatN p1) noexcept
 {
   using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
   using ElementT = typename VecInfo::ElementT;
@@ -874,7 +874,7 @@ constexpr FloatN Geometry::Fallback::crossImpl(const FloatN p0, const FloatN p1)
   \return No description
   */
 template <typename Float> inline
-constexpr Float Geometry::Fallback::dotN1Impl(const Float p0, const Float p1) noexcept
+constexpr Float Geometry::Fallback::Impl::dotN1(const Float p0, const Float p1) noexcept
 {
   const Float result = p0 * p1;
   return result;
@@ -890,7 +890,7 @@ constexpr Float Geometry::Fallback::dotN1Impl(const Float p0, const Float p1) no
   \return No description
   */
 template <typename Float, typename Float2> inline
-constexpr Float Geometry::Fallback::dotN2Impl(const Float2 p0, const Float2 p1) noexcept
+constexpr Float Geometry::Fallback::Impl::dotN2(const Float2 p0, const Float2 p1) noexcept
 {
   const Float result = p0.x * p1.x +
                        p0.y * p1.y;
@@ -907,7 +907,7 @@ constexpr Float Geometry::Fallback::dotN2Impl(const Float2 p0, const Float2 p1) 
   \return No description
   */
 template <typename Float, typename Float3> inline
-constexpr Float Geometry::Fallback::dotN3Impl(const Float3 p0, const Float3 p1) noexcept
+constexpr Float Geometry::Fallback::Impl::dotN3(const Float3 p0, const Float3 p1) noexcept
 {
   const Float result = p0.x * p1.x +
                        p0.y * p1.y +
@@ -925,7 +925,7 @@ constexpr Float Geometry::Fallback::dotN3Impl(const Float3 p0, const Float3 p1) 
   \return No description
   */
 template <typename Float, typename Float4> inline
-constexpr Float Geometry::Fallback::dotN4Impl(const Float4 p0, const Float4 p1) noexcept
+constexpr Float Geometry::Fallback::Impl::dotN4(const Float4 p0, const Float4 p1) noexcept
 {
   const Float result = p0.x * p1.x +
                        p0.y * p1.y +
@@ -944,7 +944,7 @@ constexpr Float Geometry::Fallback::dotN4Impl(const Float4 p0, const Float4 p1) 
   \return No description
   */
 template <typename Float, typename Float8> inline
-constexpr Float Geometry::Fallback::dotN8Impl(const Float8 p0, const Float8 p1) noexcept
+constexpr Float Geometry::Fallback::Impl::dotN8(const Float8 p0, const Float8 p1) noexcept
 {
   const Float result = p0.s0 * p1.s0 +
                        p0.s1 * p1.s1 +
@@ -967,7 +967,7 @@ constexpr Float Geometry::Fallback::dotN8Impl(const Float8 p0, const Float8 p1) 
   \return No description
   */
 template <typename Float, typename Float16> inline
-constexpr Float Geometry::Fallback::dotN16Impl(const Float16 p0, const Float16 p1) noexcept
+constexpr Float Geometry::Fallback::Impl::dotN16(const Float16 p0, const Float16 p1) noexcept
 {
   const Float result = p0.s0 * p1.s0 +
                        p0.s1 * p1.s1 +

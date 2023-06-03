@@ -12,8 +12,11 @@
 
 // Standard C++ library
 #include <array>
+#include <concepts>
+#include <cstddef>
 // Zivc
 #include "types.hpp"
+#include "vector.hpp"
 #include "../zivc_config.hpp"
 
 namespace zivc::cl {
@@ -122,6 +125,349 @@ size_t get_num_groups(const uint32b dimension) noexcept;
 
 //! Return the number of dimensions in use
 uint32b get_work_dim() noexcept;
+
+//
+
+/*!
+  \brief No brief description
+
+  No detailed description.
+  */
+class Utility
+{
+ public:
+  //! Compute the absolute value of a integer value (|x|)
+  template <std::signed_integral Type>
+  static std::make_unsigned_t<Type> abs(const Type& x) noexcept;
+
+  //! Compute the absolute value of a integer value (|x|)
+  template <std::unsigned_integral Type>
+  static Type abs(const Type& x) noexcept;
+
+  //! Compute the absolute value of a integer value (|x|)
+  template <std::signed_integral Type, std::size_t kN>
+  static Vector<std::make_unsigned_t<Type>, kN> abs(const Vector<Type, kN>& x) noexcept;
+
+  //! Compute the absolute value of a integer value (|x|)
+  template <std::unsigned_integral Type, std::size_t kN>
+  static Vector<Type, kN> abs(const Vector<Type, kN>& x) noexcept;
+
+  //! Compute the absolute value of a floating point value (|x|)
+  template <std::floating_point Type>
+  static Type fabs(const Type& x) noexcept;
+
+  //! Compute the absolute value of a floating point value (|x|)
+  template <std::floating_point Type, std::size_t kN>
+  static Vector<Type, kN> fabs(const Vector<Type, kN>& x) noexcept;
+
+  //! Clamp a value between a pair of boundary values
+  template <Arithmetic Type>
+  static Type clamp(const Type& x, const Type& lo, const Type& hi) noexcept;
+
+  //! Clamp a value between a pair of boundary values
+  template <Arithmetic Type, std::size_t kN>
+  static Vector<Type, kN> clamp(const Vector<Type, kN>& x,
+                                const Vector<Type, kN>& lo,
+                                const Vector<Type, kN>& hi) noexcept;
+
+  //! Count the number of consecutive 0 bits, starting from the most significant bit
+  template <std::integral Type>
+  static constexpr Type clz(const Type& x) noexcept;
+
+  //! Count the number of consecutive 0 bits, starting from the most significant bit
+  template <std::integral Type, std::size_t kN>
+  static constexpr Vector<Type, kN> clz(const Vector<Type, kN>& x) noexcept;
+
+  //! Convert the radians to degrees
+  template <std::floating_point Type>
+  static constexpr Type degrees(const Type& radians) noexcept;
+
+  //! Convert the radians to degrees
+  template <std::floating_point Type, std::size_t kN>
+  static constexpr Vector<Type, kN> degrees(const Vector<Type, kN>& radians) noexcept;
+
+  //! Check if the x is negative
+  template <Arithmetic Type>
+  static constexpr bool isNegative(const Type& x) noexcept;
+
+  //! Return the greater of the given values
+  template <Arithmetic Type>
+  static constexpr Type max(const Type& x, const Type& y) noexcept;
+
+  //! Return the greater of the given values
+  template <Arithmetic Type, std::size_t kN>
+  static constexpr Vector<Type, kN> max(const Vector<Type, kN>& x,
+                                        const Vector<Type, kN>& y) noexcept;
+
+  //! Return the smaller of the given values
+  template <Arithmetic Type>
+  static constexpr Type min(const Type& x, const Type& y) noexcept;
+
+  //! Return the smaller of the given values
+  template <Arithmetic Type, std::size_t kN>
+  static constexpr Vector<Type, kN> min(const Vector<Type, kN>& x,
+                                        const Vector<Type, kN>& y) noexcept;
+
+  //! Count the number of 1 bits in an unsigned integer
+  template <std::integral Type>
+  static constexpr Type popcount(const Type& x) noexcept;
+
+  //! Count the number of 1 bits in an unsigned integer
+  template <std::integral Type, std::size_t kN>
+  static constexpr Vector<Type, kN> popcount(const Vector<Type, kN>& x) noexcept;
+
+  //! Convert the degrees to radians 
+  template <std::floating_point Type>
+  static constexpr Type radians(const Type& degrees) noexcept;
+
+  //! Convert the degrees to radians 
+  template <std::floating_point Type, std::size_t kN>
+  static constexpr Vector<Type, kN> radians(const Vector<Type, kN>& degrees) noexcept;
+
+  //! Compute the result of bitwise left-rotation
+  template <std::integral Type>
+  static constexpr Type rotate(const Type& x, const Type& s) noexcept;
+
+  //! Compute the result of bitwise left-rotation
+  template <std::integral Type, std::size_t kN>
+  static constexpr Vector<Type, kN> rotate(const Vector<Type, kN>& x,
+                                           const Vector<Type, kN>& s) noexcept;
+
+  //! Return 1.0 if x > 0, or -1.0 if x < 0, otherwise x
+  template <std::floating_point Type>
+  static Type sign(const Type& x) noexcept;
+
+  //! Return 1.0 if x > 0, or -1.0 if x < 0, otherwise x
+  template <std::floating_point Type, std::size_t kN>
+  static Vector<Type, kN> sign(const Vector<Type, kN>& x) noexcept;
+
+  //! Return 0.0 if x <= edge0 and 1.0 if x >= edge1 and otherwise performs Hermite interpolation
+  template <std::floating_point Type>
+  static constexpr Type smoothstep(const Type& edge0, const Type& edge1, const Type& x) noexcept;
+
+  //! Return 0.0 if x <= edge0 and 1.0 if x >= edge1 and otherwise performs Hermite interpolation
+  template <std::floating_point Type, std::size_t kN>
+  static constexpr Vector<Type, kN> smoothstep(const Vector<Type, kN>& edge0,
+                                               const Vector<Type, kN>& edge1,
+                                               const Vector<Type, kN>& x) noexcept;
+
+  //! Return 0.0 if x < edge, otherwise it returns 1.0
+  template <std::floating_point Type>
+  static constexpr Type step(const Type& edge, const Type& x) noexcept;
+
+  //! Return 0.0 if x < edge, otherwise it returns 1.0
+  template <std::floating_point Type, std::size_t kN>
+  static constexpr Vector<Type, kN> step(const Vector<Type, kN>& edge,
+                                         const Vector<Type, kN>& x) noexcept;
+
+  //! Compute '(hi << n) | lo'
+  static constexpr int16b upsample(const int8b hi, const uint8b lo) noexcept;
+
+  //! Compute '(hi << n) | lo'
+  static constexpr uint16b upsample(const uint8b hi, const uint8b lo) noexcept;
+
+  //! Compute '(hi << n) | lo'
+  template <std::size_t kN>
+  static constexpr Vector<int16b, kN> upsample(const Vector<int8b, kN>& hi,
+                                               const Vector<uint8b, kN> lo) noexcept;
+
+  //! Compute '(hi << n) | lo'
+  template <std::size_t kN>
+  static constexpr Vector<uint16b, kN> upsample(const Vector<uint8b, kN>& hi,
+                                                const Vector<uint8b, kN> lo) noexcept;
+
+  //! Compute '(hi << n) | lo'
+  static constexpr int32b upsample(const int16b hi, const uint16b lo) noexcept;
+
+  //! Compute '(hi << n) | lo'
+  static constexpr uint32b upsample(const uint16b hi, const uint16b lo) noexcept;
+
+  //! Compute '(hi << n) | lo'
+  template <std::size_t kN>
+  static constexpr Vector<int32b, kN> upsample(const Vector<int16b, kN>& hi,
+                                               const Vector<uint16b, kN> lo) noexcept;
+
+  //! Compute '(hi << n) | lo'
+  template <std::size_t kN>
+  static constexpr Vector<uint32b, kN> upsample(const Vector<uint16b, kN>& hi,
+                                                const Vector<uint16b, kN> lo) noexcept;
+
+  //! Compute '(hi << n) | lo'
+  static constexpr int64b upsample(const int32b hi, const uint32b lo) noexcept;
+
+  //! Compute '(hi << n) | lo'
+  static constexpr uint64b upsample(const uint32b hi, const uint32b lo) noexcept;
+
+  //! Compute '(hi << n) | lo'
+  template <std::size_t kN>
+  static constexpr Vector<int64b, kN> upsample(const Vector<int32b, kN>& hi,
+                                               const Vector<uint32b, kN> lo) noexcept;
+
+  //! Compute '(hi << n) | lo'
+  template <std::size_t kN>
+  static constexpr Vector<uint64b, kN> upsample(const Vector<uint32b, kN>& hi,
+                                                const Vector<uint32b, kN> lo) noexcept;
+};
+
+//! Compute the absolute value of a integer value (|x|)
+template <std::integral Type>
+std::make_unsigned_t<Type> abs(const Type& x) noexcept;
+
+//! Compute the absolute value of a integer value (|x|)
+template <std::integral Type, std::size_t kN>
+Vector<std::make_unsigned_t<Type>, kN> abs(const Vector<Type, kN>& x) noexcept;
+
+//! Compute the absolute value of a floating point value (|x|)
+template <std::floating_point Type>
+Type fabs(const Type& x) noexcept;
+
+//! Compute the absolute value of a floating point value (|x|)
+template <std::floating_point Type, std::size_t kN>
+Vector<Type, kN> fabs(const Vector<Type, kN>& x) noexcept;
+
+//! Clamp a value between a pair of boundary values
+template <Arithmetic Type>
+Type clamp(const Type& x, const Type& lo, const Type& hi) noexcept;
+
+//! Clamp a value between a pair of boundary values
+template <Arithmetic Type, std::size_t kN>
+Vector<Type, kN> clamp(const Vector<Type, kN>& x,
+                       const Vector<Type, kN>& lo,
+                       const Vector<Type, kN>& hi) noexcept;
+
+//! Count the number of consecutive 0 bits, starting from the most significant bit
+template <std::integral Type>
+constexpr Type clz(const Type& x) noexcept;
+
+//! Count the number of consecutive 0 bits, starting from the most significant bit
+template <std::integral Type, std::size_t kN>
+constexpr Vector<Type, kN> clz(const Vector<Type, kN>& x) noexcept;
+
+//! Convert the radians to degrees
+template <std::floating_point Type>
+constexpr Type degrees(const Type& radians) noexcept;
+
+//! Convert the radians to degrees
+template <std::floating_point Type, std::size_t kN>
+constexpr Vector<Type, kN> degrees(const Vector<Type, kN>& radians) noexcept;
+
+//! Return the greater of the given values
+template <Arithmetic Type>
+constexpr Type max(const Type& x, const Type& y) noexcept;
+
+//! Return the greater of the given values
+template <Arithmetic Type, std::size_t kN>
+constexpr Vector<Type, kN> max(const Vector<Type, kN>& x,
+                               const Vector<Type, kN>& y) noexcept;
+
+//! Return the smaller of the given values
+template <Arithmetic Type>
+constexpr Type min(const Type& x, const Type& y) noexcept;
+
+//! Return the smaller of the given values
+template <Arithmetic Type, std::size_t kN>
+constexpr Vector<Type, kN> min(const Vector<Type, kN>& x,
+                               const Vector<Type, kN>& y) noexcept;
+
+//! Count the number of 1 bits in an unsigned integer
+template <std::integral Type>
+constexpr Type popcount(const Type& x) noexcept;
+
+//! Count the number of 1 bits in an unsigned integer
+template <std::integral Type, std::size_t kN>
+constexpr Vector<Type, kN> popcount(const Vector<Type, kN>& x) noexcept;
+
+//! Convert the degrees to radians 
+template <std::floating_point Type>
+constexpr Type radians(const Type& degrees) noexcept;
+
+//! Convert the degrees to radians 
+template <std::floating_point Type, std::size_t kN>
+constexpr Vector<Type, kN> radians(const Vector<Type, kN>& degrees) noexcept;
+
+//! Compute the result of bitwise left-rotation
+template <std::integral Type>
+constexpr Type rotate(const Type& x, const Type& s) noexcept;
+
+//! Compute the result of bitwise left-rotation
+template <std::integral Type, std::size_t kN>
+constexpr Vector<Type, kN> rotate(const Vector<Type, kN>& x,
+                                  const Vector<Type, kN>& s) noexcept;
+
+//! Return 1.0 if x > 0, or -1.0 if x < 0, otherwise x
+template <std::floating_point Type>
+Type sign(const Type& x) noexcept;
+
+//! Return 1.0 if x > 0, or -1.0 if x < 0, otherwise x
+template <std::floating_point Type, std::size_t kN>
+Vector<Type, kN> sign(const Vector<Type, kN>& x) noexcept;
+
+//! Return 0.0 if x <= edge0 and 1.0 if x >= edge1 and otherwise performs Hermite interpolation
+template <std::floating_point Type>
+constexpr Type smoothstep(const Type& edge0, const Type& edge1, const Type& x) noexcept;
+
+//! Return 0.0 if x <= edge0 and 1.0 if x >= edge1 and otherwise performs Hermite interpolation
+template <std::floating_point Type, std::size_t kN>
+constexpr Vector<Type, kN> smoothstep(const Vector<Type, kN>& edge0,
+                                      const Vector<Type, kN>& edge1,
+                                      const Vector<Type, kN>& x) noexcept;
+
+//! Return 0.0 if x < edge, otherwise it returns 1.0
+template <std::floating_point Type>
+constexpr Type step(const Type& edge, const Type& x) noexcept;
+
+//! Return 0.0 if x < edge, otherwise it returns 1.0
+template <std::floating_point Type, std::size_t kN>
+constexpr Vector<Type, kN> step(const Vector<Type, kN>& edge,
+                                const Vector<Type, kN>& x) noexcept;
+
+//! Compute '(hi << n) | lo'
+constexpr int16b upsample(const int8b hi, const uint8b lo) noexcept;
+
+//! Compute '(hi << n) | lo'
+constexpr uint16b upsample(const uint8b hi, const uint8b lo) noexcept;
+
+//! Compute '(hi << n) | lo'
+template <std::size_t kN>
+constexpr Vector<int16b, kN> upsample(const Vector<int8b, kN>& hi,
+                                      const Vector<uint8b, kN> lo) noexcept;
+
+//! Compute '(hi << n) | lo'
+template <std::size_t kN>
+constexpr Vector<uint16b, kN> upsample(const Vector<uint8b, kN>& hi,
+                                       const Vector<uint8b, kN> lo) noexcept;
+
+//! Compute '(hi << n) | lo'
+constexpr int32b upsample(const int16b hi, const uint16b lo) noexcept;
+
+//! Compute '(hi << n) | lo'
+constexpr uint32b upsample(const uint16b hi, const uint16b lo) noexcept;
+
+//! Compute '(hi << n) | lo'
+template <std::size_t kN>
+constexpr Vector<int32b, kN> upsample(const Vector<int16b, kN>& hi,
+                                      const Vector<uint16b, kN> lo) noexcept;
+
+//! Compute '(hi << n) | lo'
+template <std::size_t kN>
+constexpr Vector<uint32b, kN> upsample(const Vector<uint16b, kN>& hi,
+                                       const Vector<uint16b, kN> lo) noexcept;
+
+//! Compute '(hi << n) | lo'
+constexpr int64b upsample(const int32b hi, const uint32b lo) noexcept;
+
+//! Compute '(hi << n) | lo'
+constexpr uint64b upsample(const uint32b hi, const uint32b lo) noexcept;
+
+//! Compute '(hi << n) | lo'
+template <std::size_t kN>
+constexpr Vector<int64b, kN> upsample(const Vector<int32b, kN>& hi,
+                                      const Vector<uint32b, kN> lo) noexcept;
+
+//! Compute '(hi << n) | lo'
+template <std::size_t kN>
+constexpr Vector<uint64b, kN> upsample(const Vector<uint32b, kN>& hi,
+                                       const Vector<uint32b, kN> lo) noexcept;
 
 } // namespace zivc::cl
 

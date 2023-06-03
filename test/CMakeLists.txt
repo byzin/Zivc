@@ -278,6 +278,21 @@ macro(setTestProject)
                        ${PROJECT_NAME}-vulkan3-debug
                        ${PROJECT_NAME}-vulkan3-nodebug
                        PROPERTIES ENVIRONMENT "${test_env_list}")
+
+  # Copy test files
+  cmake_path(SET dst_resource_dir "${PROJECT_BINARY_DIR}/resources")
+  cmake_path(SET zisc_dir NORMALIZE ${__zivc_dir__}/../dependencies/Zisc)
+  file(GLOB math_reference_files "${zisc_dir}/test/math_reference/reference/*.7z")
+  foreach(reference_path IN LISTS math_reference_files)
+    cmake_path(SET src_file_path NORMALIZE "${reference_path}")
+    cmake_path(GET src_file_path STEM LAST_ONLY reference_name)
+    cmake_path(SET dst_file_path "${dst_resource_dir}/${reference_name}")
+    if("${src_file_path}" IS_NEWER_THAN "${dst_file_path}")
+      file(ARCHIVE_EXTRACT INPUT "${src_file_path}"
+                           DESTINATION "${dst_resource_dir}")
+      file(TOUCH_NOCREATE "${dst_file_path}") 
+    endif()
+  endforeach(reference_path)
 endmacro(setTestProject)
 
 

@@ -70,7 +70,7 @@ int32b Utility::print(ConstConstantPtr<char> format, const Types... args)
   \tparam Type No description.
   */
 template <typename Type>
-struct Utility::Cast
+struct Utility::CastImpl
 {
   /*!
     \details No detailed description
@@ -94,7 +94,7 @@ struct Utility::Cast
   \tparam Type No description.
   */
 template <typename Type>
-struct Utility::Reinterp
+struct Utility::ReinterpImpl
 {
   /*!
     \details No detailed description
@@ -120,7 +120,7 @@ struct Utility::Reinterp
   */
 #define ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(type) \
   template <> \
-  struct Utility::Cast< type > \
+  struct Utility::CastImpl< type > \
   { \
     template <typename T> \
     static type cast(T value) noexcept \
@@ -194,7 +194,7 @@ ZIVC_TYPE_CONVERTER_SPECIALIZATION_IMPL(double16);
   \tparam Type No description.
   */
 template <AddressSpaceType kASpaceType, typename Type>
-struct Utility::Reinterp<AddressSpacePointer<kASpaceType, Type>>
+struct Utility::ReinterpImpl<AddressSpacePointer<kASpaceType, Type>>
 {
   using ASpacePointer = AddressSpacePointer<kASpaceType, Type>;
 
@@ -245,7 +245,7 @@ Type Utility::cast(T value) noexcept
   if constexpr (kIsSame<DstT, SrcT>)
     return value;
   else
-    return Cast<DstT>::cast(value);
+    return CastImpl<DstT>::cast(value);
 }
 
 /*!
@@ -259,7 +259,42 @@ Type Utility::cast(T value) noexcept
 template <typename Type, typename T> inline
 Type Utility::reinterp(T object) noexcept
 {
-  return Reinterp<RemoveVolatileT<Type>>::reinterp(object);
+  return ReinterpImpl<RemoveVolatileT<Type>>::reinterp(object);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam ArithN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename ArithN> inline
+auto Utility::abs(const ArithN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveCvT<ArithN>>;
+  static_assert(kIsArithmetic<typename VecInfo::ElementT>, "The input x isn't arithmetic type.");
+  if constexpr (kIsFloat<typename VecInfo::ElementT>)
+    return ZIVC_CL_GLOBAL_NAMESPACE::fabs(x);
+  else
+    return ZIVC_CL_GLOBAL_NAMESPACE::abs(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam ArithN No description.
+  \param [in] x No description.
+  \param [in] lo No description.
+  \param [in] hi No description.
+  \return No description
+  */
+template <typename ArithN> inline
+ArithN Utility::clamp(const ArithN x, const ArithN lo, const ArithN hi) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveCvT<ArithN>>;
+  static_assert(kIsArithmetic<typename VecInfo::ElementT>, "The input x isn't arithmetic type.");
+  return ZIVC_CL_GLOBAL_NAMESPACE::clamp(x, lo, hi);
 }
 
 /*!
@@ -336,6 +371,34 @@ template <typename Type, typename T> inline
 Type reinterp(T object) noexcept
 {
   return Utility::reinterp<Type, T>(object);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam ArithN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename ArithN> inline
+auto abs(const ArithN x) noexcept
+{
+  return Utility::abs(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam ArithN No description.
+  \param [in] x No description.
+  \param [in] lo No description.
+  \param [in] hi No description.
+  \return No description
+  */
+template <typename ArithN> inline
+ArithN clamp(const ArithN x, const ArithN lo, const ArithN hi) noexcept
+{
+  return Utility::clamp(x, lo, hi);
 }
 
 /*!

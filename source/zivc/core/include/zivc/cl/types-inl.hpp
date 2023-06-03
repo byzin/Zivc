@@ -11,8 +11,8 @@
 #define ZIVC_CL_TYPES_INL_HPP
 
 #if defined(ZIVC_CL_CPU) && !defined(ZIVC_CPUCL_CPUCL_HPP)
-#include "zivc/cpucl/cpucl.hpp"
-#include "zivc/cpucl/cl_define.hpp"
+#include "../../../zivc/cpucl/cpucl.hpp"
+#include "../../../zivc/cpucl/cl_define.hpp"
 // Initialize the cl for cpu
 using namespace zivc::cl;
 #endif /* ZIVC_CL_CPU && ZIVC_CPUCL_CPUCL_HPP */

@@ -29,6 +29,7 @@
 // Test
 #include "utility/config.hpp"
 #include "utility/googletest.hpp"
+#include "utility/math_test.hpp"
 #include "utility/test.hpp"
 #include "zivc/kernel_set/kernel_set-cl_cpp_test_math.hpp"
 
@@ -251,5 +252,78 @@ TEST(ClCppTest, MathConstantDoubleTest)
       constexpr double expected = std::numbers::phi_v<double>;
       EXPECT_DOUBLE_EQ(expected, mem[index++]) << "The math constant 'kPhi' isn't correct.";
     }
+  }
+}
+
+TEST(ClCppTest, MathImplSqrtFloatTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_int;
+  using zivc::cl_uint;
+  using zivc::cl_float;
+
+  // Get the test input
+  constexpr std::size_t vector_size = 1;
+  const std::vector x_list = ztest::loadPositiveXList<cl_float>();
+  const std::size_t n = x_list.size() / vector_size;
+
+  // Initialize buffers
+  const zivc::SharedBuffer buffer_in = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
+  {
+    const std::span<const cl_float> l{x_list.begin(), x_list.end()};
+    ztest::setDeviceBuffer(*device, l, buffer_in.get());
+  }
+  const zivc::SharedBuffer buffer_out = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
+  buffer_out->setSize(vector_size * n);
+
+  // Make a kernel
+//  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_atomic, atomicFetchMinTestKernel, 1);
+//  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+//  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+//  ASSERT_EQ(6, kernel->argSize()) << "Wrong kernel property.";
+//
+//  // Launch the kernel
+//  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+//  launch_options.setQueueIndex(0);
+//  launch_options.setWorkSize({{n}});
+//  launch_options.requestFence(true);
+//  launch_options.setLabel("atomicFetchMinTestKernel");
+//  ASSERT_EQ(1, launch_options.dimension());
+//  ASSERT_EQ(6, launch_options.numOfArgs());
+//  ASSERT_EQ(0, launch_options.queueIndex());
+//  ASSERT_EQ(n, launch_options.workSize()[0]);
+//  ASSERT_TRUE(launch_options.isFenceRequested());
+//  zivc::LaunchResult result = kernel->run(*buffer_in1, *buffer_in2,
+//                                          *buffer_out1, *buffer_out2,
+//                                          n, ::nLoop(), launch_options);
+//  device->waitForCompletion(result.fence());
+
+  {
+    std::vector<cl_float> results{};
+    results.resize(x_list.size());
+    for (std::size_t i = 0; i < results.size(); ++i)
+      results[i] = std::sqrt(x_list[i]);
+    const std::span<const cl_float> l{results.begin(), results.end()};
+    ztest::setDeviceBuffer(*device, l, buffer_out.get());
+  }
+
+  // output1
+  {
+    const zivc::SharedBuffer tmp = device->createBuffer<cl_float>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out, tmp.get());
+    const zivc::MappedMemory mem = tmp->mapMemory();
+
+    // 
+    const std::vector expected_list = ztest::loadExpectedList<cl_float>("resources/math_sqrtf_reference.bin", x_list.size());
+
+    ztest::MathTestResult result{};
+    for (std::size_t i = 0; i < mem.size(); ++i)
+      ztest::test(expected_list[i], mem[i], &result);
+    result.print();
+    result.checkError("sqrt");
   }
 }

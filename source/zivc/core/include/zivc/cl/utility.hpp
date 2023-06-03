@@ -44,6 +44,16 @@ class Utility
   template <typename Type, typename T>
   static Type reinterp(T object) noexcept;
 
+  //
+
+  //! Compute the absolute value of a value (|x|)
+  template <typename ArithN>
+  static auto abs(const ArithN x) noexcept;
+
+  //! Compute a value between a pair of boundary values
+  template <typename ArithN>
+  static ArithN clamp(const ArithN x, const ArithN lo, const ArithN hi) noexcept;
+
   // Conditional function
 
   //! Update the value in the lhs with the rhs if the flag is true
@@ -52,9 +62,9 @@ class Utility
 
  private:
   template <typename Type>
-  struct Cast;
+  struct CastImpl;
   template <typename Type>
-  struct Reinterp;
+  struct ReinterpImpl;
 };
 
 //
@@ -76,6 +86,18 @@ Type cast(T value) noexcept;
 //! Treat T* as Type*
 template <typename Type, typename T>
 Type reinterp(T object) noexcept;
+
+//
+
+//! Compute the absolute value of a value (|x|)
+template <typename ArithN>
+auto abs(const ArithN x) noexcept;
+
+//! Compute a value between a pair of boundary values
+template <typename ArithN>
+ArithN clamp(const ArithN x, const ArithN lo, const ArithN hi) noexcept;
+
+// Conditional function
 
 //! Update the value in the lhs with the rhs if the flag is true
 template <typename AddressSpacePointer, typename Type>

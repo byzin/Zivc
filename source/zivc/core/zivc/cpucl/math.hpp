@@ -13,6 +13,8 @@
 // Standard C++ library
 #include <climits>
 #include <cmath>
+#include <cstddef>
+#include <concepts>
 #include <type_traits>
 // Zivc
 #include "vector.hpp"
@@ -168,373 +170,431 @@ inline constexpr double M_SQRT2 = 1.41421356237309504880;
 inline constexpr double M_SQRT1_2 = 1.0 / M_SQRT2;
 #endif // M_SQRT1_2
 
-
 /*!
+  \brief No brief description
+
+  No detailed description.
   */
 class Math
 {
  public:
-  // Nearest integer floating point operations
+  //! Invert the given value
+  template <std::floating_point Float>
+  static constexpr Float invert(const Float& x) noexcept;
 
-  //! Return the nearest integer not less than the given value
-  template <typename FloatN>
-  static FloatN ceil(const FloatN& x) noexcept;
-
-  //! Return the nearest integer not greater than the given value
-  template <typename FloatN>
-  static FloatN floor(const FloatN& x) noexcept;
-
-  //! Return the nearest integer not greater in magnitude than the given value
-  template <typename FloatN>
-  static FloatN trunc(const FloatN& x) noexcept;
-
-  //! Return the nearest integer, rounding away from zero in halfway cases
-  template <typename FloatN>
-  static FloatN round(const FloatN& x) noexcept;
-
-  // Basic operations
-
-  //! Return the remainder of the floating point division operation
-  template <typename FloatN>
-  static FloatN fmod(const FloatN& x, const FloatN& y) noexcept;
-
-  //! Fused multiply-add operation
-  template <typename FloatN>
-  static FloatN fma(const FloatN& a, const FloatN& b, const FloatN& c) noexcept;
-
-  // Exponential functions
-
-  //! Return e raised to the given power
-  template <typename FloatN>
-  static FloatN exp(const FloatN& x) noexcept;
-
-  //! Return 2 raised to the given power
-  template <typename FloatN>
-  static FloatN exp2(const FloatN& x) noexcept;
-
-  //! Compute natural logarithm of the given number
-  template <typename FloatN>
-  static FloatN log(const FloatN& x) noexcept;
-
-  //! Compute base2 logarithm of the given number
-  template <typename FloatN>
-  static FloatN log2(const FloatN& x) noexcept;
-
-  // Power functions
-
-  //! Raise a number to the given power
-  template <typename FloatN>
-  static FloatN pow(const FloatN& base, const FloatN& e) noexcept;
+  //! Invert the given value
+  template <std::floating_point Float, std::size_t kN>
+  static constexpr Vector<Float, kN> invert(const Vector<Float, kN>& x) noexcept;
 
   //! Compute inverse square root
-  template <typename FloatN>
-  static FloatN rsqrt(const FloatN& x) noexcept;
+  template <std::floating_point Float>
+  static Float rsqrt(const Float& x) noexcept;
+
+  //! Compute inverse square root
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> rsqrt(const Vector<Float, kN>& x) noexcept;
 
   //! Compute square root
-  template <typename FloatN>
-  static FloatN sqrt(const FloatN& x) noexcept;
+  template <std::floating_point Float>
+  static Float sqrt(const Float& x) noexcept;
 
-  //! Compute cubic root
-  template <typename FloatN>
-  static FloatN cbrt(const FloatN& x) noexcept;
-
-  // Trigonometric functions
-
-  //! Compute sine
-  template <typename FloatN>
-  static FloatN sin(const FloatN& theta) noexcept;
-
-  //! Compute cosine
-  template <typename FloatN>
-  static FloatN cos(const FloatN& theta) noexcept;
-
-  //! Compute sine and cosine
-  template <typename FloatN>
-  static FloatN sincos(const FloatN& theta, FloatN* cosval) noexcept;
-
-  //! Compute tangent
-  template <typename FloatN>
-  static FloatN tan(const FloatN& theta) noexcept;
-
-  //! Compute arc sine
-  template <typename FloatN>
-  static FloatN asin(const FloatN& x) noexcept;
-
-  //! Compute arc cosine
-  template <typename FloatN>
-  static FloatN acos(const FloatN& x) noexcept;
-
-  //! Compute arc tangent
-  template <typename FloatN>
-  static FloatN atan(const FloatN& x) noexcept;
-
-  // Floating point manipulation functions
-
-  //! Decompose a number into significand and power of 2
-  template <typename FloatN, typename IntegerN>
-  static FloatN frexp(const FloatN& x, IntegerN* e) noexcept;
-
-  //! Multiplie a number by 2 raised to a power 
-  template <typename FloatN, typename IntegerN>
-  static FloatN ldexp(const FloatN& x, const IntegerN& e) noexcept;
-
-  //! Extract exponent of the given number
-  template <typename FloatN>
-  static auto ilogb(const FloatN& x) noexcept;
-
-  //! Decompose a number into integer and fractional parts
-  template <typename FloatN>
-  static FloatN modf(const FloatN& x, FloatN* iptr) noexcept;
-
-  //! Copy the sign of a floating point value
-  template <typename FloatN>
-  static FloatN copysign(const FloatN& x, const FloatN& y) noexcept;
+  //! Compute square root
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> sqrt(const Vector<Float, kN>& x) noexcept;
 
  private:
   /*!
+    \brief No brief description
+
+    No detailed description.
     */
-  class Vec
+  struct Impl
   {
-   public:
-    // Nearest integer floating point operations
-
-    //! Return the nearest integer not less than the given value
-    template <typename Float, size_t kN>
-    static auto ceil(const Vector<Float, kN>& x) noexcept;
-
-    //! Return the nearest integer not greater than the given value
-    template <typename Float, size_t kN>
-    static auto floor(const Vector<Float, kN>& x) noexcept;
-
-    //! Return the nearest integer not greater in magnitude than the given value
-    template <typename Float, size_t kN>
-    static auto trunc(const Vector<Float, kN>& x) noexcept;
-
-    //! Return the nearest integer, rounding away from zero in halfway cases
-    template <typename Float, size_t kN>
-    static auto round(const Vector<Float, kN>& x) noexcept;
-
-    // Basic operations
-
-    //! Return the remainder of the floating point division operation
-    template <typename Float, size_t kN>
-    static auto fmod(const Vector<Float, kN>& x,
-                     const Vector<Float, kN>& y) noexcept;
-
-    //! Fused multiply-add operation
-    template <typename Float, size_t kN>
-    static auto fma(const Vector<Float, kN>& a,
-                    const Vector<Float, kN>& b,
-                    const Vector<Float, kN>& c) noexcept;
-
-    // Exponential functions
-
-    //! Return e raised to the given power
-    template <typename Float, size_t kN>
-    static auto exp(const Vector<Float, kN>& x) noexcept;
-
-    //! Return 2 raised to the given power
-    template <typename Float, size_t kN>
-    static auto exp2(const Vector<Float, kN>& x) noexcept;
-
-    //! Compute natural logarithm of the given number
-    template <typename Float, size_t kN>
-    static auto log(const Vector<Float, kN>& x) noexcept;
-
-    //! Compute base2 logarithm of the given number
-    template <typename Float, size_t kN>
-    static auto log2(const Vector<Float, kN>& x) noexcept;
-
-    // Power functions
-
-    //! Raise a number to the given power
-    template <typename Float, size_t kN>
-    static auto pow(const Vector<Float, kN>& base,
-                    const Vector<Float, kN>& e) noexcept;
-
-    //! Compute inverse square root
-    template <typename Float, size_t kN>
-    static auto rsqrt(const Vector<Float, kN>& x) noexcept;
-
-    //! Compute square root
-    template <typename Float, size_t kN>
-    static auto sqrt(const Vector<Float, kN>& x) noexcept;
-
-    //! Compute cubic root
-    template <typename Float, size_t kN>
-    static auto cbrt(const Vector<Float, kN>& x) noexcept;
-
-    //! Trigonometric functions
-
-    //! Compute sine
-    template <typename Float, size_t kN>
-    static auto sin(const Vector<Float, kN>& theta) noexcept;
-
-    //! Compute cosine
-    template <typename Float, size_t kN>
-    static auto cos(const Vector<Float, kN>& theta) noexcept;
-
-    //! Compute tangent
-    template <typename Float, size_t kN>
-    static auto tan(const Vector<Float, kN>& theta) noexcept;
-
-    //! Compute arc sine
-    template <typename Float, size_t kN>
-    static auto asin(const Vector<Float, kN>& x) noexcept;
-
-    //! Compute arc cosine
-    template <typename Float, size_t kN>
-    static auto acos(const Vector<Float, kN>& x) noexcept;
-
-    //! Compute arc tangent
-    template <typename Float, size_t kN>
-    static auto atan(const Vector<Float, kN>& x) noexcept;
-
-    // Floating point manipulation functions
-
-    //! Decompose a number into significand and power of 2
-    template <typename Float, typename Integer, size_t kN>
-    static auto frexp(const Vector<Float, kN>& x,
-                      Vector<Integer, kN>* e) noexcept;
-
-    //! Multiply a number by 2 raised to a power 
-    template <typename Float, typename Integer, size_t kN>
-    static auto ldexp(const Vector<Float, kN>& x,
-                      const Vector<Integer, kN>& e) noexcept;
-
-    //! Extract exponent of the given number
-    template <typename Float, size_t kN>
-    static auto ilogb(const Vector<Float, kN>& x) noexcept;
-
-    //! Decompose a number into integer and fractional parts
-    template <typename Float, size_t kN>
-    static auto modf(const Vector<Float, kN>& x,
-                     Vector<Float, kN>* iptr) noexcept;
-
-    //! Copy the sign of a floating point value
-    template <typename Float, size_t kN>
-    static auto copysign(const Vector<Float, kN>& x,
-                         const Vector<Float, kN>& y) noexcept;
   };
 };
 
-// OpenCL style function aliases
-
-// Nearest integer floating point operations
-
-//! Return the nearest integer not less than the given value
-template <typename FloatN>
-FloatN ceil(const FloatN& x) noexcept;
-
-//! Return the nearest integer not greater than the given value
-template <typename FloatN>
-FloatN floor(const FloatN& x) noexcept;
-
-//! Return the nearest integer not greater in magnitude than the given value
-template <typename FloatN>
-FloatN trunc(const FloatN& x) noexcept;
-
-//! Return the nearest integer, rounding away from zero in halfway cases
-template <typename FloatN>
-FloatN round(const FloatN& x) noexcept;
-
-// Basic operations
-
-//! Return the remainder of the floating point division operation
-template <typename FloatN>
-FloatN fmod(const FloatN& x, const FloatN& y) noexcept;
-
-//! Fused multiply-add operation
-template <typename FloatN>
-FloatN fma(const FloatN& a, const FloatN& b, const FloatN& c) noexcept;
-
-// Exponential functions
-
-//! Return e raised to the given power
-template <typename FloatN>
-FloatN exp(const FloatN& x) noexcept;
-
-//! Return 2 raised to the given power
-template <typename FloatN>
-FloatN exp2(const FloatN& x) noexcept;
-
-//! Compute natural logarithm of the given number
-template <typename FloatN>
-FloatN log(const FloatN& x) noexcept;
-
-//! Compute base2 logarithm of the given number
-template <typename FloatN>
-FloatN log2(const FloatN& x) noexcept;
-
-// Power functions
-
-//! Raise a number to the given power
-template <typename FloatN>
-FloatN pow(const FloatN& base, const FloatN& e) noexcept;
+//! Compute inverse square root
+template <std::floating_point Float>
+Float rsqrt(const Float& x) noexcept;
 
 //! Compute inverse square root
-template <typename FloatN>
-FloatN rsqrt(const FloatN& x) noexcept;
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> rsqrt(const Vector<Float, kN>& x) noexcept;
 
 //! Compute square root
-template <typename FloatN>
-FloatN sqrt(const FloatN& x) noexcept;
+template <std::floating_point Float>
+Float sqrt(const Float& x) noexcept;
 
-//! Compute cubic root
-template <typename FloatN>
-FloatN cbrt(const FloatN& x) noexcept;
+//! Compute square root
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> sqrt(const Vector<Float, kN>& x) noexcept;
 
-//! Trigonometric functions
-
-//! Compute sine
-template <typename FloatN>
-FloatN sin(const FloatN& theta) noexcept;
-
-//! Compute cosine
-template <typename FloatN>
-FloatN cos(const FloatN& theta) noexcept;
-
-//! Compute sine and cosine
-template <typename FloatN>
-FloatN sincos(const FloatN& theta, FloatN* cosval) noexcept;
-
-//! Compute tangent
-template <typename FloatN>
-FloatN tan(const FloatN& theta) noexcept;
-
-//! Compute arc sine
-template <typename FloatN>
-FloatN asin(const FloatN& x) noexcept;
-
-//! Compute arc cosine
-template <typename FloatN>
-FloatN acos(const FloatN& x) noexcept;
-
-//! Compute arc tangent
-template <typename FloatN>
-FloatN atan(const FloatN& x) noexcept;
-
-// Floating point manipulation functions
-
-//! Decompose a number into significand and power of 2
-template <typename FloatN, typename IntegerN>
-FloatN frexp(const FloatN& x, IntegerN* e) noexcept;
-
-//! Multiplie a number by 2 raised to a power 
-template <typename FloatN, typename IntegerN>
-FloatN ldexp(const FloatN& x, const IntegerN& e) noexcept;
-
-//! Extract exponent of the given number
-template <typename FloatN>
-auto ilogb(const FloatN& x) noexcept;
-
-//! Decompose a number into integer and fractional parts
-template <typename FloatN>
-FloatN modf(const FloatN& x, FloatN* iptr) noexcept;
-
-//! Copy the sign of a floating point value
-template <typename FloatN>
-FloatN copysign(const FloatN& x, const FloatN& y) noexcept;
+///*!
+//  */
+//class Math
+//{
+// public:
+//  // Nearest integer floating point operations
+//
+//  //! Return the nearest integer not less than the given value
+//  template <typename FloatN>
+//  static FloatN ceil(const FloatN& x) noexcept;
+//
+//  //! Return the nearest integer not greater than the given value
+//  template <typename FloatN>
+//  static FloatN floor(const FloatN& x) noexcept;
+//
+//  //! Return the nearest integer not greater in magnitude than the given value
+//  template <typename FloatN>
+//  static FloatN trunc(const FloatN& x) noexcept;
+//
+//  //! Return the nearest integer, rounding away from zero in halfway cases
+//  template <typename FloatN>
+//  static FloatN round(const FloatN& x) noexcept;
+//
+//  // Basic operations
+//
+//  //! Return the remainder of the floating point division operation
+//  template <typename FloatN>
+//  static FloatN fmod(const FloatN& x, const FloatN& y) noexcept;
+//
+//  //! Fused multiply-add operation
+//  template <typename FloatN>
+//  static FloatN fma(const FloatN& a, const FloatN& b, const FloatN& c) noexcept;
+//
+//  // Exponential functions
+//
+//  //! Return e raised to the given power
+//  template <typename FloatN>
+//  static FloatN exp(const FloatN& x) noexcept;
+//
+//  //! Return 2 raised to the given power
+//  template <typename FloatN>
+//  static FloatN exp2(const FloatN& x) noexcept;
+//
+//  //! Compute natural logarithm of the given number
+//  template <typename FloatN>
+//  static FloatN log(const FloatN& x) noexcept;
+//
+//  //! Compute base2 logarithm of the given number
+//  template <typename FloatN>
+//  static FloatN log2(const FloatN& x) noexcept;
+//
+//  // Power functions
+//
+//  //! Raise a number to the given power
+//  template <typename FloatN>
+//  static FloatN pow(const FloatN& base, const FloatN& e) noexcept;
+//
+//  //! Compute inverse square root
+//  template <typename FloatN>
+//  static FloatN rsqrt(const FloatN& x) noexcept;
+//
+//  //! Compute square root
+//  template <typename FloatN>
+//  static FloatN sqrt(const FloatN& x) noexcept;
+//
+//  //! Compute cubic root
+//  template <typename FloatN>
+//  static FloatN cbrt(const FloatN& x) noexcept;
+//
+//  // Trigonometric functions
+//
+//  //! Compute sine
+//  template <typename FloatN>
+//  static FloatN sin(const FloatN& theta) noexcept;
+//
+//  //! Compute cosine
+//  template <typename FloatN>
+//  static FloatN cos(const FloatN& theta) noexcept;
+//
+//  //! Compute sine and cosine
+//  template <typename FloatN>
+//  static FloatN sincos(const FloatN& theta, FloatN* cosval) noexcept;
+//
+//  //! Compute tangent
+//  template <typename FloatN>
+//  static FloatN tan(const FloatN& theta) noexcept;
+//
+//  //! Compute arc sine
+//  template <typename FloatN>
+//  static FloatN asin(const FloatN& x) noexcept;
+//
+//  //! Compute arc cosine
+//  template <typename FloatN>
+//  static FloatN acos(const FloatN& x) noexcept;
+//
+//  //! Compute arc tangent
+//  template <typename FloatN>
+//  static FloatN atan(const FloatN& x) noexcept;
+//
+//  // Floating point manipulation functions
+//
+//  //! Decompose a number into significand and power of 2
+//  template <typename FloatN, typename IntegerN>
+//  static FloatN frexp(const FloatN& x, IntegerN* e) noexcept;
+//
+//  //! Multiplie a number by 2 raised to a power 
+//  template <typename FloatN, typename IntegerN>
+//  static FloatN ldexp(const FloatN& x, const IntegerN& e) noexcept;
+//
+//  //! Extract exponent of the given number
+//  template <typename FloatN>
+//  static auto ilogb(const FloatN& x) noexcept;
+//
+//  //! Decompose a number into integer and fractional parts
+//  template <typename FloatN>
+//  static FloatN modf(const FloatN& x, FloatN* iptr) noexcept;
+//
+//  //! Copy the sign of a floating point value
+//  template <typename FloatN>
+//  static FloatN copysign(const FloatN& x, const FloatN& y) noexcept;
+//
+// private:
+//  /*!
+//    */
+//  class Vec
+//  {
+//   public:
+//    // Nearest integer floating point operations
+//
+//    //! Return the nearest integer not less than the given value
+//    template <typename Float, size_t kN>
+//    static auto ceil(const Vector<Float, kN>& x) noexcept;
+//
+//    //! Return the nearest integer not greater than the given value
+//    template <typename Float, size_t kN>
+//    static auto floor(const Vector<Float, kN>& x) noexcept;
+//
+//    //! Return the nearest integer not greater in magnitude than the given value
+//    template <typename Float, size_t kN>
+//    static auto trunc(const Vector<Float, kN>& x) noexcept;
+//
+//    //! Return the nearest integer, rounding away from zero in halfway cases
+//    template <typename Float, size_t kN>
+//    static auto round(const Vector<Float, kN>& x) noexcept;
+//
+//    // Basic operations
+//
+//    //! Return the remainder of the floating point division operation
+//    template <typename Float, size_t kN>
+//    static auto fmod(const Vector<Float, kN>& x,
+//                     const Vector<Float, kN>& y) noexcept;
+//
+//    //! Fused multiply-add operation
+//    template <typename Float, size_t kN>
+//    static auto fma(const Vector<Float, kN>& a,
+//                    const Vector<Float, kN>& b,
+//                    const Vector<Float, kN>& c) noexcept;
+//
+//    // Exponential functions
+//
+//    //! Return e raised to the given power
+//    template <typename Float, size_t kN>
+//    static auto exp(const Vector<Float, kN>& x) noexcept;
+//
+//    //! Return 2 raised to the given power
+//    template <typename Float, size_t kN>
+//    static auto exp2(const Vector<Float, kN>& x) noexcept;
+//
+//    //! Compute natural logarithm of the given number
+//    template <typename Float, size_t kN>
+//    static auto log(const Vector<Float, kN>& x) noexcept;
+//
+//    //! Compute base2 logarithm of the given number
+//    template <typename Float, size_t kN>
+//    static auto log2(const Vector<Float, kN>& x) noexcept;
+//
+//    // Power functions
+//
+//    //! Raise a number to the given power
+//    template <typename Float, size_t kN>
+//    static auto pow(const Vector<Float, kN>& base,
+//                    const Vector<Float, kN>& e) noexcept;
+//
+//    //! Compute inverse square root
+//    template <typename Float, size_t kN>
+//    static auto rsqrt(const Vector<Float, kN>& x) noexcept;
+//
+//    //! Compute square root
+//    template <typename Float, size_t kN>
+//    static auto sqrt(const Vector<Float, kN>& x) noexcept;
+//
+//    //! Compute cubic root
+//    template <typename Float, size_t kN>
+//    static auto cbrt(const Vector<Float, kN>& x) noexcept;
+//
+//    //! Trigonometric functions
+//
+//    //! Compute sine
+//    template <typename Float, size_t kN>
+//    static auto sin(const Vector<Float, kN>& theta) noexcept;
+//
+//    //! Compute cosine
+//    template <typename Float, size_t kN>
+//    static auto cos(const Vector<Float, kN>& theta) noexcept;
+//
+//    //! Compute tangent
+//    template <typename Float, size_t kN>
+//    static auto tan(const Vector<Float, kN>& theta) noexcept;
+//
+//    //! Compute arc sine
+//    template <typename Float, size_t kN>
+//    static auto asin(const Vector<Float, kN>& x) noexcept;
+//
+//    //! Compute arc cosine
+//    template <typename Float, size_t kN>
+//    static auto acos(const Vector<Float, kN>& x) noexcept;
+//
+//    //! Compute arc tangent
+//    template <typename Float, size_t kN>
+//    static auto atan(const Vector<Float, kN>& x) noexcept;
+//
+//    // Floating point manipulation functions
+//
+//    //! Decompose a number into significand and power of 2
+//    template <typename Float, typename Integer, size_t kN>
+//    static auto frexp(const Vector<Float, kN>& x,
+//                      Vector<Integer, kN>* e) noexcept;
+//
+//    //! Multiply a number by 2 raised to a power 
+//    template <typename Float, typename Integer, size_t kN>
+//    static auto ldexp(const Vector<Float, kN>& x,
+//                      const Vector<Integer, kN>& e) noexcept;
+//
+//    //! Extract exponent of the given number
+//    template <typename Float, size_t kN>
+//    static auto ilogb(const Vector<Float, kN>& x) noexcept;
+//
+//    //! Decompose a number into integer and fractional parts
+//    template <typename Float, size_t kN>
+//    static auto modf(const Vector<Float, kN>& x,
+//                     Vector<Float, kN>* iptr) noexcept;
+//
+//    //! Copy the sign of a floating point value
+//    template <typename Float, size_t kN>
+//    static auto copysign(const Vector<Float, kN>& x,
+//                         const Vector<Float, kN>& y) noexcept;
+//  };
+//};
+//
+//// OpenCL style function aliases
+//
+//// Nearest integer floating point operations
+//
+////! Return the nearest integer not less than the given value
+//template <typename FloatN>
+//FloatN ceil(const FloatN& x) noexcept;
+//
+////! Return the nearest integer not greater than the given value
+//template <typename FloatN>
+//FloatN floor(const FloatN& x) noexcept;
+//
+////! Return the nearest integer not greater in magnitude than the given value
+//template <typename FloatN>
+//FloatN trunc(const FloatN& x) noexcept;
+//
+////! Return the nearest integer, rounding away from zero in halfway cases
+//template <typename FloatN>
+//FloatN round(const FloatN& x) noexcept;
+//
+//// Basic operations
+//
+////! Return the remainder of the floating point division operation
+//template <typename FloatN>
+//FloatN fmod(const FloatN& x, const FloatN& y) noexcept;
+//
+////! Fused multiply-add operation
+//template <typename FloatN>
+//FloatN fma(const FloatN& a, const FloatN& b, const FloatN& c) noexcept;
+//
+//// Exponential functions
+//
+////! Return e raised to the given power
+//template <typename FloatN>
+//FloatN exp(const FloatN& x) noexcept;
+//
+////! Return 2 raised to the given power
+//template <typename FloatN>
+//FloatN exp2(const FloatN& x) noexcept;
+//
+////! Compute natural logarithm of the given number
+//template <typename FloatN>
+//FloatN log(const FloatN& x) noexcept;
+//
+////! Compute base2 logarithm of the given number
+//template <typename FloatN>
+//FloatN log2(const FloatN& x) noexcept;
+//
+//// Power functions
+//
+////! Raise a number to the given power
+//template <typename FloatN>
+//FloatN pow(const FloatN& base, const FloatN& e) noexcept;
+//
+////! Compute inverse square root
+//template <typename FloatN>
+//FloatN rsqrt(const FloatN& x) noexcept;
+//
+////! Compute square root
+//template <typename FloatN>
+//FloatN sqrt(const FloatN& x) noexcept;
+//
+////! Compute cubic root
+//template <typename FloatN>
+//FloatN cbrt(const FloatN& x) noexcept;
+//
+////! Trigonometric functions
+//
+////! Compute sine
+//template <typename FloatN>
+//FloatN sin(const FloatN& theta) noexcept;
+//
+////! Compute cosine
+//template <typename FloatN>
+//FloatN cos(const FloatN& theta) noexcept;
+//
+////! Compute sine and cosine
+//template <typename FloatN>
+//FloatN sincos(const FloatN& theta, FloatN* cosval) noexcept;
+//
+////! Compute tangent
+//template <typename FloatN>
+//FloatN tan(const FloatN& theta) noexcept;
+//
+////! Compute arc sine
+//template <typename FloatN>
+//FloatN asin(const FloatN& x) noexcept;
+//
+////! Compute arc cosine
+//template <typename FloatN>
+//FloatN acos(const FloatN& x) noexcept;
+//
+////! Compute arc tangent
+//template <typename FloatN>
+//FloatN atan(const FloatN& x) noexcept;
+//
+//// Floating point manipulation functions
+//
+////! Decompose a number into significand and power of 2
+//template <typename FloatN, typename IntegerN>
+//FloatN frexp(const FloatN& x, IntegerN* e) noexcept;
+//
+////! Multiplie a number by 2 raised to a power 
+//template <typename FloatN, typename IntegerN>
+//FloatN ldexp(const FloatN& x, const IntegerN& e) noexcept;
+//
+////! Extract exponent of the given number
+//template <typename FloatN>
+//auto ilogb(const FloatN& x) noexcept;
+//
+////! Decompose a number into integer and fractional parts
+//template <typename FloatN>
+//FloatN modf(const FloatN& x, FloatN* iptr) noexcept;
+//
+////! Copy the sign of a floating point value
+//template <typename FloatN>
+//FloatN copysign(const FloatN& x, const FloatN& y) noexcept;
 
 } // namespace zivc::cl
 

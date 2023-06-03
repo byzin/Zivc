@@ -17,7 +17,7 @@ macro(Zivc_setKernelSet_@kernel_set_name@LspProject)
                                                    CXX_STANDARD_REQUIRED ON)
   set_source_files_properties(${kernel_set_source_files} PROPERTIES LANGUAGE CXX)
   target_compile_options(${PROJECT_NAME} PRIVATE @kernel_set_additional_options@)
-  target_link_libraries(${PROJECT_NAME} PRIVATE @kernel_set_target@)
+  target_link_libraries(${PROJECT_NAME} PRIVATE @kernel_set_target@ @zisc_library_name@)
 endmacro(Zivc_setKernelSet_@kernel_set_name@LspProject)
 
 

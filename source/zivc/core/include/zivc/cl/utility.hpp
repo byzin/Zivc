@@ -54,6 +54,50 @@ class Utility
   template <typename ArithN>
   static ArithN clamp(const ArithN x, const ArithN lo, const ArithN hi) noexcept;
 
+  //! Count the number of consecutive 0 bits, starting from the most significant bit
+  template <typename IntegerN>
+  static IntegerN clz(const IntegerN x) noexcept;
+
+  //! Convert the radians to degrees
+  template <typename FloatN>
+  static FloatN degrees(const FloatN radians) noexcept;
+
+  //! Return the greater of the given values
+  template <typename ArithN>
+  static ArithN max(const ArithN x, const ArithN y) noexcept;
+
+  //! Return the smaller of the given values
+  template <typename ArithN>
+  static ArithN min(const ArithN x, const ArithN y) noexcept;
+
+  //! Count the number of 1 bits in an integer
+  template <typename IntegerN>
+  static IntegerN popcount(const IntegerN x) noexcept;
+
+  //! Convert the degrees to radians
+  template <typename FloatN>
+  static FloatN radians(const FloatN degrees) noexcept;
+
+  //! Compute the result of bitwise left-rotation
+  template <typename IntegerN>
+  static IntegerN rotate(const IntegerN x, const IntegerN s) noexcept;
+
+  //! Return 1.0 if x > 0, or -1.0 if x < 0, otherwise x
+  template <typename FloatN>
+  static FloatN sign(const FloatN x) noexcept;
+
+  //! Return 0.0 if x <= edge0 and 1.0 if x >= edge1 and otherwise performs Hermite interpolation
+  template <typename FloatN>
+  static FloatN smoothstep(const FloatN edge0, const FloatN edge1, const FloatN x) noexcept;
+
+  //! Return 0.0 if x < edge, otherwise it returns 1.0
+  template <typename FloatN>
+  static FloatN step(const FloatN edge, const FloatN x) noexcept;
+
+  //! Compute '(hi << n) | lo'
+  template <typename IntegerN, typename UIntegerN>
+  static auto upsample(const IntegerN hi, const UIntegerN lo) noexcept;
+
   // Conditional function
 
   //! Update the value in the lhs with the rhs if the flag is true
@@ -96,6 +140,50 @@ auto abs(const ArithN x) noexcept;
 //! Compute a value between a pair of boundary values
 template <typename ArithN>
 ArithN clamp(const ArithN x, const ArithN lo, const ArithN hi) noexcept;
+
+//! Count the number of consecutive 0 bits, starting from the most significant bit
+template <typename IntegerN>
+IntegerN clz(const IntegerN x) noexcept;
+
+//! Convert the radians to degrees
+template <typename FloatN>
+FloatN degrees(const FloatN radians) noexcept;
+
+//! Return the greater of the given values
+template <typename ArithN>
+ArithN max(const ArithN x, const ArithN y) noexcept;
+
+//! Return the smaller of the given values
+template <typename ArithN>
+ArithN min(const ArithN x, const ArithN y) noexcept;
+
+//! Count the number of 1 bits in an integer
+template <typename IntegerN>
+IntegerN popcount(const IntegerN x) noexcept;
+
+//! Convert the degrees to radians
+template <typename FloatN>
+FloatN radians(const FloatN degrees) noexcept;
+
+//! Compute the result of bitwise left-rotation
+template <typename IntegerN>
+IntegerN rotate(const IntegerN x, const IntegerN s) noexcept;
+
+//! Return 1.0 if x > 0, or -1.0 if x < 0, otherwise x
+template <typename FloatN>
+FloatN sign(const FloatN x) noexcept;
+
+//! Return 0.0 if x <= edge0 and 1.0 if x >= edge1 and otherwise performs Hermite interpolation
+template <typename FloatN>
+FloatN smoothstep(const FloatN edge0, const FloatN edge1, const FloatN x) noexcept;
+
+//! Return 0.0 if x < edge, otherwise it returns 1.0
+template <typename FloatN>
+FloatN step(const FloatN edge, const FloatN x) noexcept;
+
+//! Compute '(hi << n) | lo'
+template <typename IntegerN, typename UIntegerN>
+auto upsample(const IntegerN hi, const UIntegerN lo) noexcept;
 
 // Conditional function
 

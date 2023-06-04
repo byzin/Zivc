@@ -300,6 +300,185 @@ ArithN Utility::clamp(const ArithN x, const ArithN lo, const ArithN hi) noexcept
 /*!
   \details No detailed description
 
+  \tparam IntegerN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename IntegerN> inline
+IntegerN Utility::clz(const IntegerN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveCvT<IntegerN>>;
+  static_assert(kIsInteger<typename VecInfo::ElementT>, "The input x isn't integer type.");
+  return ZIVC_CL_GLOBAL_NAMESPACE::clz(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] radians No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Utility::degrees(const FloatN radians) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveCvT<FloatN>>;
+  static_assert(kIsFloat<typename VecInfo::ElementT>, "The input x isn't floating point type.");
+  return ZIVC_CL_GLOBAL_NAMESPACE::degrees(radians);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam ArithN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <typename ArithN> inline
+ArithN Utility::max(const ArithN x, const ArithN y) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveCvT<ArithN>>;
+  static_assert(kIsArithmetic<typename VecInfo::ElementT>, "The input x isn't arithmetic type.");
+  return ZIVC_CL_GLOBAL_NAMESPACE::max(x, y);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam ArithN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <typename ArithN> inline
+ArithN Utility::min(const ArithN x, const ArithN y) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveCvT<ArithN>>;
+  static_assert(kIsArithmetic<typename VecInfo::ElementT>, "The input x isn't arithmetic type.");
+  return ZIVC_CL_GLOBAL_NAMESPACE::min(x, y);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam IntegerN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename IntegerN> inline
+IntegerN Utility::popcount(const IntegerN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveCvT<IntegerN>>;
+  static_assert(kIsInteger<typename VecInfo::ElementT>, "The input x isn't integer type.");
+  return ZIVC_CL_GLOBAL_NAMESPACE::popcount(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] degrees No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Utility::radians(const FloatN degrees) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveCvT<FloatN>>;
+  static_assert(kIsFloat<typename VecInfo::ElementT>, "The input x isn't floating point type.");
+  return ZIVC_CL_GLOBAL_NAMESPACE::radians(degrees);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam IntegerN No description.
+  \param [in] x No description.
+  \param [in] s No description.
+  \return No description
+  */
+template <typename IntegerN> inline
+IntegerN Utility::rotate(const IntegerN x, const IntegerN s) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveCvT<IntegerN>>;
+  static_assert(kIsInteger<typename VecInfo::ElementT>, "The input x isn't integer type.");
+  return ZIVC_CL_GLOBAL_NAMESPACE::rotate(x, s);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Utility::sign(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveCvT<FloatN>>;
+  static_assert(kIsFloat<typename VecInfo::ElementT>, "The input x isn't floating point type.");
+  return ZIVC_CL_GLOBAL_NAMESPACE::sign(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] edge0 No description.
+  \param [in] edge1 No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Utility::smoothstep(const FloatN edge0, const FloatN edge1, const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveCvT<FloatN>>;
+  static_assert(kIsFloat<typename VecInfo::ElementT>, "The input x isn't floating point type.");
+  return ZIVC_CL_GLOBAL_NAMESPACE::smoothstep(edge0, edge1, x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] edge No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Utility::step(const FloatN edge, const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveCvT<FloatN>>;
+  static_assert(kIsFloat<typename VecInfo::ElementT>, "The input x isn't floating point type.");
+  return ZIVC_CL_GLOBAL_NAMESPACE::step(edge, x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam IntegerN No description.
+  \tparam UIntegerN No description.
+  \param [in] hi No description.
+  \param [in] lo No description.
+  \return No description
+  */
+template <typename IntegerN, typename UIntegerN> inline
+auto Utility::upsample(const IntegerN hi, const UIntegerN lo) noexcept
+{
+  using VecInfo1 = VectorTypeInfo<RemoveCvT<IntegerN>>;
+  using ElemT1 = typename VecInfo1::ElementT;
+  static_assert(kIsInteger<ElemT1>, "The input hi isn't integer type.");
+  using VecInfo2 = VectorTypeInfo<RemoveCvT<UIntegerN>>;
+  using ElemT2 = typename VecInfo2::ElementT;
+  static_assert(kIsUnsignedInteger<ElemT2>, "The input lo isn't unsigned integer type.");
+  static_assert(VecInfo1::size() == VecInfo2::size(), "The hi and lo have different vector size.");
+  static_assert(sizeof(ElemT1) == sizeof(ElemT2), "The hi and lo have different bit size.");
+  return ZIVC_CL_GLOBAL_NAMESPACE::upsample(hi, lo);
+}
+
+/*!
+  \details No detailed description
+
   \tparam AddressSpacePointer No description.
   \tparam Type No description.
   \param [in] flag No description.
@@ -399,6 +578,157 @@ template <typename ArithN> inline
 ArithN clamp(const ArithN x, const ArithN lo, const ArithN hi) noexcept
 {
   return Utility::clamp(x, lo, hi);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam IntegerN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename IntegerN> inline
+IntegerN clz(const IntegerN x) noexcept
+{
+  return Utility::clz(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] radians No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN degrees(const FloatN radians) noexcept
+{
+  return Utility::degrees(radians);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam ArithN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <typename ArithN> inline
+ArithN max(const ArithN x, const ArithN y) noexcept
+{
+  return Utility::max(x, y);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam ArithN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <typename ArithN> inline
+ArithN min(const ArithN x, const ArithN y) noexcept
+{
+  return Utility::min(x, y);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam IntegerN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename IntegerN> inline
+IntegerN popcount(const IntegerN x) noexcept
+{
+  return Utility::popcount(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] degrees No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN radians(const FloatN degrees) noexcept
+{
+  return Utility::radians(degrees);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam IntegerN No description.
+  \param [in] x No description.
+  \param [in] s No description.
+  \return No description
+  */
+template <typename IntegerN> inline
+IntegerN rotate(const IntegerN x, const IntegerN s) noexcept
+{
+  return Utility::rotate(x, s);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN sign(const FloatN x) noexcept
+{
+  return Utility::sign(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] edge0 No description.
+  \param [in] edge1 No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN smoothstep(const FloatN edge0, const FloatN edge1, const FloatN x) noexcept
+{
+  return Utility::smoothstep(edge0, edge1, x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] edge No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN step(const FloatN edge, const FloatN x) noexcept
+{
+  return Utility::step(edge, x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam IntegerN No description.
+  \tparam UIntegerN No description.
+  \param [in] hi No description.
+  \param [in] lo No description.
+  \return No description
+  */
+template <typename IntegerN, typename UIntegerN> inline
+auto upsample(const IntegerN hi, const UIntegerN lo) noexcept
+{
+  return Utility::upsample(hi, lo);
 }
 
 /*!

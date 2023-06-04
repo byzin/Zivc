@@ -458,7 +458,7 @@ Vector<Type, kN> Utility::clamp(const Vector<Type, kN>& x,
   \return No description
   */
 template <std::integral Type> inline
-constexpr Type Utility::clz(const Type& x) noexcept
+Type Utility::clz(const Type& x) noexcept
 {
   const int result = std::countl_zero(x);
   return static_cast<Type>(result);
@@ -473,7 +473,7 @@ constexpr Type Utility::clz(const Type& x) noexcept
   \return No description
   */
 template <std::integral Type, std::size_t kN> inline
-constexpr Vector<Type, kN> Utility::clz(const Vector<Type, kN>& x) noexcept
+Vector<Type, kN> Utility::clz(const Vector<Type, kN>& x) noexcept
 {
   using VectorT = Vector<Type, kN>;
   const auto func = [](const Type& v) noexcept -> Type
@@ -492,7 +492,7 @@ constexpr Vector<Type, kN> Utility::clz(const Vector<Type, kN>& x) noexcept
   \return No description
   */
 template <std::floating_point Type> inline
-constexpr Type Utility::degrees(const Type& radians) noexcept
+Type Utility::degrees(const Type& radians) noexcept
 {
   constexpr Type k = static_cast<Type>(180.0) / std::numbers::pi_v<Type>;
   const Type result = k * radians;
@@ -508,7 +508,7 @@ constexpr Type Utility::degrees(const Type& radians) noexcept
   \return No description
   */
 template <std::floating_point Type, std::size_t kN> inline
-constexpr Vector<Type, kN> Utility::degrees(const Vector<Type, kN>& radians) noexcept
+Vector<Type, kN> Utility::degrees(const Vector<Type, kN>& radians) noexcept
 {
   using VectorT = Vector<Type, kN>;
   const auto func = [](const Type& v) noexcept -> Type
@@ -542,7 +542,7 @@ constexpr bool Utility::isNegative(const Type& x) noexcept
   \return No description
   */
 template <Arithmetic Type> inline
-constexpr Type Utility::max(const Type& x, const Type& y) noexcept
+Type Utility::max(const Type& x, const Type& y) noexcept
 {
   return (std::max)(x, y);
 }
@@ -557,8 +557,7 @@ constexpr Type Utility::max(const Type& x, const Type& y) noexcept
   \return No description
   */
 template <Arithmetic Type, std::size_t kN> inline
-constexpr Vector<Type, kN> Utility::max(const Vector<Type, kN>& x,
-                                        const Vector<Type, kN>& y) noexcept
+Vector<Type, kN> Utility::max(const Vector<Type, kN>& x, const Vector<Type, kN>& y) noexcept
 {
   using VectorT = Vector<Type, kN>;
   const auto func = [](const Type& lhs, const Type& rhs) noexcept -> Type
@@ -578,7 +577,7 @@ constexpr Vector<Type, kN> Utility::max(const Vector<Type, kN>& x,
   \return No description
   */
 template <Arithmetic Type> inline
-constexpr Type Utility::min(const Type& x, const Type& y) noexcept
+Type Utility::min(const Type& x, const Type& y) noexcept
 {
   return (std::min)(x, y);
 }
@@ -593,8 +592,7 @@ constexpr Type Utility::min(const Type& x, const Type& y) noexcept
   \return No description
   */
 template <Arithmetic Type, std::size_t kN> inline
-constexpr Vector<Type, kN> Utility::min(const Vector<Type, kN>& x,
-                                        const Vector<Type, kN>& y) noexcept
+Vector<Type, kN> Utility::min(const Vector<Type, kN>& x, const Vector<Type, kN>& y) noexcept
 {
   using VectorT = Vector<Type, kN>;
   const auto func = [](const Type& lhs, const Type& rhs) noexcept -> Type
@@ -613,7 +611,7 @@ constexpr Vector<Type, kN> Utility::min(const Vector<Type, kN>& x,
   \return No description
   */
 template <std::integral Type> inline
-constexpr Type Utility::popcount(const Type& x) noexcept
+Type Utility::popcount(const Type& x) noexcept
 {
   const int result = std::popcount(x);
   return static_cast<Type>(result);
@@ -628,7 +626,7 @@ constexpr Type Utility::popcount(const Type& x) noexcept
   \return No description
   */
 template <std::integral Type, std::size_t kN> inline
-constexpr Vector<Type, kN> Utility::popcount(const Vector<Type, kN>& x) noexcept
+Vector<Type, kN> Utility::popcount(const Vector<Type, kN>& x) noexcept
 {
   using VectorT = Vector<Type, kN>;
   const auto func = [](const Type& v) noexcept -> Type
@@ -647,7 +645,7 @@ constexpr Vector<Type, kN> Utility::popcount(const Vector<Type, kN>& x) noexcept
   \return No description
   */
 template <std::floating_point Type> inline
-constexpr Type Utility::radians(const Type& degrees) noexcept
+Type Utility::radians(const Type& degrees) noexcept
 {
   constexpr Type k = std::numbers::pi_v<Type> / static_cast<Type>(180.0);
   const Type result = k * degrees;
@@ -662,7 +660,7 @@ constexpr Type Utility::radians(const Type& degrees) noexcept
   \return No description
   */
 template <std::floating_point Type, std::size_t kN> inline
-constexpr Vector<Type, kN> Utility::radians(const Vector<Type, kN>& degrees) noexcept
+Vector<Type, kN> Utility::radians(const Vector<Type, kN>& degrees) noexcept
 {
   using VectorT = Vector<Type, kN>;
   const auto func = [](const Type& v) noexcept -> Type
@@ -682,7 +680,7 @@ constexpr Vector<Type, kN> Utility::radians(const Vector<Type, kN>& degrees) noe
   \return No description
   */
 template <std::integral Type> inline
-constexpr Type Utility::rotate(const Type& x, const Type& s) noexcept
+Type Utility::rotate(const Type& x, const Type& s) noexcept
 {
   const Type result = std::rotl(x, static_cast<int>(s));
   return result;
@@ -698,8 +696,8 @@ constexpr Type Utility::rotate(const Type& x, const Type& s) noexcept
   \return No description
   */
 template <std::integral Type, std::size_t kN> inline
-constexpr Vector<Type, kN> Utility::rotate(const Vector<Type, kN>& x,
-                                           const Vector<Type, kN>& s) noexcept
+Vector<Type, kN> Utility::rotate(const Vector<Type, kN>& x,
+                                 const Vector<Type, kN>& s) noexcept
 {
   using VectorT = Vector<Type, kN>;
   const auto func = [](const Type& v, const Type& i) noexcept -> Type
@@ -724,6 +722,7 @@ Type Utility::sign(const Type& x) noexcept
                       isNegative(x)  ? static_cast<Type>(-1.0) :
                       isNegative(-x) ? static_cast<Type>(1.0)
                                      : x;
+  return result;
 }
 
 /*!
@@ -756,7 +755,7 @@ Vector<Type, kN> Utility::sign(const Vector<Type, kN>& x) noexcept
   \return No description
   */
 template <std::floating_point Type> inline
-constexpr Type Utility::smoothstep(const Type& edge0, const Type& edge1, const Type& x) noexcept
+Type Utility::smoothstep(const Type& edge0, const Type& edge1, const Type& x) noexcept
 {
   constexpr auto v0 = static_cast<Type>(0.0);
   constexpr auto v1 = static_cast<Type>(1.0);
@@ -778,9 +777,9 @@ constexpr Type Utility::smoothstep(const Type& edge0, const Type& edge1, const T
   \return No description
   */
 template <std::floating_point Type, std::size_t kN> inline
-constexpr Vector<Type, kN> Utility::smoothstep(const Vector<Type, kN>& edge0,
-                                               const Vector<Type, kN>& edge1,
-                                               const Vector<Type, kN>& x) noexcept
+Vector<Type, kN> Utility::smoothstep(const Vector<Type, kN>& edge0,
+                                     const Vector<Type, kN>& edge1,
+                                     const Vector<Type, kN>& x) noexcept
 {
   using VectorT = Vector<Type, kN>;
   const auto func = [](const Type& e0, const Type& e1, const Type& v) noexcept -> Type
@@ -800,7 +799,7 @@ constexpr Vector<Type, kN> Utility::smoothstep(const Vector<Type, kN>& edge0,
   \return No description
   */
 template <std::floating_point Type> inline
-constexpr Type Utility::step(const Type& edge, const Type& x) noexcept
+Type Utility::step(const Type& edge, const Type& x) noexcept
 {
   const Type result = (x < edge) ? static_cast<Type>(0.0) : static_cast<Type>(1.0);
   return result;
@@ -816,8 +815,8 @@ constexpr Type Utility::step(const Type& edge, const Type& x) noexcept
   \return No description
   */
 template <std::floating_point Type, std::size_t kN> inline
-constexpr Vector<Type, kN> Utility::step(const Vector<Type, kN>& edge,
-                                         const Vector<Type, kN>& x) noexcept
+Vector<Type, kN> Utility::step(const Vector<Type, kN>& edge,
+                               const Vector<Type, kN>& x) noexcept
 {
   using VectorT = Vector<Type, kN>;
   const auto func = [](const Type& e, const Type& v) noexcept -> Type
@@ -836,7 +835,7 @@ constexpr Vector<Type, kN> Utility::step(const Vector<Type, kN>& edge,
   \return No description
   */
 inline
-constexpr int16b Utility::upsample(const int8b hi, const uint8b lo) noexcept
+int16b Utility::upsample(const int8b hi, const uint8b lo) noexcept
 {
   const int16b h = static_cast<int16b>(hi) << 8;
   const int16b l = static_cast<int16b>(lo);
@@ -852,7 +851,7 @@ constexpr int16b Utility::upsample(const int8b hi, const uint8b lo) noexcept
   \return No description
   */
 inline
-constexpr uint16b Utility::upsample(const uint8b hi, const uint8b lo) noexcept
+uint16b Utility::upsample(const uint8b hi, const uint8b lo) noexcept
 {
   const uint16b h = static_cast<uint16b>(hi) << 8;
   const uint16b l = static_cast<uint16b>(lo);
@@ -869,15 +868,16 @@ constexpr uint16b Utility::upsample(const uint8b hi, const uint8b lo) noexcept
   \return No description
   */
 template <std::size_t kN> inline
-constexpr Vector<int16b, kN> Utility::upsample(const Vector<int8b, kN>& hi,
-                                               const Vector<uint8b, kN> lo) noexcept
+Vector<int16b, kN> Utility::upsample(const Vector<int8b, kN>& hi,
+                                     const Vector<uint8b, kN> lo) noexcept
 {
   using VectorT = Vector<int8b, kN>;
+  using DstVecT = Vector<int16b, kN>;
   const auto func = [](const int8b h, const uint8b l) noexcept -> int16b
   {
     return Utility::upsample(h, l);
   };
-  const VectorT result = VectorT::template apply<int16b, uint8b>(func, hi, lo);
+  const DstVecT result = VectorT::template apply<int16b, uint8b>(func, hi, lo);
   return result;
 }
 
@@ -890,15 +890,16 @@ constexpr Vector<int16b, kN> Utility::upsample(const Vector<int8b, kN>& hi,
   \return No description
   */
 template <std::size_t kN> inline
-constexpr Vector<uint16b, kN> Utility::upsample(const Vector<uint8b, kN>& hi,
-                                                const Vector<uint8b, kN> lo) noexcept
+Vector<uint16b, kN> Utility::upsample(const Vector<uint8b, kN>& hi,
+                                      const Vector<uint8b, kN> lo) noexcept
 {
   using VectorT = Vector<uint8b, kN>;
+  using DstVecT = Vector<uint16b, kN>;
   const auto func = [](const uint8b h, const uint8b l) noexcept -> uint16b
   {
     return Utility::upsample(h, l);
   };
-  const VectorT result = VectorT::template apply<uint16b, uint8b>(func, hi, lo);
+  const DstVecT result = VectorT::template apply<uint16b, uint8b>(func, hi, lo);
   return result;
 }
 
@@ -910,7 +911,7 @@ constexpr Vector<uint16b, kN> Utility::upsample(const Vector<uint8b, kN>& hi,
   \return No description
   */
 inline
-constexpr int32b Utility::upsample(const int16b hi, const uint16b lo) noexcept
+int32b Utility::upsample(const int16b hi, const uint16b lo) noexcept
 {
   const int32b h = static_cast<int32b>(hi) << 16;
   const int32b l = static_cast<int32b>(lo);
@@ -926,7 +927,7 @@ constexpr int32b Utility::upsample(const int16b hi, const uint16b lo) noexcept
   \return No description
   */
 inline
-constexpr uint32b Utility::upsample(const uint16b hi, const uint16b lo) noexcept
+uint32b Utility::upsample(const uint16b hi, const uint16b lo) noexcept
 {
   const uint32b h = static_cast<uint32b>(hi) << 16;
   const uint32b l = static_cast<uint32b>(lo);
@@ -943,15 +944,16 @@ constexpr uint32b Utility::upsample(const uint16b hi, const uint16b lo) noexcept
   \return No description
   */
 template <std::size_t kN> inline
-constexpr Vector<int32b, kN> Utility::upsample(const Vector<int16b, kN>& hi,
-                                               const Vector<uint16b, kN> lo) noexcept
+Vector<int32b, kN> Utility::upsample(const Vector<int16b, kN>& hi,
+                                     const Vector<uint16b, kN> lo) noexcept
 {
   using VectorT = Vector<int16b, kN>;
+  using DstVecT = Vector<int32b, kN>;
   const auto func = [](const int16b h, const uint16b l) noexcept -> int32b
   {
     return Utility::upsample(h, l);
   };
-  const VectorT result = VectorT::template apply<int32b, uint16b>(func, hi, lo);
+  const DstVecT result = VectorT::template apply<int32b, uint16b>(func, hi, lo);
   return result;
 }
 
@@ -964,15 +966,16 @@ constexpr Vector<int32b, kN> Utility::upsample(const Vector<int16b, kN>& hi,
   \return No description
   */
 template <std::size_t kN> inline
-constexpr Vector<uint32b, kN> Utility::upsample(const Vector<uint16b, kN>& hi,
-                                                const Vector<uint16b, kN> lo) noexcept
+Vector<uint32b, kN> Utility::upsample(const Vector<uint16b, kN>& hi,
+                                      const Vector<uint16b, kN> lo) noexcept
 {
   using VectorT = Vector<uint16b, kN>;
+  using DstVecT = Vector<uint32b, kN>;
   const auto func = [](const uint16b h, const uint16b l) noexcept -> uint32b
   {
     return Utility::upsample(h, l);
   };
-  const VectorT result = VectorT::template apply<uint32b, uint16b>(func, hi, lo);
+  const DstVecT result = VectorT::template apply<uint32b, uint16b>(func, hi, lo);
   return result;
 }
 
@@ -984,7 +987,7 @@ constexpr Vector<uint32b, kN> Utility::upsample(const Vector<uint16b, kN>& hi,
   \return No description
   */
 inline
-constexpr int64b Utility::upsample(const int32b hi, const uint32b lo) noexcept
+int64b Utility::upsample(const int32b hi, const uint32b lo) noexcept
 {
   const int64b h = static_cast<int64b>(hi) << 32;
   const int64b l = static_cast<int64b>(lo);
@@ -1000,7 +1003,7 @@ constexpr int64b Utility::upsample(const int32b hi, const uint32b lo) noexcept
   \return No description
   */
 inline
-constexpr uint64b Utility::upsample(const uint32b hi, const uint32b lo) noexcept
+uint64b Utility::upsample(const uint32b hi, const uint32b lo) noexcept
 {
   const uint64b h = static_cast<uint64b>(hi) << 32;
   const uint64b l = static_cast<uint64b>(lo);
@@ -1017,15 +1020,16 @@ constexpr uint64b Utility::upsample(const uint32b hi, const uint32b lo) noexcept
   \return No description
   */
 template <std::size_t kN> inline
-constexpr Vector<int64b, kN> Utility::upsample(const Vector<int32b, kN>& hi,
-                                               const Vector<uint32b, kN> lo) noexcept
+Vector<int64b, kN> Utility::upsample(const Vector<int32b, kN>& hi,
+                                     const Vector<uint32b, kN> lo) noexcept
 {
   using VectorT = Vector<int32b, kN>;
+  using DstVecT = Vector<int64b, kN>;
   const auto func = [](const int32b h, const uint32b l) noexcept -> int64b
   {
     return Utility::upsample(h, l);
   };
-  const VectorT result = VectorT::template apply<int64b, uint32b>(func, hi, lo);
+  const DstVecT result = VectorT::template apply<int64b, uint32b>(func, hi, lo);
   return result;
 }
 
@@ -1038,15 +1042,16 @@ constexpr Vector<int64b, kN> Utility::upsample(const Vector<int32b, kN>& hi,
   \return No description
   */
 template <std::size_t kN> inline
-constexpr Vector<uint64b, kN> Utility::upsample(const Vector<uint32b, kN>& hi,
-                                                const Vector<uint32b, kN> lo) noexcept
+Vector<uint64b, kN> Utility::upsample(const Vector<uint32b, kN>& hi,
+                                      const Vector<uint32b, kN> lo) noexcept
 {
   using VectorT = Vector<uint32b, kN>;
+  using DstVecT = Vector<uint64b, kN>;
   const auto func = [](const uint32b h, const uint32b l) noexcept -> uint64b
   {
     return Utility::upsample(h, l);
   };
-  const VectorT result = VectorT::template apply<uint64b, uint32b>(func, hi, lo);
+  const DstVecT result = VectorT::template apply<uint64b, uint32b>(func, hi, lo);
   return result;
 }
 
@@ -1145,7 +1150,7 @@ Vector<Type, kN> clamp(const Vector<Type, kN>& x,
   \return No description
   */
 template <std::integral Type> inline
-constexpr Type clz(const Type& x) noexcept
+Type clz(const Type& x) noexcept
 {
   return Utility::clz(x);
 }
@@ -1159,7 +1164,7 @@ constexpr Type clz(const Type& x) noexcept
   \return No description
   */
 template <std::integral Type, std::size_t kN> inline
-constexpr Vector<Type, kN> clz(const Vector<Type, kN>& x) noexcept
+Vector<Type, kN> clz(const Vector<Type, kN>& x) noexcept
 {
   return Utility::clz(x);
 }
@@ -1172,7 +1177,7 @@ constexpr Vector<Type, kN> clz(const Vector<Type, kN>& x) noexcept
   \return No description
   */
 template <std::floating_point Type> inline
-constexpr Type degrees(const Type& radians) noexcept
+Type degrees(const Type& radians) noexcept
 {
   return Utility::degrees(radians);
 }
@@ -1185,7 +1190,7 @@ constexpr Type degrees(const Type& radians) noexcept
   \return No description
   */
 template <std::floating_point Type, std::size_t kN> inline
-constexpr Vector<Type, kN> degrees(const Vector<Type, kN>& radians) noexcept
+Vector<Type, kN> degrees(const Vector<Type, kN>& radians) noexcept
 {
   return Utility::degrees(radians);
 }
@@ -1199,7 +1204,7 @@ constexpr Vector<Type, kN> degrees(const Vector<Type, kN>& radians) noexcept
   \return No description
   */
 template <Arithmetic Type> inline
-constexpr Type max(const Type& x, const Type& y) noexcept
+Type max(const Type& x, const Type& y) noexcept
 {
   return (Utility::max)(x, y);
 }
@@ -1214,8 +1219,7 @@ constexpr Type max(const Type& x, const Type& y) noexcept
   \return No description
   */
 template <Arithmetic Type, std::size_t kN> inline
-constexpr Vector<Type, kN> max(const Vector<Type, kN>& x,
-                               const Vector<Type, kN>& y) noexcept
+Vector<Type, kN> max(const Vector<Type, kN>& x, const Vector<Type, kN>& y) noexcept
 {
   return (Utility::max)(x, y);
 }
@@ -1229,7 +1233,7 @@ constexpr Vector<Type, kN> max(const Vector<Type, kN>& x,
   \return No description
   */
 template <Arithmetic Type> inline
-constexpr Type min(const Type& x, const Type& y) noexcept
+Type min(const Type& x, const Type& y) noexcept
 {
   return (Utility::min)(x, y);
 }
@@ -1244,8 +1248,7 @@ constexpr Type min(const Type& x, const Type& y) noexcept
   \return No description
   */
 template <Arithmetic Type, std::size_t kN> inline
-constexpr Vector<Type, kN> min(const Vector<Type, kN>& x,
-                               const Vector<Type, kN>& y) noexcept
+Vector<Type, kN> min(const Vector<Type, kN>& x, const Vector<Type, kN>& y) noexcept
 {
   return (Utility::min)(x, y);
 }
@@ -1258,7 +1261,7 @@ constexpr Vector<Type, kN> min(const Vector<Type, kN>& x,
   \return No description
   */
 template <std::integral Type> inline
-constexpr Type popcount(const Type& x) noexcept
+Type popcount(const Type& x) noexcept
 {
   return Utility::popcount(x);
 }
@@ -1272,7 +1275,7 @@ constexpr Type popcount(const Type& x) noexcept
   \return No description
   */
 template <std::integral Type, std::size_t kN> inline
-constexpr Vector<Type, kN> popcount(const Vector<Type, kN>& x) noexcept
+Vector<Type, kN> popcount(const Vector<Type, kN>& x) noexcept
 {
   return Utility::popcount(x);
 }
@@ -1285,7 +1288,7 @@ constexpr Vector<Type, kN> popcount(const Vector<Type, kN>& x) noexcept
   \return No description
   */
 template <std::floating_point Type> inline
-constexpr Type radians(const Type& degrees) noexcept
+Type radians(const Type& degrees) noexcept
 {
   return Utility::radians(degrees);
 }
@@ -1299,7 +1302,7 @@ constexpr Type radians(const Type& degrees) noexcept
   \return No description
   */
 template <std::floating_point Type, std::size_t kN> inline
-constexpr Vector<Type, kN> radians(const Vector<Type, kN>& degrees) noexcept
+Vector<Type, kN> radians(const Vector<Type, kN>& degrees) noexcept
 {
   return Utility::radians(degrees);
 }
@@ -1313,7 +1316,7 @@ constexpr Vector<Type, kN> radians(const Vector<Type, kN>& degrees) noexcept
   \return No description
   */
 template <std::integral Type> inline
-constexpr Type rotate(const Type& x, const Type& s) noexcept
+Type rotate(const Type& x, const Type& s) noexcept
 {
   return Utility::rotate(x, s);
 }
@@ -1328,8 +1331,8 @@ constexpr Type rotate(const Type& x, const Type& s) noexcept
   \return No description
   */
 template <std::integral Type, std::size_t kN> inline
-constexpr Vector<Type, kN> rotate(const Vector<Type, kN>& x,
-                                  const Vector<Type, kN>& s) noexcept
+Vector<Type, kN> rotate(const Vector<Type, kN>& x,
+                        const Vector<Type, kN>& s) noexcept
 {
   return Utility::rotate(x, s);
 }
@@ -1371,7 +1374,7 @@ Vector<Type, kN> sign(const Vector<Type, kN>& x) noexcept
   \return No description
   */
 template <std::floating_point Type> inline
-constexpr Type smoothstep(const Type& edge0, const Type& edge1, const Type& x) noexcept
+Type smoothstep(const Type& edge0, const Type& edge1, const Type& x) noexcept
 {
   return Utility::smoothstep(edge0, edge1, x);
 }
@@ -1387,9 +1390,9 @@ constexpr Type smoothstep(const Type& edge0, const Type& edge1, const Type& x) n
   \return No description
   */
 template <std::floating_point Type, std::size_t kN> inline
-constexpr Vector<Type, kN> smoothstep(const Vector<Type, kN>& edge0,
-                                      const Vector<Type, kN>& edge1,
-                                      const Vector<Type, kN>& x) noexcept
+Vector<Type, kN> smoothstep(const Vector<Type, kN>& edge0,
+                            const Vector<Type, kN>& edge1,
+                            const Vector<Type, kN>& x) noexcept
 {
   return Utility::smoothstep(edge0, edge1, x);
 }
@@ -1403,7 +1406,7 @@ constexpr Vector<Type, kN> smoothstep(const Vector<Type, kN>& edge0,
   \return No description
   */
 template <std::floating_point Type> inline
-constexpr Type step(const Type& edge, const Type& x) noexcept
+Type step(const Type& edge, const Type& x) noexcept
 {
   return Utility::step(edge, x);
 }
@@ -1418,8 +1421,8 @@ constexpr Type step(const Type& edge, const Type& x) noexcept
   \return No description
   */
 template <std::floating_point Type, std::size_t kN> inline
-constexpr Vector<Type, kN> step(const Vector<Type, kN>& edge,
-                                const Vector<Type, kN>& x) noexcept
+Vector<Type, kN> step(const Vector<Type, kN>& edge,
+                      const Vector<Type, kN>& x) noexcept
 {
   return Utility::step(edge, x);
 }
@@ -1432,7 +1435,7 @@ constexpr Vector<Type, kN> step(const Vector<Type, kN>& edge,
   \return No description
   */
 inline
-constexpr int16b upsample(const int8b hi, const uint8b lo) noexcept
+int16b upsample(const int8b hi, const uint8b lo) noexcept
 {
   return Utility::upsample(hi, lo);
 }
@@ -1445,7 +1448,7 @@ constexpr int16b upsample(const int8b hi, const uint8b lo) noexcept
   \return No description
   */
 inline
-constexpr uint16b upsample(const uint8b hi, const uint8b lo) noexcept
+uint16b upsample(const uint8b hi, const uint8b lo) noexcept
 {
   return Utility::upsample(hi, lo);
 }
@@ -1459,8 +1462,8 @@ constexpr uint16b upsample(const uint8b hi, const uint8b lo) noexcept
   \return No description
   */
 template <std::size_t kN> inline
-constexpr Vector<int16b, kN> upsample(const Vector<int8b, kN>& hi,
-                                      const Vector<uint8b, kN> lo) noexcept
+Vector<int16b, kN> upsample(const Vector<int8b, kN>& hi,
+                            const Vector<uint8b, kN> lo) noexcept
 {
   return Utility::upsample(hi, lo);
 }
@@ -1474,8 +1477,8 @@ constexpr Vector<int16b, kN> upsample(const Vector<int8b, kN>& hi,
   \return No description
   */
 template <std::size_t kN> inline
-constexpr Vector<uint16b, kN> upsample(const Vector<uint8b, kN>& hi,
-                                       const Vector<uint8b, kN> lo) noexcept
+Vector<uint16b, kN> upsample(const Vector<uint8b, kN>& hi,
+                             const Vector<uint8b, kN> lo) noexcept
 {
   return Utility::upsample(hi, lo);
 }
@@ -1488,7 +1491,7 @@ constexpr Vector<uint16b, kN> upsample(const Vector<uint8b, kN>& hi,
   \return No description
   */
 inline
-constexpr int32b upsample(const int16b hi, const uint16b lo) noexcept
+int32b upsample(const int16b hi, const uint16b lo) noexcept
 {
   return Utility::upsample(hi, lo);
 }
@@ -1501,7 +1504,7 @@ constexpr int32b upsample(const int16b hi, const uint16b lo) noexcept
   \return No description
   */
 inline
-constexpr uint32b upsample(const uint16b hi, const uint16b lo) noexcept
+uint32b upsample(const uint16b hi, const uint16b lo) noexcept
 {
   return Utility::upsample(hi, lo);
 }
@@ -1515,8 +1518,8 @@ constexpr uint32b upsample(const uint16b hi, const uint16b lo) noexcept
   \return No description
   */
 template <std::size_t kN> inline
-constexpr Vector<int32b, kN> upsample(const Vector<int16b, kN>& hi,
-                                      const Vector<uint16b, kN> lo) noexcept
+Vector<int32b, kN> upsample(const Vector<int16b, kN>& hi,
+                            const Vector<uint16b, kN> lo) noexcept
 {
   return Utility::upsample(hi, lo);
 }
@@ -1530,8 +1533,8 @@ constexpr Vector<int32b, kN> upsample(const Vector<int16b, kN>& hi,
   \return No description
   */
 template <std::size_t kN> inline
-constexpr Vector<uint32b, kN> upsample(const Vector<uint16b, kN>& hi,
-                                       const Vector<uint16b, kN> lo) noexcept
+Vector<uint32b, kN> upsample(const Vector<uint16b, kN>& hi,
+                             const Vector<uint16b, kN> lo) noexcept
 {
   return Utility::upsample(hi, lo);
 }
@@ -1544,7 +1547,7 @@ constexpr Vector<uint32b, kN> upsample(const Vector<uint16b, kN>& hi,
   \return No description
   */
 inline
-constexpr int64b upsample(const int32b hi, const uint32b lo) noexcept
+int64b upsample(const int32b hi, const uint32b lo) noexcept
 {
   return Utility::upsample(hi, lo);
 }
@@ -1557,7 +1560,7 @@ constexpr int64b upsample(const int32b hi, const uint32b lo) noexcept
   \return No description
   */
 inline
-constexpr uint64b upsample(const uint32b hi, const uint32b lo) noexcept
+uint64b upsample(const uint32b hi, const uint32b lo) noexcept
 {
   return Utility::upsample(hi, lo);
 }
@@ -1571,8 +1574,8 @@ constexpr uint64b upsample(const uint32b hi, const uint32b lo) noexcept
   \return No description
   */
 template <std::size_t kN> inline
-constexpr Vector<int64b, kN> upsample(const Vector<int32b, kN>& hi,
-                                      const Vector<uint32b, kN> lo) noexcept
+Vector<int64b, kN> upsample(const Vector<int32b, kN>& hi,
+                            const Vector<uint32b, kN> lo) noexcept
 {
   return Utility::upsample(hi, lo);
 }
@@ -1586,8 +1589,8 @@ constexpr Vector<int64b, kN> upsample(const Vector<int32b, kN>& hi,
   \return No description
   */
 template <std::size_t kN> inline
-constexpr Vector<uint64b, kN> upsample(const Vector<uint32b, kN>& hi,
-                                       const Vector<uint32b, kN> lo) noexcept
+Vector<uint64b, kN> upsample(const Vector<uint32b, kN>& hi,
+                             const Vector<uint32b, kN> lo) noexcept
 {
   return Utility::upsample(hi, lo);
 }

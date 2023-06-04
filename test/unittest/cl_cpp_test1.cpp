@@ -529,3 +529,1648 @@ TEST(ClCppTest, LimitDoubleTest)
   // output
   ::testTypeLimit<ClTypeT>(*buffer_bool, *buffer_int, *buffer_type);
 }
+
+TEST(ClCppTest, UtilityClampIntTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_int;
+  using zivc::cl_int2;
+  using zivc::cl_int3;
+  using zivc::cl_int4;
+  using zivc::cl_int8;
+  using zivc::cl_int16;
+  using zivc::cl_uint;
+  using zivc::cl_uint2;
+  using zivc::cl_uint3;
+  using zivc::cl_uint4;
+  using zivc::cl_uint8;
+  using zivc::cl_uint16;
+  using zivc::cl_float;
+  using zivc::cl_float2;
+  using zivc::cl_float3;
+  using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
+
+  const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_int>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out1->setSize(3);
+  const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_int2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out2->setSize(2);
+  const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_int3>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out3->setSize(1);
+  const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_int4>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out4->setSize(1);
+  const zivc::SharedBuffer buffer_out8 = device->createBuffer<cl_int8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out8->setSize(1);
+  const zivc::SharedBuffer buffer_out16 = device->createBuffer<cl_int16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out16->setSize(1);
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test1, utilityClampIntTest, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(6, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("UtilityClampIntTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(6, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_out1, *buffer_out2, *buffer_out3,
+                                          *buffer_out4, *buffer_out8, *buffer_out16,
+                                          launch_options);
+  device->waitForCompletion(result.fence());
+
+  // output
+  {
+    const zivc::MappedMemory mem = buffer_out1->mapMemory();
+    EXPECT_EQ(1, mem[0]) << "The clamp for int failed.";
+    EXPECT_EQ(0, mem[1]) << "The clamp for int failed.";
+    EXPECT_EQ(10, mem[2]) << "The clamp for int failed.";
+  }
+  // output2
+  {
+    const zivc::MappedMemory mem = buffer_out2->mapMemory();
+    EXPECT_EQ(1, mem[0].x) << "The clamp for int2 failed.";
+    EXPECT_EQ(0, mem[0].y) << "The clamp for int2 failed.";
+    EXPECT_EQ(10, mem[1].x) << "The clamp for int2 failed.";
+    EXPECT_EQ(0, mem[1].y) << "The clamp for int2 failed.";
+  }
+  // output3
+  {
+    const zivc::MappedMemory mem = buffer_out3->mapMemory();
+    EXPECT_EQ(1, mem[0].x) << "The clamp for int3 failed.";
+    EXPECT_EQ(0, mem[0].y) << "The clamp for int3 failed.";
+    EXPECT_EQ(10, mem[0].z) << "The clamp for int3 failed.";
+  }
+  // output4
+  {
+    const zivc::MappedMemory mem = buffer_out4->mapMemory();
+    EXPECT_EQ(1, mem[0].x) << "The clamp for int4 failed.";
+    EXPECT_EQ(0, mem[0].y) << "The clamp for int4 failed.";
+    EXPECT_EQ(10, mem[0].z) << "The clamp for int4 failed.";
+    EXPECT_EQ(0, mem[0].w) << "The clamp for int4 failed.";
+  }
+  // output8
+  {
+    const zivc::MappedMemory mem = buffer_out8->mapMemory();
+    EXPECT_EQ(1, mem[0].s0) << "The clamp for int8 failed.";
+    EXPECT_EQ(0, mem[0].s1) << "The clamp for int8 failed.";
+    EXPECT_EQ(10, mem[0].s2) << "The clamp for int8 failed.";
+    EXPECT_EQ(0, mem[0].s3) << "The clamp for int8 failed.";
+    EXPECT_EQ(1, mem[0].s4) << "The clamp for int8 failed.";
+    EXPECT_EQ(0, mem[0].s5) << "The clamp for int8 failed.";
+    EXPECT_EQ(10, mem[0].s6) << "The clamp for int8 failed.";
+    EXPECT_EQ(0, mem[0].s7) << "The clamp for int8 failed.";
+  }
+  // output16
+  {
+    const zivc::MappedMemory mem = buffer_out16->mapMemory();
+    EXPECT_EQ(1, mem[0].s0) << "The clamp for int16 failed.";
+    EXPECT_EQ(0, mem[0].s1) << "The clamp for int16 failed.";
+    EXPECT_EQ(10, mem[0].s2) << "The clamp for int16 failed.";
+    EXPECT_EQ(0, mem[0].s3) << "The clamp for int16 failed.";
+    EXPECT_EQ(1, mem[0].s4) << "The clamp for int16 failed.";
+    EXPECT_EQ(0, mem[0].s5) << "The clamp for int16 failed.";
+    EXPECT_EQ(10, mem[0].s6) << "The clamp for int16 failed.";
+    EXPECT_EQ(0, mem[0].s7) << "The clamp for int16 failed.";
+    EXPECT_EQ(1, mem[0].s8) << "The clamp for int16 failed.";
+    EXPECT_EQ(0, mem[0].s9) << "The clamp for int16 failed.";
+    EXPECT_EQ(10, mem[0].sa) << "The clamp for int16 failed.";
+    EXPECT_EQ(0, mem[0].sb) << "The clamp for int16 failed.";
+    EXPECT_EQ(1, mem[0].sc) << "The clamp for int16 failed.";
+    EXPECT_EQ(0, mem[0].sd) << "The clamp for int16 failed.";
+    EXPECT_EQ(10, mem[0].se) << "The clamp for int16 failed.";
+    EXPECT_EQ(0, mem[0].sf) << "The clamp for int16 failed.";
+  }
+}
+
+TEST(ClCppTest, UtilityMaxMinIntTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_int;
+  using zivc::cl_int2;
+  using zivc::cl_int3;
+  using zivc::cl_int4;
+  using zivc::cl_int8;
+  using zivc::cl_int16;
+  using zivc::cl_uint;
+  using zivc::cl_uint2;
+  using zivc::cl_uint3;
+  using zivc::cl_uint4;
+  using zivc::cl_uint8;
+  using zivc::cl_uint16;
+  using zivc::cl_float;
+  using zivc::cl_float2;
+  using zivc::cl_float3;
+  using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
+
+  const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_int>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out1->setSize(3);
+  const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_int2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out2->setSize(2);
+  const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_int3>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out3->setSize(1);
+  const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_int4>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out4->setSize(1);
+  const zivc::SharedBuffer buffer_out8 = device->createBuffer<cl_int8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out8->setSize(1);
+  const zivc::SharedBuffer buffer_out16 = device->createBuffer<cl_int16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out16->setSize(1);
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test1, utilityMaxMinIntTest, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(6, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("UtilityMaxMinIntTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(6, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_out1, *buffer_out2, *buffer_out3,
+                                          *buffer_out4, *buffer_out8, *buffer_out16,
+                                          launch_options);
+  device->waitForCompletion(result.fence());
+
+  // output
+  {
+    const zivc::MappedMemory mem = buffer_out1->mapMemory();
+    EXPECT_EQ(1, mem[0]) << "The maxmin for int failed.";
+    EXPECT_EQ(0, mem[1]) << "The maxmin for int failed.";
+    EXPECT_EQ(10, mem[2]) << "The maxmin for int failed.";
+  }
+  // output2
+  {
+    const zivc::MappedMemory mem = buffer_out2->mapMemory();
+    EXPECT_EQ(1, mem[0].x) << "The maxmin for int2 failed.";
+    EXPECT_EQ(0, mem[0].y) << "The maxmin for int2 failed.";
+    EXPECT_EQ(10, mem[1].x) << "The maxmin for int2 failed.";
+    EXPECT_EQ(0, mem[1].y) << "The maxmin for int2 failed.";
+  }
+  // output3
+  {
+    const zivc::MappedMemory mem = buffer_out3->mapMemory();
+    EXPECT_EQ(1, mem[0].x) << "The maxmin for int3 failed.";
+    EXPECT_EQ(0, mem[0].y) << "The maxmin for int3 failed.";
+    EXPECT_EQ(10, mem[0].z) << "The maxmin for int3 failed.";
+  }
+  // output4
+  {
+    const zivc::MappedMemory mem = buffer_out4->mapMemory();
+    EXPECT_EQ(1, mem[0].x) << "The maxmin for int4 failed.";
+    EXPECT_EQ(0, mem[0].y) << "The maxmin for int4 failed.";
+    EXPECT_EQ(10, mem[0].z) << "The maxmin for int4 failed.";
+    EXPECT_EQ(0, mem[0].w) << "The maxmin for int4 failed.";
+  }
+  // output8
+  {
+    const zivc::MappedMemory mem = buffer_out8->mapMemory();
+    EXPECT_EQ(1, mem[0].s0) << "The maxmin for int8 failed.";
+    EXPECT_EQ(0, mem[0].s1) << "The maxmin for int8 failed.";
+    EXPECT_EQ(10, mem[0].s2) << "The maxmin for int8 failed.";
+    EXPECT_EQ(0, mem[0].s3) << "The maxmin for int8 failed.";
+    EXPECT_EQ(1, mem[0].s4) << "The maxmin for int8 failed.";
+    EXPECT_EQ(0, mem[0].s5) << "The maxmin for int8 failed.";
+    EXPECT_EQ(10, mem[0].s6) << "The maxmin for int8 failed.";
+    EXPECT_EQ(0, mem[0].s7) << "The maxmin for int8 failed.";
+  }
+  // output16
+  {
+    const zivc::MappedMemory mem = buffer_out16->mapMemory();
+    EXPECT_EQ(1, mem[0].s0) << "The maxmin for int16 failed.";
+    EXPECT_EQ(0, mem[0].s1) << "The maxmin for int16 failed.";
+    EXPECT_EQ(10, mem[0].s2) << "The maxmin for int16 failed.";
+    EXPECT_EQ(0, mem[0].s3) << "The maxmin for int16 failed.";
+    EXPECT_EQ(1, mem[0].s4) << "The maxmin for int16 failed.";
+    EXPECT_EQ(0, mem[0].s5) << "The maxmin for int16 failed.";
+    EXPECT_EQ(10, mem[0].s6) << "The maxmin for int16 failed.";
+    EXPECT_EQ(0, mem[0].s7) << "The maxmin for int16 failed.";
+    EXPECT_EQ(1, mem[0].s8) << "The maxmin for int16 failed.";
+    EXPECT_EQ(0, mem[0].s9) << "The maxmin for int16 failed.";
+    EXPECT_EQ(10, mem[0].sa) << "The maxmin for int16 failed.";
+    EXPECT_EQ(0, mem[0].sb) << "The maxmin for int16 failed.";
+    EXPECT_EQ(1, mem[0].sc) << "The maxmin for int16 failed.";
+    EXPECT_EQ(0, mem[0].sd) << "The maxmin for int16 failed.";
+    EXPECT_EQ(10, mem[0].se) << "The maxmin for int16 failed.";
+    EXPECT_EQ(0, mem[0].sf) << "The maxmin for int16 failed.";
+  }
+}
+
+TEST(ClCppTest, UtilityUpsampleIntTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_int;
+  using zivc::cl_int2;
+  using zivc::cl_int3;
+  using zivc::cl_int4;
+  using zivc::cl_int8;
+  using zivc::cl_int16;
+  using zivc::cl_uint;
+  using zivc::cl_uint2;
+  using zivc::cl_uint3;
+  using zivc::cl_uint4;
+  using zivc::cl_uint8;
+  using zivc::cl_uint16;
+  using zivc::cl_float;
+  using zivc::cl_float2;
+  using zivc::cl_float3;
+  using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
+
+  const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_int>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out1->setSize(1);
+  const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_int2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out2->setSize(1);
+  const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_int3>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out3->setSize(1);
+  const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_int4>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out4->setSize(1);
+  const zivc::SharedBuffer buffer_out8 = device->createBuffer<cl_int8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out8->setSize(1);
+  const zivc::SharedBuffer buffer_out16 = device->createBuffer<cl_int16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out16->setSize(1);
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test1, utilityUpsampleIntTest, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(6, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("UtilityUpsampleIntTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(6, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_out1, *buffer_out2, *buffer_out3,
+                                          *buffer_out4, *buffer_out8, *buffer_out16,
+                                          launch_options);
+  device->waitForCompletion(result.fence());
+
+  constexpr cl_int hi = 0b0101'1010'0101'1010;
+  constexpr cl_int lo = 0b0000'1111'0000'1111;
+  constexpr cl_int expected = (hi << 16) | lo;
+  // output
+  {
+    const zivc::MappedMemory mem = buffer_out1->mapMemory();
+    EXPECT_EQ(expected, mem[0]) << "The upsample for int failed.";
+  }
+  // output2
+  {
+    const zivc::MappedMemory mem = buffer_out2->mapMemory();
+    EXPECT_EQ(expected, mem[0].x) << "The upsample for int2 failed.";
+    EXPECT_EQ(expected, mem[0].y) << "The upsample for int2 failed.";
+  }
+  // output3
+  {
+    const zivc::MappedMemory mem = buffer_out3->mapMemory();
+    EXPECT_EQ(expected, mem[0].x) << "The upsample for int3 failed.";
+    EXPECT_EQ(expected, mem[0].y) << "The upsample for int3 failed.";
+    EXPECT_EQ(expected, mem[0].z) << "The upsample for int3 failed.";
+  }
+  // output4
+  {
+    const zivc::MappedMemory mem = buffer_out4->mapMemory();
+    EXPECT_EQ(expected, mem[0].x) << "The upsample for int4 failed.";
+    EXPECT_EQ(expected, mem[0].y) << "The upsample for int4 failed.";
+    EXPECT_EQ(expected, mem[0].z) << "The upsample for int4 failed.";
+    EXPECT_EQ(expected, mem[0].w) << "The upsample for int4 failed.";
+  }
+  // output8
+  {
+    const zivc::MappedMemory mem = buffer_out8->mapMemory();
+    EXPECT_EQ(expected, mem[0].s0) << "The upsample for int8 failed.";
+    EXPECT_EQ(expected, mem[0].s1) << "The upsample for int8 failed.";
+    EXPECT_EQ(expected, mem[0].s2) << "The upsample for int8 failed.";
+    EXPECT_EQ(expected, mem[0].s3) << "The upsample for int8 failed.";
+    EXPECT_EQ(expected, mem[0].s4) << "The upsample for int8 failed.";
+    EXPECT_EQ(expected, mem[0].s5) << "The upsample for int8 failed.";
+    EXPECT_EQ(expected, mem[0].s6) << "The upsample for int8 failed.";
+    EXPECT_EQ(expected, mem[0].s7) << "The upsample for int8 failed.";
+  }
+  // output16
+  {
+    const zivc::MappedMemory mem = buffer_out16->mapMemory();
+    EXPECT_EQ(expected, mem[0].s0) << "The upsample for int16 failed.";
+    EXPECT_EQ(expected, mem[0].s1) << "The upsample for int16 failed.";
+    EXPECT_EQ(expected, mem[0].s2) << "The upsample for int16 failed.";
+    EXPECT_EQ(expected, mem[0].s3) << "The upsample for int16 failed.";
+    EXPECT_EQ(expected, mem[0].s4) << "The upsample for int16 failed.";
+    EXPECT_EQ(expected, mem[0].s5) << "The upsample for int16 failed.";
+    EXPECT_EQ(expected, mem[0].s6) << "The upsample for int16 failed.";
+    EXPECT_EQ(expected, mem[0].s7) << "The upsample for int16 failed.";
+    EXPECT_EQ(expected, mem[0].s8) << "The upsample for int16 failed.";
+    EXPECT_EQ(expected, mem[0].s9) << "The upsample for int16 failed.";
+    EXPECT_EQ(expected, mem[0].sa) << "The upsample for int16 failed.";
+    EXPECT_EQ(expected, mem[0].sb) << "The upsample for int16 failed.";
+    EXPECT_EQ(expected, mem[0].sc) << "The upsample for int16 failed.";
+    EXPECT_EQ(expected, mem[0].sd) << "The upsample for int16 failed.";
+    EXPECT_EQ(expected, mem[0].se) << "The upsample for int16 failed.";
+    EXPECT_EQ(expected, mem[0].sf) << "The upsample for int16 failed.";
+  }
+}
+
+TEST(ClCppTest, UtilityClampUintTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_int;
+  using zivc::cl_int2;
+  using zivc::cl_int3;
+  using zivc::cl_int4;
+  using zivc::cl_int8;
+  using zivc::cl_int16;
+  using zivc::cl_uint;
+  using zivc::cl_uint2;
+  using zivc::cl_uint3;
+  using zivc::cl_uint4;
+  using zivc::cl_uint8;
+  using zivc::cl_uint16;
+  using zivc::cl_float;
+  using zivc::cl_float2;
+  using zivc::cl_float3;
+  using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
+
+  const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_uint>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out1->setSize(2);
+  const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_uint2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out2->setSize(1);
+  const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_uint3>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out3->setSize(1);
+  const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_uint4>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out4->setSize(1);
+  const zivc::SharedBuffer buffer_out8 = device->createBuffer<cl_uint8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out8->setSize(1);
+  const zivc::SharedBuffer buffer_out16 = device->createBuffer<cl_uint16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out16->setSize(1);
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test1, utilityClampUintTest, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(6, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("UtilityClampUintTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(6, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_out1, *buffer_out2, *buffer_out3,
+                                          *buffer_out4, *buffer_out8, *buffer_out16,
+                                          launch_options);
+  device->waitForCompletion(result.fence());
+
+  // output
+  {
+    const zivc::MappedMemory mem = buffer_out1->mapMemory();
+    EXPECT_EQ(1, mem[0]) << "The clamp for int failed.";
+    EXPECT_EQ(10, mem[1]) << "The clamp for int failed.";
+  }
+  // output2
+  {
+    const zivc::MappedMemory mem = buffer_out2->mapMemory();
+    EXPECT_EQ(1, mem[0].x) << "The clamp for int2 failed.";
+    EXPECT_EQ(10, mem[0].y) << "The clamp for int2 failed.";
+  }
+  // output3
+  {
+    const zivc::MappedMemory mem = buffer_out3->mapMemory();
+    EXPECT_EQ(1, mem[0].x) << "The clamp for int3 failed.";
+    EXPECT_EQ(10, mem[0].y) << "The clamp for int3 failed.";
+    EXPECT_EQ(1, mem[0].z) << "The clamp for int3 failed.";
+  }
+  // output4
+  {
+    const zivc::MappedMemory mem = buffer_out4->mapMemory();
+    EXPECT_EQ(1, mem[0].x) << "The clamp for int4 failed.";
+    EXPECT_EQ(10, mem[0].y) << "The clamp for int4 failed.";
+    EXPECT_EQ(1, mem[0].z) << "The clamp for int4 failed.";
+    EXPECT_EQ(10, mem[0].w) << "The clamp for int4 failed.";
+  }
+  // output8
+  {
+    const zivc::MappedMemory mem = buffer_out8->mapMemory();
+    EXPECT_EQ(1, mem[0].s0) << "The clamp for int8 failed.";
+    EXPECT_EQ(10, mem[0].s1) << "The clamp for int8 failed.";
+    EXPECT_EQ(1, mem[0].s2) << "The clamp for int8 failed.";
+    EXPECT_EQ(10, mem[0].s3) << "The clamp for int8 failed.";
+    EXPECT_EQ(1, mem[0].s4) << "The clamp for int8 failed.";
+    EXPECT_EQ(10, mem[0].s5) << "The clamp for int8 failed.";
+    EXPECT_EQ(1, mem[0].s6) << "The clamp for int8 failed.";
+    EXPECT_EQ(10, mem[0].s7) << "The clamp for int8 failed.";
+  }
+  // output16
+  {
+    const zivc::MappedMemory mem = buffer_out16->mapMemory();
+    EXPECT_EQ(1, mem[0].s0) << "The clamp for int16 failed.";
+    EXPECT_EQ(10, mem[0].s1) << "The clamp for int16 failed.";
+    EXPECT_EQ(1, mem[0].s2) << "The clamp for int16 failed.";
+    EXPECT_EQ(10, mem[0].s3) << "The clamp for int16 failed.";
+    EXPECT_EQ(1, mem[0].s4) << "The clamp for int16 failed.";
+    EXPECT_EQ(10, mem[0].s5) << "The clamp for int16 failed.";
+    EXPECT_EQ(1, mem[0].s6) << "The clamp for int16 failed.";
+    EXPECT_EQ(10, mem[0].s7) << "The clamp for int16 failed.";
+    EXPECT_EQ(1, mem[0].s8) << "The clamp for int16 failed.";
+    EXPECT_EQ(10, mem[0].s9) << "The clamp for int16 failed.";
+    EXPECT_EQ(1, mem[0].sa) << "The clamp for int16 failed.";
+    EXPECT_EQ(10, mem[0].sb) << "The clamp for int16 failed.";
+    EXPECT_EQ(1, mem[0].sc) << "The clamp for int16 failed.";
+    EXPECT_EQ(10, mem[0].sd) << "The clamp for int16 failed.";
+    EXPECT_EQ(1, mem[0].se) << "The clamp for int16 failed.";
+    EXPECT_EQ(10, mem[0].sf) << "The clamp for int16 failed.";
+  }
+}
+
+TEST(ClCppTest, UtilityMaxMinUintTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_int;
+  using zivc::cl_int2;
+  using zivc::cl_int3;
+  using zivc::cl_int4;
+  using zivc::cl_int8;
+  using zivc::cl_int16;
+  using zivc::cl_uint;
+  using zivc::cl_uint2;
+  using zivc::cl_uint3;
+  using zivc::cl_uint4;
+  using zivc::cl_uint8;
+  using zivc::cl_uint16;
+  using zivc::cl_float;
+  using zivc::cl_float2;
+  using zivc::cl_float3;
+  using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
+
+  const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_uint>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out1->setSize(2);
+  const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_uint2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out2->setSize(1);
+  const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_uint3>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out3->setSize(1);
+  const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_uint4>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out4->setSize(1);
+  const zivc::SharedBuffer buffer_out8 = device->createBuffer<cl_uint8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out8->setSize(1);
+  const zivc::SharedBuffer buffer_out16 = device->createBuffer<cl_uint16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out16->setSize(1);
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test1, utilityMaxMinUintTest, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(6, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("UtilityMaxMinUintTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(6, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_out1, *buffer_out2, *buffer_out3,
+                                          *buffer_out4, *buffer_out8, *buffer_out16,
+                                          launch_options);
+  device->waitForCompletion(result.fence());
+
+  // output
+  {
+    const zivc::MappedMemory mem = buffer_out1->mapMemory();
+    EXPECT_EQ(1, mem[0]) << "The maxmin for int failed.";
+    EXPECT_EQ(10, mem[1]) << "The maxmin for int failed.";
+  }
+  // output2
+  {
+    const zivc::MappedMemory mem = buffer_out2->mapMemory();
+    EXPECT_EQ(1, mem[0].x) << "The maxmin for int2 failed.";
+    EXPECT_EQ(10, mem[0].y) << "The maxmin for int2 failed.";
+  }
+  // output3
+  {
+    const zivc::MappedMemory mem = buffer_out3->mapMemory();
+    EXPECT_EQ(1, mem[0].x) << "The maxmin for int3 failed.";
+    EXPECT_EQ(10, mem[0].y) << "The maxmin for int3 failed.";
+    EXPECT_EQ(1, mem[0].z) << "The maxmin for int3 failed.";
+  }
+  // output4
+  {
+    const zivc::MappedMemory mem = buffer_out4->mapMemory();
+    EXPECT_EQ(1, mem[0].x) << "The maxmin for int4 failed.";
+    EXPECT_EQ(10, mem[0].y) << "The maxmin for int4 failed.";
+    EXPECT_EQ(1, mem[0].z) << "The maxmin for int4 failed.";
+    EXPECT_EQ(10, mem[0].w) << "The maxmin for int4 failed.";
+  }
+  // output8
+  {
+    const zivc::MappedMemory mem = buffer_out8->mapMemory();
+    EXPECT_EQ(1, mem[0].s0) << "The maxmin for int8 failed.";
+    EXPECT_EQ(10, mem[0].s1) << "The maxmin for int8 failed.";
+    EXPECT_EQ(1, mem[0].s2) << "The maxmin for int8 failed.";
+    EXPECT_EQ(10, mem[0].s3) << "The maxmin for int8 failed.";
+    EXPECT_EQ(1, mem[0].s4) << "The maxmin for int8 failed.";
+    EXPECT_EQ(10, mem[0].s5) << "The maxmin for int8 failed.";
+    EXPECT_EQ(1, mem[0].s6) << "The maxmin for int8 failed.";
+    EXPECT_EQ(10, mem[0].s7) << "The maxmin for int8 failed.";
+  }
+  // output16
+  {
+    const zivc::MappedMemory mem = buffer_out16->mapMemory();
+    EXPECT_EQ(1, mem[0].s0) << "The maxmin for int16 failed.";
+    EXPECT_EQ(10, mem[0].s1) << "The maxmin for int16 failed.";
+    EXPECT_EQ(1, mem[0].s2) << "The maxmin for int16 failed.";
+    EXPECT_EQ(10, mem[0].s3) << "The maxmin for int16 failed.";
+    EXPECT_EQ(1, mem[0].s4) << "The maxmin for int16 failed.";
+    EXPECT_EQ(10, mem[0].s5) << "The maxmin for int16 failed.";
+    EXPECT_EQ(1, mem[0].s6) << "The maxmin for int16 failed.";
+    EXPECT_EQ(10, mem[0].s7) << "The maxmin for int16 failed.";
+    EXPECT_EQ(1, mem[0].s8) << "The maxmin for int16 failed.";
+    EXPECT_EQ(10, mem[0].s9) << "The maxmin for int16 failed.";
+    EXPECT_EQ(1, mem[0].sa) << "The maxmin for int16 failed.";
+    EXPECT_EQ(10, mem[0].sb) << "The maxmin for int16 failed.";
+    EXPECT_EQ(1, mem[0].sc) << "The maxmin for int16 failed.";
+    EXPECT_EQ(10, mem[0].sd) << "The maxmin for int16 failed.";
+    EXPECT_EQ(1, mem[0].se) << "The maxmin for int16 failed.";
+    EXPECT_EQ(10, mem[0].sf) << "The maxmin for int16 failed.";
+  }
+}
+
+TEST(ClCppTest, UtilityAbsUintTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_int;
+  using zivc::cl_int2;
+  using zivc::cl_int3;
+  using zivc::cl_int4;
+  using zivc::cl_int8;
+  using zivc::cl_int16;
+  using zivc::cl_uint;
+  using zivc::cl_uint2;
+  using zivc::cl_uint3;
+  using zivc::cl_uint4;
+  using zivc::cl_uint8;
+  using zivc::cl_uint16;
+  using zivc::cl_float;
+  using zivc::cl_float2;
+  using zivc::cl_float3;
+  using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
+
+  const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_uint>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out1->setSize(2);
+  const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_uint2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out2->setSize(1);
+  const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_uint3>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out3->setSize(1);
+  const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_uint4>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out4->setSize(1);
+  const zivc::SharedBuffer buffer_out8 = device->createBuffer<cl_uint8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out8->setSize(1);
+  const zivc::SharedBuffer buffer_out16 = device->createBuffer<cl_uint16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out16->setSize(1);
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test1, utilityAbsUintTest, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(6, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("UtilityAbsUintTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(6, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_out1, *buffer_out2, *buffer_out3,
+                                          *buffer_out4, *buffer_out8, *buffer_out16,
+                                          launch_options);
+  device->waitForCompletion(result.fence());
+
+  // output
+  {
+    const zivc::MappedMemory mem = buffer_out1->mapMemory();
+    EXPECT_EQ(1, mem[0]) << "The abs for int failed.";
+    EXPECT_EQ(1, mem[1]) << "The abs for int failed.";
+  }
+  // output2
+  {
+    const zivc::MappedMemory mem = buffer_out2->mapMemory();
+    EXPECT_EQ(1, mem[0].x) << "The abs for int2 failed.";
+    EXPECT_EQ(1, mem[0].y) << "The abs for int2 failed.";
+  }
+  // output3
+  {
+    const zivc::MappedMemory mem = buffer_out3->mapMemory();
+    EXPECT_EQ(1, mem[0].x) << "The abs for int3 failed.";
+    EXPECT_EQ(1, mem[0].y) << "The abs for int3 failed.";
+    EXPECT_EQ(20, mem[0].z) << "The abs for int3 failed.";
+  }
+  // output4
+  {
+    const zivc::MappedMemory mem = buffer_out4->mapMemory();
+    EXPECT_EQ(1, mem[0].x) << "The abs for int4 failed.";
+    EXPECT_EQ(1, mem[0].y) << "The abs for int4 failed.";
+    EXPECT_EQ(20, mem[0].z) << "The abs for int4 failed.";
+    EXPECT_EQ(20, mem[0].w) << "The abs for int4 failed.";
+  }
+  // output8
+  {
+    const zivc::MappedMemory mem = buffer_out8->mapMemory();
+    EXPECT_EQ(1, mem[0].s0) << "The abs for int8 failed.";
+    EXPECT_EQ(1, mem[0].s1) << "The abs for int8 failed.";
+    EXPECT_EQ(20, mem[0].s2) << "The abs for int8 failed.";
+    EXPECT_EQ(20, mem[0].s3) << "The abs for int8 failed.";
+    EXPECT_EQ(1, mem[0].s4) << "The abs for int8 failed.";
+    EXPECT_EQ(1, mem[0].s5) << "The abs for int8 failed.";
+    EXPECT_EQ(20, mem[0].s6) << "The abs for int8 failed.";
+    EXPECT_EQ(20, mem[0].s7) << "The abs for int8 failed.";
+  }
+  // output16
+  {
+    const zivc::MappedMemory mem = buffer_out16->mapMemory();
+    EXPECT_EQ(1, mem[0].s0) << "The abs for int16 failed.";
+    EXPECT_EQ(1, mem[0].s1) << "The abs for int16 failed.";
+    EXPECT_EQ(20, mem[0].s2) << "The abs for int16 failed.";
+    EXPECT_EQ(20, mem[0].s3) << "The abs for int16 failed.";
+    EXPECT_EQ(1, mem[0].s4) << "The abs for int16 failed.";
+    EXPECT_EQ(1, mem[0].s5) << "The abs for int16 failed.";
+    EXPECT_EQ(20, mem[0].s6) << "The abs for int16 failed.";
+    EXPECT_EQ(20, mem[0].s7) << "The abs for int16 failed.";
+    EXPECT_EQ(1, mem[0].s8) << "The abs for int16 failed.";
+    EXPECT_EQ(1, mem[0].s9) << "The abs for int16 failed.";
+    EXPECT_EQ(20, mem[0].sa) << "The abs for int16 failed.";
+    EXPECT_EQ(20, mem[0].sb) << "The abs for int16 failed.";
+    EXPECT_EQ(1, mem[0].sc) << "The abs for int16 failed.";
+    EXPECT_EQ(1, mem[0].sd) << "The abs for int16 failed.";
+    EXPECT_EQ(20, mem[0].se) << "The abs for int16 failed.";
+    EXPECT_EQ(20, mem[0].sf) << "The abs for int16 failed.";
+  }
+}
+
+TEST(ClCppTest, UtilityClzUintTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_int;
+  using zivc::cl_int2;
+  using zivc::cl_int3;
+  using zivc::cl_int4;
+  using zivc::cl_int8;
+  using zivc::cl_int16;
+  using zivc::cl_uint;
+  using zivc::cl_uint2;
+  using zivc::cl_uint3;
+  using zivc::cl_uint4;
+  using zivc::cl_uint8;
+  using zivc::cl_uint16;
+  using zivc::cl_float;
+  using zivc::cl_float2;
+  using zivc::cl_float3;
+  using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
+
+  const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_uint>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out1->setSize(2);
+  const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_uint2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out2->setSize(1);
+  const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_uint3>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out3->setSize(1);
+  const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_uint4>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out4->setSize(1);
+  const zivc::SharedBuffer buffer_out8 = device->createBuffer<cl_uint8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out8->setSize(1);
+  const zivc::SharedBuffer buffer_out16 = device->createBuffer<cl_uint16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out16->setSize(1);
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test1, utilityClzUIntTest, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(6, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("UtilityClzUintTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(6, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_out1, *buffer_out2, *buffer_out3,
+                                          *buffer_out4, *buffer_out8, *buffer_out16,
+                                          launch_options);
+  device->waitForCompletion(result.fence());
+
+  // output
+  {
+    const zivc::MappedMemory mem = buffer_out1->mapMemory();
+    EXPECT_EQ(4, mem[0]) << "The clz for int failed.";
+    EXPECT_EQ(0, mem[1]) << "The clz for int failed.";
+  }
+  // output2
+  {
+    const zivc::MappedMemory mem = buffer_out2->mapMemory();
+    EXPECT_EQ(4, mem[0].x) << "The clz for int2 failed.";
+    EXPECT_EQ(0, mem[0].y) << "The clz for int2 failed.";
+  }
+  // output3
+  {
+    const zivc::MappedMemory mem = buffer_out3->mapMemory();
+    EXPECT_EQ(4, mem[0].x) << "The clz for int3 failed.";
+    EXPECT_EQ(0, mem[0].y) << "The clz for int3 failed.";
+    EXPECT_EQ(1, mem[0].z) << "The clz for int3 failed.";
+  }
+  // output4
+  {
+    const zivc::MappedMemory mem = buffer_out4->mapMemory();
+    EXPECT_EQ(4, mem[0].x) << "The clz for int4 failed.";
+    EXPECT_EQ(0, mem[0].y) << "The clz for int4 failed.";
+    EXPECT_EQ(1, mem[0].z) << "The clz for int4 failed.";
+    EXPECT_EQ(0, mem[0].w) << "The clz for int4 failed.";
+  }
+  // output8
+  {
+    const zivc::MappedMemory mem = buffer_out8->mapMemory();
+    EXPECT_EQ(4, mem[0].s0) << "The clz for int8 failed.";
+    EXPECT_EQ(0, mem[0].s1) << "The clz for int8 failed.";
+    EXPECT_EQ(1, mem[0].s2) << "The clz for int8 failed.";
+    EXPECT_EQ(0, mem[0].s3) << "The clz for int8 failed.";
+    EXPECT_EQ(4, mem[0].s4) << "The clz for int8 failed.";
+    EXPECT_EQ(0, mem[0].s5) << "The clz for int8 failed.";
+    EXPECT_EQ(1, mem[0].s6) << "The clz for int8 failed.";
+    EXPECT_EQ(0, mem[0].s7) << "The clz for int8 failed.";
+  }
+  // output16
+  {
+    const zivc::MappedMemory mem = buffer_out16->mapMemory();
+    EXPECT_EQ(4, mem[0].s0) << "The clz for int16 failed.";
+    EXPECT_EQ(0, mem[0].s1) << "The clz for int16 failed.";
+    EXPECT_EQ(1, mem[0].s2) << "The clz for int16 failed.";
+    EXPECT_EQ(0, mem[0].s3) << "The clz for int16 failed.";
+    EXPECT_EQ(4, mem[0].s4) << "The clz for int16 failed.";
+    EXPECT_EQ(0, mem[0].s5) << "The clz for int16 failed.";
+    EXPECT_EQ(1, mem[0].s6) << "The clz for int16 failed.";
+    EXPECT_EQ(0, mem[0].s7) << "The clz for int16 failed.";
+    EXPECT_EQ(4, mem[0].s8) << "The clz for int16 failed.";
+    EXPECT_EQ(0, mem[0].s9) << "The clz for int16 failed.";
+    EXPECT_EQ(1, mem[0].sa) << "The clz for int16 failed.";
+    EXPECT_EQ(0, mem[0].sb) << "The clz for int16 failed.";
+    EXPECT_EQ(4, mem[0].sc) << "The clz for int16 failed.";
+    EXPECT_EQ(0, mem[0].sd) << "The clz for int16 failed.";
+    EXPECT_EQ(1, mem[0].se) << "The clz for int16 failed.";
+    EXPECT_EQ(0, mem[0].sf) << "The clz for int16 failed.";
+  }
+}
+
+TEST(ClCppTest, UtilityPopcountUintTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_int;
+  using zivc::cl_int2;
+  using zivc::cl_int3;
+  using zivc::cl_int4;
+  using zivc::cl_int8;
+  using zivc::cl_int16;
+  using zivc::cl_uint;
+  using zivc::cl_uint2;
+  using zivc::cl_uint3;
+  using zivc::cl_uint4;
+  using zivc::cl_uint8;
+  using zivc::cl_uint16;
+  using zivc::cl_float;
+  using zivc::cl_float2;
+  using zivc::cl_float3;
+  using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
+
+  const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_uint>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out1->setSize(2);
+  const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_uint2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out2->setSize(1);
+  const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_uint3>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out3->setSize(1);
+  const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_uint4>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out4->setSize(1);
+  const zivc::SharedBuffer buffer_out8 = device->createBuffer<cl_uint8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out8->setSize(1);
+  const zivc::SharedBuffer buffer_out16 = device->createBuffer<cl_uint16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out16->setSize(1);
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test1, utilityPopcountUIntTest, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(6, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("UtilityPopcountUintTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(6, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_out1, *buffer_out2, *buffer_out3,
+                                          *buffer_out4, *buffer_out8, *buffer_out16,
+                                          launch_options);
+  device->waitForCompletion(result.fence());
+
+  // output
+  {
+    const zivc::MappedMemory mem = buffer_out1->mapMemory();
+    EXPECT_EQ(16, mem[0]) << "The popcount for int failed.";
+    EXPECT_EQ(16, mem[1]) << "The popcount for int failed.";
+  }
+  // output2
+  {
+    const zivc::MappedMemory mem = buffer_out2->mapMemory();
+    EXPECT_EQ(16, mem[0].x) << "The popcount for int2 failed.";
+    EXPECT_EQ(16, mem[0].y) << "The popcount for int2 failed.";
+  }
+  // output3
+  {
+    const zivc::MappedMemory mem = buffer_out3->mapMemory();
+    EXPECT_EQ(16, mem[0].x) << "The popcount for int3 failed.";
+    EXPECT_EQ(16, mem[0].y) << "The popcount for int3 failed.";
+    EXPECT_EQ(16, mem[0].z) << "The popcount for int3 failed.";
+  }
+  // output4
+  {
+    const zivc::MappedMemory mem = buffer_out4->mapMemory();
+    EXPECT_EQ(16, mem[0].x) << "The popcount for int4 failed.";
+    EXPECT_EQ(16, mem[0].y) << "The popcount for int4 failed.";
+    EXPECT_EQ(16, mem[0].z) << "The popcount for int4 failed.";
+    EXPECT_EQ(16, mem[0].w) << "The popcount for int4 failed.";
+  }
+  // output8
+  {
+    const zivc::MappedMemory mem = buffer_out8->mapMemory();
+    EXPECT_EQ(16, mem[0].s0) << "The popcount for int8 failed.";
+    EXPECT_EQ(16, mem[0].s1) << "The popcount for int8 failed.";
+    EXPECT_EQ(16, mem[0].s2) << "The popcount for int8 failed.";
+    EXPECT_EQ(16, mem[0].s3) << "The popcount for int8 failed.";
+    EXPECT_EQ(16, mem[0].s4) << "The popcount for int8 failed.";
+    EXPECT_EQ(16, mem[0].s5) << "The popcount for int8 failed.";
+    EXPECT_EQ(16, mem[0].s6) << "The popcount for int8 failed.";
+    EXPECT_EQ(16, mem[0].s7) << "The popcount for int8 failed.";
+  }
+  // output16
+  {
+    const zivc::MappedMemory mem = buffer_out16->mapMemory();
+    EXPECT_EQ(16, mem[0].s0) << "The popcount for int16 failed.";
+    EXPECT_EQ(16, mem[0].s1) << "The popcount for int16 failed.";
+    EXPECT_EQ(16, mem[0].s2) << "The popcount for int16 failed.";
+    EXPECT_EQ(16, mem[0].s3) << "The popcount for int16 failed.";
+    EXPECT_EQ(16, mem[0].s4) << "The popcount for int16 failed.";
+    EXPECT_EQ(16, mem[0].s5) << "The popcount for int16 failed.";
+    EXPECT_EQ(16, mem[0].s6) << "The popcount for int16 failed.";
+    EXPECT_EQ(16, mem[0].s7) << "The popcount for int16 failed.";
+    EXPECT_EQ(16, mem[0].s8) << "The popcount for int16 failed.";
+    EXPECT_EQ(16, mem[0].s9) << "The popcount for int16 failed.";
+    EXPECT_EQ(16, mem[0].sa) << "The popcount for int16 failed.";
+    EXPECT_EQ(16, mem[0].sb) << "The popcount for int16 failed.";
+    EXPECT_EQ(16, mem[0].sc) << "The popcount for int16 failed.";
+    EXPECT_EQ(16, mem[0].sd) << "The popcount for int16 failed.";
+    EXPECT_EQ(16, mem[0].se) << "The popcount for int16 failed.";
+    EXPECT_EQ(16, mem[0].sf) << "The popcount for int16 failed.";
+  }
+}
+
+TEST(ClCppTest, UtilityRotateUintTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_int;
+  using zivc::cl_int2;
+  using zivc::cl_int3;
+  using zivc::cl_int4;
+  using zivc::cl_int8;
+  using zivc::cl_int16;
+  using zivc::cl_uint;
+  using zivc::cl_uint2;
+  using zivc::cl_uint3;
+  using zivc::cl_uint4;
+  using zivc::cl_uint8;
+  using zivc::cl_uint16;
+  using zivc::cl_float;
+  using zivc::cl_float2;
+  using zivc::cl_float3;
+  using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
+
+  const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_uint>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out1->setSize(2);
+  const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_uint2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out2->setSize(1);
+  const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_uint3>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out3->setSize(1);
+  const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_uint4>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out4->setSize(1);
+  const zivc::SharedBuffer buffer_out8 = device->createBuffer<cl_uint8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out8->setSize(1);
+  const zivc::SharedBuffer buffer_out16 = device->createBuffer<cl_uint16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out16->setSize(1);
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test1, utilityRotateUIntTest, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(6, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("UtilityRotateUintTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(6, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_out1, *buffer_out2, *buffer_out3,
+                                          *buffer_out4, *buffer_out8, *buffer_out16,
+                                          launch_options);
+  device->waitForCompletion(result.fence());
+
+  constexpr cl_uint e1 = 0b11110000'11110000'11110000'11110000u;
+  constexpr cl_uint e2 = 0b000111100'00'111100'00111100'00111100u;
+  constexpr cl_uint e3 = 0b01010101'01010101'01010101'01010101u;
+  constexpr cl_uint e4 = 0b01010101'01010101'01010101'01010101u;
+
+  // output
+  {
+    const zivc::MappedMemory mem = buffer_out1->mapMemory();
+    EXPECT_EQ(e1, mem[0]) << "The rotate for int failed.";
+    EXPECT_EQ(e2, mem[1]) << "The rotate for int failed.";
+  }
+  // output2
+  {
+    const zivc::MappedMemory mem = buffer_out2->mapMemory();
+    EXPECT_EQ(e1, mem[0].x) << "The rotate for int2 failed.";
+    EXPECT_EQ(e2, mem[0].y) << "The rotate for int2 failed.";
+  }
+  // output3
+  {
+    const zivc::MappedMemory mem = buffer_out3->mapMemory();
+    EXPECT_EQ(e1, mem[0].x) << "The rotate for int3 failed.";
+    EXPECT_EQ(e2, mem[0].y) << "The rotate for int3 failed.";
+    EXPECT_EQ(e3, mem[0].z) << "The rotate for int3 failed.";
+  }
+  // output4
+  {
+    const zivc::MappedMemory mem = buffer_out4->mapMemory();
+    EXPECT_EQ(e1, mem[0].x) << "The rotate for int4 failed.";
+    EXPECT_EQ(e2, mem[0].y) << "The rotate for int4 failed.";
+    EXPECT_EQ(e3, mem[0].z) << "The rotate for int4 failed.";
+    EXPECT_EQ(e4, mem[0].w) << "The rotate for int4 failed.";
+  }
+  // output8
+  {
+    const zivc::MappedMemory mem = buffer_out8->mapMemory();
+    EXPECT_EQ(e1, mem[0].s0) << "The rotate for int8 failed.";
+    EXPECT_EQ(e2, mem[0].s1) << "The rotate for int8 failed.";
+    EXPECT_EQ(e3, mem[0].s2) << "The rotate for int8 failed.";
+    EXPECT_EQ(e4, mem[0].s3) << "The rotate for int8 failed.";
+    EXPECT_EQ(e1, mem[0].s4) << "The rotate for int8 failed.";
+    EXPECT_EQ(e2, mem[0].s5) << "The rotate for int8 failed.";
+    EXPECT_EQ(e3, mem[0].s6) << "The rotate for int8 failed.";
+    EXPECT_EQ(e4, mem[0].s7) << "The rotate for int8 failed.";
+  }
+  // output16
+  {
+    const zivc::MappedMemory mem = buffer_out16->mapMemory();
+    EXPECT_EQ(e1, mem[0].s0) << "The rotate for int16 failed.";
+    EXPECT_EQ(e2, mem[0].s1) << "The rotate for int16 failed.";
+    EXPECT_EQ(e3, mem[0].s2) << "The rotate for int16 failed.";
+    EXPECT_EQ(e4, mem[0].s3) << "The rotate for int16 failed.";
+    EXPECT_EQ(e1, mem[0].s4) << "The rotate for int16 failed.";
+    EXPECT_EQ(e2, mem[0].s5) << "The rotate for int16 failed.";
+    EXPECT_EQ(e3, mem[0].s6) << "The rotate for int16 failed.";
+    EXPECT_EQ(e4, mem[0].s7) << "The rotate for int16 failed.";
+    EXPECT_EQ(e1, mem[0].s8) << "The rotate for int16 failed.";
+    EXPECT_EQ(e2, mem[0].s9) << "The rotate for int16 failed.";
+    EXPECT_EQ(e3, mem[0].sa) << "The rotate for int16 failed.";
+    EXPECT_EQ(e4, mem[0].sb) << "The rotate for int16 failed.";
+    EXPECT_EQ(e1, mem[0].sc) << "The rotate for int16 failed.";
+    EXPECT_EQ(e2, mem[0].sd) << "The rotate for int16 failed.";
+    EXPECT_EQ(e3, mem[0].se) << "The rotate for int16 failed.";
+    EXPECT_EQ(e4, mem[0].sf) << "The rotate for int16 failed.";
+  }
+}
+
+TEST(ClCppTest, UtilityUpsampleUintTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_int;
+  using zivc::cl_int2;
+  using zivc::cl_int3;
+  using zivc::cl_int4;
+  using zivc::cl_int8;
+  using zivc::cl_int16;
+  using zivc::cl_uint;
+  using zivc::cl_uint2;
+  using zivc::cl_uint3;
+  using zivc::cl_uint4;
+  using zivc::cl_uint8;
+  using zivc::cl_uint16;
+  using zivc::cl_float;
+  using zivc::cl_float2;
+  using zivc::cl_float3;
+  using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
+
+  const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_uint>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out1->setSize(1);
+  const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_uint2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out2->setSize(1);
+  const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_uint3>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out3->setSize(1);
+  const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_uint4>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out4->setSize(1);
+  const zivc::SharedBuffer buffer_out8 = device->createBuffer<cl_uint8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out8->setSize(1);
+  const zivc::SharedBuffer buffer_out16 = device->createBuffer<cl_uint16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out16->setSize(1);
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test1, utilityUpsampleUintTest, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(6, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("UtilityUpsampleUintTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(6, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_out1, *buffer_out2, *buffer_out3,
+                                          *buffer_out4, *buffer_out8, *buffer_out16,
+                                          launch_options);
+  device->waitForCompletion(result.fence());
+
+  constexpr cl_uint hi = 0b1010'0101'1010'0101u;
+  constexpr cl_uint lo = 0b0000'1111'0000'1111u;
+  constexpr cl_uint expected = (hi << 16) | lo;
+  // output
+  {
+    const zivc::MappedMemory mem = buffer_out1->mapMemory();
+    EXPECT_EQ(expected, mem[0]) << "The upsample for int failed.";
+  }
+  // output2
+  {
+    const zivc::MappedMemory mem = buffer_out2->mapMemory();
+    EXPECT_EQ(expected, mem[0].x) << "The upsample for int2 failed.";
+    EXPECT_EQ(expected, mem[0].y) << "The upsample for int2 failed.";
+  }
+  // output3
+  {
+    const zivc::MappedMemory mem = buffer_out3->mapMemory();
+    EXPECT_EQ(expected, mem[0].x) << "The upsample for int3 failed.";
+    EXPECT_EQ(expected, mem[0].y) << "The upsample for int3 failed.";
+    EXPECT_EQ(expected, mem[0].z) << "The upsample for int3 failed.";
+  }
+  // output4
+  {
+    const zivc::MappedMemory mem = buffer_out4->mapMemory();
+    EXPECT_EQ(expected, mem[0].x) << "The upsample for int4 failed.";
+    EXPECT_EQ(expected, mem[0].y) << "The upsample for int4 failed.";
+    EXPECT_EQ(expected, mem[0].z) << "The upsample for int4 failed.";
+    EXPECT_EQ(expected, mem[0].w) << "The upsample for int4 failed.";
+  }
+  // output8
+  {
+    const zivc::MappedMemory mem = buffer_out8->mapMemory();
+    EXPECT_EQ(expected, mem[0].s0) << "The upsample for int8 failed.";
+    EXPECT_EQ(expected, mem[0].s1) << "The upsample for int8 failed.";
+    EXPECT_EQ(expected, mem[0].s2) << "The upsample for int8 failed.";
+    EXPECT_EQ(expected, mem[0].s3) << "The upsample for int8 failed.";
+    EXPECT_EQ(expected, mem[0].s4) << "The upsample for int8 failed.";
+    EXPECT_EQ(expected, mem[0].s5) << "The upsample for int8 failed.";
+    EXPECT_EQ(expected, mem[0].s6) << "The upsample for int8 failed.";
+    EXPECT_EQ(expected, mem[0].s7) << "The upsample for int8 failed.";
+  }
+  // output16
+  {
+    const zivc::MappedMemory mem = buffer_out16->mapMemory();
+    EXPECT_EQ(expected, mem[0].s0) << "The upsample for int16 failed.";
+    EXPECT_EQ(expected, mem[0].s1) << "The upsample for int16 failed.";
+    EXPECT_EQ(expected, mem[0].s2) << "The upsample for int16 failed.";
+    EXPECT_EQ(expected, mem[0].s3) << "The upsample for int16 failed.";
+    EXPECT_EQ(expected, mem[0].s4) << "The upsample for int16 failed.";
+    EXPECT_EQ(expected, mem[0].s5) << "The upsample for int16 failed.";
+    EXPECT_EQ(expected, mem[0].s6) << "The upsample for int16 failed.";
+    EXPECT_EQ(expected, mem[0].s7) << "The upsample for int16 failed.";
+    EXPECT_EQ(expected, mem[0].s8) << "The upsample for int16 failed.";
+    EXPECT_EQ(expected, mem[0].s9) << "The upsample for int16 failed.";
+    EXPECT_EQ(expected, mem[0].sa) << "The upsample for int16 failed.";
+    EXPECT_EQ(expected, mem[0].sb) << "The upsample for int16 failed.";
+    EXPECT_EQ(expected, mem[0].sc) << "The upsample for int16 failed.";
+    EXPECT_EQ(expected, mem[0].sd) << "The upsample for int16 failed.";
+    EXPECT_EQ(expected, mem[0].se) << "The upsample for int16 failed.";
+    EXPECT_EQ(expected, mem[0].sf) << "The upsample for int16 failed.";
+  }
+}
+
+TEST(ClCppTest, UtilityAbsFloatTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_int;
+  using zivc::cl_int2;
+  using zivc::cl_int3;
+  using zivc::cl_int4;
+  using zivc::cl_int8;
+  using zivc::cl_int16;
+  using zivc::cl_uint;
+  using zivc::cl_uint2;
+  using zivc::cl_uint3;
+  using zivc::cl_uint4;
+  using zivc::cl_uint8;
+  using zivc::cl_uint16;
+  using zivc::cl_float;
+  using zivc::cl_float2;
+  using zivc::cl_float3;
+  using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
+
+  const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_float>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out1->setSize(2);
+  const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_float2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out2->setSize(1);
+  const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_float3>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out3->setSize(1);
+  const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_float4>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out4->setSize(1);
+  const zivc::SharedBuffer buffer_out8 = device->createBuffer<cl_float8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out8->setSize(1);
+  const zivc::SharedBuffer buffer_out16 = device->createBuffer<cl_float16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out16->setSize(1);
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test1, utilityAbsFloatTest, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(6, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("UtilityAbsFloatUintTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(6, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_out1, *buffer_out2, *buffer_out3,
+                                          *buffer_out4, *buffer_out8, *buffer_out16,
+                                          launch_options);
+  device->waitForCompletion(result.fence());
+
+  using LimitT = std::numeric_limits<cl_float>;
+  constexpr cl_float maxf = (LimitT::max)();
+  constexpr cl_float minf = (LimitT::min)();
+  constexpr cl_float inf = LimitT::infinity();
+
+  // output
+  {
+    const zivc::MappedMemory mem = buffer_out1->mapMemory();
+    EXPECT_FLOAT_EQ(1.5f, mem[0]) << "The abs for float failed.";
+    EXPECT_FLOAT_EQ(1.5f, mem[1]) << "The abs for float failed.";
+  }
+  // output2
+  {
+    const zivc::MappedMemory mem = buffer_out2->mapMemory();
+    EXPECT_FLOAT_EQ(1.5f, mem[0].x) << "The abs for float2 failed.";
+    EXPECT_FLOAT_EQ(1.5f, mem[0].y) << "The abs for float2 failed.";
+  }
+  // output3
+  {
+    const zivc::MappedMemory mem = buffer_out3->mapMemory();
+    EXPECT_FLOAT_EQ(1.5f, mem[0].x) << "The abs for float3 failed.";
+    EXPECT_FLOAT_EQ(1.5f, mem[0].y) << "The abs for float3 failed.";
+    EXPECT_FLOAT_EQ(maxf, mem[0].z) << "The abs for float3 failed.";
+  }
+  // output4
+  {
+    const zivc::MappedMemory mem = buffer_out4->mapMemory();
+    EXPECT_FLOAT_EQ(1.5f, mem[0].x) << "The abs for float4 failed.";
+    EXPECT_FLOAT_EQ(1.5f, mem[0].y) << "The abs for float4 failed.";
+    EXPECT_FLOAT_EQ(maxf, mem[0].z) << "The abs for float4 failed.";
+    EXPECT_FLOAT_EQ(maxf, mem[0].w) << "The abs for float4 failed.";
+  }
+  // output8
+  {
+    const zivc::MappedMemory mem = buffer_out8->mapMemory();
+    EXPECT_FLOAT_EQ(1.5f, mem[0].s0) << "The abs for float8 failed.";
+    EXPECT_FLOAT_EQ(1.5f, mem[0].s1) << "The abs for float8 failed.";
+    EXPECT_FLOAT_EQ(maxf, mem[0].s2) << "The abs for float8 failed.";
+    EXPECT_FLOAT_EQ(maxf, mem[0].s3) << "The abs for float8 failed.";
+    EXPECT_FLOAT_EQ(minf, mem[0].s4) << "The abs for float8 failed.";
+    EXPECT_FLOAT_EQ(minf, mem[0].s5) << "The abs for float8 failed.";
+    EXPECT_FLOAT_EQ(inf, mem[0].s6) << "The abs for float8 failed.";
+    EXPECT_FLOAT_EQ(inf, mem[0].s7) << "The abs for float8 failed.";
+  }
+  // output16
+  {
+    const zivc::MappedMemory mem = buffer_out16->mapMemory();
+    EXPECT_FLOAT_EQ(1.5f, mem[0].s0) << "The abs for float16 failed.";
+    EXPECT_FLOAT_EQ(1.5f, mem[0].s1) << "The abs for float16 failed.";
+    EXPECT_FLOAT_EQ(maxf, mem[0].s2) << "The abs for float16 failed.";
+    EXPECT_FLOAT_EQ(maxf, mem[0].s3) << "The abs for float16 failed.";
+    EXPECT_FLOAT_EQ(minf, mem[0].s4) << "The abs for float16 failed.";
+    EXPECT_FLOAT_EQ(minf, mem[0].s5) << "The abs for float16 failed.";
+    EXPECT_FLOAT_EQ(inf, mem[0].s6) << "The abs for float16 failed.";
+    EXPECT_FLOAT_EQ(inf, mem[0].s7) << "The abs for float16 failed.";
+    EXPECT_FLOAT_EQ(1.5f, mem[0].s8) << "The abs for float16 failed.";
+    EXPECT_FLOAT_EQ(1.5f, mem[0].s9) << "The abs for float16 failed.";
+    EXPECT_FLOAT_EQ(maxf, mem[0].sa) << "The abs for float16 failed.";
+    EXPECT_FLOAT_EQ(maxf, mem[0].sb) << "The abs for float16 failed.";
+    EXPECT_FLOAT_EQ(minf, mem[0].sc) << "The abs for float16 failed.";
+    EXPECT_FLOAT_EQ(minf, mem[0].sd) << "The abs for float16 failed.";
+    EXPECT_FLOAT_EQ(inf, mem[0].se) << "The abs for float16 failed.";
+    EXPECT_FLOAT_EQ(inf, mem[0].sf) << "The abs for float16 failed.";
+  }
+}
+
+TEST(ClCppTest, UtilityClampFloatTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_int;
+  using zivc::cl_int2;
+  using zivc::cl_int3;
+  using zivc::cl_int4;
+  using zivc::cl_int8;
+  using zivc::cl_int16;
+  using zivc::cl_uint;
+  using zivc::cl_uint2;
+  using zivc::cl_uint3;
+  using zivc::cl_uint4;
+  using zivc::cl_uint8;
+  using zivc::cl_uint16;
+  using zivc::cl_float;
+  using zivc::cl_float2;
+  using zivc::cl_float3;
+  using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
+
+  const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_float>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out1->setSize(3);
+  const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_float2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out2->setSize(2);
+  const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_float3>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out3->setSize(1);
+  const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_float4>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out4->setSize(1);
+  const zivc::SharedBuffer buffer_out8 = device->createBuffer<cl_float8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out8->setSize(1);
+  const zivc::SharedBuffer buffer_out16 = device->createBuffer<cl_float16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out16->setSize(1);
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test1, utilityClampFloatTest, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(6, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("UtilityClampFloatUintTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(6, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_out1, *buffer_out2, *buffer_out3,
+                                          *buffer_out4, *buffer_out8, *buffer_out16,
+                                          launch_options);
+  device->waitForCompletion(result.fence());
+
+  using LimitT = std::numeric_limits<cl_float>;
+  constexpr cl_float minf = (LimitT::min)();
+
+  // output
+  {
+    const zivc::MappedMemory mem = buffer_out1->mapMemory();
+    EXPECT_FLOAT_EQ(1.5f, mem[0]) << "The clamp for float failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[1]) << "The clamp for float failed.";
+    EXPECT_FLOAT_EQ(10.0f, mem[2]) << "The clamp for float failed.";
+  }
+  // output2
+  {
+    const zivc::MappedMemory mem = buffer_out2->mapMemory();
+    EXPECT_FLOAT_EQ(1.5f, mem[0].x) << "The clamp for float2 failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[0].y) << "The clamp for float2 failed.";
+    EXPECT_FLOAT_EQ(10.0f, mem[1].x) << "The clamp for float2 failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[1].y) << "The clamp for float2 failed.";
+  }
+  // output3
+  {
+    const zivc::MappedMemory mem = buffer_out3->mapMemory();
+    EXPECT_FLOAT_EQ(1.5f, mem[0].x) << "The clamp for float3 failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[0].y) << "The clamp for float3 failed.";
+    EXPECT_FLOAT_EQ(10.0f, mem[0].z) << "The clamp for float3 failed.";
+  }
+  // output4
+  {
+    const zivc::MappedMemory mem = buffer_out4->mapMemory();
+    EXPECT_FLOAT_EQ(1.5f, mem[0].x) << "The clamp for float4 failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[0].y) << "The clamp for float4 failed.";
+    EXPECT_FLOAT_EQ(10.0f, mem[0].z) << "The clamp for float4 failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[0].w) << "The clamp for float4 failed.";
+  }
+  // output8
+  {
+    const zivc::MappedMemory mem = buffer_out8->mapMemory();
+    EXPECT_FLOAT_EQ(1.5f, mem[0].s0) << "The clamp for float8 failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[0].s1) << "The clamp for float8 failed.";
+    EXPECT_FLOAT_EQ(10.0f, mem[0].s2) << "The clamp for float8 failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[0].s3) << "The clamp for float8 failed.";
+    EXPECT_FLOAT_EQ(minf, mem[0].s4) << "The clamp for float8 failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[0].s5) << "The clamp for float8 failed.";
+    EXPECT_FLOAT_EQ(10.0f, mem[0].s6) << "The clamp for float8 failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[0].s7) << "The clamp for float8 failed.";
+  }
+  // output16
+  {
+    const zivc::MappedMemory mem = buffer_out16->mapMemory();
+    EXPECT_FLOAT_EQ(1.5f, mem[0].s0) << "The clamp for float16 failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[0].s1) << "The clamp for float16 failed.";
+    EXPECT_FLOAT_EQ(10.0f, mem[0].s2) << "The clamp for float16 failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[0].s3) << "The clamp for float16 failed.";
+    EXPECT_FLOAT_EQ(minf, mem[0].s4) << "The clamp for float16 failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[0].s5) << "The clamp for float16 failed.";
+    EXPECT_FLOAT_EQ(10.0f, mem[0].s6) << "The clamp for float16 failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[0].s7) << "The clamp for float16 failed.";
+    EXPECT_FLOAT_EQ(1.5f, mem[0].s8) << "The clamp for float16 failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[0].s9) << "The clamp for float16 failed.";
+    EXPECT_FLOAT_EQ(10.0f, mem[0].sa) << "The clamp for float16 failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[0].sb) << "The clamp for float16 failed.";
+    EXPECT_FLOAT_EQ(minf, mem[0].sc) << "The clamp for float16 failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[0].sd) << "The clamp for float16 failed.";
+    EXPECT_FLOAT_EQ(10.0f, mem[0].se) << "The clamp for float16 failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[0].sf) << "The clamp for float16 failed.";
+  }
+}
+
+TEST(ClCppTest, UtilityMaxMinFloatTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_int;
+  using zivc::cl_int2;
+  using zivc::cl_int3;
+  using zivc::cl_int4;
+  using zivc::cl_int8;
+  using zivc::cl_int16;
+  using zivc::cl_uint;
+  using zivc::cl_uint2;
+  using zivc::cl_uint3;
+  using zivc::cl_uint4;
+  using zivc::cl_uint8;
+  using zivc::cl_uint16;
+  using zivc::cl_float;
+  using zivc::cl_float2;
+  using zivc::cl_float3;
+  using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
+
+  const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_float>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out1->setSize(3);
+  const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_float2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out2->setSize(2);
+  const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_float3>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out3->setSize(1);
+  const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_float4>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out4->setSize(1);
+  const zivc::SharedBuffer buffer_out8 = device->createBuffer<cl_float8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out8->setSize(1);
+  const zivc::SharedBuffer buffer_out16 = device->createBuffer<cl_float16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  buffer_out16->setSize(1);
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test1, utilityMaxMinFloatTest, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(6, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("UtilityMaxMinFloatUintTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(6, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_out1, *buffer_out2, *buffer_out3,
+                                          *buffer_out4, *buffer_out8, *buffer_out16,
+                                          launch_options);
+  device->waitForCompletion(result.fence());
+
+  using LimitT = std::numeric_limits<cl_float>;
+  constexpr cl_float minf = (LimitT::min)();
+
+  // output
+  {
+    const zivc::MappedMemory mem = buffer_out1->mapMemory();
+    EXPECT_FLOAT_EQ(1.5f, mem[0]) << "The maxmin for float failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[1]) << "The maxmin for float failed.";
+    EXPECT_FLOAT_EQ(10.0f, mem[2]) << "The maxmin for float failed.";
+  }
+  // output2
+  {
+    const zivc::MappedMemory mem = buffer_out2->mapMemory();
+    EXPECT_FLOAT_EQ(1.5f, mem[0].x) << "The maxmin for float2 failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[0].y) << "The maxmin for float2 failed.";
+    EXPECT_FLOAT_EQ(10.0f, mem[1].x) << "The maxmin for float2 failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[1].y) << "The maxmin for float2 failed.";
+  }
+  // output3
+  {
+    const zivc::MappedMemory mem = buffer_out3->mapMemory();
+    EXPECT_FLOAT_EQ(1.5f, mem[0].x) << "The maxmin for float3 failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[0].y) << "The maxmin for float3 failed.";
+    EXPECT_FLOAT_EQ(10.0f, mem[0].z) << "The maxmin for float3 failed.";
+  }
+  // output4
+  {
+    const zivc::MappedMemory mem = buffer_out4->mapMemory();
+    EXPECT_FLOAT_EQ(1.5f, mem[0].x) << "The maxmin for float4 failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[0].y) << "The maxmin for float4 failed.";
+    EXPECT_FLOAT_EQ(10.0f, mem[0].z) << "The maxmin for float4 failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[0].w) << "The maxmin for float4 failed.";
+  }
+  // output8
+  {
+    const zivc::MappedMemory mem = buffer_out8->mapMemory();
+    EXPECT_FLOAT_EQ(1.5f, mem[0].s0) << "The maxmin for float8 failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[0].s1) << "The maxmin for float8 failed.";
+    EXPECT_FLOAT_EQ(10.0f, mem[0].s2) << "The maxmin for float8 failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[0].s3) << "The maxmin for float8 failed.";
+    EXPECT_FLOAT_EQ(minf, mem[0].s4) << "The maxmin for float8 failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[0].s5) << "The maxmin for float8 failed.";
+    EXPECT_FLOAT_EQ(10.0f, mem[0].s6) << "The maxmin for float8 failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[0].s7) << "The maxmin for float8 failed.";
+  }
+  // output16
+  {
+    const zivc::MappedMemory mem = buffer_out16->mapMemory();
+    EXPECT_FLOAT_EQ(1.5f, mem[0].s0) << "The maxmin for float16 failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[0].s1) << "The maxmin for float16 failed.";
+    EXPECT_FLOAT_EQ(10.0f, mem[0].s2) << "The maxmin for float16 failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[0].s3) << "The maxmin for float16 failed.";
+    EXPECT_FLOAT_EQ(minf, mem[0].s4) << "The maxmin for float16 failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[0].s5) << "The maxmin for float16 failed.";
+    EXPECT_FLOAT_EQ(10.0f, mem[0].s6) << "The maxmin for float16 failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[0].s7) << "The maxmin for float16 failed.";
+    EXPECT_FLOAT_EQ(1.5f, mem[0].s8) << "The maxmin for float16 failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[0].s9) << "The maxmin for float16 failed.";
+    EXPECT_FLOAT_EQ(10.0f, mem[0].sa) << "The maxmin for float16 failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[0].sb) << "The maxmin for float16 failed.";
+    EXPECT_FLOAT_EQ(minf, mem[0].sc) << "The maxmin for float16 failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[0].sd) << "The maxmin for float16 failed.";
+    EXPECT_FLOAT_EQ(10.0f, mem[0].se) << "The maxmin for float16 failed.";
+    EXPECT_FLOAT_EQ(0.0f, mem[0].sf) << "The maxmin for float16 failed.";
+  }
+}
+

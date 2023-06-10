@@ -1373,12 +1373,12 @@ __kernel void utilitySignFloatTest(zivc::GlobalPtr<float> out_i1,
   {
     // v1
     {
-      constexpr float x = 1.0f;
+      constexpr float x = 2.0f;
       const float y = zivc::sign(x);
       out_i1[0] = y;
     }
     {
-      constexpr float x = -1.0f;
+      constexpr float x = -2.0f;
       const float y = zivc::sign(x);
       out_i1[1] = y;
     }
@@ -1396,7 +1396,7 @@ __kernel void utilitySignFloatTest(zivc::GlobalPtr<float> out_i1,
   {
     // v2
     {
-      constexpr float2 x = zivc::makeFloat2(1.0f, -1.0f);
+      constexpr float2 x = zivc::makeFloat2(2.0f, -2.0f);
       const float2 y = zivc::sign(x);
       out_i2[0] = y;
     }
@@ -1409,7 +1409,7 @@ __kernel void utilitySignFloatTest(zivc::GlobalPtr<float> out_i1,
   {
     // v3
     {
-      const float3 x = zivc::makeFloat3(1.0f, -1.0f, 0.0f);
+      const float3 x = zivc::makeFloat3(2.0f, -2.0f, 0.0f);
       const float3 y = zivc::sign(x);
       out_i3[0] = y;
     }
@@ -1417,7 +1417,7 @@ __kernel void utilitySignFloatTest(zivc::GlobalPtr<float> out_i1,
   {
     // v4
     {
-      const float4 x = zivc::makeFloat4(1.0f, -1.0f, 0.0f, LimitT::quietNan());
+      const float4 x = zivc::makeFloat4(2.0f, -2.0f, 0.0f, LimitT::quietNan());
       const float4 y = zivc::sign(x);
       out_i4[0] = y;
     }
@@ -1426,7 +1426,7 @@ __kernel void utilitySignFloatTest(zivc::GlobalPtr<float> out_i1,
     // v8
     {
       const float8 x = zivc::makeFloat8(
-          1.0f, -1.0f, 0.0f, -0.0f, maxf, -maxf, inf, LimitT::quietNan());
+          2.0f, -2.0f, 0.0f, -0.0f, maxf, -maxf, inf, LimitT::quietNan());
       const float8 y = zivc::sign(x);
       out_i8[0] = y;
     }
@@ -1435,8 +1435,8 @@ __kernel void utilitySignFloatTest(zivc::GlobalPtr<float> out_i1,
     // v16
     {
       const float16 x = zivc::makeFloat16(
-          1.0f, -1.0f, 0.0f, -0.0f, maxf, -maxf, inf, LimitT::quietNan(),
-          1.0f, -1.0f, 0.0f, -0.0f, maxf, -maxf, inf, LimitT::quietNan());
+          2.0f, -2.0f, 0.0f, -0.0f, maxf, -maxf, inf, LimitT::quietNan(),
+          2.0f, -2.0f, 0.0f, -0.0f, maxf, -maxf, inf, LimitT::quietNan());
       const float16 y = zivc::sign(x);
       out_i16[0] = y;
     }

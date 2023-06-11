@@ -473,6 +473,149 @@ double4 Geometry::Native::normalize3(const double4 p) noexcept
 /*!
   \details No detailed description
 
+  \tparam FloatN No description.
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+template <typename FloatN> inline
+constexpr FloatN Geometry::Fallback::Impl::cross(const FloatN p0, const FloatN p1) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  FloatN result = static_cast<ElementT>(0);
+  result.x = p0.y * p1.z - p0.z * p1.y;
+  result.y = p0.z * p1.x - p0.x * p1.z;
+  result.z = p0.x * p1.y - p0.y * p1.x;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+template <typename Float> inline
+constexpr Float Geometry::Fallback::Impl::dotN1(const Float p0, const Float p1) noexcept
+{
+  const Float result = p0 * p1;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam Float2 No description.
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+template <typename Float, typename Float2> inline
+constexpr Float Geometry::Fallback::Impl::dotN2(const Float2 p0, const Float2 p1) noexcept
+{
+  const Float result = p0.x * p1.x +
+                       p0.y * p1.y;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam Float3 No description.
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+template <typename Float, typename Float3> inline
+constexpr Float Geometry::Fallback::Impl::dotN3(const Float3 p0, const Float3 p1) noexcept
+{
+  const Float result = p0.x * p1.x +
+                       p0.y * p1.y +
+                       p0.z * p1.z;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam Float4 No description.
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+template <typename Float, typename Float4> inline
+constexpr Float Geometry::Fallback::Impl::dotN4(const Float4 p0, const Float4 p1) noexcept
+{
+  const Float result = p0.x * p1.x +
+                       p0.y * p1.y +
+                       p0.z * p1.z +
+                       p0.w * p1.w;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam Float8 No description.
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+template <typename Float, typename Float8> inline
+constexpr Float Geometry::Fallback::Impl::dotN8(const Float8 p0, const Float8 p1) noexcept
+{
+  const Float result = p0.s0 * p1.s0 +
+                       p0.s1 * p1.s1 +
+                       p0.s2 * p1.s2 +
+                       p0.s3 * p1.s3 +
+                       p0.s4 * p1.s4 +
+                       p0.s5 * p1.s5 +
+                       p0.s6 * p1.s6 +
+                       p0.s7 * p1.s7;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam Float16 No description.
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+template <typename Float, typename Float16> inline
+constexpr Float Geometry::Fallback::Impl::dotN16(const Float16 p0, const Float16 p1) noexcept
+{
+  const Float result = p0.s0 * p1.s0 +
+                       p0.s1 * p1.s1 +
+                       p0.s2 * p1.s2 +
+                       p0.s3 * p1.s3 +
+                       p0.s4 * p1.s4 +
+                       p0.s5 * p1.s5 +
+                       p0.s6 * p1.s6 +
+                       p0.s7 * p1.s7 +
+                       p0.s8 * p1.s8 +
+                       p0.s9 * p1.s9 +
+                       p0.sa * p1.sa +
+                       p0.sb * p1.sb +
+                       p0.sc * p1.sc +
+                       p0.sd * p1.sd +
+                       p0.se * p1.se +
+                       p0.sf * p1.sf;
+  return result;
+}
+
+/*!
+  \details No detailed description
+
   \param [in] p0 No description.
   \param [in] p1 No description.
   \return No description
@@ -843,149 +986,6 @@ double4 Geometry::Fallback::normalize3(const double4 p) noexcept
   const auto q = castBit<double3>(p);
   const double3 result = normalize(q);
   return castBit<double4>(result);
-}
-
-/*!
-  \details No detailed description
-
-  \tparam FloatN No description.
-  \param [in] p0 No description.
-  \param [in] p1 No description.
-  \return No description
-  */
-template <typename FloatN> inline
-constexpr FloatN Geometry::Fallback::Impl::cross(const FloatN p0, const FloatN p1) noexcept
-{
-  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
-  using ElementT = typename VecInfo::ElementT;
-  FloatN result = static_cast<ElementT>(0);
-  result.x = p0.y * p1.z - p0.z * p1.y;
-  result.y = p0.z * p1.x - p0.x * p1.z;
-  result.z = p0.x * p1.y - p0.y * p1.x;
-  return result;
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Float No description.
-  \param [in] p0 No description.
-  \param [in] p1 No description.
-  \return No description
-  */
-template <typename Float> inline
-constexpr Float Geometry::Fallback::Impl::dotN1(const Float p0, const Float p1) noexcept
-{
-  const Float result = p0 * p1;
-  return result;
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Float No description.
-  \tparam Float2 No description.
-  \param [in] p0 No description.
-  \param [in] p1 No description.
-  \return No description
-  */
-template <typename Float, typename Float2> inline
-constexpr Float Geometry::Fallback::Impl::dotN2(const Float2 p0, const Float2 p1) noexcept
-{
-  const Float result = p0.x * p1.x +
-                       p0.y * p1.y;
-  return result;
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Float No description.
-  \tparam Float3 No description.
-  \param [in] p0 No description.
-  \param [in] p1 No description.
-  \return No description
-  */
-template <typename Float, typename Float3> inline
-constexpr Float Geometry::Fallback::Impl::dotN3(const Float3 p0, const Float3 p1) noexcept
-{
-  const Float result = p0.x * p1.x +
-                       p0.y * p1.y +
-                       p0.z * p1.z;
-  return result;
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Float No description.
-  \tparam Float4 No description.
-  \param [in] p0 No description.
-  \param [in] p1 No description.
-  \return No description
-  */
-template <typename Float, typename Float4> inline
-constexpr Float Geometry::Fallback::Impl::dotN4(const Float4 p0, const Float4 p1) noexcept
-{
-  const Float result = p0.x * p1.x +
-                       p0.y * p1.y +
-                       p0.z * p1.z +
-                       p0.w * p1.w;
-  return result;
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Float No description.
-  \tparam Float8 No description.
-  \param [in] p0 No description.
-  \param [in] p1 No description.
-  \return No description
-  */
-template <typename Float, typename Float8> inline
-constexpr Float Geometry::Fallback::Impl::dotN8(const Float8 p0, const Float8 p1) noexcept
-{
-  const Float result = p0.s0 * p1.s0 +
-                       p0.s1 * p1.s1 +
-                       p0.s2 * p1.s2 +
-                       p0.s3 * p1.s3 +
-                       p0.s4 * p1.s4 +
-                       p0.s5 * p1.s5 +
-                       p0.s6 * p1.s6 +
-                       p0.s7 * p1.s7;
-  return result;
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Float No description.
-  \tparam Float16 No description.
-  \param [in] p0 No description.
-  \param [in] p1 No description.
-  \return No description
-  */
-template <typename Float, typename Float16> inline
-constexpr Float Geometry::Fallback::Impl::dotN16(const Float16 p0, const Float16 p1) noexcept
-{
-  const Float result = p0.s0 * p1.s0 +
-                       p0.s1 * p1.s1 +
-                       p0.s2 * p1.s2 +
-                       p0.s3 * p1.s3 +
-                       p0.s4 * p1.s4 +
-                       p0.s5 * p1.s5 +
-                       p0.s6 * p1.s6 +
-                       p0.s7 * p1.s7 +
-                       p0.s8 * p1.s8 +
-                       p0.s9 * p1.s9 +
-                       p0.sa * p1.sa +
-                       p0.sb * p1.sb +
-                       p0.sc * p1.sc +
-                       p0.sd * p1.sd +
-                       p0.se * p1.se +
-                       p0.sf * p1.sf;
-  return result;
 }
 
 /*!

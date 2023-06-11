@@ -144,6 +144,8 @@ TEST(ClCppTest, MathConstantFloatTest)
   }
 }
 
+#if !defined(Z_MAC)
+
 TEST(ClCppTest, MathConstantDoubleTest)
 {
   const zivc::SharedContext context = ztest::createContext();
@@ -327,3 +329,5 @@ TEST(ClCppTest, MathImplSqrtFloatTest)
     result.checkError("sqrt");
   }
 }
+
+#endif // Z_MAC

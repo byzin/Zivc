@@ -4171,6 +4171,80 @@ constexpr CompResultVec<Type1, kN> operator>=(const Vector<Type1, kN>& lhs,
 /*!
   \details No detailed description
 
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in] offset No description.
+  \param [in] p No description.
+  \return No description
+  */
+template <typename Type, size_t kN> inline
+Vector<Type, kN> VectorData::Impl::loadN(const size_t offset,
+                                         const Type* p) noexcept
+{
+  using VectorT = Vector<Type, kN>;
+  const Type* address = p + offset * kN;
+  const VectorT result = VectorT::template load<const Type>({address, kN});
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kN No description.
+  \param [in] offset No description.
+  \param [in] p No description.
+  \return No description
+  */
+template <size_t kN> inline
+Vector<float, kN> VectorData::Impl::loadHalfN(const size_t offset,
+                                              const half* p) noexcept
+{
+  using VectorT = Vector<float, kN>;
+  const half* address = p + offset * kN;
+  const VectorT result = VectorT::template load<const half>({address, kN});
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Type No description.
+  \tparam kN No description.
+  \param [in] data No description.
+  \param [in] offset No description.
+  \param [out] p No description.
+  */
+template <typename Type, size_t kN> inline
+void VectorData::Impl::storeN(const Vector<Type, kN>& data,
+                              const size_t offset,
+                              Type* p) noexcept
+{
+  using VectorT = Vector<Type, kN>;
+  Type* address = p + offset * kN;
+  VectorT::template store<Type>(data, {address, kN});
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kN No description.
+  \param [in] data No description.
+  \param [in] offset No description.
+  \param [out] p No description.
+  */
+template <size_t kN> inline
+void VectorData::Impl::storeHalfN(const Vector<float, kN>& data,
+                                  const size_t offset,
+                                  half* p) noexcept
+{
+  using VectorT = Vector<float, kN>;
+  half* address = p + offset * kN;
+  VectorT::template store<half>(data, {address, kN});
+}
+
+/*!
+  \details No detailed description
+
   \tparam Pointer No description.
   \param [in] offset No description.
   \param [in] p No description.
@@ -5031,80 +5105,6 @@ void VectorData::storeHalf16(const float16& data,
                              AddressSpacePointer<kASpaceType, half> p) noexcept
 {
   storeHalf16(data, offset, p.get());
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \tparam kN No description.
-  \param [in] offset No description.
-  \param [in] p No description.
-  \return No description
-  */
-template <typename Type, size_t kN> inline
-Vector<Type, kN> VectorData::Impl::loadN(const size_t offset,
-                                         const Type* p) noexcept
-{
-  using VectorT = Vector<Type, kN>;
-  const Type* address = p + offset * kN;
-  const VectorT result = VectorT::template load<const Type>({address, kN});
-  return result;
-}
-
-/*!
-  \details No detailed description
-
-  \tparam kN No description.
-  \param [in] offset No description.
-  \param [in] p No description.
-  \return No description
-  */
-template <size_t kN> inline
-Vector<float, kN> VectorData::Impl::loadHalfN(const size_t offset,
-                                              const half* p) noexcept
-{
-  using VectorT = Vector<float, kN>;
-  const half* address = p + offset * kN;
-  const VectorT result = VectorT::template load<const half>({address, kN});
-  return result;
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Type No description.
-  \tparam kN No description.
-  \param [in] data No description.
-  \param [in] offset No description.
-  \param [out] p No description.
-  */
-template <typename Type, size_t kN> inline
-void VectorData::Impl::storeN(const Vector<Type, kN>& data,
-                              const size_t offset,
-                              Type* p) noexcept
-{
-  using VectorT = Vector<Type, kN>;
-  Type* address = p + offset * kN;
-  VectorT::template store<Type>(data, {address, kN});
-}
-
-/*!
-  \details No detailed description
-
-  \tparam kN No description.
-  \param [in] data No description.
-  \param [in] offset No description.
-  \param [out] p No description.
-  */
-template <size_t kN> inline
-void VectorData::Impl::storeHalfN(const Vector<float, kN>& data,
-                                  const size_t offset,
-                                  half* p) noexcept
-{
-  using VectorT = Vector<float, kN>;
-  half* address = p + offset * kN;
-  VectorT::template store<half>(data, {address, kN});
 }
 
 /*!

@@ -153,6 +153,8 @@ __kernel void limitFloatTest(zivc::GlobalPtr<zivc::Boolean> out_bool,
   }
 }
 
+#if !defined(Z_MAC)
+
 __kernel void limitDoubleTest(zivc::GlobalPtr<zivc::Boolean> out_bool,
                               zivc::GlobalPtr<zivc::int32b> out_int,
                               zivc::GlobalPtr<double> out_type)
@@ -162,6 +164,8 @@ __kernel void limitDoubleTest(zivc::GlobalPtr<zivc::Boolean> out_bool,
     inner::setNumericLimit<double>(out_bool, out_int, out_type);
   }
 }
+
+#endif // Z_MAC
 
 // Utility test
 

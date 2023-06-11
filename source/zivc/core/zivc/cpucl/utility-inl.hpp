@@ -326,7 +326,7 @@ uint32b get_work_dim() noexcept
   \return No description
   */
 template <std::signed_integral Type> inline
-std::make_unsigned_t<Type> Utility::abs(const Type& x) noexcept
+auto Utility::abs(const Type& x) noexcept
 {
   using UnsignedT = std::make_unsigned_t<Type>;
   const Type result = isNegative(x) ? -x : x;
@@ -1063,7 +1063,7 @@ Vector<uint64b, kN> Utility::upsample(const Vector<uint32b, kN>& hi,
   \return No description
   */
 template <std::integral Type> inline
-std::make_unsigned_t<Type> abs(const Type& x) noexcept
+auto abs(const Type& x) noexcept
 {
   return Utility::abs(x);
 }

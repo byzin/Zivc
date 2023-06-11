@@ -324,6 +324,7 @@ TEST(KernelTest, LocalStruct2CopyTest)
     const zivc::LaunchResult result = kernel->run(*buff_inputs, *buff_device, resolution, launch_options);
     device->waitForCompletion(result.fence());
   }
+  std::cout << "  work group size: " << info.workGroupSize() << std::endl;
   // Check the outputs
   {
     zivc::BufferLaunchOptions options = buff_device->createOptions();

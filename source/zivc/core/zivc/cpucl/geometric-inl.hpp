@@ -27,6 +27,98 @@ namespace zivc::cl {
 /*!
   \details No detailed description
 
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+template <std::floating_point Float, size_t kN> inline
+Vector<Float, kN> Geometry::Impl::cross(const Vector<Float, kN>& p0,
+                                        const Vector<Float, kN>& p1) noexcept
+{
+  Vector<Float, kN> result{};
+  {
+    Vector<Float, kN>* rptr = result.alignedThis();
+    const Vector<Float, kN>* xptr = p0.alignedThis();
+    const Vector<Float, kN>* yptr = p1.alignedThis();
+    rptr->x = xptr->y * yptr->z - xptr->z * yptr->y;
+    rptr->y = xptr->z * yptr->x - xptr->x * yptr->z;
+    rptr->z = xptr->x * yptr->y - xptr->y * yptr->x;
+  }
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+template <std::floating_point Float, size_t kN> inline
+Float Geometry::Impl::dot(const Vector<Float, kN>& p0,
+                          const Vector<Float, kN>& p1) noexcept
+{
+  const Vector d = p0 * p1;
+  const Float result = d.sum();
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] p0 No description.
+  \param [in] p1 No description.
+  \return No description
+  */
+template <std::floating_point Float, size_t kN> inline
+Float Geometry::Impl::distance(const Vector<Float, kN>& p0,
+                               const Vector<Float, kN>& p1) noexcept
+{
+  const Float result = length(p0 - p1);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] p No description.
+  \return No description
+  */
+template <std::floating_point Float, size_t kN> inline
+Float Geometry::Impl::length(const Vector<Float, kN>& p) noexcept
+{
+  const Float d2 = dot(p, p);
+  const Float result = Math::sqrt(d2);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] p No description.
+  \return No description
+  */
+template <std::floating_point Float, size_t kN> inline
+Vector<Float, kN> Geometry::Impl::normalize(const Vector<Float, kN>& p) noexcept
+{
+  const Float d2 = dot(p, p);
+  const Vector<Float, kN> result = p * Math::rsqrt(d2);
+  return result;
+}
+
+/*!
+  \details No detailed description
+
   \param [in] p0 No description.
   \param [in] p1 No description.
   \return No description
@@ -134,98 +226,6 @@ template <std::floating_point Float, std::size_t kN> inline
 Vector<Float, kN> Geometry::normalize(const Vector<Float, kN>& p) noexcept
 {
   return Impl::normalize(p);
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Float No description.
-  \tparam kN No description.
-  \param [in] p0 No description.
-  \param [in] p1 No description.
-  \return No description
-  */
-template <std::floating_point Float, size_t kN> inline
-Vector<Float, kN> Geometry::Impl::cross(const Vector<Float, kN>& p0,
-                                        const Vector<Float, kN>& p1) noexcept
-{
-  Vector<Float, kN> result{};
-  {
-    Vector<Float, kN>* rptr = result.alignedThis();
-    const Vector<Float, kN>* xptr = p0.alignedThis();
-    const Vector<Float, kN>* yptr = p1.alignedThis();
-    rptr->x = xptr->y * yptr->z - xptr->z * yptr->y;
-    rptr->y = xptr->z * yptr->x - xptr->x * yptr->z;
-    rptr->z = xptr->x * yptr->y - xptr->y * yptr->x;
-  }
-  return result;
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Float No description.
-  \tparam kN No description.
-  \param [in] p0 No description.
-  \param [in] p1 No description.
-  \return No description
-  */
-template <std::floating_point Float, size_t kN> inline
-Float Geometry::Impl::dot(const Vector<Float, kN>& p0,
-                          const Vector<Float, kN>& p1) noexcept
-{
-  const Vector d = p0 * p1;
-  const Float result = d.sum();
-  return result;
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Float No description.
-  \tparam kN No description.
-  \param [in] p0 No description.
-  \param [in] p1 No description.
-  \return No description
-  */
-template <std::floating_point Float, size_t kN> inline
-Float Geometry::Impl::distance(const Vector<Float, kN>& p0,
-                               const Vector<Float, kN>& p1) noexcept
-{
-  const Float result = length(p0 - p1);
-  return result;
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Float No description.
-  \tparam kN No description.
-  \param [in] p No description.
-  \return No description
-  */
-template <std::floating_point Float, size_t kN> inline
-Float Geometry::Impl::length(const Vector<Float, kN>& p) noexcept
-{
-  const Float d2 = dot(p, p);
-  const Float result = Math::sqrt(d2);
-  return result;
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Float No description.
-  \tparam kN No description.
-  \param [in] p No description.
-  \return No description
-  */
-template <std::floating_point Float, size_t kN> inline
-Vector<Float, kN> Geometry::Impl::normalize(const Vector<Float, kN>& p) noexcept
-{
-  const Float d2 = dot(p, p);
-  const Vector<Float, kN> result = p * Math::rsqrt(d2);
-  return result;
 }
 
 /*!

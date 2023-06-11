@@ -138,7 +138,7 @@ class Utility
  public:
   //! Compute the absolute value of a integer value (|x|)
   template <std::signed_integral Type>
-  static std::make_unsigned_t<Type> abs(const Type& x) noexcept;
+  static auto abs(const Type& x) noexcept;
 
   //! Compute the absolute value of a integer value (|x|)
   template <std::unsigned_integral Type>
@@ -309,7 +309,7 @@ class Utility
 
 //! Compute the absolute value of a integer value (|x|)
 template <std::integral Type>
-std::make_unsigned_t<Type> abs(const Type& x) noexcept;
+auto abs(const Type& x) noexcept;
 
 //! Compute the absolute value of a integer value (|x|)
 template <std::integral Type, std::size_t kN>

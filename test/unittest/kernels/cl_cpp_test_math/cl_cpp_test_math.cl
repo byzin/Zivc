@@ -108,6 +108,8 @@ __kernel void mathConstantFloatKernel(zivc::GlobalPtr<float> out)
   }
 }
 
+#if !defined(Z_MAC)
+
 __kernel void mathConstantDoubleKernel(zivc::GlobalPtr<double> out)
 {
   const size_t index = zivc::getGlobalLinearId();
@@ -184,5 +186,7 @@ __kernel void mathConstantDoubleKernel(zivc::GlobalPtr<double> out)
     out[i++] = v;
   }
 }
+
+#endif // Z_MAC
 
 #endif /* ZIVC_TEST_OPENCL_CPP_TEST_MATH */

@@ -41,18 +41,24 @@ struct MathTestResult
   double getAverageUlpDiff() const noexcept;
 
   //! Return the average ULPs diff
-  double getAverageOutlierUlpDiff() const noexcept;
+  double getAverageOutlierUlpDiff1() const noexcept;
+
+  //! Return the average ULPs diff
+  double getAverageOutlierUlpDiff2() const noexcept;
 
   //! Print the test result
   void print() const noexcept;
 
 
   std::size_t num_of_trials_ = 0;
-  std::size_t num_of_outliers_ = 0;
+  std::size_t num_of_outliers1_ = 0;
+  std::size_t num_of_outliers2_ = 0;
   std::size_t total_ulp_diff_ = 0;
-  std::size_t total_outlier_ulp_diff_ = 0;
+  std::size_t total_outlier_ulp_diff1_ = 0;
+  std::size_t total_outlier_ulp_diff2_ = 0;
   std::size_t max_ulp_diff_ = 0;
-  std::size_t ulp_outlier_tolerance_ = 16;
+  std::size_t ulp_outlier_tolerance1_ = 16;
+  std::size_t ulp_outlier_tolerance2_ = 256;
   bool fatal_outlier_ = false;
   bool fatal_inf_ = false;
   bool fatal_nan_ = false;

@@ -14,6 +14,9 @@
 
 // Standard C++ library
 #include <array>
+#include <concepts>
+#include <cstddef>
+#include <functional>
 #include <initializer_list>
 #include <limits>
 #include <numbers>
@@ -30,6 +33,215 @@
 #include "utility/googletest.hpp"
 #include "utility/test.hpp"
 #include "zivc/kernel_set/kernel_set-cl_cpp_test_geometry.hpp"
+
+namespace {
+
+template <std::floating_point Float>
+void initDotInput(const Float x,
+                  std::mt19937_64& engine,
+                  std::uniform_real_distribution<Float>& sampler,
+                  zivc::cl::Vector<Float, 2>* v)
+{
+  v->x = x * sampler(engine);
+  v->y = x * sampler(engine);
+}
+
+template <std::floating_point Float>
+void initDotInput(const Float x,
+                  std::mt19937_64& engine,
+                  std::uniform_real_distribution<Float>& sampler,
+                  zivc::cl::Vector<Float, 3>* v)
+{
+  v->x = x * sampler(engine);
+  v->y = x * sampler(engine);
+  v->z = x * sampler(engine);
+}
+
+template <std::floating_point Float>
+void initDotInput(const Float x,
+                  std::mt19937_64& engine,
+                  std::uniform_real_distribution<Float>& sampler,
+                  zivc::cl::Vector<Float, 4>* v)
+{
+  v->x = x * sampler(engine);
+  v->y = x * sampler(engine);
+  v->z = x * sampler(engine);
+  v->w = x * sampler(engine);
+}
+
+template <std::floating_point Float>
+void initDotInput(const Float x,
+                  std::mt19937_64& engine,
+                  std::uniform_real_distribution<Float>& sampler,
+                  zivc::cl::Vector<Float, 8>* v)
+{
+  v->s0 = x * sampler(engine);
+  v->s1 = x * sampler(engine);
+  v->s2 = x * sampler(engine);
+  v->s3 = x * sampler(engine);
+  v->s4 = x * sampler(engine);
+  v->s5 = x * sampler(engine);
+  v->s6 = x * sampler(engine);
+  v->s7 = x * sampler(engine);
+}
+
+template <std::floating_point Float>
+void initDotInput(const Float x,
+                  std::mt19937_64& engine,
+                  std::uniform_real_distribution<Float>& sampler,
+                  zivc::cl::Vector<Float, 16>* v)
+{
+  v->s0 = x * sampler(engine);
+  v->s1 = x * sampler(engine);
+  v->s2 = x * sampler(engine);
+  v->s3 = x * sampler(engine);
+  v->s4 = x * sampler(engine);
+  v->s5 = x * sampler(engine);
+  v->s6 = x * sampler(engine);
+  v->s7 = x * sampler(engine);
+  v->s8 = x * sampler(engine);
+  v->s9 = x * sampler(engine);
+  v->sa = x * sampler(engine);
+  v->sb = x * sampler(engine);
+  v->sc = x * sampler(engine);
+  v->sd = x * sampler(engine);
+  v->se = x * sampler(engine);
+  v->sf = x * sampler(engine);
+}
+
+template <std::floating_point Float, std::size_t kN>
+zivc::cl::Vector<Float, kN> makeDotInput(const Float x,
+                                         std::mt19937_64& engine,
+                                         std::uniform_real_distribution<Float>& sampler)
+{
+  const Float t = static_cast<Float>(0.2) + static_cast<Float>(0.6) * x;
+  const Float k = ztest::makeNormal(t);
+  zivc::cl::Vector<Float, kN> v{};
+  initDotInput(k, engine, sampler, &v);
+  return v;
+}
+
+template <std::floating_point Float>
+void initCrossInput(const Float x,
+                    std::mt19937_64& engine,
+                    std::uniform_real_distribution<Float>& sampler,
+                    zivc::cl::Vector<Float, 3>* v)
+{
+  const Float theta = static_cast<Float>(2) * std::numbers::pi_v<float> * sampler(engine);
+  const Float phi = std::acos(static_cast<Float>(1) - static_cast<Float>(2) * sampler(engine));
+  v->x = x * std::sin(phi) * std::cos(theta);
+  v->y = x * std::sin(phi) * std::sin(theta);
+  v->z = x * std::cos(phi);
+}
+
+template <std::floating_point Float>
+void initCrossInput(const Float x,
+                    std::mt19937_64& engine,
+                    std::uniform_real_distribution<Float>& sampler,
+                    zivc::cl::Vector<Float, 4>* v)
+{
+  const Float theta = static_cast<Float>(2) * std::numbers::pi_v<float> * sampler(engine);
+  const Float phi = std::acos(static_cast<Float>(1) - static_cast<Float>(2) * sampler(engine));
+  v->x = x * std::sin(phi) * std::cos(theta);
+  v->y = x * std::sin(phi) * std::sin(theta);
+  v->z = x * std::cos(phi);
+  v->w = static_cast<Float>(2);
+}
+
+template <std::floating_point Float, std::size_t kN>
+zivc::cl::Vector<Float, kN> makeCrossInput(const Float x,
+                                           std::mt19937_64& engine,
+                                           std::uniform_real_distribution<Float>& sampler)
+{
+  const Float t = static_cast<Float>(0.3) + static_cast<Float>(0.4) * x;
+  const Float k = ztest::makeNormal(t);
+  zivc::cl::Vector<Float, kN> v{};
+  initCrossInput(k, engine, sampler, &v);
+  return v;
+}
+
+template <std::floating_point Float>
+bool hasSubnormalDot(const Float v)
+{
+  constexpr auto z = static_cast<Float>(0);
+  const bool result = !(std::equal_to<Float>{}(z, v) || std::isnormal(v) || std::isinf(v) || std::isnan(v));
+  return result;
+}
+
+template <std::floating_point Float>
+bool hasSubnormalDot(const Float a, const Float b)
+{
+  const bool result = hasSubnormalDot(a * b);
+  return result;
+}
+
+template <std::floating_point Float, std::size_t kN>
+bool hasSubnormalCross(const zivc::cl::Vector<Float, kN>& a, const zivc::cl::Vector<Float, kN>& b)
+{
+  return hasSubnormalDot(a.y, b.z) || hasSubnormalDot(a.z, b.y) ||
+         hasSubnormalDot(a.z, b.x) || hasSubnormalDot(a.x, b.z) ||
+         hasSubnormalDot(a.x, b.y) || hasSubnormalDot(a.y, b.x);
+}
+
+template <std::floating_point Float>
+bool hasSubnormalDot(const zivc::cl::Vector<Float, 2>& a, const zivc::cl::Vector<Float, 2>& b)
+{
+  return hasSubnormalDot(a.x, b.x) ||
+         hasSubnormalDot(a.y, b.y);
+}
+
+template <std::floating_point Float>
+bool hasSubnormalDot(const zivc::cl::Vector<Float, 3>& a, const zivc::cl::Vector<Float, 3>& b)
+{
+  return hasSubnormalDot(a.x, b.x) ||
+         hasSubnormalDot(a.y, b.y) ||
+         hasSubnormalDot(a.z, b.z);
+}
+
+template <std::floating_point Float>
+bool hasSubnormalDot(const zivc::cl::Vector<Float, 4>& a, const zivc::cl::Vector<Float, 4>& b)
+{
+  return hasSubnormalDot(a.x, b.x) ||
+         hasSubnormalDot(a.y, b.y) ||
+         hasSubnormalDot(a.z, b.z) ||
+         hasSubnormalDot(a.w, b.w);
+}
+
+template <std::floating_point Float>
+bool hasSubnormalDot(const zivc::cl::Vector<Float, 8>& a, const zivc::cl::Vector<Float, 8>& b)
+{
+  return hasSubnormalDot(a.s0, b.s0) ||
+         hasSubnormalDot(a.s1, b.s1) ||
+         hasSubnormalDot(a.s2, b.s2) ||
+         hasSubnormalDot(a.s3, b.s3) ||
+         hasSubnormalDot(a.s4, b.s4) ||
+         hasSubnormalDot(a.s5, b.s5) ||
+         hasSubnormalDot(a.s6, b.s6) ||
+         hasSubnormalDot(a.s7, b.s7);
+}
+
+template <std::floating_point Float>
+bool hasSubnormalDot(const zivc::cl::Vector<Float, 16>& a, const zivc::cl::Vector<Float, 16>& b)
+{
+  return hasSubnormalDot(a.s0, b.s0) ||
+         hasSubnormalDot(a.s1, b.s1) ||
+         hasSubnormalDot(a.s2, b.s2) ||
+         hasSubnormalDot(a.s3, b.s3) ||
+         hasSubnormalDot(a.s4, b.s4) ||
+         hasSubnormalDot(a.s5, b.s5) ||
+         hasSubnormalDot(a.s6, b.s6) ||
+         hasSubnormalDot(a.s7, b.s7) ||
+         hasSubnormalDot(a.s8, b.s8) ||
+         hasSubnormalDot(a.s9, b.s9) ||
+         hasSubnormalDot(a.sa, b.sa) ||
+         hasSubnormalDot(a.sb, b.sb) ||
+         hasSubnormalDot(a.sc, b.sc) ||
+         hasSubnormalDot(a.sd, b.sd) ||
+         hasSubnormalDot(a.se, b.se) ||
+         hasSubnormalDot(a.sf, b.sf);
+}
+
+} /* namespace */
 
 TEST(ClCppTest, GeometryImplCrossV3Test)
 {
@@ -54,16 +266,10 @@ TEST(ClCppTest, GeometryImplCrossV3Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float3 v{k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeCrossInput<float, 3>(x, engine, sampler);
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -99,6 +305,7 @@ TEST(ClCppTest, GeometryImplCrossV3Test)
     for (std::size_t i = 0; i < mem.size(); ++i) {
       const cl_float3& a = in[2 * i];
       const cl_float3& b = in[2 * i + 1];
+      if (hasSubnormalCross(a, b)) continue;
       const cl_float3 expected = zivc::cl::cross(a, b);
       ztest::test(expected.x, mem[i].x, &result);
       ztest::test(expected.y, mem[i].y, &result);
@@ -132,16 +339,10 @@ TEST(ClCppTest, GeometryFallbackCrossV3Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float3 v{k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeCrossInput<float, 3>(x, engine, sampler);
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -177,6 +378,7 @@ TEST(ClCppTest, GeometryFallbackCrossV3Test)
     for (std::size_t i = 0; i < mem.size(); ++i) {
       const cl_float3& a = in[2 * i];
       const cl_float3& b = in[2 * i + 1];
+      if (hasSubnormalCross(a, b)) continue;
       const cl_float3 expected = zivc::cl::cross(a, b);
       ztest::test(expected.x, mem[i].x, &result);
       ztest::test(expected.y, mem[i].y, &result);
@@ -210,17 +412,10 @@ TEST(ClCppTest, GeometryImplCrossV4Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float4 v{k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi),
-                        2.0f};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeCrossInput<float, 4>(x, engine, sampler);
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -256,6 +451,7 @@ TEST(ClCppTest, GeometryImplCrossV4Test)
     for (std::size_t i = 0; i < mem.size(); ++i) {
       const cl_float4& a = in[2 * i];
       const cl_float4& b = in[2 * i + 1];
+      if (hasSubnormalCross(a, b)) continue;
       const cl_float4 expected = zivc::cl::cross(a, b);
       ztest::test(expected.x, mem[i].x, &result);
       ztest::test(expected.y, mem[i].y, &result);
@@ -289,17 +485,10 @@ TEST(ClCppTest, GeometryFallbackCrossV4Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float4 v{k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi),
-                        2.0f};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeCrossInput<float, 4>(x, engine, sampler);
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -335,6 +524,7 @@ TEST(ClCppTest, GeometryFallbackCrossV4Test)
     for (std::size_t i = 0; i < mem.size(); ++i) {
       const cl_float4& a = in[2 * i];
       const cl_float4& b = in[2 * i + 1];
+      if (hasSubnormalCross(a, b)) continue;
       const cl_float4 expected = zivc::cl::cross(a, b);
       ztest::test(expected.x, mem[i].x, &result);
       ztest::test(expected.y, mem[i].y, &result);
@@ -368,12 +558,10 @@ TEST(ClCppTest, GeometryImplDotV2Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const cl_float2 v{k * sampler(engine), k * sampler(engine)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 2>(x, engine, sampler);
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -409,6 +597,7 @@ TEST(ClCppTest, GeometryImplDotV2Test)
     for (std::size_t i = 0; i < mem.size(); ++i) {
       const cl_float2& a = in[2 * i];
       const cl_float2& b = in[2 * i + 1];
+      if (::hasSubnormalDot(a, b)) continue;
       const cl_float expected = zivc::cl::dot(a, b);
       ztest::test(expected, mem[i], &result);
     }
@@ -440,12 +629,10 @@ TEST(ClCppTest, GeometryFallbackDotV2Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const cl_float2 v{k * sampler(engine), k * sampler(engine)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 2>(x, engine, sampler);
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -481,6 +668,7 @@ TEST(ClCppTest, GeometryFallbackDotV2Test)
     for (std::size_t i = 0; i < mem.size(); ++i) {
       const cl_float2& a = in[2 * i];
       const cl_float2& b = in[2 * i + 1];
+      if (::hasSubnormalDot(a, b)) continue;
       const cl_float expected = zivc::cl::dot(a, b);
       ztest::test(expected, mem[i], &result);
     }
@@ -512,16 +700,10 @@ TEST(ClCppTest, GeometryImplDotV3Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float3 v{k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 3>(x, engine, sampler);
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -557,6 +739,7 @@ TEST(ClCppTest, GeometryImplDotV3Test)
     for (std::size_t i = 0; i < mem.size(); ++i) {
       const cl_float3& a = in[2 * i];
       const cl_float3& b = in[2 * i + 1];
+      if (::hasSubnormalDot(a, b)) continue;
       const cl_float expected = zivc::cl::dot(a, b);
       ztest::test(expected, mem[i], &result);
     }
@@ -588,16 +771,10 @@ TEST(ClCppTest, GeometryFallbackDotV3Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float3 v{k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 3>(x, engine, sampler);
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -633,6 +810,7 @@ TEST(ClCppTest, GeometryFallbackDotV3Test)
     for (std::size_t i = 0; i < mem.size(); ++i) {
       const cl_float3& a = in[2 * i];
       const cl_float3& b = in[2 * i + 1];
+      if (::hasSubnormalDot(a, b)) continue;
       const cl_float expected = zivc::cl::dot(a, b);
       ztest::test(expected, mem[i], &result);
     }
@@ -664,17 +842,10 @@ TEST(ClCppTest, GeometryImplDotV4Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float4 v{k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi),
-                        k * sampler(engine)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 4>(x, engine, sampler);
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -710,6 +881,7 @@ TEST(ClCppTest, GeometryImplDotV4Test)
     for (std::size_t i = 0; i < mem.size(); ++i) {
       const cl_float4& a = in[2 * i];
       const cl_float4& b = in[2 * i + 1];
+      if (::hasSubnormalDot(a, b)) continue;
       const cl_float expected = zivc::cl::dot(a, b);
       ztest::test(expected, mem[i], &result);
     }
@@ -741,17 +913,10 @@ TEST(ClCppTest, GeometryFallbackDotV4Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float4 v{k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi),
-                        k * sampler(engine)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 4>(x, engine, sampler);
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -787,6 +952,7 @@ TEST(ClCppTest, GeometryFallbackDotV4Test)
     for (std::size_t i = 0; i < mem.size(); ++i) {
       const cl_float4& a = in[2 * i];
       const cl_float4& b = in[2 * i + 1];
+      if (::hasSubnormalDot(a, b)) continue;
       const cl_float expected = zivc::cl::dot(a, b);
       ztest::test(expected, mem[i], &result);
     }
@@ -819,21 +985,10 @@ TEST(ClCppTest, GeometryFallbackDotV4Test)
 //    host_buff->setSize(buffer_in->size());
 //    zivc::MappedMemory mem = host_buff->mapMemory();
 //    std::mt19937_64 engine{123'456'789};
-//    std::uniform_real_distribution sampler{0.0f, 1.0f};
+//    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
 //    for (std::size_t i = 0; i < mem.size(); ++i) {
-//      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-//      const float k = ztest::makeNormal(x);
-//      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-//      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-//      const cl_float8 v{k * (std::sin(phi) * std::cos(theta)),
-//                        k * (std::sin(phi) * std::sin(theta)),
-//                        k * std::cos(phi),
-//                        k * sampler(engine),
-//                        k * (std::sin(phi) * std::cos(theta)),
-//                        k * (std::sin(phi) * std::sin(theta)),
-//                        k * std::cos(phi),
-//                        k * sampler(engine)};
-//      mem[i] = v;
+//      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+//      mem[i] = ::makeDotInput<float, 8>(x, engine, sampler);
 //    }
 //  }
 //  ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -869,6 +1024,7 @@ TEST(ClCppTest, GeometryFallbackDotV4Test)
 //    for (std::size_t i = 0; i < mem.size(); ++i) {
 //      const cl_float8& a = in[2 * i];
 //      const cl_float8& b = in[2 * i + 1];
+//      if (::hasSubnormalDot(a, b)) continue;
 //      const cl_float expected = zivc::cl::dot(a, b);
 //      ztest::test(expected, mem[i], &result);
 //    }
@@ -901,21 +1057,10 @@ TEST(ClCppTest, GeometryFallbackDotV8Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float8 v{k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi),
-                        k * sampler(engine),
-                        k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi),
-                        k * sampler(engine)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 8>(x, engine, sampler);
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -951,6 +1096,7 @@ TEST(ClCppTest, GeometryFallbackDotV8Test)
     for (std::size_t i = 0; i < mem.size(); ++i) {
       const cl_float8& a = in[2 * i];
       const cl_float8& b = in[2 * i + 1];
+      if (::hasSubnormalDot(a, b)) continue;
       const cl_float expected = zivc::cl::dot(a, b);
       ztest::test(expected, mem[i], &result);
     }
@@ -984,29 +1130,10 @@ TEST(ClCppTest, GeometryFallbackDotV8Test)
 //    host_buff->setSize(buffer_in->size());
 //    zivc::MappedMemory mem = host_buff->mapMemory();
 //    std::mt19937_64 engine{123'456'789};
-//    std::uniform_real_distribution sampler{0.0f, 1.0f};
+//    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
 //    for (std::size_t i = 0; i < mem.size(); ++i) {
-//      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-//      const float k = ztest::makeNormal(x);
-//      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-//      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-//      const cl_float16 v{k * (std::sin(phi) * std::cos(theta)),
-//                         k * (std::sin(phi) * std::sin(theta)),
-//                         k * std::cos(phi),
-//                         k * sampler(engine),
-//                         k * (std::sin(phi) * std::cos(theta)),
-//                         k * (std::sin(phi) * std::sin(theta)),
-//                         k * std::cos(phi),
-//                         k * sampler(engine),
-//                         k * (std::sin(phi) * std::cos(theta)),
-//                         k * (std::sin(phi) * std::sin(theta)),
-//                         k * std::cos(phi),
-//                         k * sampler(engine),
-//                         k * (std::sin(phi) * std::cos(theta)),
-//                         k * (std::sin(phi) * std::sin(theta)),
-//                         k * std::cos(phi),
-//                         k * sampler(engine)};
-//      mem[i] = v;
+//      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+//      mem[i] = ::makeDotInput<float, 16>(x, engine, sampler);
 //    }
 //  }
 //  ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -1042,6 +1169,7 @@ TEST(ClCppTest, GeometryFallbackDotV8Test)
 //    for (std::size_t i = 0; i < mem.size(); ++i) {
 //      const cl_float16& a = in[2 * i];
 //      const cl_float16& b = in[2 * i + 1];
+//      if (::hasSubnormalDot(a, b)) continue;
 //      const cl_float expected = zivc::cl::dot(a, b);
 //      ztest::test(expected, mem[i], &result);
 //    }
@@ -1075,29 +1203,10 @@ TEST(ClCppTest, GeometryFallbackDotV16Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float16 v{k * (std::sin(phi) * std::cos(theta)),
-                         k * (std::sin(phi) * std::sin(theta)),
-                         k * std::cos(phi),
-                         k * sampler(engine),
-                         k * (std::sin(phi) * std::cos(theta)),
-                         k * (std::sin(phi) * std::sin(theta)),
-                         k * std::cos(phi),
-                         k * sampler(engine),
-                         k * (std::sin(phi) * std::cos(theta)),
-                         k * (std::sin(phi) * std::sin(theta)),
-                         k * std::cos(phi),
-                         k * sampler(engine),
-                         k * (std::sin(phi) * std::cos(theta)),
-                         k * (std::sin(phi) * std::sin(theta)),
-                         k * std::cos(phi),
-                         k * sampler(engine)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 16>(x, engine, sampler);
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -1133,6 +1242,7 @@ TEST(ClCppTest, GeometryFallbackDotV16Test)
     for (std::size_t i = 0; i < mem.size(); ++i) {
       const cl_float16& a = in[2 * i];
       const cl_float16& b = in[2 * i + 1];
+      if (::hasSubnormalDot(a, b)) continue;
       const cl_float expected = zivc::cl::dot(a, b);
       ztest::test(expected, mem[i], &result);
     }
@@ -1164,17 +1274,10 @@ TEST(ClCppTest, GeometryImplDotV4C3Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float4 v{k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi),
-                        k * sampler(engine)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 4>(x, engine, sampler);
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -1212,6 +1315,7 @@ TEST(ClCppTest, GeometryImplDotV4C3Test)
       a.w = 0.0f;
       cl_float4 b = in[2 * i + 1];
       b.w = 0.0f;
+      if (::hasSubnormalDot(a, b)) continue;
       const cl_float expected = zivc::cl::dot(a, b);
       ztest::test(expected, mem[i], &result);
     }
@@ -1243,17 +1347,10 @@ TEST(ClCppTest, GeometryFallbackDotV4C3Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float4 v{k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi),
-                        k * sampler(engine)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 4>(x, engine, sampler);
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -1291,6 +1388,7 @@ TEST(ClCppTest, GeometryFallbackDotV4C3Test)
       a.w = 0.0f;
       cl_float4 b = in[2 * i + 1];
       b.w = 0.0f;
+      if (::hasSubnormalDot(a, b)) continue;
       const cl_float expected = zivc::cl::dot(a, b);
       ztest::test(expected, mem[i], &result);
     }
@@ -1322,12 +1420,10 @@ TEST(ClCppTest, GeometryImplDistanceV2Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const cl_float2 v{k * sampler(engine), k * sampler(engine)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 2>(x, engine, sampler);
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -1363,6 +1459,7 @@ TEST(ClCppTest, GeometryImplDistanceV2Test)
     for (std::size_t i = 0; i < mem.size(); ++i) {
       const cl_float2& a = in[2 * i];
       const cl_float2& b = in[2 * i + 1];
+      if (::hasSubnormalDot(a, b)) continue;
       const cl_float expected = zivc::cl::distance(a, b);
       ztest::test(expected, mem[i], &result);
     }
@@ -1394,12 +1491,10 @@ TEST(ClCppTest, GeometryFallbackDistanceV2Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const cl_float2 v{k * sampler(engine), k * sampler(engine)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 2>(x, engine, sampler);
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -1435,6 +1530,7 @@ TEST(ClCppTest, GeometryFallbackDistanceV2Test)
     for (std::size_t i = 0; i < mem.size(); ++i) {
       const cl_float2& a = in[2 * i];
       const cl_float2& b = in[2 * i + 1];
+      if (::hasSubnormalDot(a, b)) continue;
       const cl_float expected = zivc::cl::distance(a, b);
       ztest::test(expected, mem[i], &result);
     }
@@ -1466,16 +1562,10 @@ TEST(ClCppTest, GeometryImplDistanceV3Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float3 v{k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 3>(x, engine, sampler);
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -1511,6 +1601,7 @@ TEST(ClCppTest, GeometryImplDistanceV3Test)
     for (std::size_t i = 0; i < mem.size(); ++i) {
       const cl_float3& a = in[2 * i];
       const cl_float3& b = in[2 * i + 1];
+      if (::hasSubnormalDot(a, b)) continue;
       const cl_float expected = zivc::cl::distance(a, b);
       ztest::test(expected, mem[i], &result);
     }
@@ -1542,16 +1633,10 @@ TEST(ClCppTest, GeometryFallbackDistanceV3Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float3 v{k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 3>(x, engine, sampler);
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -1587,6 +1672,7 @@ TEST(ClCppTest, GeometryFallbackDistanceV3Test)
     for (std::size_t i = 0; i < mem.size(); ++i) {
       const cl_float3& a = in[2 * i];
       const cl_float3& b = in[2 * i + 1];
+      if (::hasSubnormalDot(a, b)) continue;
       const cl_float expected = zivc::cl::distance(a, b);
       ztest::test(expected, mem[i], &result);
     }
@@ -1618,17 +1704,10 @@ TEST(ClCppTest, GeometryImplDistanceV4Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float4 v{k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi),
-                        k * sampler(engine)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 4>(x, engine, sampler);
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -1664,6 +1743,7 @@ TEST(ClCppTest, GeometryImplDistanceV4Test)
     for (std::size_t i = 0; i < mem.size(); ++i) {
       const cl_float4& a = in[2 * i];
       const cl_float4& b = in[2 * i + 1];
+      if (::hasSubnormalDot(a, b)) continue;
       const cl_float expected = zivc::cl::distance(a, b);
       ztest::test(expected, mem[i], &result);
     }
@@ -1695,17 +1775,10 @@ TEST(ClCppTest, GeometryFallbackDistanceV4Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float4 v{k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi),
-                        k * sampler(engine)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 4>(x, engine, sampler);
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -1741,6 +1814,7 @@ TEST(ClCppTest, GeometryFallbackDistanceV4Test)
     for (std::size_t i = 0; i < mem.size(); ++i) {
       const cl_float4& a = in[2 * i];
       const cl_float4& b = in[2 * i + 1];
+      if (::hasSubnormalDot(a, b)) continue;
       const cl_float expected = zivc::cl::distance(a, b);
       ztest::test(expected, mem[i], &result);
     }
@@ -1773,21 +1847,10 @@ TEST(ClCppTest, GeometryFallbackDistanceV4Test)
 //    host_buff->setSize(buffer_in->size());
 //    zivc::MappedMemory mem = host_buff->mapMemory();
 //    std::mt19937_64 engine{123'456'789};
-//    std::uniform_real_distribution sampler{0.0f, 1.0f};
+//    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
 //    for (std::size_t i = 0; i < mem.size(); ++i) {
-//      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-//      const float k = ztest::makeNormal(x);
-//      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-//      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-//      const cl_float8 v{k * (std::sin(phi) * std::cos(theta)),
-//                        k * (std::sin(phi) * std::sin(theta)),
-//                        k * std::cos(phi),
-//                        k * sampler(engine),
-//                        k * (std::sin(phi) * std::cos(theta)),
-//                        k * (std::sin(phi) * std::sin(theta)),
-//                        k * std::cos(phi),
-//                        k * sampler(engine)};
-//      mem[i] = v;
+//      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+//      mem[i] = ::makeDotInput<float, 8>(x, engine, sampler);
 //    }
 //  }
 //  ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -1823,6 +1886,7 @@ TEST(ClCppTest, GeometryFallbackDistanceV4Test)
 //    for (std::size_t i = 0; i < mem.size(); ++i) {
 //      const cl_float8& a = in[2 * i];
 //      const cl_float8& b = in[2 * i + 1];
+//      if (::hasSubnormalDot(a, b)) continue;
 //      const cl_float expected = zivc::cl::distance(a, b);
 //      ztest::test(expected, mem[i], &result);
 //    }
@@ -1855,21 +1919,10 @@ TEST(ClCppTest, GeometryFallbackDistanceV8Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float8 v{k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi),
-                        k * sampler(engine),
-                        k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi),
-                        k * sampler(engine)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 8>(x, engine, sampler);
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -1905,6 +1958,7 @@ TEST(ClCppTest, GeometryFallbackDistanceV8Test)
     for (std::size_t i = 0; i < mem.size(); ++i) {
       const cl_float8& a = in[2 * i];
       const cl_float8& b = in[2 * i + 1];
+      if (::hasSubnormalDot(a, b)) continue;
       const cl_float expected = zivc::cl::distance(a, b);
       ztest::test(expected, mem[i], &result);
     }
@@ -1938,29 +1992,10 @@ TEST(ClCppTest, GeometryFallbackDistanceV8Test)
 //    host_buff->setSize(buffer_in->size());
 //    zivc::MappedMemory mem = host_buff->mapMemory();
 //    std::mt19937_64 engine{123'456'789};
-//    std::uniform_real_distribution sampler{0.0f, 1.0f};
+//    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
 //    for (std::size_t i = 0; i < mem.size(); ++i) {
-//      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-//      const float k = ztest::makeNormal(x);
-//      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-//      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-//      const cl_float16 v{k * (std::sin(phi) * std::cos(theta)),
-//                         k * (std::sin(phi) * std::sin(theta)),
-//                         k * std::cos(phi),
-//                         k * sampler(engine),
-//                         k * (std::sin(phi) * std::cos(theta)),
-//                         k * (std::sin(phi) * std::sin(theta)),
-//                         k * std::cos(phi),
-//                         k * sampler(engine),
-//                         k * (std::sin(phi) * std::cos(theta)),
-//                         k * (std::sin(phi) * std::sin(theta)),
-//                         k * std::cos(phi),
-//                         k * sampler(engine),
-//                         k * (std::sin(phi) * std::cos(theta)),
-//                         k * (std::sin(phi) * std::sin(theta)),
-//                         k * std::cos(phi),
-//                         k * sampler(engine)};
-//      mem[i] = v;
+//      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+//      mem[i] = ::makeDotInput<float, 16>(x, engine, sampler);
 //    }
 //  }
 //  ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -1996,6 +2031,7 @@ TEST(ClCppTest, GeometryFallbackDistanceV8Test)
 //    for (std::size_t i = 0; i < mem.size(); ++i) {
 //      const cl_float16& a = in[2 * i];
 //      const cl_float16& b = in[2 * i + 1];
+//      if (::hasSubnormalDot(a, b)) continue;
 //      const cl_float expected = zivc::cl::distance(a, b);
 //      ztest::test(expected, mem[i], &result);
 //    }
@@ -2029,29 +2065,10 @@ TEST(ClCppTest, GeometryFallbackDistanceV16Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float16 v{k * (std::sin(phi) * std::cos(theta)),
-                         k * (std::sin(phi) * std::sin(theta)),
-                         k * std::cos(phi),
-                         k * sampler(engine),
-                         k * (std::sin(phi) * std::cos(theta)),
-                         k * (std::sin(phi) * std::sin(theta)),
-                         k * std::cos(phi),
-                         k * sampler(engine),
-                         k * (std::sin(phi) * std::cos(theta)),
-                         k * (std::sin(phi) * std::sin(theta)),
-                         k * std::cos(phi),
-                         k * sampler(engine),
-                         k * (std::sin(phi) * std::cos(theta)),
-                         k * (std::sin(phi) * std::sin(theta)),
-                         k * std::cos(phi),
-                         k * sampler(engine)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 16>(x, engine, sampler);
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -2087,6 +2104,7 @@ TEST(ClCppTest, GeometryFallbackDistanceV16Test)
     for (std::size_t i = 0; i < mem.size(); ++i) {
       const cl_float16& a = in[2 * i];
       const cl_float16& b = in[2 * i + 1];
+      if (::hasSubnormalDot(a, b)) continue;
       const cl_float expected = zivc::cl::distance(a, b);
       ztest::test(expected, mem[i], &result);
     }
@@ -2118,17 +2136,10 @@ TEST(ClCppTest, GeometryImplDistanceV4C3Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float4 v{k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi),
-                        k * sampler(engine)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 4>(x, engine, sampler);
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -2166,6 +2177,7 @@ TEST(ClCppTest, GeometryImplDistanceV4C3Test)
       a.w = 0.0f;
       cl_float4 b = in[2 * i + 1];
       b.w = 0.0f;
+      if (::hasSubnormalDot(a, b)) continue;
       const cl_float expected = zivc::cl::distance(a, b);
       ztest::test(expected, mem[i], &result);
     }
@@ -2197,17 +2209,10 @@ TEST(ClCppTest, GeometryFallbackDistanceV4C3Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float4 v{k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi),
-                        k * sampler(engine)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 4>(x, engine, sampler);
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -2245,6 +2250,7 @@ TEST(ClCppTest, GeometryFallbackDistanceV4C3Test)
       a.w = 0.0f;
       cl_float4 b = in[2 * i + 1];
       b.w = 0.0f;
+      if (::hasSubnormalDot(a, b)) continue;
       const cl_float expected = zivc::cl::distance(a, b);
       ztest::test(expected, mem[i], &result);
     }
@@ -2276,12 +2282,10 @@ TEST(ClCppTest, GeometryImplLengthV2Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const cl_float2 v{k * sampler(engine), k * sampler(engine)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 2>(x, engine, sampler);
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -2315,6 +2319,7 @@ TEST(ClCppTest, GeometryImplLengthV2Test)
 
     ztest::MathTestResult result{};
     for (std::size_t i = 0; i < mem.size(); ++i) {
+      if (::hasSubnormalDot(in[i], in[i])) continue;
       const cl_float expected = zivc::cl::length(in[i]);
       ztest::test(expected, mem[i], &result);
     }
@@ -2346,12 +2351,10 @@ TEST(ClCppTest, GeometryFallbackLengthV2Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const cl_float2 v{k * sampler(engine), k * sampler(engine)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 2>(x, engine, sampler);
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -2385,6 +2388,7 @@ TEST(ClCppTest, GeometryFallbackLengthV2Test)
 
     ztest::MathTestResult result{};
     for (std::size_t i = 0; i < mem.size(); ++i) {
+      if (::hasSubnormalDot(in[i], in[i])) continue;
       const cl_float expected = zivc::cl::length(in[i]);
       ztest::test(expected, mem[i], &result);
     }
@@ -2416,16 +2420,10 @@ TEST(ClCppTest, GeometryImplLengthV3Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float3 v{k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 3>(x, engine, sampler);
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -2459,6 +2457,7 @@ TEST(ClCppTest, GeometryImplLengthV3Test)
 
     ztest::MathTestResult result{};
     for (std::size_t i = 0; i < mem.size(); ++i) {
+      if (::hasSubnormalDot(in[i], in[i])) continue;
       const cl_float expected = zivc::cl::length(in[i]);
       ztest::test(expected, mem[i], &result);
     }
@@ -2490,16 +2489,10 @@ TEST(ClCppTest, GeometryFallbackLengthV3Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float3 v{k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 3>(x, engine, sampler);
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -2533,6 +2526,7 @@ TEST(ClCppTest, GeometryFallbackLengthV3Test)
 
     ztest::MathTestResult result{};
     for (std::size_t i = 0; i < mem.size(); ++i) {
+      if (::hasSubnormalDot(in[i], in[i])) continue;
       const cl_float expected = zivc::cl::length(in[i]);
       ztest::test(expected, mem[i], &result);
     }
@@ -2564,17 +2558,10 @@ TEST(ClCppTest, GeometryImplLengthV4Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float4 v{k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi),
-                        k * sampler(engine)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 4>(x, engine, sampler);
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -2608,6 +2595,7 @@ TEST(ClCppTest, GeometryImplLengthV4Test)
 
     ztest::MathTestResult result{};
     for (std::size_t i = 0; i < mem.size(); ++i) {
+      if (::hasSubnormalDot(in[i], in[i])) continue;
       const cl_float expected = zivc::cl::length(in[i]);
       ztest::test(expected, mem[i], &result);
     }
@@ -2639,17 +2627,10 @@ TEST(ClCppTest, GeometryFallbackLengthV4Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float4 v{k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi),
-                        k * sampler(engine)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 4>(x, engine, sampler);
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -2683,6 +2664,7 @@ TEST(ClCppTest, GeometryFallbackLengthV4Test)
 
     ztest::MathTestResult result{};
     for (std::size_t i = 0; i < mem.size(); ++i) {
+      if (::hasSubnormalDot(in[i], in[i])) continue;
       const cl_float expected = zivc::cl::length(in[i]);
       ztest::test(expected, mem[i], &result);
     }
@@ -2715,21 +2697,10 @@ TEST(ClCppTest, GeometryFallbackLengthV4Test)
 //    host_buff->setSize(buffer_in->size());
 //    zivc::MappedMemory mem = host_buff->mapMemory();
 //    std::mt19937_64 engine{123'456'789};
-//    std::uniform_real_distribution sampler{0.0f, 1.0f};
+//    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
 //    for (std::size_t i = 0; i < mem.size(); ++i) {
-//      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-//      const float k = ztest::makeNormal(x);
-//      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-//      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-//      const cl_float8 v{k * (std::sin(phi) * std::cos(theta)),
-//                        k * (std::sin(phi) * std::sin(theta)),
-//                        k * std::cos(phi),
-//                        k * sampler(engine),
-//                        k * (std::sin(phi) * std::cos(theta)),
-//                        k * (std::sin(phi) * std::sin(theta)),
-//                        k * std::cos(phi),
-//                        k * sampler(engine)};
-//      mem[i] = v;
+//      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+//      mem[i] = ::makeDotInput<float, 8>(x, engine, sampler);
 //    }
 //  }
 //  ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -2763,6 +2734,7 @@ TEST(ClCppTest, GeometryFallbackLengthV4Test)
 //
 //    ztest::MathTestResult result{};
 //    for (std::size_t i = 0; i < mem.size(); ++i) {
+//      if (::hasSubnormalDot(in[i], in[i])) continue;
 //      const cl_float expected = zivc::cl::length(in[i]);
 //      ztest::test(expected, mem[i], &result);
 //    }
@@ -2795,21 +2767,10 @@ TEST(ClCppTest, GeometryFallbackLengthV8Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float8 v{k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi),
-                        k * sampler(engine),
-                        k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi),
-                        k * sampler(engine)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 8>(x, engine, sampler);
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -2843,6 +2804,7 @@ TEST(ClCppTest, GeometryFallbackLengthV8Test)
 
     ztest::MathTestResult result{};
     for (std::size_t i = 0; i < mem.size(); ++i) {
+      if (::hasSubnormalDot(in[i], in[i])) continue;
       const cl_float expected = zivc::cl::length(in[i]);
       ztest::test(expected, mem[i], &result);
     }
@@ -2876,29 +2838,10 @@ TEST(ClCppTest, GeometryFallbackLengthV8Test)
 //    host_buff->setSize(buffer_in->size());
 //    zivc::MappedMemory mem = host_buff->mapMemory();
 //    std::mt19937_64 engine{123'456'789};
-//    std::uniform_real_distribution sampler{0.0f, 1.0f};
+//    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
 //    for (std::size_t i = 0; i < mem.size(); ++i) {
-//      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-//      const float k = ztest::makeNormal(x);
-//      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-//      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-//      const cl_float16 v{k * (std::sin(phi) * std::cos(theta)),
-//                         k * (std::sin(phi) * std::sin(theta)),
-//                         k * std::cos(phi),
-//                         k * sampler(engine),
-//                         k * (std::sin(phi) * std::cos(theta)),
-//                         k * (std::sin(phi) * std::sin(theta)),
-//                         k * std::cos(phi),
-//                         k * sampler(engine),
-//                         k * (std::sin(phi) * std::cos(theta)),
-//                         k * (std::sin(phi) * std::sin(theta)),
-//                         k * std::cos(phi),
-//                         k * sampler(engine),
-//                         k * (std::sin(phi) * std::cos(theta)),
-//                         k * (std::sin(phi) * std::sin(theta)),
-//                         k * std::cos(phi),
-//                         k * sampler(engine)};
-//      mem[i] = v;
+//      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+//      mem[i] = ::makeDotInput<float, 16>(x, engine, sampler);
 //    }
 //  }
 //  ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -2932,6 +2875,7 @@ TEST(ClCppTest, GeometryFallbackLengthV8Test)
 //
 //    ztest::MathTestResult result{};
 //    for (std::size_t i = 0; i < mem.size(); ++i) {
+//      if (::hasSubnormalDot(in[i], in[i])) continue;
 //      const cl_float expected = zivc::cl::length(in[i]);
 //      ztest::test(expected, mem[i], &result);
 //    }
@@ -2965,29 +2909,10 @@ TEST(ClCppTest, GeometryFallbackLengthV16Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float16 v{k * (std::sin(phi) * std::cos(theta)),
-                         k * (std::sin(phi) * std::sin(theta)),
-                         k * std::cos(phi),
-                         k * sampler(engine),
-                         k * (std::sin(phi) * std::cos(theta)),
-                         k * (std::sin(phi) * std::sin(theta)),
-                         k * std::cos(phi),
-                         k * sampler(engine),
-                         k * (std::sin(phi) * std::cos(theta)),
-                         k * (std::sin(phi) * std::sin(theta)),
-                         k * std::cos(phi),
-                         k * sampler(engine),
-                         k * (std::sin(phi) * std::cos(theta)),
-                         k * (std::sin(phi) * std::sin(theta)),
-                         k * std::cos(phi),
-                         k * sampler(engine)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 16>(x, engine, sampler);
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -3021,6 +2946,7 @@ TEST(ClCppTest, GeometryFallbackLengthV16Test)
 
     ztest::MathTestResult result{};
     for (std::size_t i = 0; i < mem.size(); ++i) {
+      if (::hasSubnormalDot(in[i], in[i])) continue;
       const cl_float expected = zivc::cl::length(in[i]);
       ztest::test(expected, mem[i], &result);
     }
@@ -3052,17 +2978,10 @@ TEST(ClCppTest, GeometryImplLengthV4C3Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float4 v{k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi),
-                        k * sampler(engine)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 4>(x, engine, sampler);
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -3098,6 +3017,7 @@ TEST(ClCppTest, GeometryImplLengthV4C3Test)
     for (std::size_t i = 0; i < mem.size(); ++i) {
       cl_float4 a = in[i];
       a.w = 0.0f;
+      if (::hasSubnormalDot(a, a)) continue;
       const cl_float expected = zivc::cl::length(a);
       ztest::test(expected, mem[i], &result);
     }
@@ -3129,17 +3049,10 @@ TEST(ClCppTest, GeometryFallbackLengthV4C3Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float4 v{k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi),
-                        k * sampler(engine)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 4>(x, engine, sampler);
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -3175,6 +3088,7 @@ TEST(ClCppTest, GeometryFallbackLengthV4C3Test)
     for (std::size_t i = 0; i < mem.size(); ++i) {
       cl_float4 a = in[i];
       a.w = 0.0f;
+      if (::hasSubnormalDot(a, a)) continue;
       const cl_float expected = zivc::cl::length(a);
       ztest::test(expected, mem[i], &result);
     }
@@ -3206,12 +3120,12 @@ TEST(ClCppTest, GeometryImplNormalizeV2Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const cl_float2 v{k * sampler(engine), k * sampler(engine)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 2>(x, engine, sampler);
+      constexpr float eps = std::numeric_limits<float>::epsilon();
+      if (zivc::cl::dot(mem[i], mem[i]) < eps) mem[i] += eps;
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -3245,6 +3159,7 @@ TEST(ClCppTest, GeometryImplNormalizeV2Test)
 
     ztest::MathTestResult result{};
     for (std::size_t i = 0; i < mem.size(); ++i) {
+      if (::hasSubnormalDot(in[i], in[i])) continue;
       const cl_float2 expected = zivc::cl::normalize(in[i]);
       ztest::test(expected.x, mem[i].x, &result);
       ztest::test(expected.y, mem[i].y, &result);
@@ -3277,12 +3192,12 @@ TEST(ClCppTest, GeometryFallbackNormalizeV2Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const cl_float2 v{k * sampler(engine), k * sampler(engine)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 2>(x, engine, sampler);
+      constexpr float eps = std::numeric_limits<float>::epsilon();
+      if (zivc::cl::dot(mem[i], mem[i]) < eps) mem[i] += eps;
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -3316,6 +3231,7 @@ TEST(ClCppTest, GeometryFallbackNormalizeV2Test)
 
     ztest::MathTestResult result{};
     for (std::size_t i = 0; i < mem.size(); ++i) {
+      if (::hasSubnormalDot(in[i], in[i])) continue;
       const cl_float2 expected = zivc::cl::normalize(in[i]);
       ztest::test(expected.x, mem[i].x, &result);
       ztest::test(expected.y, mem[i].y, &result);
@@ -3348,16 +3264,12 @@ TEST(ClCppTest, GeometryImplNormalizeV3Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float3 v{k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 3>(x, engine, sampler);
+      constexpr float eps = std::numeric_limits<float>::epsilon();
+      if (zivc::cl::dot(mem[i], mem[i]) < eps) mem[i] += eps;
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -3391,6 +3303,7 @@ TEST(ClCppTest, GeometryImplNormalizeV3Test)
 
     ztest::MathTestResult result{};
     for (std::size_t i = 0; i < mem.size(); ++i) {
+      if (::hasSubnormalDot(in[i], in[i])) continue;
       const cl_float3 expected = zivc::cl::normalize(in[i]);
       ztest::test(expected.x, mem[i].x, &result);
       ztest::test(expected.y, mem[i].y, &result);
@@ -3424,16 +3337,12 @@ TEST(ClCppTest, GeometryFallbackNormalizeV3Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float3 v{k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 3>(x, engine, sampler);
+      constexpr float eps = std::numeric_limits<float>::epsilon();
+      if (zivc::cl::dot(mem[i], mem[i]) < eps) mem[i] += eps;
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -3467,6 +3376,7 @@ TEST(ClCppTest, GeometryFallbackNormalizeV3Test)
 
     ztest::MathTestResult result{};
     for (std::size_t i = 0; i < mem.size(); ++i) {
+      if (::hasSubnormalDot(in[i], in[i])) continue;
       const cl_float3 expected = zivc::cl::normalize(in[i]);
       ztest::test(expected.x, mem[i].x, &result);
       ztest::test(expected.y, mem[i].y, &result);
@@ -3500,17 +3410,12 @@ TEST(ClCppTest, GeometryImplNormalizeV4Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float4 v{k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi),
-                        k * sampler(engine)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 4>(x, engine, sampler);
+      constexpr float eps = std::numeric_limits<float>::epsilon();
+      if (zivc::cl::dot(mem[i], mem[i]) < eps) mem[i] += eps;
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -3544,6 +3449,7 @@ TEST(ClCppTest, GeometryImplNormalizeV4Test)
 
     ztest::MathTestResult result{};
     for (std::size_t i = 0; i < mem.size(); ++i) {
+      if (::hasSubnormalDot(in[i], in[i])) continue;
       const cl_float4 expected = zivc::cl::normalize(in[i]);
       ztest::test(expected.x, mem[i].x, &result);
       ztest::test(expected.y, mem[i].y, &result);
@@ -3578,17 +3484,12 @@ TEST(ClCppTest, GeometryFallbackNormalizeV4Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float4 v{k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi),
-                        k * sampler(engine)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 4>(x, engine, sampler);
+      constexpr float eps = std::numeric_limits<float>::epsilon();
+      if (zivc::cl::dot(mem[i], mem[i]) < eps) mem[i] += eps;
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -3622,6 +3523,7 @@ TEST(ClCppTest, GeometryFallbackNormalizeV4Test)
 
     ztest::MathTestResult result{};
     for (std::size_t i = 0; i < mem.size(); ++i) {
+      if (::hasSubnormalDot(in[i], in[i])) continue;
       const cl_float4 expected = zivc::cl::normalize(in[i]);
       ztest::test(expected.x, mem[i].x, &result);
       ztest::test(expected.y, mem[i].y, &result);
@@ -3657,21 +3559,12 @@ TEST(ClCppTest, GeometryFallbackNormalizeV4Test)
 //    host_buff->setSize(buffer_in->size());
 //    zivc::MappedMemory mem = host_buff->mapMemory();
 //    std::mt19937_64 engine{123'456'789};
-//    std::uniform_real_distribution sampler{0.0f, 1.0f};
+//    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
 //    for (std::size_t i = 0; i < mem.size(); ++i) {
-//      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-//      const float k = ztest::makeNormal(x);
-//      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-//      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-//      const cl_float8 v{k * (std::sin(phi) * std::cos(theta)),
-//                        k * (std::sin(phi) * std::sin(theta)),
-//                        k * std::cos(phi),
-//                        k * sampler(engine),
-//                        k * (std::sin(phi) * std::cos(theta)),
-//                        k * (std::sin(phi) * std::sin(theta)),
-//                        k * std::cos(phi),
-//                        k * sampler(engine)};
-//      mem[i] = v;
+//      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+//      mem[i] = ::makeDotInput<float, 8>(x, engine, sampler);
+//      constexpr float eps = std::numeric_limits<float>::epsilon();
+//      if (zivc::cl::dot(mem[i], mem[i]) < eps) mem[i] += eps;
 //    }
 //  }
 //  ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -3705,6 +3598,7 @@ TEST(ClCppTest, GeometryFallbackNormalizeV4Test)
 //
 //    ztest::MathTestResult result{};
 //    for (std::size_t i = 0; i < mem.size(); ++i) {
+//      if (::hasSubnormalDot(in[i], in[i])) continue;
 //      const cl_float8 expected = zivc::cl::normalize(in[i]);
 //      ztest::test(expected.s0, mem[i].s0, &result);
 //      ztest::test(expected.s1, mem[i].s1, &result);
@@ -3744,21 +3638,12 @@ TEST(ClCppTest, GeometryFallbackNormalizeV8Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float8 v{k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi),
-                        k * sampler(engine),
-                        k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi),
-                        k * sampler(engine)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 8>(x, engine, sampler);
+      constexpr float eps = std::numeric_limits<float>::epsilon();
+      if (zivc::cl::dot(mem[i], mem[i]) < eps) mem[i] += eps;
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -3792,6 +3677,7 @@ TEST(ClCppTest, GeometryFallbackNormalizeV8Test)
 
     ztest::MathTestResult result{};
     for (std::size_t i = 0; i < mem.size(); ++i) {
+      if (::hasSubnormalDot(in[i], in[i])) continue;
       const cl_float8 expected = zivc::cl::normalize(in[i]);
       ztest::test(expected.s0, mem[i].s0, &result);
       ztest::test(expected.s1, mem[i].s1, &result);
@@ -3832,29 +3718,12 @@ TEST(ClCppTest, GeometryFallbackNormalizeV8Test)
 //    host_buff->setSize(buffer_in->size());
 //    zivc::MappedMemory mem = host_buff->mapMemory();
 //    std::mt19937_64 engine{123'456'789};
-//    std::uniform_real_distribution sampler{0.0f, 1.0f};
+//    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
 //    for (std::size_t i = 0; i < mem.size(); ++i) {
-//      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-//      const float k = ztest::makeNormal(x);
-//      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-//      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-//      const cl_float16 v{k * (std::sin(phi) * std::cos(theta)),
-//                         k * (std::sin(phi) * std::sin(theta)),
-//                         k * std::cos(phi),
-//                         k * sampler(engine),
-//                         k * (std::sin(phi) * std::cos(theta)),
-//                         k * (std::sin(phi) * std::sin(theta)),
-//                         k * std::cos(phi),
-//                         k * sampler(engine),
-//                         k * (std::sin(phi) * std::cos(theta)),
-//                         k * (std::sin(phi) * std::sin(theta)),
-//                         k * std::cos(phi),
-//                         k * sampler(engine),
-//                         k * (std::sin(phi) * std::cos(theta)),
-//                         k * (std::sin(phi) * std::sin(theta)),
-//                         k * std::cos(phi),
-//                         k * sampler(engine)};
-//      mem[i] = v;
+//      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+//      mem[i] = ::makeDotInput<float, 16>(x, engine, sampler);
+//      constexpr float eps = std::numeric_limits<float>::epsilon();
+//      if (zivc::cl::dot(mem[i], mem[i]) < eps) mem[i] += eps;
 //    }
 //  }
 //  ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -3888,6 +3757,7 @@ TEST(ClCppTest, GeometryFallbackNormalizeV8Test)
 //
 //    ztest::MathTestResult result{};
 //    for (std::size_t i = 0; i < mem.size(); ++i) {
+//      if (::hasSubnormalDot(in[i], in[i])) continue;
 //      const cl_float16 expected = zivc::cl::normalize(in[i]);
 //      ztest::test(expected.s0, mem[i].s0, &result);
 //      ztest::test(expected.s1, mem[i].s1, &result);
@@ -3936,29 +3806,12 @@ TEST(ClCppTest, GeometryFallbackNormalizeV16Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float16 v{k * (std::sin(phi) * std::cos(theta)),
-                         k * (std::sin(phi) * std::sin(theta)),
-                         k * std::cos(phi),
-                         k * sampler(engine),
-                         k * (std::sin(phi) * std::cos(theta)),
-                         k * (std::sin(phi) * std::sin(theta)),
-                         k * std::cos(phi),
-                         k * sampler(engine),
-                         k * (std::sin(phi) * std::cos(theta)),
-                         k * (std::sin(phi) * std::sin(theta)),
-                         k * std::cos(phi),
-                         k * sampler(engine),
-                         k * (std::sin(phi) * std::cos(theta)),
-                         k * (std::sin(phi) * std::sin(theta)),
-                         k * std::cos(phi),
-                         k * sampler(engine)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 16>(x, engine, sampler);
+      constexpr float eps = std::numeric_limits<float>::epsilon();
+      if (zivc::cl::dot(mem[i], mem[i]) < eps) mem[i] += eps;
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -3992,6 +3845,7 @@ TEST(ClCppTest, GeometryFallbackNormalizeV16Test)
 
     ztest::MathTestResult result{};
     for (std::size_t i = 0; i < mem.size(); ++i) {
+      if (::hasSubnormalDot(in[i], in[i])) continue;
       const cl_float16 expected = zivc::cl::normalize(in[i]);
       ztest::test(expected.s0, mem[i].s0, &result);
       ztest::test(expected.s1, mem[i].s1, &result);
@@ -4038,17 +3892,12 @@ TEST(ClCppTest, GeometryImplNormalizeV4C3Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float4 v{k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi),
-                        k * sampler(engine)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 4>(x, engine, sampler);
+      constexpr float eps = std::numeric_limits<float>::epsilon();
+      if (zivc::cl::dot(mem[i], mem[i]) < eps) mem[i] += eps;
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -4084,6 +3933,7 @@ TEST(ClCppTest, GeometryImplNormalizeV4C3Test)
     for (std::size_t i = 0; i < mem.size(); ++i) {
       cl_float4 a = in[i];
       a.w = 0.0f;
+      if (::hasSubnormalDot(a, a)) continue;
       const cl_float4 expected = zivc::cl::normalize(a);
       ztest::test(expected.x, mem[i].x, &result);
       ztest::test(expected.y, mem[i].y, &result);
@@ -4117,17 +3967,12 @@ TEST(ClCppTest, GeometryFallbackNormalizeV4C3Test)
     host_buff->setSize(buffer_in->size());
     zivc::MappedMemory mem = host_buff->mapMemory();
     std::mt19937_64 engine{123'456'789};
-    std::uniform_real_distribution sampler{0.0f, 1.0f};
+    std::uniform_real_distribution sampler{1.0e-4f, 1.0f};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      const float x = 0.3f + 0.4f * (static_cast<float>(i) / static_cast<float>(mem.size()));
-      const float k = ztest::makeNormal(x);
-      const float theta = 2.0f * std::numbers::pi_v<float> * sampler(engine);
-      const float phi = std::acos(1.0f - 2.0f * sampler(engine));
-      const cl_float4 v{k * (std::sin(phi) * std::cos(theta)),
-                        k * (std::sin(phi) * std::sin(theta)),
-                        k * std::cos(phi),
-                        k * sampler(engine)};
-      mem[i] = v;
+      const float x = static_cast<float>(i) / static_cast<float>(mem.size());
+      mem[i] = ::makeDotInput<float, 4>(x, engine, sampler);
+      constexpr float eps = std::numeric_limits<float>::epsilon();
+      if (zivc::cl::dot(mem[i], mem[i]) < eps) mem[i] += eps;
     }
   }
   ztest::copyBuffer(*host_buff, buffer_in.get());
@@ -4163,6 +4008,7 @@ TEST(ClCppTest, GeometryFallbackNormalizeV4C3Test)
     for (std::size_t i = 0; i < mem.size(); ++i) {
       cl_float4 a = in[i];
       a.w = 0.0f;
+      if (::hasSubnormalDot(a, a)) continue;
       const cl_float4 expected = zivc::cl::normalize(a);
       ztest::test(expected.x, mem[i].x, &result);
       ztest::test(expected.y, mem[i].y, &result);

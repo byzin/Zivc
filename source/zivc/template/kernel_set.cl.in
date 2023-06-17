@@ -25,6 +25,8 @@
 #pragma clang diagnostic ignored "-Wc++98-c++11-compat-pedantic"
 //#pragma clang diagnostic push
 //#pragma clang diagnostic ignored "-Wc++98-c++11-c++14-compat-pedantic"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wpre-c++17-compat-pedantic"
 
 /*!
   \brief This function is defined for enabling all pushconstant values used in clspv
@@ -97,6 +99,7 @@ static_assert(__OPENCL_VERSION__ == CL_VERSION_1_2, "OpenCL version isn't 2.0.")
 static_assert(__OPENCL_CPP_VERSION__ == 100, "OpenCL C++ version isn't 1.0.");
 
 // Warning
+#pragma clang diagnostic pop
 //#pragma clang diagnostic pop
 #pragma clang diagnostic pop
 #pragma clang diagnostic pop

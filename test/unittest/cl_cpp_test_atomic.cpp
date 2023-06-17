@@ -33,6 +33,7 @@
 #include "utility/googletest.hpp"
 #include "utility/test.hpp"
 #include "zivc/kernel_set/kernel_set-cl_cpp_test_atomic.hpp"
+#include "zivc/kernel_set/kernel_set-cl_cpp_test_atomic_compare_and_exchange.hpp"
 
 namespace {
 
@@ -936,7 +937,7 @@ TEST(ClCppTest, AtomicCompareExchangeTest)
   zivc::ReinterpBuffer reinterp_out2 = buffer_out2->reinterp<cl_uint>();
 
   // Make a kernel
-  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_atomic, atomicCompareAndExchangeTestKernel, 1);
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_atomic_compare_and_exchange, atomicCompareAndExchangeTestKernel, 1);
   const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(5, kernel->argSize()) << "Wrong kernel property.";
@@ -998,7 +999,7 @@ TEST(ClCppTest, AtomicCompareExchangeLocalTest)
   ztest::setDeviceBuffer(*device, {0}, buffer_out1.get());
 
   // Make a kernel
-  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_atomic, atomicCompareAndExchangeLocalTestKernel, 1);
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_atomic_compare_and_exchange, atomicCompareAndExchangeLocalTestKernel, 1);
   const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
   ASSERT_EQ(3, kernel->argSize()) << "Wrong kernel property.";

@@ -305,11 +305,13 @@ void VulkanBuffer<T>::setSize(const std::size_t s)
   //! \todo Should we reduce capacity when the given size is less than the capacity?
   if (prev_cap < s) {
     const std::size_t mem_size = sizeof(Type) * s;
+    constexpr std::size_t min_alignment = alignof(Type);
     VkBuffer buffer = ZIVC_VK_NULL_HANDLE;
     VmaAllocation vm_allocation = ZIVC_VK_NULL_HANDLE;
     VmaAllocationInfo vm_alloc_info{};
     const VulkanBufferImpl impl{std::addressof(parentImpl())};
     impl.allocateMemory(mem_size,
+                        min_alignment,
                         *this,
                         descriptorTypeVk(),
                         std::addressof(Buffer<T>::id()),

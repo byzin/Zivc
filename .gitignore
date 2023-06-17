@@ -138,6 +138,8 @@
 !/test/unittest/kernels/cl_cpp_test1/*.cl
 !/test/unittest/kernels/cl_cpp_test_atomic/
 !/test/unittest/kernels/cl_cpp_test_atomic/*.cl
+!/test/unittest/kernels/cl_cpp_test_atomic_compare_and_exchange/
+!/test/unittest/kernels/cl_cpp_test_atomic_compare_and_exchange/*.cl
 !/test/unittest/kernels/cl_cpp_test_geometry/
 !/test/unittest/kernels/cl_cpp_test_geometry/*.cl
 !/test/unittest/kernels/cl_cpp_test_math/

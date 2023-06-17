@@ -99,7 +99,7 @@ void MathTestResult::checkError(const std::string_view name) const
   ASSERT_FALSE(fatal_nan_) << name.data() << " has unexpected NaN.";
   ASSERT_FALSE(fatal_inf_) << name.data() << " has unexpected Inf.";
   ASSERT_FALSE(fatal_outlier_) << name.data() << " has unexpected outlier.";
-  ASSERT_FALSE(0 < num_of_outliers_) << name.data() << " has outliers.";
+  ASSERT_FALSE(0 < num_of_outliers1_) << name.data() << " has outliers.";
 }
 
 /*!
@@ -120,10 +120,23 @@ double MathTestResult::getAverageUlpDiff() const noexcept
 
   \return No description
   */
-double MathTestResult::getAverageOutlierUlpDiff() const noexcept
+double MathTestResult::getAverageOutlierUlpDiff1() const noexcept
 {
-  const double average = (0 < num_of_outliers_)
-      ? static_cast<double>(total_outlier_ulp_diff_) / static_cast<double>(num_of_outliers_)
+  const double average = (0 < num_of_outliers1_)
+      ? static_cast<double>(total_outlier_ulp_diff1_) / static_cast<double>(num_of_outliers1_)
+      : 0.0;
+  return average;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
+double MathTestResult::getAverageOutlierUlpDiff2() const noexcept
+{
+  const double average = (0 < num_of_outliers2_)
+      ? static_cast<double>(total_outlier_ulp_diff2_) / static_cast<double>(num_of_outliers2_)
       : 0.0;
   return average;
 }
@@ -137,12 +150,19 @@ void MathTestResult::print() const noexcept
             << "-- avg ulp diff        : " << std::scientific << std::setprecision(5)
                                            << getAverageUlpDiff() << std::endl
             << "-- max ulp diff        : " << max_ulp_diff_ << std::endl;
-  if (0 < num_of_outliers_) {
-    std::cout << "-- num of outliers     : " << num_of_outliers_ << std::endl
-              << "-- avg outlier ulp diff: " << std::scientific << std::setprecision(5)
-                                             << getAverageOutlierUlpDiff() << std::endl
-              << "-- ulp tolerance       : " << ulp_outlier_tolerance_ << std::endl;
+  if (0 < num_of_outliers1_) {
+    std::cout << "-- ulp tolerance1      : " << ulp_outlier_tolerance1_ << std::endl
+              << "--     num of outliers : " << num_of_outliers1_ << std::endl
+              << "--     avg out ulp diff: " << std::scientific << std::setprecision(5)
+                                                 << getAverageOutlierUlpDiff1() << std::endl;
   }
+  if (0 < num_of_outliers2_) {
+    std::cout << "-- ulp tolerance2      : " << ulp_outlier_tolerance2_ << std::endl
+              << "--     num of outliers : " << num_of_outliers2_ << std::endl
+              << "--     avg out ulp diff: " << std::scientific << std::setprecision(5)
+                                                 << getAverageOutlierUlpDiff2() << std::endl;
+  }
+
 }
 
 /*!

@@ -175,6 +175,7 @@ VulkanBufferImpl::~VulkanBufferImpl() noexcept
   \details No detailed description
 
   \param [in] size No description.
+  \param [in] min_alignment No description.
   \param [in] object No description.
   \param [in] desc_type No description.
   \param [in] user_data No description.
@@ -183,6 +184,7 @@ VulkanBufferImpl::~VulkanBufferImpl() noexcept
   \param [out] alloc_info No description.
   */
 void VulkanBufferImpl::allocateMemory(const std::size_t size,
+                                      const std::size_t min_alignment,
                                       const BufferCommon& object,
                                       const VkBufferUsageFlagBits desc_type,
                                       void* user_data,
@@ -199,12 +201,13 @@ void VulkanBufferImpl::allocateMemory(const std::size_t size,
   const VmaAllocationCreateInfo alloc_create_info = createAllocCreateInfo(object.usage(),
                                                                           object.flag(),
                                                                           user_data);
-  const VkResult result = vmaCreateBuffer(device().memoryAllocator(),
-                                          std::addressof(binfo),
-                                          std::addressof(alloc_create_info),
-                                          buffer,
-                                          vm_allocation,
-                                          alloc_info);
+  const VkResult result = vmaCreateBufferWithAlignment(device().memoryAllocator(),
+                                                       std::addressof(binfo),
+                                                       std::addressof(alloc_create_info),
+                                                       min_alignment,
+                                                       buffer,
+                                                       vm_allocation,
+                                                       alloc_info);
   if (result != VK_SUCCESS) [[unlikely]] {
     std::string message = "Buffer memroy allocation failed. size: " +
                           std::to_string(size) + " bytes.";

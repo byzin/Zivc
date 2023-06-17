@@ -197,27 +197,53 @@ bool test(const Float expected,
     return true;
   // Compute roug ULP distance first
   const Float rough_ulps = calcRoughUlpDistance(expected, value);
-  const std::size_t rough_tolerance = 4 * (std::max)(
-      static_cast<std::size_t>(std::numeric_limits<Float>::digits),
-      result->ulp_outlier_tolerance_);
-  float flag = rough_ulps <= static_cast<Float>(rough_tolerance);
-  if (flag) {
-    const std::size_t ulps = calcUlpDistance(expected, value);
-    result->total_ulp_diff_ += ulps;
-    flag = ulps <= result->ulp_outlier_tolerance_;
-    if (!flag) {
-      ++result->num_of_outliers_;
-      result->total_outlier_ulp_diff_ += ulps;
+
+  // tolerance1
+  bool flag = false;
+  {
+    const std::size_t rough_tolerance = 4 * (std::max)(
+        static_cast<std::size_t>(std::numeric_limits<Float>::digits),
+        result->ulp_outlier_tolerance1_);
+    flag = rough_ulps <= static_cast<Float>(rough_tolerance);
+    if (flag) {
+      const std::size_t ulps = calcUlpDistance(expected, value);
+      result->total_ulp_diff_ += ulps;
+      flag = ulps <= result->ulp_outlier_tolerance1_;
+      if (!flag) {
+        ++result->num_of_outliers1_;
+        result->total_outlier_ulp_diff1_ += ulps;
+      }
+      result->max_ulp_diff_ = (std::max)(result->max_ulp_diff_, ulps);
     }
-    result->max_ulp_diff_ = (std::max)(result->max_ulp_diff_, ulps);
+    else {
+      ++result->num_of_outliers1_;
+      result->total_outlier_ulp_diff1_ += static_cast<std::size_t>(rough_ulps);
+      result->max_ulp_diff_ = (std::max)(result->max_ulp_diff_,
+                                         static_cast<std::size_t>(rough_ulps));
+      result->fatal_outlier_ = true;
+    }
   }
-  else {
-    ++result->num_of_outliers_;
-    result->total_outlier_ulp_diff_ += static_cast<std::size_t>(rough_ulps);
-    result->max_ulp_diff_ = (std::max)(result->max_ulp_diff_,
-                                       static_cast<std::size_t>(rough_ulps));
-    result->fatal_outlier_ = true;
+
+  // tolerance2
+  {
+    const std::size_t rough_tolerance = 4 * (std::max)(
+        static_cast<std::size_t>(std::numeric_limits<Float>::digits),
+        result->ulp_outlier_tolerance2_);
+    bool flag2 = rough_ulps <= static_cast<Float>(rough_tolerance);
+    if (flag2) {
+      const std::size_t ulps = calcUlpDistance(expected, value);
+      flag2 = ulps <= result->ulp_outlier_tolerance2_;
+      if (!flag2) {
+        ++result->num_of_outliers2_;
+        result->total_outlier_ulp_diff2_ += ulps;
+      }
+    }
+    else {
+      ++result->num_of_outliers2_;
+      result->total_outlier_ulp_diff2_ += static_cast<std::size_t>(rough_ulps);
+    }
   }
+
   return flag;
 }
 

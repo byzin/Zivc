@@ -55,6 +55,7 @@ class VulkanBufferImpl : private zisc::NonCopyable<VulkanBufferImpl>
 
   //! Allocate a memory for the device
   void allocateMemory(const std::size_t size,
+                      const std::size_t min_alignment,
                       const BufferCommon& object,
                       const VkBufferUsageFlagBits desc_type,
                       void* user_data,

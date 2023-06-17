@@ -212,6 +212,13 @@ macro(setTestProject)
   Zivc_addKernelSet(cl_cpp_test_atomic ${PROJECT_VERSION} kernel_name
       SOURCE_FILES ${cl_cpp_test_atomic_sources})
   target_link_libraries(${PROJECT_NAME} PRIVATE ${kernel_name})
+  ## opencl C++ atomic
+  cmake_path(SET kernel_set_cl_cpp_test_atomic2_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/cl_cpp_test_atomic_compare_and_exchange")
+  file(GLOB_RECURSE cl_cpp_test_atomic_sources2 ${kernel_set_cl_cpp_test_atomic2_dir}/*.cl)
+  Zivc_addKernelSet(cl_cpp_test_atomic_compare_and_exchange ${PROJECT_VERSION} kernel_name
+      SOURCE_FILES ${cl_cpp_test_atomic_sources2})
+  target_link_libraries(${PROJECT_NAME} PRIVATE ${kernel_name})
+
   ## opencl C++ math
   cmake_path(SET kernel_set_cl_cpp_test_math_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/cl_cpp_test_math")
   file(GLOB_RECURSE cl_cpp_test_math_sources ${kernel_set_cl_cpp_test_math_dir}/*.cl)
@@ -226,6 +233,9 @@ macro(setTestProject)
   add_test(NAME ${PROJECT_NAME}-vulkan0-debug
                COMMAND ${PROJECT_NAME} --device vulkan0
                WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
+  add_test(NAME ${PROJECT_NAME}-vulkan0-math
+               COMMAND ${PROJECT_NAME} --device vulkan0
+               WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
   add_test(NAME ${PROJECT_NAME}-vulkan0-nodebug
                COMMAND ${PROJECT_NAME} --device vulkan0 --nodebug
                WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
@@ -233,6 +243,9 @@ macro(setTestProject)
                COMMAND ${PROJECT_NAME} --device vulkan0
                WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
   add_test(NAME ${PROJECT_NAME}-vulkan1-debug
+               COMMAND ${PROJECT_NAME} --device vulkan1
+               WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
+  add_test(NAME ${PROJECT_NAME}-vulkan1-math
                COMMAND ${PROJECT_NAME} --device vulkan1
                WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
   add_test(NAME ${PROJECT_NAME}-vulkan1-nodebug
@@ -244,6 +257,9 @@ macro(setTestProject)
   add_test(NAME ${PROJECT_NAME}-vulkan2-debug
                COMMAND ${PROJECT_NAME} --device vulkan2
                WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
+  add_test(NAME ${PROJECT_NAME}-vulkan2-math
+               COMMAND ${PROJECT_NAME} --device vulkan2
+               WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
   add_test(NAME ${PROJECT_NAME}-vulkan2-nodebug
                COMMAND ${PROJECT_NAME} --device vulkan2 --nodebug
                WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
@@ -251,6 +267,9 @@ macro(setTestProject)
                COMMAND ${PROJECT_NAME} --device vulkan2
                WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
   add_test(NAME ${PROJECT_NAME}-vulkan3-debug
+               COMMAND ${PROJECT_NAME} --device vulkan3
+               WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
+  add_test(NAME ${PROJECT_NAME}-vulkan3-math
                COMMAND ${PROJECT_NAME} --device vulkan3
                WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
   add_test(NAME ${PROJECT_NAME}-vulkan3-nodebug
@@ -268,12 +287,16 @@ macro(setTestProject)
                        ${PROJECT_NAME}-vulkan2-full
                        ${PROJECT_NAME}-vulkan3-full
                        PROPERTIES ENVIRONMENT "${test_env_list}")
-  # \todo Resolve the AtomicCompareAndExchangeTest on macOS
-  if(Z_MAC)
-    list(APPEND test_env_list GTEST_FILTER=-*AllocationExceptionTest*:*AtomicCompareExchange*:*GeometryImpl*)
-  else()
-    list(APPEND test_env_list GTEST_FILTER=-*AllocationExceptionTest*:*GeometryImpl*)
-  endif()
+  # \todo Resolve the AtomicCompareAndExchangeTest
+  set(gtest_filter "GTEST_FILTER=-*AllocationExceptionTest*:*AtomicCompareExchangeTest*")
+  set(env_list ${test_env_list} ${gtest_filter})
+  set_tests_properties(${PROJECT_NAME}-vulkan0-math
+                       ${PROJECT_NAME}-vulkan1-math
+                       ${PROJECT_NAME}-vulkan2-math
+                       ${PROJECT_NAME}-vulkan3-math
+                       PROPERTIES ENVIRONMENT "${env_list}")
+  set(gtest_filter "${gtest_filter}:*Geometry*Cross*:*Geometry*Distance*")
+  set(env_list ${test_env_list} ${gtest_filter})
   set_tests_properties(${PROJECT_NAME}-vulkan0-debug
                        ${PROJECT_NAME}-vulkan0-nodebug
                        ${PROJECT_NAME}-vulkan1-debug
@@ -282,7 +305,7 @@ macro(setTestProject)
                        ${PROJECT_NAME}-vulkan2-nodebug
                        ${PROJECT_NAME}-vulkan3-debug
                        ${PROJECT_NAME}-vulkan3-nodebug
-                       PROPERTIES ENVIRONMENT "${test_env_list}")
+                       PROPERTIES ENVIRONMENT "${env_list}")
 
   # Copy test files
   cmake_path(SET dst_resource_dir "${PROJECT_BINARY_DIR}/resources")

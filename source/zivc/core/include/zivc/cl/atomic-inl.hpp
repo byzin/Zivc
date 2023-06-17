@@ -427,10 +427,11 @@ auto Atomic::perform(AddressSpacePointer p,
                 "The return type of the expression doesn't match with the object type.");
   // Perform an expression atomically
   Type old = load(p, getLoadOrder(order));
-  for (bool result = false; !result;) {
+  bool result = false;
+  do {
     const Type value = expression(old, arguments...);
     result = atomic_compare_exchange(p, &old, value, order, getLoadOrder(order));
-  }
+  } while (!result);
   return old;
 }
 

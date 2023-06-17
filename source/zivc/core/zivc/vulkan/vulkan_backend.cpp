@@ -686,18 +686,10 @@ void VulkanBackend::initInstance(ContextOptions& options)
   using FeatureEnableList = zisc::pmr::vector<vk::ValidationFeatureEnableEXT>;
   const FeatureEnableList::allocator_type feature_alloc{memoryResource()};
   FeatureEnableList validation_features_list{feature_alloc};
-  validation_features_list.reserve(4);
   validation_features_list = {
       vk::ValidationFeatureEnableEXT::eBestPractices,
       vk::ValidationFeatureEnableEXT::eSynchronizationValidation
   };
-  //! \todo the gpu assisted flags cause shader compilation error on macOS
-#if !defined(Z_MAC)
-  validation_features_list.emplace_back(
-      vk::ValidationFeatureEnableEXT::eGpuAssisted);
-  validation_features_list.emplace_back(
-      vk::ValidationFeatureEnableEXT::eGpuAssistedReserveBindingSlot);
-#endif // Z_MAC
   vk::ValidationFeaturesEXT validation_features{
       zisc::cast<uint32b>(validation_features_list.size()),
       validation_features_list.data(),
@@ -743,12 +735,9 @@ void VulkanBackend::initDeviceList()
   const vk::Instance ins{instance()};
 
   VulkanDispatchLoader::ConstLoaderReference loader = dispatcher().loader();
-  //! \todo Resolve the error
-  // The enumerate function causes undefined symbol error with custom allocator
-  //using TmpDeviceListT = zisc::pmr::vector<vk::PhysicalDevice>;
-  //TmpDeviceListT::allocator_type tmp_alloc{memoryResource()};
-  //auto device_list = ins.enumeratePhysicalDevices(tmp_alloc, loader);
-  const std::vector device_list = ins.enumeratePhysicalDevices(loader);
+  using TmpDeviceListT = zisc::pmr::vector<vk::PhysicalDevice>;
+  TmpDeviceListT::allocator_type tmp_alloc{memoryResource()};
+  auto device_list = ins.enumeratePhysicalDevices(tmp_alloc, loader);
 
   using DeviceListT = decltype(device_list_)::element_type;
   const DeviceListT::allocator_type alloc{memoryResource()};

@@ -13,7 +13,9 @@
   */
 
 // Standard C++ library
+#include <initializer_list>
 #include <limits>
+#include <span>
 #include <type_traits>
 // Zisc
 #include "zisc/utility.hpp"
@@ -562,17 +564,37 @@ TEST(ClCppTest, UtilityClampIntTest)
   using zivc::cl_float16;
 
   const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_int>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out1->setSize(3);
+  {
+    const std::initializer_list<cl_int> v = {1, -1, 20};
+    ztest::setDeviceBuffer(*device, v, buffer_out1.get());
+  }
   const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_int2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out2->setSize(2);
+  {
+    const std::initializer_list<cl_int2> v = {cl_int2{1, -1},
+                                              cl_int2{20, -20}};
+    ztest::setDeviceBuffer(*device, v, buffer_out2.get());
+  }
   const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_int3>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out3->setSize(1);
+  {
+    const std::initializer_list<cl_int3> v = {cl_int3{1, -1, 20}};
+    ztest::setDeviceBuffer(*device, v, buffer_out3.get());
+  }
   const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_int4>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out4->setSize(1);
+  {
+    const std::initializer_list<cl_int4> v = {cl_int4{1, -1, 20, -20}};
+    ztest::setDeviceBuffer(*device, v, buffer_out4.get());
+  }
   const zivc::SharedBuffer buffer_out8 = device->createBuffer<cl_int8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out8->setSize(1);
+  {
+    const std::initializer_list<cl_int8> v = {cl_int8{1, -1, 20, -20, 1, -1, 20, -20}};
+    ztest::setDeviceBuffer(*device, v, buffer_out8.get());
+  }
   const zivc::SharedBuffer buffer_out16 = device->createBuffer<cl_int16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out16->setSize(1);
+  {
+    const std::initializer_list<cl_int16> v = {cl_int16{1, -1, 20, -20, 1, -1, 20, -20,
+                                                        1, -1, 20, -20, 1, -1, 20, -20}};
+    ztest::setDeviceBuffer(*device, v, buffer_out16.get());
+  }
 
   device->waitForCompletion();
 
@@ -689,17 +711,37 @@ TEST(ClCppTest, UtilityMaxMinIntTest)
   using zivc::cl_float16;
 
   const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_int>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out1->setSize(3);
+  {
+    const std::initializer_list<cl_int> v = {1, -1, 20};
+    ztest::setDeviceBuffer(*device, v, buffer_out1.get());
+  }
   const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_int2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out2->setSize(2);
+  {
+    const std::initializer_list<cl_int2> v = {cl_int2{1, -1},
+                                              cl_int2{20, -20}};
+    ztest::setDeviceBuffer(*device, v, buffer_out2.get());
+  }
   const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_int3>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out3->setSize(1);
+  {
+    const std::initializer_list<cl_int3> v = {cl_int3{1, -1, 20}};
+    ztest::setDeviceBuffer(*device, v, buffer_out3.get());
+  }
   const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_int4>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out4->setSize(1);
+  {
+    const std::initializer_list<cl_int4> v = {cl_int4{1, -1, 20, -20}};
+    ztest::setDeviceBuffer(*device, v, buffer_out4.get());
+  }
   const zivc::SharedBuffer buffer_out8 = device->createBuffer<cl_int8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out8->setSize(1);
+  {
+    const std::initializer_list<cl_int8> v = {cl_int8{1, -1, 20, -20, 1, -1, 20, -20}};
+    ztest::setDeviceBuffer(*device, v, buffer_out8.get());
+  }
   const zivc::SharedBuffer buffer_out16 = device->createBuffer<cl_int16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out16->setSize(1);
+  {
+    const std::initializer_list<cl_int16> v = {cl_int16{1, -1, 20, -20, 1, -1, 20, -20,
+                                                        1, -1, 20, -20, 1, -1, 20, -20}};
+    ztest::setDeviceBuffer(*device, v, buffer_out16.get());
+  }
 
   device->waitForCompletion();
 
@@ -816,7 +858,10 @@ TEST(ClCppTest, UtilityUpsampleIntTest)
   using zivc::cl_float16;
 
   const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_int>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out1->setSize(1);
+  {
+    const std::initializer_list<cl_int> v = {0b0101'1010'0101'1010};
+    ztest::setDeviceBuffer(*device, v, buffer_out1.get());
+  }
   const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_int2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
   buffer_out2->setSize(1);
   const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_int3>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
@@ -942,17 +987,36 @@ TEST(ClCppTest, UtilityClampUintTest)
   using zivc::cl_float16;
 
   const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_uint>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out1->setSize(2);
+  {
+    const std::initializer_list<cl_uint> v = {1, 20};
+    ztest::setDeviceBuffer(*device, v, buffer_out1.get());
+  }
   const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_uint2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out2->setSize(1);
+  {
+    const std::initializer_list<cl_uint2> v = {cl_uint2{1, 20}};
+    ztest::setDeviceBuffer(*device, v, buffer_out2.get());
+  }
   const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_uint3>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out3->setSize(1);
+  {
+    const std::initializer_list<cl_uint3> v = {cl_uint3{1, 20, 1}};
+    ztest::setDeviceBuffer(*device, v, buffer_out3.get());
+  }
   const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_uint4>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out4->setSize(1);
+  {
+    const std::initializer_list<cl_uint4> v = {cl_uint4{1, 20, 1, 20}};
+    ztest::setDeviceBuffer(*device, v, buffer_out4.get());
+  }
   const zivc::SharedBuffer buffer_out8 = device->createBuffer<cl_uint8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out8->setSize(1);
+  {
+    const std::initializer_list<cl_uint8> v = {cl_uint8{1, 20, 1, 20, 1, 20, 1, 20}};
+    ztest::setDeviceBuffer(*device, v, buffer_out8.get());
+  }
   const zivc::SharedBuffer buffer_out16 = device->createBuffer<cl_uint16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out16->setSize(1);
+  {
+    const std::initializer_list<cl_uint16> v = {cl_uint16{1, 20, 1, 20, 1, 20, 1, 20,
+                                                          1, 20, 1, 20, 1, 20, 1, 20}};
+    ztest::setDeviceBuffer(*device, v, buffer_out16.get());
+  }
 
   device->waitForCompletion();
 
@@ -1066,17 +1130,36 @@ TEST(ClCppTest, UtilityMaxMinUintTest)
   using zivc::cl_float16;
 
   const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_uint>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out1->setSize(2);
+  {
+    const std::initializer_list<cl_uint> v = {1, 20};
+    ztest::setDeviceBuffer(*device, v, buffer_out1.get());
+  }
   const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_uint2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out2->setSize(1);
+  {
+    const std::initializer_list<cl_uint2> v = {cl_uint2{1, 20}};
+    ztest::setDeviceBuffer(*device, v, buffer_out2.get());
+  }
   const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_uint3>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out3->setSize(1);
+  {
+    const std::initializer_list<cl_uint3> v = {cl_uint3{1, 20, 1}};
+    ztest::setDeviceBuffer(*device, v, buffer_out3.get());
+  }
   const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_uint4>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out4->setSize(1);
+  {
+    const std::initializer_list<cl_uint4> v = {cl_uint4{1, 20, 1, 20}};
+    ztest::setDeviceBuffer(*device, v, buffer_out4.get());
+  }
   const zivc::SharedBuffer buffer_out8 = device->createBuffer<cl_uint8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out8->setSize(1);
+  {
+    const std::initializer_list<cl_uint8> v = {cl_uint8{1, 20, 1, 20, 1, 20, 1, 20}};
+    ztest::setDeviceBuffer(*device, v, buffer_out8.get());
+  }
   const zivc::SharedBuffer buffer_out16 = device->createBuffer<cl_uint16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out16->setSize(1);
+  {
+    const std::initializer_list<cl_uint16> v = {cl_uint16{1, 20, 1, 20, 1, 20, 1, 20,
+                                                          1, 20, 1, 20, 1, 20, 1, 20}};
+    ztest::setDeviceBuffer(*device, v, buffer_out16.get());
+  }
 
   device->waitForCompletion();
 
@@ -1314,17 +1397,69 @@ TEST(ClCppTest, UtilityClzUintTest)
   using zivc::cl_float16;
 
   const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_uint>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out1->setSize(2);
+  {
+    const std::initializer_list<cl_uint> v = {0b00001111'00001111'00001111'00001111u,
+                                              0b11110000'11110000'11110000'11110000u};
+    ztest::setDeviceBuffer(*device, v, buffer_out1.get());
+  }
   const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_uint2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out2->setSize(1);
+  {
+    const std::initializer_list<cl_uint2> v = {
+        cl_uint2{0b00001111'00001111'00001111'00001111u,
+                 0b11110000'11110000'11110000'11110000u}};
+    ztest::setDeviceBuffer(*device, v, buffer_out2.get());
+  }
   const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_uint3>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out3->setSize(1);
+  {
+    const std::initializer_list<cl_uint3> v = {
+        cl_uint3{0b00001111'00001111'00001111'00001111u,
+                 0b11110000'11110000'11110000'11110000u,
+                 0b01010101'01010101'01010101'01010101u}};
+    ztest::setDeviceBuffer(*device, v, buffer_out3.get());
+  }
   const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_uint4>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out4->setSize(1);
+  {
+    const std::initializer_list<cl_uint4> v = {
+        cl_uint4{0b00001111'00001111'00001111'00001111u,
+                 0b11110000'11110000'11110000'11110000u,
+                 0b01010101'01010101'01010101'01010101u,
+                 0b10101010'10101010'10101010'10101010u}};
+    ztest::setDeviceBuffer(*device, v, buffer_out4.get());
+  }
   const zivc::SharedBuffer buffer_out8 = device->createBuffer<cl_uint8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out8->setSize(1);
+  {
+    const std::initializer_list<cl_uint8> v = {
+        cl_uint8{0b00001111'00001111'00001111'00001111u,
+                 0b11110000'11110000'11110000'11110000u,
+                 0b01010101'01010101'01010101'01010101u,
+                 0b10101010'10101010'10101010'10101010u,
+                 0b00001111'00001111'00001111'00001111u,
+                 0b11110000'11110000'11110000'11110000u,
+                 0b01010101'01010101'01010101'01010101u,
+                 0b10101010'10101010'10101010'10101010u}};
+    ztest::setDeviceBuffer(*device, v, buffer_out8.get());
+  }
   const zivc::SharedBuffer buffer_out16 = device->createBuffer<cl_uint16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out16->setSize(1);
+  {
+    const std::initializer_list<cl_uint16> v = {
+        cl_uint16{0b00001111'00001111'00001111'00001111u,
+                  0b11110000'11110000'11110000'11110000u,
+                  0b01010101'01010101'01010101'01010101u,
+                  0b10101010'10101010'10101010'10101010u,
+                  0b00001111'00001111'00001111'00001111u,
+                  0b11110000'11110000'11110000'11110000u,
+                  0b01010101'01010101'01010101'01010101u,
+                  0b10101010'10101010'10101010'10101010u,
+                  0b00001111'00001111'00001111'00001111u,
+                  0b11110000'11110000'11110000'11110000u,
+                  0b01010101'01010101'01010101'01010101u,
+                  0b10101010'10101010'10101010'10101010u,
+                  0b00001111'00001111'00001111'00001111u,
+                  0b11110000'11110000'11110000'11110000u,
+                  0b01010101'01010101'01010101'01010101u,
+                  0b10101010'10101010'10101010'10101010u}};
+    ztest::setDeviceBuffer(*device, v, buffer_out16.get());
+  }
 
   device->waitForCompletion();
 
@@ -1438,17 +1573,69 @@ TEST(ClCppTest, UtilityPopcountUintTest)
   using zivc::cl_float16;
 
   const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_uint>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out1->setSize(2);
+  {
+    const std::initializer_list<cl_uint> v = {0b00001111'00001111'00001111'00001111u,
+                                              0b11110000'11110000'11110000'11110000u};
+    ztest::setDeviceBuffer(*device, v, buffer_out1.get());
+  }
   const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_uint2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out2->setSize(1);
+  {
+    const std::initializer_list<cl_uint2> v = {
+        cl_uint2{0b00001111'00001111'00001111'00001111u,
+                 0b11110000'11110000'11110000'11110000u}};
+    ztest::setDeviceBuffer(*device, v, buffer_out2.get());
+  }
   const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_uint3>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out3->setSize(1);
+  {
+    const std::initializer_list<cl_uint3> v = {
+        cl_uint3{0b00001111'00001111'00001111'00001111u,
+                 0b11110000'11110000'11110000'11110000u,
+                 0b01010101'01010101'01010101'01010101u}};
+    ztest::setDeviceBuffer(*device, v, buffer_out3.get());
+  }
   const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_uint4>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out4->setSize(1);
+  {
+    const std::initializer_list<cl_uint4> v = {
+        cl_uint4{0b00001111'00001111'00001111'00001111u,
+                 0b11110000'11110000'11110000'11110000u,
+                 0b01010101'01010101'01010101'01010101u,
+                 0b10101010'10101010'10101010'10101010u}};
+    ztest::setDeviceBuffer(*device, v, buffer_out4.get());
+  }
   const zivc::SharedBuffer buffer_out8 = device->createBuffer<cl_uint8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out8->setSize(1);
+  {
+    const std::initializer_list<cl_uint8> v = {
+        cl_uint8{0b00001111'00001111'00001111'00001111u,
+                 0b11110000'11110000'11110000'11110000u,
+                 0b01010101'01010101'01010101'01010101u,
+                 0b10101010'10101010'10101010'10101010u,
+                 0b00001111'00001111'00001111'00001111u,
+                 0b11110000'11110000'11110000'11110000u,
+                 0b01010101'01010101'01010101'01010101u,
+                 0b10101010'10101010'10101010'10101010u}};
+    ztest::setDeviceBuffer(*device, v, buffer_out8.get());
+  }
   const zivc::SharedBuffer buffer_out16 = device->createBuffer<cl_uint16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out16->setSize(1);
+  {
+    const std::initializer_list<cl_uint16> v = {
+        cl_uint16{0b00001111'00001111'00001111'00001111u,
+                  0b11110000'11110000'11110000'11110000u,
+                  0b01010101'01010101'01010101'01010101u,
+                  0b10101010'10101010'10101010'10101010u,
+                  0b00001111'00001111'00001111'00001111u,
+                  0b11110000'11110000'11110000'11110000u,
+                  0b01010101'01010101'01010101'01010101u,
+                  0b10101010'10101010'10101010'10101010u,
+                  0b00001111'00001111'00001111'00001111u,
+                  0b11110000'11110000'11110000'11110000u,
+                  0b01010101'01010101'01010101'01010101u,
+                  0b10101010'10101010'10101010'10101010u,
+                  0b00001111'00001111'00001111'00001111u,
+                  0b11110000'11110000'11110000'11110000u,
+                  0b01010101'01010101'01010101'01010101u,
+                  0b10101010'10101010'10101010'10101010u}};
+    ztest::setDeviceBuffer(*device, v, buffer_out16.get());
+  }
 
   device->waitForCompletion();
 
@@ -1562,17 +1749,69 @@ TEST(ClCppTest, UtilityRotateUintTest)
   using zivc::cl_float16;
 
   const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_uint>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out1->setSize(2);
+  {
+    const std::initializer_list<cl_uint> v = {0b00001111'00001111'00001111'00001111u,
+                                              0b11110000'11110000'11110000'11110000u};
+    ztest::setDeviceBuffer(*device, v, buffer_out1.get());
+  }
   const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_uint2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out2->setSize(1);
+  {
+    const std::initializer_list<cl_uint2> v = {
+        cl_uint2{0b00001111'00001111'00001111'00001111u,
+                 0b11110000'11110000'11110000'11110000u}};
+    ztest::setDeviceBuffer(*device, v, buffer_out2.get());
+  }
   const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_uint3>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out3->setSize(1);
+  {
+    const std::initializer_list<cl_uint3> v = {
+        cl_uint3{0b00001111'00001111'00001111'00001111u,
+                 0b11110000'11110000'11110000'11110000u,
+                 0b01010101'01010101'01010101'01010101u}};
+    ztest::setDeviceBuffer(*device, v, buffer_out3.get());
+  }
   const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_uint4>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out4->setSize(1);
+  {
+    const std::initializer_list<cl_uint4> v = {
+        cl_uint4{0b00001111'00001111'00001111'00001111u,
+                 0b11110000'11110000'11110000'11110000u,
+                 0b01010101'01010101'01010101'01010101u,
+                 0b10101010'10101010'10101010'10101010u}};
+    ztest::setDeviceBuffer(*device, v, buffer_out4.get());
+  }
   const zivc::SharedBuffer buffer_out8 = device->createBuffer<cl_uint8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out8->setSize(1);
+  {
+    const std::initializer_list<cl_uint8> v = {
+        cl_uint8{0b00001111'00001111'00001111'00001111u,
+                 0b11110000'11110000'11110000'11110000u,
+                 0b01010101'01010101'01010101'01010101u,
+                 0b10101010'10101010'10101010'10101010u,
+                 0b00001111'00001111'00001111'00001111u,
+                 0b11110000'11110000'11110000'11110000u,
+                 0b01010101'01010101'01010101'01010101u,
+                 0b10101010'10101010'10101010'10101010u}};
+    ztest::setDeviceBuffer(*device, v, buffer_out8.get());
+  }
   const zivc::SharedBuffer buffer_out16 = device->createBuffer<cl_uint16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out16->setSize(1);
+  {
+    const std::initializer_list<cl_uint16> v = {
+        cl_uint16{0b00001111'00001111'00001111'00001111u,
+                  0b11110000'11110000'11110000'11110000u,
+                  0b01010101'01010101'01010101'01010101u,
+                  0b10101010'10101010'10101010'10101010u,
+                  0b00001111'00001111'00001111'00001111u,
+                  0b11110000'11110000'11110000'11110000u,
+                  0b01010101'01010101'01010101'01010101u,
+                  0b10101010'10101010'10101010'10101010u,
+                  0b00001111'00001111'00001111'00001111u,
+                  0b11110000'11110000'11110000'11110000u,
+                  0b01010101'01010101'01010101'01010101u,
+                  0b10101010'10101010'10101010'10101010u,
+                  0b00001111'00001111'00001111'00001111u,
+                  0b11110000'11110000'11110000'11110000u,
+                  0b01010101'01010101'01010101'01010101u,
+                  0b10101010'10101010'10101010'10101010u}};
+    ztest::setDeviceBuffer(*device, v, buffer_out16.get());
+  }
 
   device->waitForCompletion();
 
@@ -1691,7 +1930,10 @@ TEST(ClCppTest, UtilityUpsampleUintTest)
   using zivc::cl_float16;
 
   const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_uint>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out1->setSize(1);
+  {
+    const std::initializer_list<cl_uint> v = {0b1010'0101'1010'0101u};
+    ztest::setDeviceBuffer(*device, v, buffer_out1.get());
+  }
   const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_uint2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
   buffer_out2->setSize(1);
   const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_uint3>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
@@ -1816,18 +2058,44 @@ TEST(ClCppTest, UtilityAbsFloatTest)
   using zivc::cl_float8;
   using zivc::cl_float16;
 
+  using LimitT = std::numeric_limits<cl_float>;
+  constexpr cl_float maxf = (LimitT::max)();
+  constexpr cl_float minf = (LimitT::min)();
+  constexpr cl_float inf = LimitT::infinity();
+
   const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_float>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out1->setSize(2);
+  {
+    const std::initializer_list<cl_float> v = {1.5f, -1.5f};
+    ztest::setDeviceBuffer(*device, v, buffer_out1.get());
+  }
   const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_float2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out2->setSize(1);
+  {
+    const std::initializer_list<cl_float2> v = {cl_float2{1.5f, -1.5f}};
+    ztest::setDeviceBuffer(*device, v, buffer_out2.get());
+  }
   const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_float3>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out3->setSize(1);
+  {
+    const std::initializer_list<cl_float3> v = {cl_float3{1.5f, -1.5f, maxf}};
+    ztest::setDeviceBuffer(*device, v, buffer_out3.get());
+  }
   const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_float4>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out4->setSize(1);
+  {
+    const std::initializer_list<cl_float4> v = {cl_float4{1.5f, -1.5f, maxf, -maxf}};
+    ztest::setDeviceBuffer(*device, v, buffer_out4.get());
+  }
   const zivc::SharedBuffer buffer_out8 = device->createBuffer<cl_float8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out8->setSize(1);
+  {
+    const std::initializer_list<cl_float8> v = {
+        cl_float8{1.5f, -1.5f, maxf, -maxf, minf, -minf, inf, -inf}};
+    ztest::setDeviceBuffer(*device, v, buffer_out8.get());
+  }
   const zivc::SharedBuffer buffer_out16 = device->createBuffer<cl_float16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out16->setSize(1);
+  {
+    const std::initializer_list<cl_float16> v = {
+        cl_float16{1.5f, -1.5f, maxf, -maxf, minf, -minf, inf, -inf,
+                   1.5f, -1.5f, maxf, -maxf, minf, -minf, inf, -inf}};
+    ztest::setDeviceBuffer(*device, v, buffer_out16.get());
+  }
 
   device->waitForCompletion();
 
@@ -1852,11 +2120,6 @@ TEST(ClCppTest, UtilityAbsFloatTest)
                                           *buffer_out4, *buffer_out8, *buffer_out16,
                                           launch_options);
   device->waitForCompletion(result.fence());
-
-  using LimitT = std::numeric_limits<cl_float>;
-  constexpr cl_float maxf = (LimitT::max)();
-  constexpr cl_float minf = (LimitT::min)();
-  constexpr cl_float inf = LimitT::infinity();
 
   // output
   {
@@ -1945,18 +2208,45 @@ TEST(ClCppTest, UtilityClampFloatTest)
   using zivc::cl_float8;
   using zivc::cl_float16;
 
+  using LimitT = std::numeric_limits<cl_float>;
+  constexpr cl_float maxf = (LimitT::max)();
+  constexpr cl_float minf = (LimitT::min)();
+  constexpr cl_float inf = LimitT::infinity();
+
   const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_float>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out1->setSize(3);
+  {
+    const std::initializer_list<cl_float> v = {1.5f, -1.5f, 20.5f};
+    ztest::setDeviceBuffer(*device, v, buffer_out1.get());
+  }
   const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_float2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out2->setSize(2);
+  {
+    const std::initializer_list<cl_float2> v = {cl_float2{1.5f, -1.5f},
+                                                cl_float2{20.5f, -20.5f}};
+    ztest::setDeviceBuffer(*device, v, buffer_out2.get());
+  }
   const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_float3>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out3->setSize(1);
+  {
+    const std::initializer_list<cl_float3> v = {cl_float3{1.5f, -1.5f, 20.5f}};
+    ztest::setDeviceBuffer(*device, v, buffer_out3.get());
+  }
   const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_float4>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out4->setSize(1);
+  {
+    const std::initializer_list<cl_float4> v = {cl_float4{1.5f, -1.5f, maxf, -maxf}};
+    ztest::setDeviceBuffer(*device, v, buffer_out4.get());
+  }
   const zivc::SharedBuffer buffer_out8 = device->createBuffer<cl_float8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out8->setSize(1);
+  {
+    const std::initializer_list<cl_float8> v = {
+        cl_float8{1.5f, -1.5f, maxf, -maxf, minf, -minf, inf, -inf}};
+    ztest::setDeviceBuffer(*device, v, buffer_out8.get());
+  }
   const zivc::SharedBuffer buffer_out16 = device->createBuffer<cl_float16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out16->setSize(1);
+  {
+    const std::initializer_list<cl_float16> v = {
+        cl_float16{1.5f, -1.5f, maxf, -maxf, minf, -minf, inf, -inf,
+                   1.5f, -1.5f, maxf, -maxf, minf, -minf, inf, -inf}};
+    ztest::setDeviceBuffer(*device, v, buffer_out16.get());
+  }
 
   device->waitForCompletion();
 
@@ -1981,9 +2271,6 @@ TEST(ClCppTest, UtilityClampFloatTest)
                                           *buffer_out4, *buffer_out8, *buffer_out16,
                                           launch_options);
   device->waitForCompletion(result.fence());
-
-  using LimitT = std::numeric_limits<cl_float>;
-  constexpr cl_float minf = (LimitT::min)();
 
   // output
   {
@@ -2075,18 +2362,45 @@ TEST(ClCppTest, UtilityMaxMinFloatTest)
   using zivc::cl_float8;
   using zivc::cl_float16;
 
+  using LimitT = std::numeric_limits<cl_float>;
+  constexpr cl_float maxf = (LimitT::max)();
+  constexpr cl_float minf = (LimitT::min)();
+  constexpr cl_float inf = LimitT::infinity();
+
   const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_float>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out1->setSize(3);
+  {
+    const std::initializer_list<cl_float> v = {1.5f, -1.5f, 20.5f};
+    ztest::setDeviceBuffer(*device, v, buffer_out1.get());
+  }
   const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_float2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out2->setSize(2);
+  {
+    const std::initializer_list<cl_float2> v = {cl_float2{1.5f, -1.5f},
+                                                cl_float2{20.5f, -20.5f}};
+    ztest::setDeviceBuffer(*device, v, buffer_out2.get());
+  }
   const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_float3>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out3->setSize(1);
+  {
+    const std::initializer_list<cl_float3> v = {cl_float3{1.5f, -1.5f, 20.5f}};
+    ztest::setDeviceBuffer(*device, v, buffer_out3.get());
+  }
   const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_float4>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out4->setSize(1);
+  {
+    const std::initializer_list<cl_float4> v = {cl_float4{1.5f, -1.5f, maxf, -maxf}};
+    ztest::setDeviceBuffer(*device, v, buffer_out4.get());
+  }
   const zivc::SharedBuffer buffer_out8 = device->createBuffer<cl_float8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out8->setSize(1);
+  {
+    const std::initializer_list<cl_float8> v = {
+        cl_float8{1.5f, -1.5f, maxf, -maxf, minf, -minf, inf, -inf}};
+    ztest::setDeviceBuffer(*device, v, buffer_out8.get());
+  }
   const zivc::SharedBuffer buffer_out16 = device->createBuffer<cl_float16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out16->setSize(1);
+  {
+    const std::initializer_list<cl_float16> v = {
+        cl_float16{1.5f, -1.5f, maxf, -maxf, minf, -minf, inf, -inf,
+                   1.5f, -1.5f, maxf, -maxf, minf, -minf, inf, -inf}};
+    ztest::setDeviceBuffer(*device, v, buffer_out16.get());
+  }
 
   device->waitForCompletion();
 
@@ -2111,9 +2425,6 @@ TEST(ClCppTest, UtilityMaxMinFloatTest)
                                           *buffer_out4, *buffer_out8, *buffer_out16,
                                           launch_options);
   device->waitForCompletion(result.fence());
-
-  using LimitT = std::numeric_limits<cl_float>;
-  constexpr cl_float minf = (LimitT::min)();
 
   // output
   {
@@ -2206,17 +2517,49 @@ TEST(ClCppTest, UtilityDegreesRadiansFloatTest)
   using zivc::cl_float16;
 
   const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_float>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out1->setSize(4);
+  {
+    const std::initializer_list<cl_float> v = {1.0f, 2.0f,
+                                               1.0f, 2.0f};
+    ztest::setDeviceBuffer(*device, v, buffer_out1.get());
+  }
   const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_float2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out2->setSize(2);
+  {
+    const std::initializer_list<cl_float2> v = {cl_float2{1.0f, 2.0f},
+                                                cl_float2{1.0f, 2.0f}};
+    ztest::setDeviceBuffer(*device, v, buffer_out2.get());
+  }
   const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_float3>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out3->setSize(2);
+  {
+    const std::initializer_list<cl_float3> v = {cl_float3{1.0f, 2.0f, -1.0f},
+                                                cl_float3{1.0f, 2.0f, -1.0f}};
+    ztest::setDeviceBuffer(*device, v, buffer_out3.get());
+  }
   const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_float4>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out4->setSize(2);
+  {
+    const std::initializer_list<cl_float4> v = {cl_float4{1.0f, 2.0f, -1.0f, -2.0f},
+                                                cl_float4{1.0f, 2.0f, -1.0f, -2.0f}};
+    ztest::setDeviceBuffer(*device, v, buffer_out4.get());
+  }
   const zivc::SharedBuffer buffer_out8 = device->createBuffer<cl_float8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out8->setSize(2);
+  {
+    const std::initializer_list<cl_float8> v = {cl_float8{1.0f, 2.0f, -1.0f, -2.0f,
+                                                          10.0f, 20.0f, -10.0f, -20.0f},
+                                                cl_float8{1.0f, 2.0f, -1.0f, -2.0f,
+                                                          10.0f, 20.0f, -10.0f, -20.0f}};
+    ztest::setDeviceBuffer(*device, v, buffer_out8.get());
+  }
   const zivc::SharedBuffer buffer_out16 = device->createBuffer<cl_float16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out16->setSize(2);
+  {
+    const std::initializer_list<cl_float16> v = {cl_float16{1.0f, 2.0f, -1.0f, -2.0f,
+                                                            10.0f, 20.0f, -10.0f, -20.0f,
+                                                            1.0f, 2.0f, -1.0f, -2.0f,
+                                                            10.0f, 20.0f, -10.0f, -20.0f},
+                                                 cl_float16{1.0f, 2.0f, -1.0f, -2.0f,
+                                                            10.0f, 20.0f, -10.0f, -20.0f,
+                                                            1.0f, 2.0f, -1.0f, -2.0f,
+                                                            10.0f, 20.0f, -10.0f, -20.0f}};
+    ztest::setDeviceBuffer(*device, v, buffer_out16.get());
+  }
 
   device->waitForCompletion();
 
@@ -2381,18 +2724,46 @@ TEST(ClCppTest, UtilitySignFloatTest)
   using zivc::cl_float8;
   using zivc::cl_float16;
 
+  using LimitT = std::numeric_limits<cl_float>;
+  constexpr cl_float maxf = (LimitT::max)();
+  constexpr cl_float minf = (LimitT::min)();
+  constexpr cl_float inf = LimitT::infinity();
+  const cl_float nan = LimitT::quiet_NaN();
+
   const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_float>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out1->setSize(4);
+  {
+    const std::initializer_list<cl_float> v = {2.0f, -2.0f, 0.0f, nan};
+    ztest::setDeviceBuffer(*device, v, buffer_out1.get());
+  }
   const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_float2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out2->setSize(2);
+  {
+    const std::initializer_list<cl_float2> v = {cl_float2{2.0f, -2.0f},
+                                                cl_float2{0.0f, nan}};
+    ztest::setDeviceBuffer(*device, v, buffer_out2.get());
+  }
   const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_float3>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out3->setSize(1);
+  {
+    const std::initializer_list<cl_float3> v = {cl_float3{2.0f, -2.0f, 2.0f}};
+    ztest::setDeviceBuffer(*device, v, buffer_out3.get());
+  }
   const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_float4>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out4->setSize(1);
+  {
+    const std::initializer_list<cl_float4> v = {cl_float4{2.0f, -2.0f, 0.0f, nan}};
+    ztest::setDeviceBuffer(*device, v, buffer_out4.get());
+  }
   const zivc::SharedBuffer buffer_out8 = device->createBuffer<cl_float8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out8->setSize(1);
+  {
+    const std::initializer_list<cl_float8> v = {
+        cl_float8{2.0f, -2.0f, 0.0f, -0.0f, maxf, -maxf, inf, nan}};
+    ztest::setDeviceBuffer(*device, v, buffer_out8.get());
+  }
   const zivc::SharedBuffer buffer_out16 = device->createBuffer<cl_float16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
-  buffer_out16->setSize(1);
+  {
+    const std::initializer_list<cl_float16> v = {
+        cl_float16{2.0f, -2.0f, 0.0f, -0.0f, maxf, -maxf, inf, nan,
+                   2.0f, -2.0f, 0.0f, -0.0f, maxf, -maxf, inf, nan}};
+    ztest::setDeviceBuffer(*device, v, buffer_out16.get());
+  }
 
   device->waitForCompletion();
 

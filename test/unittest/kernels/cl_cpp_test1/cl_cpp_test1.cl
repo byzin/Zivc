@@ -1085,10 +1085,6 @@ __kernel void utilityMaxMinFloatTest(zivc::GlobalPtr<float> inout_i1,
   if (index != 0)
     return;
 
-  using LimitT = zivc::NumericLimits<float>;
-  constexpr float maxf = LimitT::max();
-  constexpr float minf = LimitT::min();
-  const float inf = LimitT::infinity();
   // clamp
   {
     // clamp v1

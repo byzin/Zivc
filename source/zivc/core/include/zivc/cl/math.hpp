@@ -32,6 +32,10 @@ class Math
   template <typename FloatN>
   static FloatN sqrt(const FloatN x) noexcept;
 
+  //! Compute inverse square root
+  template <typename FloatN>
+  static FloatN rsqrt(const FloatN x) noexcept;
+
   /*!
     \brief No brief description
 
@@ -42,6 +46,10 @@ class Math
     //! Compute square root
     template <typename FloatN>
     static FloatN sqrt(const FloatN x) noexcept;
+
+    //! Compute inverse square root
+    template <typename FloatN>
+    static FloatN rsqrt(const FloatN x) noexcept;
   };
 
   /*!
@@ -54,6 +62,10 @@ class Math
     //! Compute square root
     template <typename FloatN>
     static FloatN sqrt(const FloatN x) noexcept;
+
+    //! Compute inverse square root
+    template <typename FloatN>
+    static FloatN rsqrt(const FloatN x) noexcept;
 
    private:
     template <typename Float>
@@ -70,6 +82,10 @@ class Math
 //! Compute square root
 template <typename FloatN>
 FloatN sqrt(const FloatN x) noexcept;
+
+//! Compute inverse square root
+template <typename FloatN>
+FloatN rsqrt(const FloatN x) noexcept;
 
 } /* namespace zivc */
 

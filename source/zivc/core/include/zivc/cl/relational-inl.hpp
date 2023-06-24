@@ -266,7 +266,7 @@ TypeN Relation::selectValue(const TypeN a,
                             const TypeN b,
                             const IntegerN c) noexcept
 {
-  static_assert(kIsInteger<IntegerN>, "The IntegerN isn't integer type.");
+  static_assert(kIsBoolean<IntegerN> || kIsInteger<IntegerN>, "The IntegerN isn't integer type.");
   const TypeN result = ZIVC_CL_GLOBAL_NAMESPACE::select(a, b, c);
   return result;
 }
@@ -517,7 +517,7 @@ TypeN bitselect(const TypeN a, const TypeN b, const TypeN c) noexcept
 template <typename TypeN, typename IntegerN> inline
 TypeN select(const TypeN a, const TypeN b, const IntegerN c) noexcept
 {
-  static_assert(kIsInteger<IntegerN>, "The IntegerN isn't integer.");
+  static_assert(kIsBoolean<IntegerN> || kIsInteger<IntegerN>, "The IntegerN isn't integer type.");
   const TypeN result = Relation::selectValue(a, b, c);
   return result;
 }

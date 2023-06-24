@@ -163,6 +163,12 @@ bool test(const Float expected,
           const Float value,
           MathTestResult* result) noexcept
 {
+  auto print_fatal_case = [&expected, &value]()
+  {
+    std::cerr << "[math] fatal: value=" << std::scientific << value << ", expected=" << expected
+              << std::endl;
+  };
+
   ++result->num_of_trials_;
   // Check NaN
   if (std::isnan(expected) && std::isnan(value))
@@ -170,6 +176,7 @@ bool test(const Float expected,
   // Check if either expected or value is NaN
   if (std::isnan(expected) || std::isnan(value)) {
     result->fatal_nan_ = true;
+    print_fatal_case();
     return false;
   }
 
@@ -189,6 +196,7 @@ bool test(const Float expected,
   // Check if either expected or value is inf
   if (std::isinf(expected) || std::isinf(value)) {
     result->fatal_inf_ = true;
+    print_fatal_case();
     return false;
   }
 

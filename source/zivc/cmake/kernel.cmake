@@ -10,51 +10,8 @@
 function(Zivc_initZivcKernelOptions)
   include("${CMAKE_CURRENT_FUNCTION_LIST_DIR}/general.cmake")
 
-  set(option_description "Use built-in math funcs instead of the Zivc funcs.")
-  Zivc_setBooleanOption(ZIVC_MATH_BUILTIN OFF ${option_description})
-
-  set(option_description "Use built-in 'frexp' instead of the Zivc funcs.")
-  Zivc_setBooleanOption(ZIVC_MATH_BUILTIN_FREXP OFF ${option_description})
-
-  set(option_description "Use built-in 'ldexp' instead of the Zivc funcs.")
-  if(Z_MAC)
-    Zivc_setBooleanOption(ZIVC_MATH_BUILTIN_LDEXP OFF ${option_description})
-  else()
-    Zivc_setBooleanOption(ZIVC_MATH_BUILTIN_LDEXP ON ${option_description})
-  endif()
-
-  set(option_description "Use built-in 'ilogb' instead of the Zivc func.")
-  Zivc_setBooleanOption(ZIVC_MATH_BUILTIN_ILOGB OFF ${option_description})
-
-  set(option_description "Use built-in 'modf' instead of the Zivc func.")
-  Zivc_setBooleanOption(ZIVC_MATH_BUILTIN_MODF OFF ${option_description})
-
-  set(option_description "Use built-in 'round' and 'rint' instead of the Zivc funcs.")
-  Zivc_setBooleanOption(ZIVC_MATH_BUILTIN_ROUND OFF ${option_description})
-
-  set(option_description "Use built-in 'fmod' instead of the Zivc func.")
-  Zivc_setBooleanOption(ZIVC_MATH_BUILTIN_FMOD ON ${option_description})
-
-  set(option_description "Use built-in 'exp' and 'exp2' instead of the Zivc funcs.")
-  Zivc_setBooleanOption(ZIVC_MATH_BUILTIN_EXP ON ${option_description})
-
-  set(option_description "Use built-in 'log' and 'log2' instead of the Zivc funcs.")
-  Zivc_setBooleanOption(ZIVC_MATH_BUILTIN_LOG ON ${option_description})
-
-  set(option_description "Use built-in 'pow' instead of the Zivc funcs.")
-  Zivc_setBooleanOption(ZIVC_MATH_BUILTIN_POW ON ${option_description})
-
-  set(option_description "Use built-in 'sqrt' and 'rsqrt' instead of the Zivc funcs.")
-  Zivc_setBooleanOption(ZIVC_MATH_BUILTIN_SQRT ON ${option_description})
-
-  set(option_description "Use built-in 'cbrt' instead of the Zivc funcs.")
-  Zivc_setBooleanOption(ZIVC_MATH_BUILTIN_CBRT OFF ${option_description})
-
-  set(option_description "Use built-in 'sin', 'cos' and 'tan' instead of the Zivc funcs.")
-  Zivc_setBooleanOption(ZIVC_MATH_BUILTIN_TRIGONOMETRIC ON ${option_description})
-
-  set(option_description "Use built-in 'asin', 'acos' and 'atan' instead of the Zivc funcs.")
-  Zivc_setBooleanOption(ZIVC_MATH_BUILTIN_INV_TRIGONOMETRIC ON ${option_description})
+  set(option_description "Use fallback cl math implementation instead of the built-in cl math.")
+  Zivc_setBooleanOption(ZIVC_MATH_FALLBACK OFF ${option_description})
 endfunction(Zivc_initZivcKernelOptions)
 
 
@@ -63,47 +20,8 @@ function(Zivc_getZivcKernelFlags zivc_compile_flags zivc_definitions)
   set(definitions "")
 
   # Math
-  if(ZIVC_MATH_BUILTIN)
-    list(APPEND definitions ZIVC_MATH_BUILTIN=1)
-  endif()
-  if(ZIVC_MATH_BUILTIN_FREXP)
-    list(APPEND definitions ZIVC_MATH_BUILTIN_FREXP=1)
-  endif()
-  if(ZIVC_MATH_BUILTIN_LDEXP)
-    list(APPEND definitions ZIVC_MATH_BUILTIN_LDEXP=1)
-  endif()
-  if(ZIVC_MATH_BUILTIN_ILOGB)
-    list(APPEND definitions ZIVC_MATH_BUILTIN_ILOGB=1)
-  endif()
-  if(ZIVC_MATH_BUILTIN_MODF)
-    list(APPEND definitions ZIVC_MATH_BUILTIN_MODF=1)
-  endif()
-  if(ZIVC_MATH_BUILTIN_ROUND)
-    list(APPEND definitions ZIVC_MATH_BUILTIN_ROUND=1)
-  endif()
-  if(ZIVC_MATH_BUILTIN_FMOD)
-    list(APPEND definitions ZIVC_MATH_BUILTIN_FMOD=1)
-  endif()
-  if(ZIVC_MATH_BUILTIN_EXP)
-    list(APPEND definitions ZIVC_MATH_BUILTIN_EXP=1)
-  endif()
-  if(ZIVC_MATH_BUILTIN_LOG)
-    list(APPEND definitions ZIVC_MATH_BUILTIN_LOG=1)
-  endif()
-  if(ZIVC_MATH_BUILTIN_POW)
-    list(APPEND definitions ZIVC_MATH_BUILTIN_POW=1)
-  endif()
-  if(ZIVC_MATH_BUILTIN_SQRT)
-    list(APPEND definitions ZIVC_MATH_BUILTIN_SQRT=1)
-  endif()
-  if(ZIVC_MATH_BUILTIN_CBRT)
-    list(APPEND definitions ZIVC_MATH_BUILTIN_CBRT=1)
-  endif()
-  if(ZIVC_MATH_BUILTIN_TRIGONOMETRIC)
-    list(APPEND definitions ZIVC_MATH_BUILTIN_TRIGONOMETRIC=1)
-  endif()
-  if(ZIVC_MATH_BUILTIN_INV_TRIGONOMETRIC)
-    list(APPEND definitions ZIVC_MATH_BUILTIN_INV_TRIGONOMETRIC=1)
+  if(ZIVC_MATH_FALLBACK)
+    list(APPEND definitions ZIVC_MATH_FALLBACK=1)
   endif()
 
   # Output variables

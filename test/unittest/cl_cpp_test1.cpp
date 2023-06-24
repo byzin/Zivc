@@ -2726,7 +2726,6 @@ TEST(ClCppTest, UtilitySignFloatTest)
 
   using LimitT = std::numeric_limits<cl_float>;
   constexpr cl_float maxf = (LimitT::max)();
-  constexpr cl_float minf = (LimitT::min)();
   constexpr cl_float inf = LimitT::infinity();
   const cl_float nan = LimitT::quiet_NaN();
 

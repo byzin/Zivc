@@ -183,6 +183,14 @@ class AddressSpaceInfo;
 
 // Type categories
 
+//! Check if a type is boolean scalar or vector type
+template <typename T>
+using IsBoolean = IsSame<T, bool>;
+
+//!
+template <typename T>
+inline constexpr int32b kIsBoolean = IsBoolean<T>::kValue;
+
 //! Check if a type is integer scalar or vector type
 template <typename T> struct IsInteger;
 

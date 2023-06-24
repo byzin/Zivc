@@ -112,7 +112,7 @@ Vector<Float, kN> Math::sqrt(const Vector<Float, kN>& x) noexcept
   {
     return std::sqrt(x);
   };
-  const VectorT y = VectorT::template apply<Float, Float>(func, x);
+  const VectorT y = VectorT::template apply<Float>(func, x);
   return y;
 }
 

@@ -100,7 +100,7 @@ FloatN Math::Native::rsqrt(const FloatN x) noexcept
   \return No description
   */
 template <typename FloatN> inline
-FloatN Math::Fallback::sqrt(const FloatN x) noexcept
+FloatN Math::Precision::sqrt(const FloatN x) noexcept
 {
   using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
   using ElementT = typename VecInfo::ElementT;
@@ -116,7 +116,7 @@ FloatN Math::Fallback::sqrt(const FloatN x) noexcept
   \return No description
   */
 template <typename FloatN> inline
-FloatN Math::Fallback::rsqrt(const FloatN x) noexcept
+FloatN Math::Precision::rsqrt(const FloatN x) noexcept
 {
   using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
   using ElementT = typename VecInfo::ElementT;
@@ -130,7 +130,7 @@ FloatN Math::Fallback::rsqrt(const FloatN x) noexcept
   No detailed description.
   */
 template <>
-struct Math::Fallback::Util<float>
+struct Math::Precision::Util<float>
 {
   template <typename FloatN>
   struct V2
@@ -216,7 +216,7 @@ struct Math::Fallback::Util<float>
   No detailed description.
   */
 template <>
-struct Math::Fallback::Impl<float>
+struct Math::Precision::Impl<float>
 {
   // Type aliases
   using LimitT = NumericLimits<float>;
@@ -327,6 +327,66 @@ FloatN rsqrt(const FloatN x) noexcept
 {
   return Math::rsqrt(x);
 }
+
+namespace native {
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN sqrt(const FloatN x) noexcept
+{
+  return Math::Native::sqrt(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN rsqrt(const FloatN x) noexcept
+{
+  return Math::Native::rsqrt(x);
+}
+
+} /* namespace native */
+
+namespace precision {
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN sqrt(const FloatN x) noexcept
+{
+  return Math::Precision::sqrt(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN rsqrt(const FloatN x) noexcept
+{
+  return Math::Precision::rsqrt(x);
+}
+
+} /* namespace precision */
 
 } /* namespace zivc */
 

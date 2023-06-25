@@ -159,7 +159,7 @@ __kernel void sqrtV1FallbackTestKernel(zivc::ConstGlobalPtr<float> in,
     return;
 
   const float x = in[index];
-  const float y = zivc::Math::Fallback::sqrt(x);
+  const float y = zivc::precision::sqrt(x);
   out[index] = y;
 }
 
@@ -185,7 +185,7 @@ __kernel void sqrtV2FallbackTestKernel(zivc::ConstGlobalPtr<float> in,
     return;
 
   const float2 x = zivc::vload2(index, in);
-  const float2 y = zivc::Math::Fallback::sqrt(x);
+  const float2 y = zivc::precision::sqrt(x);
   zivc::vstore2(y, index, out);
 }
 
@@ -211,7 +211,7 @@ __kernel void sqrtV3FallbackTestKernel(zivc::ConstGlobalPtr<float> in,
     return;
 
   const float3 x = zivc::vload3(index, in);
-  const float3 y = zivc::Math::Fallback::sqrt(x);
+  const float3 y = zivc::precision::sqrt(x);
   zivc::vstore3(y, index, out);
 }
 
@@ -237,7 +237,7 @@ __kernel void sqrtV4FallbackTestKernel(zivc::ConstGlobalPtr<float> in,
     return;
 
   const float4 x = zivc::vload4(index, in);
-  const float4 y = zivc::Math::Fallback::sqrt(x);
+  const float4 y = zivc::precision::sqrt(x);
   zivc::vstore4(y, index, out);
 }
 
@@ -264,7 +264,7 @@ __kernel void sqrtV8FallbackTestKernel(zivc::ConstGlobalPtr<float> in,
     return;
 
   const float8 x = zivc::vload8(index, in);
-  const float8 y = zivc::Math::Fallback::sqrt(x);
+  const float8 y = zivc::precision::sqrt(x);
   zivc::vstore8(y, index, out);
 }
 
@@ -291,7 +291,7 @@ __kernel void sqrtV16FallbackTestKernel(zivc::ConstGlobalPtr<float> in,
     return;
 
   const float16 x = zivc::vload16(index, in);
-  const float16 y = zivc::Math::Fallback::sqrt(x);
+  const float16 y = zivc::precision::sqrt(x);
   zivc::vstore16(y, index, out);
 }
 
@@ -317,7 +317,7 @@ __kernel void rsqrtV1FallbackTestKernel(zivc::ConstGlobalPtr<float> in,
     return;
 
   const float x = in[index];
-  const float y = zivc::Math::Fallback::rsqrt(x);
+  const float y = zivc::precision::rsqrt(x);
   out[index] = y;
 }
 
@@ -343,7 +343,7 @@ __kernel void rsqrtV2FallbackTestKernel(zivc::ConstGlobalPtr<float> in,
     return;
 
   const float2 x = zivc::vload2(index, in);
-  const float2 y = zivc::Math::Fallback::rsqrt(x);
+  const float2 y = zivc::precision::rsqrt(x);
   zivc::vstore2(y, index, out);
 }
 
@@ -369,7 +369,7 @@ __kernel void rsqrtV3FallbackTestKernel(zivc::ConstGlobalPtr<float> in,
     return;
 
   const float3 x = zivc::vload3(index, in);
-  const float3 y = zivc::Math::Fallback::rsqrt(x);
+  const float3 y = zivc::precision::rsqrt(x);
   zivc::vstore3(y, index, out);
 }
 
@@ -395,7 +395,7 @@ __kernel void rsqrtV4FallbackTestKernel(zivc::ConstGlobalPtr<float> in,
     return;
 
   const float4 x = zivc::vload4(index, in);
-  const float4 y = zivc::Math::Fallback::rsqrt(x);
+  const float4 y = zivc::precision::rsqrt(x);
   zivc::vstore4(y, index, out);
 }
 
@@ -422,7 +422,7 @@ __kernel void rsqrtV8FallbackTestKernel(zivc::ConstGlobalPtr<float> in,
     return;
 
   const float8 x = zivc::vload8(index, in);
-  const float8 y = zivc::Math::Fallback::rsqrt(x);
+  const float8 y = zivc::precision::rsqrt(x);
   zivc::vstore8(y, index, out);
 }
 
@@ -449,7 +449,7 @@ __kernel void rsqrtV16FallbackTestKernel(zivc::ConstGlobalPtr<float> in,
     return;
 
   const float16 x = zivc::vload16(index, in);
-  const float16 y = zivc::Math::Fallback::rsqrt(x);
+  const float16 y = zivc::precision::rsqrt(x);
   zivc::vstore16(y, index, out);
 }
 

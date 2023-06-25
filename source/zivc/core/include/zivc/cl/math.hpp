@@ -64,7 +64,7 @@ class Math
 
     No detailed description.
     */
-  struct Fallback
+  struct Precision
   {
     // Power functions
 
@@ -97,6 +97,30 @@ FloatN sqrt(const FloatN x) noexcept;
 //! Compute inverse square root
 template <typename FloatN>
 FloatN rsqrt(const FloatN x) noexcept;
+
+namespace native {
+
+//! Compute square root
+template <typename FloatN>
+FloatN sqrt(const FloatN x) noexcept;
+
+//! Compute inverse square root
+template <typename FloatN>
+FloatN rsqrt(const FloatN x) noexcept;
+
+} /* namespace native */
+
+namespace precision {
+
+//! Compute square root
+template <typename FloatN>
+FloatN sqrt(const FloatN x) noexcept;
+
+//! Compute inverse square root
+template <typename FloatN>
+FloatN rsqrt(const FloatN x) noexcept;
+
+} /* namespace native */
 
 } /* namespace zivc */
 

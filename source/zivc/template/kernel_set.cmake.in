@@ -288,23 +288,28 @@ endfunction(Zivc_getClspvReflectionFlags)
 
 function(Zivc_getSpirvOptOptions opt_options)
   # Strip reflection info
-  set(options --strip-reflect --target-env=spv${spv_version})
-  # Optimization
-  list(APPEND options -O
-                      --combine-access-chains
-                      --eliminate-dead-const
-                      --eliminate-dead-input-components
-                      --eliminate-dead-variables
-                      --eliminate-local-multi-store
-                      --local-redundancy-elimination
-                      --loop-invariant-code-motion
-                      --loop-unswitch
-                      --remove-duplicates
-                      --remove-unused-interface-variables
-                      --strength-reduction
-                      --strip-debug
-                      --strip-nonsemantic
-                      --unify-const)
+  set(options --target-env=spv${spv_version}
+              --strip-reflect
+              --strip-nonsemantic
+              --validate-after-all)
+
+  if(Z_RELEASE_MODE)
+    # Optimization
+    list(APPEND options --strip-debug
+                        --combine-access-chains
+                        --eliminate-dead-const
+                        --eliminate-dead-input-components
+                        --eliminate-dead-variables
+                        --eliminate-local-multi-store
+                        --local-redundancy-elimination
+                        --loop-invariant-code-motion
+                        --loop-unswitch
+                        --remove-duplicates
+                        --remove-unused-interface-variables
+                        --strength-reduction
+                        --unify-const
+                        -O)
+  endif()
 
   # Output
   set(${opt_options} ${options} PARENT_SCOPE)
@@ -359,7 +364,7 @@ function(Zivc_prepareSpirVAnalysis target spv_org_file_path spv_file_path)
       add_custom_command(OUTPUT "${dis_file_path}"
         COMMAND ${spirv_dis_command} ${options} "${spv_file}"
         DEPENDS "${spv_file}"
-        COMMENT "Disassemble SPIR-V binary '${spv_file}'")
+        COMMENT "Disassembling the SPIR-V binary '${spv_file}'")
       list(APPEND dis_files "${dis_file_path}")
     endforeach(spv_file)
     add_custom_target(${target}_Dis DEPENDS ${dis_files})
@@ -390,50 +395,56 @@ function(Zivc_initVulkanBackend target)
 
   set(sub_targets "")
   set(clspv_output_files "")
-  ## Set clspv build command
+
+
+  ## Compile the given cl files using clspv
   Zivc_findClspv(clspv_command)
   Zivc_getClspvCompileFlags(clspv_options)
   cmake_path(SET spv_org_file_path "${output_dir}/${set_name}-org.spv")
   list(APPEND clspv_options -o ${spv_org_file_path})
-  set(build_commands
-      COMMAND ${CMAKE_COMMAND} -E echo "-- clspv"
-      COMMAND ${clspv_command} ${clspv_options} ${cl_file_path})
+  add_custom_command(OUTPUT "${spv_org_file_path}"
+    COMMAND ${clspv_command} ${clspv_options} ${cl_file_path}
+    DEPENDS ${cl_file_path} ${kernel_set_source_files} @kernel_set_depends@
+    COMMENT "Building CL object '${cl_file_path}'")
   list(APPEND clspv_output_files "${spv_org_file_path}")
-  ## Clspv descriptor map
+
+  ## Retrieve the descriptor map using clspv-reflect
   Zivc_findClspvReflection(reflection_command)
   Zivc_getClspvReflectionFlags(reflection_options)
   cmake_path(SET map_file_path "${output_dir}/${set_name}-org-descmap.csv")
   list(APPEND reflection_options -o ${map_file_path})
-  list(APPEND build_commands
-      COMMAND ${CMAKE_COMMAND} -E echo "-- clspv-reflection"
-      COMMAND ${reflection_command} ${reflection_options} ${spv_org_file_path})
+  add_custom_command(OUTPUT "${map_file_path}"
+    COMMAND ${reflection_command} ${reflection_options} ${spv_org_file_path}
+    DEPENDS "${spv_org_file_path}"
+    COMMENT "Retrieving the descriptor map file of '${spv_org_file_path}'")
   list(APPEND clspv_output_files "${map_file_path}")
-  ## Strip reflection info and optimize SPIR-V
+
+  ## Strip reflection info and optimize SPIR-V using spirv-opt
   Zivc_findSpirvOpt(spirv_opt_command)
   Zivc_getSpirvOptOptions(opt_options)
-  list(APPEND build_commands
-      COMMAND ${CMAKE_COMMAND} -E echo "-- spirv-opt"
-      COMMAND ${spirv_opt_command} ${opt_options} ${spv_org_file_path} -o ${spv_file_path})
+  add_custom_command(OUTPUT "${spv_file_path}"
+    COMMAND ${spirv_opt_command} ${opt_options} ${spv_org_file_path} -o ${spv_file_path}
+    DEPENDS "${spv_org_file_path}" "${map_file_path}"
+    COMMENT "Optimize the SPIR-V object '${spv_org_file_path}'")
   list(APPEND clspv_output_files "${spv_file_path}")
-  ## Bake SPIR-V kernel into an executable
+
+  ## Bake SPIR-V kernel into the given target
   if(ZIVC_BAKE_KERNELS)
     Zivc_getKernelBakeCommand(bake_command "${spv_file_path}" "${baked_spv_file_path}")
-    list(APPEND build_commands
-        COMMAND ${CMAKE_COMMAND} -E echo "-- kernel-baker"
-        COMMAND ${bake_command})
+    add_custom_command(OUTPUT "${baked_spv_file_path}"
+      COMMAND ${bake_command}
+      DEPENDS "${spv_file_path}"
+      COMMENT "Baking the SPIR-V object '${spv_file_path}' into the target")
     list(APPEND clspv_output_files "${baked_spv_file_path}")
   endif()
+
   ## Bake descriptor map
   Zivc_getDescriptorBakeCommand(bake_command "${map_file_path}" "${baked_map_file_path}")
-  list(APPEND build_commands
-      COMMAND ${CMAKE_COMMAND} -E echo "-- descriptor-map-baker"
-      COMMAND ${bake_command})
+  add_custom_command(OUTPUT "${baked_map_file_path}"
+    COMMAND ${bake_command}
+    DEPENDS "${map_file_path}"
+    COMMENT "Baking the descriptor map file '${map_file_path}' into the target")
   list(APPEND clspv_output_files "${baked_map_file_path}")
-  ## Create a build command
-  add_custom_command(OUTPUT ${clspv_output_files}
-    ${build_commands}
-    DEPENDS ${cl_file_path} ${kernel_set_source_files} @kernel_set_depends@
-    COMMENT "Building CL object '${cl_file_path}'")
 
   ## Create a target of the vulkan backend
   set(vulkan_backend_target ${target}_SpirV)

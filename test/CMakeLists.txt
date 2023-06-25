@@ -218,11 +218,28 @@ macro(setTestProject)
   Zivc_addKernelSet(cl_cpp_test_atomic_compare_and_exchange ${PROJECT_VERSION} kernel_name
       SOURCE_FILES ${cl_cpp_test_atomic_sources2})
   target_link_libraries(${PROJECT_NAME} PRIVATE ${kernel_name})
-
   ## opencl C++ math
   cmake_path(SET kernel_set_cl_cpp_test_math_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/cl_cpp_test_math")
   file(GLOB_RECURSE cl_cpp_test_math_sources ${kernel_set_cl_cpp_test_math_dir}/*.cl)
   Zivc_addKernelSet(cl_cpp_test_math ${PROJECT_VERSION} kernel_name
+      SOURCE_FILES ${cl_cpp_test_math_sources})
+  target_link_libraries(${PROJECT_NAME} PRIVATE ${kernel_name})
+  ## opencl C++ math power
+  cmake_path(SET kernel_set_cl_cpp_test_math_power_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/cl_cpp_test_math_power")
+  file(GLOB_RECURSE cl_cpp_test_math_sources ${kernel_set_cl_cpp_test_math_power_dir}/*.cl)
+  Zivc_addKernelSet(cl_cpp_test_math_power ${PROJECT_VERSION} kernel_name
+      SOURCE_FILES ${cl_cpp_test_math_sources})
+  target_link_libraries(${PROJECT_NAME} PRIVATE ${kernel_name})
+  ## opencl C++ math trigonometric
+  cmake_path(SET kernel_set_cl_cpp_test_math_trigonometric_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/cl_cpp_test_math_trigonometric")
+  file(GLOB_RECURSE cl_cpp_test_math_sources ${kernel_set_cl_cpp_test_math_trigonometric_dir}/*.cl)
+  Zivc_addKernelSet(cl_cpp_test_math_trigonometric ${PROJECT_VERSION} kernel_name
+      SOURCE_FILES ${cl_cpp_test_math_sources})
+  target_link_libraries(${PROJECT_NAME} PRIVATE ${kernel_name})
+  ## opencl C++ math float
+  cmake_path(SET kernel_set_cl_cpp_test_math_float_dir "${PROJECT_SOURCE_DIR}/unittest/kernels/cl_cpp_test_math_float")
+  file(GLOB_RECURSE cl_cpp_test_math_sources ${kernel_set_cl_cpp_test_math_float_dir}/*.cl)
+  Zivc_addKernelSet(cl_cpp_test_math_float ${PROJECT_VERSION} kernel_name
       SOURCE_FILES ${cl_cpp_test_math_sources})
   target_link_libraries(${PROJECT_NAME} PRIVATE ${kernel_name})
 

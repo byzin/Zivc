@@ -186,13 +186,7 @@ class Math
   template <std::floating_point Float, std::size_t kN>
   static constexpr Vector<Float, kN> invert(const Vector<Float, kN>& x) noexcept;
 
-  //! Compute inverse square root
-  template <std::floating_point Float>
-  static Float rsqrt(const Float& x) noexcept;
-
-  //! Compute inverse square root
-  template <std::floating_point Float, std::size_t kN>
-  static Vector<Float, kN> rsqrt(const Vector<Float, kN>& x) noexcept;
+  // Power functions
 
   //! Compute square root
   template <std::floating_point Float>
@@ -201,6 +195,14 @@ class Math
   //! Compute square root
   template <std::floating_point Float, std::size_t kN>
   static Vector<Float, kN> sqrt(const Vector<Float, kN>& x) noexcept;
+
+  //! Compute inverse square root
+  template <std::floating_point Float>
+  static Float rsqrt(const Float& x) noexcept;
+
+  //! Compute inverse square root
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> rsqrt(const Vector<Float, kN>& x) noexcept;
 
  private:
   /*!
@@ -213,13 +215,7 @@ class Math
   };
 };
 
-//! Compute inverse square root
-template <std::floating_point Float>
-Float rsqrt(const Float& x) noexcept;
-
-//! Compute inverse square root
-template <std::floating_point Float, std::size_t kN>
-Vector<Float, kN> rsqrt(const Vector<Float, kN>& x) noexcept;
+// Power functions
 
 //! Compute square root
 template <std::floating_point Float>
@@ -228,6 +224,14 @@ Float sqrt(const Float& x) noexcept;
 //! Compute square root
 template <std::floating_point Float, std::size_t kN>
 Vector<Float, kN> sqrt(const Vector<Float, kN>& x) noexcept;
+
+//! Compute inverse square root
+template <std::floating_point Float>
+Float rsqrt(const Float& x) noexcept;
+
+//! Compute inverse square root
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> rsqrt(const Vector<Float, kN>& x) noexcept;
 
 ///*!
 //  */

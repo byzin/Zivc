@@ -61,35 +61,6 @@ constexpr Vector<Float, kN> Math::invert(const Vector<Float, kN>& x) noexcept
   \return No description
   */
 template <std::floating_point Float> inline
-Float Math::rsqrt(const Float& x) noexcept
-{
-  const Float y = invert(sqrt(x));
-  return y;
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Float No description.
-  \tparam kN No description.
-  \param [in] x No description.
-  \return No description
-  */
-template <std::floating_point Float, std::size_t kN> inline
-Vector<Float, kN> Math::rsqrt(const Vector<Float, kN>& x) noexcept
-{
-  const Vector<Float, kN> y = invert(sqrt(x));
-  return y;
-}
-
-/*!
-  \details No detailed description
-
-  \tparam Float No description.
-  \param [in] x No description.
-  \return No description
-  */
-template <std::floating_point Float> inline
 Float Math::sqrt(const Float& x) noexcept
 {
   const Float y = std::sqrt(x);
@@ -124,9 +95,10 @@ Vector<Float, kN> Math::sqrt(const Vector<Float, kN>& x) noexcept
   \return No description
   */
 template <std::floating_point Float> inline
-Float rsqrt(const Float& x) noexcept
+Float Math::rsqrt(const Float& x) noexcept
 {
-  return Math::rsqrt(x);
+  const Float y = invert(sqrt(x));
+  return y;
 }
 
 /*!
@@ -138,9 +110,10 @@ Float rsqrt(const Float& x) noexcept
   \return No description
   */
 template <std::floating_point Float, std::size_t kN> inline
-Vector<Float, kN> rsqrt(const Vector<Float, kN>& x) noexcept
+Vector<Float, kN> Math::rsqrt(const Vector<Float, kN>& x) noexcept
 {
-  return Math::rsqrt(x);
+  const Vector<Float, kN> y = invert(sqrt(x));
+  return y;
 }
 
 /*!
@@ -168,6 +141,33 @@ template <std::floating_point Float, std::size_t kN> inline
 Vector<Float, kN> sqrt(const Vector<Float, kN>& x) noexcept
 {
   return Math::sqrt(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float rsqrt(const Float& x) noexcept
+{
+  return Math::rsqrt(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> rsqrt(const Vector<Float, kN>& x) noexcept
+{
+  return Math::rsqrt(x);
 }
 
 ///*!

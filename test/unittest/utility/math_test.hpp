@@ -75,11 +75,41 @@ std::vector<Float> loadExpectedList(const std::string_view file_path, const std:
   \return No description
   */
 template <std::floating_point Float> inline
+std::vector<Float> loadAllXList() noexcept
+{
+  auto file_path = (sizeof(Float) == 4)
+      ? std::string_view{"resources/math_xallf_reference.bin"}
+      : std::string_view{"resources/math_xalld_reference.bin"};
+  return loadXList<Float>(file_path);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
 std::vector<Float> loadPositiveXList() noexcept
 {
   auto file_path = (sizeof(Float) == 4)
       ? std::string_view{"resources/math_xpositivef_reference.bin"}
       : std::string_view{"resources/math_xpositived_reference.bin"};
+  return loadXList<Float>(file_path);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+std::vector<Float> loadPowXList() noexcept
+{
+  auto file_path = (sizeof(Float) == 4)
+      ? std::string_view{"resources/math_xpowf_reference.bin"}
+      : std::string_view{"resources/math_xpowd_reference.bin"};
   return loadXList<Float>(file_path);
 }
 

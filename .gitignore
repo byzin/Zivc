@@ -142,8 +142,8 @@
 !/test/unittest/kernels/cl_cpp_test_atomic_compare_and_exchange/*.cl
 !/test/unittest/kernels/cl_cpp_test_geometry/
 !/test/unittest/kernels/cl_cpp_test_geometry/*.cl
-!/test/unittest/kernels/cl_cpp_test_math/
-!/test/unittest/kernels/cl_cpp_test_math/*.cl
+!/test/unittest/kernels/cl_cpp_test_math*/
+!/test/unittest/kernels/cl_cpp_test_math*/*.cl
 !/test/unittest/kernels/cl_cpp_test_relation/
 !/test/unittest/kernels/cl_cpp_test_relation/*.cl
 !/test/unittest/kernels/cl_cpp_test_type/

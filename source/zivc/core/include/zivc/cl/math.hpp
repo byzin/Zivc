@@ -28,6 +28,9 @@ namespace zivc {
 class Math
 {
  public:
+
+  // Power functions
+
   //! Compute square root
   template <typename FloatN>
   static FloatN sqrt(const FloatN x) noexcept;
@@ -36,6 +39,8 @@ class Math
   template <typename FloatN>
   static FloatN rsqrt(const FloatN x) noexcept;
 
+  //! \todo Implement hypot
+
   /*!
     \brief No brief description
 
@@ -43,6 +48,8 @@ class Math
     */
   struct Native
   {
+    // Power functions
+
     //! Compute square root
     template <typename FloatN>
     static FloatN sqrt(const FloatN x) noexcept;
@@ -59,6 +66,8 @@ class Math
     */
   struct Fallback
   {
+    // Power functions
+
     //! Compute square root
     template <typename FloatN>
     static FloatN sqrt(const FloatN x) noexcept;
@@ -78,6 +87,8 @@ class Math
   // Type aliases
   using Impl = Native;
 };
+
+// Power functions
 
 //! Compute square root
 template <typename FloatN>

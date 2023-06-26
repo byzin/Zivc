@@ -31,6 +31,14 @@ class Math
 
   // Power functions
 
+  //! Compute x to the power y
+  template <typename FloatN>
+  static FloatN pow(const FloatN x, const FloatN y) noexcept;
+
+  //! Compute x to the power y
+  template <typename FloatN, typename IntN>
+  static FloatN pown(const FloatN x, const IntN y) noexcept;
+
   //! Compute square root
   template <typename FloatN>
   static FloatN sqrt(const FloatN x) noexcept;
@@ -38,6 +46,10 @@ class Math
   //! Compute inverse square root
   template <typename FloatN>
   static FloatN rsqrt(const FloatN x) noexcept;
+
+  //! Compute cube root
+  template <typename FloatN>
+  static FloatN cbrt(const FloatN x) noexcept;
 
   //! \todo Implement hypot
 
@@ -50,6 +62,14 @@ class Math
   {
     // Power functions
 
+    //! Compute x to the power y
+    template <typename FloatN>
+    static FloatN pow(const FloatN x, const FloatN y) noexcept;
+
+    //! Compute x to the power y
+    template <typename FloatN, typename IntN>
+    static FloatN pown(const FloatN x, const IntN y) noexcept;
+
     //! Compute square root
     template <typename FloatN>
     static FloatN sqrt(const FloatN x) noexcept;
@@ -57,6 +77,10 @@ class Math
     //! Compute inverse square root
     template <typename FloatN>
     static FloatN rsqrt(const FloatN x) noexcept;
+
+    //! Compute cube root
+    template <typename FloatN>
+    static FloatN cbrt(const FloatN x) noexcept;
   };
 
   /*!
@@ -68,6 +92,14 @@ class Math
   {
     // Power functions
 
+    //! Compute x to the power y
+    template <typename FloatN>
+    static FloatN pow(const FloatN x, const FloatN y) noexcept;
+
+    //! Compute x to the power y
+    template <typename FloatN, typename IntN>
+    static FloatN pown(const FloatN x, const IntN y) noexcept;
+
     //! Compute square root
     template <typename FloatN>
     static FloatN sqrt(const FloatN x) noexcept;
@@ -75,6 +107,10 @@ class Math
     //! Compute inverse square root
     template <typename FloatN>
     static FloatN rsqrt(const FloatN x) noexcept;
+
+    //! Compute cube root
+    template <typename FloatN>
+    static FloatN cbrt(const FloatN x) noexcept;
 
    private:
     template <typename Float>
@@ -90,6 +126,14 @@ class Math
 
 // Power functions
 
+//! Compute x to the power y
+template <typename FloatN>
+FloatN pow(const FloatN x, const FloatN y) noexcept;
+
+//! Compute x to the power y
+template <typename FloatN, typename IntN>
+FloatN pown(const FloatN x, const IntN y) noexcept;
+
 //! Compute square root
 template <typename FloatN>
 FloatN sqrt(const FloatN x) noexcept;
@@ -97,9 +141,21 @@ FloatN sqrt(const FloatN x) noexcept;
 //! Compute inverse square root
 template <typename FloatN>
 FloatN rsqrt(const FloatN x) noexcept;
+
+//! Compute cube root
+template <typename FloatN>
+FloatN cbrt(const FloatN x) noexcept;
 
 namespace native {
 
+//! Compute x to the power y
+template <typename FloatN>
+FloatN pow(const FloatN x, const FloatN y) noexcept;
+
+//! Compute x to the power y
+template <typename FloatN, typename IntN>
+FloatN pown(const FloatN x, const IntN y) noexcept;
+
 //! Compute square root
 template <typename FloatN>
 FloatN sqrt(const FloatN x) noexcept;
@@ -107,11 +163,23 @@ FloatN sqrt(const FloatN x) noexcept;
 //! Compute inverse square root
 template <typename FloatN>
 FloatN rsqrt(const FloatN x) noexcept;
+
+//! Compute cube root
+template <typename FloatN>
+FloatN cbrt(const FloatN x) noexcept;
 
 } /* namespace native */
 
 namespace precision {
 
+//! Compute x to the power y
+template <typename FloatN>
+FloatN pow(const FloatN x, const FloatN y) noexcept;
+
+//! Compute x to the power y
+template <typename FloatN, typename IntN>
+FloatN pown(const FloatN x, const IntN y) noexcept;
+
 //! Compute square root
 template <typename FloatN>
 FloatN sqrt(const FloatN x) noexcept;
@@ -119,6 +187,10 @@ FloatN sqrt(const FloatN x) noexcept;
 //! Compute inverse square root
 template <typename FloatN>
 FloatN rsqrt(const FloatN x) noexcept;
+
+//! Compute cube root
+template <typename FloatN>
+FloatN cbrt(const FloatN x) noexcept;
 
 } /* namespace native */
 

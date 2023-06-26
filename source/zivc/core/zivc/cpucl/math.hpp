@@ -188,6 +188,22 @@ class Math
 
   // Power functions
 
+  //! Compute x to the power y
+  template <std::floating_point Float>
+  static Float pow(const Float x, const Float y) noexcept;
+
+  //! Compute x to the power y
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> pow(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept;
+
+  //! Compute x to the power y
+  template <std::floating_point Float>
+  static Float pown(const Float x, const int32b y) noexcept;
+
+  //! Compute x to the power y
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> pown(const Vector<Float, kN>& x, const Vector<int32b, kN>& y) noexcept;
+
   //! Compute square root
   template <std::floating_point Float>
   static Float sqrt(const Float& x) noexcept;
@@ -204,6 +220,14 @@ class Math
   template <std::floating_point Float, std::size_t kN>
   static Vector<Float, kN> rsqrt(const Vector<Float, kN>& x) noexcept;
 
+  //! Compute cube root
+  template <std::floating_point Float>
+  static Float cbrt(const Float& x) noexcept;
+
+  //! Compute cube root
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> cbrt(const Vector<Float, kN>& x) noexcept;
+
  private:
   /*!
     \brief No brief description
@@ -216,6 +240,22 @@ class Math
 };
 
 // Power functions
+
+//! Compute x to the power y
+template <std::floating_point Float>
+Float pow(const Float x, const Float y) noexcept;
+
+//! Compute x to the power y
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> pow(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept;
+
+//! Compute x to the power y
+template <std::floating_point Float>
+Float pown(const Float x, const int32b y) noexcept;
+
+//! Compute x to the power y
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> pown(const Vector<Float, kN>& x, const Vector<int32b, kN>& y) noexcept;
 
 //! Compute square root
 template <std::floating_point Float>
@@ -232,6 +272,14 @@ Float rsqrt(const Float& x) noexcept;
 //! Compute inverse square root
 template <std::floating_point Float, std::size_t kN>
 Vector<Float, kN> rsqrt(const Vector<Float, kN>& x) noexcept;
+
+//! Compute cube root
+template <std::floating_point Float>
+Float cbrt(const Float& x) noexcept;
+
+//! Compute cube root
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> cbrt(const Vector<Float, kN>& x) noexcept;
 
 ///*!
 //  */

@@ -66,6 +66,22 @@ FloatN Math::rsqrt(const FloatN x) noexcept
   \return No description
   */
 template <typename FloatN> inline
+FloatN Math::cbrt(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  return Impl::cbrt(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
 FloatN Math::Native::sqrt(const FloatN x) noexcept
 {
   using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
@@ -89,6 +105,23 @@ FloatN Math::Native::rsqrt(const FloatN x) noexcept
   using ElementT = typename VecInfo::ElementT;
   static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
   const FloatN y = ZIVC_CL_GLOBAL_NAMESPACE::rsqrt(x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Native::cbrt(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  const FloatN y = ZIVC_CL_GLOBAL_NAMESPACE::cbrt(x);
   return y;
 }
 
@@ -125,6 +158,22 @@ FloatN Math::Precision::rsqrt(const FloatN x) noexcept
 }
 
 /*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Precision::cbrt(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  return Impl<ElementT>::cbrt(x);
+}
+
+/*!
   \brief No brief description
 
   No detailed description.
@@ -132,12 +181,12 @@ FloatN Math::Precision::rsqrt(const FloatN x) noexcept
 template <>
 struct Math::Precision::Util<float>
 {
-  template <typename FloatN>
-  struct V2
-  {
-    FloatN x;
-    FloatN y;
-  };
+//  template <typename FloatN>
+//  struct V2
+//  {
+//    FloatN x;
+//    FloatN y;
+//  };
 
   template <typename FloatN>
   static FloatN invert(const FloatN x) noexcept
@@ -147,66 +196,118 @@ struct Math::Precision::Util<float>
   }
 
   template <typename FloatN>
-  static FloatN upper(const FloatN x) noexcept
+  static FloatN abs(const FloatN x) noexcept
   {
     using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
     using UIntN = UInteger32VecT<VecInfo::size()>;
 
-    const FloatN y = castBit<FloatN>(castBit<UIntN>(x) & 0xfffff000u);
+    const FloatN y = castBit<FloatN>(castBit<UIntN>(x) & 0x7fffffffu);
     return y;
   }
 
   template <typename FloatN>
-  static V2<FloatN> addV2(const FloatN x, const V2<FloatN> y) noexcept
+  static FloatN mla(const FloatN x, const FloatN y, const FloatN z) noexcept
   {
-    const FloatN rx = x + y.x;
-    const FloatN v = rx - x;
-    const FloatN ry = (x - (rx - v)) + (y.x - v) + y.y;
-
-    return {rx, ry};
+    const FloatN w = x * y + z;
+    return w;
   }
 
+//  template <typename FloatN>
+//  static FloatN upper(const FloatN x) noexcept
+//  {
+//    using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+//    using UIntN = UInteger32VecT<VecInfo::size()>;
+//
+//    const FloatN y = castBit<FloatN>(castBit<UIntN>(x) & 0xfffff000u);
+//    return y;
+//  }
+
+//  template <typename FloatN>
+//  static V2<FloatN> addV2(const FloatN x, const V2<FloatN> y) noexcept
+//  {
+//    const FloatN rx = x + y.x;
+//    const FloatN v = rx - x;
+//    const FloatN ry = (x - (rx - v)) + (y.x - v) + y.y;
+//
+//    return {rx, ry};
+//  }
+//
+//  template <typename FloatN>
+//  static V2<FloatN> mulV2(const FloatN x, const FloatN y) noexcept
+//  {
+//    const FloatN xh = upper(x);
+//    const FloatN xl = x - xh;
+//    const FloatN yh = upper(y);
+//    const FloatN yl = y - yh;
+//
+//    const FloatN rx = x * y;
+//    const FloatN ry = xh * yh - rx + xl * yh + xh * yl + xl * yl;
+//
+//    return {rx, ry};
+//  }
+//
+//  template <typename FloatN>
+//  static V2<FloatN> mulV2(const V2<FloatN> x, const V2<FloatN> y) noexcept
+//  {
+//    const FloatN xh = upper(x.x);
+//    const FloatN xl = x.x - xh;
+//    const FloatN yh = upper(y.x);
+//    const FloatN yl = y.x - yh;
+//
+//    const FloatN rx = x.x * y.x;
+//    const FloatN ry = xh * yh - rx + xl * yh + xh * yl + xl * yl + x.x * y.y + x.y * y.x;
+//
+//    return {rx, ry};
+//  }
+//
+//  template <typename FloatN>
+//  static V2<FloatN> frecV2(const FloatN d) noexcept
+//  {
+//    const FloatN t = 1.0f / d;
+//    const FloatN dh = upper(d);
+//    const FloatN dl = d - dh;
+//    const FloatN th = upper(t);
+//    const FloatN tl = t - th;
+//
+//    const FloatN qx = t;
+//    const FloatN qy = t * (1.0f - dh * th - dh * tl - dl * th - dl * tl);
+//
+//    return {qx, qy};
+//  }
+
   template <typename FloatN>
-  static V2<FloatN> mulV2(const FloatN x, const FloatN y) noexcept
+  static FloatN mulsign(const FloatN x, const FloatN y) noexcept
   {
-    const FloatN xh = upper(x);
-    const FloatN xl = x - xh;
-    const FloatN yh = upper(y);
-    const FloatN yl = y - yh;
+    using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+    using UIntN = UInteger32VecT<VecInfo::size()>;
 
-    const FloatN rx = x * y;
-    const FloatN ry = xh * yh - rx + xl * yh + xh * yl + xl * yl;
-
-    return {rx, ry};
+    constexpr UIntN k = 0b01u << 31u;
+    const FloatN z = castBit<FloatN>(castBit<UIntN>(x) ^ (castBit<UIntN>(y) & k));
+    return z;
   }
 
-  template <typename FloatN>
-  static V2<FloatN> mulV2(const V2<FloatN> x, const V2<FloatN> y) noexcept
+  template <typename FloatN, typename IntN>
+  static FloatN pow2(const IntN x) noexcept
   {
-    const FloatN xh = upper(x.x);
-    const FloatN xl = x.x - xh;
-    const FloatN yh = upper(y.x);
-    const FloatN yl = y.x - yh;
-
-    const FloatN rx = x.x * y.x;
-    const FloatN ry = xh * yh - rx + xl * yh + xh * yl + xl * yl + x.x * y.y + x.y * y.x;
-
-    return {rx, ry};
+    const FloatN y = castBit<FloatN>((x + 0x7f) << 23);
+    return y;
   }
 
-  template <typename FloatN>
-  static V2<FloatN> frecV2(const FloatN d) noexcept
+  template <typename FloatN, typename IntN>
+  static FloatN ldexp2(const FloatN x, const IntN e) noexcept
   {
-    const FloatN t = 1.0f / d;
-    const FloatN dh = upper(d);
-    const FloatN dl = d - dh;
-    const FloatN th = upper(t);
-    const FloatN tl = t - th;
+    const FloatN y = x * pow2<FloatN>(e >> 1) * pow2<FloatN>(e - (e >> 1));
+    return y;
+  }
 
-    const FloatN qx = t;
-    const FloatN qy = t * (1.0f - dh * th - dh * tl - dl * th - dl * tl);
-
-    return {qx, qy};
+  template <typename IntN, typename FloatN>
+  static IntN ilogb(const FloatN x) noexcept
+  {
+    const CompResult<FloatN> m = x < 5.421010862427522e-20f;
+    const FloatN d = select(x, x * 1.8446744073709552e19f, m);
+    IntN q = (castBit<IntN>(d) >> 23) & 0xff;
+    q = select(q - 0x7f, q - (64 + 0x7f), m);
+    return q;
   }
 };
 
@@ -300,6 +401,40 @@ struct Math::Precision::Impl<float>
 //    return y;
 //  }
 
+  //! Compute cube root
+  template <typename FloatN>
+  static FloatN cbrt(const FloatN x) noexcept
+  {
+    using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+    using IntN = Integer32VecT<VecInfo::size()>;
+
+    const IntN e = UtilT::ilogb<IntN>(UtilT::abs(x)) + 1;
+    FloatN d = UtilT::ldexp2(x, -e);
+    FloatN q = 1.0f;
+    {
+      const IntN r = (e + 6144) % 3;
+      constexpr FloatN q1 = 1.2599210498948731647672106f;
+      constexpr FloatN q2 = 1.5874010519681994747517056f;
+      q = select(q, q1, r == 1);
+      q = select(q, q2, r == 2);
+    }
+    q = UtilT::ldexp2(q, (e + 6144) / 3 - 2048);
+
+    q = UtilT::mulsign(q, d);
+    d = UtilT::abs(d);
+
+    FloatN t = -0.601564466953277587890625f;
+    t = UtilT::mla<FloatN>(t, d, 2.8208892345428466796875f);
+    t = UtilT::mla<FloatN>(t, d, -5.532182216644287109375f);
+    t = UtilT::mla<FloatN>(t, d, 5.898262500762939453125f);
+    t = UtilT::mla<FloatN>(t, d, -3.8095417022705078125f);
+    t = UtilT::mla<FloatN>(t, d, 2.2241256237030029296875f);
+
+    FloatN y = d * t * t;
+    y = (y - (2.0f / 3.0f) * y * (y * t - 1.0f)) * q;
+
+    return y;
+  }
 };
 
 /*!
@@ -326,6 +461,19 @@ template <typename FloatN> inline
 FloatN rsqrt(const FloatN x) noexcept
 {
   return Math::rsqrt(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN cbrt(const FloatN x) noexcept
+{
+  return Math::cbrt(x);
 }
 
 namespace native {
@@ -356,6 +504,19 @@ FloatN rsqrt(const FloatN x) noexcept
   return Math::Native::rsqrt(x);
 }
 
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN cbrt(const FloatN x) noexcept
+{
+  return Math::Native::cbrt(x);
+}
+
 } /* namespace native */
 
 namespace precision {
@@ -384,6 +545,19 @@ template <typename FloatN> inline
 FloatN rsqrt(const FloatN x) noexcept
 {
   return Math::Precision::rsqrt(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN cbrt(const FloatN x) noexcept
+{
+  return Math::Precision::cbrt(x);
 }
 
 } /* namespace precision */

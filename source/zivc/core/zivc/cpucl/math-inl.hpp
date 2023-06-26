@@ -58,6 +58,78 @@ constexpr Vector<Float, kN> Math::invert(const Vector<Float, kN>& x) noexcept
 
   \tparam Float No description.
   \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float Math::pow(const Float x, const Float y) noexcept
+{
+  const Float z = std::pow(x, y);
+  return z;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> Math::pow(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept
+{
+  using VectorT = Vector<Float, kN>;
+  const auto func = [](const Float x, const Float y) noexcept -> Float
+  {
+    return std::pow(x, y);
+  };
+  const VectorT z = VectorT::template apply<Float, Float>(func, x, y);
+  return z;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float Math::pown(const Float x, const int32b y) noexcept
+{
+  const Float z = std::pow(x, y);
+  return z;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> Math::pown(const Vector<Float, kN>& x, const Vector<int32b, kN>& y) noexcept
+{
+  using VectorT = Vector<Float, kN>;
+  const auto func = [](const Float x, const int32b y) noexcept -> Float
+  {
+    return std::pow(x, y);
+  };
+  const VectorT z = VectorT::template apply<Float, int32b>(func, x, y);
+  return z;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
   \return No description
   */
 template <std::floating_point Float> inline
@@ -95,6 +167,40 @@ Vector<Float, kN> Math::sqrt(const Vector<Float, kN>& x) noexcept
   \return No description
   */
 template <std::floating_point Float> inline
+Float Math::cbrt(const Float& x) noexcept
+{
+  const Float y = std::cbrt(x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> Math::cbrt(const Vector<Float, kN>& x) noexcept
+{
+  using VectorT = Vector<Float, kN>;
+  const auto func = [](const Float x) noexcept -> Float
+  {
+    return std::cbrt(x);
+  };
+  const VectorT y = VectorT::template apply<Float>(func, x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
 Float Math::rsqrt(const Float& x) noexcept
 {
   const Float y = invert(sqrt(x));
@@ -114,6 +220,64 @@ Vector<Float, kN> Math::rsqrt(const Vector<Float, kN>& x) noexcept
 {
   const Vector<Float, kN> y = invert(sqrt(x));
   return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float pow(const Float x, const Float y) noexcept
+{
+  return Math::pow(x, y);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> pow(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept
+{
+  return Math::pow(x, y);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float pown(const Float x, const int32b y) noexcept
+{
+  return Math::pown(x, y);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> pown(const Vector<Float, kN>& x, const Vector<int32b, kN>& y) noexcept
+{
+  return Math::pown(x, y);
 }
 
 /*!
@@ -168,6 +332,33 @@ template <std::floating_point Float, std::size_t kN> inline
 Vector<Float, kN> rsqrt(const Vector<Float, kN>& x) noexcept
 {
   return Math::rsqrt(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float cbrt(const Float& x) noexcept
+{
+  return Math::cbrt(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> cbrt(const Vector<Float, kN>& x) noexcept
+{
+  return Math::cbrt(x);
 }
 
 ///*!

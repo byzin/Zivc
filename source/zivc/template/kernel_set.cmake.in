@@ -244,7 +244,7 @@ function(Zivc_getClspvCompileFlags clspv_compile_flags)
                       --work-dim
                       )
   # Optimization options
-  list(APPEND options -O 3
+  list(APPEND options -O=3
                       --cl-native-math
                       --cost-kind=throughput
                       --force-tail-folding-style=data-and-control

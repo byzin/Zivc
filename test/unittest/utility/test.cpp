@@ -96,10 +96,10 @@ namespace ztest {
   */
 void MathTestResult::checkError(const std::string_view name) const
 {
-  ASSERT_FALSE(fatal_nan_) << name.data() << " has unexpected NaN.";
-  ASSERT_FALSE(fatal_inf_) << name.data() << " has unexpected Inf.";
-  ASSERT_FALSE(fatal_outlier_) << name.data() << " has unexpected outlier.";
-  ASSERT_FALSE(0 < num_of_outliers1_) << name.data() << " has outliers.";
+  EXPECT_FALSE(fatal_nan_) << name.data() << " has unexpected NaN.";
+  EXPECT_FALSE(fatal_inf_) << name.data() << " has unexpected Inf.";
+  EXPECT_FALSE(fatal_outlier_) << name.data() << " has unexpected outlier.";
+  EXPECT_FALSE(0 < num_of_outliers1_) << name.data() << " has outliers.";
 }
 
 /*!

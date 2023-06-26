@@ -16,14 +16,21 @@
 #define ZIVC_TEST_MATH_TEST_HPP
 
 // Standard C++ library
+#include <algorithm>
 #include <concepts>
 #include <fstream>
 #include <string_view>
 #include <vector>
 // Zisc
 #include "zisc/binary_serializer.hpp"
+#include "zisc/concepts.hpp"
+#include "zisc/function_reference.hpp"
 // Zivc
 #include "zivc/zivc.hpp"
+// Test
+#include "config.hpp"
+#include "googletest.hpp"
+#include "test.hpp"
 
 namespace ztest {
 
@@ -111,6 +118,90 @@ std::vector<Float> loadPowXList() noexcept
       ? std::string_view{"resources/math_xpowf_reference.bin"}
       : std::string_view{"resources/math_xpowd_reference.bin"};
   return loadXList<Float>(file_path);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam kN No description.
+  \tparam Float No description.
+  \tparam KernelInitParam No description.
+  \param [in] kernel_params No description.
+  \param [in] x_list_loader_func No description.
+  \param [in] reference_file No description.
+  \param [in] label No description.
+  \param [in] func_name No description.
+  \return No description
+  \exception std::exception No description.
+
+  \note No notation.
+  \attention No attention.
+  */
+template <std::size_t kN,
+          std::floating_point Float,
+          typename KernelInitParam> inline
+void testF1(const KernelInitParam kernel_params,
+            const zisc::FunctionReference<std::vector<Float> ()> x_list_loader_func,
+            const std::string_view reference_file,
+            const std::string_view label,
+            const std::string_view func_name,
+            const zisc::FunctionReference<Float (Float)> x_converter = [](const Float v){return v;},
+            const zisc::FunctionReference<Float (Float)> reference_converter = [](const Float v){return v;})
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Get the test input
+  constexpr std::size_t vector_size = kN;
+  std::vector x_list = x_list_loader_func();
+  std::transform(x_list.cbegin(), x_list.cend(), x_list.begin(), x_converter);
+  const zivc::uint32b n = x_list.size() / vector_size;
+
+  // Initialize buffers
+  const zivc::SharedBuffer buffer_in = device->createBuffer<Float>(zivc::BufferUsage::kPreferDevice);
+  {
+    const std::span<const Float> l{x_list.begin(), x_list.end()};
+    ztest::setDeviceBuffer(*device, l, buffer_in.get());
+  }
+  const zivc::SharedBuffer buffer_out = device->createBuffer<Float>(zivc::BufferUsage::kPreferDevice);
+  buffer_out->setSize(vector_size * n);
+
+  // Make a kernel
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(3, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{n}});
+  launch_options.requestFence(true);
+  launch_options.setLabel(label);
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(3, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(n, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_in, *buffer_out, n, launch_options);
+  device->waitForCompletion(result.fence());
+
+  // output1
+  {
+    const zivc::SharedBuffer tmp = device->createBuffer<Float>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out, tmp.get());
+    const zivc::MappedMemory mem = tmp->mapMemory();
+
+    // 
+    std::vector expected_list = ztest::loadExpectedList<Float>(reference_file, x_list.size());
+    std::transform(expected_list.cbegin(), expected_list.cend(), expected_list.begin(), reference_converter);
+
+    ztest::MathTestResult result{};
+    for (std::size_t i = 0; i < mem.size(); ++i)
+      ztest::test(expected_list[i], mem[i], &result);
+    result.print();
+    result.checkError(func_name);
+  }
 }
 
 } /* namespace ztest */

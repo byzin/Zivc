@@ -84,7 +84,7 @@ class Math
   };
 
   /*!
-    \brief No brief description
+    \brief The implementation is based on SLEEF Vectorized Math Llibrary (https://sleef.org/)
 
     No detailed description.
     */

@@ -186,6 +186,7 @@ bool test(const Float expected,
     const Float sign = std::copysign(o, expected) * std::copysign(o, value);
     if (sign != o) {
       result->fatal_outlier_ = true;
+      print_fatal_case();
       return false;
     }
   }

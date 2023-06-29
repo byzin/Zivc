@@ -133,7 +133,7 @@ __kernel void powV1TestKernel(zivc::ConstGlobalPtr<float> in,
     return;
 
   const float x = in[index];
-  const float y = base * x;
+  const float y = zivc::pow(base, x);
   out[index] = y;
 }
 
@@ -147,7 +147,7 @@ __kernel void powV1PrecisionTestKernel(zivc::ConstGlobalPtr<float> in,
     return;
 
   const float x = in[index];
-  const float y = base * x;
+  const float y = zivc::precision::pow(base, x);
   out[index] = y;
 }
 
@@ -161,7 +161,7 @@ __kernel void powV2TestKernel(zivc::ConstGlobalPtr<float> in,
     return;
 
   const float2 x = zivc::vload2(index, in);
-  const float2 y = base * x; //zivc::sqrt(x);
+  const float2 y = zivc::pow(zivc::makeFloat2(base), x);
   zivc::vstore2(y, index, out);
 }
 
@@ -175,8 +175,120 @@ __kernel void powV2PrecisionTestKernel(zivc::ConstGlobalPtr<float> in,
     return;
 
   const float2 x = zivc::vload2(index, in);
-  const float2 y = base * x; //zivc::precision::sqrt(x);
+  const float2 y = zivc::precision::pow(zivc::makeFloat2(base), x);
   zivc::vstore2(y, index, out);
+}
+
+__kernel void powV3TestKernel(zivc::ConstGlobalPtr<float> in,
+                              zivc::GlobalPtr<float> out,
+                              const uint32b resolution,
+                              const float base)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (resolution <= index)
+    return;
+
+  const float3 x = zivc::vload3(index, in);
+  const float3 y = zivc::pow(zivc::makeFloat3(base), x);
+  zivc::vstore3(y, index, out);
+}
+
+__kernel void powV3PrecisionTestKernel(zivc::ConstGlobalPtr<float> in,
+                                       zivc::GlobalPtr<float> out,
+                                       const uint32b resolution,
+                                       const float base)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (resolution <= index)
+    return;
+
+  const float3 x = zivc::vload3(index, in);
+  const float3 y = zivc::precision::pow(zivc::makeFloat3(base), x);
+  zivc::vstore3(y, index, out);
+}
+
+__kernel void powV4TestKernel(zivc::ConstGlobalPtr<float> in,
+                              zivc::GlobalPtr<float> out,
+                              const uint32b resolution,
+                              const float base)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (resolution <= index)
+    return;
+
+  const float4 x = zivc::vload4(index, in);
+  const float4 y = zivc::pow(zivc::makeFloat4(base), x);
+  zivc::vstore4(y, index, out);
+}
+
+__kernel void powV4PrecisionTestKernel(zivc::ConstGlobalPtr<float> in,
+                                       zivc::GlobalPtr<float> out,
+                                       const uint32b resolution,
+                                       const float base)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (resolution <= index)
+    return;
+
+  const float4 x = zivc::vload4(index, in);
+  const float4 y = zivc::precision::pow(zivc::makeFloat4(base), x);
+  zivc::vstore4(y, index, out);
+}
+
+__kernel void powV8TestKernel(zivc::ConstGlobalPtr<float> in,
+                              zivc::GlobalPtr<float> out,
+                              const uint32b resolution,
+                              const float base)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (resolution <= index)
+    return;
+
+  const float8 x = zivc::vload8(index, in);
+  const float8 y = zivc::pow(zivc::makeFloat8(base), x);
+  zivc::vstore8(y, index, out);
+}
+
+__kernel void powV8PrecisionTestKernel(zivc::ConstGlobalPtr<float> in,
+                                       zivc::GlobalPtr<float> out,
+                                       const uint32b resolution,
+                                       const float base)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (resolution <= index)
+    return;
+
+  const float8 x = zivc::vload8(index, in);
+  const float8 y = zivc::precision::pow(zivc::makeFloat8(base), x);
+  zivc::vstore8(y, index, out);
+}
+
+__kernel void powV16TestKernel(zivc::ConstGlobalPtr<float> in,
+                               zivc::GlobalPtr<float> out,
+                               const uint32b resolution,
+                               const float base)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (resolution <= index)
+    return;
+
+  const float16 x = zivc::vload16(index, in);
+  const float16 y = zivc::pow(zivc::makeFloat16(base), x);
+  zivc::vstore16(y, index, out);
+}
+
+__kernel void powV16PrecisionTestKernel(zivc::ConstGlobalPtr<float> in,
+                                        zivc::GlobalPtr<float> out,
+                                        const uint32b resolution,
+                                        const float base)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (resolution <= index)
+    return;
+
+  const float16 x = zivc::vload16(index, in);
+  const float16 y = zivc::precision::pow(zivc::makeFloat16(base), x);
+  zivc::vstore16(y, index, out);
 }
 
 __kernel void pownV1TestKernel(zivc::ConstGlobalPtr<int32b> in,
@@ -189,7 +301,7 @@ __kernel void pownV1TestKernel(zivc::ConstGlobalPtr<int32b> in,
     return;
 
   const int32b x = in[index];
-  const float y = base * static_cast<float>(x);
+  const float y = zivc::pown(base, x);
   out[index] = y;
 }
 
@@ -203,7 +315,7 @@ __kernel void pownV1PrecisionTestKernel(zivc::ConstGlobalPtr<int32b> in,
     return;
 
   const int32b x = in[index];
-  const float y = base * static_cast<float>(x);
+  const float y = zivc::precision::pown(base, x);
   out[index] = y;
 }
 
@@ -217,7 +329,7 @@ __kernel void pownV2TestKernel(zivc::ConstGlobalPtr<int32b> in,
     return;
 
   const int2 x = zivc::vload2(index, in);
-  const float2 y = base * zivc::cast<float2>(x); //zivc::sqrt(x);
+  const float2 y = zivc::pown(zivc::makeFloat2(base), x);
   zivc::vstore2(y, index, out);
 }
 
@@ -231,8 +343,120 @@ __kernel void pownV2PrecisionTestKernel(zivc::ConstGlobalPtr<int32b> in,
     return;
 
   const int2 x = zivc::vload2(index, in);
-  const float2 y = base * zivc::cast<float2>(x); //zivc::sqrt(x);
+  const float2 y = zivc::precision::pown(zivc::makeFloat2(base), x);
   zivc::vstore2(y, index, out);
+}
+
+__kernel void pownV3TestKernel(zivc::ConstGlobalPtr<int32b> in,
+                               zivc::GlobalPtr<float> out,
+                               const uint32b resolution,
+                               const float base)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (resolution <= index)
+    return;
+
+  const int3 x = zivc::vload3(index, in);
+  const float3 y = zivc::pown(zivc::makeFloat3(base), x);
+  zivc::vstore3(y, index, out);
+}
+
+__kernel void pownV3PrecisionTestKernel(zivc::ConstGlobalPtr<int32b> in,
+                                        zivc::GlobalPtr<float> out,
+                                        const uint32b resolution,
+                                        const float base)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (resolution <= index)
+    return;
+
+  const int3 x = zivc::vload3(index, in);
+  const float3 y = zivc::precision::pown(zivc::makeFloat3(base), x);
+  zivc::vstore3(y, index, out);
+}
+
+__kernel void pownV4TestKernel(zivc::ConstGlobalPtr<int32b> in,
+                               zivc::GlobalPtr<float> out,
+                               const uint32b resolution,
+                               const float base)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (resolution <= index)
+    return;
+
+  const int4 x = zivc::vload4(index, in);
+  const float4 y = zivc::pown(zivc::makeFloat4(base), x);
+  zivc::vstore4(y, index, out);
+}
+
+__kernel void pownV4PrecisionTestKernel(zivc::ConstGlobalPtr<int32b> in,
+                                        zivc::GlobalPtr<float> out,
+                                        const uint32b resolution,
+                                        const float base)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (resolution <= index)
+    return;
+
+  const int4 x = zivc::vload4(index, in);
+  const float4 y = zivc::precision::pown(zivc::makeFloat4(base), x);
+  zivc::vstore4(y, index, out);
+}
+
+__kernel void pownV8TestKernel(zivc::ConstGlobalPtr<int32b> in,
+                               zivc::GlobalPtr<float> out,
+                               const uint32b resolution,
+                               const float base)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (resolution <= index)
+    return;
+
+  const int8 x = zivc::vload8(index, in);
+  const float8 y = zivc::pown(zivc::makeFloat8(base), x);
+  zivc::vstore8(y, index, out);
+}
+
+__kernel void pownV8PrecisionTestKernel(zivc::ConstGlobalPtr<int32b> in,
+                                        zivc::GlobalPtr<float> out,
+                                        const uint32b resolution,
+                                        const float base)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (resolution <= index)
+    return;
+
+  const int8 x = zivc::vload8(index, in);
+  const float8 y = zivc::precision::pown(zivc::makeFloat8(base), x);
+  zivc::vstore8(y, index, out);
+}
+
+__kernel void pownV16TestKernel(zivc::ConstGlobalPtr<int32b> in,
+                                zivc::GlobalPtr<float> out,
+                                const uint32b resolution,
+                                const float base)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (resolution <= index)
+    return;
+
+  const int16 x = zivc::vload16(index, in);
+  const float16 y = zivc::pown(zivc::makeFloat16(base), x);
+  zivc::vstore16(y, index, out);
+}
+
+__kernel void pownV16PrecisionTestKernel(zivc::ConstGlobalPtr<int32b> in,
+                                         zivc::GlobalPtr<float> out,
+                                         const uint32b resolution,
+                                         const float base)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (resolution <= index)
+    return;
+
+  const int16 x = zivc::vload16(index, in);
+  const float16 y = zivc::precision::pown(zivc::makeFloat16(base), x);
+  zivc::vstore16(y, index, out);
 }
 
 __kernel void sqrtV1TestKernel(zivc::ConstGlobalPtr<float> in,
@@ -339,19 +563,18 @@ __kernel void sqrtV4PrecisionTestKernel(zivc::ConstGlobalPtr<float> in,
   zivc::vstore4(y, index, out);
 }
 
-//! \todo Resolve the compile error using clspv
-//__kernel void sqrtV8TestKernel(zivc::ConstGlobalPtr<float> in,
-//                               zivc::GlobalPtr<float> out,
-//                               const uint32b resolution)
-//{
-//  const size_t index = zivc::getGlobalLinearId();
-//  if (resolution <= index)
-//    return;
-//
-//  const float8 x = zivc::vload8(index, in);
-//  const float8 y = zivc::sqrt(x);
-//  zivc::vstore8(y, index, out);
-//}
+__kernel void sqrtV8TestKernel(zivc::ConstGlobalPtr<float> in,
+                               zivc::GlobalPtr<float> out,
+                               const uint32b resolution)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (resolution <= index)
+    return;
+
+  const float8 x = zivc::vload8(index, in);
+  const float8 y = zivc::sqrt(x);
+  zivc::vstore8(y, index, out);
+}
 
 __kernel void sqrtV8PrecisionTestKernel(zivc::ConstGlobalPtr<float> in,
                                         zivc::GlobalPtr<float> out,
@@ -366,19 +589,18 @@ __kernel void sqrtV8PrecisionTestKernel(zivc::ConstGlobalPtr<float> in,
   zivc::vstore8(y, index, out);
 }
 
-//! \todo Resolve the compile error using clspv
-//__kernel void sqrtV16TestKernel(zivc::ConstGlobalPtr<float> in,
-//                                zivc::GlobalPtr<float> out,
-//                                const uint32b resolution)
-//{
-//  const size_t index = zivc::getGlobalLinearId();
-//  if (resolution <= index)
-//    return;
-//
-//  const float16 x = zivc::vload16(index, in);
-//  const float16 y = zivc::sqrt(x);
-//  zivc::vstore16(y, index, out);
-//}
+__kernel void sqrtV16TestKernel(zivc::ConstGlobalPtr<float> in,
+                                zivc::GlobalPtr<float> out,
+                                const uint32b resolution)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (resolution <= index)
+    return;
+
+  const float16 x = zivc::vload16(index, in);
+  const float16 y = zivc::sqrt(x);
+  zivc::vstore16(y, index, out);
+}
 
 __kernel void sqrtV16PrecisionTestKernel(zivc::ConstGlobalPtr<float> in,
                                          zivc::GlobalPtr<float> out,
@@ -497,19 +719,18 @@ __kernel void rsqrtV4PrecisionTestKernel(zivc::ConstGlobalPtr<float> in,
   zivc::vstore4(y, index, out);
 }
 
-//! \todo Resolve the compile error using clspv
-//__kernel void rsqrtV8TestKernel(zivc::ConstGlobalPtr<float> in,
-//                                zivc::GlobalPtr<float> out,
-//                                const uint32b resolution)
-//{
-//  const size_t index = zivc::getGlobalLinearId();
-//  if (resolution <= index)
-//    return;
-//
-//  const float8 x = zivc::vload8(index, in);
-//  const float8 y = zivc::rsqrt(x);
-//  zivc::vstore8(y, index, out);
-//}
+__kernel void rsqrtV8TestKernel(zivc::ConstGlobalPtr<float> in,
+                                zivc::GlobalPtr<float> out,
+                                const uint32b resolution)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (resolution <= index)
+    return;
+
+  const float8 x = zivc::vload8(index, in);
+  const float8 y = zivc::rsqrt(x);
+  zivc::vstore8(y, index, out);
+}
 
 __kernel void rsqrtV8PrecisionTestKernel(zivc::ConstGlobalPtr<float> in,
                                          zivc::GlobalPtr<float> out,
@@ -524,19 +745,18 @@ __kernel void rsqrtV8PrecisionTestKernel(zivc::ConstGlobalPtr<float> in,
   zivc::vstore8(y, index, out);
 }
 
-//! \todo Resolve the compile error using clspv
-//__kernel void rsqrtV16TestKernel(zivc::ConstGlobalPtr<float> in,
-//                                 zivc::GlobalPtr<float> out,
-//                                 const uint32b resolution)
-//{
-//  const size_t index = zivc::getGlobalLinearId();
-//  if (resolution <= index)
-//    return;
-//
-//  const float16 x = zivc::vload16(index, in);
-//  const float16 y = zivc::rsqrt(x);
-//  zivc::vstore16(y, index, out);
-//}
+__kernel void rsqrtV16TestKernel(zivc::ConstGlobalPtr<float> in,
+                                 zivc::GlobalPtr<float> out,
+                                 const uint32b resolution)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (resolution <= index)
+    return;
+
+  const float16 x = zivc::vload16(index, in);
+  const float16 y = zivc::rsqrt(x);
+  zivc::vstore16(y, index, out);
+}
 
 __kernel void rsqrtV16PrecisionTestKernel(zivc::ConstGlobalPtr<float> in,
                                           zivc::GlobalPtr<float> out,

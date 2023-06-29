@@ -16,7 +16,7 @@
 #define ZIVC_CPUCL_CPUCL_HPP
 
 #include "address_space_pointer.hpp"
-#include "algorithm.hpp"
+//#include "algorithm.hpp"
 #include "atomic.hpp"
 #include "cast.hpp"
 #include "geometric.hpp"

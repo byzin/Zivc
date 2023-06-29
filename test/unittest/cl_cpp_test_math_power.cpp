@@ -325,16 +325,6 @@ void testPow(const KernelInitParam& kernel_params,
     expected_list.resize(x_list.size());
     zisc::BSerializer::read(expected_list.data(), &reference_file, sizeof(cl_float) * n_num);
 
-    // tmp
-    std::vector<cl_float> results{};
-    results.reserve(x_list.size());
-    for (const cl_float expt : x_list)
-      results.push_back(std::pow(base, expt));
-    {
-      const std::span<const cl_float> l{results.begin(), results.end()};
-      ztest::setDeviceBuffer(*device, l, buffer_out.get());
-    }
-
     // output1
     {
       const zivc::SharedBuffer tmp = device->createBuffer<cl_float>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
@@ -421,16 +411,6 @@ void testPown(const KernelInitParam& kernel_params,
     std::vector<cl_float> expected_list{};
     expected_list.resize(x_list.size());
     zisc::BSerializer::read(expected_list.data(), &reference_file, sizeof(cl_float) * n_num);
-
-    // tmp
-    std::vector<cl_float> results{};
-    results.reserve(x_list.size());
-    for (const cl_int expt : x_list)
-      results.push_back(std::pow(base, expt));
-    {
-      const std::span<const cl_float> l{results.begin(), results.end()};
-      ztest::setDeviceBuffer(*device, l, buffer_out.get());
-    }
 
     // output1
     {
@@ -824,6 +804,62 @@ TEST(ClCppTest, MathPrecisionPowV2Test)
   ::testPow<2>(kernel_params, "powV2PrecisionTestKernel", "powV2Precision");
 }
 
+TEST(ClCppTest, MathImplPowV3Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, powV3TestKernel, 1);
+  ::testPow<3>(kernel_params, "powV3TestKernel", "powV3");
+}
+
+TEST(ClCppTest, MathPrecisionPowV3Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, powV3PrecisionTestKernel, 1);
+  ::testPow<3>(kernel_params, "powV3PrecisionTestKernel", "powV3Precision");
+}
+
+TEST(ClCppTest, MathImplPowV4Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, powV4TestKernel, 1);
+  ::testPow<4>(kernel_params, "powV4TestKernel", "powV4");
+}
+
+TEST(ClCppTest, MathPrecisionPowV4Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, powV4PrecisionTestKernel, 1);
+  ::testPow<4>(kernel_params, "powV4PrecisionTestKernel", "powV4Precision");
+}
+
+TEST(ClCppTest, MathImplPowV8Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, powV8TestKernel, 1);
+  ::testPow<8>(kernel_params, "powV8TestKernel", "powV8");
+}
+
+TEST(ClCppTest, MathPrecisionPowV8Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, powV8PrecisionTestKernel, 1);
+  ::testPow<8>(kernel_params, "powV8PrecisionTestKernel", "powV8Precision");
+}
+
+TEST(ClCppTest, MathImplPowV16Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, powV16TestKernel, 1);
+  ::testPow<16>(kernel_params, "powV16TestKernel", "powV16");
+}
+
+TEST(ClCppTest, MathPrecisionPowV16Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, powV16PrecisionTestKernel, 1);
+  ::testPow<16>(kernel_params, "powV16PrecisionTestKernel", "powV16Precision");
+}
+
 TEST(ClCppTest, MathImplPownV1Test)
 {
   // Make a kernel
@@ -850,6 +886,62 @@ TEST(ClCppTest, MathPrecisionPownV2Test)
   // Make a kernel
   const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, pownV2PrecisionTestKernel, 1);
   ::testPown<2>(kernel_params, "pownV2PrecisionTestKernel", "pownV2Precision");
+}
+
+TEST(ClCppTest, MathImplPownV3Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, pownV3TestKernel, 1);
+  ::testPown<3>(kernel_params, "pownV3TestKernel", "pownV3");
+}
+
+TEST(ClCppTest, MathPrecisionPownV3Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, pownV3PrecisionTestKernel, 1);
+  ::testPown<3>(kernel_params, "pownV3PrecisionTestKernel", "pownV3Precision");
+}
+
+TEST(ClCppTest, MathImplPownV4Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, pownV4TestKernel, 1);
+  ::testPown<4>(kernel_params, "pownV4TestKernel", "pownV4");
+}
+
+TEST(ClCppTest, MathPrecisionPownV4Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, pownV4PrecisionTestKernel, 1);
+  ::testPown<4>(kernel_params, "pownV4PrecisionTestKernel", "pownV4Precision");
+}
+
+TEST(ClCppTest, MathImplPownV8Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, pownV8TestKernel, 1);
+  ::testPown<8>(kernel_params, "pownV8TestKernel", "pownV8");
+}
+
+TEST(ClCppTest, MathPrecisionPownV8Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, pownV8PrecisionTestKernel, 1);
+  ::testPown<8>(kernel_params, "pownV8PrecisionTestKernel", "pownV8Precision");
+}
+
+TEST(ClCppTest, MathImplPownV16Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, pownV16TestKernel, 1);
+  ::testPown<16>(kernel_params, "pownV16TestKernel", "pownV16");
+}
+
+TEST(ClCppTest, MathPrecisionPownV16Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, pownV16PrecisionTestKernel, 1);
+  ::testPown<16>(kernel_params, "pownV16PrecisionTestKernel", "pownV16Precision");
 }
 
 TEST(ClCppTest, MathImplSqrtV1Test)
@@ -937,17 +1029,16 @@ TEST(ClCppTest, MathPrecisionSqrtV4Test)
                           "sqrtV4Precision");
 }
 
-//! \todo Resolve the compile error using clspv
-//TEST(ClCppTest, MathImplSqrtV8Test)
-//{
-//  // Make a kernel
-//  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, sqrtV8TestKernel, 1);
-//  ztest::testF1<8, float>(kernel_params,
-//                          ztest::loadPositiveXList<float>,
-//                          "resources/math_sqrtf_reference.bin",
-//                          "sqrtV8TestKernel",
-//                          "sqrtV8");
-//}
+TEST(ClCppTest, MathImplSqrtV8Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, sqrtV8TestKernel, 1);
+  ztest::testF1<8, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_sqrtf_reference.bin",
+                          "sqrtV8TestKernel",
+                          "sqrtV8");
+}
 
 TEST(ClCppTest, MathPrecisionSqrtV8Test)
 {
@@ -959,17 +1050,16 @@ TEST(ClCppTest, MathPrecisionSqrtV8Test)
                           "sqrtV8Precision");
 }
 
-//! \todo Resolve the compile error using clspv
-//TEST(ClCppTest, MathImplSqrtV16Test)
-//{
-//  // Make a kernel
-//  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, sqrtV16TestKernel, 1);
-//  ztest::testF1<16, float>(kernel_params,
-//                           ztest::loadPositiveXList<float>,
-//                           "resources/math_sqrtf_reference.bin",
-//                           "sqrtV16TestKernel",
-//                           "sqrtV16");
-//}
+TEST(ClCppTest, MathImplSqrtV16Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, sqrtV16TestKernel, 1);
+  ztest::testF1<16, float>(kernel_params,
+                           ztest::loadPositiveXList<float>,
+                           "resources/math_sqrtf_reference.bin",
+                           "sqrtV16TestKernel",
+                           "sqrtV16");
+}
 
 TEST(ClCppTest, MathPrecisionSqrtV16Test)
 {
@@ -1081,19 +1171,18 @@ TEST(ClCppTest, MathPrecisionRsqrtV4Test)
                           [](const float v){return 1.0f / v;});
 }
 
-//! \todo Resolve the compile error using clspv
-//TEST(ClCppTest, MathImplRsqrtV8Test)
-//{
-//  // Make a kernel
-//  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, rsqrtV8TestKernel, 1);
-//  ztest::testF1<8, float>(kernel_params,
-//                          ztest::loadPositiveXList<float>,
-//                          "resources/math_sqrtf_reference.bin",
-//                          "rsqrtV8TestKernel",
-//                          "rsqrtV8",
-//                          [](const float v){return v;},
-//                          [](const float v){return 1.0f / v;});
-//}
+TEST(ClCppTest, MathImplRsqrtV8Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, rsqrtV8TestKernel, 1);
+  ztest::testF1<8, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_sqrtf_reference.bin",
+                          "rsqrtV8TestKernel",
+                          "rsqrtV8",
+                          [](const float v){return v;},
+                          [](const float v){return 1.0f / v;});
+}
 
 TEST(ClCppTest, MathPrecisionRsqrtV8Test)
 {
@@ -1107,19 +1196,18 @@ TEST(ClCppTest, MathPrecisionRsqrtV8Test)
                           [](const float v){return 1.0f / v;});
 }
 
-//! \todo Resolve the compile error using clspv
-//TEST(ClCppTest, MathImplRsqrtV16Test)
-//{
-//  // Make a kernel
-//  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, rsqrtV16TestKernel, 1);
-//  ztest::testF1<16, float>(kernel_params,
-//                           ztest::loadPositiveXList<float>,
-//                           "resources/math_sqrtf_reference.bin",
-//                           "rsqrtV16TestKernel",
-//                           "rsqrtV16",
-//                          [](const float v){return v;},
-//                          [](const float v){return 1.0f / v;});
-//}
+TEST(ClCppTest, MathImplRsqrtV16Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, rsqrtV16TestKernel, 1);
+  ztest::testF1<16, float>(kernel_params,
+                           ztest::loadPositiveXList<float>,
+                           "resources/math_sqrtf_reference.bin",
+                           "rsqrtV16TestKernel",
+                           "rsqrtV16",
+                          [](const float v){return v;},
+                          [](const float v){return 1.0f / v;});
+}
 
 TEST(ClCppTest, MathPrecisionRsqrtV16Test)
 {

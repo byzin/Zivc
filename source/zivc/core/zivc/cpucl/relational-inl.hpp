@@ -38,7 +38,7 @@ namespace zivc::cl {
   \return No description
   */
 template <std::floating_point Float> inline
-CompResult<Float> Relation::isequal(const Float lhs, const Float rhs) noexcept
+CompResult<Float> Relation::isequal(const Float& lhs, const Float& rhs) noexcept
 {
   const CompResult<Float> result = std::equal_to<Float>{}(lhs, rhs) ? kSTrue : kSFalse;
   return result;
@@ -69,7 +69,7 @@ CompResultVec<Float, kN> Relation::isequal(const Vector<Float, kN>& lhs,
   \return No description
   */
 template <std::floating_point Float> inline
-CompResult<Float> Relation::isnotequal(const Float lhs, const Float rhs) noexcept
+CompResult<Float> Relation::isnotequal(const Float& lhs, const Float& rhs) noexcept
 {
   const CompResult<Float> result = std::not_equal_to<Float>{}(lhs, rhs) ? kSTrue : kSFalse;
   return result;
@@ -100,7 +100,7 @@ CompResultVec<Float, kN> Relation::isnotequal(const Vector<Float, kN>& lhs,
   \return No description
   */
 template <std::floating_point Float> inline
-CompResult<Float> Relation::isgreater(const Float lhs, const Float rhs) noexcept
+CompResult<Float> Relation::isgreater(const Float& lhs, const Float& rhs) noexcept
 {
   const CompResult<Float> result = std::greater<Float>{}(lhs, rhs) ? kSTrue : kSFalse;
   return result;
@@ -131,7 +131,7 @@ CompResultVec<Float, kN> Relation::isgreater(const Vector<Float, kN>& lhs,
   \return No description
   */
 template<std::floating_point Float> inline
-CompResult<Float> Relation::isgreaterequal(const Float lhs, const Float rhs) noexcept
+CompResult<Float> Relation::isgreaterequal(const Float& lhs, const Float& rhs) noexcept
 {
   const CompResult<Float> result = std::greater_equal<Float>{}(lhs, rhs) ? kSTrue : kSFalse;
   return result;
@@ -162,7 +162,7 @@ CompResultVec<Float, kN> Relation::isgreaterequal(const Vector<Float, kN>& lhs,
   \return No description
   */
 template <std::floating_point Float> inline
-CompResult<Float> Relation::isless(const Float lhs, const Float rhs) noexcept
+CompResult<Float> Relation::isless(const Float& lhs, const Float& rhs) noexcept
 {
   return isgreater(rhs, lhs);
 }
@@ -192,7 +192,7 @@ CompResultVec<Float, kN> Relation::isless(const Vector<Float, kN>& lhs,
   \return No description
   */
 template <std::floating_point Float> inline
-CompResult<Float> Relation::islessequal(const Float lhs, const Float rhs) noexcept
+CompResult<Float> Relation::islessequal(const Float& lhs, const Float& rhs) noexcept
 {
   return isgreaterequal(rhs, lhs);
 }
@@ -222,7 +222,7 @@ CompResultVec<Float, kN> Relation::islessequal(const Vector<Float, kN>& lhs,
   \return No description
   */
 template <std::floating_point Float> inline
-CompResult<Float> Relation::islessgreater(const Float lhs, const Float rhs) noexcept
+CompResult<Float> Relation::islessgreater(const Float& lhs, const Float& rhs) noexcept
 {
   const CompResult<Float> result = (std::less<Float>{}(lhs, rhs) || std::greater<Float>{}(lhs, rhs)) ? kSTrue : kSFalse;
   return result;
@@ -261,7 +261,7 @@ CompResultVec<Float, kN> Relation::islessgreater(const Vector<Float, kN>& lhs,
   \return No description
   */
 template <std::floating_point Float> inline
-CompResult<Float> Relation::isfinite(const Float value) noexcept
+CompResult<Float> Relation::isfinite(const Float& value) noexcept
 {
   const CompResult<Float> result = std::isfinite(value) ? kSTrue : kSFalse;
   return result;
@@ -298,7 +298,7 @@ CompResultVec<Float, kN> Relation::isfinite(const Vector<Float, kN>& value) noex
   \return No description
   */
 template <std::floating_point Float> inline
-CompResult<Float> Relation::isinf(const Float value) noexcept
+CompResult<Float> Relation::isinf(const Float& value) noexcept
 {
   const CompResult<Float> result = std::isinf(value) ? kSTrue : kSFalse;
   return result;
@@ -335,7 +335,7 @@ CompResultVec<Float, kN> Relation::isinf(const Vector<Float, kN>& value) noexcep
   \return No description
   */
 template <std::floating_point Float> inline
-CompResult<Float> Relation::isnan(const Float value) noexcept
+CompResult<Float> Relation::isnan(const Float& value) noexcept
 {
   const CompResult<Float> result = std::isnan(value) ? kSTrue : kSFalse;
   return result;
@@ -372,7 +372,7 @@ CompResultVec<Float, kN> Relation::isnan(const Vector<Float, kN>& value) noexcep
   \return No description
   */
 template <std::floating_point Float> inline
-CompResult<Float> Relation::isnormal(const Float value) noexcept
+CompResult<Float> Relation::isnormal(const Float& value) noexcept
 {
   const CompResult<Float> result = std::isnormal(value) ? kSTrue : kSFalse;
   return result;
@@ -409,7 +409,7 @@ CompResultVec<Float, kN> Relation::isnormal(const Vector<Float, kN>& value) noex
   \return No description
   */
 template <std::floating_point Float> inline
-CompResult<Float> Relation::signbit(const Float value) noexcept
+CompResult<Float> Relation::signbit(const Float& value) noexcept
 {
   const CompResult<Float> result = std::signbit(value) ? kSTrue : kSFalse;
   return result;
@@ -446,7 +446,7 @@ CompResultVec<Float, kN> Relation::signbit(const Vector<Float, kN>& value) noexc
   \return No description
   */
 template <std::integral Integer> inline
-int32b Relation::any(const Integer x) noexcept
+int32b Relation::any(const Integer& x) noexcept
 {
   using Bit = BitT<Integer>;
   const auto bit = zisc::bit_cast<Bit>(x);
@@ -483,7 +483,7 @@ int32b Relation::any(const Vector<Integer, kN>& x) noexcept
   \return No description
   */
 template <std::integral Integer> inline
-int32b Relation::all(const Integer x) noexcept
+int32b Relation::all(const Integer& x) noexcept
 {
   return any(x);
 }
@@ -518,7 +518,7 @@ int32b Relation::all(const Vector<Integer, kN>& x) noexcept
   \return No description
   */
 template <zisc::Scalar Type> inline
-Type Relation::bitselect(const Type a, const Type b, const Type c) noexcept
+Type Relation::bitselect(const Type& a, const Type& b, const Type& c) noexcept
 {
   using Bit = BitT<Type>;
   const auto x = zisc::bit_cast<Bit>(a);
@@ -563,7 +563,7 @@ Vector<Type, kN> Relation::bitselect(const Vector<Type, kN>& a,
   \return No description
   */
 template <zisc::Scalar Type, std::integral Integer> inline
-Type Relation::select(const Type a, const Type b, const Integer c) noexcept
+Type Relation::select(const Type& a, const Type& b, const Integer& c) noexcept
 {
   constexpr auto zero = static_cast<Integer>(0);
   const Type result = (c == zero) ? a : b;
@@ -604,7 +604,7 @@ Vector<Type, kN> Relation::select(const Vector<Type, kN>& a,
   \return No description
   */
 template <std::floating_point Float> inline
-CompResult<Float> isequal(const Float lhs, const Float rhs) noexcept
+CompResult<Float> isequal(const Float& lhs, const Float& rhs) noexcept
 {
   return Relation::isequal(lhs, rhs);
 }
@@ -634,7 +634,7 @@ CompResultVec<Float, kN> isequal(const Vector<Float, kN>& lhs,
   \return No description
   */
 template <std::floating_point Float> inline
-CompResult<Float> isnotequal(const Float lhs, const Float rhs) noexcept
+CompResult<Float> isnotequal(const Float& lhs, const Float& rhs) noexcept
 {
   return Relation::isnotequal(lhs, rhs);
 }
@@ -664,7 +664,7 @@ CompResultVec<Float, kN> isnotequal(const Vector<Float, kN>& lhs,
   \return No description
   */
 template <std::floating_point Float> inline
-CompResult<Float> isgreater(const Float lhs, const Float rhs) noexcept
+CompResult<Float> isgreater(const Float& lhs, const Float& rhs) noexcept
 {
   return Relation::isgreater(lhs, rhs);
 }
@@ -694,7 +694,7 @@ CompResultVec<Float, kN> isgreater(const Vector<Float, kN>& lhs,
   \return No description
   */
 template <std::floating_point Float> inline
-CompResult<Float> isgreaterequal(const Float lhs, const Float rhs) noexcept
+CompResult<Float> isgreaterequal(const Float& lhs, const Float& rhs) noexcept
 {
   return Relation::isgreaterequal(lhs, rhs);
 }
@@ -724,7 +724,7 @@ CompResultVec<Float, kN> isgreaterequal(const Vector<Float, kN>& lhs,
   \return No description
   */
 template <std::floating_point Float> inline
-CompResult<Float> isless(const Float lhs, const Float rhs) noexcept
+CompResult<Float> isless(const Float& lhs, const Float& rhs) noexcept
 {
   return Relation::isless(lhs, rhs);
 }
@@ -754,7 +754,7 @@ CompResultVec<Float, kN> isless(const Vector<Float, kN>& lhs,
   \return No description
   */
 template <std::floating_point Float> inline
-CompResult<Float> islessequal(const Float lhs, const Float rhs) noexcept
+CompResult<Float> islessequal(const Float& lhs, const Float& rhs) noexcept
 {
   return Relation::islessequal(lhs, rhs);
 }
@@ -784,7 +784,7 @@ CompResultVec<Float, kN> islessequal(const Vector<Float, kN>& lhs,
   \return No description
   */
 template <std::floating_point Float> inline
-CompResult<Float> islessgreater(const Float lhs, const Float rhs) noexcept
+CompResult<Float> islessgreater(const Float& lhs, const Float& rhs) noexcept
 {
   return Relation::islessgreater(lhs, rhs);
 }
@@ -813,7 +813,7 @@ CompResultVec<Float, kN> islessgreater(const Vector<Float, kN>& lhs,
   \return No description
   */
 template <std::floating_point Float> inline
-CompResult<Float> isfinite(const Float value) noexcept
+CompResult<Float> isfinite(const Float& value) noexcept
 {
   return Relation::isfinite(value);
 }
@@ -840,7 +840,7 @@ CompResultVec<Float, kN> isfinite(const Vector<Float, kN>& value) noexcept
   \return No description
   */
 template <std::floating_point Float> inline
-CompResult<Float> isinf(const Float value) noexcept
+CompResult<Float> isinf(const Float& value) noexcept
 {
   return Relation::isinf(value);
 }
@@ -867,7 +867,7 @@ CompResultVec<Float, kN> isinf(const Vector<Float, kN>& value) noexcept
   \return No description
   */
 template <std::floating_point Float> inline
-CompResult<Float> isnan(const Float value) noexcept
+CompResult<Float> isnan(const Float& value) noexcept
 {
   return Relation::isnan(value);
 }
@@ -894,7 +894,7 @@ CompResultVec<Float, kN> isnan(const Vector<Float, kN>& value) noexcept
   \return No description
   */
 template <std::floating_point Float> inline
-CompResult<Float> isnormal(const Float value) noexcept
+CompResult<Float> isnormal(const Float& value) noexcept
 {
   return Relation::isnormal(value);
 }
@@ -921,7 +921,7 @@ CompResultVec<Float, kN> isnormal(const Vector<Float, kN>& value) noexcept
   \return No description
   */
 template <std::floating_point Float> inline
-CompResult<Float> signbit(const Float value) noexcept
+CompResult<Float> signbit(const Float& value) noexcept
 {
   return Relation::signbit(value);
 }
@@ -948,7 +948,7 @@ CompResultVec<Float, kN> signbit(const Vector<Float, kN>& value) noexcept
   \return No description
   */
 template <std::integral Integer> inline
-int32b any(const Integer x) noexcept
+int32b any(const Integer& x) noexcept
 {
   return Relation::any(x);
 }
@@ -974,7 +974,7 @@ int32b any(const Vector<Integer, kN>& x) noexcept
   \return No description
   */
 template <std::integral Integer> inline
-int32b all(const Integer x) noexcept
+int32b all(const Integer& x) noexcept
 {
   return Relation::all(x);
 }
@@ -1002,7 +1002,7 @@ int32b all(const Vector<Integer, kN>& x) noexcept
   \return No description
   */
 template <zisc::Scalar Type> inline
-Type bitselect(const Type a, const Type b, const Type c) noexcept
+Type bitselect(const Type& a, const Type& b, const Type& c) noexcept
 {
   return Relation::bitselect(a, b, c);
 }
@@ -1036,7 +1036,7 @@ Vector<Type, kN> bitselect(const Vector<Type, kN>& a,
   \return No description
   */
 template <zisc::Scalar Type, std::integral Integer> inline
-Type select(const Type a, const Type b, const Integer c) noexcept
+Type select(const Type& a, const Type& b, const Integer& c) noexcept
 {
   return Relation::select(a, b, c);
 }

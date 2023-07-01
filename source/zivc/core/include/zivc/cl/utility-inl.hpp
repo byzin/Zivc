@@ -269,15 +269,12 @@ Type Utility::reinterp(T object) noexcept
   \param [in] x No description.
   \return No description
   */
-template <typename ArithN> inline
-auto Utility::abs(const ArithN x) noexcept
+template <typename IntegerN> inline
+auto Utility::abs(const IntegerN x) noexcept
 {
-  using VecInfo = VectorTypeInfo<RemoveCvT<ArithN>>;
-  static_assert(kIsArithmetic<typename VecInfo::ElementT>, "The input x isn't arithmetic type.");
-  if constexpr (kIsFloat<typename VecInfo::ElementT>)
-    return ZIVC_CL_GLOBAL_NAMESPACE::fabs(x);
-  else
-    return ZIVC_CL_GLOBAL_NAMESPACE::abs(x);
+  using VecInfo = VectorTypeInfo<RemoveCvT<IntegerN>>;
+  static_assert(kIsInteger<typename VecInfo::ElementT>, "The input x isn't integer type.");
+  return ZIVC_CL_GLOBAL_NAMESPACE::abs(x);
 }
 
 /*!

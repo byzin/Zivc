@@ -152,14 +152,6 @@ class Utility
   template <std::unsigned_integral Type, std::size_t kN>
   static Vector<Type, kN> abs(const Vector<Type, kN>& x) noexcept;
 
-  //! Compute the absolute value of a floating point value (|x|)
-  template <std::floating_point Type>
-  static Type fabs(const Type& x) noexcept;
-
-  //! Compute the absolute value of a floating point value (|x|)
-  template <std::floating_point Type, std::size_t kN>
-  static Vector<Type, kN> fabs(const Vector<Type, kN>& x) noexcept;
-
   //! Clamp a value between a pair of boundary values
   template <Arithmetic Type>
   static Type clamp(const Type& x, const Type& lo, const Type& hi) noexcept;
@@ -186,10 +178,6 @@ class Utility
   template <std::floating_point Type, std::size_t kN>
   static Vector<Type, kN> degrees(const Vector<Type, kN>& radians) noexcept;
 
-  //! Check if the x is negative
-  template <Arithmetic Type>
-  static constexpr bool isNegative(const Type& x) noexcept;
-
   //! Return the greater of the given values
   template <Arithmetic Type>
   static Type max(const Type& x, const Type& y) noexcept;
@@ -205,6 +193,14 @@ class Utility
   //! Return the smaller of the given values
   template <Arithmetic Type, std::size_t kN>
   static Vector<Type, kN> min(const Vector<Type, kN>& x, const Vector<Type, kN>& y) noexcept;
+
+  //! Returns the linear blend of x & y implemented as: x + (y - x) * a
+  template <std::floating_point Float>
+  static Float mix(const Float& x, const Float& y, const Float& a) noexcept;
+
+  //! Returns the linear blend of x & y implemented as: x + (y - x) * a
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> mix(const Vector<Float, kN>& x, const Vector<Float, kN>& y, const Vector<Float, kN>& a) noexcept;
 
   //! Count the number of 1 bits in an unsigned integer
   template <std::integral Type>
@@ -267,12 +263,12 @@ class Utility
   //! Compute '(hi << n) | lo'
   template <std::size_t kN>
   static Vector<int16b, kN> upsample(const Vector<int8b, kN>& hi,
-                                     const Vector<uint8b, kN> lo) noexcept;
+                                     const Vector<uint8b, kN>& lo) noexcept;
 
   //! Compute '(hi << n) | lo'
   template <std::size_t kN>
   static Vector<uint16b, kN> upsample(const Vector<uint8b, kN>& hi,
-                                      const Vector<uint8b, kN> lo) noexcept;
+                                      const Vector<uint8b, kN>& lo) noexcept;
 
   //! Compute '(hi << n) | lo'
   static int32b upsample(const int16b hi, const uint16b lo) noexcept;
@@ -283,12 +279,12 @@ class Utility
   //! Compute '(hi << n) | lo'
   template <std::size_t kN>
   static Vector<int32b, kN> upsample(const Vector<int16b, kN>& hi,
-                                     const Vector<uint16b, kN> lo) noexcept;
+                                     const Vector<uint16b, kN>& lo) noexcept;
 
   //! Compute '(hi << n) | lo'
   template <std::size_t kN>
   static Vector<uint32b, kN> upsample(const Vector<uint16b, kN>& hi,
-                                      const Vector<uint16b, kN> lo) noexcept;
+                                      const Vector<uint16b, kN>& lo) noexcept;
 
   //! Compute '(hi << n) | lo'
   static int64b upsample(const int32b hi, const uint32b lo) noexcept;
@@ -299,12 +295,12 @@ class Utility
   //! Compute '(hi << n) | lo'
   template <std::size_t kN>
   static Vector<int64b, kN> upsample(const Vector<int32b, kN>& hi,
-                                     const Vector<uint32b, kN> lo) noexcept;
+                                     const Vector<uint32b, kN>& lo) noexcept;
 
   //! Compute '(hi << n) | lo'
   template <std::size_t kN>
   static Vector<uint64b, kN> upsample(const Vector<uint32b, kN>& hi,
-                                      const Vector<uint32b, kN> lo) noexcept;
+                                      const Vector<uint32b, kN>& lo) noexcept;
 };
 
 //! Compute the absolute value of a integer value (|x|)
@@ -314,14 +310,6 @@ auto abs(const Type& x) noexcept;
 //! Compute the absolute value of a integer value (|x|)
 template <std::integral Type, std::size_t kN>
 Vector<std::make_unsigned_t<Type>, kN> abs(const Vector<Type, kN>& x) noexcept;
-
-//! Compute the absolute value of a floating point value (|x|)
-template <std::floating_point Type>
-Type fabs(const Type& x) noexcept;
-
-//! Compute the absolute value of a floating point value (|x|)
-template <std::floating_point Type, std::size_t kN>
-Vector<Type, kN> fabs(const Vector<Type, kN>& x) noexcept;
 
 //! Clamp a value between a pair of boundary values
 template <Arithmetic Type>
@@ -364,6 +352,14 @@ Type min(const Type& x, const Type& y) noexcept;
 //! Return the smaller of the given values
 template <Arithmetic Type, std::size_t kN>
 Vector<Type, kN> min(const Vector<Type, kN>& x, const Vector<Type, kN>& y) noexcept;
+
+//! Returns the linear blend of x & y implemented as: x + (y - x) * a
+template <std::floating_point Float>
+Float mix(const Float& x, const Float& y, const Float& a) noexcept;
+
+//! Returns the linear blend of x & y implemented as: x + (y - x) * a
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> mix(const Vector<Float, kN>& x, const Vector<Float, kN>& y, const Vector<Float, kN>& a) noexcept;
 
 //! Count the number of 1 bits in an unsigned integer
 template <std::integral Type>
@@ -426,12 +422,12 @@ uint16b upsample(const uint8b hi, const uint8b lo) noexcept;
 //! Compute '(hi << n) | lo'
 template <std::size_t kN>
 Vector<int16b, kN> upsample(const Vector<int8b, kN>& hi,
-                            const Vector<uint8b, kN> lo) noexcept;
+                            const Vector<uint8b, kN>& lo) noexcept;
 
 //! Compute '(hi << n) | lo'
 template <std::size_t kN>
 Vector<uint16b, kN> upsample(const Vector<uint8b, kN>& hi,
-                             const Vector<uint8b, kN> lo) noexcept;
+                             const Vector<uint8b, kN>& lo) noexcept;
 
 //! Compute '(hi << n) | lo'
 int32b upsample(const int16b hi, const uint16b lo) noexcept;
@@ -442,12 +438,12 @@ uint32b upsample(const uint16b hi, const uint16b lo) noexcept;
 //! Compute '(hi << n) | lo'
 template <std::size_t kN>
 Vector<int32b, kN> upsample(const Vector<int16b, kN>& hi,
-                            const Vector<uint16b, kN> lo) noexcept;
+                            const Vector<uint16b, kN>& lo) noexcept;
 
 //! Compute '(hi << n) | lo'
 template <std::size_t kN>
 Vector<uint32b, kN> upsample(const Vector<uint16b, kN>& hi,
-                             const Vector<uint16b, kN> lo) noexcept;
+                             const Vector<uint16b, kN>& lo) noexcept;
 
 //! Compute '(hi << n) | lo'
 int64b upsample(const int32b hi, const uint32b lo) noexcept;
@@ -458,12 +454,12 @@ uint64b upsample(const uint32b hi, const uint32b lo) noexcept;
 //! Compute '(hi << n) | lo'
 template <std::size_t kN>
 Vector<int64b, kN> upsample(const Vector<int32b, kN>& hi,
-                            const Vector<uint32b, kN> lo) noexcept;
+                            const Vector<uint32b, kN>& lo) noexcept;
 
 //! Compute '(hi << n) | lo'
 template <std::size_t kN>
 Vector<uint64b, kN> upsample(const Vector<uint32b, kN>& hi,
-                             const Vector<uint32b, kN> lo) noexcept;
+                             const Vector<uint32b, kN>& lo) noexcept;
 
 } // namespace zivc::cl
 

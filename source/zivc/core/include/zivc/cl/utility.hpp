@@ -47,8 +47,8 @@ class Utility
   //
 
   //! Compute the absolute value of a value (|x|)
-  template <typename ArithN>
-  static auto abs(const ArithN x) noexcept;
+  template <typename IntegerN>
+  static auto abs(const IntegerN x) noexcept;
 
   //! Compute a value between a pair of boundary values
   template <typename ArithN>

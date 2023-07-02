@@ -20,6 +20,7 @@
 // Zisc
 #include "zisc/utility.hpp"
 // Zivc
+#include "address_space_pointer.hpp"
 #include "vector.hpp"
 #include "../zivc_config.hpp"
 
@@ -58,11 +59,418 @@ constexpr Vector<Float, kN> Math::invert(const Vector<Float, kN>& x) noexcept
 
   \tparam Float No description.
   \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float Math::fabs(const Float& x) noexcept
+{
+  const Float y = std::fabs(x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> Math::fabs(const Vector<Float, kN>& x) noexcept
+{
+  using VectorT = Vector<Float, kN>;
+  const auto func = [](const Float& x) noexcept -> Float
+  {
+    return fabs(x);
+  };
+  const VectorT y = VectorT::template apply<Float>(func, x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
   \param [in] y No description.
   \return No description
   */
 template <std::floating_point Float> inline
-Float Math::pow(const Float x, const Float y) noexcept
+Float Math::fmod(const Float& x, const Float& y) noexcept
+{
+  const Float z = std::fmod(x, y);
+  return z;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> Math::fmod(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept
+{
+  using VectorT = Vector<Float, kN>;
+  const auto func = [](const Float& x, const Float& y) noexcept -> Float
+  {
+    return fmod(x, y);
+  };
+  const VectorT z = VectorT::template apply<Float, Float>(func, x, y);
+  return z;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float Math::remainder(const Float& x, const Float& y) noexcept
+{
+  const Float z = std::remainder(x, y);
+  return z;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> Math::remainder(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept
+{
+  using VectorT = Vector<Float, kN>;
+  const auto func = [](const Float& x, const Float& y) noexcept -> Float
+  {
+    return remainder(x, y);
+  };
+  const VectorT z = VectorT::template apply<Float, Float>(func, x, y);
+  return z;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \param [out] quo No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float Math::remquo(const Float& x,
+                   const Float& y,
+                   int32b* quo) noexcept
+{
+  const Float z = std::remquo(x, y, quo);
+  return z;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kASpaceType No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \param [out] quo No description.
+  \return No description
+  */
+template <std::floating_point Float, AddressSpaceType kASpaceType> inline
+Float Math::remquo(const Float& x,
+                   const Float& y,
+                   AddressSpacePointer<kASpaceType, int32b> quo) noexcept
+{
+  return remquo(x, y, quo.get());
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \param [out] quo No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> Math::remquo(const Vector<Float, kN>& x,
+                               const Vector<Float, kN>& y,
+                               Vector<int32b, kN>* quo) noexcept
+{
+  using VectorT = Vector<Float, kN>;
+  const auto func = [](const Float& x, const Float& y, int32b* quo) noexcept -> Float
+  {
+    return remquo(x, y, quo);
+  };
+  const VectorT z = VectorT::template apply<Float, int32b*>(func, x, y, quo);
+  return z;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kASpaceType No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \param [out] quo No description.
+  \return No description
+  */
+template <std::floating_point Float, AddressSpaceType kASpaceType, std::size_t kN> inline
+Vector<Float, kN> Math::remquo(const Vector<Float, kN>& x,
+                               const Vector<Float, kN>& y,
+                               AddressSpacePointer<kASpaceType, Vector<int32b, kN>> quo) noexcept
+{
+  return remquo(x, y, quo.get());
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \param [in] z No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float Math::fma(const Float& x, const Float& y, const Float& z) noexcept
+{
+  const Float w = std::fma(x, y, z);
+  return w;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \param [in] z No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> Math::fma(const Vector<Float, kN>& x, const Vector<Float, kN>& y, const Vector<Float, kN>& z) noexcept
+{
+  using VectorT = Vector<Float, kN>;
+  const auto func = [](const Float& x, const Float& y, const Float& z) noexcept -> Float
+  {
+    return fma(x, y, z);
+  };
+  const VectorT w = VectorT::template apply<Float, Float>(func, x, y, z);
+  return w;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float Math::fmax(const Float& x, const Float& y) noexcept
+{
+  const Float z = std::fmax(x, y);
+  return z;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> Math::fmax(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept
+{
+  using VectorT = Vector<Float, kN>;
+  const auto func = [](const Float& x, const Float& y) noexcept -> Float
+  {
+    return fmax(x, y);
+  };
+  const VectorT z = VectorT::template apply<Float, Float>(func, x, y);
+  return z;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float Math::fmin(const Float& x, const Float& y) noexcept
+{
+  const Float z = std::fmin(x, y);
+  return z;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> Math::fmin(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept
+{
+  using VectorT = Vector<Float, kN>;
+  const auto func = [](const Float& x, const Float& y) noexcept -> Float
+  {
+    return fmin(x, y);
+  };
+  const VectorT z = VectorT::template apply<Float, Float>(func, x, y);
+  return z;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float Math::maxmag(const Float& x, const Float& y) noexcept
+{
+  const Float abs_x = std::abs(x);
+  const Float abs_y = std::abs(y);
+  const Float z = (abs_y < abs_x) ? x : (abs_x < abs_y) ? y : std::fmax(x, y);
+  return z;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> Math::maxmag(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept
+{
+  using VectorT = Vector<Float, kN>;
+  const auto func = [](const Float& x, const Float& y) noexcept -> Float
+  {
+    return maxmag(x, y);
+  };
+  const VectorT z = VectorT::template apply<Float, Float>(func, x, y);
+  return z;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float Math::minmag(const Float& x, const Float& y) noexcept
+{
+  const Float abs_x = std::abs(x);
+  const Float abs_y = std::abs(y);
+  const Float z = (abs_y < abs_x) ? y : (abs_x < abs_y) ? x : std::fmin(x, y);
+  return z;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> Math::minmag(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept
+{
+  using VectorT = Vector<Float, kN>;
+  const auto func = [](const Float& x, const Float& y) noexcept -> Float
+  {
+    return minmag(x, y);
+  };
+  const VectorT z = VectorT::template apply<Float, Float>(func, x, y);
+  return z;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float Math::fdim(const Float& x, const Float& y) noexcept
+{
+  const Float z = std::fdim(x, y);
+  return z;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> Math::fdim(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept
+{
+  using VectorT = Vector<Float, kN>;
+  const auto func = [](const Float& x, const Float& y) noexcept -> Float
+  {
+    return fdim(x, y);
+  };
+  const VectorT z = VectorT::template apply<Float, Float>(func, x, y);
+  return z;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float Math::pow(const Float& x, const Float& y) noexcept
 {
   const Float z = std::pow(x, y);
   return z;
@@ -81,9 +489,9 @@ template <std::floating_point Float, std::size_t kN> inline
 Vector<Float, kN> Math::pow(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept
 {
   using VectorT = Vector<Float, kN>;
-  const auto func = [](const Float x, const Float y) noexcept -> Float
+  const auto func = [](const Float& x, const Float& y) noexcept -> Float
   {
-    return std::pow(x, y);
+    return pow(x, y);
   };
   const VectorT z = VectorT::template apply<Float, Float>(func, x, y);
   return z;
@@ -98,7 +506,7 @@ Vector<Float, kN> Math::pow(const Vector<Float, kN>& x, const Vector<Float, kN>&
   \return No description
   */
 template <std::floating_point Float> inline
-Float Math::pown(const Float x, const int32b y) noexcept
+Float Math::pown(const Float& x, const int32b y) noexcept
 {
   const Float z = std::pow(x, y);
   return z;
@@ -117,9 +525,9 @@ template <std::floating_point Float, std::size_t kN> inline
 Vector<Float, kN> Math::pown(const Vector<Float, kN>& x, const Vector<int32b, kN>& y) noexcept
 {
   using VectorT = Vector<Float, kN>;
-  const auto func = [](const Float x, const int32b y) noexcept -> Float
+  const auto func = [](const Float& x, const int32b y) noexcept -> Float
   {
-    return std::pow(x, y);
+    return pown(x, y);
   };
   const VectorT z = VectorT::template apply<Float, int32b>(func, x, y);
   return z;
@@ -151,9 +559,9 @@ template <std::floating_point Float, std::size_t kN> inline
 Vector<Float, kN> Math::sqrt(const Vector<Float, kN>& x) noexcept
 {
   using VectorT = Vector<Float, kN>;
-  const auto func = [](const Float x) noexcept -> Float
+  const auto func = [](const Float& x) noexcept -> Float
   {
-    return std::sqrt(x);
+    return sqrt(x);
   };
   const VectorT y = VectorT::template apply<Float>(func, x);
   return y;
@@ -185,9 +593,9 @@ template <std::floating_point Float, std::size_t kN> inline
 Vector<Float, kN> Math::cbrt(const Vector<Float, kN>& x) noexcept
 {
   using VectorT = Vector<Float, kN>;
-  const auto func = [](const Float x) noexcept -> Float
+  const auto func = [](const Float& x) noexcept -> Float
   {
-    return std::cbrt(x);
+    return cbrt(x);
   };
   const VectorT y = VectorT::template apply<Float>(func, x);
   return y;
@@ -227,11 +635,893 @@ Vector<Float, kN> Math::rsqrt(const Vector<Float, kN>& x) noexcept
 
   \tparam Float No description.
   \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float Math::ceil(const Float& x) noexcept
+{
+  const Float y = std::ceil(x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> Math::ceil(const Vector<Float, kN>& x) noexcept
+{
+  using VectorT = Vector<Float, kN>;
+  const auto func = [](const Float& x) noexcept -> Float
+  {
+    return ceil(x);
+  };
+  const VectorT y = VectorT::template apply<Float>(func, x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float Math::floor(const Float& x) noexcept
+{
+  const Float y = std::floor(x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> Math::floor(const Vector<Float, kN>& x) noexcept
+{
+  using VectorT = Vector<Float, kN>;
+  const auto func = [](const Float& x) noexcept -> Float
+  {
+    return floor(x);
+  };
+  const VectorT y = VectorT::template apply<Float>(func, x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float Math::trunc(const Float& x) noexcept
+{
+  const Float y = std::trunc(x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> Math::trunc(const Vector<Float, kN>& x) noexcept
+{
+  using VectorT = Vector<Float, kN>;
+  const auto func = [](const Float& x) noexcept -> Float
+  {
+    return trunc(x);
+  };
+  const VectorT y = VectorT::template apply<Float>(func, x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float Math::round(const Float& x) noexcept
+{
+  const Float y = std::round(x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> Math::round(const Vector<Float, kN>& x) noexcept
+{
+  using VectorT = Vector<Float, kN>;
+  const auto func = [](const Float& x) noexcept -> Float
+  {
+    return round(x);
+  };
+  const VectorT y = VectorT::template apply<Float>(func, x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float Math::rint(const Float& x) noexcept
+{
+  const Float y = std::rint(x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> Math::rint(const Vector<Float, kN>& x) noexcept
+{
+  using VectorT = Vector<Float, kN>;
+  const auto func = [](const Float& x) noexcept -> Float
+  {
+    return rint(x);
+  };
+  const VectorT y = VectorT::template apply<Float>(func, x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \param [out] exp No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float Math::frexp(const Float& x, int32b* exp) noexcept
+{
+  const Float y = std::frexp(x, exp);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kASpaceType No description.
+  \param [in] x No description.
+  \param [out] exp No description.
+  \return No description
+  */
+template <std::floating_point Float, AddressSpaceType kASpaceType> inline
+Float Math::frexp(const Float& x, AddressSpacePointer<kASpaceType, int32b> exp) noexcept
+{
+  return frexp(x, exp.get());
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [out] exp No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> Math::frexp(const Vector<Float, kN>& x, Vector<int32b, kN>* exp) noexcept
+{
+  using VectorT = Vector<Float, kN>;
+  const auto func = [](const Float& x, int32b* exp) noexcept -> Float
+  {
+    return frexp(x, exp);
+  };
+  const VectorT y = VectorT::template apply<Float, int32b*>(func, x, exp);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kASpaceType No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [out] exp No description.
+  \return No description
+  */
+template <std::floating_point Float, AddressSpaceType kASpaceType, std::size_t kN> inline
+Vector<Float, kN> Math::frexp(const Vector<Float, kN>& x, AddressSpacePointer<kASpaceType, Vector<int32b, kN>> exp) noexcept
+{
+  return frexp(x, exp.get());
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \param [in] k No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float Math::ldexp(const Float& x, const int32b k) noexcept
+{
+  const Float y = std::ldexp(x, k);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [in] k No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> Math::ldexp(const Vector<Float, kN>& x, const Vector<int32b, kN>& k) noexcept
+{
+  using VectorT = Vector<Float, kN>;
+  const auto func = [](const Float& x, const int32b k) noexcept -> Float
+  {
+    return ldexp(x, k);
+  };
+  const VectorT y = VectorT::template apply<Float, int32b>(func, x, k);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \param [out] iptr No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float Math::modf(const Float& x, Float* iptr) noexcept
+{
+  const Float y = std::modf(x, iptr);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kASpaceType No description.
+  \param [in] x No description.
+  \param [out] iptr No description.
+  \return No description
+  */
+template <std::floating_point Float, AddressSpaceType kASpaceType> inline
+Float Math::modf(const Float& x, AddressSpacePointer<kASpaceType, Float> iptr) noexcept
+{
+  return modf(x, iptr.get());
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [out] iptr No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> Math::modf(const Vector<Float, kN>& x, Vector<Float, kN>* iptr) noexcept
+{
+  using VectorT = Vector<Float, kN>;
+  const auto func = [](const Float& x, Float* iptr) noexcept -> Float
+  {
+    return modf(x, iptr);
+  };
+  const VectorT y = VectorT::template apply<Float, Float*>(func, x, iptr);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kASpaceType No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [out] iptr No description.
+  \return No description
+  */
+template <std::floating_point Float, AddressSpaceType kASpaceType, std::size_t kN> inline
+Vector<Float, kN> Math::modf(const Vector<Float, kN>& x, AddressSpacePointer<kASpaceType, Vector<Float, kN>> iptr) noexcept
+{
+  return modf(x, iptr.get());
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \param [out] iptr No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float Math::fract(const Float& x, Float* iptr) noexcept
+{
+  const Float floor_x = floor(x);
+  const Float y = fmin(x - floor_x, 0x1.fffffep-1f);
+  *iptr = floor_x;
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kASpaceType No description.
+  \param [in] x No description.
+  \param [out] iptr No description.
+  \return No description
+  */
+template <std::floating_point Float, AddressSpaceType kASpaceType> inline
+Float Math::fract(const Float& x, AddressSpacePointer<kASpaceType, Float> iptr) noexcept
+{
+  return fract(x, iptr.get());
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [out] iptr No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> Math::fract(const Vector<Float, kN>& x, Vector<Float, kN>* iptr) noexcept
+{
+  using VectorT = Vector<Float, kN>;
+  const auto func = [](const Float& x, Float* iptr) noexcept -> Float
+  {
+    return fract(x, iptr);
+  };
+  const VectorT y = VectorT::template apply<Float, Float*>(func, x, iptr);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kASpaceType No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [out] iptr No description.
+  \return No description
+  */
+template <std::floating_point Float, AddressSpaceType kASpaceType, std::size_t kN> inline
+Vector<Float, kN> Math::fract(const Vector<Float, kN>& x, AddressSpacePointer<kASpaceType, Vector<Float, kN>> iptr) noexcept
+{
+  return fract(x, iptr.get());
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+int32b Math::ilogb(const Float& x) noexcept
+{
+  const int32b y = std::ilogb(x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<int32b, kN> Math::ilogb(const Vector<Float, kN>& x) noexcept
+{
+  using VectorT = Vector<Float, kN>;
+  const auto func = [](const Float& x) noexcept -> int32b 
+  {
+    return ilogb(x);
+  };
+  const Vector<int32b, kN> y = VectorT::template apply<int32b>(func, x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float Math::logb(const Float& x) noexcept
+{
+  const Float y = std::logb(x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> Math::logb(const Vector<Float, kN>& x) noexcept
+{
+  using VectorT = Vector<Float, kN>;
+  const auto func = [](const Float& x) noexcept -> Float
+  {
+    return logb(x);
+  };
+  const VectorT y = VectorT::template apply<Float>(func, x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
   \param [in] y No description.
   \return No description
   */
 template <std::floating_point Float> inline
-Float pow(const Float x, const Float y) noexcept
+Float Math::nextafter(const Float& x, const Float& y) noexcept
+{
+  const Float z = std::nextafter(x, y);
+  return z;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> Math::nextafter(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept
+{
+  using VectorT = Vector<Float, kN>;
+  const auto func = [](const Float& x, const Float& y) noexcept -> Float
+  {
+    return nextafter(x, y);
+  };
+  const VectorT z = VectorT::template apply<Float, Float>(func, x, y);
+  return z;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float Math::copysign(const Float& x, const Float& y) noexcept
+{
+  const Float z = std::copysign(x, y);
+  return z;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> Math::copysign(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept
+{
+  using VectorT = Vector<Float, kN>;
+  const auto func = [](const Float& x, const Float& y) noexcept -> Float
+  {
+    return copysign(x, y);
+  };
+  const VectorT z = VectorT::template apply<Float, Float>(func, x, y);
+  return z;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float fabs(const Float& x) noexcept
+{
+  return Math::fabs(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> fabs(const Vector<Float, kN>& x) noexcept
+{
+  return Math::fabs(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float fmod(const Float& x, const Float& y) noexcept
+{
+  return Math::fmod(x, y);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> fmod(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept
+{
+  return Math::fmod(x, y);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float remainder(const Float& x, const Float& y) noexcept
+{
+  return Math::remainder(x, y);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> remainder(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept
+{
+  return Math::remainder(x, y);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \param [out] quo No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float remquo(const Float& x,
+             const Float& y,
+             int32b* quo) noexcept
+{
+  return Math::remquo(x, y, quo);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kASpaceType No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \param [out] quo No description.
+  \return No description
+  */
+template <std::floating_point Float, AddressSpaceType kASpaceType> inline
+Float remquo(const Float& x,
+             const Float& y,
+             AddressSpacePointer<kASpaceType, int32b> quo) noexcept
+{
+  return Math::remquo(x, y, quo);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \param [out] quo No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> remquo(const Vector<Float, kN>& x,
+                         const Vector<Float, kN>& y,
+                         Vector<int32b, kN>* quo) noexcept
+{
+  return Math::remquo(x, y, quo);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kASpaceType No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \param [out] quo No description.
+  \return No description
+  */
+template <std::floating_point Float, AddressSpaceType kASpaceType, std::size_t kN> inline
+Vector<Float, kN> remquo(const Vector<Float, kN>& x,
+                         const Vector<Float, kN>& y,
+                         AddressSpacePointer<kASpaceType, Vector<int32b, kN>> quo) noexcept
+{
+  return Math::remquo(x, y, quo);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \param [in] z No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float fma(const Float& x, const Float& y, const Float& z) noexcept
+{
+  return Math::fma(x, y, z);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \param [in] z No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> fma(const Vector<Float, kN>& x, const Vector<Float, kN>& y, const Vector<Float, kN>& z) noexcept
+{
+  return Math::fma(x, y, z);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float fmax(const Float& x, const Float& y) noexcept
+{
+  return Math::fmax(x, y);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> fmax(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept
+{
+  return Math::fmax(x, y);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float fmin(const Float& x, const Float& y) noexcept
+{
+  return Math::fmin(x, y);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> fmin(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept
+{
+  return Math::fmin(x, y);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float maxmag(const Float& x, const Float& y) noexcept
+{
+  return Math::maxmag(x, y);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> maxmag(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept
+{
+  return Math::maxmag(x, y);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float minmag(const Float& x, const Float& y) noexcept
+{
+  return Math::minmag(x, y);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> minmag(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept
+{
+  return Math::minmag(x, y);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float fdim(const Float& x, const Float& y) noexcept
+{
+  return Math::fdim(x, y);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> fdim(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept
+{
+  return Math::fdim(x, y);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float pow(const Float& x, const Float& y) noexcept
 {
   return Math::pow(x, y);
 }
@@ -260,7 +1550,7 @@ Vector<Float, kN> pow(const Vector<Float, kN>& x, const Vector<Float, kN>& y) no
   \return No description
   */
 template <std::floating_point Float> inline
-Float pown(const Float x, const int32b y) noexcept
+Float pown(const Float& x, const int32b y) noexcept
 {
   return Math::pown(x, y);
 }
@@ -361,940 +1651,461 @@ Vector<Float, kN> cbrt(const Vector<Float, kN>& x) noexcept
   return Math::cbrt(x);
 }
 
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN Math::ceil(const FloatN& x) noexcept
-//{
-//  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
-//  // Scalar
-//  if constexpr (is_scalar_type) {
-//    const auto y = std::ceil(x);
-//    return y;
-//  }
-//  // Vector
-//  else {
-//    const auto y = Vec::ceil(x);
-//    return y;
-//  }
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN Math::floor(const FloatN& x) noexcept
-//{
-//  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
-//  // Scalar
-//  if constexpr (is_scalar_type) {
-//    const auto y = std::floor(x);
-//    return y;
-//  }
-//  // Vector
-//  else {
-//    const auto y = Vec::floor(x);
-//    return y;
-//  }
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN Math::trunc(const FloatN& x) noexcept
-//{
-//  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
-//  // Scalar
-//  if constexpr (is_scalar_type) {
-//    const auto y = std::trunc(x);
-//    return y;
-//  }
-//  // Vector
-//  else {
-//    const auto y = Vec::trunc(x);
-//    return y;
-//  }
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN Math::round(const FloatN& x) noexcept
-//{
-//  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
-//  // Scalar
-//  if constexpr (is_scalar_type) {
-//    const auto y = std::round(x);
-//    return y;
-//  }
-//  // Vector
-//  else {
-//    const auto y = Vec::round(x);
-//    return y;
-//  }
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN Math::fmod(const FloatN& x, const FloatN& y) noexcept
-//{
-//  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
-//  // Scalar
-//  if constexpr (is_scalar_type) {
-//    const auto z = std::fmod(x, y);
-//    return z;
-//  }
-//  // Vector
-//  else {
-//    const auto z = Vec::fmod(x, y);
-//    return z;
-//  }
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN Math::fma(const FloatN& a, const FloatN& b, const FloatN& c) noexcept
-//{
-//  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
-//  // Scalar
-//  if constexpr (is_scalar_type) {
-//    const auto y = std::fma(a, b, c);
-//    return y;
-//  }
-//  // Vector
-//  else {
-//    const auto y = Vec::fma(a, b, c);
-//    return y;
-//  }
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN Math::exp(const FloatN& x) noexcept
-//{
-//  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
-//  // Scalar
-//  if constexpr (is_scalar_type) {
-//    const auto y = std::exp(x);
-//    return y;
-//  }
-//  // Vector
-//  else {
-//    const auto y = Vec::exp(x);
-//    return y;
-//  }
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN Math::exp2(const FloatN& x) noexcept
-//{
-//  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
-//  // Scalar
-//  if constexpr (is_scalar_type) {
-//    const auto y = std::exp2(x);
-//    return y;
-//  }
-//  // Vector
-//  else {
-//    const auto y = Vec::exp2(x);
-//    return y;
-//  }
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN Math::log(const FloatN& x) noexcept
-//{
-//  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
-//  // Scalar
-//  if constexpr (is_scalar_type) {
-//    const auto y = std::log(x);
-//    return y;
-//  }
-//  // Vector
-//  else {
-//    const auto y = Vec::log(x);
-//    return y;
-//  }
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN Math::log2(const FloatN& x) noexcept
-//{
-//  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
-//  // Scalar
-//  if constexpr (is_scalar_type) {
-//    const auto y = std::log2(x);
-//    return y;
-//  }
-//  // Vector
-//  else {
-//    const auto y = Vec::log2(x);
-//    return y;
-//  }
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN Math::pow(const FloatN& base, const FloatN& e) noexcept
-//{
-//  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
-//  // Scalar
-//  if constexpr (is_scalar_type) {
-//    const auto y = std::pow(base, e);
-//    return y;
-//  }
-//  // Vector
-//  else {
-//    const auto y = Vec::pow(base, e);
-//    return y;
-//  }
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN Math::rsqrt(const FloatN& x) noexcept
-//{
-//  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
-//  // Scalar
-//  if constexpr (is_scalar_type) {
-//    const auto y = zisc::invert(std::sqrt(x));
-//    return y;
-//  }
-//  // Vector
-//  else {
-//    const auto y = Vec::rsqrt(x);
-//    return y;
-//  }
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN Math::sqrt(const FloatN& x) noexcept
-//{
-//  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
-//  // Scalar
-//  if constexpr (is_scalar_type) {
-//    const auto y = std::sqrt(x);
-//    return y;
-//  }
-//  // Vector
-//  else {
-//    const auto y = Vec::sqrt(x);
-//    return y;
-//  }
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN Math::cbrt(const FloatN& x) noexcept
-//{
-//  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
-//  // Scalar
-//  if constexpr (is_scalar_type) {
-//    const auto y = std::cbrt(x);
-//    return y;
-//  }
-//  // Vector
-//  else {
-//    const auto y = Vec::cbrt(x);
-//    return y;
-//  }
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN Math::sin(const FloatN& theta) noexcept
-//{
-//  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
-//  // Scalar
-//  if constexpr (is_scalar_type) {
-//    const auto y = std::sin(theta);
-//    return y;
-//  }
-//  // Vector
-//  else {
-//    const auto y = Vec::sin(theta);
-//    return y;
-//  }
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN Math::cos(const FloatN& theta) noexcept
-//{
-//  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
-//  // Scalar
-//  if constexpr (is_scalar_type) {
-//    const auto y = std::cos(theta);
-//    return y;
-//  }
-//  // Vector
-//  else {
-//    const auto y = Vec::cos(theta);
-//    return y;
-//  }
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN Math::sincos(const FloatN& theta, FloatN* cosval) noexcept
-//{
-//  *cosval = cos(theta);
-//  const auto y = sin(theta);
-//  return y;
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN Math::tan(const FloatN& theta) noexcept
-//{
-//  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
-//  // Scalar
-//  if constexpr (is_scalar_type) {
-//    const auto y = std::tan(theta);
-//    return y;
-//  }
-//  // Vector
-//  else {
-//    const auto y = Vec::tan(theta);
-//    return y;
-//  }
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN Math::asin(const FloatN& x) noexcept
-//{
-//  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
-//  // Scalar
-//  if constexpr (is_scalar_type) {
-//    const auto theta = std::asin(x);
-//    return theta;
-//  }
-//  // Vector
-//  else {
-//    const auto theta = Vec::asin(x);
-//    return theta;
-//  }
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN Math::acos(const FloatN& x) noexcept
-//{
-//  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
-//  // Scalar
-//  if constexpr (is_scalar_type) {
-//    const auto theta = std::acos(x);
-//    return theta;
-//  }
-//  // Vector
-//  else {
-//    const auto theta = Vec::acos(x);
-//    return theta;
-//  }
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN Math::atan(const FloatN& x) noexcept
-//{
-//  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
-//  // Scalar
-//  if constexpr (is_scalar_type) {
-//    const auto theta = std::atan(x);
-//    return theta;
-//  }
-//  // Vector
-//  else {
-//    const auto theta = Vec::atan(x);
-//    return theta;
-//  }
-//}
-//
-///*!
-//  */
-//template <typename FloatN, typename IntegerN> inline
-//FloatN Math::frexp(const FloatN& x, IntegerN* e) noexcept
-//{
-//  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN> &&
-//                                  std::is_integral_v<IntegerN>;
-//  // Scalar
-//  if constexpr (is_scalar_type) {
-//    const auto y = std::frexp(x, e);
-//    return y;
-//  }
-//  // Vector
-//  else {
-//    const auto y = Vec::frexp(x, e);
-//    return y;
-//  }
-//}
-//
-///*!
-//  */
-//template <typename FloatN, typename IntegerN> inline
-//FloatN Math::ldexp(const FloatN& x, const IntegerN& e) noexcept
-//{
-//  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN> &&
-//                                  std::is_integral_v<IntegerN>;
-//  // Scalar
-//  if constexpr (is_scalar_type) {
-//    const auto y = std::ldexp(x, e);
-//    return y;
-//  }
-//  // Vector
-//  else {
-//    const auto y = Vec::ldexp(x, e);
-//    return y;
-//  }
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//auto Math::ilogb(const FloatN& x) noexcept
-//{
-//  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
-//  // Scalar
-//  if constexpr (is_scalar_type) {
-//    const int32b y = std::ilogb(x);
-//    return y;
-//  }
-//  // Vector
-//  else {
-//    const auto y = Vec::ilogb(x);
-//    return y;
-//  }
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN Math::modf(const FloatN& x, FloatN* iptr) noexcept
-//{
-//  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
-//  // Scalar
-//  if constexpr (is_scalar_type) {
-//    const auto y = std::modf(x, iptr);
-//    return y;
-//  }
-//  // Vector
-//  else {
-//    const auto y = Vec::modf(x, iptr);
-//    return y;
-//  }
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN Math::copysign(const FloatN& x, const FloatN& y) noexcept
-//{
-//  constexpr bool is_scalar_type = std::is_floating_point_v<FloatN>;
-//  // Scalar
-//  if constexpr (is_scalar_type) {
-//    const auto z = std::copysign(x, y);
-//    return z;
-//  }
-//  // Vector
-//  else {
-//    const auto z = Vec::copysign(x, y);
-//    return z;
-//  }
-//}
-//
-//template <typename Float, size_t kN> inline
-//auto Math::Vec::ceil(const Vector<Float, kN>& x) noexcept
-//{
-//  Vector<Float, kN> result;
-//  for (size_t i = 0; i < kN; ++i)
-//    result[i] = Math::ceil(x[i]);
-//  return result;
-//}
-//
-//template <typename Float, size_t kN> inline
-//auto Math::Vec::floor(const Vector<Float, kN>& x) noexcept
-//{
-//  Vector<Float, kN> result;
-//  for (size_t i = 0; i < kN; ++i)
-//    result[i] = Math::floor(x[i]);
-//  return result;
-//}
-//
-//template <typename Float, size_t kN> inline
-//auto Math::Vec::trunc(const Vector<Float, kN>& x) noexcept
-//{
-//  Vector<Float, kN> result;
-//  for (size_t i = 0; i < kN; ++i)
-//    result[i] = Math::trunc(x[i]);
-//  return result;
-//}
-//
-//template <typename Float, size_t kN> inline
-//auto Math::Vec::round(const Vector<Float, kN>& x) noexcept
-//{
-//  Vector<Float, kN> result;
-//  for (size_t i = 0; i < kN; ++i)
-//    result[i] = Math::round(x[i]);
-//  return result;
-//}
-//
-//template <typename Float, size_t kN> inline
-//auto Math::Vec::fmod(const Vector<Float, kN>& x,
-//                     const Vector<Float, kN>& y) noexcept
-//{
-//  Vector<Float, kN> result;
-//  for (size_t i = 0; i < kN; ++i)
-//    result[i] = Math::fmod(x[i], y[i]);
-//  return result;
-//}
-//
-//template <typename Float, size_t kN> inline
-//auto Math::Vec::fma(const Vector<Float, kN>& a,
-//                    const Vector<Float, kN>& b,
-//                    const Vector<Float, kN>& c) noexcept
-//{
-//  Vector<Float, kN> result;
-//  for (size_t i = 0; i < kN; ++i)
-//    result[i] = Math::fma(a[i], b[i], c[i]);
-//  return result;
-//}
-//
-//template <typename Float, size_t kN> inline
-//auto Math::Vec::exp(const Vector<Float, kN>& x) noexcept
-//{
-//  Vector<Float, kN> result;
-//  for (size_t i = 0; i < kN; ++i)
-//    result[i] = Math::exp(x[i]);
-//  return result;
-//}
-//
-//template <typename Float, size_t kN> inline
-//auto Math::Vec::exp2(const Vector<Float, kN>& x) noexcept
-//{
-//  Vector<Float, kN> result;
-//  for (size_t i = 0; i < kN; ++i)
-//    result[i] = Math::exp2(x[i]);
-//  return result;
-//}
-//
-//template <typename Float, size_t kN> inline
-//auto Math::Vec::log(const Vector<Float, kN>& x) noexcept
-//{
-//  Vector<Float, kN> result;
-//  for (size_t i = 0; i < kN; ++i)
-//    result[i] = Math::log(x[i]);
-//  return result;
-//}
-//
-//template <typename Float, size_t kN> inline
-//auto Math::Vec::log2(const Vector<Float, kN>& x) noexcept
-//{
-//  Vector<Float, kN> result;
-//  for (size_t i = 0; i < kN; ++i)
-//    result[i] = Math::log2(x[i]);
-//  return result;
-//}
-//
-//template <typename Float, size_t kN> inline
-//auto Math::Vec::pow(const Vector<Float, kN>& base,
-//                    const Vector<Float, kN>& e) noexcept
-//{
-//  Vector<Float, kN> result;
-//  for (size_t i = 0; i < kN; ++i)
-//    result[i] = Math::pow(base[i], e[i]);
-//  return result;
-//}
-//
-//template <typename Float, size_t kN> inline
-//auto Math::Vec::rsqrt(const Vector<Float, kN>& x) noexcept
-//{
-//  Vector<Float, kN> result;
-//  for (size_t i = 0; i < kN; ++i)
-//    result[i] = Math::rsqrt(x[i]);
-//  return result;
-//}
-//
-//template <typename Float, size_t kN> inline
-//auto Math::Vec::sqrt(const Vector<Float, kN>& x) noexcept
-//{
-//  Vector<Float, kN> result;
-//  for (size_t i = 0; i < kN; ++i)
-//    result[i] = Math::sqrt(x[i]);
-//  return result;
-//}
-//
-//template <typename Float, size_t kN> inline
-//auto Math::Vec::cbrt(const Vector<Float, kN>& x) noexcept
-//{
-//  Vector<Float, kN> result;
-//  for (size_t i = 0; i < kN; ++i)
-//    result[i] = Math::cbrt(x[i]);
-//  return result;
-//}
-//
-//template <typename Float, size_t kN> inline
-//auto Math::Vec::sin(const Vector<Float, kN>& theta) noexcept
-//{
-//  Vector<Float, kN> result;
-//  for (size_t i = 0; i < kN; ++i)
-//    result[i] = Math::sin(theta[i]);
-//  return result;
-//}
-//
-//template <typename Float, size_t kN> inline
-//auto Math::Vec::cos(const Vector<Float, kN>& theta) noexcept
-//{
-//  Vector<Float, kN> result;
-//  for (size_t i = 0; i < kN; ++i)
-//    result[i] = Math::cos(theta[i]);
-//  return result;
-//}
-//
-//template <typename Float, size_t kN> inline
-//auto Math::Vec::tan(const Vector<Float, kN>& theta) noexcept
-//{
-//  Vector<Float, kN> result;
-//  for (size_t i = 0; i < kN; ++i)
-//    result[i] = Math::tan(theta[i]);
-//  return result;
-//}
-//
-//template <typename Float, size_t kN> inline
-//auto Math::Vec::asin(const Vector<Float, kN>& x) noexcept
-//{
-//  Vector<Float, kN> result;
-//  for (size_t i = 0; i < kN; ++i)
-//    result[i] = Math::asin(x[i]);
-//  return result;
-//}
-//
-//template <typename Float, size_t kN> inline
-//auto Math::Vec::acos(const Vector<Float, kN>& x) noexcept
-//{
-//  Vector<Float, kN> result;
-//  for (size_t i = 0; i < kN; ++i)
-//    result[i] = Math::acos(x[i]);
-//  return result;
-//}
-//
-//template <typename Float, size_t kN> inline
-//auto Math::Vec::atan(const Vector<Float, kN>& x) noexcept
-//{
-//  Vector<Float, kN> result;
-//  for (size_t i = 0; i < kN; ++i)
-//    result[i] = Math::atan(x[i]);
-//  return result;
-//}
-//
-///*!
-//  */
-//template <typename Float, typename Integer, size_t kN> inline
-//auto Math::Vec::frexp(const Vector<Float, kN>& x,
-//                      Vector<Integer, kN>* e) noexcept
-//{
-//  Vector<Float, kN> result;
-//  for (size_t i = 0; i < kN; ++i)
-//    result[i] = Math::frexp(x[i], &(*e)[i]);
-//  return result;
-//}
-//
-///*!
-//  */
-//template <typename Float, typename Integer, size_t kN> inline
-//auto Math::Vec::ldexp(const Vector<Float, kN>& x,
-//                      const Vector<Integer, kN>& e) noexcept
-//{
-//  Vector<Float, kN> result;
-//  for (size_t i = 0; i < kN; ++i)
-//    result[i] = Math::ldexp(x[i], e[i]);
-//  return result;
-//}
-//
-//template <typename Float, size_t kN> inline
-//auto Math::Vec::ilogb(const Vector<Float, kN>& x) noexcept
-//{
-//  Vector<int32b, kN> result;
-//  for (size_t i = 0; i < kN; ++i)
-//    result[i] = Math::ilogb(x[i]);
-//  return result;
-//}
-//
-//template <typename Float, size_t kN> inline
-//auto Math::Vec::modf(const Vector<Float, kN>& x,
-//                     Vector<Float, kN>* iptr) noexcept
-//{
-//  Vector<Float, kN> result;
-//  for (size_t i = 0; i < kN; ++i)
-//    result[i] = Math::modf(x[i], &(*iptr)[i]);
-//  return result;
-//}
-//
-///*!
-//  */
-//template <typename Float, size_t kN> inline
-//auto Math::Vec::copysign(const Vector<Float, kN>& x,
-//                         const Vector<Float, kN>& y) noexcept
-//{
-//  Vector<Float, kN> result;
-//  for (size_t i = 0; i < kN; ++i)
-//    result[i] = Math::copysign(x[i], y[i]);
-//  return result;
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN ceil(const FloatN& x) noexcept
-//{
-//  const auto y = Math::ceil(x);
-//  return y;
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN floor(const FloatN& x) noexcept
-//{
-//  const auto y = Math::floor(x);
-//  return y;
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN trunc(const FloatN& x) noexcept
-//{
-//  const auto y = Math::trunc(x);
-//  return y;
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN round(const FloatN& x) noexcept
-//{
-//  const auto y = Math::round(x);
-//  return y;
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN fmod(const FloatN& x, const FloatN& y) noexcept
-//{
-//  const auto z = Math::fmod(x, y);
-//  return z;
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN fma(const FloatN& a, const FloatN& b, const FloatN& c) noexcept
-//{
-//  const auto y = Math::fma(a, b, c);
-//  return y;
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN exp(const FloatN& x) noexcept
-//{
-//  const auto y = Math::exp(x);
-//  return y;
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN exp2(const FloatN& x) noexcept
-//{
-//  const auto y = Math::exp2(x);
-//  return y;
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN log(const FloatN& x) noexcept
-//{
-//  const auto y = Math::log(x);
-//  return y;
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN log2(const FloatN& x) noexcept
-//{
-//  const auto y = Math::log2(x);
-//  return y;
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN pow(const FloatN& base, const FloatN& e) noexcept
-//{
-//  const auto y = Math::pow(base, e);
-//  return y;
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN rsqrt(const FloatN& x) noexcept
-//{
-//  const auto y = Math::rsqrt(x);
-//  return y;
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN sqrt(const FloatN& x) noexcept
-//{
-//  const auto y = Math::sqrt(x);
-//  return y;
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN cbrt(const FloatN& x) noexcept
-//{
-//  const auto y = Math::cbrt(x);
-//  return y;
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN sin(const FloatN& theta) noexcept
-//{
-//  const auto y = Math::sin(theta);
-//  return y;
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN cos(const FloatN& theta) noexcept
-//{
-//  const auto y = Math::cos(theta);
-//  return y;
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN sincos(const FloatN& theta, FloatN* cosval) noexcept
-//{
-//  const auto y = Math::sincos(theta, cosval);
-//  return y;
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN tan(const FloatN& theta) noexcept
-//{
-//  const auto y = Math::tan(theta);
-//  return y;
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN asin(const FloatN& x) noexcept
-//{
-//  const auto y = Math::asin(x);
-//  return y;
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN acos(const FloatN& x) noexcept
-//{
-//  const auto y = Math::acos(x);
-//  return y;
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN atan(const FloatN& x) noexcept
-//{
-//  const auto y = Math::atan(x);
-//  return y;
-//}
-//
-///*!
-//  */
-//template <typename FloatN, typename IntegerN> inline
-//FloatN frexp(const FloatN& x, IntegerN* e) noexcept
-//{
-//  const auto y = Math::frexp(x, e);
-//  return y;
-//}
-//
-///*!
-//  */
-//template <typename FloatN, typename IntegerN> inline
-//FloatN ldexp(const FloatN& x, const IntegerN& e) noexcept
-//{
-//  const auto y = Math::ldexp(x, e);
-//  return y;
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//auto ilogb(const FloatN& x) noexcept
-//{
-//  const auto y = Math::ilogb(x);
-//  return y;
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN modf(const FloatN& x, FloatN* iptr) noexcept
-//{
-//  const auto y = Math::modf(x, iptr);
-//  return y;
-//}
-//
-///*!
-//  */
-//template <typename FloatN> inline
-//FloatN copysign(const FloatN& x, const FloatN& y) noexcept
-//{
-//  const auto z = Math::copysign(x, y);
-//  return z;
-//}
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float ceil(const Float& x) noexcept
+{
+  return Math::ceil(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> ceil(const Vector<Float, kN>& x) noexcept
+{
+  return Math::ceil(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float floor(const Float& x) noexcept
+{
+  return Math::floor(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> floor(const Vector<Float, kN>& x) noexcept
+{
+  return Math::floor(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float trunc(const Float& x) noexcept
+{
+  return Math::trunc(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> trunc(const Vector<Float, kN>& x) noexcept
+{
+  return Math::trunc(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float round(const Float& x) noexcept
+{
+  return Math::round(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> round(const Vector<Float, kN>& x) noexcept
+{
+  return Math::round(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float rint(const Float& x) noexcept
+{
+  return Math::rint(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> rint(const Vector<Float, kN>& x) noexcept
+{
+  return Math::rint(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \param [out] exp No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float frexp(const Float& x, int32b* exp) noexcept
+{
+  return Math::frexp(x, exp);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kASpaceType No description.
+  \param [in] x No description.
+  \param [out] exp No description.
+  \return No description
+  */
+template <std::floating_point Float, AddressSpaceType kASpaceType> inline
+Float frexp(const Float& x, AddressSpacePointer<kASpaceType, int32b> exp) noexcept
+{
+  return Math::frexp(x, exp);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [out] exp No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> frexp(const Vector<Float, kN>& x, Vector<int32b, kN>* exp) noexcept
+{
+  return Math::frexp(x, exp);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kASpaceType No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [out] exp No description.
+  \return No description
+  */
+template <std::floating_point Float, AddressSpaceType kASpaceType, std::size_t kN> inline
+Vector<Float, kN> frexp(const Vector<Float, kN>& x, AddressSpacePointer<kASpaceType, Vector<int32b, kN>> exp) noexcept
+{
+  return Math::frexp(x, exp);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \param [in] k No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float ldexp(const Float& x, const int32b k) noexcept
+{
+  return Math::ldexp(x, k);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [in] k No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> ldexp(const Vector<Float, kN>& x, const Vector<int32b, kN>& k) noexcept
+{
+  return Math::ldexp(x, k);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \param [out] iptr No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float modf(const Float& x, Float* iptr) noexcept
+{
+  return Math::modf(x, iptr);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kASpaceType No description.
+  \param [in] x No description.
+  \param [out] iptr No description.
+  \return No description
+  */
+template <std::floating_point Float, AddressSpaceType kASpaceType> inline
+Float modf(const Float& x, AddressSpacePointer<kASpaceType, Float> iptr) noexcept
+{
+  return Math::modf(x, iptr);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [out] iptr No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> modf(const Vector<Float, kN>& x, Vector<Float, kN>* iptr) noexcept
+{
+  return Math::modf(x, iptr);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kASpaceType No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [out] iptr No description.
+  \return No description
+  */
+template <std::floating_point Float, AddressSpaceType kASpaceType, std::size_t kN> inline
+Vector<Float, kN> modf(const Vector<Float, kN>& x, AddressSpacePointer<kASpaceType, Vector<Float, kN>> iptr) noexcept
+{
+  return Math::modf(x, iptr);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \param [out] iptr No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float fract(const Float& x, Float* iptr) noexcept
+{
+  return Math::fract(x, iptr);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kASpaceType No description.
+  \param [in] x No description.
+  \param [out] iptr No description.
+  \return No description
+  */
+template <std::floating_point Float, AddressSpaceType kASpaceType> inline
+Float fract(const Float& x, AddressSpacePointer<kASpaceType, Float> iptr) noexcept
+{
+  return Math::fract(x, iptr);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [out] iptr No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> fract(const Vector<Float, kN>& x, Vector<Float, kN>* iptr) noexcept
+{
+  return Math::fract(x, iptr);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kASpaceType No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [out] iptr No description.
+  \return No description
+  */
+template <std::floating_point Float, AddressSpaceType kASpaceType, std::size_t kN> inline
+Vector<Float, kN> fract(const Vector<Float, kN>& x, AddressSpacePointer<kASpaceType, Vector<Float, kN>> iptr) noexcept
+{
+  return Math::fract(x, iptr);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+int32b ilogb(const Float& x) noexcept
+{
+  return Math::ilogb(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<int32b, kN> ilogb(const Vector<Float, kN>& x) noexcept
+{
+  return Math::ilogb(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float logb(const Float& x) noexcept
+{
+  return Math::logb(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> logb(const Vector<Float, kN>& x) noexcept
+{
+  return Math::logb(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float nextafter(const Float& x, const Float& y) noexcept
+{
+  return Math::nextafter(x, y);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> nextafter(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept
+{
+  return Math::nextafter(x, y);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+Float copysign(const Float& x, const Float& y) noexcept
+{
+  return Math::copysign(x, y);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \tparam kN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <std::floating_point Float, std::size_t kN> inline
+Vector<Float, kN> copysign(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept
+{
+  return Math::copysign(x, y);
+}
 
 } // namespace zivc::cl
 

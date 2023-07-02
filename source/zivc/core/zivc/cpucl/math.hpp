@@ -17,6 +17,7 @@
 #include <concepts>
 #include <type_traits>
 // Zivc
+#include "address_space_pointer.hpp"
 #include "vector.hpp"
 #include "../zivc_config.hpp"
 
@@ -186,11 +187,109 @@ class Math
   template <std::floating_point Float, std::size_t kN>
   static constexpr Vector<Float, kN> invert(const Vector<Float, kN>& x) noexcept;
 
+  // Basic operations
+
+  //! Compute absolute value of a floating-point number.
+  template <std::floating_point Float>
+  static Float fabs(const Float& x) noexcept;
+
+  //! Compute absolute value of a floating-point number.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> fabs(const Vector<Float, kN>& x) noexcept;
+
+  //! Modulus. Returns x - y * trunc(x/y).
+  template <std::floating_point Float>
+  static Float fmod(const Float& x, const Float& y) noexcept;
+
+  //! Modulus. Returns x - y * trunc(x/y).
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> fmod(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept;
+
+  //! Compute the value r such that r = x - n*y, where n is the integer nearest the exact value of x/y.
+  template <std::floating_point Float>
+  static Float remainder(const Float& x, const Float& y) noexcept;
+
+  //! Compute the value r such that r = x - n*y, where n is the integer nearest the exact value of x/y.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> remainder(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept;
+
+  //! The remquo function computes the value r such that r = x - k*y, where k is the integer nearest the exact value of x/y.
+  template <std::floating_point Float> 
+  static Float remquo(const Float& x,
+                      const Float& y,
+                      int32b* quo) noexcept;
+
+  //! The remquo function computes the value r such that r = x - k*y, where k is the integer nearest the exact value of x/y.
+  template <std::floating_point Float, AddressSpaceType kASpaceType> 
+  static Float remquo(const Float& x,
+                      const Float& y,
+                      AddressSpacePointer<kASpaceType, int32b> quo) noexcept;
+
+  //! The remquo function computes the value r such that r = x - k*y, where k is the integer nearest the exact value of x/y.
+  template <std::floating_point Float, std::size_t kN> 
+  static Vector<Float, kN> remquo(const Vector<Float, kN>& x,
+                                  const Vector<Float, kN>& y,
+                                  Vector<int32b, kN>* quo) noexcept;
+
+  //! The remquo function computes the value r such that r = x - k*y, where k is the integer nearest the exact value of x/y.
+  template <std::floating_point Float, AddressSpaceType kASpaceType, std::size_t kN> 
+  static Vector<Float, kN> remquo(const Vector<Float, kN>& x,
+                                  const Vector<Float, kN>& y,
+                                  AddressSpacePointer<kASpaceType, Vector<int32b, kN>> quo) noexcept;
+
+  //! Returns the correctly rounded floating-point representation of the sum of c with the infinitely precise product of a and b.
+  template <std::floating_point Float>
+  static Float fma(const Float& a, const Float& b, const Float& c) noexcept;
+
+  //! Returns the correctly rounded floating-point representation of the sum of c with the infinitely precise product of a and b.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> fma(const Vector<Float, kN>& a, const Vector<Float, kN>& b, const Vector<Float, kN>& c) noexcept;
+
+  //! Returns y if x < y, otherwise it returns x.
+  template <std::floating_point Float>
+  static Float fmax(const Float& x, const Float& y) noexcept;
+
+  //! Returns y if x < y, otherwise it returns x.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> fmax(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept;
+
+  //! Returns y if y < x, otherwise it returns x.
+  template <std::floating_point Float>
+  static Float fmin(const Float& x, const Float& y) noexcept;
+
+  //! Returns y if y < x, otherwise it returns x.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> fmin(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept;
+
+  //! Returns x if |x| > |y|, y if |y| > |x|, otherwise fmax(x, y).
+  template <std::floating_point Float>
+  static Float maxmag(const Float& x, const Float& y) noexcept;
+
+  //! Returns x if |x| > |y|, y if |y| > |x|, otherwise fmax(x, y).
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> maxmag(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept;
+
+  //! Returns x if |x| < |y|, y if |y| < |x|, otherwise fmin(x, y).
+  template <std::floating_point Float>
+  static Float minmag(const Float& x, const Float& y) noexcept;
+
+  //! Returns x if |x| < |y|, y if |y| < |x|, otherwise fmin(x, y).
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> minmag(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept;
+
+  //! x - y if x > y, +0 if x is less than or equal to y.
+  template <std::floating_point Float>
+  static Float fdim(const Float& x, const Float& y) noexcept;
+
+  //! x - y if x > y, +0 if x is less than or equal to y.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> fdim(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept;
+
   // Power functions
 
   //! Compute x to the power y
   template <std::floating_point Float>
-  static Float pow(const Float x, const Float y) noexcept;
+  static Float pow(const Float& x, const Float& y) noexcept;
 
   //! Compute x to the power y
   template <std::floating_point Float, std::size_t kN>
@@ -198,7 +297,7 @@ class Math
 
   //! Compute x to the power y
   template <std::floating_point Float>
-  static Float pown(const Float x, const int32b y) noexcept;
+  static Float pown(const Float& x, const int32b y) noexcept;
 
   //! Compute x to the power y
   template <std::floating_point Float, std::size_t kN>
@@ -228,6 +327,138 @@ class Math
   template <std::floating_point Float, std::size_t kN>
   static Vector<Float, kN> cbrt(const Vector<Float, kN>& x) noexcept;
 
+  // Nearest integer floating point operations
+
+  //! Round to integral value using the round to positive infinity rounding mode
+  template <std::floating_point Float>
+  static Float ceil(const Float& x) noexcept;
+
+  //! Round to integral value using the round to positive infinity rounding mode
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> ceil(const Vector<Float, kN>& x) noexcept;
+
+  //! Round to integral value using the round to negative infinity rounding mode
+  template <std::floating_point Float>
+  static Float floor(const Float& x) noexcept;
+
+  //! Round to integral value using the round to negative infinity rounding mode
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> floor(const Vector<Float, kN>& x) noexcept;
+
+  //! Round to integral value using the round to zero rounding mode
+  template <std::floating_point Float>
+  static Float trunc(const Float& x) noexcept;
+
+  //! Round to integral value using the round to zero rounding mode
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> trunc(const Vector<Float, kN>& x) noexcept;
+
+  //! Return the integral value nearest to x rounding halfway cases away from zero, regardless of the current rounding direction
+  template <std::floating_point Float>
+  static Float round(const Float& x) noexcept;
+
+  //! Return the integral value nearest to x rounding halfway cases away from zero, regardless of the current rounding direction
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> round(const Vector<Float, kN>& x) noexcept;
+
+  //! Round to integral value (using round to nearest even rounding mode) in floating point format.
+  template <std::floating_point Float>
+  static Float rint(const Float& x) noexcept;
+
+  //! Round to integral value (using round to nearest even rounding mode) in floating point format.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> rint(const Vector<Float, kN>& x) noexcept;
+
+  // Floating point manipulation functions
+
+  //! Extract mantissa and exponent from x.
+  template <std::floating_point Float>
+  static Float frexp(const Float& x, int32b* exp) noexcept;
+
+  //! Extract mantissa and exponent from x.
+  template <std::floating_point Float, AddressSpaceType kASpaceType>
+  static Float frexp(const Float& x, AddressSpacePointer<kASpaceType, int32b> exp) noexcept;
+
+  //! Extract mantissa and exponent from x.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> frexp(const Vector<Float, kN>& x, Vector<int32b, kN>* exp) noexcept;
+
+  //! Extract mantissa and exponent from x.
+  template <std::floating_point Float, AddressSpaceType kASpaceType, std::size_t kN>
+  static Vector<Float, kN> frexp(const Vector<Float, kN>& x, AddressSpacePointer<kASpaceType, Vector<int32b, kN>> exp) noexcept;
+
+  //! Multiply x by 2 to the power k.
+  template <std::floating_point Float>
+  static Float ldexp(const Float& x, const int32b k) noexcept;
+
+  //! Multiply x by 2 to the power k.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> ldexp(const Vector<Float, kN>& x, const Vector<int32b, kN>& k) noexcept;
+
+  //! Decompose a floating-point number.
+  template <std::floating_point Float>
+  static Float modf(const Float& x, Float* iptr) noexcept;
+
+  //! Decompose a floating-point number.
+  template <std::floating_point Float, AddressSpaceType kASpaceType>
+  static Float modf(const Float& x, AddressSpacePointer<kASpaceType, Float> iptr) noexcept;
+
+  //! Decompose a floating-point number.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> modf(const Vector<Float, kN>& x, Vector<Float, kN>* iptr) noexcept;
+
+  //! Decompose a floating-point number.
+  template <std::floating_point Float, AddressSpaceType kASpaceType, std::size_t kN>
+  static Vector<Float, kN> modf(const Vector<Float, kN>& x, AddressSpacePointer<kASpaceType, Vector<Float, kN>> iptr) noexcept;
+
+  //! Return fmin(x - floor(x), 0x1.fffffep-1f). floor(x) is returned in iptr.
+  template <std::floating_point Float>
+  static Float fract(const Float& x, Float* iptr) noexcept;
+
+  //! Return fmin(x - floor(x), 0x1.fffffep-1f). floor(x) is returned in iptr.
+  template <std::floating_point Float, AddressSpaceType kASpaceType>
+  static Float fract(const Float& x, AddressSpacePointer<kASpaceType, Float> iptr) noexcept;
+
+  //! Return fmin(x - floor(x), 0x1.fffffep-1f). floor(x) is returned in iptr.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> fract(const Vector<Float, kN>& x, Vector<Float, kN>* iptr) noexcept;
+
+  //! Return fmin(x - floor(x), 0x1.fffffep-1f). floor(x) is returned in iptr.
+  template <std::floating_point Float, AddressSpaceType kASpaceType, std::size_t kN>
+  static Vector<Float, kN> fract(const Vector<Float, kN>& x, AddressSpacePointer<kASpaceType, Vector<Float, kN>> iptr) noexcept;
+
+  //! Return the exponent as an integer value.
+  template <std::floating_point Float>
+  static int32b ilogb(const Float& x) noexcept;
+
+  //! Return the exponent as an integer value.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<int32b, kN> ilogb(const Vector<Float, kN>& x) noexcept;
+
+  //! Compute the exponent of x, which is the integral part of logr(|x|).
+  template <std::floating_point Float>
+  static Float logb(const Float& x) noexcept;
+
+  //! Compute the exponent of x, which is the integral part of logr(|x|).
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> logb(const Vector<Float, kN>& x) noexcept;
+
+  //! Computes the next representable single-precision floating-point value following x in the direction of y.
+  template <std::floating_point Float>
+  static Float nextafter(const Float& x, const Float& y) noexcept;
+
+  //! Computes the next representable single-precision floating-point value following x in the direction of y.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> nextafter(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept;
+
+  //! Return x with its sign changed to match the sign of y
+  template <std::floating_point Float>
+  static Float copysign(const Float& x, const Float& y) noexcept;
+
+  //! Return x with its sign changed to match the sign of y
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> copysign(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept;
+
  private:
   /*!
     \brief No brief description
@@ -239,11 +470,109 @@ class Math
   };
 };
 
+// Basic operations
+
+//! Compute absolute value of a floating-point number.
+template <std::floating_point Float>
+Float fabs(const Float& x) noexcept;
+
+//! Compute absolute value of a floating-point number.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> fabs(const Vector<Float, kN>& x) noexcept;
+
+//! Modulus. Returns x - y * trunc(x/y).
+template <std::floating_point Float>
+Float fmod(const Float& x, const Float& y) noexcept;
+
+//! Modulus. Returns x - y * trunc(x/y).
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> fmod(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept;
+
+//! Compute the value r such that r = x - n*y, where n is the integer nearest the exact value of x/y.
+template <std::floating_point Float>
+Float remainder(const Float& x, const Float& y) noexcept;
+
+//! Compute the value r such that r = x - n*y, where n is the integer nearest the exact value of x/y.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> remainder(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept;
+
+//! The remquo function computes the value r such that r = x - k*y, where k is the integer nearest the exact value of x/y.
+template <std::floating_point Float> 
+Float remquo(const Float& x,
+             const Float& y,
+             int32b* quo) noexcept;
+
+//! The remquo function computes the value r such that r = x - k*y, where k is the integer nearest the exact value of x/y.
+template <std::floating_point Float, AddressSpaceType kASpaceType> 
+Float remquo(const Float& x,
+             const Float& y,
+             AddressSpacePointer<kASpaceType, int32b> quo) noexcept;
+
+//! The remquo function computes the value r such that r = x - k*y, where k is the integer nearest the exact value of x/y.
+template <std::floating_point Float, std::size_t kN> 
+Vector<Float, kN> remquo(const Vector<Float, kN>& x,
+                         const Vector<Float, kN>& y,
+                         Vector<int32b, kN>* quo) noexcept;
+
+//! The remquo function computes the value r such that r = x - k*y, where k is the integer nearest the exact value of x/y.
+template <std::floating_point Float, AddressSpaceType kASpaceType, std::size_t kN> 
+Vector<Float, kN> remquo(const Vector<Float, kN>& x,
+                         const Vector<Float, kN>& y,
+                         AddressSpacePointer<kASpaceType, Vector<int32b, kN>> quo) noexcept;
+
+//! Returns the correctly rounded floating-point representation of the sum of c with the infinitely precise product of a and b.
+template <std::floating_point Float>
+Float fma(const Float& a, const Float& b, const Float& c) noexcept;
+
+//! Returns the correctly rounded floating-point representation of the sum of c with the infinitely precise product of a and b.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> fma(const Vector<Float, kN>& a, const Vector<Float, kN>& b, const Vector<Float, kN>& c) noexcept;
+
+//! Returns y if x < y, otherwise it returns x.
+template <std::floating_point Float>
+Float fmax(const Float& x, const Float& y) noexcept;
+
+//! Returns y if x < y, otherwise it returns x.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> fmax(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept;
+
+//! Returns y if y < x, otherwise it returns x.
+template <std::floating_point Float>
+Float fmin(const Float& x, const Float& y) noexcept;
+
+//! Returns y if y < x, otherwise it returns x.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> fmin(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept;
+
+//! Returns x if |x| > |y|, y if |y| > |x|, otherwise fmax(x, y).
+template <std::floating_point Float>
+Float maxmag(const Float& x, const Float& y) noexcept;
+
+//! Returns x if |x| > |y|, y if |y| > |x|, otherwise fmax(x, y).
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> maxmag(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept;
+
+//! Returns x if |x| < |y|, y if |y| < |x|, otherwise fmin(x, y).
+template <std::floating_point Float>
+Float minmag(const Float& x, const Float& y) noexcept;
+
+//! Returns x if |x| < |y|, y if |y| < |x|, otherwise fmin(x, y).
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> minmag(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept;
+
+//! x - y if x > y, +0 if x is less than or equal to y.
+template <std::floating_point Float>
+Float fdim(const Float& x, const Float& y) noexcept;
+
+//! x - y if x > y, +0 if x is less than or equal to y.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> fdim(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept;
+
 // Power functions
 
 //! Compute x to the power y
 template <std::floating_point Float>
-Float pow(const Float x, const Float y) noexcept;
+Float pow(const Float& x, const Float& y) noexcept;
 
 //! Compute x to the power y
 template <std::floating_point Float, std::size_t kN>
@@ -251,7 +580,7 @@ Vector<Float, kN> pow(const Vector<Float, kN>& x, const Vector<Float, kN>& y) no
 
 //! Compute x to the power y
 template <std::floating_point Float>
-Float pown(const Float x, const int32b y) noexcept;
+Float pown(const Float& x, const int32b y) noexcept;
 
 //! Compute x to the power y
 template <std::floating_point Float, std::size_t kN>
@@ -281,372 +610,137 @@ Float cbrt(const Float& x) noexcept;
 template <std::floating_point Float, std::size_t kN>
 Vector<Float, kN> cbrt(const Vector<Float, kN>& x) noexcept;
 
-///*!
-//  */
-//class Math
-//{
-// public:
-//  // Nearest integer floating point operations
-//
-//  //! Return the nearest integer not less than the given value
-//  template <typename FloatN>
-//  static FloatN ceil(const FloatN& x) noexcept;
-//
-//  //! Return the nearest integer not greater than the given value
-//  template <typename FloatN>
-//  static FloatN floor(const FloatN& x) noexcept;
-//
-//  //! Return the nearest integer not greater in magnitude than the given value
-//  template <typename FloatN>
-//  static FloatN trunc(const FloatN& x) noexcept;
-//
-//  //! Return the nearest integer, rounding away from zero in halfway cases
-//  template <typename FloatN>
-//  static FloatN round(const FloatN& x) noexcept;
-//
-//  // Basic operations
-//
-//  //! Return the remainder of the floating point division operation
-//  template <typename FloatN>
-//  static FloatN fmod(const FloatN& x, const FloatN& y) noexcept;
-//
-//  //! Fused multiply-add operation
-//  template <typename FloatN>
-//  static FloatN fma(const FloatN& a, const FloatN& b, const FloatN& c) noexcept;
-//
-//  // Exponential functions
-//
-//  //! Return e raised to the given power
-//  template <typename FloatN>
-//  static FloatN exp(const FloatN& x) noexcept;
-//
-//  //! Return 2 raised to the given power
-//  template <typename FloatN>
-//  static FloatN exp2(const FloatN& x) noexcept;
-//
-//  //! Compute natural logarithm of the given number
-//  template <typename FloatN>
-//  static FloatN log(const FloatN& x) noexcept;
-//
-//  //! Compute base2 logarithm of the given number
-//  template <typename FloatN>
-//  static FloatN log2(const FloatN& x) noexcept;
-//
-//  // Power functions
-//
-//  //! Raise a number to the given power
-//  template <typename FloatN>
-//  static FloatN pow(const FloatN& base, const FloatN& e) noexcept;
-//
-//  //! Compute inverse square root
-//  template <typename FloatN>
-//  static FloatN rsqrt(const FloatN& x) noexcept;
-//
-//  //! Compute square root
-//  template <typename FloatN>
-//  static FloatN sqrt(const FloatN& x) noexcept;
-//
-//  //! Compute cubic root
-//  template <typename FloatN>
-//  static FloatN cbrt(const FloatN& x) noexcept;
-//
-//  // Trigonometric functions
-//
-//  //! Compute sine
-//  template <typename FloatN>
-//  static FloatN sin(const FloatN& theta) noexcept;
-//
-//  //! Compute cosine
-//  template <typename FloatN>
-//  static FloatN cos(const FloatN& theta) noexcept;
-//
-//  //! Compute sine and cosine
-//  template <typename FloatN>
-//  static FloatN sincos(const FloatN& theta, FloatN* cosval) noexcept;
-//
-//  //! Compute tangent
-//  template <typename FloatN>
-//  static FloatN tan(const FloatN& theta) noexcept;
-//
-//  //! Compute arc sine
-//  template <typename FloatN>
-//  static FloatN asin(const FloatN& x) noexcept;
-//
-//  //! Compute arc cosine
-//  template <typename FloatN>
-//  static FloatN acos(const FloatN& x) noexcept;
-//
-//  //! Compute arc tangent
-//  template <typename FloatN>
-//  static FloatN atan(const FloatN& x) noexcept;
-//
-//  // Floating point manipulation functions
-//
-//  //! Decompose a number into significand and power of 2
-//  template <typename FloatN, typename IntegerN>
-//  static FloatN frexp(const FloatN& x, IntegerN* e) noexcept;
-//
-//  //! Multiplie a number by 2 raised to a power 
-//  template <typename FloatN, typename IntegerN>
-//  static FloatN ldexp(const FloatN& x, const IntegerN& e) noexcept;
-//
-//  //! Extract exponent of the given number
-//  template <typename FloatN>
-//  static auto ilogb(const FloatN& x) noexcept;
-//
-//  //! Decompose a number into integer and fractional parts
-//  template <typename FloatN>
-//  static FloatN modf(const FloatN& x, FloatN* iptr) noexcept;
-//
-//  //! Copy the sign of a floating point value
-//  template <typename FloatN>
-//  static FloatN copysign(const FloatN& x, const FloatN& y) noexcept;
-//
-// private:
-//  /*!
-//    */
-//  class Vec
-//  {
-//   public:
-//    // Nearest integer floating point operations
-//
-//    //! Return the nearest integer not less than the given value
-//    template <typename Float, size_t kN>
-//    static auto ceil(const Vector<Float, kN>& x) noexcept;
-//
-//    //! Return the nearest integer not greater than the given value
-//    template <typename Float, size_t kN>
-//    static auto floor(const Vector<Float, kN>& x) noexcept;
-//
-//    //! Return the nearest integer not greater in magnitude than the given value
-//    template <typename Float, size_t kN>
-//    static auto trunc(const Vector<Float, kN>& x) noexcept;
-//
-//    //! Return the nearest integer, rounding away from zero in halfway cases
-//    template <typename Float, size_t kN>
-//    static auto round(const Vector<Float, kN>& x) noexcept;
-//
-//    // Basic operations
-//
-//    //! Return the remainder of the floating point division operation
-//    template <typename Float, size_t kN>
-//    static auto fmod(const Vector<Float, kN>& x,
-//                     const Vector<Float, kN>& y) noexcept;
-//
-//    //! Fused multiply-add operation
-//    template <typename Float, size_t kN>
-//    static auto fma(const Vector<Float, kN>& a,
-//                    const Vector<Float, kN>& b,
-//                    const Vector<Float, kN>& c) noexcept;
-//
-//    // Exponential functions
-//
-//    //! Return e raised to the given power
-//    template <typename Float, size_t kN>
-//    static auto exp(const Vector<Float, kN>& x) noexcept;
-//
-//    //! Return 2 raised to the given power
-//    template <typename Float, size_t kN>
-//    static auto exp2(const Vector<Float, kN>& x) noexcept;
-//
-//    //! Compute natural logarithm of the given number
-//    template <typename Float, size_t kN>
-//    static auto log(const Vector<Float, kN>& x) noexcept;
-//
-//    //! Compute base2 logarithm of the given number
-//    template <typename Float, size_t kN>
-//    static auto log2(const Vector<Float, kN>& x) noexcept;
-//
-//    // Power functions
-//
-//    //! Raise a number to the given power
-//    template <typename Float, size_t kN>
-//    static auto pow(const Vector<Float, kN>& base,
-//                    const Vector<Float, kN>& e) noexcept;
-//
-//    //! Compute inverse square root
-//    template <typename Float, size_t kN>
-//    static auto rsqrt(const Vector<Float, kN>& x) noexcept;
-//
-//    //! Compute square root
-//    template <typename Float, size_t kN>
-//    static auto sqrt(const Vector<Float, kN>& x) noexcept;
-//
-//    //! Compute cubic root
-//    template <typename Float, size_t kN>
-//    static auto cbrt(const Vector<Float, kN>& x) noexcept;
-//
-//    //! Trigonometric functions
-//
-//    //! Compute sine
-//    template <typename Float, size_t kN>
-//    static auto sin(const Vector<Float, kN>& theta) noexcept;
-//
-//    //! Compute cosine
-//    template <typename Float, size_t kN>
-//    static auto cos(const Vector<Float, kN>& theta) noexcept;
-//
-//    //! Compute tangent
-//    template <typename Float, size_t kN>
-//    static auto tan(const Vector<Float, kN>& theta) noexcept;
-//
-//    //! Compute arc sine
-//    template <typename Float, size_t kN>
-//    static auto asin(const Vector<Float, kN>& x) noexcept;
-//
-//    //! Compute arc cosine
-//    template <typename Float, size_t kN>
-//    static auto acos(const Vector<Float, kN>& x) noexcept;
-//
-//    //! Compute arc tangent
-//    template <typename Float, size_t kN>
-//    static auto atan(const Vector<Float, kN>& x) noexcept;
-//
-//    // Floating point manipulation functions
-//
-//    //! Decompose a number into significand and power of 2
-//    template <typename Float, typename Integer, size_t kN>
-//    static auto frexp(const Vector<Float, kN>& x,
-//                      Vector<Integer, kN>* e) noexcept;
-//
-//    //! Multiply a number by 2 raised to a power 
-//    template <typename Float, typename Integer, size_t kN>
-//    static auto ldexp(const Vector<Float, kN>& x,
-//                      const Vector<Integer, kN>& e) noexcept;
-//
-//    //! Extract exponent of the given number
-//    template <typename Float, size_t kN>
-//    static auto ilogb(const Vector<Float, kN>& x) noexcept;
-//
-//    //! Decompose a number into integer and fractional parts
-//    template <typename Float, size_t kN>
-//    static auto modf(const Vector<Float, kN>& x,
-//                     Vector<Float, kN>* iptr) noexcept;
-//
-//    //! Copy the sign of a floating point value
-//    template <typename Float, size_t kN>
-//    static auto copysign(const Vector<Float, kN>& x,
-//                         const Vector<Float, kN>& y) noexcept;
-//  };
-//};
-//
-//// OpenCL style function aliases
-//
-//// Nearest integer floating point operations
-//
-////! Return the nearest integer not less than the given value
-//template <typename FloatN>
-//FloatN ceil(const FloatN& x) noexcept;
-//
-////! Return the nearest integer not greater than the given value
-//template <typename FloatN>
-//FloatN floor(const FloatN& x) noexcept;
-//
-////! Return the nearest integer not greater in magnitude than the given value
-//template <typename FloatN>
-//FloatN trunc(const FloatN& x) noexcept;
-//
-////! Return the nearest integer, rounding away from zero in halfway cases
-//template <typename FloatN>
-//FloatN round(const FloatN& x) noexcept;
-//
-//// Basic operations
-//
-////! Return the remainder of the floating point division operation
-//template <typename FloatN>
-//FloatN fmod(const FloatN& x, const FloatN& y) noexcept;
-//
-////! Fused multiply-add operation
-//template <typename FloatN>
-//FloatN fma(const FloatN& a, const FloatN& b, const FloatN& c) noexcept;
-//
-//// Exponential functions
-//
-////! Return e raised to the given power
-//template <typename FloatN>
-//FloatN exp(const FloatN& x) noexcept;
-//
-////! Return 2 raised to the given power
-//template <typename FloatN>
-//FloatN exp2(const FloatN& x) noexcept;
-//
-////! Compute natural logarithm of the given number
-//template <typename FloatN>
-//FloatN log(const FloatN& x) noexcept;
-//
-////! Compute base2 logarithm of the given number
-//template <typename FloatN>
-//FloatN log2(const FloatN& x) noexcept;
-//
-//// Power functions
-//
-////! Raise a number to the given power
-//template <typename FloatN>
-//FloatN pow(const FloatN& base, const FloatN& e) noexcept;
-//
-////! Compute inverse square root
-//template <typename FloatN>
-//FloatN rsqrt(const FloatN& x) noexcept;
-//
-////! Compute square root
-//template <typename FloatN>
-//FloatN sqrt(const FloatN& x) noexcept;
-//
-////! Compute cubic root
-//template <typename FloatN>
-//FloatN cbrt(const FloatN& x) noexcept;
-//
-////! Trigonometric functions
-//
-////! Compute sine
-//template <typename FloatN>
-//FloatN sin(const FloatN& theta) noexcept;
-//
-////! Compute cosine
-//template <typename FloatN>
-//FloatN cos(const FloatN& theta) noexcept;
-//
-////! Compute sine and cosine
-//template <typename FloatN>
-//FloatN sincos(const FloatN& theta, FloatN* cosval) noexcept;
-//
-////! Compute tangent
-//template <typename FloatN>
-//FloatN tan(const FloatN& theta) noexcept;
-//
-////! Compute arc sine
-//template <typename FloatN>
-//FloatN asin(const FloatN& x) noexcept;
-//
-////! Compute arc cosine
-//template <typename FloatN>
-//FloatN acos(const FloatN& x) noexcept;
-//
-////! Compute arc tangent
-//template <typename FloatN>
-//FloatN atan(const FloatN& x) noexcept;
-//
-//// Floating point manipulation functions
-//
-////! Decompose a number into significand and power of 2
-//template <typename FloatN, typename IntegerN>
-//FloatN frexp(const FloatN& x, IntegerN* e) noexcept;
-//
-////! Multiplie a number by 2 raised to a power 
-//template <typename FloatN, typename IntegerN>
-//FloatN ldexp(const FloatN& x, const IntegerN& e) noexcept;
-//
-////! Extract exponent of the given number
-//template <typename FloatN>
-//auto ilogb(const FloatN& x) noexcept;
-//
-////! Decompose a number into integer and fractional parts
-//template <typename FloatN>
-//FloatN modf(const FloatN& x, FloatN* iptr) noexcept;
-//
-////! Copy the sign of a floating point value
-//template <typename FloatN>
-//FloatN copysign(const FloatN& x, const FloatN& y) noexcept;
+// Nearest integer floating point operations
+
+//! Round to integral value using the round to positive infinity rounding mode
+template <std::floating_point Float>
+Float ceil(const Float& x) noexcept;
+
+//! Round to integral value using the round to positive infinity rounding mode
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> ceil(const Vector<Float, kN>& x) noexcept;
+
+//! Round to integral value using the round to negative infinity rounding mode
+template <std::floating_point Float>
+Float floor(const Float& x) noexcept;
+
+//! Round to integral value using the round to negative infinity rounding mode
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> floor(const Vector<Float, kN>& x) noexcept;
+
+//! Round to integral value using the round to zero rounding mode
+template <std::floating_point Float>
+Float trunc(const Float& x) noexcept;
+
+//! Round to integral value using the round to zero rounding mode
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> trunc(const Vector<Float, kN>& x) noexcept;
+
+//! Return the integral value nearest to x rounding halfway cases away from zero, regardless of the current rounding direction
+template <std::floating_point Float>
+Float round(const Float& x) noexcept;
+
+//! Return the integral value nearest to x rounding halfway cases away from zero, regardless of the current rounding direction
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> round(const Vector<Float, kN>& x) noexcept;
+
+//! Round to integral value (using round to nearest even rounding mode) in floating point format.
+template <std::floating_point Float>
+Float rint(const Float& x) noexcept;
+
+//! Round to integral value (using round to nearest even rounding mode) in floating point format.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> rint(const Vector<Float, kN>& x) noexcept;
+
+// Floating point manipulation functions
+
+//! Extract mantissa and exponent from x.
+template <std::floating_point Float>
+Float frexp(const Float& x, int32b* exp) noexcept;
+
+//! Extract mantissa and exponent from x.
+template <std::floating_point Float, AddressSpaceType kASpaceType>
+Float frexp(const Float& x, AddressSpacePointer<kASpaceType, int32b> exp) noexcept;
+
+//! Extract mantissa and exponent from x.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> frexp(const Vector<Float, kN>& x, Vector<int32b, kN>* exp) noexcept;
+
+//! Extract mantissa and exponent from x.
+template <std::floating_point Float, AddressSpaceType kASpaceType, std::size_t kN>
+Vector<Float, kN> frexp(const Vector<Float, kN>& x, AddressSpacePointer<kASpaceType, Vector<int32b, kN>> exp) noexcept;
+
+//! Multiply x by 2 to the power k.
+template <std::floating_point Float>
+Float ldexp(const Float& x, const int32b k) noexcept;
+
+//! Multiply x by 2 to the power k.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> ldexp(const Vector<Float, kN>& x, const Vector<int32b, kN>& k) noexcept;
+
+//! Decompose a floating-point number.
+template <std::floating_point Float>
+Float modf(const Float& x, Float* iptr) noexcept;
+
+//! Decompose a floating-point number.
+template <std::floating_point Float, AddressSpaceType kASpaceType>
+Float modf(const Float& x, AddressSpacePointer<kASpaceType, Float> iptr) noexcept;
+
+//! Decompose a floating-point number.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> modf(const Vector<Float, kN>& x, Vector<Float, kN>* iptr) noexcept;
+
+//! Decompose a floating-point number.
+template <std::floating_point Float, AddressSpaceType kASpaceType, std::size_t kN>
+Vector<Float, kN> modf(const Vector<Float, kN>& x, AddressSpacePointer<kASpaceType, Vector<Float, kN>> iptr) noexcept;
+
+//! Return fmin(x - floor(x), 0x1.fffffep-1f). floor(x) is returned in iptr.
+template <std::floating_point Float>
+Float fract(const Float& x, Float* iptr) noexcept;
+
+//! Return fmin(x - floor(x), 0x1.fffffep-1f). floor(x) is returned in iptr.
+template <std::floating_point Float, AddressSpaceType kASpaceType>
+Float fract(const Float& x, AddressSpacePointer<kASpaceType, Float> iptr) noexcept;
+
+//! Return fmin(x - floor(x), 0x1.fffffep-1f). floor(x) is returned in iptr.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> fract(const Vector<Float, kN>& x, Vector<Float, kN>* iptr) noexcept;
+
+//! Return fmin(x - floor(x), 0x1.fffffep-1f). floor(x) is returned in iptr.
+template <std::floating_point Float, AddressSpaceType kASpaceType, std::size_t kN>
+Vector<Float, kN> fract(const Vector<Float, kN>& x, AddressSpacePointer<kASpaceType, Vector<Float, kN>> iptr) noexcept;
+
+//! Return the exponent as an integer value.
+template <std::floating_point Float>
+int32b ilogb(const Float& x) noexcept;
+
+//! Return the exponent as an integer value.
+template <std::floating_point Float, std::size_t kN>
+Vector<int32b, kN> ilogb(const Vector<Float, kN>& x) noexcept;
+
+//! Compute the exponent of x, which is the integral part of logr(|x|).
+template <std::floating_point Float>
+Float logb(const Float& x) noexcept;
+
+//! Compute the exponent of x, which is the integral part of logr(|x|).
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> logb(const Vector<Float, kN>& x) noexcept;
+
+//! Computes the next representable single-precision floating-point value following x in the direction of y.
+template <std::floating_point Float>
+Float nextafter(const Float& x, const Float& y) noexcept;
+
+//! Computes the next representable single-precision floating-point value following x in the direction of y.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> nextafter(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept;
+
+//! Return x with its sign changed to match the sign of y
+template <std::floating_point Float>
+Float copysign(const Float& x, const Float& y) noexcept;
+
+//! Return x with its sign changed to match the sign of y
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> copysign(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept;
 
 } // namespace zivc::cl
 

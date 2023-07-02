@@ -312,7 +312,7 @@ macro(setTestProject)
                        ${PROJECT_NAME}-vulkan2-math
                        ${PROJECT_NAME}-vulkan3-math
                        PROPERTIES ENVIRONMENT "${env_list}")
-  set(gtest_filter "${gtest_filter}:*Geometry*Cross*:*Geometry*Distance*")
+  set(gtest_filter "${gtest_filter}:*Geometry*Cross*:*Geometry*Distance*:*MathImplFmod*:*Math*Pow*")
   set(env_list ${test_env_list} ${gtest_filter})
   set_tests_properties(${PROJECT_NAME}-vulkan0-debug
                        ${PROJECT_NAME}-vulkan0-nodebug

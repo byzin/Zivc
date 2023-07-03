@@ -237,6 +237,14 @@ class Math
                                   const Vector<Float, kN>& y,
                                   AddressSpacePointer<kASpaceType, Vector<int32b, kN>> quo) noexcept;
 
+  //! Compute a * b + c.
+  template <std::floating_point Float>
+  static Float mad(const Float& a, const Float& b, const Float& c) noexcept;
+
+  //! Compute a * b + c.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> mad(const Vector<Float, kN>& a, const Vector<Float, kN>& b, const Vector<Float, kN>& c) noexcept;
+
   //! Returns the correctly rounded floating-point representation of the sum of c with the infinitely precise product of a and b.
   template <std::floating_point Float>
   static Float fma(const Float& a, const Float& b, const Float& c) noexcept;
@@ -285,6 +293,72 @@ class Math
   template <std::floating_point Float, std::size_t kN>
   static Vector<Float, kN> fdim(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept;
 
+  // Exponential functions
+
+  //! Compute the base-e exponential of x.
+  template <std::floating_point Float>
+  static Float exp(const Float& x) noexcept;
+
+  //! Compute the base-e exponential of x.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> exp(const Vector<Float, kN>& x) noexcept;
+
+  //! Exponential base 2 function.
+  template <std::floating_point Float>
+  static Float exp2(const Float& x) noexcept;
+
+  //! Exponential base 2 function.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> exp2(const Vector<Float, kN>& x) noexcept;
+
+//  //! Exponential base 10 function.
+//  template <std::floating_point Float>
+//  static Float exp10(const Float& x) noexcept;
+//
+//  //! Exponential base 10 function.
+//  template <std::floating_point Float, std::size_t kN>
+//  static Vector<Float, kN> exp10(const Vector<Float, kN>& x) noexcept;
+
+  //! Compute e^x - 1.0.
+  template <std::floating_point Float>
+  static Float expm1(const Float& x) noexcept;
+
+  //! Compute e^x - 1.0.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> expm1(const Vector<Float, kN>& x) noexcept;
+
+  //! Compute natural logarithm.
+  template <std::floating_point Float>
+  static Float log(const Float& x) noexcept;
+
+  //! Compute natural logarithm.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> log(const Vector<Float, kN>& x) noexcept;
+
+  //! Compute a base 2 logarithm.
+  template <std::floating_point Float>
+  static Float log2(const Float& x) noexcept;
+
+  //! Compute a base 2 logarithm.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> log2(const Vector<Float, kN>& x) noexcept;
+
+  //! Compute a base 10 logarithm.
+  template <std::floating_point Float>
+  static Float log10(const Float& x) noexcept;
+
+  //! Compute a base 10 logarithm.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> log10(const Vector<Float, kN>& x) noexcept;
+
+  //! Compute log_e(1.0 + x).
+  template <std::floating_point Float>
+  static Float log1p(const Float& x) noexcept;
+
+  //! Compute log_e(1.0 + x).
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> log1p(const Vector<Float, kN>& x) noexcept;
+
   // Power functions
 
   //! Compute x to the power y
@@ -326,6 +400,156 @@ class Math
   //! Compute cube root
   template <std::floating_point Float, std::size_t kN>
   static Vector<Float, kN> cbrt(const Vector<Float, kN>& x) noexcept;
+
+  //! Compute the value of the square root of x + y without undue overflow or underflow.
+  template <std::floating_point Float>
+  static Float hypot(const Float& x, const Float& y) noexcept;
+
+  //! Compute the value of the square root of x + y without undue overflow or underflow.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> hypot(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept;
+
+  // Trigonometric functions
+
+  //! Compute sine, where x is an angle in radians.
+  template <std::floating_point Float>
+  static Float sin(const Float& x) noexcept;
+
+  //! Compute sine, where x is an angle in radians.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> sin(const Vector<Float, kN>& x) noexcept;
+
+  //! Compute cosine, where x is an angle in radians.
+  template <std::floating_point Float>
+  static Float cos(const Float& x) noexcept;
+
+  //! Compute cosine, where x is an angle in radians.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> cos(const Vector<Float, kN>& x) noexcept;
+
+  //! Compute tangent, where x is an angle in radians.
+  template <std::floating_point Float>
+  static Float tan(const Float& x) noexcept;
+
+  //! Compute tangent, where x is an angle in radians.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> tan(const Vector<Float, kN>& x) noexcept;
+
+  //! Arc sine function. Returns an angle in radians.
+  template <std::floating_point Float>
+  static Float asin(const Float& x) noexcept;
+
+  //! Arc sine function. Returns an angle in radians.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> asin(const Vector<Float, kN>& x) noexcept;
+
+  //! Arc cosine function. Returns an angle in radians.
+  template <std::floating_point Float>
+  static Float acos(const Float& x) noexcept;
+
+  //! Arc cosine function. Returns an angle in radians.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> acos(const Vector<Float, kN>& x) noexcept;
+
+  //! Arc tangent function. Returns an angle in radians.
+  template <std::floating_point Float>
+  static Float atan(const Float& x) noexcept;
+
+  //! Arc tangent function. Returns an angle in radians.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> atan(const Vector<Float, kN>& x) noexcept;
+
+  //! Arc tangent of y / x. Returns an angle in radians.
+  template <std::floating_point Float>
+  static Float atan2(const Float& y, const Float& x) noexcept;
+
+  //! Arc tangent of y / x. Returns an angle in radians.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> atan2(const Vector<Float, kN>& y, const Vector<Float, kN>& x) noexcept;
+
+  // Hyperbolic functions
+
+  //! Compute hyperbolic sine, where x is an angle in radians
+  template <std::floating_point Float>
+  static Float sinh(const Float& x) noexcept;
+
+  //! Compute hyperbolic sine, where x is an angle in radians
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> sinh(const Vector<Float, kN>& x) noexcept;
+
+  //! Compute hyperbolic cosine, where x is an angle in radians.
+  template <std::floating_point Float>
+  static Float cosh(const Float& x) noexcept;
+
+  //! Compute hyperbolic cosine, where x is an angle in radians.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> cosh(const Vector<Float, kN>& x) noexcept;
+
+  //! Compute hyperbolic tangent, where x is an angle in radians.
+  template <std::floating_point Float>
+  static Float tanh(const Float& x) noexcept;
+
+  //! Compute hyperbolic tangent, where x is an angle in radians.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> tanh(const Vector<Float, kN>& x) noexcept;
+
+  //! Inverse hyperbolic sine. Returns an angle in radians.
+  template <std::floating_point Float>
+  static Float asinh(const Float& x) noexcept;
+
+  //! Inverse hyperbolic sine. Returns an angle in radians.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> asinh(const Vector<Float, kN>& x) noexcept;
+
+  //! Inverse hyperbolic cosine. Returns an angle in radians.
+  template <std::floating_point Float>
+  static Float acosh(const Float& x) noexcept;
+
+  //! Inverse hyperbolic cosine. Returns an angle in radians.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> acosh(const Vector<Float, kN>& x) noexcept;
+
+  //! Hyperbolic arc tangent. Returns an angle in radians.
+  template <std::floating_point Float>
+  static Float atanh(const Float& x) noexcept;
+
+  //! Hyperbolic arc tangent. Returns an angle in radians.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> atanh(const Vector<Float, kN>& x) noexcept;
+
+  // Error and gamma functions
+
+  //! Error function encountered in integrating the normal distribution.
+  template <std::floating_point Float>
+  static Float erf(const Float& x) noexcept;
+
+  //! Error function encountered in integrating the normal distribution.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> erf(const Vector<Float, kN>& x) noexcept;
+
+  //! Complementary error function.
+  template <std::floating_point Float>
+  static Float erfc(const Float& x) noexcept;
+
+  //! Complementary error function.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> erfc(const Vector<Float, kN>& x) noexcept;
+
+  //! Log gamma function. Returns the natural logarithm of the absolute value of the gamma function.
+  template <std::floating_point Float>
+  static Float lgamma(const Float& x) noexcept;
+
+  //! Log gamma function. Returns the natural logarithm of the absolute value of the gamma function.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> lgamma(const Vector<Float, kN>& x) noexcept;
+
+  //! Compute the gamma function.
+  template <std::floating_point Float>
+  static Float tgamma(const Float& x) noexcept;
+
+  //! Compute the gamma function.
+  template <std::floating_point Float, std::size_t kN>
+  static Vector<Float, kN> tgamma(const Vector<Float, kN>& x) noexcept;
 
   // Nearest integer floating point operations
 
@@ -520,9 +744,17 @@ Vector<Float, kN> remquo(const Vector<Float, kN>& x,
                          const Vector<Float, kN>& y,
                          AddressSpacePointer<kASpaceType, Vector<int32b, kN>> quo) noexcept;
 
-//! Returns the correctly rounded floating-point representation of the sum of c with the infinitely precise product of a and b.
+//! Compute a * b + c.
 template <std::floating_point Float>
-Float fma(const Float& a, const Float& b, const Float& c) noexcept;
+Float mad(const Float& a, const Float& b, const Float& c) noexcept;
+
+//! Compute a * b + c.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> mad(const Vector<Float, kN>& a, const Vector<Float, kN>& b, const Vector<Float, kN>& c) noexcept;
+
+//! Returns y if x < y, otherwise it returns x.
+template <std::floating_point Float>
+Float fmax(const Float& x, const Float& y) noexcept;
 
 //! Returns the correctly rounded floating-point representation of the sum of c with the infinitely precise product of a and b.
 template <std::floating_point Float, std::size_t kN>
@@ -568,6 +800,72 @@ Float fdim(const Float& x, const Float& y) noexcept;
 template <std::floating_point Float, std::size_t kN>
 Vector<Float, kN> fdim(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept;
 
+// Exponential functions
+
+//! Compute the base-e exponential of x.
+template <std::floating_point Float>
+Float exp(const Float& x) noexcept;
+
+//! Compute the base-e exponential of x.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> exp(const Vector<Float, kN>& x) noexcept;
+
+//! Exponential base 2 function.
+template <std::floating_point Float>
+Float exp2(const Float& x) noexcept;
+
+//! Exponential base 2 function.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> exp2(const Vector<Float, kN>& x) noexcept;
+
+////! Exponential base 10 function.
+//template <std::floating_point Float>
+//Float exp10(const Float& x) noexcept;
+//
+////! Exponential base 10 function.
+//template <std::floating_point Float, std::size_t kN>
+//Vector<Float, kN> exp10(const Vector<Float, kN>& x) noexcept;
+
+//! Compute e^x - 1.0.
+template <std::floating_point Float>
+Float expm1(const Float& x) noexcept;
+
+//! Compute e^x - 1.0.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> expm1(const Vector<Float, kN>& x) noexcept;
+
+//! Compute natural logarithm.
+template <std::floating_point Float>
+Float log(const Float& x) noexcept;
+
+//! Compute natural logarithm.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> log(const Vector<Float, kN>& x) noexcept;
+
+//! Compute a base 2 logarithm.
+template <std::floating_point Float>
+Float log2(const Float& x) noexcept;
+
+//! Compute a base 2 logarithm.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> log2(const Vector<Float, kN>& x) noexcept;
+
+//! Compute a base 10 logarithm.
+template <std::floating_point Float>
+Float log10(const Float& x) noexcept;
+
+//! Compute a base 10 logarithm.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> log10(const Vector<Float, kN>& x) noexcept;
+
+//! Compute log_e(1.0 + x).
+template <std::floating_point Float>
+Float log1p(const Float& x) noexcept;
+
+//! Compute log_e(1.0 + x).
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> log1p(const Vector<Float, kN>& x) noexcept;
+
 // Power functions
 
 //! Compute x to the power y
@@ -609,6 +907,156 @@ Float cbrt(const Float& x) noexcept;
 //! Compute cube root
 template <std::floating_point Float, std::size_t kN>
 Vector<Float, kN> cbrt(const Vector<Float, kN>& x) noexcept;
+
+//! Compute the value of the square root of x + y without undue overflow or underflow.
+template <std::floating_point Float>
+Float hypot(const Float& x, const Float& y) noexcept;
+
+//! Compute the value of the square root of x + y without undue overflow or underflow.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> hypot(const Vector<Float, kN>& x, const Vector<Float, kN>& y) noexcept;
+
+// Trigonometric functions
+
+//! Compute sine, where x is an angle in radians.
+template <std::floating_point Float>
+Float sin(const Float& x) noexcept;
+
+//! Compute sine, where x is an angle in radians.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> sin(const Vector<Float, kN>& x) noexcept;
+
+//! Compute cosine, where x is an angle in radians.
+template <std::floating_point Float>
+Float cos(const Float& x) noexcept;
+
+//! Compute cosine, where x is an angle in radians.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> cos(const Vector<Float, kN>& x) noexcept;
+
+//! Compute tangent, where x is an angle in radians.
+template <std::floating_point Float>
+Float tan(const Float& x) noexcept;
+
+//! Compute tangent, where x is an angle in radians.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> tan(const Vector<Float, kN>& x) noexcept;
+
+//! Arc sine function. Returns an angle in radians.
+template <std::floating_point Float>
+Float asin(const Float& x) noexcept;
+
+//! Arc sine function. Returns an angle in radians.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> asin(const Vector<Float, kN>& x) noexcept;
+
+//! Arc cosine function. Returns an angle in radians.
+template <std::floating_point Float>
+Float acos(const Float& x) noexcept;
+
+//! Arc cosine function. Returns an angle in radians.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> acos(const Vector<Float, kN>& x) noexcept;
+
+//! Arc tangent function. Returns an angle in radians.
+template <std::floating_point Float>
+Float atan(const Float& x) noexcept;
+
+//! Arc tangent function. Returns an angle in radians.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> atan(const Vector<Float, kN>& x) noexcept;
+
+//! Arc tangent of y / x. Returns an angle in radians.
+template <std::floating_point Float>
+Float atan2(const Float& y, const Float& x) noexcept;
+
+//! Arc tangent of y / x. Returns an angle in radians.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> atan2(const Vector<Float, kN>& y, const Vector<Float, kN>& x) noexcept;
+
+// Hyperbolic functions
+
+//! Compute hyperbolic sine, where x is an angle in radians
+template <std::floating_point Float>
+Float sinh(const Float& x) noexcept;
+
+//! Compute hyperbolic sine, where x is an angle in radians
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> sinh(const Vector<Float, kN>& x) noexcept;
+
+//! Compute hyperbolic cosine, where x is an angle in radians.
+template <std::floating_point Float>
+Float cosh(const Float& x) noexcept;
+
+//! Compute hyperbolic cosine, where x is an angle in radians.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> cosh(const Vector<Float, kN>& x) noexcept;
+
+//! Compute hyperbolic tangent, where x is an angle in radians.
+template <std::floating_point Float>
+Float tanh(const Float& x) noexcept;
+
+//! Compute hyperbolic tangent, where x is an angle in radians.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> tanh(const Vector<Float, kN>& x) noexcept;
+
+//! Inverse hyperbolic sine. Returns an angle in radians.
+template <std::floating_point Float>
+Float asinh(const Float& x) noexcept;
+
+//! Inverse hyperbolic sine. Returns an angle in radians.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> asinh(const Vector<Float, kN>& x) noexcept;
+
+//! Inverse hyperbolic cosine. Returns an angle in radians.
+template <std::floating_point Float>
+Float acosh(const Float& x) noexcept;
+
+//! Inverse hyperbolic cosine. Returns an angle in radians.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> acosh(const Vector<Float, kN>& x) noexcept;
+
+//! Hyperbolic arc tangent. Returns an angle in radians.
+template <std::floating_point Float>
+Float atanh(const Float& x) noexcept;
+
+//! Hyperbolic arc tangent. Returns an angle in radians.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> atanh(const Vector<Float, kN>& x) noexcept;
+
+// Error and gamma functions
+
+//! Error function encountered in integrating the normal distribution.
+template <std::floating_point Float>
+Float erf(const Float& x) noexcept;
+
+//! Error function encountered in integrating the normal distribution.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> erf(const Vector<Float, kN>& x) noexcept;
+
+//! Complementary error function.
+template <std::floating_point Float>
+Float erfc(const Float& x) noexcept;
+
+//! Complementary error function.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> erfc(const Vector<Float, kN>& x) noexcept;
+
+//! Log gamma function. Returns the natural logarithm of the absolute value of the gamma function.
+template <std::floating_point Float>
+Float lgamma(const Float& x) noexcept;
+
+//! Log gamma function. Returns the natural logarithm of the absolute value of the gamma function.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> lgamma(const Vector<Float, kN>& x) noexcept;
+
+//! Compute the gamma function.
+template <std::floating_point Float>
+Float tgamma(const Float& x) noexcept;
+
+//! Compute the gamma function.
+template <std::floating_point Float, std::size_t kN>
+Vector<Float, kN> tgamma(const Vector<Float, kN>& x) noexcept;
 
 // Nearest integer floating point operations
 

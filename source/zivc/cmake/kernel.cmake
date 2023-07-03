@@ -10,8 +10,8 @@
 function(Zivc_initZivcKernelOptions)
   include("${CMAKE_CURRENT_FUNCTION_LIST_DIR}/general.cmake")
 
-  set(option_description "Use fallback cl math implementation instead of the built-in cl math.")
-  Zivc_setBooleanOption(ZIVC_MATH_FALLBACK OFF ${option_description})
+  set(option_description "Use precision cl math implementation instead of the built-in cl math.")
+  Zivc_setBooleanOption(ZIVC_MATH_PRECISION OFF ${option_description})
 endfunction(Zivc_initZivcKernelOptions)
 
 
@@ -20,8 +20,8 @@ function(Zivc_getZivcKernelFlags zivc_compile_flags zivc_definitions)
   set(definitions "")
 
   # Math
-  if(ZIVC_MATH_FALLBACK)
-    list(APPEND definitions ZIVC_MATH_FALLBACK=1)
+  if(ZIVC_MATH_PRECISION)
+    list(APPEND definitions ZIVC_MATH_PRECISION=1)
   endif()
 
   # Output variables

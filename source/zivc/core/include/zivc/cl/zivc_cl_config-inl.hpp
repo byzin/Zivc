@@ -21,13 +21,13 @@ namespace zivc {
   \return No description
   */
 inline
-constexpr bool Config::isFallbackMathUsed() noexcept
+constexpr bool Config::isPrecisionMathUsed() noexcept
 {
-#if defined(ZIVC_MATH_FALLBACK) && (ZIVC_MATH_FALLBACK == 1)
+#if defined(ZIVC_MATH_PRECISION) && (ZIVC_MATH_PRECISION == 1)
   const bool flag = true;
-#else // ZIVC_MATH_FALLBACK
+#else // ZIVC_MATH_PRECISION
   const bool flag = false;
-#endif // ZIVC_MATH_FALLBACK
+#endif // ZIVC_MATH_PRECISION
   return flag;
 }
 

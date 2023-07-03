@@ -20,8 +20,8 @@ class Config
  public:
   // Math library config
 
-  //! Check if the fallback math implementation is used instead of the built-in math
-  static constexpr bool isFallbackMathUsed() noexcept;
+  //! Check if the precision math implementation is used instead of the built-in math as default
+  static constexpr bool isPrecisionMathUsed() noexcept;
 };
 
 } // namespace zivc

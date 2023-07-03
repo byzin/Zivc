@@ -46,6 +46,10 @@ class Math
   template <typename FloatN, typename AddressSpacePointer>
   static FloatN remquo(const FloatN x, const FloatN y, AddressSpacePointer quo) noexcept;
 
+  //! Compute a * b + c.
+  template <typename FloatN>
+  static FloatN mad(const FloatN a, const FloatN b, const FloatN c) noexcept;
+
   //! Returns the correctly rounded floating-point representation of the sum of c with the infinitely precise product of a and b.
   template <typename FloatN>
   static FloatN fma(const FloatN a, const FloatN b, const FloatN c) noexcept;
@@ -238,6 +242,10 @@ FloatN remainder(const FloatN x, const FloatN y) noexcept;
 //! The remquo function computes the value r such that r = x - k*y, where k is the integer nearest the exact value of x/y.
 template <typename FloatN, typename AddressSpacePointer>
 FloatN remquo(const FloatN x, const FloatN y, AddressSpacePointer quo) noexcept;
+
+//! Compute a * b + c.
+template <typename FloatN>
+FloatN mad(const FloatN a, const FloatN b, const FloatN c) noexcept;
 
 //! Returns the correctly rounded floating-point representation of the sum of c with the infinitely precise product of a and b.
 template <typename FloatN>

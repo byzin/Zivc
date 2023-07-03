@@ -108,6 +108,24 @@ FloatN Math::remquo(const FloatN x, const FloatN y, AddressSpacePointer quo) noe
   \return No description
   */
 template <typename FloatN> inline
+FloatN Math::mad(const FloatN a, const FloatN b, const FloatN c) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  return ZIVC_CL_GLOBAL_NAMESPACE::mad(a, b, c);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] a No description.
+  \param [in] b No description.
+  \param [in] c No description.
+  \return No description
+  */
+template <typename FloatN> inline
 FloatN Math::fma(const FloatN a, const FloatN b, const FloatN c) noexcept
 {
   using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
@@ -1293,6 +1311,21 @@ template <typename FloatN, typename AddressSpacePointer> inline
 FloatN remquo(const FloatN x, const FloatN y, AddressSpacePointer quo) noexcept
 {
   return Math::remquo(x, y, quo);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] a No description.
+  \param [in] b No description.
+  \param [in] c No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN mad(const FloatN a, const FloatN b, const FloatN c) noexcept
+{
+  return Math::mad(a, b, c);
 }
 
 /*!

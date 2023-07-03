@@ -336,6 +336,24 @@ ztest::V2<std::vector<float>> generateF2List()
   return v;
 }
 
+ztest::V3<std::vector<float>> generateF3List()
+{
+  ztest::V3<std::vector<float>> v{};
+  constexpr std::size_t n = 1000'000;
+  v.x_.resize(n);
+  v.y_.resize(n);
+  v.z_.resize(n);
+  std::mt19937_64 engine{123'456'789};
+  constexpr auto k = static_cast<float>(std::numeric_limits<zivc::uint16b>::max());
+  std::uniform_real_distribution<float> sampler{-k, k};
+  for (std::size_t i = 0; i < n; ++i) {
+    v.x_[i] = sampler(engine);
+    v.y_[i] = sampler(engine);
+    v.z_[i] = sampler(engine);
+  }
+  return v;
+}
+
 } /* namespace */
 
 TEST(ClCppTest, MathImplFabsV1Test)
@@ -510,6 +528,72 @@ TEST(ClCppTest, MathImplRemainderV16Test)
                               [](const float x, const float y){return std::remainder(x, y);},
                               "remainderV16TestKernel",
                               "remainderV16");
+}
+
+TEST(ClCppTest, MathImplMadV1Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_float, madV1TestKernel, 1);
+  ztest::testF3Func<1, float>(kernel_params,
+                              ::generateF3List,
+                              [](const float x, const float y, const float z){return x * y + z;},
+                              "madV1TestKernel",
+                              "madV1");
+}
+
+TEST(ClCppTest, MathImplMadV2Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_float, madV2TestKernel, 1);
+  ztest::testF3Func<2, float>(kernel_params,
+                              ::generateF3List,
+                              [](const float x, const float y, const float z){return x * y + z;},
+                              "madV2TestKernel",
+                              "madV2");
+}
+
+TEST(ClCppTest, MathImplMadV3Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_float, madV3TestKernel, 1);
+  ztest::testF3Func<3, float>(kernel_params,
+                              ::generateF3List,
+                              [](const float x, const float y, const float z){return x * y + z;},
+                              "madV3TestKernel",
+                              "madV3");
+}
+
+TEST(ClCppTest, MathImplMadV4Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_float, madV4TestKernel, 1);
+  ztest::testF3Func<4, float>(kernel_params,
+                              ::generateF3List,
+                              [](const float x, const float y, const float z){return x * y + z;},
+                              "madV4TestKernel",
+                              "madV4");
+}
+
+TEST(ClCppTest, MathImplMadV8Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_float, madV8TestKernel, 1);
+  ztest::testF3Func<8, float>(kernel_params,
+                              ::generateF3List,
+                              [](const float x, const float y, const float z){return x * y + z;},
+                              "madV8TestKernel",
+                              "madV8");
+}
+
+TEST(ClCppTest, MathImplMadV16Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_float, madV16TestKernel, 1);
+  ztest::testF3Func<16, float>(kernel_params,
+                              ::generateF3List,
+                              [](const float x, const float y, const float z){return x * y + z;},
+                              "madV16TestKernel",
+                              "madV16");
 }
 
 TEST(ClCppTest, MathImplFmaV1Test)

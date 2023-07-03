@@ -70,6 +70,10 @@ class Utility
   template <typename ArithN>
   static ArithN min(const ArithN x, const ArithN y) noexcept;
 
+  //! Returns the linear blend of x & y implemented as: x + (y - x) * a
+  template <typename FloatN>
+  static FloatN mix(const FloatN x, const FloatN y, const FloatN a) noexcept;
+
   //! Count the number of 1 bits in an integer
   template <typename IntegerN>
   static IntegerN popcount(const IntegerN x) noexcept;
@@ -156,6 +160,10 @@ ArithN max(const ArithN x, const ArithN y) noexcept;
 //! Return the smaller of the given values
 template <typename ArithN>
 ArithN min(const ArithN x, const ArithN y) noexcept;
+
+//! Returns the linear blend of x & y implemented as: x + (y - x) * a
+template <typename FloatN>
+FloatN mix(const FloatN x, const FloatN y, const FloatN a) noexcept;
 
 //! Count the number of 1 bits in an integer
 template <typename IntegerN>

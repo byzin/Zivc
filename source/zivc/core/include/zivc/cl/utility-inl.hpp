@@ -359,6 +359,23 @@ ArithN Utility::min(const ArithN x, const ArithN y) noexcept
 /*!
   \details No detailed description
 
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \param [in] a No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Utility::mix(const FloatN x, const FloatN y, const FloatN a) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveCvT<FloatN>>;
+  static_assert(kIsFloat<typename VecInfo::ElementT>, "The input x isn't floating point type.");
+  return ZIVC_CL_GLOBAL_NAMESPACE::mix(x, y, a);
+}
+
+/*!
+  \details No detailed description
+
   \tparam IntegerN No description.
   \param [in] x No description.
   \return No description
@@ -629,6 +646,21 @@ template <typename ArithN> inline
 ArithN min(const ArithN x, const ArithN y) noexcept
 {
   return Utility::min(x, y);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \param [in] a No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN mix(const FloatN x, const FloatN y, const FloatN a) noexcept
+{
+  return Utility::mix(x, y, a);
 }
 
 /*!

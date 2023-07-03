@@ -1096,6 +1096,95 @@ __kernel void utilityMaxMinFloatTest(zivc::GlobalPtr<float> inout_i1,
   }
 }
 
+__kernel void utilityMixFloatTest(zivc::GlobalPtr<float> inout_i1,
+                                  zivc::GlobalPtr<float2> inout_i2,
+                                  zivc::GlobalPtr<float3> inout_i3,
+                                  zivc::GlobalPtr<float4> inout_i4,
+                                  zivc::GlobalPtr<float8> inout_i8,
+                                  zivc::GlobalPtr<float16> inout_i16)
+{
+  const size_t index = zivc::getGlobalIdX();
+  if (index != 0)
+    return;
+
+  // mix
+  {
+    const float x = 10.0f;
+    const float y = 100.0f;
+    // mix v1
+    {
+      const float t = inout_i1[0];
+      const float z = zivc::mix(x, y, t);
+      inout_i1[0] = z;
+    }
+    {
+      const float t = inout_i1[1];
+      const float z = zivc::mix(x, y, t);
+      inout_i1[1] = z;
+    }
+    {
+      const float t = inout_i1[2];
+      const float z = zivc::mix(x, y, t);
+      inout_i1[2] = z;
+    }
+  }
+  {
+    // mix v2
+    const float2 x = zivc::makeFloat2(10.0f);
+    const float2 y = zivc::makeFloat2(100.0f);
+    {
+      const float2 t = inout_i2[0];
+      const float2 z = zivc::mix(x, y, t);
+      inout_i2[0] = z;
+    }
+    {
+      const float2 t = inout_i2[1];
+      const float2 z = zivc::mix(x, y, t);
+      inout_i2[1] = z;
+    }
+  }
+  {
+    // mix v3
+    const float3 x = zivc::makeFloat3(10.0f);
+    const float3 y = zivc::makeFloat3(100.0f);
+    {
+      const float3 t = inout_i3[0];
+      const float3 z = zivc::mix(x, y, t);
+      inout_i3[0] = z;
+    }
+  }
+  {
+    // mix v4
+    const float4 x = zivc::makeFloat4(10.0f);
+    const float4 y = zivc::makeFloat4(100.0f);
+    {
+      const float4 t = inout_i4[0];
+      const float4 z = zivc::mix(x, y, t);
+      inout_i4[0] = z;
+    }
+  }
+  {
+    // mix v8
+    const float8 x = zivc::makeFloat8(10.0f);
+    const float8 y = zivc::makeFloat8(100.0f);
+    {
+      const float8 t = inout_i8[0];
+      const float8 z = zivc::mix(x, y, t);
+      inout_i8[0] = z;
+    }
+  }
+  {
+    // mix v16
+    const float16 x = zivc::makeFloat16(10.0f);
+    const float16 y = zivc::makeFloat16(100.0f);
+    {
+      const float16 t = inout_i16[0];
+      const float16 z = zivc::mix(x, y, t);
+      inout_i16[0] = z;
+    }
+  }
+}
+
 __kernel void utilityDegreesRadiansFloatTest(zivc::GlobalPtr<float> inout_i1,
                                              zivc::GlobalPtr<float2> inout_i2,
                                              zivc::GlobalPtr<float3> inout_i3,

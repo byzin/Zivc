@@ -13,6 +13,7 @@
   */
 
 // Standard C++ library
+#include <cmath>
 #include <initializer_list>
 #include <limits>
 #include <span>
@@ -2337,6 +2338,163 @@ TEST(ClCppTest, UtilityMaxMinFloatTest)
     EXPECT_FLOAT_EQ(0.0f, mem[0].sd) << "The maxmin for float16 failed.";
     EXPECT_FLOAT_EQ(10.0f, mem[0].se) << "The maxmin for float16 failed.";
     EXPECT_FLOAT_EQ(0.0f, mem[0].sf) << "The maxmin for float16 failed.";
+  }
+}
+
+TEST(ClCppTest, UtilityMixFloatTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_int;
+  using zivc::cl_int2;
+  using zivc::cl_int3;
+  using zivc::cl_int4;
+  using zivc::cl_int8;
+  using zivc::cl_int16;
+  using zivc::cl_uint;
+  using zivc::cl_uint2;
+  using zivc::cl_uint3;
+  using zivc::cl_uint4;
+  using zivc::cl_uint8;
+  using zivc::cl_uint16;
+  using zivc::cl_float;
+  using zivc::cl_float2;
+  using zivc::cl_float3;
+  using zivc::cl_float4;
+  using zivc::cl_float8;
+  using zivc::cl_float16;
+
+  const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_float>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  {
+    const std::initializer_list<cl_float> v = {0.25f, 0.5f, 1.0f};
+    ztest::setDeviceBuffer(*device, v, buffer_out1.get());
+  }
+  const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_float2>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  {
+    const std::initializer_list<cl_float2> v = {cl_float2{0.0f, 0.25f},
+                                                cl_float2{0.5f, 1.0f}};
+    ztest::setDeviceBuffer(*device, v, buffer_out2.get());
+  }
+  const zivc::SharedBuffer buffer_out3 = device->createBuffer<cl_float3>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  {
+    const std::initializer_list<cl_float3> v = {cl_float3{0.25f, 0.5f, 1.0f}};
+    ztest::setDeviceBuffer(*device, v, buffer_out3.get());
+  }
+  const zivc::SharedBuffer buffer_out4 = device->createBuffer<cl_float4>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  {
+    const std::initializer_list<cl_float4> v = {cl_float4{0.0f, 0.25f, 0.5f, 1.0f}};
+    ztest::setDeviceBuffer(*device, v, buffer_out4.get());
+  }
+  const zivc::SharedBuffer buffer_out8 = device->createBuffer<cl_float8>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  {
+    const std::initializer_list<cl_float8> v = {
+        cl_float8{0.0f, 0.25f, 0.5f, 1.0f, 0.0f, 0.25f, 0.5f, 1.0f}};
+    ztest::setDeviceBuffer(*device, v, buffer_out8.get());
+  }
+  const zivc::SharedBuffer buffer_out16 = device->createBuffer<cl_float16>({zivc::BufferUsage::kPreferDevice, zivc::BufferFlag::kRandomAccessible});
+  {
+    const std::initializer_list<cl_float16> v = {
+        cl_float16{0.0f, 0.25f, 0.5f, 1.0f, 0.0f, 0.25f, 0.5f, 1.0f,
+                   0.0f, 0.25f, 0.5f, 1.0f, 0.0f, 0.25f, 0.5f, 1.0f}};
+    ztest::setDeviceBuffer(*device, v, buffer_out16.get());
+  }
+
+  device->waitForCompletion();
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test1, utilityMixFloatTest, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(6, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{1}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("UtilityMixFloatUintTest");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(6, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(1, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_out1, *buffer_out2, *buffer_out3,
+                                          *buffer_out4, *buffer_out8, *buffer_out16,
+                                          launch_options);
+  device->waitForCompletion(result.fence());
+
+  constexpr float x = 10.0f;
+  constexpr float y = 100.0f;
+
+  const float e0 = std::lerp(x, y, 0.0f);
+  const float e1 = std::lerp(x, y, 0.25f);
+  const float e2 = std::lerp(x, y, 0.5f);
+  const float e3 = std::lerp(x, y, 1.0f);
+
+  // output
+  {
+    const zivc::MappedMemory mem = buffer_out1->mapMemory();
+    EXPECT_FLOAT_EQ(e1, mem[0]) << "The clamp for float failed.";
+    EXPECT_FLOAT_EQ(e2, mem[1]) << "The clamp for float failed.";
+    EXPECT_FLOAT_EQ(e3, mem[2]) << "The clamp for float failed.";
+  }
+  // output2
+  {
+    const zivc::MappedMemory mem = buffer_out2->mapMemory();
+    EXPECT_FLOAT_EQ(e0, mem[0].x) << "The clamp for float2 failed.";
+    EXPECT_FLOAT_EQ(e1, mem[0].y) << "The clamp for float2 failed.";
+    EXPECT_FLOAT_EQ(e2, mem[1].x) << "The clamp for float2 failed.";
+    EXPECT_FLOAT_EQ(e3, mem[1].y) << "The clamp for float2 failed.";
+  }
+  // output3
+  {
+    const zivc::MappedMemory mem = buffer_out3->mapMemory();
+    EXPECT_FLOAT_EQ(e1, mem[0].x) << "The clamp for float3 failed.";
+    EXPECT_FLOAT_EQ(e2, mem[0].y) << "The clamp for float3 failed.";
+    EXPECT_FLOAT_EQ(e3, mem[0].z) << "The clamp for float3 failed.";
+  }
+  // output4
+  {
+    const zivc::MappedMemory mem = buffer_out4->mapMemory();
+    EXPECT_FLOAT_EQ(e0, mem[0].x) << "The clamp for float4 failed.";
+    EXPECT_FLOAT_EQ(e1, mem[0].y) << "The clamp for float4 failed.";
+    EXPECT_FLOAT_EQ(e2, mem[0].z) << "The clamp for float4 failed.";
+    EXPECT_FLOAT_EQ(e3, mem[0].w) << "The clamp for float4 failed.";
+  }
+  // output8
+  {
+    const zivc::MappedMemory mem = buffer_out8->mapMemory();
+    EXPECT_FLOAT_EQ(e0, mem[0].s0) << "The clamp for float8 failed.";
+    EXPECT_FLOAT_EQ(e1, mem[0].s1) << "The clamp for float8 failed.";
+    EXPECT_FLOAT_EQ(e2, mem[0].s2) << "The clamp for float8 failed.";
+    EXPECT_FLOAT_EQ(e3, mem[0].s3) << "The clamp for float8 failed.";
+    EXPECT_FLOAT_EQ(e0, mem[0].s4) << "The clamp for float8 failed.";
+    EXPECT_FLOAT_EQ(e1, mem[0].s5) << "The clamp for float8 failed.";
+    EXPECT_FLOAT_EQ(e2, mem[0].s6) << "The clamp for float8 failed.";
+    EXPECT_FLOAT_EQ(e3, mem[0].s7) << "The clamp for float8 failed.";
+  }
+  // output16
+  {
+    const zivc::MappedMemory mem = buffer_out16->mapMemory();
+    EXPECT_FLOAT_EQ(e0, mem[0].s0) << "The clamp for float16 failed.";
+    EXPECT_FLOAT_EQ(e1, mem[0].s1) << "The clamp for float16 failed.";
+    EXPECT_FLOAT_EQ(e2, mem[0].s2) << "The clamp for float16 failed.";
+    EXPECT_FLOAT_EQ(e3, mem[0].s3) << "The clamp for float16 failed.";
+    EXPECT_FLOAT_EQ(e0, mem[0].s4) << "The clamp for float16 failed.";
+    EXPECT_FLOAT_EQ(e1, mem[0].s5) << "The clamp for float16 failed.";
+    EXPECT_FLOAT_EQ(e2, mem[0].s6) << "The clamp for float16 failed.";
+    EXPECT_FLOAT_EQ(e3, mem[0].s7) << "The clamp for float16 failed.";
+    EXPECT_FLOAT_EQ(e0, mem[0].s8) << "The clamp for float16 failed.";
+    EXPECT_FLOAT_EQ(e1, mem[0].s9) << "The clamp for float16 failed.";
+    EXPECT_FLOAT_EQ(e2, mem[0].sa) << "The clamp for float16 failed.";
+    EXPECT_FLOAT_EQ(e3, mem[0].sb) << "The clamp for float16 failed.";
+    EXPECT_FLOAT_EQ(e0, mem[0].sc) << "The clamp for float16 failed.";
+    EXPECT_FLOAT_EQ(e1, mem[0].sd) << "The clamp for float16 failed.";
+    EXPECT_FLOAT_EQ(e2, mem[0].se) << "The clamp for float16 failed.";
+    EXPECT_FLOAT_EQ(e3, mem[0].sf) << "The clamp for float16 failed.";
   }
 }
 

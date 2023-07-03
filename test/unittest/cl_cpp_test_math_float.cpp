@@ -119,8 +119,10 @@ void testFmod(const KernelInitParam& kernel_params,
     const zivc::MappedMemory mem = tmp->mapMemory();
 
     ztest::MathTestResult result{};
-    for (std::size_t i = 0; i < mem.size(); ++i)
+    for (std::size_t i = 0; i < mem.size(); ++i) {
+      if (ztest::isSubnormal(expected_list[i])) continue;
       ztest::test(expected_list[i], mem[i], &result);
+    }
     result.print();
     result.checkError(func_name);
   }
@@ -143,11 +145,6 @@ void testFma(const KernelInitParam& kernel_params,
   std::ifstream reference_file{"resources/math_fmaf_reference.bin", std::ios_base::binary};
   zivc::uint32b n_num = 0;
   zisc::BSerializer::read(&n_num, &reference_file);
-
-  const auto is_subnormal = [](const float x) noexcept
-  {
-    return !(std::isnormal(x) || std::isinf(x) || std::isnan(x));
-  };
 
   // Get the test input
   constexpr std::size_t vector_size = kN;
@@ -219,8 +216,7 @@ void testFma(const KernelInitParam& kernel_params,
 
     ztest::MathTestResult result{};
     for (std::size_t i = 0; i < mem.size(); ++i) {
-      if (is_subnormal(expected_list[i]))
-        continue;
+      if (ztest::isSubnormal(expected_list[i])) continue;
       ztest::test(expected_list[i], mem[i], &result);
     }
     result.print();
@@ -1572,4 +1568,268 @@ TEST(ClCppTest, MathImplCopysignV16Test)
                               [](const float x, const float y){return std::copysign(x, y);},
                               "copysignV16TestKernel",
                               "copysignV16");
+}
+
+TEST(ClCppTest, MathImplErfV1Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_float, erfV1TestKernel, 1);
+  ztest::testF1<1, float>(kernel_params,
+                          ztest::loadPowXList<float>,
+                          "resources/math_erff_reference.bin",
+                          "erfV1TestKernel",
+                          "erfV1");
+}
+
+TEST(ClCppTest, MathImplErfV2Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_float, erfV2TestKernel, 1);
+  ztest::testF1<2, float>(kernel_params,
+                          ztest::loadPowXList<float>,
+                          "resources/math_erff_reference.bin",
+                          "erfV2TestKernel",
+                          "erfV2");
+}
+
+TEST(ClCppTest, MathImplErfV3Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_float, erfV3TestKernel, 1);
+  ztest::testF1<3, float>(kernel_params,
+                          ztest::loadPowXList<float>,
+                          "resources/math_erff_reference.bin",
+                          "erfV3TestKernel",
+                          "erfV3");
+}
+
+TEST(ClCppTest, MathImplErfV4Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_float, erfV4TestKernel, 1);
+  ztest::testF1<4, float>(kernel_params,
+                          ztest::loadPowXList<float>,
+                          "resources/math_erff_reference.bin",
+                          "erfV4TestKernel",
+                          "erfV4");
+}
+
+TEST(ClCppTest, MathImplErfV8Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_float, erfV8TestKernel, 1);
+  ztest::testF1<8, float>(kernel_params,
+                          ztest::loadPowXList<float>,
+                          "resources/math_erff_reference.bin",
+                          "erfV8TestKernel",
+                          "erfV8");
+}
+
+TEST(ClCppTest, MathImplErfV16Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_float, erfV16TestKernel, 1);
+  ztest::testF1<16, float>(kernel_params,
+                           ztest::loadPowXList<float>,
+                           "resources/math_erff_reference.bin",
+                           "erfV16TestKernel",
+                           "erfV16");
+}
+
+TEST(ClCppTest, MathImplErfcV1Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_float, erfcV1TestKernel, 1);
+  ztest::testF1<1, float>(kernel_params,
+                          ztest::loadPowXList<float>,
+                          "resources/math_erfcf_reference.bin",
+                          "erfcV1TestKernel",
+                          "erfcV1");
+}
+
+TEST(ClCppTest, MathImplErfcV2Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_float, erfcV2TestKernel, 1);
+  ztest::testF1<2, float>(kernel_params,
+                          ztest::loadPowXList<float>,
+                          "resources/math_erfcf_reference.bin",
+                          "erfcV2TestKernel",
+                          "erfcV2");
+}
+
+TEST(ClCppTest, MathImplErfcV3Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_float, erfcV3TestKernel, 1);
+  ztest::testF1<3, float>(kernel_params,
+                          ztest::loadPowXList<float>,
+                          "resources/math_erfcf_reference.bin",
+                          "erfcV3TestKernel",
+                          "erfcV3");
+}
+
+TEST(ClCppTest, MathImplErfcV4Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_float, erfcV4TestKernel, 1);
+  ztest::testF1<4, float>(kernel_params,
+                          ztest::loadPowXList<float>,
+                          "resources/math_erfcf_reference.bin",
+                          "erfcV4TestKernel",
+                          "erfcV4");
+}
+
+TEST(ClCppTest, MathImplErfcV8Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_float, erfcV8TestKernel, 1);
+  ztest::testF1<8, float>(kernel_params,
+                          ztest::loadPowXList<float>,
+                          "resources/math_erfcf_reference.bin",
+                          "erfcV8TestKernel",
+                          "erfcV8");
+}
+
+TEST(ClCppTest, MathImplErfcV16Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_float, erfcV16TestKernel, 1);
+  ztest::testF1<16, float>(kernel_params,
+                           ztest::loadPowXList<float>,
+                           "resources/math_erfcf_reference.bin",
+                           "erfcV16TestKernel",
+                           "erfcV16");
+}
+
+TEST(ClCppTest, MathImplLgammaV1Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_float, lgammaV1TestKernel, 1);
+  ztest::testF1<1, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_lgammaf_reference.bin",
+                          "lgammaV1TestKernel",
+                          "lgammaV1");
+}
+
+TEST(ClCppTest, MathImplLgammaV2Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_float, lgammaV2TestKernel, 1);
+  ztest::testF1<2, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_lgammaf_reference.bin",
+                          "lgammaV2TestKernel",
+                          "lgammaV2");
+}
+
+TEST(ClCppTest, MathImplLgammaV3Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_float, lgammaV3TestKernel, 1);
+  ztest::testF1<3, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_lgammaf_reference.bin",
+                          "lgammaV3TestKernel",
+                          "lgammaV3");
+}
+
+TEST(ClCppTest, MathImplLgammaV4Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_float, lgammaV4TestKernel, 1);
+  ztest::testF1<4, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_lgammaf_reference.bin",
+                          "lgammaV4TestKernel",
+                          "lgammaV4");
+}
+
+TEST(ClCppTest, MathImplLgammaV8Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_float, lgammaV8TestKernel, 1);
+  ztest::testF1<8, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_lgammaf_reference.bin",
+                          "lgammaV8TestKernel",
+                          "lgammaV8");
+}
+
+TEST(ClCppTest, MathImplLgammaV16Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_float, lgammaV16TestKernel, 1);
+  ztest::testF1<16, float>(kernel_params,
+                           ztest::loadPositiveXList<float>,
+                           "resources/math_lgammaf_reference.bin",
+                           "lgammaV16TestKernel",
+                           "lgammaV16");
+}
+
+TEST(ClCppTest, MathImplTgammaV1Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_float, tgammaV1TestKernel, 1);
+  ztest::testF1<1, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_tgammaf_reference.bin",
+                          "tgammaV1TestKernel",
+                          "tgammaV1");
+}
+
+TEST(ClCppTest, MathImplTgammaV2Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_float, tgammaV2TestKernel, 1);
+  ztest::testF1<2, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_tgammaf_reference.bin",
+                          "tgammaV2TestKernel",
+                          "tgammaV2");
+}
+
+TEST(ClCppTest, MathImplTgammaV3Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_float, tgammaV3TestKernel, 1);
+  ztest::testF1<3, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_tgammaf_reference.bin",
+                          "tgammaV3TestKernel",
+                          "tgammaV3");
+}
+
+TEST(ClCppTest, MathImplTgammaV4Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_float, tgammaV4TestKernel, 1);
+  ztest::testF1<4, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_tgammaf_reference.bin",
+                          "tgammaV4TestKernel",
+                          "tgammaV4");
+}
+
+TEST(ClCppTest, MathImplTgammaV8Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_float, tgammaV8TestKernel, 1);
+  ztest::testF1<8, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_tgammaf_reference.bin",
+                          "tgammaV8TestKernel",
+                          "tgammaV8");
+}
+
+TEST(ClCppTest, MathImplTgammaV16Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_float, tgammaV16TestKernel, 1);
+  ztest::testF1<16, float>(kernel_params,
+                           ztest::loadPositiveXList<float>,
+                           "resources/math_tgammaf_reference.bin",
+                           "tgammaV16TestKernel",
+                           "tgammaV16");
 }

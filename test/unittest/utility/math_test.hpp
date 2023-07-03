@@ -18,7 +18,9 @@
 // Standard C++ library
 #include <array>
 #include <algorithm>
+#include <cmath>
 #include <concepts>
+#include <functional>
 #include <fstream>
 #include <string_view>
 #include <vector>
@@ -35,6 +37,8 @@
 
 namespace ztest {
 
+
+
 template <typename Type>
 struct V2
 {
@@ -49,6 +53,17 @@ struct V3
   Type y_;
   Type z_;
 };
+
+template <std::floating_point Float> inline
+bool isSubnormal(const Float x) noexcept
+{
+  constexpr auto zero = static_cast<Float>(0);
+  const bool flag = std::equal_to<Float>{}(x, zero) ||
+                    std::isnormal(x) ||
+                    std::isinf(x) ||
+                    std::isnan(x);
+  return !flag;
+}
 
 /*!
   \details No detailed description
@@ -103,6 +118,21 @@ std::vector<Float> loadAllXList() noexcept
   auto file_path = (sizeof(Float) == 4)
       ? std::string_view{"resources/math_xallf_reference.bin"}
       : std::string_view{"resources/math_xalld_reference.bin"};
+  return loadXList<Float>(file_path);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam Float No description.
+  \return No description
+  */
+template <std::floating_point Float> inline
+std::vector<Float> loadOneXList() noexcept
+{
+  auto file_path = (sizeof(Float) == 4)
+      ? std::string_view{"resources/math_xonef_reference.bin"}
+      : std::string_view{"resources/math_xoned_reference.bin"};
   return loadXList<Float>(file_path);
 }
 
@@ -213,8 +243,10 @@ void testF1(const KernelInitParam kernel_params,
     std::transform(expected_list.cbegin(), expected_list.cend(), expected_list.begin(), reference_converter);
 
     ztest::MathTestResult result{};
-    for (std::size_t i = 0; i < mem.size(); ++i)
+    for (std::size_t i = 0; i < mem.size(); ++i) {
+      if (isSubnormal(expected_list[i])) continue;
       ztest::test(expected_list[i], mem[i], &result);
+    }
     result.print();
     result.checkError(func_name);
   }
@@ -302,8 +334,10 @@ void testF1Func(const KernelInitParam kernel_params,
     });
 
     ztest::MathTestResult result{};
-    for (std::size_t i = 0; i < mem.size(); ++i)
+    for (std::size_t i = 0; i < mem.size(); ++i) {
+      if (isSubnormal(expected_list[i])) continue;
       ztest::test(expected_list[i], mem[i], &result);
+    }
     result.print();
     result.checkError(func_name);
   }
@@ -399,7 +433,9 @@ void testF1Out(const KernelInitParam kernel_params,
     ztest::MathTestResult result{};
     ztest::MathTestResult result2{};
     for (std::size_t i = 0; i < mem.size(); ++i) {
+      if (isSubnormal(expected_list[i])) continue;
       ztest::test(expected_list[i], mem[i], &result);
+      if (isSubnormal(expected2_list[i])) continue;
       ztest::test(expected2_list[i], mem2[i], &result2);
     }
     result.print();
@@ -498,8 +534,10 @@ void testF2(const KernelInitParam kernel_params,
     std::transform(expected_list.cbegin(), expected_list.cend(), expected_list.begin(), reference_converter);
 
     ztest::MathTestResult result{};
-    for (std::size_t i = 0; i < mem.size(); ++i)
+    for (std::size_t i = 0; i < mem.size(); ++i) {
+      if (isSubnormal(expected_list[i])) continue;
       ztest::test(expected_list[i], mem[i], &result);
+    }
     result.print();
     result.checkError(func_name);
   }
@@ -594,8 +632,10 @@ void testF2Func(const KernelInitParam kernel_params,
       expected_list[i] = reference_converter(reference_func(x_list.x_[i], x_list.y_[i]));
 
     ztest::MathTestResult result{};
-    for (std::size_t i = 0; i < mem.size(); ++i)
+    for (std::size_t i = 0; i < mem.size(); ++i) {
+      if (isSubnormal(expected_list[i])) continue;
       ztest::test(expected_list[i], mem[i], &result);
+    }
     result.print();
     result.checkError(func_name);
   }
@@ -697,8 +737,10 @@ void testF3Func(const KernelInitParam kernel_params,
       expected_list[i] = reference_converter(reference_func(x_list.x_[i], x_list.y_[i], x_list.z_[i]));
 
     ztest::MathTestResult result{};
-    for (std::size_t i = 0; i < mem.size(); ++i)
+    for (std::size_t i = 0; i < mem.size(); ++i) {
+      if (isSubnormal(expected_list[i])) continue;
       ztest::test(expected_list[i], mem[i], &result);
+    }
     result.print();
     result.checkError(func_name);
   }

@@ -224,6 +224,118 @@ FloatN Math::fdim(const FloatN x, const FloatN y) noexcept
 
   \tparam FloatN No description.
   \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::exp(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  return Impl::exp(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::exp2(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  return Impl::exp2(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::expm1(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  return Impl::expm1(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::log(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  return Impl::log(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::log2(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  return Impl::log2(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::log10(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  return Impl::log10(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::log1p(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  return Impl::log1p(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
   \param [in] y No description.
   \return No description
   */
@@ -304,6 +416,296 @@ FloatN Math::cbrt(const FloatN x) noexcept
   using ElementT = typename VecInfo::ElementT;
   static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
   return Impl::cbrt(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::hypot(const FloatN x, const FloatN y) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  return Impl::hypot(x, y);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::sin(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  return Impl::sin(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::cos(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  return Impl::cos(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::tan(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  return Impl::tan(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::asin(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  return Impl::asin(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::acos(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  return Impl::acos(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::atan(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  return Impl::atan(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] y No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::atan2(const FloatN y, const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  return Impl::atan2(y, x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::sinh(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  return Impl::sinh(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::cosh(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  return Impl::cosh(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::tanh(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  return Impl::tanh(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::asinh(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  return Impl::asinh(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::acosh(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  return Impl::acosh(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::atanh(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  return Impl::atanh(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::erf(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  return Impl::erf(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::erfc(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  return Impl::erfc(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::lgamma(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  return Impl::lgamma(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::tgamma(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  return Impl::tgamma(x);
 }
 
 /*!
@@ -537,6 +939,124 @@ FloatN Math::copysign(const FloatN x, const FloatN y) noexcept
   return ZIVC_CL_GLOBAL_NAMESPACE::copysign(x, y);
 }
 
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Native::exp(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  const FloatN y = ZIVC_CL_GLOBAL_NAMESPACE::exp(x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Native::exp2(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  const FloatN y = ZIVC_CL_GLOBAL_NAMESPACE::exp2(x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Native::expm1(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  const FloatN y = ZIVC_CL_GLOBAL_NAMESPACE::expm1(x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Native::log(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  const FloatN y = ZIVC_CL_GLOBAL_NAMESPACE::log(x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Native::log2(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  const FloatN y = ZIVC_CL_GLOBAL_NAMESPACE::log2(x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Native::log10(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  const FloatN y = ZIVC_CL_GLOBAL_NAMESPACE::log10(x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Native::log1p(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  const FloatN y = ZIVC_CL_GLOBAL_NAMESPACE::log1p(x);
+  return y;
+}
 
 /*!
   \details No detailed description
@@ -639,6 +1159,432 @@ FloatN Math::Native::cbrt(const FloatN x) noexcept
   \return No description
   */
 template <typename FloatN> inline
+FloatN Math::Native::hypot(const FloatN x, const FloatN y) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  const FloatN z = ZIVC_CL_GLOBAL_NAMESPACE::hypot(x, y);
+  return z;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Native::sin(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  const FloatN y = ZIVC_CL_GLOBAL_NAMESPACE::sin(x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Native::cos(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  const FloatN y = ZIVC_CL_GLOBAL_NAMESPACE::cos(x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Native::tan(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  const FloatN y = ZIVC_CL_GLOBAL_NAMESPACE::tan(x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Native::asin(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  const FloatN y = ZIVC_CL_GLOBAL_NAMESPACE::asin(x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Native::acos(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  const FloatN y = ZIVC_CL_GLOBAL_NAMESPACE::acos(x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Native::atan(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  const FloatN y = ZIVC_CL_GLOBAL_NAMESPACE::atan(x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] y No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Native::atan2(const FloatN y, const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  const FloatN z = ZIVC_CL_GLOBAL_NAMESPACE::atan2(y, x);
+  return z;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Native::sinh(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  const FloatN y = ZIVC_CL_GLOBAL_NAMESPACE::sinh(x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Native::cosh(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  const FloatN y = ZIVC_CL_GLOBAL_NAMESPACE::cosh(x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Native::tanh(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  const FloatN y = ZIVC_CL_GLOBAL_NAMESPACE::tanh(x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Native::asinh(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  const FloatN y = ZIVC_CL_GLOBAL_NAMESPACE::asinh(x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Native::acosh(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  const FloatN y = ZIVC_CL_GLOBAL_NAMESPACE::acosh(x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Native::atanh(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  const FloatN y = ZIVC_CL_GLOBAL_NAMESPACE::atanh(x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Native::erf(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  const FloatN y = ZIVC_CL_GLOBAL_NAMESPACE::erf(x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Native::erfc(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  const FloatN y = ZIVC_CL_GLOBAL_NAMESPACE::erfc(x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Native::lgamma(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  const FloatN y = ZIVC_CL_GLOBAL_NAMESPACE::lgamma(x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Native::tgamma(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  const FloatN y = ZIVC_CL_GLOBAL_NAMESPACE::tgamma(x);
+  return y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Precision::exp(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  //return ZIVC_CL_GLOBAL_NAMESPACE::exp(x);
+  return x;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Precision::exp2(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  //return ZIVC_CL_GLOBAL_NAMESPACE::exp2(x);
+  return x;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Precision::expm1(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  //return ZIVC_CL_GLOBAL_NAMESPACE::expm1(x);
+  return x;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Precision::log(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  //return ZIVC_CL_GLOBAL_NAMESPACE::log(x);
+  return x;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Precision::log2(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  //return ZIVC_CL_GLOBAL_NAMESPACE::log2(x);
+  return x;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Precision::log10(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  //return ZIVC_CL_GLOBAL_NAMESPACE::log10(x);
+  return x;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Precision::log1p(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  //return ZIVC_CL_GLOBAL_NAMESPACE::log1p(x);
+  return x;
+}
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <typename FloatN> inline
 FloatN Math::Precision::pow(const FloatN x, const FloatN y) noexcept
 {
   using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
@@ -715,6 +1661,314 @@ FloatN Math::Precision::cbrt(const FloatN x) noexcept
   using ElementT = typename VecInfo::ElementT;
   static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
   return Impl<ElementT>::cbrt(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Precision::hypot(const FloatN x, const FloatN y) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  const FloatN z = x + y;//ZIVC_CL_GLOBAL_NAMESPACE::hypot(x, y);
+  return z;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Precision::sin(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  //return ZIVC_CL_GLOBAL_NAMESPACE::sin(x);
+  return x;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Precision::cos(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  //return ZIVC_CL_GLOBAL_NAMESPACE::cos(x);
+  return x;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Precision::tan(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  //return ZIVC_CL_GLOBAL_NAMESPACE::tan(x);
+  return x;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Precision::asin(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  //return ZIVC_CL_GLOBAL_NAMESPACE::asin(x);
+  return x;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Precision::acos(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  //return ZIVC_CL_GLOBAL_NAMESPACE::acos(x);
+  return x;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Precision::atan(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  //return ZIVC_CL_GLOBAL_NAMESPACE::atan(x);
+  return x;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] y No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Precision::atan2(const FloatN y, const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  //return ZIVC_CL_GLOBAL_NAMESPACE::atan2(y, x);
+  return x + y;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Precision::sinh(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  //return ZIVC_CL_GLOBAL_NAMESPACE::sinh(x);
+  return x;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Precision::cosh(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  //return ZIVC_CL_GLOBAL_NAMESPACE::cosh(x);
+  return x;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Precision::tanh(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  //return ZIVC_CL_GLOBAL_NAMESPACE::tanh(x);
+  return x;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Precision::asinh(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  //return ZIVC_CL_GLOBAL_NAMESPACE::asinh(x);
+  return x;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Precision::acosh(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  //return ZIVC_CL_GLOBAL_NAMESPACE::acosh(x);
+  return x;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Precision::atanh(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  //return ZIVC_CL_GLOBAL_NAMESPACE::atanh(x);
+  return x;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Precision::erf(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  //return ZIVC_CL_GLOBAL_NAMESPACE::erf(x);
+  return x;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Precision::erfc(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  //return ZIVC_CL_GLOBAL_NAMESPACE::erfc(x);
+  return x;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Precision::lgamma(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  //return ZIVC_CL_GLOBAL_NAMESPACE::lgamma(x);
+  return x;
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN Math::Precision::tgamma(const FloatN x) noexcept
+{
+  using VecInfo = VectorTypeInfo<RemoveVolatileT<FloatN>>;
+  using ElementT = typename VecInfo::ElementT;
+  static_assert(kIsFloat<ElementT>, "The FloatN isn't floating point.");
+  //return ZIVC_CL_GLOBAL_NAMESPACE::tgamma(x);
+  return x;
 }
 
 /*!
@@ -1418,6 +2672,97 @@ FloatN fdim(const FloatN x, const FloatN y) noexcept
 
   \tparam FloatN No description.
   \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN exp(const FloatN x) noexcept
+{
+  return Math::exp(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN exp2(const FloatN x) noexcept
+{
+  return Math::exp2(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN expm1(const FloatN x) noexcept
+{
+  return Math::expm1(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN log(const FloatN x) noexcept
+{
+  return Math::log(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN log2(const FloatN x) noexcept
+{
+  return Math::log2(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN log10(const FloatN x) noexcept
+{
+  return Math::log10(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN log1p(const FloatN x) noexcept
+{
+  return Math::log1p(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
   \param [in] y No description.
   \return No description
   */
@@ -1479,6 +2824,242 @@ template <typename FloatN> inline
 FloatN cbrt(const FloatN x) noexcept
 {
   return Math::cbrt(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN hypot(const FloatN x, const FloatN y) noexcept
+{
+  return Math::hypot(x, y);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN sin(const FloatN x) noexcept
+{
+  return Math::sin(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN cos(const FloatN x) noexcept
+{
+  return Math::cos(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN tan(const FloatN x) noexcept
+{
+  return Math::tan(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN asin(const FloatN x) noexcept
+{
+  return Math::asin(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN acos(const FloatN x) noexcept
+{
+  return Math::acos(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN atan(const FloatN x) noexcept
+{
+  return Math::atan(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] y No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN atan2(const FloatN y, const FloatN x) noexcept
+{
+  return Math::atan2(y, x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN sinh(const FloatN x) noexcept
+{
+  return Math::sinh(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN cosh(const FloatN x) noexcept
+{
+  return Math::cosh(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN tanh(const FloatN x) noexcept
+{
+  return Math::tanh(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN asinh(const FloatN x) noexcept
+{
+  return Math::asinh(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN acosh(const FloatN x) noexcept
+{
+  return Math::acosh(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN atanh(const FloatN x) noexcept
+{
+  return Math::atanh(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN erf(const FloatN x) noexcept
+{
+  return Math::erf(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN erfc(const FloatN x) noexcept
+{
+  return Math::erfc(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN lgamma(const FloatN x) noexcept
+{
+  return Math::lgamma(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN tgamma(const FloatN x) noexcept
+{
+  return Math::tgamma(x);
 }
 
 /*!
@@ -1667,6 +3248,97 @@ namespace native {
 
   \tparam FloatN No description.
   \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN exp(const FloatN x) noexcept
+{
+  return Math::Native::exp(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN exp2(const FloatN x) noexcept
+{
+  return Math::Native::exp2(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN expm1(const FloatN x) noexcept
+{
+  return Math::Native::expm1(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN log(const FloatN x) noexcept
+{
+  return Math::Native::log(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN log2(const FloatN x) noexcept
+{
+  return Math::Native::log2(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN log10(const FloatN x) noexcept
+{
+  return Math::Native::log10(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN log1p(const FloatN x) noexcept
+{
+  return Math::Native::log1p(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
   \param [in] y No description.
   \return No description
   */
@@ -1730,9 +3402,336 @@ FloatN cbrt(const FloatN x) noexcept
   return Math::Native::cbrt(x);
 }
 
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN hypot(const FloatN x, const FloatN y) noexcept
+{
+  return Math::Native::hypot(x, y);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN sin(const FloatN x) noexcept
+{
+  return Math::Native::sin(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN cos(const FloatN x) noexcept
+{
+  return Math::Native::cos(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN tan(const FloatN x) noexcept
+{
+  return Math::Native::tan(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN asin(const FloatN x) noexcept
+{
+  return Math::Native::asin(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN acos(const FloatN x) noexcept
+{
+  return Math::Native::acos(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN atan(const FloatN x) noexcept
+{
+  return Math::Native::atan(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] y No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN atan2(const FloatN y, const FloatN x) noexcept
+{
+  return Math::Native::atan2(y, x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN sinh(const FloatN x) noexcept
+{
+  return Math::Native::sinh(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN cosh(const FloatN x) noexcept
+{
+  return Math::Native::cosh(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN tanh(const FloatN x) noexcept
+{
+  return Math::Native::tanh(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN asinh(const FloatN x) noexcept
+{
+  return Math::Native::asinh(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN acosh(const FloatN x) noexcept
+{
+  return Math::Native::acosh(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN atanh(const FloatN x) noexcept
+{
+  return Math::Native::atanh(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN erf(const FloatN x) noexcept
+{
+  return Math::Native::erf(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN erfc(const FloatN x) noexcept
+{
+  return Math::Native::erfc(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN lgamma(const FloatN x) noexcept
+{
+  return Math::Native::lgamma(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN tgamma(const FloatN x) noexcept
+{
+  return Math::Native::tgamma(x);
+}
+
 } /* namespace native */
 
 namespace precision {
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN exp(const FloatN x) noexcept
+{
+  return Math::Precision::exp(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN exp2(const FloatN x) noexcept
+{
+  return Math::Precision::exp2(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN expm1(const FloatN x) noexcept
+{
+  return Math::Precision::expm1(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN log(const FloatN x) noexcept
+{
+  return Math::Precision::log(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN log2(const FloatN x) noexcept
+{
+  return Math::Precision::log2(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN log10(const FloatN x) noexcept
+{
+  return Math::Precision::log10(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN log1p(const FloatN x) noexcept
+{
+  return Math::Precision::log1p(x);
+}
 
 /*!
   \details No detailed description
@@ -1800,6 +3799,242 @@ template <typename FloatN> inline
 FloatN cbrt(const FloatN x) noexcept
 {
   return Math::Precision::cbrt(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \param [in] y No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN hypot(const FloatN x, const FloatN y) noexcept
+{
+  return Math::Precision::hypot(x, y);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN sin(const FloatN x) noexcept
+{
+  return Math::Precision::sin(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN cos(const FloatN x) noexcept
+{
+  return Math::Precision::cos(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN tan(const FloatN x) noexcept
+{
+  return Math::Precision::tan(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN asin(const FloatN x) noexcept
+{
+  return Math::Precision::asin(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN acos(const FloatN x) noexcept
+{
+  return Math::Precision::acos(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN atan(const FloatN x) noexcept
+{
+  return Math::Precision::atan(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] y No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN atan2(const FloatN y, const FloatN x) noexcept
+{
+  return Math::Precision::atan2(y, x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN sinh(const FloatN x) noexcept
+{
+  return Math::Precision::sinh(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN cosh(const FloatN x) noexcept
+{
+  return Math::Precision::cosh(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN tanh(const FloatN x) noexcept
+{
+  return Math::Precision::tanh(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN asinh(const FloatN x) noexcept
+{
+  return Math::Precision::asinh(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN acosh(const FloatN x) noexcept
+{
+  return Math::Precision::acosh(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN atanh(const FloatN x) noexcept
+{
+  return Math::Precision::atanh(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN erf(const FloatN x) noexcept
+{
+  return Math::Precision::erf(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN erfc(const FloatN x) noexcept
+{
+  return Math::Precision::erfc(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN lgamma(const FloatN x) noexcept
+{
+  return Math::Precision::lgamma(x);
+}
+
+/*!
+  \details No detailed description
+
+  \tparam FloatN No description.
+  \param [in] x No description.
+  \return No description
+  */
+template <typename FloatN> inline
+FloatN tgamma(const FloatN x) noexcept
+{
+  return Math::Precision::tgamma(x);
 }
 
 } /* namespace precision */

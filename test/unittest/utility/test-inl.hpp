@@ -163,7 +163,7 @@ bool test(const Float expected,
           const Float value,
           MathTestResult* result) noexcept
 {
-  auto print_fatal_case = [&expected, &value]()
+  [[maybe_unused]] auto print_fatal_case = [&expected, &value]()
   {
     std::cerr << "[math] fatal: value=" << std::scientific << value << ", expected=" << expected
               << std::endl;
@@ -176,7 +176,7 @@ bool test(const Float expected,
   // Check if either expected or value is NaN
   if (std::isnan(expected) || std::isnan(value)) {
     result->fatal_nan_ = true;
-    print_fatal_case();
+    //print_fatal_case();
     return false;
   }
 
@@ -186,7 +186,7 @@ bool test(const Float expected,
     const Float sign = std::copysign(o, expected) * std::copysign(o, value);
     if (sign != o) {
       result->fatal_outlier_ = true;
-      print_fatal_case();
+      //print_fatal_case();
       return false;
     }
   }
@@ -197,7 +197,7 @@ bool test(const Float expected,
   // Check if either expected or value is inf
   if (std::isinf(expected) || std::isinf(value)) {
     result->fatal_inf_ = true;
-    print_fatal_case();
+    //print_fatal_case();
     return false;
   }
 

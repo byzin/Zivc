@@ -41,228 +41,6 @@
 namespace {
 
 template <std::size_t kN, typename KernelInitParam>
-void testExp(const KernelInitParam& kernel_params,
-             const std::string_view label,
-             const std::string_view func_name) 
-{
-  const zivc::SharedContext context = ztest::createContext();
-  const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
-
-  // Allocate buffers
-  using zivc::cl_int;
-  using zivc::cl_uint;
-  using zivc::cl_float;
-
-  // Get the test input
-  constexpr std::size_t vector_size = kN;
-  const std::vector x_list = ztest::loadPowXList<cl_float>();
-  const zivc::uint32b n = x_list.size() / vector_size;
-
-  // Initialize buffers
-  const zivc::SharedBuffer buffer_in = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
-  {
-    const std::span<const cl_float> l{x_list.begin(), x_list.end()};
-    ztest::setDeviceBuffer(*device, l, buffer_in.get());
-  }
-  const zivc::SharedBuffer buffer_out = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
-  buffer_out->setSize(vector_size * n);
-
-  // Make a kernel
-  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
-  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
-  ASSERT_EQ(3, kernel->argSize()) << "Wrong kernel property.";
-
-  // Launch the kernel
-  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
-  launch_options.setQueueIndex(0);
-  launch_options.setWorkSize({{n}});
-  launch_options.requestFence(true);
-  launch_options.setLabel(label);
-  ASSERT_EQ(1, launch_options.dimension());
-  ASSERT_EQ(3, launch_options.numOfArgs());
-  ASSERT_EQ(0, launch_options.queueIndex());
-  ASSERT_EQ(n, launch_options.workSize()[0]);
-  ASSERT_TRUE(launch_options.isFenceRequested());
-  zivc::LaunchResult result = kernel->run(*buffer_in, *buffer_out, n, launch_options);
-  device->waitForCompletion(result.fence());
-
-  // tmp
-  std::vector<cl_float> results{};
-  results.reserve(x_list.size());
-  for (const cl_float x : x_list)
-    results.push_back(std::exp(x));
-  {
-    const std::span<const cl_float> l{results.begin(), results.end()};
-    ztest::setDeviceBuffer(*device, l, buffer_out.get());
-  }
-
-  // output1
-  {
-    const zivc::SharedBuffer tmp = device->createBuffer<cl_float>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
-    ztest::copyBuffer(*buffer_out, tmp.get());
-    const zivc::MappedMemory mem = tmp->mapMemory();
-
-    // 
-    const std::vector expected_list = ztest::loadExpectedList<cl_float>("resources/math_expf_reference.bin", x_list.size());
-
-    ztest::MathTestResult result{};
-    for (std::size_t i = 0; i < mem.size(); ++i)
-      ztest::test(expected_list[i], mem[i], &result);
-    result.print();
-    result.checkError(func_name);
-  }
-}
-
-template <std::size_t kN, typename KernelInitParam>
-void testExp2(const KernelInitParam& kernel_params,
-              const std::string_view label,
-              const std::string_view func_name) 
-{
-  const zivc::SharedContext context = ztest::createContext();
-  const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
-
-  // Allocate buffers
-  using zivc::cl_int;
-  using zivc::cl_uint;
-  using zivc::cl_float;
-
-  // Get the test input
-  constexpr std::size_t vector_size = kN;
-  const std::vector x_list = ztest::loadPowXList<cl_float>();
-  const zivc::uint32b n = x_list.size() / vector_size;
-
-  // Initialize buffers
-  const zivc::SharedBuffer buffer_in = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
-  {
-    const std::span<const cl_float> l{x_list.begin(), x_list.end()};
-    ztest::setDeviceBuffer(*device, l, buffer_in.get());
-  }
-  const zivc::SharedBuffer buffer_out = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
-  buffer_out->setSize(vector_size * n);
-
-  // Make a kernel
-  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
-  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
-  ASSERT_EQ(3, kernel->argSize()) << "Wrong kernel property.";
-
-  // Launch the kernel
-  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
-  launch_options.setQueueIndex(0);
-  launch_options.setWorkSize({{n}});
-  launch_options.requestFence(true);
-  launch_options.setLabel(label);
-  ASSERT_EQ(1, launch_options.dimension());
-  ASSERT_EQ(3, launch_options.numOfArgs());
-  ASSERT_EQ(0, launch_options.queueIndex());
-  ASSERT_EQ(n, launch_options.workSize()[0]);
-  ASSERT_TRUE(launch_options.isFenceRequested());
-  zivc::LaunchResult result = kernel->run(*buffer_in, *buffer_out, n, launch_options);
-  device->waitForCompletion(result.fence());
-
-  // tmp
-  std::vector<cl_float> results{};
-  results.reserve(x_list.size());
-  for (const cl_float x : x_list)
-    results.push_back(std::exp2(x));
-  {
-    const std::span<const cl_float> l{results.begin(), results.end()};
-    ztest::setDeviceBuffer(*device, l, buffer_out.get());
-  }
-
-  // output1
-  {
-    const zivc::SharedBuffer tmp = device->createBuffer<cl_float>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
-    ztest::copyBuffer(*buffer_out, tmp.get());
-    const zivc::MappedMemory mem = tmp->mapMemory();
-
-    // 
-    const std::vector expected_list = ztest::loadExpectedList<cl_float>("resources/math_exp2f_reference.bin", x_list.size());
-
-    ztest::MathTestResult result{};
-    for (std::size_t i = 0; i < mem.size(); ++i)
-      ztest::test(expected_list[i], mem[i], &result);
-    result.print();
-    result.checkError(func_name);
-  }
-}
-
-template <std::size_t kN, typename KernelInitParam>
-void testExpm1(const KernelInitParam& kernel_params,
-               const std::string_view label,
-               const std::string_view func_name) 
-{
-  const zivc::SharedContext context = ztest::createContext();
-  const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
-
-  // Allocate buffers
-  using zivc::cl_int;
-  using zivc::cl_uint;
-  using zivc::cl_float;
-
-  // Get the test input
-  constexpr std::size_t vector_size = kN;
-  const std::vector x_list = ztest::loadPowXList<cl_float>();
-  const zivc::uint32b n = x_list.size() / vector_size;
-
-  // Initialize buffers
-  const zivc::SharedBuffer buffer_in = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
-  {
-    const std::span<const cl_float> l{x_list.begin(), x_list.end()};
-    ztest::setDeviceBuffer(*device, l, buffer_in.get());
-  }
-  const zivc::SharedBuffer buffer_out = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
-  buffer_out->setSize(vector_size * n);
-
-  // Make a kernel
-  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
-  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
-  ASSERT_EQ(3, kernel->argSize()) << "Wrong kernel property.";
-
-  // Launch the kernel
-  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
-  launch_options.setQueueIndex(0);
-  launch_options.setWorkSize({{n}});
-  launch_options.requestFence(true);
-  launch_options.setLabel(label);
-  ASSERT_EQ(1, launch_options.dimension());
-  ASSERT_EQ(3, launch_options.numOfArgs());
-  ASSERT_EQ(0, launch_options.queueIndex());
-  ASSERT_EQ(n, launch_options.workSize()[0]);
-  ASSERT_TRUE(launch_options.isFenceRequested());
-  zivc::LaunchResult result = kernel->run(*buffer_in, *buffer_out, n, launch_options);
-  device->waitForCompletion(result.fence());
-
-  // tmp
-  std::vector<cl_float> results{};
-  results.reserve(x_list.size());
-  for (const cl_float x : x_list)
-    results.push_back(std::expm1(x));
-  {
-    const std::span<const cl_float> l{results.begin(), results.end()};
-    ztest::setDeviceBuffer(*device, l, buffer_out.get());
-  }
-
-  // output1
-  {
-    const zivc::SharedBuffer tmp = device->createBuffer<cl_float>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
-    ztest::copyBuffer(*buffer_out, tmp.get());
-    const zivc::MappedMemory mem = tmp->mapMemory();
-
-    // 
-    const std::vector expected_list = ztest::loadExpectedList<cl_float>("resources/math_expm1f_reference.bin", x_list.size());
-
-    ztest::MathTestResult result{};
-    for (std::size_t i = 0; i < mem.size(); ++i)
-      ztest::test(expected_list[i], mem[i], &result);
-    result.print();
-    result.checkError(func_name);
-  }
-}
-
-template <std::size_t kN, typename KernelInitParam>
 void testPow(const KernelInitParam& kernel_params,
              const std::string_view label,
              const std::string_view func_name) 
@@ -332,8 +110,10 @@ void testPow(const KernelInitParam& kernel_params,
       const zivc::MappedMemory mem = tmp->mapMemory();
 
       ztest::MathTestResult result{};
-      for (std::size_t i = 0; i < mem.size(); ++i)
+      for (std::size_t i = 0; i < mem.size(); ++i) {
+        if (ztest::isSubnormal(expected_list[i])) continue;
         ztest::test(expected_list[i], mem[i], &result);
+      }
       std::cout << "base=" << std::scientific << base << std::endl;
       result.print();
       result.checkError(func_name);
@@ -430,155 +210,7 @@ void testPown(const KernelInitParam& kernel_params,
 }
 
 template <std::size_t kN, typename KernelInitParam>
-void testLog(const KernelInitParam& kernel_params,
-             const std::string_view label,
-             const std::string_view func_name) 
-{
-  const zivc::SharedContext context = ztest::createContext();
-  const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
-
-  // Allocate buffers
-  using zivc::cl_int;
-  using zivc::cl_uint;
-  using zivc::cl_float;
-
-  // Get the test input
-  constexpr std::size_t vector_size = kN;
-  const std::vector x_list = ztest::loadPositiveXList<cl_float>();
-  const zivc::uint32b n = x_list.size() / vector_size;
-
-  // Initialize buffers
-  const zivc::SharedBuffer buffer_in = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
-  {
-    const std::span<const cl_float> l{x_list.begin(), x_list.end()};
-    ztest::setDeviceBuffer(*device, l, buffer_in.get());
-  }
-  const zivc::SharedBuffer buffer_out = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
-  buffer_out->setSize(vector_size * n);
-
-  // Make a kernel
-  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
-  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
-  ASSERT_EQ(3, kernel->argSize()) << "Wrong kernel property.";
-
-  // Launch the kernel
-  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
-  launch_options.setQueueIndex(0);
-  launch_options.setWorkSize({{n}});
-  launch_options.requestFence(true);
-  launch_options.setLabel(label);
-  ASSERT_EQ(1, launch_options.dimension());
-  ASSERT_EQ(3, launch_options.numOfArgs());
-  ASSERT_EQ(0, launch_options.queueIndex());
-  ASSERT_EQ(n, launch_options.workSize()[0]);
-  ASSERT_TRUE(launch_options.isFenceRequested());
-  zivc::LaunchResult result = kernel->run(*buffer_in, *buffer_out, n, launch_options);
-  device->waitForCompletion(result.fence());
-
-  // tmp
-  std::vector<cl_float> results{};
-  results.reserve(x_list.size());
-  for (const cl_float x : x_list)
-    results.push_back(std::log(x));
-  {
-    const std::span<const cl_float> l{results.begin(), results.end()};
-    ztest::setDeviceBuffer(*device, l, buffer_out.get());
-  }
-
-  // output1
-  {
-    const zivc::SharedBuffer tmp = device->createBuffer<cl_float>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
-    ztest::copyBuffer(*buffer_out, tmp.get());
-    const zivc::MappedMemory mem = tmp->mapMemory();
-
-    // 
-    const std::vector expected_list = ztest::loadExpectedList<cl_float>("resources/math_logf_reference.bin", x_list.size());
-
-    ztest::MathTestResult result{};
-    for (std::size_t i = 0; i < mem.size(); ++i)
-      ztest::test(expected_list[i], mem[i], &result);
-    result.print();
-    result.checkError(func_name);
-  }
-}
-
-template <std::size_t kN, typename KernelInitParam>
-void testLog2(const KernelInitParam& kernel_params,
-              const std::string_view label,
-              const std::string_view func_name) 
-{
-  const zivc::SharedContext context = ztest::createContext();
-  const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
-
-  // Allocate buffers
-  using zivc::cl_int;
-  using zivc::cl_uint;
-  using zivc::cl_float;
-
-  // Get the test input
-  constexpr std::size_t vector_size = kN;
-  const std::vector x_list = ztest::loadPositiveXList<cl_float>();
-  const zivc::uint32b n = x_list.size() / vector_size;
-
-  // Initialize buffers
-  const zivc::SharedBuffer buffer_in = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
-  {
-    const std::span<const cl_float> l{x_list.begin(), x_list.end()};
-    ztest::setDeviceBuffer(*device, l, buffer_in.get());
-  }
-  const zivc::SharedBuffer buffer_out = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
-  buffer_out->setSize(vector_size * n);
-
-  // Make a kernel
-  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
-  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
-  ASSERT_EQ(3, kernel->argSize()) << "Wrong kernel property.";
-
-  // Launch the kernel
-  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
-  launch_options.setQueueIndex(0);
-  launch_options.setWorkSize({{n}});
-  launch_options.requestFence(true);
-  launch_options.setLabel(label);
-  ASSERT_EQ(1, launch_options.dimension());
-  ASSERT_EQ(3, launch_options.numOfArgs());
-  ASSERT_EQ(0, launch_options.queueIndex());
-  ASSERT_EQ(n, launch_options.workSize()[0]);
-  ASSERT_TRUE(launch_options.isFenceRequested());
-  zivc::LaunchResult result = kernel->run(*buffer_in, *buffer_out, n, launch_options);
-  device->waitForCompletion(result.fence());
-
-  // tmp
-  std::vector<cl_float> results{};
-  results.reserve(x_list.size());
-  for (const cl_float x : x_list)
-    results.push_back(std::log2(x));
-  {
-    const std::span<const cl_float> l{results.begin(), results.end()};
-    ztest::setDeviceBuffer(*device, l, buffer_out.get());
-  }
-
-  // output1
-  {
-    const zivc::SharedBuffer tmp = device->createBuffer<cl_float>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
-    ztest::copyBuffer(*buffer_out, tmp.get());
-    const zivc::MappedMemory mem = tmp->mapMemory();
-
-    // 
-    const std::vector expected_list = ztest::loadExpectedList<cl_float>("resources/math_log2f_reference.bin", x_list.size());
-
-    ztest::MathTestResult result{};
-    for (std::size_t i = 0; i < mem.size(); ++i)
-      ztest::test(expected_list[i], mem[i], &result);
-    result.print();
-    result.checkError(func_name);
-  }
-}
-
-template <std::size_t kN, typename KernelInitParam>
-void testLog10(const KernelInitParam& kernel_params,
+void testHypot(const KernelInitParam& kernel_params,
                const std::string_view label,
                const std::string_view func_name) 
 {
@@ -591,16 +223,37 @@ void testLog10(const KernelInitParam& kernel_params,
   using zivc::cl_uint;
   using zivc::cl_float;
 
+  std::ifstream reference_file{"resources/math_hypotf_reference.bin", std::ios_base::binary};
+  zivc::uint32b n_num = 0;
+  zisc::BSerializer::read(&n_num, &reference_file);
+
   // Get the test input
   constexpr std::size_t vector_size = kN;
-  const std::vector x_list = ztest::loadPositiveXList<cl_float>();
-  const zivc::uint32b n = x_list.size() / vector_size;
+  std::vector<cl_float> x1_list;
+  x1_list.resize(n_num);
+  std::vector<cl_float> x2_list;
+  x2_list.resize(n_num);
+  {
+    std::vector<ztest::V2<float>> tmp{};
+    tmp.resize(n_num);
+    zisc::BSerializer::read(tmp.data(), &reference_file, sizeof(tmp[0]) * n_num);
+    for (std::size_t i = 0; i < tmp.size(); ++i) {
+      x1_list[i] = tmp[i].x_;
+      x2_list[i] = tmp[i].y_;
+    }
+  }
+  const zivc::uint32b n = x1_list.size() / vector_size;
 
   // Initialize buffers
-  const zivc::SharedBuffer buffer_in = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
+  const zivc::SharedBuffer buffer_in1 = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
   {
-    const std::span<const cl_float> l{x_list.begin(), x_list.end()};
-    ztest::setDeviceBuffer(*device, l, buffer_in.get());
+    const std::span<const cl_float> l{x1_list.begin(), x1_list.end()};
+    ztest::setDeviceBuffer(*device, l, buffer_in1.get());
+  }
+  const zivc::SharedBuffer buffer_in2 = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
+  {
+    const std::span<const cl_float> l{x2_list.begin(), x2_list.end()};
+    ztest::setDeviceBuffer(*device, l, buffer_in2.get());
   }
   const zivc::SharedBuffer buffer_out = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
   buffer_out->setSize(vector_size * n);
@@ -608,7 +261,7 @@ void testLog10(const KernelInitParam& kernel_params,
   // Make a kernel
   const zivc::SharedKernel kernel = device->createKernel(kernel_params);
   ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
-  ASSERT_EQ(3, kernel->argSize()) << "Wrong kernel property.";
+  ASSERT_EQ(4, kernel->argSize()) << "Wrong kernel property.";
 
   // Launch the kernel
   zivc::KernelLaunchOptions launch_options = kernel->createOptions();
@@ -617,105 +270,22 @@ void testLog10(const KernelInitParam& kernel_params,
   launch_options.requestFence(true);
   launch_options.setLabel(label);
   ASSERT_EQ(1, launch_options.dimension());
-  ASSERT_EQ(3, launch_options.numOfArgs());
+  ASSERT_EQ(4, launch_options.numOfArgs());
   ASSERT_EQ(0, launch_options.queueIndex());
   ASSERT_EQ(n, launch_options.workSize()[0]);
   ASSERT_TRUE(launch_options.isFenceRequested());
-  zivc::LaunchResult result = kernel->run(*buffer_in, *buffer_out, n, launch_options);
+  zivc::LaunchResult result = kernel->run(*buffer_in1, *buffer_in2, *buffer_out, n, launch_options);
   device->waitForCompletion(result.fence());
 
-  // tmp
-  std::vector<cl_float> results{};
-  results.reserve(x_list.size());
-  for (const cl_float x : x_list)
-    results.push_back(std::log10(x));
-  {
-    const std::span<const cl_float> l{results.begin(), results.end()};
-    ztest::setDeviceBuffer(*device, l, buffer_out.get());
-  }
+  std::vector<cl_float> expected_list{};
+  expected_list.resize(x1_list.size());
+  zisc::BSerializer::read(expected_list.data(), &reference_file, sizeof(cl_float) * n_num);
 
   // output1
   {
     const zivc::SharedBuffer tmp = device->createBuffer<cl_float>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
     ztest::copyBuffer(*buffer_out, tmp.get());
     const zivc::MappedMemory mem = tmp->mapMemory();
-
-    // 
-    const std::vector expected_list = ztest::loadExpectedList<cl_float>("resources/math_log10f_reference.bin", x_list.size());
-
-    ztest::MathTestResult result{};
-    for (std::size_t i = 0; i < mem.size(); ++i)
-      ztest::test(expected_list[i], mem[i], &result);
-    result.print();
-    result.checkError(func_name);
-  }
-}
-
-template <std::size_t kN, typename KernelInitParam>
-void testLog1p(const KernelInitParam& kernel_params,
-               const std::string_view label,
-               const std::string_view func_name) 
-{
-  const zivc::SharedContext context = ztest::createContext();
-  const ztest::Config& config = ztest::Config::globalConfig();
-  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
-
-  // Allocate buffers
-  using zivc::cl_int;
-  using zivc::cl_uint;
-  using zivc::cl_float;
-
-  // Get the test input
-  constexpr std::size_t vector_size = kN;
-  const std::vector x_list = ztest::loadPositiveXList<cl_float>();
-  const zivc::uint32b n = x_list.size() / vector_size;
-
-  // Initialize buffers
-  const zivc::SharedBuffer buffer_in = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
-  {
-    const std::span<const cl_float> l{x_list.begin(), x_list.end()};
-    ztest::setDeviceBuffer(*device, l, buffer_in.get());
-  }
-  const zivc::SharedBuffer buffer_out = device->createBuffer<cl_float>(zivc::BufferUsage::kPreferDevice);
-  buffer_out->setSize(vector_size * n);
-
-  // Make a kernel
-  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
-  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
-  ASSERT_EQ(3, kernel->argSize()) << "Wrong kernel property.";
-
-  // Launch the kernel
-  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
-  launch_options.setQueueIndex(0);
-  launch_options.setWorkSize({{n}});
-  launch_options.requestFence(true);
-  launch_options.setLabel(label);
-  ASSERT_EQ(1, launch_options.dimension());
-  ASSERT_EQ(3, launch_options.numOfArgs());
-  ASSERT_EQ(0, launch_options.queueIndex());
-  ASSERT_EQ(n, launch_options.workSize()[0]);
-  ASSERT_TRUE(launch_options.isFenceRequested());
-  zivc::LaunchResult result = kernel->run(*buffer_in, *buffer_out, n, launch_options);
-  device->waitForCompletion(result.fence());
-
-  // tmp
-  std::vector<cl_float> results{};
-  results.reserve(x_list.size());
-  for (const cl_float x : x_list)
-    results.push_back(std::log1p(x));
-  {
-    const std::span<const cl_float> l{results.begin(), results.end()};
-    ztest::setDeviceBuffer(*device, l, buffer_out.get());
-  }
-
-  // output1
-  {
-    const zivc::SharedBuffer tmp = device->createBuffer<cl_float>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
-    ztest::copyBuffer(*buffer_out, tmp.get());
-    const zivc::MappedMemory mem = tmp->mapMemory();
-
-    // 
-    const std::vector expected_list = ztest::loadExpectedList<cl_float>("resources/math_log1pf_reference.bin", x_list.size());
 
     ztest::MathTestResult result{};
     for (std::size_t i = 0; i < mem.size(); ++i)
@@ -731,49 +301,462 @@ TEST(ClCppTest, MathImplExpV1Test)
 {
   // Make a kernel
   const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, expV1TestKernel, 1);
-  ::testExp<1>(kernel_params, "expV1TestKernel", "expV1");
+  ztest::testF1<1, float>(kernel_params,
+                          ztest::loadPowXList<float>,
+                          "resources/math_expf_reference.bin",
+                          "expV1TestKernel",
+                          "expV1");
+}
+
+TEST(ClCppTest, MathImplExpV2Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, expV2TestKernel, 1);
+  ztest::testF1<2, float>(kernel_params,
+                          ztest::loadPowXList<float>,
+                          "resources/math_expf_reference.bin",
+                          "expV2TestKernel",
+                          "expV2");
+}
+
+TEST(ClCppTest, MathImplExpV3Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, expV3TestKernel, 1);
+  ztest::testF1<3, float>(kernel_params,
+                          ztest::loadPowXList<float>,
+                          "resources/math_expf_reference.bin",
+                          "expV3TestKernel",
+                          "expV3");
+}
+
+TEST(ClCppTest, MathImplExpV4Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, expV4TestKernel, 1);
+  ztest::testF1<4, float>(kernel_params,
+                          ztest::loadPowXList<float>,
+                          "resources/math_expf_reference.bin",
+                          "expV4TestKernel",
+                          "expV4");
+}
+
+TEST(ClCppTest, MathImplExpV8Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, expV8TestKernel, 1);
+  ztest::testF1<8, float>(kernel_params,
+                          ztest::loadPowXList<float>,
+                          "resources/math_expf_reference.bin",
+                          "expV8TestKernel",
+                          "expV8");
+}
+
+TEST(ClCppTest, MathImplExpV16Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, expV16TestKernel, 1);
+  ztest::testF1<16, float>(kernel_params,
+                           ztest::loadPowXList<float>,
+                           "resources/math_expf_reference.bin",
+                           "expV16TestKernel",
+                           "expV16");
 }
 
 TEST(ClCppTest, MathImplExp2V1Test)
 {
   // Make a kernel
   const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, exp2V1TestKernel, 1);
-  ::testExp2<1>(kernel_params, "exp2V1TestKernel", "exp2V1");
+  ztest::testF1<1, float>(kernel_params,
+                          ztest::loadPowXList<float>,
+                          "resources/math_exp2f_reference.bin",
+                          "exp2V1TestKernel",
+                          "exp2V1");
+}
+
+TEST(ClCppTest, MathImplExp2V2Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, exp2V2TestKernel, 1);
+  ztest::testF1<2, float>(kernel_params,
+                          ztest::loadPowXList<float>,
+                          "resources/math_exp2f_reference.bin",
+                          "exp2V2TestKernel",
+                          "exp2V2");
+}
+
+TEST(ClCppTest, MathImplExp2V3Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, exp2V3TestKernel, 1);
+  ztest::testF1<3, float>(kernel_params,
+                          ztest::loadPowXList<float>,
+                          "resources/math_exp2f_reference.bin",
+                          "exp2V3TestKernel",
+                          "exp2V3");
+}
+
+TEST(ClCppTest, MathImplExp2V4Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, exp2V4TestKernel, 1);
+  ztest::testF1<4, float>(kernel_params,
+                          ztest::loadPowXList<float>,
+                          "resources/math_exp2f_reference.bin",
+                          "exp2V4TestKernel",
+                          "exp2V4");
+}
+
+TEST(ClCppTest, MathImplExp2V8Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, exp2V8TestKernel, 1);
+  ztest::testF1<8, float>(kernel_params,
+                          ztest::loadPowXList<float>,
+                          "resources/math_exp2f_reference.bin",
+                          "exp2V8TestKernel",
+                          "exp2V8");
+}
+
+TEST(ClCppTest, MathImplExp2V16Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, exp2V16TestKernel, 1);
+  ztest::testF1<16, float>(kernel_params,
+                           ztest::loadPowXList<float>,
+                           "resources/math_exp2f_reference.bin",
+                           "exp2V16TestKernel",
+                           "exp2V16");
 }
 
 TEST(ClCppTest, MathImplExpm1V1Test)
 {
   // Make a kernel
   const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, expm1V1TestKernel, 1);
-  ::testExpm1<1>(kernel_params, "expm1V1TestKernel", "expm1V1");
+  ztest::testF1<1, float>(kernel_params,
+                          ztest::loadPowXList<float>,
+                          "resources/math_expm1f_reference.bin",
+                          "expm1V1TestKernel",
+                          "expm1V1");
+}
+
+TEST(ClCppTest, MathImplExpm1V2Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, expm1V2TestKernel, 1);
+  ztest::testF1<2, float>(kernel_params,
+                          ztest::loadPowXList<float>,
+                          "resources/math_expm1f_reference.bin",
+                          "expm1V2TestKernel",
+                          "expm1V2");
+}
+
+TEST(ClCppTest, MathImplExpm1V3Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, expm1V3TestKernel, 1);
+  ztest::testF1<3, float>(kernel_params,
+                          ztest::loadPowXList<float>,
+                          "resources/math_expm1f_reference.bin",
+                          "expm1V3TestKernel",
+                          "expm1V3");
+}
+
+TEST(ClCppTest, MathImplExpm1V4Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, expm1V4TestKernel, 1);
+  ztest::testF1<4, float>(kernel_params,
+                          ztest::loadPowXList<float>,
+                          "resources/math_expm1f_reference.bin",
+                          "expm1V4TestKernel",
+                          "expm1V4");
+}
+
+TEST(ClCppTest, MathImplExpm1V8Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, expm1V8TestKernel, 1);
+  ztest::testF1<8, float>(kernel_params,
+                          ztest::loadPowXList<float>,
+                          "resources/math_expm1f_reference.bin",
+                          "expm1V8TestKernel",
+                          "expm1V8");
+}
+
+TEST(ClCppTest, MathImplExpm1V16Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, expm1V16TestKernel, 1);
+  ztest::testF1<16, float>(kernel_params,
+                           ztest::loadPowXList<float>,
+                           "resources/math_expm1f_reference.bin",
+                           "expm1V16TestKernel",
+                           "expm1V16");
 }
 
 TEST(ClCppTest, MathImplLogV1Test)
 {
   // Make a kernel
   const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, logV1TestKernel, 1);
-  ::testLog<1>(kernel_params, "logV1TestKernel", "logV1");
+  ztest::testF1<1, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_logf_reference.bin",
+                          "logV1TestKernel",
+                          "logV1");
+}
+
+TEST(ClCppTest, MathImplLogV2Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, logV2TestKernel, 1);
+  ztest::testF1<2, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_logf_reference.bin",
+                          "logV2TestKernel",
+                          "logV2");
+}
+
+TEST(ClCppTest, MathImplLogV3Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, logV3TestKernel, 1);
+  ztest::testF1<3, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_logf_reference.bin",
+                          "logV3TestKernel",
+                          "logV3");
+}
+
+TEST(ClCppTest, MathImplLogV4Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, logV4TestKernel, 1);
+  ztest::testF1<4, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_logf_reference.bin",
+                          "logV4TestKernel",
+                          "logV4");
+}
+
+TEST(ClCppTest, MathImplLogV8Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, logV8TestKernel, 1);
+  ztest::testF1<8, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_logf_reference.bin",
+                          "logV8TestKernel",
+                          "logV8");
+}
+
+TEST(ClCppTest, MathImplLogV16Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, logV16TestKernel, 1);
+  ztest::testF1<16, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_logf_reference.bin",
+                          "logV16TestKernel",
+                          "logV16");
 }
 
 TEST(ClCppTest, MathImplLog2V1Test)
 {
   // Make a kernel
   const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, log2V1TestKernel, 1);
-  ::testLog2<1>(kernel_params, "log2V1TestKernel", "log2V1");
+  ztest::testF1<1, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_log2f_reference.bin",
+                          "log2V1TestKernel",
+                          "log2V1");
+}
+
+TEST(ClCppTest, MathImplLog2V2Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, log2V2TestKernel, 1);
+  ztest::testF1<2, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_log2f_reference.bin",
+                          "log2V2TestKernel",
+                          "log2V2");
+}
+
+TEST(ClCppTest, MathImplLog2V3Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, log2V3TestKernel, 1);
+  ztest::testF1<3, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_log2f_reference.bin",
+                          "log2V3TestKernel",
+                          "log2V3");
+}
+
+TEST(ClCppTest, MathImplLog2V4Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, log2V4TestKernel, 1);
+  ztest::testF1<4, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_log2f_reference.bin",
+                          "log2V4TestKernel",
+                          "log2V4");
+}
+
+TEST(ClCppTest, MathImplLog2V8Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, log2V8TestKernel, 1);
+  ztest::testF1<8, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_log2f_reference.bin",
+                          "log2V8TestKernel",
+                          "log2V8");
+}
+
+TEST(ClCppTest, MathImplLog2V16Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, log2V16TestKernel, 1);
+  ztest::testF1<16, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_log2f_reference.bin",
+                          "log2V16TestKernel",
+                          "log2V16");
 }
 
 TEST(ClCppTest, MathImplLog10V1Test)
 {
   // Make a kernel
   const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, log10V1TestKernel, 1);
-  ::testLog10<1>(kernel_params, "log10V1TestKernel", "log10V1");
+  ztest::testF1<1, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_log10f_reference.bin",
+                          "log10V1TestKernel",
+                          "log10V1");
+}
+
+TEST(ClCppTest, MathImplLog10V2Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, log10V2TestKernel, 1);
+  ztest::testF1<2, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_log10f_reference.bin",
+                          "log10V2TestKernel",
+                          "log10V2");
+}
+
+TEST(ClCppTest, MathImplLog10V3Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, log10V3TestKernel, 1);
+  ztest::testF1<3, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_log10f_reference.bin",
+                          "log10V3TestKernel",
+                          "log10V3");
+}
+
+TEST(ClCppTest, MathImplLog10V4Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, log10V4TestKernel, 1);
+  ztest::testF1<4, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_log10f_reference.bin",
+                          "log10V4TestKernel",
+                          "log10V4");
+}
+
+TEST(ClCppTest, MathImplLog10V8Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, log10V8TestKernel, 1);
+  ztest::testF1<8, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_log10f_reference.bin",
+                          "log10V8TestKernel",
+                          "log10V8");
+}
+
+TEST(ClCppTest, MathImplLog10V16Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, log10V16TestKernel, 1);
+  ztest::testF1<16, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_log10f_reference.bin",
+                          "log10V16TestKernel",
+                          "log10V16");
 }
 
 TEST(ClCppTest, MathImplLog1pV1Test)
 {
   // Make a kernel
   const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, log1pV1TestKernel, 1);
-  ::testLog1p<1>(kernel_params, "log1pV1TestKernel", "log1pV1");
+  ztest::testF1<1, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_log1pf_reference.bin",
+                          "log1pV1TestKernel",
+                          "log1pV1");
+}
+
+TEST(ClCppTest, MathImplLog1pV2Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, log1pV2TestKernel, 1);
+  ztest::testF1<2, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_log1pf_reference.bin",
+                          "log1pV2TestKernel",
+                          "log1pV2");
+}
+
+TEST(ClCppTest, MathImplLog1pV3Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, log1pV3TestKernel, 1);
+  ztest::testF1<3, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_log1pf_reference.bin",
+                          "log1pV3TestKernel",
+                          "log1pV3");
+}
+
+TEST(ClCppTest, MathImplLog1pV4Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, log1pV4TestKernel, 1);
+  ztest::testF1<4, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_log1pf_reference.bin",
+                          "log1pV4TestKernel",
+                          "log1pV4");
+}
+
+TEST(ClCppTest, MathImplLog1pV8Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, log1pV8TestKernel, 1);
+  ztest::testF1<8, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_log1pf_reference.bin",
+                          "log1pV8TestKernel",
+                          "log1pV8");
+}
+
+TEST(ClCppTest, MathImplLog1pV16Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, log1pV16TestKernel, 1);
+  ztest::testF1<16, float>(kernel_params,
+                          ztest::loadPositiveXList<float>,
+                          "resources/math_log1pf_reference.bin",
+                          "log1pV16TestKernel",
+                          "log1pV16");
 }
 
 TEST(ClCppTest, MathImplPowV1Test)
@@ -1351,4 +1334,46 @@ TEST(ClCppTest, MathPrecisionCbrtV16Test)
                           "resources/math_cbrtf_reference.bin",
                           "cbrtV16PrecisionTestKernel",
                           "cbrtV16Precision");
+}
+
+TEST(ClCppTest, MathImplHypotV1Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, hypotV1TestKernel, 1);
+  ::testHypot<1>(kernel_params, "hypotV1TestKernel", "hypotV1");
+}
+
+TEST(ClCppTest, MathImplHypotV2Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, hypotV2TestKernel, 1);
+  ::testHypot<2>(kernel_params, "hypotV2TestKernel", "hypotV2");
+}
+
+TEST(ClCppTest, MathImplHypotV3Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, hypotV3TestKernel, 1);
+  ::testHypot<3>(kernel_params, "hypotV3TestKernel", "hypotV3");
+}
+
+TEST(ClCppTest, MathImplHypotV4Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, hypotV4TestKernel, 1);
+  ::testHypot<4>(kernel_params, "hypotV4TestKernel", "hypotV4");
+}
+
+TEST(ClCppTest, MathImplHypotV8Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, hypotV8TestKernel, 1);
+  ::testHypot<8>(kernel_params, "hypotV8TestKernel", "hypotV8");
+}
+
+TEST(ClCppTest, MathImplHypotV16Test)
+{
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_math_power, hypotV16TestKernel, 1);
+  ::testHypot<16>(kernel_params, "hypotV16TestKernel", "hypotV16");
 }

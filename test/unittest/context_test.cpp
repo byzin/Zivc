@@ -19,6 +19,7 @@
 #include <limits>
 #include <memory>
 #include <span>
+#include <string>
 #include <string_view>
 // Zisc
 #include "zisc/utility.hpp"
@@ -50,6 +51,42 @@ ZIVC_CHECK_TYPE_SIZE(zivc::int32b, 4);
 ZIVC_CHECK_TYPE_SIZE(zivc::uint32b, 4);
 ZIVC_CHECK_TYPE_SIZE(zivc::int64b, 8);
 ZIVC_CHECK_TYPE_SIZE(zivc::uint64b, 8);
+
+namespace {
+
+/*!
+  \details No detailed description
+
+  \param [in] type No description.
+  \return No description
+  */
+std::string getPhysiclaDeviceTypeString(const zivc::PhysicalDeviceType type)
+{
+  std::string type_string;
+  switch (type) {
+   case zivc::PhysicalDeviceType::kCpu:
+    type_string = "CPU";
+    break;
+   case zivc::PhysicalDeviceType::kDiscreteGpu:
+    type_string = "DiscreteGPU";
+    break;
+   case zivc::PhysicalDeviceType::kIntegratedGpu:
+    type_string = "IntegratedGPU";
+    break;
+   case zivc::PhysicalDeviceType::kVirtualGpu:
+    type_string = "virtualGPU";
+    break;
+   case zivc::PhysicalDeviceType::kOther:
+    type_string = "Other";
+    break;
+   default:
+    type_string = "Unknown.";
+    break;
+  }
+  return type_string;
+}
+
+} /* namespace */
 
 TEST(ContextTest, InitializationTest)
 {
@@ -91,6 +128,16 @@ TEST(ContextTest, DeviceInfoTest)
     EXPECT_STRNE(zivc::DeviceInfo::invalidName().data(), name.data())
         << "Vendor name isn't set.";
     std::cout << "## Vendor name: " << name << std::endl;
+  }
+  // Physical device type
+  {
+    using PType = zivc::PhysicalDeviceType;
+    const zivc::PhysicalDeviceType type = info->physicalDeviceType();
+    const std::string type_string = ::getPhysiclaDeviceTypeString(type);
+    const bool flag = (type == PType::kCpu) || (type == PType::kDiscreteGpu) || (type == PType::kIntegratedGpu);
+    EXPECT_TRUE(flag) << "Unsupported physical device type: '" << type_string << "'" << std::endl;
+    std::cout << "## Physical device type: [" << static_cast<zivc::uint32b>(type) << "] "
+              << type_string << std::endl;
   }
 
   const auto to_mb = [](const std::size_t size) noexcept

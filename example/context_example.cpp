@@ -46,6 +46,39 @@ std::string getBackendTypeString(const zivc::BackendType type)
     type_string = "Vulkan";
     break;
    default:
+    type_string = "Unknown.";
+    break;
+  }
+  return type_string;
+}
+
+/*!
+  \details No detailed description
+
+  \param [in] type No description.
+  \return No description
+  */
+std::string getPhysiclaDeviceTypeString(const zivc::PhysicalDeviceType type)
+{
+  std::string type_string;
+  switch (type) {
+   case zivc::PhysicalDeviceType::kCpu:
+    type_string = "CPU";
+    break;
+   case zivc::PhysicalDeviceType::kDiscreteGpu:
+    type_string = "DiscreteGPU";
+    break;
+   case zivc::PhysicalDeviceType::kIntegratedGpu:
+    type_string = "IntegratedGPU";
+    break;
+   case zivc::PhysicalDeviceType::kVirtualGpu:
+    type_string = "virtualGPU";
+    break;
+   case zivc::PhysicalDeviceType::kOther:
+    type_string = "Other";
+    break;
+   default:
+    type_string = "Unknown.";
     break;
   }
   return type_string;
@@ -85,6 +118,8 @@ int printContextInfo(const zivc::Context& context)
     std::cout << indent1 << "## Device[" << i << "]" << std::endl;
     std::cout << indent2 << "Type                : "
               << ::getBackendTypeString(info->type()) << std::endl;
+    std::cout << indent2 << "PhysicalDeviceType  : "
+              << ::getPhysiclaDeviceTypeString(info->physicalDeviceType()) << std::endl;
     std::cout << indent2 << "Name                : "
               << info->name() << std::endl;
     std::cout << indent2 << "Vendor name         : "

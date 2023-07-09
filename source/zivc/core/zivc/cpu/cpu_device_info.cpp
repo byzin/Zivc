@@ -145,6 +145,16 @@ std::string_view CpuDeviceInfo::name() const noexcept
 
   \return No description
   */
+PhysicalDeviceType CpuDeviceInfo::physicalDeviceType() const noexcept
+{
+  return PhysicalDeviceType::kCpu;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
 BackendType CpuDeviceInfo::type() const noexcept
 {
   return BackendType::kCpu;

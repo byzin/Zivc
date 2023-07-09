@@ -79,6 +79,9 @@ class DeviceInfo : private zisc::NonCopyable<DeviceInfo>
   //! Return the device name
   virtual std::string_view name() const noexcept = 0;
 
+  //! Return the physical device type
+  virtual PhysicalDeviceType physicalDeviceType() const noexcept = 0;
+
   //! Return the backend type
   virtual BackendType type() const noexcept = 0;
 

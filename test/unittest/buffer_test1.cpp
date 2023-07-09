@@ -30,6 +30,19 @@
 #include "utility/googletest.hpp"
 #include "utility/test.hpp"
 
+namespace {
+
+std::size_t getBufferMemoryBudget(const zivc::DeviceInfo& device_info,
+                                  const std::size_t heap_index) noexcept
+{
+  constexpr double scale = 0.9;
+  const zivc::MemoryHeapInfo& heap_info = device_info.heapInfo(heap_index);
+  const auto budget = static_cast<std::size_t>(static_cast<double>(heap_info.availableSize()) * scale);
+  return budget;
+}
+
+} /* namespace */
+
 TEST(BufferTest, DeviceLocalBufferInitializationTest)
 {
   const zivc::SharedContext context = ztest::createContext();
@@ -406,7 +419,9 @@ TEST(BufferTest, DeviceBufferMaxAllocationTest)
   const zivc::DeviceInfo& info = device->deviceInfo();
   {
     constexpr std::size_t max_alloc = 4ull * 1024ull * 1024ull * 1024ull;
-    const std::size_t alloc_size = (std::min)(info.maxAllocationSize(), max_alloc);
+    std::size_t alloc_size = (std::min)(info.maxAllocationSize(), max_alloc);
+    const std::size_t mem_budget = ::getBufferMemoryBudget(info, buffer->heapIndex());
+    alloc_size = (std::min)(alloc_size, mem_budget);
     const std::size_t s = alloc_size / sizeof(int);
     buffer->setSize(s);
     ASSERT_EQ(s, buffer->size()) << "Max alocation of device buffer failed.";
@@ -444,7 +459,9 @@ TEST(BufferTest, HostBufferMaxAllocationTest)
   const zivc::DeviceInfo& info = device->deviceInfo();
   {
     constexpr std::size_t max_alloc = 4ull * 1024ull * 1024ull * 1024ull;
-    const std::size_t alloc_size = (std::min)(info.maxAllocationSize(), max_alloc);
+    std::size_t alloc_size = (std::min)(info.maxAllocationSize(), max_alloc);
+    const std::size_t mem_budget = ::getBufferMemoryBudget(info, buffer->heapIndex());
+    alloc_size = (std::min)(alloc_size, mem_budget);
     const std::size_t s = alloc_size / sizeof(int);
     buffer->setSize(s);
     ASSERT_EQ(s, buffer->size()) << "Max allocation of host buffer failed.";
@@ -490,7 +507,9 @@ TEST(BufferTest, HostRandomAccessibleDeviceBufferMemoryMappingTest)
   {
     const zivc::DeviceInfo& info = device->deviceInfo();
     constexpr std::size_t max_alloc = 1ull * 1024ull * 1024ull * 1024ull;
-    const std::size_t alloc_size = (std::min)(info.maxAllocationSize(), max_alloc);
+    std::size_t alloc_size = (std::min)(info.maxAllocationSize(), max_alloc);
+    const std::size_t mem_budget = ::getBufferMemoryBudget(info, buffer->heapIndex());
+    alloc_size = (std::min)(alloc_size, mem_budget);
     const std::size_t s = alloc_size / sizeof(int);
     buffer->setSize(s);
     ASSERT_TRUE(buffer->isHostWritable()) << "The buffer isn't host writable.";
@@ -543,7 +562,9 @@ TEST(BufferTest, HostRandomAccessibleHostBufferMemoryMappingTest)
   {
     const zivc::DeviceInfo& info = device->deviceInfo();
     constexpr std::size_t max_alloc = 1ull * 1024ull * 1024ull * 1024ull;
-    const std::size_t alloc_size = (std::min)(info.maxAllocationSize(), max_alloc);
+    std::size_t alloc_size = (std::min)(info.maxAllocationSize(), max_alloc);
+    const std::size_t mem_budget = ::getBufferMemoryBudget(info, buffer->heapIndex());
+    alloc_size = (std::min)(alloc_size, mem_budget);
     const std::size_t s = alloc_size / sizeof(int);
     buffer->setSize(s);
     ASSERT_TRUE(buffer->isHostWritable()) << "The buffer isn't host writable.";
@@ -588,7 +609,9 @@ TEST(BufferTest, HostWritableDeviceBufferMemoryMappingTest)
   {
     const zivc::DeviceInfo& info = device->deviceInfo();
     constexpr std::size_t max_alloc = 128ull * 1024ull * 1024ull;
-    const std::size_t alloc_size = (std::min)(info.maxAllocationSize(), max_alloc);
+    std::size_t alloc_size = (std::min)(info.maxAllocationSize(), max_alloc);
+    const std::size_t mem_budget = ::getBufferMemoryBudget(info, buffer->heapIndex());
+    alloc_size = (std::min)(alloc_size, mem_budget);
     const std::size_t s = alloc_size / sizeof(float);
     buffer->setSize(s);
     ASSERT_TRUE(buffer->isHostWritable()) << "The buffer isn't host writable.";
@@ -634,7 +657,9 @@ TEST(BufferTest, HostWritableHostBufferMemoryMappingTest)
   {
     const zivc::DeviceInfo& info = device->deviceInfo();
     constexpr std::size_t max_alloc = 1ull * 1024ull * 1024ull * 1024ull;
-    const std::size_t alloc_size = (std::min)(info.maxAllocationSize(), max_alloc);
+    std::size_t alloc_size = (std::min)(info.maxAllocationSize(), max_alloc);
+    const std::size_t mem_budget = ::getBufferMemoryBudget(info, buffer->heapIndex());
+    alloc_size = (std::min)(alloc_size, mem_budget);
     const std::size_t s = alloc_size / sizeof(float);
     buffer->setSize(s);
     ASSERT_TRUE(buffer->isHostWritable()) << "The buffer isn't host writable.";
@@ -745,7 +770,10 @@ TEST(BufferTest, CopyMaxAllocBufferTest)
   // Allocate memories
   {
     constexpr std::size_t max_alloc = 4ull * 1024ull * 1024ull * 1024ull;
-    const std::size_t alloc_size = (std::min)(info.maxAllocationSize(), max_alloc);
+    std::size_t alloc_size = (std::min)(info.maxAllocationSize(), max_alloc);
+    const std::size_t mem_budget_h = ::getBufferMemoryBudget(info, buffer_h->heapIndex());
+    const std::size_t mem_budget_d = ::getBufferMemoryBudget(info, buffer_d->heapIndex());
+    alloc_size = (std::min)(alloc_size, (std::min)(mem_budget_h, mem_budget_d));
     const std::size_t s = alloc_size / sizeof(uint64b);
     buffer_h->setSize(s);
     buffer_d->setSize(s);

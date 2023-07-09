@@ -68,6 +68,20 @@ enum class BackendType : uint32b
 
   No detailed description.
   */
+enum class PhysicalDeviceType : uint32b
+{
+  kOther = 0, //!< The device does not match any other available types
+  kIntegratedGpu = 1, //!< The device is typically one embedded in or tightly coupled with the host
+  kDiscreteGpu = 2, //!< The device is typically a separate processor connected to the host via an interlink
+  kVirtualGpu = 3, //!< The device is typically a virtual node in a virtualization environment
+  kCpu = 4 //!< The device is typically running on the same processors as the host
+};
+
+/*!
+  \brief No brief description
+
+  No detailed description.
+  */
 enum class VulkanDeviceCapability : uint32b
 {
   kCompute = 0,

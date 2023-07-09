@@ -227,6 +227,18 @@ std::string_view VulkanDeviceInfo::name() const noexcept
 
   \return No description
   */
+PhysicalDeviceType VulkanDeviceInfo::physicalDeviceType() const noexcept
+{
+  const Properties& props = properties();
+  const auto type = static_cast<PhysicalDeviceType>(static_cast<uint32b>(props.properties1_.deviceType));
+  return type;
+}
+
+/*!
+  \details No detailed description
+
+  \return No description
+  */
 BackendType VulkanDeviceInfo::type() const noexcept
 {
   return BackendType::kVulkan;

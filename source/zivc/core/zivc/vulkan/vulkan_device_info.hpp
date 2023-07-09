@@ -349,6 +349,9 @@ class VulkanDeviceInfo : public DeviceInfo
   //! Return tool properties list of the device
   std::span<const VkPhysicalDeviceToolPropertiesEXT> toolPropertiesList() const noexcept;
 
+  //! Return the physical device type
+  PhysicalDeviceType physicalDeviceType() const noexcept override;
+
   //! Return the backend type
   BackendType type() const noexcept override;
 

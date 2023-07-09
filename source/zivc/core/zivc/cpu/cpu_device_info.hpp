@@ -77,6 +77,9 @@ class CpuDeviceInfo : public DeviceInfo
   //! Return the device name
   std::string_view name() const noexcept override;
 
+  //! Return the physical device type
+  PhysicalDeviceType physicalDeviceType() const noexcept override;
+
   //! Return the backend type
   BackendType type() const noexcept override;
 

@@ -735,9 +735,11 @@ void VulkanBackend::initDeviceList()
   const vk::Instance ins{instance()};
 
   VulkanDispatchLoader::ConstLoaderReference loader = dispatcher().loader();
-  using TmpDeviceListT = zisc::pmr::vector<vk::PhysicalDevice>;
-  TmpDeviceListT::allocator_type tmp_alloc{memoryResource()};
-  auto device_list = ins.enumeratePhysicalDevices(tmp_alloc, loader);
+  //! \todo Fix a linker error on macOS
+  //using TmpDeviceListT = zisc::pmr::vector<vk::PhysicalDevice>;
+  //TmpDeviceListT::allocator_type tmp_alloc{memoryResource()};
+  //auto device_list = ins.enumeratePhysicalDevices(tmp_alloc, loader);
+  std::vector device_list = ins.enumeratePhysicalDevices(loader);
 
   using DeviceListT = decltype(device_list_)::element_type;
   const DeviceListT::allocator_type alloc{memoryResource()};

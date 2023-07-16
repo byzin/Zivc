@@ -238,7 +238,6 @@ function(Zivc_getClspvCompileFlags clspv_compile_flags)
                       --int8
                       --long-vector
                       --no-vec3-to-vec4
-                      --opaque-pointers
                       --pod-ubo
                       --spv-version=${spv_version}
                       --work-dim

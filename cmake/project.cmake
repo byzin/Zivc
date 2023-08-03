@@ -47,13 +47,13 @@ function(addCpuFeatures binary_dir)
   add_subdirectory("${cpu_features_path}" "${binary_dir}" EXCLUDE_FROM_ALL)
   Zivc_checkTarget(CpuFeature::cpu_features)
   # Supress warnings
-  set(warning_flags "")
+  set(cpu_warning_flags "")
   if(Z_VISUAL_STUDIO)
-    list(APPEND warning_flags /w)
+    list(APPEND cpu_warning_flags /w)
   elseif(Z_CLANG AND NOT Z_APPLE_CLANG)
-    list(APPEND warning_flags -Wno-unused-command-line-argument
-                              -Wno-unused-but-set-variable
-                              )
+    list(APPEND cpu_warning_flags -Wno-unused-command-line-argument
+                                  -Wno-unused-but-set-variable
+                                  )
   endif()
   target_compile_options(cpu_features PRIVATE ${cpu_warning_flags})
 endfunction(addCpuFeatures)

@@ -25,7 +25,7 @@
 #define VMA_DEBUG_DETECT_CORRUPTION 1
 #else // release
 //! \todo Set optimization configurations
-static_assert(false, "Set optimization configurations.");
+//static_assert(false, "Set optimization configurations.");
 #endif // Z_DEBUG_MODE
 #endif // ZIVC_ENABLE_VMA_IMPLEMENTATION
 

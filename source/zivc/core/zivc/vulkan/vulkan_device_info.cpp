@@ -299,7 +299,7 @@ void VulkanDeviceInfo::fetchExtensionProperties(const VulkanDispatchLoader& disp
                                                                    nullptr, loader);
     if (result != vk::Result::eSuccess) {
       const char* message = "Fetching device extension props failed.";
-      vk::throwResultException(result, message);
+      vk::detail::throwResultException(result, message);
     }
     prop_list.resize(zisc::cast<std::size_t>(size));
   }
@@ -309,7 +309,7 @@ void VulkanDeviceInfo::fetchExtensionProperties(const VulkanDispatchLoader& disp
                                                                    data, loader);
     if (result != vk::Result::eSuccess) {
       const char* message = "Fetching device extension props failed.";
-      vk::throwResultException(result, message);
+      vk::detail::throwResultException(result, message);
     }
   }
   {
@@ -582,7 +582,7 @@ void VulkanDeviceInfo::fetchLayerProperties(const VulkanDispatchLoader& dispatch
     const vk::Result result = d.enumerateDeviceLayerProperties(&size, nullptr, loader);
     if (result != vk::Result::eSuccess) {
       const char* message = "Fetching device layer props failed.";
-      vk::throwResultException(result, message);
+      vk::detail::throwResultException(result, message);
     }
     prop_list.resize(zisc::cast<std::size_t>(size));
   }
@@ -591,7 +591,7 @@ void VulkanDeviceInfo::fetchLayerProperties(const VulkanDispatchLoader& dispatch
     const vk::Result result = d.enumerateDeviceLayerProperties(&size, data, loader);
     if (result != vk::Result::eSuccess) {
       const char* message = "Fetching device layer props failed.";
-      vk::throwResultException(result, message);
+      vk::detail::throwResultException(result, message);
     }
   }
   {
@@ -765,7 +765,7 @@ void VulkanDeviceInfo::fetchToolProperties(const VulkanDispatchLoader& dispatche
     const vk::Result result = d.getToolPropertiesEXT(&size, nullptr, loader);
     if (result != vk::Result::eSuccess) {
       const char* message = "Fetching device tool props failed.";
-      vk::throwResultException(result, message);
+      vk::detail::throwResultException(result, message);
     }
     tool_properties_list_.resize(zisc::cast<std::size_t>(size));
   }
@@ -774,7 +774,7 @@ void VulkanDeviceInfo::fetchToolProperties(const VulkanDispatchLoader& dispatche
     const vk::Result result = d.getToolPropertiesEXT(&size, data, loader);
     if (result != vk::Result::eSuccess) {
       const char* message = "Fetching device tool props failed.";
-      vk::throwResultException(result, message);
+      vk::detail::throwResultException(result, message);
     }
   }
 }

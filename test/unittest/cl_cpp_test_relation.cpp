@@ -4217,8 +4217,6 @@ TEST(ClCppTest, RelationAnyTest)
   zivc::LaunchResult result = kernel->run(*buffer_in1, *buffer_in2, *buffer_in3, *buffer_in4, *buffer_out1, launch_options);
   device->waitForCompletion(result.fence());
 
-  using zivc::cl_int;
-
   // output1
   {
     constexpr cl_int t = zivc::cl::kSTrue;
@@ -4441,8 +4439,6 @@ TEST(ClCppTest, RelationAllTest)
   ASSERT_TRUE(launch_options.isFenceRequested());
   zivc::LaunchResult result = kernel->run(*buffer_in1, *buffer_in2, *buffer_in3, *buffer_in4, *buffer_out1, launch_options);
   device->waitForCompletion(result.fence());
-
-  using zivc::cl_int;
 
   // output1
   {

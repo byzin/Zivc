@@ -501,7 +501,7 @@ void VulkanBufferImpl::initAllocationInfo(const BufferCommon& object,
 void VulkanBufferImpl::throwResultException(const VkResult result, const char* message)
 {
   const auto r = static_cast<vk::Result>(result);
-  vk::throwResultException(r, message);
+  vk::detail::throwResultException(r, message);
 }
 
 /*!

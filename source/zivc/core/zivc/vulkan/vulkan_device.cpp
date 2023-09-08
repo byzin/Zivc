@@ -345,7 +345,7 @@ auto VulkanDevice::addShaderKernel(const ModuleData& module,
       const std::string message = createErrorMessage(
           *this,
           "Compute pipeline creation failed.");
-      vk::throwResultException(result.result, message.data());
+      vk::detail::throwResultException(result.result, message.data());
     }
     pline = zisc::cast<vk::Pipeline>(result.value);
   }
@@ -1618,7 +1618,7 @@ void VulkanDevice::initMemoryAllocator()
     const std::string message = createErrorMessage(
         *this,
         "VM allocator creation failed.");
-    vk::throwResultException(static_cast<vk::Result>(result), message.data());
+    vk::detail::throwResultException(static_cast<vk::Result>(result), message.data());
   }
 }
 

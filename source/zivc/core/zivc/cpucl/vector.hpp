@@ -11,8 +11,10 @@
 #define ZIVC_CPUCL_VECTOR_HPP
 
 // Standard C++ library
+#include <algorithm>
 #include <array>
 #include <cstddef>
+#include <limits>
 #include <span>
 #include <type_traits>
 // Zisc
@@ -34,6 +36,16 @@ namespace zivc::cl {
   \tparam kN No description.
   */
 template <Arithmetic Type, size_t kN> struct Vector;
+
+#if defined(Z_MSVC)
+constexpr size_t kVectorAlignmentMax = 64; //!< \attention MSVC doesn't support more than 64 byte alignment
+#else // Z_MSVC
+constexpr size_t kVectorAlignmentMax = (std::numeric_limits<size_t>::max)();
+#endif // Z_MSVC
+
+//! Represent a vector alignment
+template <Arithmetic Type, size_t kN>
+constexpr size_t kVectorAlignment = (std::min)(kN * sizeof(Type), kVectorAlignmentMax);
 
 // Comparison type
 
@@ -57,7 +69,7 @@ using CompResultVec = CompResult<Vector<Type, kN>>;
   \tparam T No description.
   */
 template <Arithmetic T>
-struct alignas(2 * sizeof(T)) Vector<T, 2>
+struct alignas(kVectorAlignment<T, 2>) Vector<T, 2>
 {
   //
   using Type = std::remove_cvref_t<T>;
@@ -187,7 +199,7 @@ struct alignas(2 * sizeof(T)) Vector<T, 2>
   \tparam T No description.
   */
 template <Arithmetic T>
-struct alignas(4 * sizeof(T)) Vector<T, 3>
+struct alignas(kVectorAlignment<T, 4>) Vector<T, 3>
 {
   //
   using Type = std::remove_cvref_t<T>;
@@ -326,7 +338,7 @@ struct alignas(4 * sizeof(T)) Vector<T, 3>
   \tparam T No description.
   */
 template <Arithmetic T>
-struct alignas(4 * sizeof(T)) Vector<T, 4>
+struct alignas(kVectorAlignment<T, 4>) Vector<T, 4>
 {
   //
   using Type = std::remove_cvref_t<T>;
@@ -479,7 +491,7 @@ struct alignas(4 * sizeof(T)) Vector<T, 4>
   \tparam T No description.
   */
 template <Arithmetic T>
-struct alignas(8 * sizeof(T)) Vector<T, 8>
+struct alignas(kVectorAlignment<T, 8>) Vector<T, 8>
 {
   //
   using Type = std::remove_cvref_t<T>;
@@ -628,7 +640,7 @@ struct alignas(8 * sizeof(T)) Vector<T, 8>
   \tparam T No description.
   */
 template <Arithmetic T>
-struct alignas(16 * sizeof(T)) Vector<T, 16>
+struct alignas(kVectorAlignment<T, 16>) Vector<T, 16>
 {
   //
   using Type = std::remove_cvref_t<T>;

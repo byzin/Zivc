@@ -103,7 +103,7 @@ ZIVC_CHECK_TYPE_SIZE(long2, 16);
 ZIVC_CHECK_TYPE_SIZE(long3, 32);
 ZIVC_CHECK_TYPE_SIZE(long4, 32);
 ZIVC_CHECK_TYPE_SIZE(long8, 64);
-ZIVC_CHECK_TYPE_SIZE(long16, 128);
+//ZIVC_CHECK_TYPE_SIZE(long16, 128); //!< \note MSVC doesn't support 128 byte alignment
 //ZIVC_CHECK_TYPE_SIZE(unsigned long, 8); //!< \note long is 4 bytes in msvc
 ZIVC_CHECK_TYPE_SIZE(ulong, 8);
 ZIVC_CHECK_TYPE_SIZE(zivc::uint64b, 8);
@@ -111,7 +111,7 @@ ZIVC_CHECK_TYPE_SIZE(ulong2, 16);
 ZIVC_CHECK_TYPE_SIZE(ulong3, 32);
 ZIVC_CHECK_TYPE_SIZE(ulong4, 32);
 ZIVC_CHECK_TYPE_SIZE(ulong8, 64);
-ZIVC_CHECK_TYPE_SIZE(ulong16, 128);
+//ZIVC_CHECK_TYPE_SIZE(ulong16, 128); //!< \note MSVC doesn't support 128 byte alignment
 ZIVC_CHECK_TYPE_SIZE(half, 2);
 ZIVC_CHECK_TYPE_SIZE(half2, 4);
 ZIVC_CHECK_TYPE_SIZE(half3, 8);
@@ -129,7 +129,7 @@ ZIVC_CHECK_TYPE_SIZE(double2, 16);
 ZIVC_CHECK_TYPE_SIZE(double3, 32);
 ZIVC_CHECK_TYPE_SIZE(double4, 32);
 ZIVC_CHECK_TYPE_SIZE(double8, 64);
-ZIVC_CHECK_TYPE_SIZE(double16, 128);
+//ZIVC_CHECK_TYPE_SIZE(double16, 128); //!< \note MSVC doesn't support 128 byte alignment
 
 ZIVC_CHECK_TYPE_SIZE(zivc::GlobalPtr<int>, sizeof(void*));
 ZIVC_CHECK_TYPE_SIZE(zivc::ConstGlobalPtr<int>, sizeof(void*));

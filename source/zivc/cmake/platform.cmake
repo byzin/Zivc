@@ -57,6 +57,9 @@ function(Zivc_addClspv binary_dir)
 
   # Disable all warnings
   if(Z_VISUAL_STUDIO)
+    target_compile_options(clspv_passes PRIVATE /w)
+    target_compile_options(clspv_core PRIVATE /w)
+    target_compile_options(clspv PRIVATE /w)
   elseif(Z_CLANG OR Z_GCC)
     target_compile_options(clspv_passes PRIVATE -w)
     target_compile_options(clspv_core PRIVATE -w)

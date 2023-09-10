@@ -23,13 +23,19 @@ endfunction(Zivc_getPlatformFlags)
 function(Zivc_addClspv binary_dir)
   cmake_path(SET zivc_path NORMALIZE "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/..")
   cmake_path(SET clspv_source_path NORMALIZE "${zivc_path}/../dependencies/clspv")
+  cmake_path(SET clspv_copy_path NORMALIZE "${binary_dir}/clspv")
+
+  # Create a hard copy of the clspv dir to avoid the length limit of file name 
+  file(MAKE_DIRECTORY ${binary_dir})
+  file(COPY "${clspv_source_path}" DESTINATION "${binary_dir}" NO_SOURCE_PERMISSIONS)
+
   #
   if(NOT TARGET Python3::Interpreter)
     find_package(Python3 COMPONENTS Interpreter REQUIRED)
   endif()
   message(STATUS "Fetching clspv dependencies ... ")
   execute_process(
-    COMMAND ${Python3_EXECUTABLE} "${clspv_source_path}/utils/fetch_sources.py"
+    COMMAND ${Python3_EXECUTABLE} "${clspv_copy_path}/utils/fetch_sources.py"
     RESULT_VARIABLE fetch_result
     OUTPUT_VARIABLE fetch_output
     ERROR_VARIABLE fetch_error)
@@ -51,8 +57,8 @@ function(Zivc_addClspv binary_dir)
   Zivc_setInternalValue(SKIP_CLSPV_TOOLS_INSTALL ON)
   Zivc_setInternalValue(SKIP_SPIRV_TOOLS_INSTALL ON)
   Zivc_setInternalValue(CLSPV_BUILD_TESTS OFF)
-  Zivc_checkSubmodule("${clspv_source_path}")
-  add_subdirectory("${clspv_source_path}" "${binary_dir}" EXCLUDE_FROM_ALL)
+  Zivc_checkSubmodule("${clspv_copy_path}")
+  add_subdirectory("${clspv_copy_path}" "${binary_dir}" EXCLUDE_FROM_ALL)
   Zivc_checkTarget(clspv)
 
   # Disable all warnings

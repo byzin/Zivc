@@ -119,7 +119,7 @@ macro(Zivc_setZivcProject)
   Zivc_initZivcOptions()
 
   # Check dependencies
-  Zivc_checkTarget(CpuFeature::cpu_features)
+  Zivc_checkTarget(CpuFeatures::cpu_features)
 
   cmake_path(SET zivc_core_dir "${PROJECT_SOURCE_DIR}/core")
   cmake_path(SET zivc_include_dir "${zivc_core_dir}/include")
@@ -184,7 +184,7 @@ macro(Zivc_setZivcProject)
                                                    ${compile_sanitizer_flags}
                                                    ${zivc_warning_flags})
     target_link_libraries(${library_name} PUBLIC ${zisc_library_name}
-                                          PRIVATE CpuFeature::cpu_features)
+                                          PRIVATE CpuFeatures::cpu_features)
     target_link_options(${library_name} PUBLIC ${zivc_linker_flags}
                                         PRIVATE ${linker_sanitizer_flags})
     target_compile_definitions(${library_name} PUBLIC ${zivc_definitions})

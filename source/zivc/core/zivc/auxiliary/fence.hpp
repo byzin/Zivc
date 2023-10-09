@@ -27,10 +27,15 @@ namespace zivc {
 // Forward declaration
 class Device;
 
+/*!
+  \brief No brief description
+
+  No detailed description.
+  */
 class Fence : private zisc::NonCopyable<Fence>
 {
  public:
-  using DataT = std::aligned_storage_t<28, 8>;
+  using DataT = std::aligned_storage_t<32, 8>;
 
 
   //! Create a deactive fence

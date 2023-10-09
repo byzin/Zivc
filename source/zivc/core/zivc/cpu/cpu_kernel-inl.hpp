@@ -298,7 +298,7 @@ createIdCounter() noexcept
 {
   // To guarantee that the counter is alive while kernel execution,
   // create the counter using the member storage
-  auto* memory = zisc::cast<void*>(atomicStorage());
+  auto* memory = static_cast<void*>(atomicStorage());
   auto* id = ::new (memory) std::atomic<uint32b>{0};
   return id;
 }
@@ -333,7 +333,7 @@ getArg(LocalCacheT& local_cache) noexcept -> ArgT<kIndex>
   else { // global
     constexpr std::size_t cache_index = kIndex - offset;
     BufferCommon* cache = arg_cache_.template get<cache_index>();
-    auto* data = static_cast<typename ArgumentT::Pointer>(cache->rawBufferData());
+    auto* data = zisc::reinterp<typename ArgumentT::Pointer>(cache->rawBufferData());
     ArgumentT cl_arg{data};
     return cl_arg;
   }

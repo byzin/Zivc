@@ -20,6 +20,8 @@
 #include <cstddef>
 #include <type_traits>
 #include <utility>
+// Zisc
+#include "zisc/utility.hpp"
 // Zivc
 #include "buffer_common.hpp"
 #include "error.hpp"
@@ -42,7 +44,7 @@ MappedMemory<T>::MappedMemory() noexcept
   */
 template <KernelArg T> inline
 MappedMemory<T>::MappedMemory(const BufferCommon* buffer) :
-    data_{(buffer != nullptr) ? static_cast<Pointer>(buffer->mapMemoryData()) : nullptr},
+    data_{(buffer != nullptr) ? zisc::reinterp<Pointer>(buffer->mapMemoryData()) : nullptr},
     buffer_{buffer}
 {
 }

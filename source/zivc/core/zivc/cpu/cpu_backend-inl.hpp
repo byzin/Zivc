@@ -22,7 +22,6 @@
 // Zisc
 #include "zisc/concurrency/thread_manager.hpp"
 #include "zisc/memory/memory.hpp"
-#include "zisc/utility.hpp"
 // Zivc
 #include "cpu_device_info.hpp"
 #include "../zivc_config.hpp"
@@ -78,7 +77,7 @@ void CpuBackend::notifyOfDeviceMemoryDeallocation(const std::size_t size) noexce
 inline
 std::size_t CpuBackend::taskBatchSize() const noexcept
 {
-  return zisc::cast<std::size_t>(task_batch_size_);
+  return static_cast<std::size_t>(task_batch_size_);
 }
 
 /*!

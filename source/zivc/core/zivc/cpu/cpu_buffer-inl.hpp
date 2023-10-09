@@ -27,6 +27,7 @@
 #include <utility>
 #include <vector>
 // Zisc
+#include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
 // Zivc
 #include "cpu_device.hpp"
@@ -287,9 +288,9 @@ LaunchResult CpuBuffer<T>::copyFromImpl(const BufferCommon& source,
   using DataT = std::remove_cvref_t<D>;
   using DataPtr = std::add_pointer_t<DataT>;
   using ConstDataPtr = std::add_pointer_t<std::add_const_t<DataT>>;
-  const auto* src_ptr = static_cast<ConstDataPtr>(source.rawBufferData());
+  const auto* src_ptr = zisc::reinterp<ConstDataPtr>(source.rawBufferData());
   src_ptr = src_ptr + launch_options.sourceOffset();
-  auto* dst_ptr = static_cast<DataPtr>(dest->rawBufferData());
+  auto* dst_ptr = zisc::reinterp<DataPtr>(dest->rawBufferData());
   dst_ptr = dst_ptr + launch_options.destOffset();
   std::copy_n(src_ptr, launch_options.size(), dst_ptr);
 
@@ -312,7 +313,7 @@ LaunchResult CpuBuffer<T>::fillImpl(typename Buffer<D>::ConstReference value,
 {
   using DataT = std::remove_cvref_t<D>;
   using DataPtr = std::add_pointer_t<DataT>;
-  auto* dst_ptr = static_cast<DataPtr>(dest->rawBufferData());
+  auto* dst_ptr = zisc::reinterp<DataPtr>(dest->rawBufferData());
   dst_ptr = dst_ptr + launch_options.destOffset();
   std::fill_n(dst_ptr, launch_options.size(), value);
 

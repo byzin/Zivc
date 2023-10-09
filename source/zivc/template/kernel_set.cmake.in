@@ -294,7 +294,8 @@ function(Zivc_getSpirvOptOptions opt_options)
 
   if(Z_RELEASE_MODE)
     # Optimization
-    list(APPEND options --strip-debug
+    list(APPEND options -O
+                        --strip-debug
                         --combine-access-chains
                         --eliminate-dead-const
                         --eliminate-dead-input-components
@@ -306,8 +307,10 @@ function(Zivc_getSpirvOptOptions opt_options)
                         --remove-duplicates
                         --remove-unused-interface-variables
                         --strength-reduction
+                        --strip-debug
                         --unify-const
-                        -O)
+                        -O # Apply the optimization option again
+                        )
   endif()
 
   # Output

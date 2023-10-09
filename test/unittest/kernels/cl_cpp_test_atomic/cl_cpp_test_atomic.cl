@@ -46,6 +46,42 @@ static_assert(sizeof(Storage1) == 16);
 
 } /* namespace inner */
 
+__kernel void atomicLoadStoreTestKernel(zivc::GlobalPtr<int32b> index1,
+                                        zivc::ConstGlobalPtr<uint32b> index2,
+                                        zivc::GlobalPtr<int32b> out1,
+                                        zivc::GlobalPtr<uint32b> out2,
+                                        const uint32b resolution)
+{
+  const size_t index = zivc::getGlobalLinearId();
+  if (resolution <= index)
+    return;
+
+  {
+    const size_t i = 2 * index;
+    const int32b v = zivc::atomic_load(&index1[i]);
+    zivc::atomic_store(&out1[i], v);
+  }
+  {
+    const size_t i = 2 * index + 1;
+    zivc::GlobalPtr<int32b> iptr = index1 + i;
+    zivc::GlobalPtr<int32b> optr = out1 + i;
+    const int32b v = zivc::atomic_load(iptr);
+    zivc::atomic_store(optr, v);
+  }
+  {
+    const size_t i = 2 * index;
+    const uint32b v = zivc::atomic_load(&index2[i]);
+    zivc::atomic_store(&out2[i], v);
+  }
+  {
+    const size_t i = 2 * index + 1;
+    zivc::ConstGlobalPtr<uint32b> iptr = index2 + i;
+    zivc::GlobalPtr<uint32b> optr = out2 + i;
+    const uint32b v = zivc::atomic_load(iptr);
+    zivc::atomic_store(optr, v);
+  }
+}
+
 __kernel void atomicExchangeTestKernel(zivc::GlobalPtr<int32b> index1,
                                        zivc::GlobalPtr<uint32b> index2,
                                        zivc::GlobalPtr<int32b> out1,

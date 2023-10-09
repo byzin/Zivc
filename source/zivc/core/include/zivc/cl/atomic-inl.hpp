@@ -160,8 +160,13 @@ auto Atomic::load(AddressSpacePointer object,
                   const MemoryOrder order) noexcept
 {
   using ObjectT = AtomicObject<AddressSpacePointer>;
+  //! \todo Resolve the code branch
   return ZIVC_CL_GLOBAL_NAMESPACE::atomic_load_explicit(
-      reinterp<typename ObjectT::Type>(object),
+#if defined(ZIVC_CL_CPU)
+      reinterp<typename ObjectT::ConstT>(object),
+#else // Vulkan case
+      const_cast<typename ObjectT::Type>(reinterp<typename ObjectT::ConstT>(object)),
+#endif
       ObjectT::convert(order));
 }
 

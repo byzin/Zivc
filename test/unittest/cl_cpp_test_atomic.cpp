@@ -41,6 +41,85 @@ constexpr std::size_t nLoop() noexcept {return 10;}
 
 } /* namespace */
 
+TEST(ClCppTest, AtomicLoadStoreTest)
+{
+  const zivc::SharedContext context = ztest::createContext();
+  const ztest::Config& config = ztest::Config::globalConfig();
+  const zivc::SharedDevice device = context->queryDevice(config.deviceId());
+
+  // Allocate buffers
+  using zivc::cl_int;
+  using zivc::cl_uint;
+
+  constexpr std::size_t n = 2560 * 1440;
+
+  // Initialize inputs
+  const zivc::SharedBuffer buffer_out1 = device->createBuffer<cl_int>(zivc::BufferUsage::kPreferDevice);
+  buffer_out1->setSize(2 * n);
+  ztest::fillDeviceBuffer(static_cast<cl_int>(0), buffer_out1.get());
+  const zivc::SharedBuffer buffer_out2 = device->createBuffer<cl_uint>(zivc::BufferUsage::kPreferDevice);
+  buffer_out2->setSize(2 * n);
+  ztest::fillDeviceBuffer(static_cast<cl_uint>(0), buffer_out2.get());
+
+  const zivc::SharedBuffer buffer_index1 = device->createBuffer<cl_int>(zivc::BufferUsage::kPreferDevice);
+  {
+    std::vector<cl_int> inputs{};
+    inputs.resize(2 * n);
+    std::iota(inputs.begin(), inputs.end(), 1);
+    ztest::setDeviceBuffer<cl_int>(*device, inputs, buffer_index1.get());
+  }
+  const zivc::SharedBuffer buffer_index2 = device->createBuffer<cl_uint>(zivc::BufferUsage::kPreferDevice);
+  {
+    std::vector<cl_uint> inputs{};
+    inputs.resize(2 * n);
+    std::iota(inputs.begin(), inputs.end(), 1);
+    ztest::setDeviceBuffer<cl_uint>(*device, inputs, buffer_index2.get());
+  }
+
+  // Make a kernel
+  const zivc::KernelInitParams kernel_params = ZIVC_CREATE_KERNEL_INIT_PARAMS(cl_cpp_test_atomic, atomicLoadStoreTestKernel, 1);
+  const zivc::SharedKernel kernel = device->createKernel(kernel_params);
+  ASSERT_EQ(1, kernel->dimensionSize()) << "Wrong kernel property.";
+  ASSERT_EQ(5, kernel->argSize()) << "Wrong kernel property.";
+
+  // Launch the kernel
+  zivc::KernelLaunchOptions launch_options = kernel->createOptions();
+  launch_options.setQueueIndex(0);
+  launch_options.setWorkSize({{n}});
+  launch_options.requestFence(true);
+  launch_options.setLabel("atomicLoadStoreTestKernel");
+  ASSERT_EQ(1, launch_options.dimension());
+  ASSERT_EQ(5, launch_options.numOfArgs());
+  ASSERT_EQ(0, launch_options.queueIndex());
+  ASSERT_EQ(n, launch_options.workSize()[0]);
+  ASSERT_TRUE(launch_options.isFenceRequested());
+  zivc::LaunchResult result = kernel->run(*buffer_index1, *buffer_index2,
+                                          *buffer_out1, *buffer_out2,
+                                          n, launch_options);
+  device->waitForCompletion(result.fence());
+
+  // output1
+  {
+    const zivc::SharedBuffer tmp = device->createBuffer<cl_int>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out1, tmp.get());
+    const zivc::MappedMemory mem = tmp->mapMemory();
+    for (std::size_t i = 0; i < 2 * n; ++i) {
+      const auto expected = static_cast<cl_int>(i + 1);
+      ASSERT_EQ(expected, mem[i]) << "atomic_load or atomic_store failed.";
+    }
+  }
+  // output2
+  {
+    const zivc::SharedBuffer tmp = device->createBuffer<cl_uint>({zivc::BufferUsage::kPreferHost, zivc::BufferFlag::kRandomAccessible});
+    ztest::copyBuffer(*buffer_out2, tmp.get());
+    const zivc::MappedMemory mem = tmp->mapMemory();
+    for (std::size_t i = 0; i < 2 * n; ++i) {
+      const auto expected = static_cast<cl_uint>(i + 1);
+      ASSERT_EQ(expected, mem[i]) << "atomic_load or atomic_store failed.";
+    }
+  }
+}
+
 TEST(ClCppTest, AtomicExchangeTest)
 {
   const zivc::SharedContext context = ztest::createContext();

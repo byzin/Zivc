@@ -618,22 +618,22 @@ void VulkanDevice::setDebugInfo(const VkObjectType vk_object_type,
   VulkanDispatchLoader::ConstLoaderReference loader = dispatcher().loader();
   const vk::Device d{device()};
   const auto object_type = static_cast<vk::ObjectType>(vk_object_type);
-  const auto handle = zisc::cast<uint64b>(zisc::reinterp<std::size_t>(vk_handle));
+  const auto handle = zisc::cast<uint64b>(zisc::bit_cast<std::size_t>(vk_handle));
   // Name
   {
     const vk::DebugUtilsObjectNameInfoEXT name_info{object_type,
-                                                        handle,
-                                                        object_name.data()};
+                                                    handle,
+                                                    object_name.data()};
     d.setDebugUtilsObjectNameEXT(name_info, loader);
   }
   // Tag
   if (zivc_object != nullptr) {
     const auto tag_name = zisc::cast<uint64b>(zivc_object->id().id());
     const vk::DebugUtilsObjectTagInfoEXT tag_info{object_type,
-                                                      handle,
-                                                      tag_name,
-                                                      sizeof(void*),
-                                                      std::addressof(zivc_object)};
+                                                  handle,
+                                                  tag_name,
+                                                  sizeof(void*),
+                                                  std::addressof(zivc_object)};
     d.setDebugUtilsObjectTagEXT(tag_info, loader);
   }
 }

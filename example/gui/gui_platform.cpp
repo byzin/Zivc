@@ -21,6 +21,7 @@
 #include <memory>
 #include <utility>
 // Zisc
+#include "zisc/bit.hpp"
 #include "zisc/boolean.hpp"
 #include "zisc/utility.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
@@ -289,7 +290,7 @@ void GuiPlatform::initGlfw(const GuiApplicationOptions& options)
   VkSurfaceKHR surface = ZIVC_VK_NULL_HANDLE;
   {
     VkInstance ins = instance();
-    auto* proc_addr = zisc::reinterp<void*>(dispatcher().instanceProcAddr());
+    auto* proc_addr = zisc::bit_cast<void*>(dispatcher().instanceProcAddr());
     const auto surface_type = static_cast<GlfwSurfaceType>(surfaceType());
     auto* s = zisc::reinterp<void**>(&surface);
     initGlfwVulkan(ins, proc_addr, glfw_window_, &vk_allocator_, surface_type, s);

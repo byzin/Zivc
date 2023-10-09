@@ -26,10 +26,10 @@
 // Zisc
 #include "zisc/memory/memory.hpp"
 #include "zisc/memory/std_memory_resource.hpp"
+#include "zisc/structure/lock_free_queue.hpp"
 #include "zisc/structure/map.hpp"
 #include "zisc/structure/mutex_bst.hpp"
 #include "zisc/structure/queue.hpp"
-#include "zisc/structure/scalable_circular_queue.hpp"
 // Zivc
 #include "internal/cmd_debug_label_region.hpp"
 #include "internal/cmd_record_region.hpp"
@@ -305,7 +305,7 @@ class VulkanDevice : public Device
         void* user_data);
   };
 
-  using IndexQueueImplT = zisc::ScalableCircularQueue<std::size_t>;
+  using IndexQueueImplT = zisc::PortableRingQueue<std::size_t>;
   using IndexQueueT = zisc::Queue<IndexQueueImplT, std::size_t>;
   static_assert(IndexQueueT::isConcurrent(), "The queue must be concurrent.");
   template <typename DataT>

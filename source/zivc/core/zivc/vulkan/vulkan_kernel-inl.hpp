@@ -395,10 +395,14 @@ void VulkanKernel<KernelInitParams<kDim, KSet, FuncArgs...>, Args...>::
 initPodBuffer()
 {
   if constexpr (BaseKernelT::hasPodArg()) {
-    auto& device = parentImpl();
+    VulkanDevice& device = parentImpl();
+    const DeviceInfo& info = device.deviceInfo();
     using BuffType = VulkanBuffer<PodCacheT>;
     {
-      BufferInitParams params{BufferUsage::kPreferDevice};
+      // We use host memory when the device is integrated GPU
+      const bool is_integraded = info.physicalDeviceType() == PhysicalDeviceType::kIntegratedGpu;
+      const auto usage = is_integraded ? BufferUsage::kPreferHost : BufferUsage::kPreferDevice;
+      BufferInitParams params{usage};
       params.setDescriptorType(BuffType::DescriptorT::kUniform);
       params.setInternalBufferFlag(true);
       pod_buffer_ = device.template createBuffer<PodCacheT>(params);

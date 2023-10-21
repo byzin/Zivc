@@ -97,7 +97,8 @@ function(addZstd binary_dir)
   # Supress warnings
   set(zstd_warning_flags "")
   if(Z_VISUAL_STUDIO)
-    list(APPEND zstd_warning_flags /w)
+    list(APPEND zstd_warning_flags
+                                   )
   elseif(Z_CLANG AND NOT Z_APPLE_CLANG)
     list(APPEND zstd_warning_flags -Wno-unused-command-line-argument
                                    -Wno-unused-but-set-variable

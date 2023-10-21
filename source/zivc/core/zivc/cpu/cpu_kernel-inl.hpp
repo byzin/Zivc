@@ -104,7 +104,7 @@ run(Args... args, const LaunchOptionsT& launch_options)
     Fence& fence = result.fence();
     fence.setDevice(launch_options.isFenceRequested() ? &device : nullptr);
     using BaseT = BaseKernelT;
-    constexpr uint32b dim = BaseT::dimension();
+    constexpr auto dim = static_cast<uint32b>(BaseT::dimension());
     const std::array work_size = BaseT::expandWorkSize(launch_options.workSize(), 1);
     const std::array id_offset = BaseT::expandWorkSize(launch_options.globalIdOffset(), 0);
     device.submit(*command, dim, work_size, id_offset, id, std::addressof(fence));

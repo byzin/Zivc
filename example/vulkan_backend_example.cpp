@@ -333,15 +333,15 @@ int printVulkanBackendInfo(const zivc::Context& context)
                   << acc_structure.accelerationStructureHostCommands << std::endl;
       }
       if (acc_structure.accelerationStructure != 0) {
-        const VkPhysicalDeviceAccelerationStructurePropertiesKHR acc_structure = props.acceleration_structure_;
+        const VkPhysicalDeviceAccelerationStructurePropertiesKHR acc_structure_prop = props.acceleration_structure_;
         std::cout << indent4 << "Max geometry count: "
-                  << acc_structure.maxGeometryCount << std::endl
+                  << acc_structure_prop.maxGeometryCount << std::endl
                   << indent4 << "Max instance count: "
-                  << acc_structure.maxInstanceCount << std::endl
+                  << acc_structure_prop.maxInstanceCount << std::endl
                   << indent4 << "Max primitive count: "
-                  << acc_structure.maxPrimitiveCount << std::endl
+                  << acc_structure_prop.maxPrimitiveCount << std::endl
                   << indent4 << "Min scratch offset alignment: "
-                  << acc_structure.minAccelerationStructureScratchOffsetAlignment << std::endl;
+                  << acc_structure_prop.minAccelerationStructureScratchOffsetAlignment << std::endl;
       }
 
       const VkPhysicalDeviceRayQueryFeaturesKHR& ray_query = features.ray_query_;
@@ -358,17 +358,17 @@ int printVulkanBackendInfo(const zivc::Context& context)
                   << ray_pipeline.rayTraversalPrimitiveCulling << std::endl;
       }
       if (ray_pipeline.rayTracingPipeline != 0) {
-        const VkPhysicalDeviceRayTracingPipelinePropertiesKHR& ray_pipeline = props.ray_tracing_pipeline_;
+        const VkPhysicalDeviceRayTracingPipelinePropertiesKHR& ray_pipeline_prop = props.ray_tracing_pipeline_;
         std::cout << indent4 << "Shader group handle size: "
-                  << ray_pipeline.shaderGroupHandleSize << std::endl
+                  << ray_pipeline_prop.shaderGroupHandleSize << std::endl
                   << indent4 << "Max ray recursion depth: "
-                  << ray_pipeline.maxRayRecursionDepth << std::endl
+                  << ray_pipeline_prop.maxRayRecursionDepth << std::endl
                   << indent4 << "Shader group base alignment: "
-                  << ray_pipeline.shaderGroupBaseAlignment << std::endl
+                  << ray_pipeline_prop.shaderGroupBaseAlignment << std::endl
                   << indent4 << "Shader group handle alignment: "
-                  << ray_pipeline.shaderGroupHandleAlignment << std::endl
+                  << ray_pipeline_prop.shaderGroupHandleAlignment << std::endl
                   << indent4 << "Max ray hit attribute size: "
-                  << ray_pipeline.maxRayHitAttributeSize << std::endl;
+                  << ray_pipeline_prop.maxRayHitAttributeSize << std::endl;
       }
 
       const VkPhysicalDeviceOpacityMicromapFeaturesEXT& opacity_micromap = features.opacity_micromap_;
@@ -382,11 +382,11 @@ int printVulkanBackendInfo(const zivc::Context& context)
                   << opacity_micromap.micromapHostCommands << std::endl;
       }
       if (opacity_micromap.micromap != 0) {
-        const VkPhysicalDeviceOpacityMicromapPropertiesEXT& opacity_micromap = props.opacity_micromap_;
+        const VkPhysicalDeviceOpacityMicromapPropertiesEXT& opacity_micromap_prop = props.opacity_micromap_;
         std::cout << indent4 << "max opacity2state subdivision level: "
-                  << opacity_micromap.maxOpacity2StateSubdivisionLevel << std::endl
+                  << opacity_micromap_prop.maxOpacity2StateSubdivisionLevel << std::endl
                   << indent4 << "max opacity4state subdivision level: "
-                  << opacity_micromap.maxOpacity4StateSubdivisionLevel << std::endl;
+                  << opacity_micromap_prop.maxOpacity4StateSubdivisionLevel << std::endl;
       }
     }
   }

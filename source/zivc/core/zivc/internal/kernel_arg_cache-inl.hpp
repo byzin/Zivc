@@ -840,20 +840,20 @@ auto concat(
     if constexpr (is_pad_reusable) {
       using NewInCacheT = decltype(concat(InCacheT{}, rhs));
       static_assert(!std::is_reference_v<NewInCacheT>);
-      using NewCacheT = KernelArgCache<NewInCacheT, PreTypes...>;
-      return NewCacheT{};
+      using NewCache1T = KernelArgCache<NewInCacheT, PreTypes...>;
+      return NewCache1T{};
     }
     else {
-      constexpr std::size_t pad_size = PreCacheT::tailPaddingSize();
-      constexpr bool is_pad_reusable = (size <= pad_size) && (alignment <= pad_size);
-      if constexpr (is_pad_reusable) {
+      constexpr std::size_t pad_sizep = PreCacheT::tailPaddingSize();
+      constexpr bool is_pad_reusablep = (size <= pad_sizep) && (alignment <= pad_sizep);
+      if constexpr (is_pad_reusablep) {
         using NewInCacheT = KernelArgCache<NewTypes..., InCacheT>;
-        using NewCacheT = KernelArgCache<NewInCacheT, PreTypes...>;
-        return NewCacheT{};
+        using NewCache1T = KernelArgCache<NewInCacheT, PreTypes...>;
+        return NewCache1T{};
       }
       else {
-        using NewCacheT = KernelArgCache<NewTypes..., InCacheT, PreTypes...>;
-        return NewCacheT{};
+        using NewCache1T = KernelArgCache<NewTypes..., InCacheT, PreTypes...>;
+        return NewCache1T{};
       }
     }
   }
@@ -888,12 +888,12 @@ auto concat([[maybe_unused]] const KernelArgCache<PreType, PreTypes...>& lhs,
     constexpr std::size_t pad_size = PreCacheT::tailPaddingSize();
     constexpr bool is_pad_reusable = (size <= pad_size) && (alignment <= pad_size);
     if constexpr (is_pad_reusable) {
-      using NewCacheT = KernelArgCache<KernelArgCache<NewTypes..., PreType>, PreTypes...>;
-      return NewCacheT{};
+      using NewCache1T = KernelArgCache<KernelArgCache<NewTypes..., PreType>, PreTypes...>;
+      return NewCache1T{};
     }
     else {
-      using NewCacheT = KernelArgCache<NewTypes..., PreType, PreTypes...>;
-      return NewCacheT{};
+      using NewCache1T = KernelArgCache<NewTypes..., PreType, PreTypes...>;
+      return NewCache1T{};
     }
   }
 }

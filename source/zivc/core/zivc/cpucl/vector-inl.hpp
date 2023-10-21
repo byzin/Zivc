@@ -1024,7 +1024,7 @@ template <Arithmetic T> inline
 constexpr Vector<T, 4>::operator bool() const noexcept
 {
   const bool result = static_cast<bool>(x) && static_cast<bool>(y) &&
-                      static_cast<bool>(z) && static_cast<bool>(z);
+                      static_cast<bool>(z) && static_cast<bool>(w);
   return result;
 }
 

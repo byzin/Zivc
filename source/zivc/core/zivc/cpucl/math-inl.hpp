@@ -818,7 +818,7 @@ Vector<Float, kN> Math::pow(const Vector<Float, kN>& x, const Vector<Float, kN>&
 template <std::floating_point Float> inline
 Float Math::pown(const Float& x, const int32b y) noexcept
 {
-  const Float z = std::pow(x, y);
+  const auto z = static_cast<Float>(std::pow(x, y));
   return z;
 }
 

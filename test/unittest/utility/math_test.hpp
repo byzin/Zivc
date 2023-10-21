@@ -202,7 +202,7 @@ void testF1(const KernelInitParam kernel_params,
   constexpr std::size_t vector_size = kN;
   std::vector x_list = x_list_loader_func();
   std::transform(x_list.cbegin(), x_list.cend(), x_list.begin(), x_converter);
-  const zivc::uint32b n = x_list.size() / vector_size;
+  const auto n = static_cast<zivc::uint32b>(x_list.size() / vector_size);
 
   // Initialize buffers
   const zivc::SharedBuffer buffer_in = device->createBuffer<Float>(zivc::BufferUsage::kPreferDevice);
@@ -242,13 +242,13 @@ void testF1(const KernelInitParam kernel_params,
     std::vector expected_list = ztest::loadExpectedList<Float>(reference_file, x_list.size());
     std::transform(expected_list.cbegin(), expected_list.cend(), expected_list.begin(), reference_converter);
 
-    ztest::MathTestResult result{};
+    ztest::MathTestResult result1{};
     for (std::size_t i = 0; i < mem.size(); ++i) {
       if (isSubnormal(expected_list[i])) continue;
-      ztest::test(expected_list[i], mem[i], &result);
+      ztest::test(expected_list[i], mem[i], &result1);
     }
-    result.print();
-    result.checkError(func_name);
+    result1.print();
+    result1.checkError(func_name);
   }
 }
 
@@ -333,13 +333,13 @@ void testF1Func(const KernelInitParam kernel_params,
       return reference_converter(reference_func(x));
     });
 
-    ztest::MathTestResult result{};
+    ztest::MathTestResult result1{};
     for (std::size_t i = 0; i < mem.size(); ++i) {
       if (isSubnormal(expected_list[i])) continue;
-      ztest::test(expected_list[i], mem[i], &result);
+      ztest::test(expected_list[i], mem[i], &result1);
     }
-    result.print();
-    result.checkError(func_name);
+    result1.print();
+    result1.checkError(func_name);
   }
 }
 
@@ -430,16 +430,16 @@ void testF1Out(const KernelInitParam kernel_params,
       expected_list[i] = reference_converter(reference_func(x, &expected2_list[i]));
     }
 
-    ztest::MathTestResult result{};
+    ztest::MathTestResult result1{};
     ztest::MathTestResult result2{};
     for (std::size_t i = 0; i < mem.size(); ++i) {
       if (isSubnormal(expected_list[i])) continue;
-      ztest::test(expected_list[i], mem[i], &result);
+      ztest::test(expected_list[i], mem[i], &result1);
       if (isSubnormal(expected2_list[i])) continue;
       ztest::test(expected2_list[i], mem2[i], &result2);
     }
-    result.print();
-    result.checkError(func_name);
+    result1.print();
+    result1.checkError(func_name);
     std::cout << std::endl;
     result2.print();
     result2.checkError(func_name);
@@ -533,13 +533,13 @@ void testF2(const KernelInitParam kernel_params,
     std::vector expected_list = ztest::loadExpectedList<Float>(reference_file, x_list.size());
     std::transform(expected_list.cbegin(), expected_list.cend(), expected_list.begin(), reference_converter);
 
-    ztest::MathTestResult result{};
+    ztest::MathTestResult result1{};
     for (std::size_t i = 0; i < mem.size(); ++i) {
       if (isSubnormal(expected_list[i])) continue;
-      ztest::test(expected_list[i], mem[i], &result);
+      ztest::test(expected_list[i], mem[i], &result1);
     }
-    result.print();
-    result.checkError(func_name);
+    result1.print();
+    result1.checkError(func_name);
   }
 }
 
@@ -584,7 +584,7 @@ void testF2Func(const KernelInitParam kernel_params,
     x_list.x_[i] = v.x_;
     x_list.y_[i] = v.y_;
   }
-  const zivc::uint32b n = x_list.x_.size() / vector_size;
+  const auto n = static_cast<zivc::uint32b>(x_list.x_.size() / vector_size);
 
   // Initialize buffers
   const zivc::SharedBuffer buffer_in1 = device->createBuffer<Float>(zivc::BufferUsage::kPreferDevice);
@@ -631,13 +631,13 @@ void testF2Func(const KernelInitParam kernel_params,
     for (std::size_t i = 0; i < x_list.x_.size(); ++i)
       expected_list[i] = reference_converter(reference_func(x_list.x_[i], x_list.y_[i]));
 
-    ztest::MathTestResult result{};
+    ztest::MathTestResult result1{};
     for (std::size_t i = 0; i < mem.size(); ++i) {
       if (isSubnormal(expected_list[i])) continue;
-      ztest::test(expected_list[i], mem[i], &result);
+      ztest::test(expected_list[i], mem[i], &result1);
     }
-    result.print();
-    result.checkError(func_name);
+    result1.print();
+    result1.checkError(func_name);
   }
 }
 
@@ -683,7 +683,7 @@ void testF3Func(const KernelInitParam kernel_params,
     x_list.y_[i] = v.y_;
     x_list.z_[i] = v.z_;
   }
-  const zivc::uint32b n = x_list.x_.size() / vector_size;
+  const auto n = static_cast<zivc::uint32b>(x_list.x_.size() / vector_size);
 
 
   // Initialize buffers
@@ -736,13 +736,13 @@ void testF3Func(const KernelInitParam kernel_params,
     for (std::size_t i = 0; i < x_list.x_.size(); ++i)
       expected_list[i] = reference_converter(reference_func(x_list.x_[i], x_list.y_[i], x_list.z_[i]));
 
-    ztest::MathTestResult result{};
+    ztest::MathTestResult result1{};
     for (std::size_t i = 0; i < mem.size(); ++i) {
       if (isSubnormal(expected_list[i])) continue;
-      ztest::test(expected_list[i], mem[i], &result);
+      ztest::test(expected_list[i], mem[i], &result1);
     }
-    result.print();
-    result.checkError(func_name);
+    result1.print();
+    result1.checkError(func_name);
   }
 }
 

@@ -38,8 +38,9 @@ macro(Zivc_setKernelBakerProject)
   Zivc_getCxxWarningFlags(cxx_compile_warning_flags)
   Zivc_getSanitizerFlags(compile_sanitizer_flags linker_sanitizer_flags)
   Zivc_getZivcFlags(zivc_compile_flags zivc_linker_flags zivc_definitions)
-  Zivc_getZivcWarningFlags(zivc_warning_flags)
-  target_compile_options(${PROJECT_NAME} PRIVATE ${cxx_compile_warning_flags}
+  Zivc_getZivcWarningFlags(zivc_warning_flags zivc_warning_public_flags)
+  target_compile_options(${PROJECT_NAME} PUBLIC ${zivc_warning_public_flags}
+                                         PRIVATE ${cxx_compile_warning_flags}
                                                  ${compile_sanitizer_flags}
                                                  ${zivc_compile_flags}
                                                  ${zivc_warning_flags})

@@ -58,7 +58,7 @@ Float makeNormalT(const Float x) noexcept
   const auto h = zisc::Fnv1aHash32::hash(static_cast<zivc::uint32b>(std::abs(exponent)));
   const Float s = zisc::mapTo01<Float>(h);
 
-  Float normal = s * std::pow(two, exponent);
+  auto normal = s * static_cast<Float>(std::pow(two, exponent));
   normal = sign * std::clamp(normal,
                              std::numeric_limits<Float>::min(),
                              std::numeric_limits<Float>::max());
@@ -80,7 +80,7 @@ Float makeSubnormalT(const Float x) noexcept
   static_assert(zisc::isSubnormal(subnormal_max), "The sub max isn't subnormal.");
 
   const Float sign = std::copysign(static_cast<Float>(1.0), x);
-  Float subnormal = std::pow(x, 4) * subnormal_max;
+  Float subnormal = static_cast<Float>(std::pow(x, 4)) * subnormal_max;
   subnormal = sign * std::clamp(subnormal,
                                 std::numeric_limits<Float>::denorm_min(),
                                 subnormal_max);

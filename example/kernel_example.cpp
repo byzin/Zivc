@@ -185,8 +185,8 @@ int doKernelExample(zivc::Context& context)
       device->waitForCompletion(result.fence());
 
       const zivc::MappedMemory mem = staging->mapMemory();
-      for (std::size_t i = 0; i < mem.size(); ++i)
-        std::cout << indent3 << "output[" << i << "] = " << mem[i] << std::endl;
+      for (std::size_t j = 0; j < mem.size(); ++j)
+        std::cout << indent3 << "output[" << j << "] = " << mem[j] << std::endl;
     }
 
     // Create another kernel
@@ -231,8 +231,8 @@ int doKernelExample(zivc::Context& context)
         device->waitForCompletion(result.fence());
 
         const zivc::MappedMemory mem = staging_fp.mapMemory();
-        for (std::size_t i = 0; i < mem.size(); ++i)
-          std::cout << indent3 << "output[" << i << "] = " << mem[i] << std::endl;
+        for (std::size_t j = 0; j < mem.size(); ++j)
+          std::cout << indent3 << "output[" << j << "] = " << mem[j] << std::endl;
       }
     }
   }

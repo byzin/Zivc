@@ -41,7 +41,10 @@ function(getTestWarningFlags test_warning_flags)
                                )
     elseif(Z_VISUAL_STUDIO)
       list(APPEND warning_flags
+                               /wd4267 # conversion from 'size_t' to 'ArgT', possible loss of data
+                               /wd4456 # declaration of 'result' hides previous local declaration
                                /wd6326 # Potential comparison of a constant with another constant
+                               /wd6246 # Local declaration of 'result' hides declaration of the same name in outer scope.
                                )
     endif()
   endif()

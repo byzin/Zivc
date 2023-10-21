@@ -51,7 +51,8 @@ function(addCpuFeatures binary_dir)
   # Supress warnings
   set(cpu_warning_flags "")
   if(Z_VISUAL_STUDIO)
-    list(APPEND cpu_warning_flags /w)
+    list(APPEND cpu_warning_flags
+                                  )
   elseif(Z_CLANG AND NOT Z_APPLE_CLANG)
     list(APPEND cpu_warning_flags -Wno-unused-command-line-argument
                                   -Wno-unused-but-set-variable

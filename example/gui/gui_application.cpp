@@ -197,8 +197,8 @@ void GuiApplication::initialize(WeakPtr&& own,
     const zisc::pmr::polymorphic_allocator<GuiPlatform> alloc{mem_resource};
     platform_ = std::allocate_shared<GuiPlatform>(alloc);
     SharedObject parent{getOwnPtr()};
-    WeakObject own{platform_};
-    platform()->initialize(std::move(parent), std::move(own), context, options);
+    WeakObject child_own{platform_};
+    platform()->initialize(std::move(parent), std::move(child_own), context, options);
   }
 
 //  // Kernel

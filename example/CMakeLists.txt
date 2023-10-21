@@ -29,6 +29,8 @@ function(getExampleWarningFlags example_warning_flags)
                                )
     elseif(Z_VISUAL_STUDIO)
       list(APPEND warning_flags
+                               /wd4201 # nonstandard extension used: nameless struct/unio
+                               /wd4267 # conversion from 'size_t' to '_Ty', possible loss of data
                                )
     endif()
   endif()

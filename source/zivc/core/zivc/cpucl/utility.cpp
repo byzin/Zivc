@@ -115,9 +115,9 @@ void WorkItem::setWorkGroupId(const uint32b id) noexcept
 {
   const size_t nwx = get_num_groups(0);
   const size_t nwy = get_num_groups(1);
-  work_group_id_[0] = id % nwx;
-  work_group_id_[1] = (id / nwx) % nwy;
-  work_group_id_[2] = id / (nwx * nwy);
+  work_group_id_[0] = static_cast<uint32b>(id % nwx);
+  work_group_id_[1] = static_cast<uint32b>((id / nwx) % nwy);
+  work_group_id_[2] = static_cast<uint32b>(id / (nwx * nwy));
   ZIVC_ASSERT(work_group_id_[2] < get_num_groups(2),
               "The given work-group ID is invalid: ID=", id);
 }

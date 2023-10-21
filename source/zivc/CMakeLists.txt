@@ -68,8 +68,9 @@ function(Zivc_getZivcFlags zivc_compile_flags zivc_linker_flags zivc_definitions
 endfunction(Zivc_getZivcFlags)
 
 
-function(Zivc_getZivcWarningFlags zivc_warning_flags)
+function(Zivc_getZivcWarningFlags zivc_warning_flags zivc_warning_public_flags)
   set(warning_flags "")
+  set(public_flags "")
 
   # Suppress warnings
   if(Z_CLANG)
@@ -87,9 +88,26 @@ function(Zivc_getZivcWarningFlags zivc_warning_flags)
     list(APPEND warning_flags 
                              /wd6326 # Potential comparison of a constant with another constant
                              )
+    list(APPEND public_flags 
+                             /wd4065 # switch statement contains 'default' but no 'case' labels
+                             /wd4201 # nonstandard extension used: nameless struct/union
+                             /wd4267 # 'argument': conversion from 'size_t' to '_Ty', possible loss of data
+                             /wd4324 # structure was padded due to alignment specifier
+                             /wd4389 # '==': signed/unsigned mismatch
+                             /wd4701 # potentially uninitialized local variable 'pData' used
+                             /wd4703 # potentially uninitialized local pointer variable 'pData' used
+                             /wd6011 # Dereferencing NULL pointer
+                             /wd6326 # Potential comparison of a constant with another constant.
+                             /wd6386 # Buffer overrun while writing to 'm_FreeList'.
+                             /wd6387 # 'newArray' could be '0'
+                             /wd6239 # (<non-zero constant> && <expression>) always evaluates to the result of <expression>
+                             /wd28020 # The expression '0<=_Param_(1)&&_Param_(1)<=1-1' is not true at this call
+                             /wd28251 # Inconsistent annotation for 'LoadLibraryA': this instance has no annotations.
+                             )
   endif()
 
   set(${zivc_warning_flags} ${warning_flags} PARENT_SCOPE)
+  set(${zivc_warning_public_flags} ${public_flags} PARENT_SCOPE)
 endfunction(Zivc_getZivcWarningFlags)
 
 
@@ -167,7 +185,7 @@ macro(Zivc_setZivcProject)
   Zivc_getCxxWarningFlags(cxx_compile_warning_flags)
   Zivc_getSanitizerFlags(compile_sanitizer_flags linker_sanitizer_flags)
   Zivc_getZivcFlags(zivc_compile_flags zivc_linker_flags zivc_definitions)
-  Zivc_getZivcWarningFlags(zivc_warning_flags)
+  Zivc_getZivcWarningFlags(zivc_warning_flags, zivc_warning_public_flags)
   # Get architecture
   Zivc_getArchitectureName(FALSE arch_name_list)
   foreach(architecture IN LISTS arch_name_list)
@@ -180,6 +198,7 @@ macro(Zivc_setZivcProject)
     set_target_properties(${library_name} PROPERTIES CXX_STANDARD 20
                                                      CXX_STANDARD_REQUIRED ON)
     target_compile_options(${library_name} PUBLIC ${zivc_compile_flags}
+                                                  ${zivc_warning_public_flags}
                                            PRIVATE ${cxx_compile_warning_flags}
                                                    ${compile_sanitizer_flags}
                                                    ${zivc_warning_flags})

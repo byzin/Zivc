@@ -207,7 +207,7 @@ void CpuBuffer<T>::setSize(const std::size_t s)
     }
     catch (const std::exception& error) {
       std::string message = "Buffer memory allocation failed. size: " +
-                            std::to_string(s) + " bytes.";
+                            std::to_string(s) + " bytes: " + error.what();
       message = createErrorMessage(*this, message);
       throw SystemError{ErrorCode::kBufferMemoryAllocationFailed, message};
     }

@@ -1560,7 +1560,7 @@ void VulkanDevice::initQueueList()
   uint32b total_queues = 0;
   for (std::size_t i = 0; i < numOfCapabilities(); ++i) {
     const CapabilityT cap = getCapability(i);
-    total_queues += numOfQueues(cap);
+    total_queues += static_cast<uint32b>(numOfQueues(cap));
   }
 
   // Queue counter

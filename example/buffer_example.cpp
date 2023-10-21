@@ -253,8 +253,8 @@ int doBufferExample(zivc::Context& context)
       // Map the buffer memory to host address space and print the values
       // The buffer must be host visible and host cached
       zivc::MappedMemory mem = buffer6->mapMemory();
-      for (std::size_t i = 0; i < mem.size(); ++i)
-        std::cout << indent3 << "buffer6[" << i << "] = " << mem[i] << std::endl;
+      for (std::size_t j = 0; j < mem.size(); ++j)
+        std::cout << indent3 << "buffer6[" << j << "] = " << mem[j] << std::endl;
     }
 
     // Reinterpret cast of buffer
@@ -288,8 +288,8 @@ int doBufferExample(zivc::Context& context)
       // Print mapped buffer memory
       {
         const zivc::MappedMemory mem = fp6.mapMemory();
-        for (std::size_t i = 0; i < mem.size(); ++i)
-          std::cout << indent3 << "fp6[" << i << "] = " << mem[i] << std::endl;
+        for (std::size_t j = 0; j < mem.size(); ++j)
+          std::cout << indent3 << "fp6[" << j << "] = " << mem[j] << std::endl;
       }
     }
 

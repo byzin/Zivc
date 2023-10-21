@@ -1044,9 +1044,6 @@ TEST(KernelTest, WorkItemOffset1dTest)
 
     {
       const zivc::MappedMemory mem = buff_host->mapMemory();
-//      for (std::size_t i = 0; i < mem.size(); ++i) {
-//        std::cout << "mem[" << i << "] = " << mem[i] << std::endl;
-//      }
       for (std::size_t i = 0; i < offset_x; ++i) {
         ASSERT_EQ(0, mem[i]) << "Work item[" << i << "] prop isn't set properly.";
       }
